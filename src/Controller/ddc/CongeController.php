@@ -1160,6 +1160,6 @@ class CongeController extends Controller
     private function hasAccessGroupeDirection(): bool
     {
         /** est Administrateur ou RH ou "Zoary" */
-        return $this->estAdmin() || $this->estRH() || $this->getUserName() === "zoary";
+        return $this->estAdmin() || $this->estRH() || in_array($this->getUserName() ,["zoary", "mahery"]);
     }
 }

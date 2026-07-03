@@ -56,6 +56,6 @@ class DaValidationDirectController extends Controller
 
         /** NOTIFICATION */
         $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'La demande a été validée avec succès.']);
-        $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
+        $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
     }
 }

@@ -13,7 +13,7 @@ class DaConsumptionHistory
         $result = [];
         $montantTotal = array_fill_keys($monthsList, 0.0); // initialiser à 0.0 tous les montants totals
 
-        $datas = (new DaReapproModel())->getHistoriqueConsommation($dateRange, $demandeAppro);
+        $datas = (new DaReapproModel)->getHistoriqueConsommation($dateRange, $demandeAppro);
 
         foreach ($datas as $row) {
             // Clé unique par produit
@@ -65,21 +65,19 @@ class DaConsumptionHistory
     }
 
     /**
-     * Cette fonction calcule dynamiquement la période de 12 mois glissants pour un SQL BETWEEN.
-     * Elle retourne :
-     *   - le premier jour du mois il y a 12 mois
-     *   - le dernier jour du mois précédent
+     * Calcule la période allant du premier jour du mois il y a 12 mois
+     * jusqu'au dernier jour du mois en cours, pour un SQL BETWEEN.
      *
      * Exemple : si aujourd'hui = 28/10/2025
      *   start = 2024-10-01
-     *   end   = 2025-09-30
+     *   end   = 2025-10-31
      *
      * @return array ['start' => 'YYYY-MM-DD', 'end' => 'YYYY-MM-DD']
      */
-    public function getLast12MonthsRange(): array
+    public function getLast13MonthsDateRange(): array
     {
         $startDate = new DateTime('first day of -12 months');
-        $endDate = new DateTime('last day of last month');
+        $endDate = new DateTime('last day of this month');
         return [
             'start' => $startDate->format('Y-m-d'),
             'end'   => $endDate->format('Y-m-d')

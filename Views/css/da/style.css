@@ -391,7 +391,6 @@ a.choix:hover {
 
 /* Animation de disparition progressive */
 @keyframes fade {
-
   0%,
   100% {
     opacity: 0.1;
@@ -665,8 +664,6 @@ a.choix:hover {
   opacity: 0.95;
 }
 
-
-
 .statut-ddpl-a-transmettre,
 .statut-bap-a-transmettre,
 .statut-ddpr-a-transmettre,
@@ -680,7 +677,8 @@ a.choix:hover {
   color: #0a0a0a !important;
 }
 
-.statut-valide {
+.statut-valide,
+.statut-transmis-compta {
   background-color: #4ef177 !important;
   color: #0a0a0a !important;
 }

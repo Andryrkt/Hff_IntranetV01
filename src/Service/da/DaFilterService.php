@@ -382,7 +382,7 @@ class DaFilterService
         }
 
         // Vérifier la permission de voir tous les données
-        $multisuccursale = $this->securityService->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
+        $multisuccursale = $this->securityService->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE, "list_da");
         if (!$multisuccursale) {
             $this->conditionAgenceService($qb, $qbLabel);
         }

@@ -21,7 +21,6 @@ class DaValidationReapproMensuelController extends Controller
 {
     use DaAfficherTrait;
     use DaValidationReapproTrait;
-
     private DocRattacheService $docRattacheService;
 
     public function __construct(DocRattacheService $docRattacheService)
@@ -45,7 +44,7 @@ class DaValidationReapproMensuelController extends Controller
         $formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, ['daTypeId' => $demandeAppro->getDaTypeId()])->getForm();
 
         $daConsumptionHistory = new DaConsumptionHistory();
-        $dateRange = $daConsumptionHistory->getLast12MonthsRange();
+        $dateRange = $daConsumptionHistory->getLast13MonthsDateRange();
         $monthsList = $daConsumptionHistory->getMonthsList($dateRange['start'], $dateRange['end']);
         $dataHistoriqueConsommation = $daConsumptionHistory->getHistoriqueConsommation($demandeAppro, $dateRange, $monthsList);
 
@@ -105,7 +104,7 @@ class DaValidationReapproMensuelController extends Controller
             }
 
             $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
-            $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
+            $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
         }
 
         $formObservation->handleRequest($request);
@@ -125,6 +124,6 @@ class DaValidationReapproMensuelController extends Controller
         $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estAppro());
 
         $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre observation a été enregistré avec succès.']);
-        return $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
+        return $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
     }
 }

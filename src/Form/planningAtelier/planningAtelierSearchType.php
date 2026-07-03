@@ -7,9 +7,9 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
 use App\Controller\Traits\Transformation;
-use Symfony\Component\Form\FormBuilderInterface;
-use App\Entity\planningAtelier\planningAtelierSearch;
+use App\Dto\PlanningAtelier\PlanningAtelierSearchDto;
 use App\Model\planningAtelier\planningAtelierModel;
+use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -19,12 +19,12 @@ use Symfony\Component\Stopwatch\Section;
 class planningAtelierSearchType extends AbstractType
 {
     use Transformation;
-    private $planningModel;
-    private $planningAtelierModel;
+    private PlanningModel $planningModel;
+    private planningAtelierModel $planningAtelierModel;
     public function __construct()
     {
         $this->planningModel = new PlanningModel();
-        $this->planningAtelierModel = new planningAtelierModel();
+        $this->planningAtelierModel = new PlanningAtelierModel();
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -32,8 +32,8 @@ class planningAtelierSearchType extends AbstractType
 
         $agence = $this->transformEnSeulTableauAvecKey($this->planningModel->recuperationAgenceIrium());
         $agenceDebite = $this->planningModel->recuperationAgenceDebite();
-        $section = $this->transformeValeur( $this->planningAtelierModel->recupSection(),'section','num' ) ;
-        $ressource =  $this->transformEnSeulTableau($this->planningAtelierModel->recupRessource()) ;
+        $section = $this->transformeValeur( $this->planningAtelierModel->getSection('HF'),'section','num' ) ;
+        $ressource =  $this->transformEnSeulTableau($this->planningAtelierModel->getResource('HF')) ;
         $builder
             ->add('numeroSemaine', ChoiceType::class, [
                 'choices' => array_combine(range(1, 53), range(1, 53)),
@@ -52,11 +52,11 @@ class planningAtelierSearchType extends AbstractType
                 'label' => 'Date Fin',
                 'required' => false
             ])
-            ->add('numOr', TextType::class, [
+            ->add('numeroOr', TextType::class, [
                 'label' => "N° OR",
                 'required' => false
             ])
-            ->add('resource', ChoiceType::class, [
+            ->add('ressource', ChoiceType::class, [
                 'label' => "Ressource",
                 'choices' => array_combine($ressource, $ressource),
                 'required' => false,
@@ -74,14 +74,14 @@ class planningAtelierSearchType extends AbstractType
                 'choices' => $agence,
                 'placeholder' => ' -- Choisir une agence --',
             ])
-            ->add('agenceDebite', ChoiceType::class, [
+            ->add('agenceDeb', ChoiceType::class, [
                 'label' => 'Agence Débiteur',
                 'required' => false,
                 'choices' => $agenceDebite,
                 'placeholder' => " -- Choisir une agence --",
 
             ])
-            ->add('serviceDebite', ChoiceType::class, [
+            ->add('serviceDeb', ChoiceType::class, [
                 'label' => 'Service Débiteur',
                 'multiple' => true,
                 'choices' => [],
@@ -92,9 +92,9 @@ class planningAtelierSearchType extends AbstractType
                 $form = $event->getForm();
                 $data = $event->getData();
 
-                $serviceDebite = $this->transformEnSeulTableauAvecKeyService($this->planningModel->recuperationServiceDebite($data['agenceDebite']));
+                $serviceDebite = $this->transformEnSeulTableauAvecKeyService($this->planningModel->recuperationServiceDebite($data['agenceDeb']));
 
-                $form->add('serviceDebite', ChoiceType::class, [
+                $form->add('serviceDeb', ChoiceType::class, [
                     'label' => 'Service Débiteur : ',
                     'multiple' => true,
                     'choices' => $serviceDebite,
@@ -108,7 +108,7 @@ class planningAtelierSearchType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => planningAtelierSearch::class,
+            'data_class' => PlanningAtelierSearchDto::class,
         ]);
     }
 }

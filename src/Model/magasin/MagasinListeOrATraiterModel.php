@@ -317,7 +317,7 @@ class MagasinListeOrATraiterModel extends Model
             }
 
             if (!empty($criteria['numOr'])) {
-                $numOr = " d.and numero_or = '" . $criteria['numOr'] . "'";
+                $numOr = "and d.numero_or = '" . $criteria['numOr'] . "'";
             } else {
                 $numOr = null;
             }

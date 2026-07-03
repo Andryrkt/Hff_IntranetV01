@@ -44,9 +44,11 @@ class listeDaController extends Controller
         $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
         $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
 
+        $mesDaATraiter = $request->query->getBoolean('mes_da_a_traiter', true); // Oui par défaut
+
         /** Initialisation DaSearch */
         $daSearch = new DaSearch;
-        $this->initialisationRechercheDa($daSearch);
+        $this->initialisationRechercheDa($daSearch, $mesDaATraiter);
 
         //formulaire de recherche
         $form = $this->getFormFactory()->createBuilder(DaSearchType::class, $daSearch, [
@@ -54,7 +56,12 @@ class listeDaController extends Controller
             'estAppro' => $this->estAppro(),
             'codeSociete' => $codeSociete
         ])->getForm();
-        $criteria = $this->traitementFormualireRecherche($request, $form, $daSearch);
+
+        $form->handleRequest($request);
+
+        $criteria = $daSearch->toArray();
+
+        $this->getSessionService()->set('criteria_search_list_da', $criteria);
 
         $sortJoursClass = false;
 
@@ -62,7 +69,7 @@ class listeDaController extends Controller
 
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
-        $limit = 100;
+        $limit = 50;
 
         // Donnée à envoyer à la vue
         $paginationData = $this->daAfficherRepository->findPaginatedAndFilteredDA($page, $limit, $criteria, $agenceIdUser, $serviceIdUser, $codeSociete);
@@ -93,29 +100,6 @@ class listeDaController extends Controller
         ]);
     }
 
-    private function traitementFormualireRecherche(Request $request, FormInterface $form, DaSearch $daSearch)
-    {
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $criteria = $form->getData();
-            $criteria = $daSearch->toArray();
-
-            // Sauvegarde classique des critères issus du formulaire
-            $this->getSessionService()->set('criteria_search_list_da', $criteria);
-        }
-        // Gestion spécifique "Mes DA à traiter"
-        else {
-            $criteria = $daSearch->toArray();
-
-            $this->getSessionService()->set('criteria_search_list_da_80_app', $criteria);
-        }
-
-
-
-        return $criteria;
-    }
-
     private function TraitementFormulaireDateLivraison(Request $request, FormInterface $formDateLivraison)
     {
         $formDateLivraison->handleRequest($request);
@@ -135,13 +119,13 @@ class listeDaController extends Controller
 
             $this->getEntityManager()->flush();
             $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Date de livraison prévue modifiée avec succès']);
-            $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
+            $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
         }
     }
 
 
 
-    public function initialisationRechercheDa(DaSearch $daSearch)
+    public function initialisationRechercheDa(DaSearch $daSearch, bool $mesDaATraiter)
     {
         $criteria = $this->getSessionService()->get('criteria_search_list_da', []) ?? [];
 
@@ -151,7 +135,7 @@ class listeDaController extends Controller
         }
         // On ne met à true que si la clé n'existe pas (première visite)
         if (!isset($criteria['afficherDaTraiter'])) {
-            $criteria['afficherDaTraiter'] = true;
+            $criteria['afficherDaTraiter'] = $mesDaATraiter;
         }
 
         $agServ = [

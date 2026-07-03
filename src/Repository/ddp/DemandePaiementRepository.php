@@ -303,18 +303,16 @@ class DemandePaiementRepository extends EntityRepository
             ->select('SUM(d.montantAPayers)')
             ->where('d.typeDemandeId = :typeDdp')
             ->andWhere('d.numeroCommande = :numCde')
-            ->andWhere('d.statut =  :statut')
+            ->andWhere('d.statut in (:statut)')
             ->andWhere('d.codeSociete = :codeSociete')
             ->setParameters([
                 'typeDdp' => 1,
                 'numCde' => $numeroCde,
-                'statut' => StatutConstants::VALIDE,
+                'statut' => [StatutConstants::VALIDE, StatutConstants::TRANSMIS_COMPTA],
                 'codeSociete' => $codeSociete
             ]);
 
-        return $queryBuilder->getQuery()
-            ->getOneOrNullResult()
-        ;
+        return $queryBuilder->getQuery()->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);
     }
 
     public function getSommeMontantValide(string $numeroCde, string $codeSociete)
@@ -322,11 +320,11 @@ class DemandePaiementRepository extends EntityRepository
         $queryBuilder = $this->createQueryBuilder('d')
             ->select('SUM(d.montantAPayers)')
             ->andWhere('d.numeroCommande = :numCde')
-            ->andWhere('d.statut =  :statut')
+            ->andWhere('d.statut in (:statut)')
             ->andWhere('d.codeSociete = :codeSociete')
             ->setParameters([
                 'numCde' => $numeroCde,
-                'statut' => StatutConstants::VALIDE,
+                'statut' => [StatutConstants::VALIDE, StatutConstants::TRANSMIS_COMPTA],
                 'codeSociete' => $codeSociete
             ]);
 

@@ -705,19 +705,20 @@ class DaAfficherRepository extends EntityRepository
         array $criteria,
         string $codeSociete
     ): array {
-        $qb = $this->createQueryBuilder('d');
 
-        $qb->where(
-            'd.numeroVersion = (
-                    SELECT MAX(d2.numeroVersion)
-                    FROM ' . DaAfficher::class . ' d2
-                    WHERE d2.numeroDemandeAppro = d.numeroDemandeAppro
-                )'
-        )
-            ->andWhere('d.deleted = :deleted')
+        $subDql = 'SELECT MAX(sub.numeroVersion) FROM ' . DaAfficher::class . ' sub WHERE sub.numeroDemandeAppro = d.numeroDemandeAppro';
+
+        $qb = $this->_em->createQueryBuilder();
+
+        $qb->select('d', 'da', 'dap', 'dit')
+            ->from(DaAfficher::class, 'd')
+            ->leftJoin('d.demandeAppro', 'da')
+            ->leftJoin('d.demandeApproParent', 'dap')
+            ->leftJoin('d.dit', 'dit')
+            ->where('d.numeroVersion = (' . $subDql . ')')
+            ->andWhere('d.deleted = 0')
             ->andWhere('d.codeSociete = :codeSociete')
-            ->setParameter('codeSociete', $codeSociete)
-            ->setParameter('deleted', 0);
+            ->setParameter('codeSociete', $codeSociete);
 
         $filterService = $this->getFilterService();
         $filterService->applyDynamicFilters($qb, 'd', $criteria);
@@ -730,7 +731,6 @@ class DaAfficherRepository extends EntityRepository
             ->addOrderBy('d.numeroCde', 'DESC');
         return $qb->getQuery()->getResult();
     }
-
 
     public function getStatutsBc()
     {

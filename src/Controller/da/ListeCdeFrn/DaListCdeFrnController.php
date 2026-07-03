@@ -6,9 +6,7 @@ namespace App\Controller\da\ListeCdeFrn;
 use App\Controller\Controller;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DaSoumissionBc;
-use App\Entity\da\DemandeAppro;
 use App\Entity\ddp\DemandePaiement;
-use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Repository\da\DaAfficherRepository;
 use App\Controller\Traits\da\MarkupIconTrait;
 use App\Factory\da\CdeFrnDto\CdeFrnSearchDto;
@@ -17,10 +15,7 @@ use App\Form\da\daCdeFrn\DaDdpType;
 use App\Form\da\daCdeFrn\DaModalDateLivraisonType;
 use App\Form\da\daCdeFrn\DaSoumissionType;
 use App\Mapper\Da\DaAfficherMapper;
-use App\Model\da\DaModel;
 use App\Repository\da\DaSoumissionBcRepository;
-use App\Repository\da\DemandeApproRepository;
-use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -33,9 +28,6 @@ class DaListCdeFrnController extends Controller
     use MarkupIconTrait;
 
     private DaAfficherRepository $daAfficherRepository;
-    private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
-    private DaModel $daModel;
-    private DemandeApproRepository $demandeApproRepository;
     private DaSoumissionBcRepository $daSoumissionBcRepository;
 
 
@@ -44,9 +36,6 @@ class DaListCdeFrnController extends Controller
         parent::__construct();
         $em = $this->getEntityManager();
         $this->daAfficherRepository = $em->getRepository(DaAfficher::class);
-        $this->ditOrsSoumisAValidationRepository = $em->getRepository(DitOrsSoumisAValidation::class);
-        $this->daModel = new DaModel();
-        $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
         $this->daSoumissionBcRepository = $em->getRepository(DaSoumissionBc::class);
     }
 
@@ -79,7 +68,7 @@ class DaListCdeFrnController extends Controller
         }
 
         $page = $request->query->getInt('page', 1);
-        $limit = 250;
+        $limit = 100;
 
         // Récupération et préparation des données
         $paginationData = $this->daAfficherRepository->findValidatedPaginatedDas($criteriaTab, $page, $limit, $codeSociete);

@@ -153,7 +153,7 @@ class DaPropositionArticleDirectController extends Controller
         $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estAppro());
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
-        return $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
+        return $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
     }
 
     /** 
@@ -183,7 +183,7 @@ class DaPropositionArticleDirectController extends Controller
         }
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
-        $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
+        $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
     }
 
     /** 
@@ -219,7 +219,7 @@ class DaPropositionArticleDirectController extends Controller
         $this->emailDaService->envoyerMailValidationDa($da, $this->getUser(), $nomEtChemin);
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
-        $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
+        $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
     }
 
     /** 
@@ -250,7 +250,7 @@ class DaPropositionArticleDirectController extends Controller
         $this->emailDaService->envoyerMailValidationDa($da, $this->getUser(), $nomEtChemin);
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
-        $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
+        $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
     }
 
     private function modificationChoixDeRef(
@@ -315,7 +315,7 @@ class DaPropositionArticleDirectController extends Controller
         $this->emailDaService->envoyerMailPropositionDa($da, $this->getUser());
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
-        $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
+        $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
     }
 
     private function traitementPourBtnBrouillon($dalrList, Request $request, $dals, ?string $observation, string $numDa, DemandeAppro $da): void
@@ -339,7 +339,7 @@ class DaPropositionArticleDirectController extends Controller
         $this->ajouterDansTableAffichageParNumDa($numDa);
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
-        $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 1, 'page' => 1]);
+        $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
     }
 
     private function traiterProposition($dals, $dalrList, ?string $observation, DemandeAppro $demandeAppro, array $refs, string $messageSuccess, bool $doSaveDb = false, $statut = StatutDaConstant::STATUT_SOUMIS_ATE): array
