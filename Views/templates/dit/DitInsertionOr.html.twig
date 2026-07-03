@@ -5,8 +5,8 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.10.22.08.00" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/dit/ditInsertionOr.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/new.css?v=2026.07.03.14.50" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/dit/ditInsertionOr.css?v=2026.07.03.14.50" rel="stylesheet"/>
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
@@ -80,8 +80,7 @@
 
 									Glissez et déposez votre fichier PDF ici, ou cliquez pour sélectionner un fichier PDF.
 									<br>
-									<button type="button" id="upload-btn-1" class="btn btn-primary">Sélectionner un
-																			fichier</button>
+									<button type="button" id="upload-btn-1" class="btn btn-primary">Sélectionner un fichier</button>
 								</div>
 								{{ form_widget(form.pieceJoint01, {'attr': {'style': 'display:none;'}}) }}
 								{{ form_errors(form.pieceJoint01)}}
@@ -97,8 +96,7 @@
 
 									Glissez et déposez votre fichier PDF ici, ou cliquez pour sélectionner un fichier PDF.
 									<br>
-									<button type="button" id="upload-btn-2" class="btn btn-primary">Sélectionner un
-																			fichier</button>
+									<button type="button" id="upload-btn-2" class="btn btn-primary">Sélectionner un fichier</button>
 								</div>
 								{{ form_widget(form.pieceJoint02, {'attr': {'style': 'display:none;'}}) }}
 								{{ form_errors(form.pieceJoint02)}}
@@ -114,8 +112,7 @@
 
 									Glissez et déposez votre fichier PDF ici, ou cliquez pour sélectionner un fichier PDF.
 									<br>
-									<button type="button" id="upload-btn-3" class="btn btn-primary">Sélectionner un
-																			fichier</button>
+									<button type="button" id="upload-btn-3" class="btn btn-primary">Sélectionner un fichier</button>
 								</div>
 								{{ form_widget(form.pieceJoint03, {'attr': {'style': 'display:none;'}}) }}
 								{{ form_errors(form.pieceJoint03)}}
@@ -132,8 +129,7 @@
 
 									Glissez et déposez votre fichier PDF ici, ou cliquez pour sélectionner un fichier PDF.
 									<br>
-									<button type="button" id="upload-btn-4" class="btn btn-primary">Sélectionner un
-																			fichier</button>
+									<button type="button" id="upload-btn-4" class="btn btn-primary">Sélectionner un fichier</button>
 								</div>
 								{{ form_widget(form.pieceJoint04, {'attr': {'style': 'display:none;'}}) }}
 								{{ form_errors(form.pieceJoint04)}}
@@ -145,10 +141,6 @@
 						<div class="row">
 							{{ form_row(form.observation)}}
 						</div>
-
-						{# <button type="submit" id="submit-btn" class="btn btn-success"
-												style="display:none;">Upload</button> #}
-
 
 						<div id="pdf-preview-1" class="pdf-preview" style="display: none;">
 							<embed id="pdf-embed-1" type="application/pdf" width="100%" height="500px">
@@ -165,9 +157,8 @@
 						</div>
 					</div>
 					<div class="d-flex justify-content-end">
-						{# {{ form_row(form.articleDa) }} #}
-						{# {{ form_errors(form.articleDa) }} #}
-							<div class="{{ cdtArticleDa ? 'd-none' : '' }}" id="blocage-article-da"> <button type="submit" class="btn bouton mt-2">
+						<div class="{{ cdtArticleDa ? 'd-none' : '' }}" id="blocage-article-da">
+							<button type="submit" class="btn bouton mt-2">
 								<i class="fas fa-save"></i>
 								Enregistrer
 							</button>
@@ -182,5 +173,5 @@
 	</div>
 {% endblock %}
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/dit/ditInsertionOr.js?v=2025.10.22.08.00"></script>
+	<script src="{{ App.base_path }}/Views/js/dit/ditInsertionOr.js?v=2026.07.03.14.50"></script>
 {% endblock %}
