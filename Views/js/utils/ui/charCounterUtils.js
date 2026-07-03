@@ -21,7 +21,7 @@ export function initCharCounter({
   textareaSelector,
   charCountSelector,
   maxCharacters = 1800,
-  lineBreakWeight = 130,
+  lineBreakWeight = 2,
   normalColor = "black",
   limitColor = "red",
   formatMessage = (remaining) => `Il vous reste ${remaining} caractères.`,
