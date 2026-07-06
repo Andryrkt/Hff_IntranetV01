@@ -1,199 +1,203 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block title %}
-	Création DIT
+    Création DIT
 {% endblock %}
 
 {% block stylesheets %}
-	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.10.22.08.00" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/dit/news.css?v=2025.10.22.08.00" rel="stylesheet"/>
+    <link href="{{ App.base_path }}/Views/css/new.css?v=2025.10.22.08.00" rel="stylesheet"/>
+    <link href="{{ App.base_path }}/Views/css/dit/news.css?v=2025.10.22.08.00" rel="stylesheet"/>
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
 
 {% block content %}
-<div class=" container mt-6 mb-4">
-	<div class="card">
-		<div class="card-body">
-			<div class="container">
-				<div class="row">
-					<div class="col-12 col-md-11">
-						<h3 class="perso-titre">
-							Formulaire Demande d'intervention
-						</h3>
-						{% include "/partials/_notification.html.twig" %}
-					</div>
+    <div class=" container mt-6 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12 col-md-11">
+                            <h3 class="perso-titre">
+                                Formulaire Demande d'intervention
+                            </h3>
+                            {% include "/partials/_notification.html.twig" %}
+                        </div>
 
-					<div class=" col-12 col-md-1">
-						<a href="{{ path("profil_acceuil")}}" class="tablinks p-2 btn btn-outline-warning" style="text-decoration: none;color:black">Retour</a>
-					</div>
-				</div>
-				{{ form_start(form, { 
-					'attr': { 
-						'id': 'dit-form',
-						'data-form-type': 'formulaire-new-dit'
-					} 
-				}) }}
-				{{ form_errors(form)}}
+                        <div class=" col-12 col-md-1">
+                            <a href="{{ path("profil_acceuil")}}" class="tablinks p-2 btn btn-outline-warning" style="text-decoration: none;color:black">Retour</a>
+                        </div>
+                    </div>
+                    {{ form_start(form, {
+                    'attr': {
+                    'id': 'dit-form',
+                    'data-form-type': 'formulaire-new-dit'
+                    }
+                    }) }}
+                    {{ form_errors(form)}}
 
-				<div class="row">
-					<dit class="d-none">
-						<div class="{{ estAvoir ? '' : d-none}} text-danger">
-							{{ form_row(form.estDitAvoir, {'attr': {'class': 'champColor'}})}}
-						</div>
-						<div class="{{ estRefactorisation ? '' : d-none}} text-danger">
-							{{ form_row(form.estDitRefacturation, {'required':false, 'attr': {'class': 'champColor'}})}}
-						</div>
-					</dit>
-					{{ form_row(form.objetDemande)}}
-					<div class="mb-3 position-relative">
-						{{ form_row(form.detailDemande) }}
-						<span id="charCount" class="position-absolute bottom-0 end-0 p-0 small text-muted"></span>
-					</div>
-				</div>
-
-
-				<div class="row">
-					<div class="col-12 col-md-2">{{ form_row(form.typeDocument) }}</div>
-					<div class="col-12 col-md-2">{{ form_row(form.categorieDemande) }}</div>
-					<div class="col-12 col-md-2">{{ form_row(form.internetExterne)}}</div>
-					<div class="col-12 col-md-2">{{ form_row(form.demandeDevis)}}</div>
-					<div class="col-12 col-md-2">{{ form_row(form.livraisonPartiel)}}</div>
-					<div class="col-12 col-md-2">{{ form_row(form.avisRecouvrement)}}</div>
-				</div>
+                    <div class="row">
+                        <dit class="d-none">
+                            <div class="{{ estAvoir ? '' : d-none}} text-danger">
+                                {{ form_row(form.estDitAvoir, {'attr': {'class': 'champColor'}})}}
+                            </div>
+                            <div class="{{ estRefactorisation ? '' : d-none}} text-danger">
+                                {{ form_row(form.estDitRefacturation, {'required':false, 'attr': {'class': 'champColor'}})}}
+                            </div>
+                        </dit>
+                        {{ form_row(form.objetDemande)}}
+                        <div class="mb-3 position-relative">
+                            {{ form_row(form.detailDemande) }}
+                            <span id="charCount" class="position-absolute bottom-0 end-0 p-0 small text-muted"></span>
+                        </div>
+                    </div>
 
 
-				<div class="row">
-					<div class="col-12 col-md-6">
+                    <div class="row">
+                        <div class="col-12 col-md-2">{{ form_row(form.typeDocument) }}</div>
+                        <div class="col-12 col-md-2">{{ form_row(form.categorieDemande) }}</div>
+                        <div class="col-12 col-md-2">{{ form_row(form.internetExterne)}}</div>
+                        <div class="col-12 col-md-2">{{ form_row(form.demandeDevis)}}</div>
+                        <div class="col-12 col-md-2">{{ form_row(form.livraisonPartiel)}}</div>
+                        <div class="col-12 col-md-2">{{ form_row(form.avisRecouvrement)}}</div>
+                    </div>
 
 
-						{{ macroForm.sousTitre('Agence et Service', {class: 'sousTitre'})}}
-						<div class="row">
-							<div class="col-12 col-md-6 mt-2">Débiteur</div>
-							<div class="col-12 col-md-6 mt-2">Emetteur</div>
-						</div>
-
-						<div class="row">
-							<div class="col-12 col-md-6">
-								{{ macroForm.agence_service_change(form.agence, form.service, 'spinner-service', 'service-container')}}
-							</div>
-							<div class="col-12 col-md-6">
-								{{ form_row(form.agenceEmetteur)}}
-								{{ form_row(form.serviceEmetteur)}}
-							</div>
-						</div>
+                    <div class="row">
+                        <div class="col-12 col-md-6">
 
 
-						{{ macroForm.sousTitre('Info Client', {class: 'sousTitre'})}}
-						<div class="row">
-							<div class="col-12 col-md-6">
-								{{ form_row(form.numeroClient)}}
-								<div id="suggestion-numClient" class="suggestions-container"></div>
-								<div id="loader-numClient" class="spinner" style="display: none;"></div>
-								{{ form_row(form.nomClient)}}
-								<div id="suggestion-nomClient" class="suggestions-container"></div>
-								<div id="loader-nomClient" class="spinner" style="display: none;"></div>
-								{{ form_row(form.clientSousContrat)}}
-							</div>
-							<div class="col-12 col-md-6">
-								{{ form_row(form.numeroTel)}}
-								{{ form_row(form.mailClient)}}
-							</div>
-						</div>
-						<div class="row">
-							<span id="erreurClient"></span>
-						</div>
-						{{ macroForm.sousTitre('Information Matériel', {class: 'sousTitre'})}}
-						<div class="row">
-							<div class="col-12 col-md-4">
-								{{ form_row(form.idMateriel)}}
-								<div id="suggestion-idMateriel" class="suggestions-container"></div>
-								<div id="loader-idMateriel" class="spinner d-flex align-items-center" style="display: none;"></div>
+                            {{ macroForm.sousTitre('Agence et Service', {class: 'sousTitre'})}}
+                            <div class="row">
+                                <div class="col-12 col-md-6 mt-2">Débiteur</div>
+                                <div class="col-12 col-md-6 mt-2">Emetteur</div>
+                            </div>
 
-							</div>
-							<div class="col-12 col-md-4">
-								{{ form_row(form.numParc)}}
-								<div id="suggestion-numParc" class="suggestions-container"></div>
-								<div id="loader-numParc" class="spinner" style="display: none;"></div>
-							</div>
-							<div class="col-12 col-md-4">
-								{{ form_row(form.numSerie)}}
-								<div id="suggestion-numSerie" class="suggestions-container"></div>
-								<div id="loader-numSerie" class="spinner" style="display: none;"></div>
-							</div>
-						</div>
-						<div class="row">
-							<div id="error-idMateriel" class="text-danger"></div>
-						</div>
-						<div id="containerInfoMateriel"></div>
-
-					</div>
-					<div class="col-12 col-md-6">
-						{{ macroForm.sousTitre('Intervention', {class: 'sousTitre'})}}
-						<div class="row">
-							<div class="col-12 col-md-6">
-								{{ form_label(form.idNiveauUrgence, '<a href="#" data-bs-toggle="modal" data-bs-target="#niveauUrgence" data-id="{{item.numeroDemandeIntervention}}" id="numOr">Niveau d\'urgence</a>', { 'label_html': true }) }}
-								{{ form_widget(form.idNiveauUrgence) }}
-								</div>
-								<div class="col-12 col-md-6">
-									{{ form_row(form.datePrevueTravaux)}}
-								</div>
-							</div>
-							{{ macroForm.sousTitre('Réparation', {class: 'sousTitre'})}}
-							<div class="row">
-								<div class="col-12 col-md-6">
-									{{ form_row(form.typeReparation) }}
-
-								</div>
-								<div class="col-12 col-md-6">
-									{{ form_row(form.reparationRealise) }}
-								</div>
-							</div>
-							<div class="row" >
-							<div class="col-12 col-md-6"></div>
-								<div class="col-12 col-md-6" id="ate_pol_tana_container" style="display: none;">
-									{{ form_row(form.estAtePolTana) }}
-								</div>
-							</div>
+                            <div class="row">
+                                <div class="col-12 col-md-6">
+                                    {{ macroForm.agence_service_change(form.agence, form.service, 'spinner-service', 'service-container')}}
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    {{ form_row(form.agenceEmetteur)}}
+                                    {{ form_row(form.serviceEmetteur)}}
+                                </div>
+                            </div>
 
 
-							{{ macroForm.sousTitre('Pièces Jointes', {class: 'sousTitre'})}}
+                            {{ macroForm.sousTitre('Info Client', {class: 'sousTitre'})}}
+                            <div class="row">
+                                <div class="col-12 col-md-6">
+                                    {{ form_row(form.numeroClient)}}
+                                    <div id="suggestion-numClient" class="suggestions-container"></div>
+                                    <div id="loader-numClient" class="spinner" style="display: none;"></div>
+                                    {{ form_row(form.nomClient)}}
+                                    <div id="suggestion-nomClient" class="suggestions-container"></div>
+                                    <div id="loader-nomClient" class="spinner" style="display: none;"></div>
+                                    {{ form_row(form.clientSousContrat)}}
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    {{ form_row(form.numeroTel)}}
+                                    {{ form_row(form.mailClient)}}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <span id="erreurClient"></span>
+                            </div>
+                            {{ macroForm.sousTitre('Information Matériel', {class: 'sousTitre'})}}
+                            <div id="materiel-loading" class="text-center my-3 " style="display: none;">
+                                <div class="spinner-border" role="status"></div>
+                                <div class="mt-2">Chargement des matériels...</div>
+                            </div>
+                            <div class="row" id="materiel-inputs">
+                                <div class="col-12 col-md-4">
+                                    {{ form_row(form.idMateriel)}}
+                                    <div id="suggestion-idMateriel" class="suggestions-container"></div>
+                                    <div id="loader-idMateriel" class="spinner" style="display: none;">En cours de chargement...</div>
 
-							{{ form_row(form.pieceJoint01)}}
-							{{ form_errors(form.pieceJoint01)}}
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    {{ form_row(form.numParc)}}
+                                    <div id="suggestion-numParc" class="suggestions-container"></div>
+                                    <div id="loader-numParc" class="spinner" style="display: none;">En cours de chargement...</div>
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    {{ form_row(form.numSerie)}}
+                                    <div id="suggestion-numSerie" class="suggestions-container"></div>
+                                    <div id="loader-numSerie" class="spinner" style="display: none;">En cours de chargement...</div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div id="error-idMateriel" class="text-danger"></div>
+                            </div>
+                            <div id="containerInfoMateriel"></div>
 
-							{{ form_row(form.pieceJoint02)}}
-							{{ form_errors(form.pieceJoint02) }}
+                        </div>
+                        <div class="col-12 col-md-6">
+                            {{ macroForm.sousTitre('Intervention', {class: 'sousTitre'})}}
+                            <div class="row">
+                                <div class="col-12 col-md-6">
+                                    {{ form_label(form.idNiveauUrgence, '<a href="#" data-bs-toggle="modal" data-bs-target="#niveauUrgence" data-id="{{item.numeroDemandeIntervention}}" id="numOr">Niveau d\'urgence</a>', { 'label_html': true }) }}
+                                    {{ form_widget(form.idNiveauUrgence) }}
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    {{ form_row(form.datePrevueTravaux)}}
+                                </div>
+                            </div>
+                            {{ macroForm.sousTitre('Réparation', {class: 'sousTitre'})}}
+                            <div class="row">
+                                <div class="col-12 col-md-6">
+                                    {{ form_row(form.typeReparation) }}
 
-							{{ form_row(form.pieceJoint03)}}
-							{{ form_errors(form.pieceJoint03) }}
-						</div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    {{ form_row(form.reparationRealise) }}
+                                </div>
+                            </div>
+                            <div class="row" >
+                                <div class="col-12 col-md-6"></div>
+                                <div class="col-12 col-md-6" id="ate_pol_tana_container" style="display: none;">
+                                    {{ form_row(form.estAtePolTana) }}
+                                </div>
+                            </div>
 
-					</div>
-					<div class="d-flex justify-content-end">
-						<button 
-							type="submit" 
-							class="btn bouton mt-2"
-							id="bouton-cde-fnr" 
-							data-confirmation 
-							data-form="#dit-form"
-							data-confirmation-message ="Vous êtes en train d'enregistrer une demande d'intervention">
-									<i class="fas fa-save"></i>
-									Enregistrer
-						</button>
-					</div>
-					{{ form_end(form) }}
-				</div>
 
-			</div>
-		</div>
+                            {{ macroForm.sousTitre('Pièces Jointes', {class: 'sousTitre'})}}
 
-		<div id="materielInfos"></div>
-	</div>
-{% include "/dit/shared/_modalNiveauUrgence.html.twig"  %}
+                            {{ form_row(form.pieceJoint01)}}
+                            {{ form_errors(form.pieceJoint01)}}
+
+                            {{ form_row(form.pieceJoint02)}}
+                            {{ form_errors(form.pieceJoint02) }}
+
+                            {{ form_row(form.pieceJoint03)}}
+                            {{ form_errors(form.pieceJoint03) }}
+                        </div>
+
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <button
+                        type="submit"
+                        class="btn bouton mt-2"
+                        id="bouton-cde-fnr"
+                        data-confirmation
+                        data-form="#dit-form"
+                        data-confirmation-message ="Vous êtes en train d'enregistrer une demande d'intervention">
+                        <i class="fas fa-save"></i>
+                        Enregistrer
+                    </button>
+                </div>
+                {{ form_end(form) }}
+            </div>
+
+        </div>
+    </div>
+
+    <div id="materielInfos"></div>
+    </div>
+    {% include "/dit/shared/_modalNiveauUrgence.html.twig"  %}
 
 {% endblock %}
 
 {% block javascript %}
-	<script type="module" src="{{ App.base_path }}/Views/js/dit/dit.js?v=2025.10.22.08.00" type="module"></script>
+    <script type="module" src="{{ App.base_path }}/Views/js/dit/dit.js?v=2025.10.22.08.00" type="module"></script>
 {% endblock %}

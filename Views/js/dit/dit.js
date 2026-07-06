@@ -4,15 +4,15 @@ import { setupConfirmationButtons } from "../utils/ui/boutonConfirmUtils.js";
 import { allowOnlyNumbers } from "../utils/inputUtils.js";
 
 const idMaterielInput = document.querySelector(
-  "#demande_intervention_idMateriel"
+  "#demande_intervention_idMateriel",
 );
 const numParcInput = document.querySelector("#demande_intervention_numParc");
 const numSerieInput = document.querySelector("#demande_intervention_numSerie");
 const numClientInput = document.querySelector(
-  "#demande_intervention_numeroClient"
+  "#demande_intervention_numeroClient",
 );
 const nomClientInput = document.querySelector(
-  "#demande_intervention_nomClient"
+  "#demande_intervention_nomClient",
 );
 
 const containerInfoMateriel = document.querySelector("#containerInfoMateriel");
@@ -22,7 +22,7 @@ const numTelInput = document.querySelector(".numTel");
 const clientSousContratInput = document.querySelector(".clientSousContrat");
 const mailClientInput = document.querySelector(".mailClient");
 const demandeDevisInput = document.querySelector(
-  "#demande_intervention_demandeDevis"
+  "#demande_intervention_demandeDevis",
 );
 const erreurClient = document.querySelector("#erreurClient");
 
@@ -34,14 +34,47 @@ allowOnlyNumbers(idMaterielInput);
 /** ===================================================================
  * recupère l'idMateriel et afficher les information du matériel
  * ==================================================================*/
+const loadingEl = document.getElementById("materiel-loading");
+const inputsEl = document.getElementById("materiel-inputs");
 
+function showLoading() {
+  loadingEl.style.display = "block";
+  inputsEl.classList.add("d-none");
+}
+
+function hideLoading() {
+  loadingEl.style.display = "none";
+  inputsEl.classList.remove("d-none");
+}
 const fetchManager = new FetchManager();
 
+let materielsCache = null;
 let lastSelectedItem = null;
 
 async function fetchMateriels() {
-  return await fetchManager.get(`api/fetch-all-materiel`);
+  try {
+    if (materielsCache) return materielsCache;
+
+    const data = await fetchManager.get(`api/fetch-all-materiel`);
+    materielsCache = data;
+
+    return data;
+  } catch (err) {
+    console.error("Error fetching materiels:", err);
+    throw err;
+  }
 }
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    showLoading();
+
+    await fetchMateriels(); // preload cache
+
+    initAutoComplete(); // your autocomplete setup function
+  } finally {
+    hideLoading();
+  }
+});
 
 function displayMateriel(item) {
   return `Id: ${item.num_matricule} - Parc: ${item.num_parc} - S/N: ${item.num_serie}`;
@@ -73,53 +106,52 @@ async function validateInput(input, keyToCompare) {
 
 // Écouteurs de perte de focus pour chaque champ
 idMaterielInput.addEventListener("blur", () =>
-  validateInput(idMaterielInput, "num_matricule")
+  validateInput(idMaterielInput, "num_matricule"),
 );
 numParcInput.addEventListener("blur", () =>
-  validateInput(numParcInput, "num_parc")
+  validateInput(numParcInput, "num_parc"),
 );
 numSerieInput.addEventListener("blur", () =>
-  validateInput(numSerieInput, "num_serie")
+  validateInput(numSerieInput, "num_serie"),
 );
 
-//Activation sur le champ Id Matériel
-new AutoComplete({
-  inputElement: idMaterielInput,
-  suggestionContainer: document.querySelector("#suggestion-idMateriel"),
-  loaderElement: document.querySelector("#loader-idMateriel"), // Ajout du loader
-  debounceDelay: 300, // Délai en ms
-  fetchDataCallback: fetchMateriels,
-  displayItemCallback: displayMateriel,
-  onSelectCallback: onSelectMateriels,
-  itemToStringCallback: (item) =>
-    `${item.num_matricule} - ${item.num_parc} - ${item.num_serie}`,
-});
+function initAutoComplete() {
+  new AutoComplete({
+    inputElement: idMaterielInput,
+    suggestionContainer: document.querySelector("#suggestion-idMateriel"),
+    loaderElement: document.querySelector("#loader-idMateriel"),
+    debounceDelay: 300,
+    fetchDataCallback: fetchMateriels,
+    displayItemCallback: displayMateriel,
+    onSelectCallback: onSelectMateriels,
+    itemToStringCallback: (item) =>
+      `${item.num_matricule} - ${item.num_parc} - ${item.num_serie}`,
+  });
 
-//Activation sur le champ numSerie
-new AutoComplete({
-  inputElement: numSerieInput,
-  suggestionContainer: document.querySelector("#suggestion-numSerie"),
-  loaderElement: document.querySelector("#loader-numSerie"), // Ajout du loader
-  debounceDelay: 300, // Délai en ms
-  fetchDataCallback: fetchMateriels,
-  displayItemCallback: displayMateriel,
-  onSelectCallback: onSelectMateriels,
-  itemToStringCallback: (item) =>
-    `${item.num_matricule} - ${item.num_parc} - ${item.num_serie}`,
-});
+  new AutoComplete({
+    inputElement: numSerieInput,
+    suggestionContainer: document.querySelector("#suggestion-numSerie"),
+    loaderElement: document.querySelector("#loader-numSerie"),
+    debounceDelay: 300,
+    fetchDataCallback: fetchMateriels,
+    displayItemCallback: displayMateriel,
+    onSelectCallback: onSelectMateriels,
+    itemToStringCallback: (item) =>
+      `${item.num_matricule} - ${item.num_parc} - ${item.num_serie}`,
+  });
 
-//Activation sur le champ numParc
-new AutoComplete({
-  inputElement: numParcInput,
-  suggestionContainer: document.querySelector("#suggestion-numParc"),
-  loaderElement: document.querySelector("#loader-numParc"), // Ajout du loader
-  debounceDelay: 300, // Délai en ms
-  fetchDataCallback: fetchMateriels,
-  displayItemCallback: displayMateriel,
-  onSelectCallback: onSelectMateriels,
-  itemToStringCallback: (item) =>
-    `${item.num_matricule} - ${item.num_parc} - ${item.num_serie}`,
-});
+  new AutoComplete({
+    inputElement: numParcInput,
+    suggestionContainer: document.querySelector("#suggestion-numParc"),
+    loaderElement: document.querySelector("#loader-numParc"),
+    debounceDelay: 300,
+    fetchDataCallback: fetchMateriels,
+    displayItemCallback: displayMateriel,
+    onSelectCallback: onSelectMateriels,
+    itemToStringCallback: (item) =>
+      `${item.num_matricule} - ${item.num_parc} - ${item.num_serie}`,
+  });
+}
 
 function createMaterielInfoDisplay(container, data) {
   if (!container) {
@@ -249,7 +281,7 @@ inputNoEntrers.forEach((inputNoEntrer) => {
       event.preventDefault(); // Empêche le rechargement de la page
       console.log(
         "La touche Entrée a été pressée dans le champ :",
-        inputNoEntrer.placeholder
+        inputNoEntrer.placeholder,
       );
     }
   });
@@ -475,11 +507,11 @@ textarea.addEventListener("input", function (event) {
  * réparation réalisé par ATE TANA et ATE POL TANA
  *===============================================================================*/
 const reparationRealiseSelect = document.querySelector(
-  "#demande_intervention_reparationRealise"
+  "#demande_intervention_reparationRealise",
 );
 const atePolTanaContainer = document.querySelector("#ate_pol_tana_container");
 const atePolTanaInput = document.querySelector(
-  "#demande_intervention_estAtePolTana"
+  "#demande_intervention_estAtePolTana",
 );
 const valuesAutorisees = ["ATE TANA", "ATE MAS", "ATE STAR"]; // valeurs autorisées pour la réparation réalisé afin de créer deux DIT
 
