@@ -1,4 +1,5 @@
 import { formatDatePartielDate } from "../../tik/calendarModule/formatDateModule";
+import { initCharCounter } from "../../utils/ui/charCounterUtils";
 import { displayOverlay } from "../../utils/ui/overlay";
 import { handleAllOldFileEvents } from "../newDirect/field";
 import { ajouterUneLigne } from "./dal";
@@ -7,6 +8,13 @@ document.addEventListener("DOMContentLoaded", function () {
   buildIndexFromLines(); // initialiser le compteur de ligne pour la création d'une DA avec DIT
 
   handleAllOldFileEvents("demande_appro_form_DAL"); // gérer les évènements sur les anciens fichiers
+
+  // Initialiser le compteur de caractères
+  initCharCounter({
+    textareaSelector: "#demande_appro_form_detailDal",
+    charCountSelector: "#motif-char-count",
+    maxCharacters: 1500,
+  });
 
   const dateFinSouhaiteeInput = document.getElementById(
     "demande_appro_form_dateFinSouhaite"
