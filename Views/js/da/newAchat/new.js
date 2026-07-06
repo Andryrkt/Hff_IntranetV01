@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   initCentraleCodeDesiInputs(
     "demande_appro_achat_form_codeCentrale",
-    "demande_appro_achat_form_desiCentrale"
+    "demande_appro_achat_form_desiCentrale",
   );
 
   buildIndexFromLines(); // initialiser le compteur de ligne pour la création d'une DA achat
@@ -87,7 +87,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         html: config.html,
         icon: config.icon,
         showCancelButton: true,
-        reverseButtons: true,
+        reverseButtons: false,
         confirmButtonColor: "#198754",
         cancelButtonColor: "#6c757d",
         confirmButtonText: config.confirmButtonText,
@@ -182,10 +182,10 @@ function deleteLigneDa(button) {
     if (result.isConfirmed) {
       let ligne = button.dataset.numLigne;
       let container = document.getElementById(
-        `demande_appro_achat_form_demandeApproParentLines_${ligne}`
+        `demande_appro_achat_form_demandeApproParentLines_${ligne}`,
       );
       let deletedCheck = document.getElementById(
-        `demande_appro_achat_form_demandeApproParentLines_${ligne}_deleted`
+        `demande_appro_achat_form_demandeApproParentLines_${ligne}_deleted`,
       );
       container.classList.add("d-none"); // cacher la ligne de DA
       deletedCheck.checked = true; // cocher le champ deleted
