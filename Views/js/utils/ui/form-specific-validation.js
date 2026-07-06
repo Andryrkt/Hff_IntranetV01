@@ -53,7 +53,7 @@ function validateDemandePaiementDaForm(form) {
 
   if (ribField) {
     const ribValue = ribField.value.trim();
-    if (ribValue !== "-" && ribValue.length !== 26) {
+    if (ribValue !== "-" && ribValue.length < 26 && ribValue.length > 0) {
       errors.push(
         `Le RIB doit contenir 26 caractères (actuellement ${ribValue.length}).`
       );
