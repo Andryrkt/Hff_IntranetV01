@@ -5,9 +5,9 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/utils/autocomplete.css?v=2025.09.15.08.00">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.09.15.08.00">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/planning/planning.css?v=2025.09.15.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/utils/autocomplete.css?v=2026.07.03.14.50">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2026.07.03.14.50">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/planning/planning.css?v=2026.07.03.14.50">
 {% endblock %}
 
 {% block overlay %}
@@ -31,12 +31,8 @@
 					<th>Agence / Service</th>
 					<th>Code Client</th>
 					<th>Nom client</th>
-					{# <th>Modèle</th> #}
-					{# <th>N° Série</th> #}
-					{# <th>N° Parc</th> #}
-					{# <th>Casier</th>  #}
-						{% for month in uniqueMonths %}
-							<th>{{ month.month }}
+						{% for month in uniqueMonths %}<th>
+							{{ month.month }}
 						{{ month.year }}
 					</th>
 				{% endfor %}
@@ -49,10 +45,6 @@
 						<td>{{ item.libsuc ~ ' - ' ~ item.libserv }}</td>
 						<td>{{ item.idmat }}</td>
 						<td>{{ item.marqueMat }}</td>
-						{# <td>{{ item.typemat }}</td> #}
-						{# <td>{{ item.numserie }}</td> #}
-						{# <td>{{ item.numparc }}</td> #}
-						{# <td>{{ item.casier }}</td>  #}
 							{% for month in uniqueMonths %}
 								<td>
 								{% set matchedDetails = item.filteredMonths | filter(m => m.month == month.month and m.year == month.year) %}
@@ -102,11 +94,10 @@
 	<!-- FIN tableau -->
 	{# body modal #}
 	{% include "/planningMagasin/_modal.html.twig"  %}
-	{# {% include "/dit/shared/_modalNiveauUrgence.html.twig"  %} #}
 {% endblock %}
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.09.15.08.00"></script>
-	<script src="{{ App.base_path }}/Views/js/planningMagasin/planning.js?v=2025.09.15.08.00" type="module"></script>
-	<script src="{{ App.base_path }}/Views/js/planningMagasin/listPlanning.js?v=2025.09.15.08.00" type="module"></script>
-	<script src="{{ App.base_path }}/Views/js/planningMagasin/agServPlanning.js?v=2025.09.15.08.00" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2026.07.03.14.50"></script>
+	<script src="{{ App.base_path }}/Views/js/planningMagasin/planning.js?v=2026.07.03.14.50" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/planningMagasin/listPlanning.js?v=2026.07.03.14.50" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/planningMagasin/agServPlanning.js?v=2026.07.03.14.50" type="module"></script>
 {% endblock %}

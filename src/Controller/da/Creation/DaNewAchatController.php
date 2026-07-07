@@ -81,6 +81,8 @@ class DaNewAchatController extends Controller
                 $demandeApproParent->setNumeroDemandeAppro($numDa);
                 $formDemandeApproLines = $form->get('demandeApproParentLines');
 
+                $this->handleDetail($demandeApproParent);
+
                 // Récupérer le nom du bouton cliqué
                 $clickedButtonName = $this->getButtonName($request);
                 $demandeApproParent->setStatutDal(StatutDaConstant::STATUT_DAL[$clickedButtonName]);
@@ -147,5 +149,18 @@ class DaNewAchatController extends Controller
                 $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
             }
         }
+    }
+
+    private function handleDetail(DemandeApproParent $demandeApproParent): void
+    {
+        $detail = $demandeApproParent->getDetailDal();
+
+        // Normalise \r\n et \r isolés vers \n uniquement
+        $detail = preg_replace('/\r\n|\r/', "\n", $detail);
+
+        // réduire 3+ sauts de ligne consécutifs à seulement 2
+        $detail = preg_replace('/\n{3,}/', "\n\n", trim($detail));
+
+        $demandeApproParent->setDetailDal($detail);
     }
 }

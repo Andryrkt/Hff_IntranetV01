@@ -5,9 +5,9 @@
 {% endblock %}
 
 {% block stylesheets %}
-    <link href="{{ App.base_path }}/Views/css/new.css?v=2025.10.22.08.00" rel="stylesheet"/>
-    <link href="{{ App.base_path }}/Views/css/da/list.css?v=2025.10.22.08.00" rel="stylesheet"/>
-    <link href="{{ App.base_path }}/Views/css/da/style.css?v=2025.10.22.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/new.css?v=2026.07.03.14.50" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/list.css?v=2026.07.03.14.50" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/style.css?v=2026.07.03.14.50" rel="stylesheet"/>
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
@@ -32,52 +32,52 @@
 
                     {% include "/partials/_notification.html.twig" %}
 
-                    <div class="row">
-                        <div class="col-12 col-md-6">
-                            {{ macroForm.sousTitre('Information sur la demande') }}
-                            {{ form_row(form.objetDal)}}
-                            <div class="mb-3 position-relative">
-                                {{ form_row(form.detailDal) }}
-                                <span id="charCount" class="position-absolute bottom-0 end-0 p-0 small text-muted"></span>
-                            </div>
-                            <div class="row">
-                                <div class="col col-md">
-                                    {{ form_row(form.niveauUrgence) }}
-                                </div>
-                                <div class="col col-md">
-                                    {{ form_row(form.dateFinSouhaite) }}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-6">
-                            {{ macroForm.sousTitre('Agence et service') }}
-                            <div class="row">
-                                <div class="col-6 col-md-6">
-                                    {{ macroForm.sousTitre('Emetteur') }}
-                                    {{ form_row(form.agenceEmetteur) }}
-                                    {{ form_row(form.serviceEmetteur) }}
-                                </div>
-                                <div class="col-6 col-md-6">
-                                    {{ macroForm.sousTitre('Débiteur') }}
-                                    {{ formMacros.debiteurOuEmetteurFields(form, 'debiteur') }}
-                                    <div class="{{ codeCentrale ? '' : 'd-none'}}">
-                                        {{ form_label(form.desiCentrale) }}
-                                        <div>
-                                            {{ form_widget(form.desiCentrale) }}
-                                            <span class="input-group-text bg-primary bg-opacity-25 d-none" role="button" id="editIcon" data-bs-toggle="tooltip" data-bs-original-title='Modifier la centrale rattachée'>
-                                                <i class="fas fa-marker text-primary fs-6"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="d-none">
-                                        {{ form_widget(form.codeCentrale) }}
-                                    </div>
-                                    <div id="suggestion-code-centrale" class="suggestions-container"></div>
-                                    <div id="loader-code-centrale" class="spinner invisible" style="display: none;"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+					<div class="row">
+						<div class="col-12 col-md-6">
+							{{ macroForm.sousTitre('Information sur la demande') }}
+							{{ form_row(form.objetDal)}}
+							<div class="mb-3 position-relative">
+								{{ form_row(form.detailDal) }}
+								<span id="motif-char-count" class="position-absolute end-0 p-0 small text-muted" style="bottom:-1.5em;"></span>
+							</div>
+							<div class="row">
+								<div class="col col-md">
+									{{ form_row(form.niveauUrgence) }}
+								</div>
+								<div class="col col-md">
+									{{ form_row(form.dateFinSouhaite) }}
+								</div>
+							</div>
+						</div>
+						<div class="col-12 col-md-6">
+							{{ macroForm.sousTitre('Agence et service') }}
+							<div class="row">
+								<div class="col-6 col-md-6">
+									{{ macroForm.sousTitre('Emetteur') }}
+									{{ form_row(form.agenceEmetteur) }}
+									{{ form_row(form.serviceEmetteur) }}
+								</div>
+								<div class="col-6 col-md-6">
+									{{ macroForm.sousTitre('Débiteur') }}
+									{{ formMacros.debiteurOuEmetteurFields(form, 'debiteur') }}
+									<div class="{{ codeCentrale ? '' : 'd-none'}}">
+										{{ form_label(form.desiCentrale) }}
+										<div>
+											{{ form_widget(form.desiCentrale) }}
+											<span class="input-group-text bg-primary bg-opacity-25 d-none" role="button" id="editIcon" data-bs-toggle="tooltip" data-bs-original-title='Modifier la centrale rattachée'>
+												<i class="fas fa-marker text-primary fs-6"></i>
+											</span>
+										</div>
+									</div>
+									<div class="d-none">
+										{{ form_widget(form.codeCentrale) }}
+									</div>
+									<div id="suggestion-code-centrale" class="suggestions-container"></div>
+									<div id="loader-code-centrale" class="spinner invisible" style="display: none;"></div>
+								</div>
+							</div>
+						</div>
+					</div>
 
                     <table class="table rounded table-plein-ecran mt-4">
                         <thead class="table-dark text-center">
@@ -191,5 +191,5 @@
     </div>
 {% endblock %}
 {% block javascript %}
-    <script type="module" src="{{ App.base_path }}/Views/js/da/newAchat/new.js?v=2025.10.22.08.00" type="module"></script>
+	<script type="module" src="{{ App.base_path }}/Views/js/da/newAchat/new.js?v=2026.07.03.14.50" type="module"></script>
 {% endblock %}

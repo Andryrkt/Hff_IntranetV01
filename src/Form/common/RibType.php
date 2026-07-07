@@ -13,9 +13,9 @@ class RibType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'label' => 'RIB *',
+            'label' => 'RIB',
+            'required' => false,
             'constraints' => [
-                new Assert\NotBlank(),
                 new Assert\Regex([
                     'pattern' => '/^[0-9][0-9 ]*$/',
                     'message' => 'Le RIB doit commencer par un chiffre et ne contenir que des chiffres et des espaces.',

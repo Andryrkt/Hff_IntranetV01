@@ -21,8 +21,8 @@ class PdfTableHistoriqueDdpBAP
     private function generateHeader(string $devise): string
     {
         $columns = [
-            $this->createTableCell('center', '10%', 'Date'),
-            $this->createTableCell('center', '15%', 'Numéro'),
+            $this->createTableCell('center', '9.5%', 'Date'),
+            $this->createTableCell('center', '13%', 'Numéro'),
             $this->createTableCell('left', '15%', 'Type'),
             $this->createTableCell('left', '10%', 'N° facture'),
             $this->createTableCell('left', '15%', 'N° facture IPS'),
@@ -60,8 +60,8 @@ class PdfTableHistoriqueDdpBAP
         // $date = $historique["date_clot"] ? date("d/m/Y", strtotime($historique["date_clot"])) : "-";
         $montant = $this->formaterPrix($historique->montant ?? 0);
         $cells = [
-            $this->createTableCell('center', '10%', $historique->dateCreation, "", false),
-            $this->createTableCell('center', '15%', $historique->numeroDdp, "", false),
+            $this->createTableCell('center', '9.5%', $historique->dateCreation, "", false),
+            $this->createTableCell('center', '13%', $historique->numeroDdp, "", false),
             $this->createTableCell('left', '15%', $historique->typeDemande, "", false),
             $this->createTableCell('left', '10%', $historique->numeroFacture ?? "-", "", false),
             $this->createTableCell('left', '15%', $historique->numeroFactureIps ?? "-", "", false),

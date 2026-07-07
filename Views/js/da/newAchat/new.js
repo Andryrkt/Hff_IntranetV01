@@ -4,6 +4,7 @@ import { handleAllOldFileEvents } from "../newDirect/field";
 import { initCentraleCodeDesiInputs } from "../newReappro/event";
 import { ajouterUneLigne } from "./dapl";
 import { displayOverlay } from "../../utils/ui/overlay";
+import { initCharCounter } from "../../utils/ui/charCounterUtils";
 
 document.addEventListener("DOMContentLoaded", async function () {
   const articleStockeList = await getAllArticleStocke();
@@ -26,6 +27,13 @@ document.addEventListener("DOMContentLoaded", async function () {
       });
       e.target.value = tomorrow.toISOString().split("T")[0]; // réinitialiser à la valeur précédente
     }
+  });
+
+  // Initialiser le compteur de caractères
+  initCharCounter({
+    textareaSelector: "#demande_appro_achat_form_detailDal",
+    charCountSelector: "#motif-char-count",
+    maxCharacters: 1500,
   });
 
   initCentraleCodeDesiInputs(

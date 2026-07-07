@@ -1,12 +1,30 @@
 import { displayOverlay } from "../../utils/ui/overlay";
 import { handleQteInputEvents, initCentraleCodeDesiInputs } from "./event";
 import { handleAgenceChange } from "../../dit/fonctionUtils/fonctionListDit.js";
+import { initCharCounter } from "../../utils/ui/charCounterUtils.js";
 
 document.addEventListener("DOMContentLoaded", function () {
   initCentraleCodeDesiInputs(
     "demande_appro_reappro_mensuel_form_codeCentrale",
     "demande_appro_reappro_mensuel_form_desiCentrale"
   );
+
+  // Initialiser le compteur de caractères
+  initCharCounter({
+    textareaSelector: "#demande_appro_reappro_mensuel_form_detailDal",
+    charCountSelector: "#motif-char-count",
+    maxCharacters: 1500,
+  });
+
+  /**===========================================================================
+   * Configuration des agences et services
+   *============================================================================*/
+
+  // Attachement des événements pour les agences
+  document
+    .getElementById("demande_appro_reappro_mensuel_form_debiteur_agence")
+    .addEventListener("change", () => handleAgenceChange("debiteur"));
+
   const dateFinSouhaiteeInput = document.getElementById(
     "demande_appro_reappro_mensuel_form_dateFinSouhaite"
   );
@@ -100,12 +118,3 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 });
-
-/**===========================================================================
- * Configuration des agences et services
- *============================================================================*/
-
-// Attachement des événements pour les agences
-document
-  .getElementById("demande_appro_reappro_mensuel_form_debiteur_agence")
-  .addEventListener("change", () => handleAgenceChange("debiteur"));
