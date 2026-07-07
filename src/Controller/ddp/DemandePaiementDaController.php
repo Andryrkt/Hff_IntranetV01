@@ -25,6 +25,7 @@ use App\Service\fichier\TraitementDeFichier;
 use App\Service\fichier\UploderFileService;
 use App\Service\genererPdf\ddp\GeneratePdfDdpDa;
 use App\Service\historiqueOperation\HistoriqueOperationDDPService;
+use App\Service\TableauEnStringService;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -212,7 +213,7 @@ class DemandePaiementDaController extends Controller
 
         if (!empty($dto->numeroFournisseur) && $dto->numeroFournisseur !== '-') {
             $numCdes = $this->demandePaiementModel->getCommandeReceptionnee($dto->numeroFournisseur);
-            $numCdesString = !empty($numCdes) ? (string) $numCdes[0] : '';
+            $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
             $numFacString =  $dto->numeroFacture;
             $numeroCommandes = $this->demandePaiementModel->getNumCommande($dto->numeroFournisseur, $numCdesString, $numFacString);
         }
