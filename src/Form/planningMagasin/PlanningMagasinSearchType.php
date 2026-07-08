@@ -129,10 +129,10 @@ class PlanningMagasinSearchType extends AbstractType
                 'expanded'    => true,
                 'data'        => array_values($serviceDebite)
             ])
-            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
+            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($codeAgence) {
                 $form = $event->getForm();
                 $data = $event->getData();
-                $codeAgenceDebite = $data['agenceDebite'];
+                $codeAgenceDebite = $data['agenceDebite'] ?? $codeAgence;
                 $serviceDebite = $this->serviceDebiteur($codeAgenceDebite);
 
                 $form->add('serviceDebite', ChoiceType::class, [
