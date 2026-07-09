@@ -346,7 +346,7 @@ class GeneratePdfDdpDa extends GeneratePdf
                 'N° commande'        => $infoBC["num_cde"] ?? "-",
                 'N° demande appro'   => $infoBC["num_cde_ext"] ?? "-",
                 'Référence commande' => $infoBC["libelle_cde"] ?? "-",
-                'Date commande'      => $infoBC["date_cde"] ? date("d/m/Y", strtotime($infoBC["date_cde"])) : "-",
+                'Date commande'      => isset($infoBC["date_cde"]) ? date("d/m/Y", strtotime($infoBC["date_cde"])) : "-",
                 'Succursale'         => $infoBC["succ_cde"] ?? "-",
                 'Service'            => $infoBC["serv_cde"] ?? "-",
                 'Opérateur'          => $infoBC["nom_ope"] ?? "-",

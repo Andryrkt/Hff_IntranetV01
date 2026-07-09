@@ -11,6 +11,7 @@ use App\Entity\admin\Application;
 use App\Entity\da\DemandeAppro;
 use App\Entity\ddp\DemandePaiement;
 use App\Entity\dw\DwBcAppro;
+use App\Model\da\DaModel;
 use App\Model\dit\DitModel;
 use App\Service\autres\AutoIncDecService;
 use App\Service\da\FileCheckerService;
@@ -175,7 +176,7 @@ class DdpApiController extends Controller
 
         if (empty($infoValidationBC)) throw new \Exception("Aucune information de validation trouvée pour le bon de commande $numeroBc.");
 
-        $demandePaiementDto = $this->loadDemandePaiementDto($ddp);
+        $demandePaiementDto = $this->loadDemandePaiementDto($ddp, $infoValidationBC['numeroOr']);
 
         $numOr               = $demandePaiementDto->numeroOr;
         $codeSociete         = $demandePaiementDto->codeSociete;
@@ -200,10 +201,11 @@ class DdpApiController extends Controller
         return $nomAvecCheminFichier;
     }
 
-    private function loadDemandePaiementDto(DemandePaiement $ddp): DemandePaiementDto
+    private function loadDemandePaiementDto(DemandePaiement $ddp, ?string $numeroOr): DemandePaiementDto
     {
         $demandePaiementDto = new DemandePaiementDto();
         $demandePaiementDto->numeroDdp            = $ddp->getNumeroDdp();
+        $demandePaiementDto->numeroOr             = $numeroOr;
         $demandePaiementDto->numeroCla            = $ddp->getNumeroCla();
         $demandePaiementDto->numeroDemandeAppro   = $ddp->getNumeroDemandeAppro();
         $demandePaiementDto->typeDemande          = $ddp->getTypeDemandeId();
@@ -226,6 +228,8 @@ class DdpApiController extends Controller
         $demandePaiementDto->appro                = $ddp->getAppro() ?? false;
         $demandePaiementDto->ribFournisseur       = $ddp->getRibFournisseur();
         $demandePaiementDto->contact              = $ddp->getContact();
+        $demandePaiementDto->codeSociete          = $ddp->getCodeSociete();
+        $demandePaiementDto->infoBc               = (new DaModel)->getInfoBC($ddp->getNumeroCommande(), $ddp->getCodeSociete());
 
         return $demandePaiementDto;
     }
