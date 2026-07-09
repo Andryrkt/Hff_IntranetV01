@@ -73,6 +73,7 @@ class DwBcApproRepository extends EntityRepository
         $indexed = [];
         foreach ($results as $row) {
             $indexed[$row['numeroBc']] = [
+                'numeroBc'       => $row['numeroBc'],
                 'numeroOr'       => $row['numeroOr'],
                 'validateur'     => $row['validateur'],
                 'dateValidation' => $row['dateValidation'],

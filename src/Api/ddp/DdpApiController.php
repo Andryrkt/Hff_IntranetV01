@@ -5,11 +5,16 @@ namespace App\Api\ddp;
 
 use App\Constants\ddp\StatutConstants;
 use App\Controller\Controller;
+use App\Dto\ddp\DemandePaiementDto;
 use App\Entity\admin\Application;
+use App\Entity\da\DemandeAppro;
 use App\Entity\ddp\DemandePaiement;
 use App\Entity\dw\DwBcAppro;
+use App\Model\dit\DitModel;
 use App\Service\autres\AutoIncDecService;
 use App\Service\da\FileCheckerService;
+use App\Service\dataPdf\ordreReparation\Recapitulation;
+use App\Service\genererPdf\ddp\GeneratePdfDdpDa;
 use App\Service\genererPdf\GeneratePdf;
 use DateTime;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -26,10 +31,11 @@ class DdpApiController extends Controller
         try {
             $data = json_decode($request->getContent(), true);
             $selectedDdp = $data['selectedDDP'] ?? [];
+            $numerosBc = array_unique(array_column($selectedDdp, "numeroCde"));
             $ddpNumbers = array_column($selectedDdp, "numeroDdp");
             $ddpNumberString = implode(', ', $ddpNumbers);
 
-            $result = $this->getValidationInfosWithStatus($selectedDdp);
+            $result = $this->getValidationInfosWithStatus($selectedDdp, $numerosBc);
 
             if ($result['message']) {
                 return new JsonResponse([
@@ -37,6 +43,8 @@ class DdpApiController extends Controller
                     'message' => $result['message'],
                 ]);
             }
+
+            $validationInfo = $result['validationInfos'];
 
             $demandePaiementRepository = $this->getEntityManager()->getRepository(DemandePaiement::class);
 
@@ -54,6 +62,8 @@ class DdpApiController extends Controller
                     ->setDateDepotDw(new \DateTime())
                 ;
                 $this->getEntityManager()->persist($ddp);
+
+                $this->genererPageDeGarde($validationInfo[$ddp->getNumeroCommande()] ?? [], $ddp);
 
                 /** copie du fichier DDP dans DW */
                 $fileCheckerService = new FileCheckerService();
@@ -102,13 +112,12 @@ class DdpApiController extends Controller
 
     /**
      * @param array<int,array{numeroDdp:string,numeroCde:string}> $selectedDdp tableau contenant les demande de paiement selectionne
+     * @param array<int,string> $numerosBc tableau contenant les numeros de bon de commande
      * 
-     * @return array{message:?string,validationInfos:array<string,array{numeroOr:?string,validateur:?string,dateValidation:?string}>} tableau contenant le message de validation et les informations de validation
+     * @return array{message:?string,validationInfos:array<string,array{numeroBc:string,numeroOr:?string,validateur:?string,dateValidation:?string}>} tableau contenant le message de validation et les informations de validation
      */
-    private function getValidationInfosWithStatus(array $selectedDdp): array
+    private function getValidationInfosWithStatus(array $selectedDdp, array $numerosBc): array
     {
-        $numerosBc = array_unique(array_column($selectedDdp, "numeroCde"));
-
         $dwBcApproRepository = $this->getEntityManager()->getRepository(DwBcAppro::class);
         $validationInfos = $dwBcApproRepository->findValidationInfosForBcs($numerosBc);
 
@@ -146,5 +155,66 @@ class DdpApiController extends Controller
             "message"         => $message,
             "validationInfos" => $validationInfos
         ];
+    }
+
+    /**
+     * @param array{numeroBc:string,numeroOr:?string,validateur:?string,dateValidation:?string} $infoValidationBC tableau contenant les informations de validation
+     * @param DemandePaiement $ddp demande de paiement
+     * 
+     * @return void
+     */
+    private function genererPageDeGarde(array $infoValidationBC, DemandePaiement $ddp): void
+    {
+        $numeroBc = $infoValidationBC['numeroBc'];
+
+        if (empty($infoValidationBC)) throw new \Exception("Aucune information de validation trouvée pour le bon de commande $numeroBc.");
+
+        $demandePaiementDto = $this->loadDemandePaiementDto($ddp);
+
+        $numOr               = $demandePaiementDto->numeroOr;
+        $codeSociete         = $demandePaiementDto->codeSociete;
+        $numeroDdp           = $demandePaiementDto->numeroDdp;
+
+        $historiqueLivraison = [];
+
+        $infoMateriel        = (new DitModel)->recupInfoMateriel($numOr, $codeSociete);
+        $dataRecapOR         = (new Recapitulation)->getData($numOr, $codeSociete);
+
+        $demandeApproRepo    = $this->getEntityManager()->getRepository(DemandeAppro::class);
+        $demandeAppro        = $demandeApproRepo->findOneBy(['numeroDemandeAppro' => $demandePaiementDto->numeroDemandeAppro]);
+        $infoFacBl           = [];
+
+        $path = $_ENV['BASE_PATH_FICHIER'] . "/ddp/$numeroDdp";
+        if (!is_dir($path)) mkdir($path, 0777, true);
+
+        $generatePdfDdp = new GeneratePdfDdpDa();
+        $generatePdfDdp->generer($infoValidationBC, $infoMateriel, $dataRecapOR, $historiqueLivraison, $demandeAppro, $infoFacBl, $demandePaiementDto, $demandePaiementDto, "$path/$numeroDdp.pdf");
+    }
+
+    private function loadDemandePaiementDto(DemandePaiement $ddp): DemandePaiementDto
+    {
+        $demandePaiementDto = new DemandePaiementDto();
+        $demandePaiementDto->numeroDdp            = $ddp->getNumeroDdp();
+        $demandePaiementDto->numeroCla            = $ddp->getNumeroCla();
+        $demandePaiementDto->numeroDemandeAppro   = $ddp->getNumeroDemandeAppro();
+        $demandePaiementDto->typeDemande          = $ddp->getTypeDemandeId();
+        $demandePaiementDto->numeroFournisseur    = $ddp->getNumeroFournisseur();
+        $demandePaiementDto->beneficiaire         = $ddp->getBeneficiaire();
+        $demandePaiementDto->numeroCommande       = $ddp->getNumeroCommande();
+        $demandePaiementDto->numeroFacture        = $ddp->getNumeroFacture();
+        $demandePaiementDto->statut               = $ddp->getStatut();
+        $demandePaiementDto->dateSoumissionCompta = $ddp->getDateSoumissionCompta();
+        $demandePaiementDto->codeAgence           = $ddp->getAgenceDebiter();
+        $demandePaiementDto->codeService          = $ddp->getServiceDebiter();
+        $demandePaiementDto->dateDemande          = $ddp->getDateCreation();
+        $demandePaiementDto->statutDossierRegul   = $ddp->getStatutDossierRegul();
+        $demandePaiementDto->motif                = $ddp->getMotif();
+        $demandePaiementDto->montantAPayer        = $ddp->getMontantAPayers();
+        $demandePaiementDto->devise               = $ddp->getDevise();
+        $demandePaiementDto->modePaiement         = $ddp->getModePaiement();
+        $demandePaiementDto->demandeur            = $ddp->getDemandeur();
+        $demandePaiementDto->appro                = $ddp->getAppro() ?? false;
+
+        return $demandePaiementDto;
     }
 }
