@@ -51,6 +51,42 @@ class DwBcApproRepository extends EntityRepository
             ->getOneOrNullResult();
     }
 
+    public function findValidationInfosForBcs(array $numerosBc): array
+    {
+        if (empty($numerosBc)) return [];
+
+        // Sous-requête : dernière version pour chaque numeroBc
+        $subQuery = $this->createQueryBuilder('d2')
+            ->select('MAX(d2.numeroVersion)')
+            ->where('d2.numeroBc = d.numeroBc')
+            ->getDQL();
+
+        $results = $this->createQueryBuilder('d')
+            ->select('d.numeroBc', 'd.validateur', 'd.dateValidation')
+            ->where('d.numeroBc IN (:numerosBc)')
+            ->andWhere("d.numeroVersion = ({$subQuery})")
+            ->setParameter('numerosBc', $numerosBc)
+            ->getQuery()
+            ->getResult();
+
+        // Indexer par numeroBc pour un accès facile
+        $indexed = [];
+        foreach ($results as $row) {
+            $indexed[$row['numeroBc']] = [
+                'validateur'     => $row['validateur'],
+                'dateValidation' => $row['dateValidation'],
+            ];
+        }
+
+        // Construire le résultat final en garantissant une entrée par BC demandé
+        $final = [];
+        foreach ($numerosBc as $numeroBc) {
+            $final[$numeroBc] = $indexed[$numeroBc] ?? null; // null = pas trouvé en BDD
+        }
+
+        return $final;
+    }
+
     /**
      * Récupération du date de validation commande
      *

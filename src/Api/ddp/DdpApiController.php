@@ -7,6 +7,7 @@ use App\Constants\ddp\StatutConstants;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
 use App\Entity\ddp\DemandePaiement;
+use App\Entity\dw\DwBcAppro;
 use App\Service\autres\AutoIncDecService;
 use App\Service\da\FileCheckerService;
 use App\Service\genererPdf\GeneratePdf;
@@ -24,20 +25,23 @@ class DdpApiController extends Controller
     {
         try {
             $data = json_decode($request->getContent(), true);
-            $bapNumbers = $data['bapNumbers'] ?? [];
-            $bapNumberString = implode(', ', $bapNumbers);
+            $selectedDdp = $data['selectedDDP'] ?? [];
+            $ddpNumbers = array_column($selectedDdp, "numeroDdp");
+            $ddpNumberString = implode(', ', $ddpNumbers);
 
+            $messageBlocage = $this->getValidationInfosWithStatus($selectedDdp);
 
-            if (empty($bapNumbers)) {
+            if ($messageBlocage) {
                 return new JsonResponse([
                     'success' => false,
-                    'message' => 'Aucun numéro DDP/BAP fourni.',
-                ], 400);
+                    'message' => $messageBlocage,
+                ]);
             }
 
-
             $demandePaiementRepository = $this->getEntityManager()->getRepository(DemandePaiement::class);
-            $ddps = $demandePaiementRepository->findDdpByNumeroDdp($bapNumbers);
+
+            /** @var DemandePaiement[] $ddps */
+            $ddps = $demandePaiementRepository->findDdpByNumeroDdp($ddpNumbers);
             $numeroCla = $this->genererNumeroCla();
 
             foreach ($ddps as $ddp) {
@@ -67,10 +71,9 @@ class DdpApiController extends Controller
 
             $this->getEntityManager()->flush();
 
-
             return new JsonResponse([
                 'success' => true,
-                'message' => count($bapNumbers) . " demande(s) DDP/BAP ont été transmises avec succès. ($bapNumberString)",
+                'message' => count($ddpNumbers) . " demande(s) DDP/BAP ont été transmises avec succès. ($ddpNumberString)",
             ]);
         } catch (\Throwable $e) {
             if (ob_get_length() > 0) {
@@ -95,5 +98,45 @@ class DdpApiController extends Controller
         AutoIncDecService::mettreAJourDerniereIdApplication($application, $em, $numeroCla);
 
         return $numeroCla;
+    }
+
+    private function getValidationInfosWithStatus(array $selectedDdp): ?string
+    {
+        $numerosBc = array_unique(array_column($selectedDdp, "numeroCde"));
+
+        $dwBcApproRepository = $this->getEntityManager()->getRepository(DwBcAppro::class);
+        $validationInfos = $dwBcApproRepository->findValidationInfosForBcs($numerosBc);
+
+        $nonValides = array_keys(
+            array_filter(
+                $validationInfos,
+                fn($info) => $info === null || empty($info['validateur']) // On filtre les BC qui ne sont pas validés (empty $info validateur) ou n'ont pas été soumis à validation ($info null)
+            )
+        );
+
+        // Association BC => liste des DDP
+        $ddpParBc = [];
+        foreach ($selectedDdp as $ddp) {
+            $ddpParBc[$ddp['numeroCde']][] = $ddp['numeroDdp'];
+        }
+
+        // Récupération des DDP concernées
+        $ddpNonValides = [];
+        foreach ($nonValides as $numeroBc) {
+            $ddpNonValides = array_merge(
+                $ddpNonValides,
+                $ddpParBc[$numeroBc] ?? []
+            );
+        }
+
+        $message = null;
+        if (!empty($ddpNonValides)) {
+            $message = sprintf(
+                'Les DDP/BAP suivantes sont liées à un bon de commande non validé ou non soumis à validation : %s. Veuillez valider ou soumettre le(s) bon(s) de commande concerné(s).',
+                implode(', ', array_unique($ddpNonValides))
+            );
+        }
+
+        return $message;
     }
 }

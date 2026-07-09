@@ -76,7 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const response = await fetchManager.post(
             `api/transmettre-bap-compta`,
             {
-              bapNumbers: selectedBAPs,
+              selectedDDP: selectedBAPs,
             }
           );
           displayOverlay(false);
@@ -96,7 +96,8 @@ document.addEventListener("DOMContentLoaded", () => {
               icon: "error",
               title: "Erreur lors de la transmission",
               text:
-                response.error || response.message ||
+                response.error ||
+                response.message ||
                 "Une erreur est survenue lors de la transmission des demandes DDP/BAP.",
             });
           }
