@@ -240,12 +240,7 @@ class DemandePaiementDaController extends Controller
             $dto->numeroCommande = $numeroCommandes;
         }
         $dto->lesFichiers = $this->docDemandePaiementService->fusionDesFichiersDansUnTableau($dto, $nomFichiersTelecharger);
-        // generation de la page de garde DDP
-        // $this->pageDeGarde($dto, $nomAvecCheminFichier);
-        // $fichierChoisiAvecChemins = $this->docDemandePaiementService->fichierChoisiAvecChemin($dto);
         $this->docDemandePaiementService->copieFichierChoisi($dto);
-        // fusion des PDF (page de garde DDP+ autres documents)
-        // $this->fusionDesPdf($nomEtCheminFichiersEnregistrer, $fichierChoisiAvecChemins, $nomAvecCheminFichier);
     }
 
 
@@ -287,14 +282,5 @@ class DemandePaiementDaController extends Controller
         $nomAvecCheminFichier = $path . '/' . $nomFichier;
 
         return [$nomEtCheminFichiersEnregistrer, $nomFichierTelecharger,  $nomAvecCheminFichier, $nomFichier];
-    }
-
-    private function fusionDesPdf(array $nomEtCheminFichiersEnregistrer, array $fichierChoisiAvecChemins, string $nomAvecCheminFichier): void
-    {
-        $traitementDeFichier = new TraitementDeFichier();
-        $nomEtCheminFichiersEnregistrer = array_merge($nomEtCheminFichiersEnregistrer, $fichierChoisiAvecChemins);
-        $fichierConvertir = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
-        $tousLesFichersAvecChemin = $traitementDeFichier->insertFileAtPosition($fichierConvertir, $nomAvecCheminFichier, 0);
-        $traitementDeFichier->fusionFichers($tousLesFichersAvecChemin, $nomAvecCheminFichier);
     }
 }
