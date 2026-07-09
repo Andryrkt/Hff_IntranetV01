@@ -49,7 +49,7 @@
 				{% for row in dtos %}
 					<tr>
 						<td class="text-center">
-							<input type="checkbox" name="{{ row.numeroDdp }}" class="bap-checkbox" {{ row.estStatutATransmettre() ? '' : 'disabled' }}>
+							<input type="checkbox" data-numero-ddp="{{ row.numeroDdp }}" data-numero-cde="{{ row.numeroCommande }}" class="bap-checkbox" {{ row.estStatutATransmettre() ? '' : 'disabled' }}>
 						</td>
 						<td class="text-center">{{ row.numeroCla}}</td>
 						<td class="text-center">

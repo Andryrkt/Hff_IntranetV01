@@ -50,7 +50,12 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         return;
       }
-      const selectedBAPs = checkedBoxes.map((cb) => cb.name);
+      const selectedBAPs = checkedBoxes.map((cb) => {
+        return {
+          numeroDdp: cb.dataset.numeroDdp,
+          numeroCde: cb.dataset.numeroCde,
+        };
+      });
       console.log(selectedBAPs);
 
       const confirmation = await Swal.fire({
