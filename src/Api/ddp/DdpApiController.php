@@ -29,12 +29,12 @@ class DdpApiController extends Controller
             $ddpNumbers = array_column($selectedDdp, "numeroDdp");
             $ddpNumberString = implode(', ', $ddpNumbers);
 
-            $messageBlocage = $this->getValidationInfosWithStatus($selectedDdp);
+            $result = $this->getValidationInfosWithStatus($selectedDdp);
 
-            if ($messageBlocage) {
+            if ($result['message']) {
                 return new JsonResponse([
                     'success' => false,
-                    'message' => $messageBlocage,
+                    'message' => $result['message'],
                 ]);
             }
 
@@ -100,7 +100,12 @@ class DdpApiController extends Controller
         return $numeroCla;
     }
 
-    private function getValidationInfosWithStatus(array $selectedDdp): ?string
+    /**
+     * @param array<int,array{numeroDdp:string,numeroCde:string}> $selectedDdp tableau contenant les demande de paiement selectionne
+     * 
+     * @return array{message:?string,validationInfos:array<string,array{numeroOr:?string,validateur:?string,dateValidation:?string}>} tableau contenant le message de validation et les informations de validation
+     */
+    private function getValidationInfosWithStatus(array $selectedDdp): array
     {
         $numerosBc = array_unique(array_column($selectedDdp, "numeroCde"));
 
@@ -137,6 +142,9 @@ class DdpApiController extends Controller
             );
         }
 
-        return $message;
+        return [
+            "message"         => $message,
+            "validationInfos" => $validationInfos
+        ];
     }
 }

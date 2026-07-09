@@ -62,7 +62,7 @@ class DwBcApproRepository extends EntityRepository
             ->getDQL();
 
         $results = $this->createQueryBuilder('d')
-            ->select('d.numeroBc', 'd.validateur', 'd.dateValidation')
+            ->select('d.numeroBc', 'd.numeroOr', 'd.validateur', 'd.dateValidation')
             ->where('d.numeroBc IN (:numerosBc)')
             ->andWhere("d.numeroVersion = ({$subQuery})")
             ->setParameter('numerosBc', $numerosBc)
@@ -73,6 +73,7 @@ class DwBcApproRepository extends EntityRepository
         $indexed = [];
         foreach ($results as $row) {
             $indexed[$row['numeroBc']] = [
+                'numeroOr'       => $row['numeroOr'],
                 'validateur'     => $row['validateur'],
                 'dateValidation' => $row['dateValidation'],
             ];
