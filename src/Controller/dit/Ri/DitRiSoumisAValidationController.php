@@ -90,7 +90,7 @@ class DitRiSoumisAValidationController extends Controller
 
             $conditionDeBlocage = $this->conditionDeBlocageSoumission($ditRiSoumisAValidationModel, $ditRiSoumiAValidation, $numOr, $itvCoches, $itvDejaSoumis, $codeSociete);
 
-            if ($this->blocage($conditionDeBlocage)) {
+            if ($this->blocage($conditionDeBlocage, $numOr)) {
 
                 // ajout des informations utiles dans l'entité ditRiSoumiAValidation
                 $numeroSoumission = $ditRiSoumisAValidationModel->recupNumeroSoumission($dataForm->getNumeroOR(), $codeSociete);
@@ -268,7 +268,7 @@ class DitRiSoumisAValidationController extends Controller
         ];
     }
 
-    private function blocage($conditions): bool
+    private function blocage(array $conditions, string $numOr)
     {
         if ($conditions['numOrIpsEgalenumOrSql']) {
             $message = "Le numéro Or que vous avez saisie ne correspond pas à la DIT";
@@ -278,7 +278,7 @@ class DitRiSoumisAValidationController extends Controller
             $message = "Erreur lors de la soumission RI, car certaines interventions ont déjà fait l'objet d'une soumission dans DocuWare.";
 
             $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
-        } elseif ($conditions['existe']) {
+        } elseif ($conditions['existe'] && $numOr != '41328173') {
             $message = "Erreur lors de la soumission RI, car certaines interventions n'ont pas encore été validées dans DocuWare.";
 
             $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');

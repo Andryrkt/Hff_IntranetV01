@@ -179,7 +179,17 @@ class DemandePaiementDaController extends Controller
         //=============
 
         $generatePdfDdp = new GeneratePdfDdpDa();
-        $generatePdfDdp->generer($infoValidationBC, $infoMateriel, $dataRecapOR, $historiqueLivraison, $demandeAppro, $infoFacBl, $dto, $dto, $cheminEtNom);
+        $generatePdfDdp->generer(
+            $infoValidationBC,
+            $infoMateriel,
+            $dataRecapOR,
+            $historiqueLivraison,
+            $demandeAppro,
+            $infoFacBl,
+            $dto,
+            $dto,
+            $cheminEtNom
+        );
 
         return $generatePdfDdp;
     }

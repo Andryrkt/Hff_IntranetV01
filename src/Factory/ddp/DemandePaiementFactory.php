@@ -80,7 +80,6 @@ class DemandePaiementFactory
         $this->ddpRecap($dto);
 
 
-
         return $dto;
     }
 
