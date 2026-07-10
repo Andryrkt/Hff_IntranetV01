@@ -117,6 +117,8 @@ trait DitFactureSoumisAValidationtrait
         $orSoumisValidationRepo = $em->getRepository(DitOrsSoumisAValidation::class);
         foreach ($infoFacture as $value) {
 
+            if($value['numeroor']=='41328173' && (int)$value['numeroitv'] ==2) continue;
+
             $agServFac = (!empty($agServDebDit)) ? ($value['agencedebiteur'] . '-' . $value['servicedebiteur']) : '';
 
             $nombreItv = $orSoumisValidationRepo->findNbrItv($value['numeroor'], $codeSociete);

@@ -108,7 +108,7 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
 
         // Étape 2 : Utiliser le numeroVersionMax pour récupérer le statut
         $statut = $this->createQueryBuilder('osv')
-            ->select('osv.statut')
+            ->select('DISTINCT osv.statut')
             ->where('osv.numeroVersion = :numeroVersionMax')
             ->andWhere('osv.numeroOR = :numOr')
             ->andWhere('osv.numeroItv = :numItv')

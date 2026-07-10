@@ -268,7 +268,7 @@ class DitRiSoumisAValidationController extends Controller
         ];
     }
 
-    private function blocage(array $conditions, string $numOr)
+    private function blocage($conditions, $numOr): bool
     {
         if ($conditions['numOrIpsEgalenumOrSql']) {
             $message = "Le numéro Or que vous avez saisie ne correspond pas à la DIT";
