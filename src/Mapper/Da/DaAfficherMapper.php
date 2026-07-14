@@ -200,7 +200,7 @@ class DaAfficherMapper
             $dto->urlDelete = '#';
         }
 
-        if ($dto->statutDal === StatutDaConstant::STATUT_EN_COURS_CREATION && isset(RouteConstant::CREATION[$dto->datype])) {
+        if (in_array($dto->statutDal, [StatutDaConstant::STATUT_EN_COURS_CREATION, StatutDaConstant::STATUT_AUTORISER_EMETTEUR]) && isset(RouteConstant::CREATION[$dto->datype])) {
             $params = ($dto->datype == DemandeAppro::TYPE_DA_AVEC_DIT) ? $parametres['daId-ditId']
                 : (($dto->datype == DemandeAppro::TYPE_DA_PARENT) ? $parametres['daParentId'] : $parametres['daId']);
             $dto->urlProposition = $this->router->generate(RouteConstant::CREATION[$dto->datype], $params);
