@@ -5,6 +5,7 @@ namespace App\Entity\da;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\Traits\DateTrait;
 use App\Repository\da\DemandeApproParentLineRepository;
+use App\Service\TextNormalizer;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 
@@ -262,7 +263,7 @@ class DemandeApproParentLine
      */
     public function setArtDesi(?string $artDesi): self
     {
-        $this->artDesi = $artDesi;
+        $this->artDesi = TextNormalizer::normalize($artDesi);
 
         return $this;
     }

@@ -5,6 +5,7 @@ namespace App\Entity\da;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\da\DaArticleReapproRepository;
+use App\Service\TextNormalizer;
 
 /**
  * @ORM\Entity(repositoryClass=DaArticleReapproRepository::class)
@@ -120,7 +121,8 @@ class DaArticleReappro
      */
     public function setArtDesi($artDesi)
     {
-        $this->artDesi = $artDesi;
+
+        $this->artDesi = TextNormalizer::normalize($artDesi);
 
         return $this;
     }
