@@ -12,8 +12,6 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         $qb = $this->createQueryBuilder('osv');
         $qb->select('1')
             ->where('osv.numeroOR = :numOr')
-            ->andWhere('osv.numeroDit = :numDit')
-            ->setParameter('numDit', $numDit)
             ->setParameter('numOr', $numOr)
             ->setMaxResults(1);
 
@@ -318,13 +316,11 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         $count = $qb
             ->select('COUNT(o.id)')
             ->where('o.numeroOR = :numOr')
-            ->andWhere('o.numeroDit = :numDit')
             ->andWhere('o.codeSociete = :codeSociete')
             ->setParameter('codeSociete', $codeSociete)
             ->setParameters([
                 'codeSociete' => $codeSociete,
-                'numOr' => $numOr,
-                'numDit' => $numDit
+                'numOr' => $numOr
             ])
             ->getQuery()
             ->getSingleScalarResult();
