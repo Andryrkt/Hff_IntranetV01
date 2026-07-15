@@ -12,7 +12,7 @@ class StatutConstants
     public const SOUMIS_A_VALIDATION = 'Soumis à validation';
     public const BAP_A_VALIDER_DIR_ADMIN = 'BAP à valider par Dir Admin';
     public const REFUSE_PAR_CHEF_DE_SERVICE = 'Réfusé par Chef de Service';
-    public const REFUSE_COMPTA = 'Réfusé Compta';
+    public const REFUSE_COMPTA = 'Refusé Compta';
     public const A_VALIDER_COMPTABILITE = 'A valider comptabilité';
     public const TRANSMIS_COMPTA = 'Transmis compta';
     public const VALIDE = 'Validé';

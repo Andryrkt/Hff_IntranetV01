@@ -73,8 +73,8 @@ class DitRiSoumisAValidationType extends AbstractType
                             'message' => 'Veuiller sélectionner le RI à soumettre .', // Message d'erreur si le champ est vide
                         ]),
                         new File([
-                            'maxSize' => '5M',
-                            'maxSizeMessage' => 'La taille du fichier ne doit pas dépasser 5 Mo.',
+                            'maxSize' => '8M',
+                            'maxSizeMessage' => 'La taille du fichier ne doit pas dépasser 7,5 Mo.',
                             'mimeTypes' => [
                                 'application/pdf',
                             ],

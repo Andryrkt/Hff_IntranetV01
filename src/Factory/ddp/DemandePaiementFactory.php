@@ -111,6 +111,7 @@ class DemandePaiementFactory
         $dto->numeroFacture = null;
         $dto->numeroFactureIps = null;
         $dto->numeroCommande = $numCdeDa;
+        $dto->statutBcAppro = $this->em->getRepository(DaSoumissionBc::class)->getStatut($numCdeDa);
         $dto->debiteur = $this->getDebiteur($typeDa, $infoDa);
         $dto->codeSociete = $this->securityService->getCodeSocieteUser();
         $dto->numeroOr = $numOr;

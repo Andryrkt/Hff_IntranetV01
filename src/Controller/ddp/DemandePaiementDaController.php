@@ -2,6 +2,7 @@
 
 namespace App\Controller\ddp;
 
+use App\Constants\da\StatutBcConstant;
 use App\Constants\ddp\TypeDemandePaiementConstants;
 use App\Controller\Controller;
 use App\Controller\Traits\PdfConversionTrait;
@@ -125,8 +126,17 @@ class DemandePaiementDaController extends Controller
 
     private function blocageSoumission(DemandePaiementDto $dto)
     {
+        $message = '';
+        $estBloquer = false;
         if ($dto->estRegule) {
             $message = "La soumission doit être de type régularisation";
+            $estBloquer = true;
+        } elseif (!in_array($dto->statutBcAppro, StatutBcConstant::BC_VALIDE_CLOTURE)) {
+            $message = "La soumission est bloquée car le BC n'est pas encore validé ou clôturé";
+            $estBloquer = true;
+        }
+
+        if ($estBloquer) {
             $criteria = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn');
             $nomDeRoute = 'da_list_cde_frn'; // route de redirection après soumission
             $nomInputSearch = 'cde_frn_list'; // initialistion de nom de chaque champ ou input
