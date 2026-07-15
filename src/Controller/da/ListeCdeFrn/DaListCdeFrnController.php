@@ -177,7 +177,7 @@ class DaListCdeFrnController extends Controller
                     'typeDdp' => 1,
                     'numCdeDa' => $ddp['commande_id'],
                     'typeDa' => (int)$ddp['type_da'],
-                    'numeroVersionBc' => null,
+                    'numeroVersionBc' => 0,
                     'numOr' => $ddp['num_or'],
                 ]);
             } elseif ($ddp['ddp'] === 'regule') {
