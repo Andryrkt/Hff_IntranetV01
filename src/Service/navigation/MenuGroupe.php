@@ -354,6 +354,11 @@ class MenuGroupe
                 'icon'  => 'list-ul',
             ],
             [
+                'route' => 'nouveau_demande_diagnostic',
+                'label' => 'Demande de diagnostic',
+                'icon'  => 'plus-circle',
+            ],
+            [
                 'label' => 'Pneumatiques',
                 'icon'  => 'ring',
             ],

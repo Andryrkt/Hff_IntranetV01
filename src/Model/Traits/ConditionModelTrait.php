@@ -82,7 +82,7 @@ trait ConditionModelTrait
                     $piece = " AND $props in ($value) AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')";
                 }
             } elseif ($criteria[$indexCriteria] === "LUB") {
-                $value = GlobalVariablesService::get('lub');
+                $value = GlobalVariablesService::get('pneumatique');
                 if (!empty($value)) {
                     $piece = " AND $props in ($value)";
                 }
@@ -110,7 +110,7 @@ trait ConditionModelTrait
             if ($criteria[$indexCriteria] === "PIECES MAGASIN") {
                 $piece = " AND {$colonneBase} in (" . GlobalVariablesService::get('pieces_magasin') . ") AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')";
             } elseif ($criteria[$indexCriteria] === "LUB") {
-                $piece = " AND {$colonneBase} in (" . GlobalVariablesService::get('lub') . ")";
+                $piece = " AND {$colonneBase} in (" . GlobalVariablesService::get('pneumatique') . ")";
             } elseif ($criteria[$indexCriteria] === "ACHATS LOCAUX") {
                 $piece = " AND {$colonneBase} in (" . GlobalVariablesService::get('achat_locaux') . ") ";
             } elseif ($criteria[$indexCriteria] === "TOUTS PIECES") {
