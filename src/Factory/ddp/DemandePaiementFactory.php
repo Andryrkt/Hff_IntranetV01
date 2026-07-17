@@ -181,6 +181,7 @@ class DemandePaiementFactory
         $dto->totalMontantCommande = $montantCommande['montant_total_cde_ttc'];
 
         [$montantDejaPaye, $ratioMontantDejaPaye, $montantAregulariser, $ratioMontantARegul] = $this->financialService->calculatePaymentRatios($dto);
+
         $dto->montantDejaPaye = $montantDejaPaye;
         $dto->ratioMontantDejaPaye = $ratioMontantDejaPaye;
         $dto->montantAregulariser = $montantAregulariser;
