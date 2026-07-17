@@ -23,6 +23,18 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         }
     }
 
+    public function findNumDit(string $numOr)
+    {
+        $query = $this->createQueryBuilder('osv')
+            ->select("DISTINCT osv.numeroDit AS numeroDit")
+            ->where('osv.numeroOR = :numOr')
+            ->setParameter('numOr', $numOr)
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        return $query;
+    }
+
 
     public function findNumOrItvValide()
     {
