@@ -204,7 +204,7 @@ class DitDevisSoumisAValidationModel extends Model
                     CASE
                         WHEN 
                             slor_typlig = 'P'
-                            AND slor_constp in (" . GlobalVariablesService::get('lub') . ")
+                            AND slor_constp in (" . GlobalVariablesService::get('pneumatique') . ")
                         THEN (nvl (slor_qterel, 0) + nvl (slor_qterea, 0) + nvl (slor_qteres, 0) + nvl (slor_qtewait, 0) - nvl (slor_qrec, 0))
                     END 
                     * 

@@ -59,7 +59,7 @@ trait FormatageTrait
         $numberStr = (string)$number;
 
         // Remplace le séparateur décimal en fonction des paramètres
-        $numberStr = str_replace(['.', ','], $separateurDecimal === ',' ? [',', '.'] : ['.', ','], $numberStr);
+        $numberStr = str_replace(['.', ','], $separateurDecimal === ',' ? ['.', ','] : [',', '.'], $numberStr);
 
         // Sépare la partie entière et la partie décimale
         if (strpos($numberStr, $separateurDecimal) !== false) {

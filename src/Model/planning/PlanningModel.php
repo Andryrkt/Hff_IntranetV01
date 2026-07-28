@@ -1750,7 +1750,7 @@ TRIM('COMPLET NON LIVRE')
           $vtypeligne = " AND slor_constp in (" . GlobalVariablesService::get('achat_locaux') . ")";
           break;
         case "LUBRIFIANTS":
-          $vtypeligne = " AND slor_constp in (" . GlobalVariablesService::get('lub') . ")  AND slor_typlig = 'P'";
+          $vtypeligne = " AND slor_constp in (" . GlobalVariablesService::get('pneumatique') . ")  AND slor_typlig = 'P'";
           break;
         default:
           $vtypeligne = " ";

@@ -244,7 +244,7 @@ class DitOrSoumisAValidationModel extends Model
             from sav_lor 
             where slor_numor = '$numOr'
             and slor_soc = '$codeSociete'
-            and slor_constp in (" . GlobalVariablesService::get('lub') . ")  
+            and slor_constp in (" . GlobalVariablesService::get('pneumatique') . ")  
         ";
 
         $result = $this->connect->executeQuery($statement);
