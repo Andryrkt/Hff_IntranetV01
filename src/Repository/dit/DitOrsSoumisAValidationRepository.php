@@ -286,16 +286,14 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
     /**
      * recupère tous les numéros OR Distincts
      *
-     * @return void
+     * @return array
      */
     public function findNumOrAll()
     {
-        $query = $this->createQueryBuilder('osv')
+        return $this->createQueryBuilder('osv')
             ->select("DISTINCT osv.numeroOR")
             ->getQuery()
             ->getSingleColumnResult();
-
-        return $query;
     }
 
     /**
