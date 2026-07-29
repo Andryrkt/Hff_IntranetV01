@@ -28,24 +28,24 @@ trait PrixFournisseurTrait
             if ($dalrs->isEmpty()) {
                 $fournisseur = $dal->getNomFournisseur();
                 $prix        = $dal->getPrixUnitaire() ? $this->formatPrix($dal->getPrixUnitaire()) : "-";
-                $total       = $prix === "-" ? 0 : $dal->getPrixUnitaire() * $qte;
+                $montant     = $prix === "-" ? 0 : $dal->getPrixUnitaire() * $qte;
                 $fournisseurs[$fournisseur][$keyId] = [
-                    'prix'  => $prix,
-                    'total' => $total,
-                    'choix' => true,
+                    'prix'    => $prix,
+                    'montant' => $montant,
+                    'choix'   => true,
                 ];
             } else {
                 foreach ($dalrs as $dalr) {
                     $frnDalr = $dalr->getNomFournisseur();
                     $prix    = $dalr->getPrixUnitaire() ? $this->formatPrix($dalr->getPrixUnitaire()) : "-";
-                    $total   = $prix === "-" ? 0 : $dalr->getPrixUnitaire() * $qte;
+                    $montant = $prix === "-" ? 0 : $dalr->getPrixUnitaire() * $qte;
                     $choix   = $dalr->getChoix();
 
                     if ($choix || !isset($fournisseurs[$frnDalr][$keyId])) {
                         $fournisseurs[$frnDalr][$keyId] = [
-                            'prix'  => $prix,
-                            'total' => $total,
-                            'choix' => $choix,
+                            'prix'    => $prix,
+                            'montant' => $montant,
+                            'choix'   => $choix,
                         ];
                     }
                 }

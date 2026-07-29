@@ -66,11 +66,13 @@ class PdfTableMatriceGenerator
     private function genererCorps(iterable $dals, array $listeFournisseurs, array $fournisseurs): string
     {
         $html = '<tbody>';
+        $totalGlobal = 0.0;
+
         foreach ($dals as $dal) {
-            $cst = $dal->getArtConstp();
-            $ref = $dal->getArtRefp();
-            $desi = $dal->getArtDesi();
-            $qte  = $dal->getQteDem();
+            $cst   = $dal->getArtConstp();
+            $ref   = $dal->getArtRefp();
+            $desi  = $dal->getArtDesi();
+            $qte   = $dal->getQteDem();
             $keyId = implode('_', array_map('trim', [$cst, $ref, $desi, $qte]));
             if (in_array($cst, ["ZDI", "CAR"]) && !$dal->getDemandeApproLR()->isEmpty()) {
                 $ref = $dal->getDemandeApproLR()->first()->getArtRefp();
@@ -79,17 +81,34 @@ class PdfTableMatriceGenerator
             $html .= "<td>$cst</td>";
             $html .= "<td>$ref</td>";
             $html .= '<td>' . htmlspecialchars($desi) . '</td>';
-            $html .= '<td align="right">' . $qte . '</td>';
+            $html .= '<td align="center">' . $qte . '</td>';
 
             foreach ($listeFournisseurs as $frn) {
-                $prix = $fournisseurs[$frn][$keyId]['prix'] ?? '';
-                $choix = $fournisseurs[$frn][$keyId]['choix'] ?? false;
-                $style = $choix ? 'background-color: #fbbb01;' : '';
-                $html .= '<td align="right" style="' . $style . '">' . $prix . '</td>';
+                $prix    = $fournisseurs[$frn][$keyId]['prix'] ?? '';
+                $choix   = $fournisseurs[$frn][$keyId]['choix'] ?? false;
+                $montant = $fournisseurs[$frn][$keyId]['montant'] ?? 0;
+                $style   = $choix ? 'background-color: #fbbb01;' : '';
+
+                if ($prix === '' || $prix === null || $prix == 0) {
+                    $contenu = "";
+                } else {
+                    if ($choix) $totalGlobal += $montant;
+                    $contenu = "PU: $prix <br>MTT: {$this->formatPrix($montant)}";
+                }
+
+                $html .= '<td align="left" style="' . $style . '">' . $contenu . '</td>';
             }
 
             $html .= '</tr>';
         }
+
+        // Ligne du total global
+        $nbColonnes = 4 + count($listeFournisseurs) - 1;
+        $html .= "<tr>";
+        $html .= "<td colspan=\"$nbColonnes\" align=\"right\"><strong>Montant DA</strong></td>";
+        $html .= "<td align=\"right\"><strong>{$this->formatPrix($totalGlobal)}</strong></td>";
+        $html .= "</tr>";
+
         return $html . '</tbody>';
     }
 }
