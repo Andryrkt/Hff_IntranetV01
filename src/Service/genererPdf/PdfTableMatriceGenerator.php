@@ -15,6 +15,11 @@ class PdfTableMatriceGenerator
     private const WIDTH_CONFIG = ['cst' => 7.0, 'ref' => 12.0, 'qte' => 7.0];
 
     /**
+     * Largeur maximale (en %) autorisée pour une colonne fournisseur.
+     */
+    private const LARGEUR_MAX_FOURNISSEUR = 15.0;
+
+    /**
      * @var array{cst: float, ref: float, desi: float, qte: float, fournisseur: float}|null
      */
     private ?array $largeursColonnes = null;
@@ -32,19 +37,22 @@ class PdfTableMatriceGenerator
         $largeurFixe = array_sum(self::WIDTH_CONFIG);
         $largeurRestante = max(0, 100 - $largeurFixe);
 
-        // Nombre de colonnes "dynamiques" : DESIGNATION + une par fournisseur
-        $nbColonnesDynamiques = 1 + count($listeFournisseurs);
+        $nbFournisseurs = count($listeFournisseurs);
+        $nbColonnesDynamiques = 1 + $nbFournisseurs;
 
         $largeurParColonneDynamique = $nbColonnesDynamiques > 0
             ? $largeurRestante / $nbColonnesDynamiques
             : 0;
 
+        $largeurFournisseur = min($largeurParColonneDynamique, self::LARGEUR_MAX_FOURNISSEUR);
+        $largeurDesi = $largeurRestante - ($largeurFournisseur * $nbFournisseurs);
+
         return $this->largeursColonnes = [
             'cst'         => self::WIDTH_CONFIG['cst'],
             'ref'         => self::WIDTH_CONFIG['ref'],
             'qte'         => self::WIDTH_CONFIG['qte'],
-            'desi'        => $largeurParColonneDynamique,
-            'fournisseur' => $largeurParColonneDynamique,
+            'desi'        => $largeurDesi,
+            'fournisseur' => $largeurFournisseur,
         ];
     }
 
@@ -151,7 +159,7 @@ class PdfTableMatriceGenerator
 
         $html .= "<tr>";
         $html .= "<td colspan=\"{$nbColonnes}\" align=\"right\" style=\"width:{$largeurLibelleTotal}%;\"><strong>Montant DA</strong></td>";
-        $html .= "<td align=\"right\" style=\"width:{$w['fournisseur']}%;\"><strong>{$this->formatPrix($totalGlobal)}</strong></td>";
+        $html .= "<td align=\"right\" style=\"width:{$w['fournisseur']}%; background-color: #fbbb01;\"><strong>{$this->formatPrix($totalGlobal)}</strong></td>";
         $html .= "</tr>";
 
         return $html . '</tbody>';
