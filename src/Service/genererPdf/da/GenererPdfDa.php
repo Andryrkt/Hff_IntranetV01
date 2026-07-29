@@ -4,6 +4,7 @@ namespace App\Service\genererPdf\da;
 
 use TCPDF;
 use App\Entity\da\DemandeAppro;
+use App\Entity\da\DaObservation;
 use App\Entity\dit\DemandeIntervention;
 use App\Service\genererPdf\GeneratePdf;
 use App\Service\genererPdf\PdfTableMatriceGenerator;
@@ -120,7 +121,7 @@ abstract class GenererPdfDa extends GeneratePdf
         $this->renderTextWithLine($pdf, 'Articles validés');
 
         // Légende "Fournisseurs validés"
-        $x = $pdf->GetX() + 145;
+        $x = $pdf->GetX() + 140;
         $y = $pdf->GetY();
 
         // Rectangle jaune avec bordure
@@ -132,14 +133,13 @@ abstract class GenererPdfDa extends GeneratePdf
         $pdf->SetXY($x + 12, $y);
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 8);
-        $pdf->Cell(50, 5, ': Fournisseurs validés', 0, 1, 'L');
+        $pdf->Cell(37, 5, ': Fournisseurs pré-validés', 0, 1, 'L');
 
         $pdf->Ln(3);
 
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', '', 10);
-        $html1 = $generator->generer($dals);
-        $pdf->writeHTML($html1, false, false, true, false, '');
+        $generator->genererEtEcrire($dals, $pdf);
         $pdf->Ln(3);
     }
 
