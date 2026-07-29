@@ -2,6 +2,9 @@
 
 namespace App\Controller\Traits\da;
 
+use App\Entity\da\DemandeApproL;
+use App\Entity\da\DemandeApproLR;
+
 trait PrixFournisseurTrait
 {
     /**
@@ -43,7 +46,7 @@ trait PrixFournisseurTrait
         return $fournisseurs;
     }
 
-    private function formatPrix($prix): string
+    private function formatPrix(string $prix): string
     {
         if (is_numeric($prix)) return $prix == 0 ? '' : number_format((float) $prix, 2, ',', ' ');
         return '0,00'; // Retourner un montant par défaut si ce n'est pas un nombre
