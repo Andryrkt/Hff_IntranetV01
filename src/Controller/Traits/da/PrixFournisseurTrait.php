@@ -2,6 +2,9 @@
 
 namespace App\Controller\Traits\da;
 
+use App\Entity\da\DemandeApproL;
+use App\Entity\da\DemandeApproLR;
+
 trait PrixFournisseurTrait
 {
     /**
@@ -15,26 +18,34 @@ trait PrixFournisseurTrait
     {
         $fournisseurs = [];
         foreach ($dals as $dal) {
-            $keyId = implode('_', array_map('trim', [$dal->getArtConstp(), $dal->getArtRefp(), $dal->getArtDesi(), $dal->getQteDem()]));
+            $cst   = $dal->getArtConstp();
+            $ref   = $dal->getArtRefp();
+            $desi  = $dal->getArtDesi();
+            $qte   = $dal->getQteDem();
+            $keyId = implode('_', array_map('trim', [$cst, $ref, $desi, $qte]));
             /** @var iterable<DemandeApproLR> $dalrs la liste des DALR dans DAL */
             $dalrs       = $dal->getDemandeApproLR();
             if ($dalrs->isEmpty()) {
                 $fournisseur = $dal->getNomFournisseur();
                 $prix        = $dal->getPrixUnitaire() ? $this->formatPrix($dal->getPrixUnitaire()) : "-";
+                $montant     = $prix === "-" ? 0 : $dal->getPrixUnitaire() * $qte;
                 $fournisseurs[$fournisseur][$keyId] = [
-                    'prix'  => $prix,
-                    'choix' => true,
+                    'prix'    => $prix,
+                    'montant' => $montant,
+                    'choix'   => true,
                 ];
             } else {
                 foreach ($dalrs as $dalr) {
                     $frnDalr = $dalr->getNomFournisseur();
                     $prix    = $dalr->getPrixUnitaire() ? $this->formatPrix($dalr->getPrixUnitaire()) : "-";
+                    $montant = $prix === "-" ? 0 : $dalr->getPrixUnitaire() * $qte;
                     $choix   = $dalr->getChoix();
 
                     if ($choix || !isset($fournisseurs[$frnDalr][$keyId])) {
                         $fournisseurs[$frnDalr][$keyId] = [
-                            'prix'  => $prix,
-                            'choix' => $choix,
+                            'prix'    => $prix,
+                            'montant' => $montant,
+                            'choix'   => $choix,
                         ];
                     }
                 }
@@ -43,7 +54,7 @@ trait PrixFournisseurTrait
         return $fournisseurs;
     }
 
-    private function formatPrix($prix): string
+    private function formatPrix(string $prix): string
     {
         if (is_numeric($prix)) return $prix == 0 ? '' : number_format((float) $prix, 2, ',', ' ');
         return '0,00'; // Retourner un montant par défaut si ce n'est pas un nombre
