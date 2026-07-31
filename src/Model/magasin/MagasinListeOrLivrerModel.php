@@ -257,76 +257,27 @@ class MagasinListeOrLivrerModel extends Model
     public function recupereListeMaterielValider(array $criteria, string $numeroOrItv, string $numeroOr)
     {
         $statement = "SELECT 
-            TRIM(seor_refdem) AS referencedit, 
-            seor_numor AS numeroOr, 
-            seor_dateor AS dateCreation, 
-            CASE 
-                WHEN 
-                    (
-                        SELECT 
-                            DATE(Min(ska_d_start)) 
-                        FROM informix.ska, informix.skw 
-                        WHERE ofh_id = sitv_numor 
-                            AND ofs_id=sitv_interv 
-                            AND skw.skw_id = ska.skw_id 
-                    )  IS NULL THEN DATE(sitv_datepla)  
-                ELSE
-                    (
-                        SELECT 
-                            DATE(Min(ska_d_start)) 
-                        FROM informix.ska, informix.skw 
-                        WHERE ofh_id = sitv_numor 
-                            AND ofs_id=sitv_interv 
-                            AND skw.skw_id = ska.skw_id 
-                    ) 
-            END AS datePlanning, 
-            seor_succ AS agenceCrediteur, 
-            seor_servcrt AS serviceCrediteur, 
-            sitv_succdeb AS agenceDebiteur, 
-            sitv_servdeb AS serviceDebiteur, 
-            sitv_interv AS numInterv, 
-            slor_nolign AS numeroLigne, 
-            slor_constp AS constructeur, 
-            TRIM(slor_refp) AS referencePiece, 
-            TRIM(slor_desi) AS designationi, 
-            (
-                SELECT 
-                    F.situation 
-                FROM (
-                    SELECT
-                        CASE
-                            WHEN SUM(slor_qteres) > 0 
-                                AND SUM(
-                                    CASE
-                                        WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
-                                        WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea
-                                    END
-                                ) = SUM(slor_qteres + slor_qterea)
-                                THEN 'COMPLET'
-                            WHEN SUM(slor_qteres) > 0 
-                                AND SUM(
-                                    CASE
-                                        WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
-                                        WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea
-                                    END
-                                ) > SUM(slor_qteres + slor_qterea)
-                                THEN 'INCOMPLET'
-                        END AS situation, 
-                        situ.slor_numor AS numero_or
-                    FROM sav_lor situ
-                    WHERE situ.slor_numor = OR.slor_numor
-                        AND situ.slor_constp IN ('AGR','ATC','AUS','CAT','CGM','CMX','DNL','DYN','GRO','HYS','JDR','KIT','MAN','MNT','OLY','OOM','PAR','PDV','PER','PUB','REM','SHM','TBI','THO') 
-                        AND (slor_refp NOT LIKE '%-L' AND slor_refp NOT LIKE '%-CTRL')
-                    GROUP BY 2 
-                ) AS F
-            ) AS situationtest, 
-            seor_usr AS idUser, 
-            TRIM(ausr_nom) AS nomUtilisateur, 
-            TRIM(atab_lib) AS nomPrenom, 
-            mmat_nummat AS idMateriel, 
-            TRIM(mmat_numserie) AS num_serie, 
-            TRIM(mmat_recalph) AS num_parc , 
-            TRIM(mmat_marqmat) AS marque, 
+            TRIM(seor_refdem) AS referencedit,
+            seor_numor AS numeroOr,
+            seor_dateor AS dateCreation,
+            COALESCE(pln.date_planning_ska, DATE(sitv_datepla)) AS datePlanning,
+            seor_succ AS agenceCrediteur,
+            seor_servcrt AS serviceCrediteur,
+            sitv_succdeb AS agenceDebiteur,
+            sitv_servdeb AS serviceDebiteur,
+            sitv_interv AS numInterv,
+            slor_nolign AS numeroLigne,
+            slor_constp AS constructeur,
+            TRIM(slor_refp) AS referencePiece,
+            TRIM(slor_desi) AS designationi,
+            sit.situation AS situationtest,
+            seor_usr AS idUser,
+            TRIM(ausr_nom) AS nomUtilisateur,
+            TRIM(atab_lib) AS nomPrenom,
+            mmat_nummat AS idMateriel,
+            TRIM(mmat_numserie) AS num_serie,
+            TRIM(mmat_recalph) AS num_parc,
+            TRIM(mmat_marqmat) AS marque,
             TRIM(mmat_numparc) AS casie,
             SUM(
                 CASE
@@ -336,54 +287,66 @@ class MagasinListeOrLivrerModel extends Model
             ) AS quantiteDemander,
             SUM(slor_qteres) AS qteALivrer,
             SUM(slor_qterea) AS quantiteLivree
-        FROM sav_lor AS OR
-        INNER JOIN sav_eor AS U ON U.seor_numor = slor_numor AND U.seor_soc = slor_soc AND U.seor_succ = slor_succ
-        INNER JOIN mat_mat ON mmat_nummat =  seor_nummat
-        INNER JOIN agr_usr ON ausr_num = seor_usr
-        INNER JOIN agr_tab ON atab_nom = 'OPE' AND atab_code = ausr_ope
-        INNER JOIN sav_itv AS I ON I.sitv_soc = slor_soc AND I.sitv_succ = slor_succ AND I.sitv_numor = slor_numor AND I.sitv_interv = slor_nogrp /100 AND sitv_numor || '-' || sitv_interv IN ($numeroOrItv)
-        INNER JOIN
-        (
-            SELECT F.* 
-            FROM (
-                SELECT
-                    CASE
-                        WHEN SUM(slor_qteres) > 0 
-                            AND SUM(
-                                CASE
-                                    WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
-                                    WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea
-                                END
-                            ) = SUM(slor_qteres + slor_qterea)
+        FROM {$this->dbIps}:Informix.sav_lor AS lor
+        INNER JOIN {$this->dbIps}:Informix.sav_eor AS eor ON eor.seor_numor = slor_numor AND eor.seor_soc = slor_soc AND eor.seor_succ = slor_succ
+        INNER JOIN {$this->dbIps}:Informix.mat_mat AS mat ON mat.mmat_nummat = eor.seor_nummat
+        INNER JOIN {$this->dbIps}:Informix.agr_usr AS usr ON usr.ausr_num = eor.seor_usr
+        INNER JOIN {$this->dbIps}:Informix.agr_tab AS tab ON tab.atab_nom = 'OPE' AND tab.atab_code = usr.ausr_ope
+        INNER JOIN {$this->dbIps}:Informix.sav_itv AS itv ON itv.sitv_soc = slor_soc AND itv.sitv_succ = slor_succ AND itv.sitv_numor = slor_numor AND itv.sitv_interv = slor_nogrp / 100 AND itv.sitv_numor || '-' || itv.sitv_interv IN ($numeroOrItv)
+        INNER JOIN (
+            SELECT
+                ls.slor_numor AS numero_or,
+                SUM(ls.slor_qteres) AS total_qteres
+            FROM {$this->dbIps}:Informix.sav_lor AS ls
+            WHERE ls.slor_numor IN ($numeroOr)
+                {$this->conditionPiece('pieces',$criteria, 'ls.slor_constp')}
+            GROUP BY ls.slor_numor
+        ) AS qte ON qte.numero_or = lor.slor_numor AND qte.total_qteres > 0
+        INNER JOIN (
+            SELECT
+                ss.slor_numor AS numero_or,
+                ss.slor_nogrp AS num_groupe,
+                CASE
+                    WHEN SUM(ss.slor_qteres) > 0
+                        AND SUM(
+                            CASE
+                                WHEN ss.slor_typlig = 'P' THEN (ss.slor_qterel + ss.slor_qterea + ss.slor_qteres + ss.slor_qtewait - ss.slor_qrec)
+                                WHEN ss.slor_typlig IN ('F','M','U','C') THEN ss.slor_qterea
+                            END
+                        ) = SUM(ss.slor_qteres + ss.slor_qterea)
                         THEN 'COMPLET'
-                        WHEN SUM(slor_qteres) > 0 
-                            AND SUM(
-                                CASE
-                                    WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
-                                    WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea
-                                END
-                            ) > SUM(slor_qteres + slor_qterea)
+                    WHEN SUM(ss.slor_qteres) > 0
+                        AND SUM(
+                            CASE
+                                WHEN ss.slor_typlig = 'P' THEN (ss.slor_qterel + ss.slor_qterea + ss.slor_qteres + ss.slor_qtewait - ss.slor_qrec)
+                                WHEN ss.slor_typlig IN ('F','M','U','C') THEN ss.slor_qterea
+                            END
+                        ) > SUM(ss.slor_qteres + ss.slor_qterea)
                         THEN 'INCOMPLET'
-                    END AS situation
-                    , situ.slor_numor AS numero_or
-                FROM sav_lor situ
-                WHERE situ.slor_numor IN ($numeroOr) {$this->conditionPiece('pieces',$criteria, 'situ.slor_constp')}
-                GROUP BY 2 ) AS F
-        ) AS T ON T.numero_or = OR.slor_numor
-        WHERE seor_numor IN ( 
-            SELECT slor_numor 
-            FROM sav_lor l 
-            WHERE l.slor_numor IN ($numeroOr) 
-            {$this->conditionPiece('pieces',$criteria, 'l.slor_constp')} 
-            GROUP BY l.slor_numor 
-            HAVING SUM(l.slor_qteres) > 0
-        ) AND seor_typeor NOT in('950', '501')
+                END AS situation
+            FROM {$this->dbIps}:Informix.sav_lor AS ss
+            WHERE ss.slor_numor IN ($numeroOr)
+                {$this->conditionPiece('pieces',$criteria, 'ss.slor_constp')}
+            GROUP BY ss.slor_numor, ss.slor_nogrp
+        ) AS sit ON sit.numero_or = lor.slor_numor AND sit.num_groupe = lor.slor_nogrp
+        LEFT JOIN (
+            SELECT
+                skw.ofh_id AS num_or_planning,
+                skw.ofs_id AS num_interv_planning,
+                DATE(MIN(ska.ska_d_start)) AS date_planning_ska
+            FROM {$this->dbIps}:Informix.ska AS ska
+            INNER JOIN {$this->dbIps}:Informix.skw AS skw ON skw.skw_id = ska.skw_id
+            WHERE skw.ofh_id IN ($numeroOr)
+            GROUP BY skw.ofh_id, skw.ofs_id
+        ) AS pln ON pln.num_or_planning = itv.sitv_numor AND pln.num_interv_planning = itv.sitv_interv
+        WHERE seor_typeor NOT IN ('950', '501')
+            AND sit.situation IS NOT NULL
             {$this->conditionPiece('pieces',$criteria, 'slor_constp')}
             {$this->conditionAgenceUser('agenceUser',$criteria)}
-            {$this->conditionOrCompletOuNonOrALivrer('orCompletNon',$criteria)}
+            {$this->conditionOrCompletOuNonOrALivrer('orCompletNon',$criteria, 'sit')}
             {$this->conditionLike('slor_desi', 'designation',$criteria)}
-            {$this->conditionLike('slor_refp', 'referencePiece',$criteria)} 
-            {$this->conditionLike('slor_constp', 'constructeur',$criteria)} 
+            {$this->conditionLike('slor_refp', 'referencePiece',$criteria)}
+            {$this->conditionLike('slor_constp', 'constructeur',$criteria)}
             {$this->conditionDateSigne('slor_datec', 'dateDebut',$criteria, '>=')}
             {$this->conditionDateSigne('slor_datec', 'dateFin',$criteria, '<=')}
             {$this->conditionSigne('slor_numor', 'numOr', '=',$criteria)}
