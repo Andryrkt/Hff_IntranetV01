@@ -37,36 +37,8 @@ class DaTimelineService
         $timelineBc = $this->buildTimelineBC($numeroDa, $lastDataOR);
 
         if (empty($timelineBc)) {
-            if ($isDaViaOR) {
-                if (empty($timelineOR)) {
-                    $nbrJours = $this->formatDuration(
-                        $this->differenceJoursOuvrables(
-                            \DateTime::createFromFormat('d/m/Y', $lastDataDA['date']),
-                            new \DateTime()
-                        )
-                    );
-                    $timelineDa[array_key_last($timelineDa)]['nbrJours'] = $nbrJours;
-                    $timelineDa[] = $this->createCurrentDateEntry();
-                } else {
-                    $nbrJours = $this->formatDuration(
-                        $this->differenceJoursOuvrables(
-                            \DateTime::createFromFormat('d/m/Y', $lastDataOR['date']),
-                            new \DateTime()
-                        )
-                    );
-                    $timelineOR[array_key_last($timelineOR)]['nbrJours'] = $nbrJours;
-                    $timelineOR[] = $this->createCurrentDateEntry();
-                }
-            } else {
-                $nbrJours = $this->formatDuration(
-                    $this->differenceJoursOuvrables(
-                        \DateTime::createFromFormat('d/m/Y', $lastDataDA['date']),
-                        new \DateTime()
-                    )
-                );
-                $timelineDa[array_key_last($timelineDa)]['nbrJours'] = $nbrJours;
-                $timelineDa[] = $this->createCurrentDateEntry();
-            }
+            if ($isDaViaOR && !empty($timelineOR)) $timelineOR = $this->cloturerAvecAujourdhui($timelineOR);
+            else                                   $timelineDa = $this->cloturerAvecAujourdhui($timelineDa);
         }
 
         return [
@@ -121,7 +93,7 @@ class DaTimelineService
      * 
      * @return array{string,array<int,array{statut:string,dotClass:string,date:string,nbrJours:string}>}
      */
-    private function buildTimelineOR(array $allDatas, $lastDataDA): array
+    private function buildTimelineOR(array $allDatas, array $lastDataDA): array
     {
         $tabTemp = [];
         $nbrJours = "";
@@ -171,24 +143,24 @@ class DaTimelineService
         ];
     }
 
-    /** 
+    /**
      * @param string $numeroDa
-     * @param array{statut:string,dotClass:string,date:string,nbrJours:string} $lastDataDA
-     * 
+     * @param array{statut:string,dotClass:string,date:string,nbrJours:string} $pointDepart Dernier jalon connu avant le BC (DA ou OR selon le contexte)
+     *
      * @return array<string,array{statut:string,dotClass:string,date:string,nbrJours:string}>
      */
-    private function buildTimelineBC(string $numeroDa, array $lastDataDA): array
+    private function buildTimelineBC(string $numeroDa, array $pointDepart): array
     {
         $allDatas = $this->daAfficherRepository->getAllNumCdeAndVmax($numeroDa);
         $tabTemp = [];
         $today = new \DateTime();
+        $dateValidationDA = \DateTime::createFromFormat('d/m/Y', $pointDepart['date']);
 
         foreach ($allDatas as $data) {
             $numBC = $data['numeroCde'];
             $numeroVersion = $data['numeroVersion'];
 
             // Récupération de toutes les dates possibles
-            $dateValidationDA     = \DateTime::createFromFormat('d/m/Y', $lastDataDA['date']);
             $dateCreationBc       = $this->daAfficherRepository->getDateCreationBc($numeroDa, $numeroVersion, $numBC);       // Génération BC
             $dateValidation       = $this->daAfficherRepository->getDateValidationBc($numeroDa, $numeroVersion, $numBC);     // Validation BC
             $dateEnvoi            = $this->daAfficherRepository->getDateEnvoiFournisseur($numeroDa, $numeroVersion, $numBC); // Envoi au fournisseur
@@ -198,8 +170,8 @@ class DaTimelineService
             // Définition de toutes les étapes possibles
             $etapes = [
                 [
-                    'statut'   => $lastDataDA['statut'],
-                    'dotClass' => $lastDataDA['dotClass'],
+                    'statut'   => $pointDepart['statut'],
+                    'dotClass' => $pointDepart['dotClass'],
                     'date'     => $dateValidationDA
                 ],
                 [
@@ -296,7 +268,7 @@ class DaTimelineService
         ];
     }
 
-    /** 
+    /**
      * @return array{statut:string,dotClass:string,date:string,nbrJours:string}
      */
     private function createCurrentDateEntry(): array
@@ -307,6 +279,30 @@ class DaTimelineService
             'date'     => 'Aujourd’hui',
             'nbrJours' => '',
         ];
+    }
+
+    /**
+     * Clôture une timeline non terminée en calculant la durée jusqu'à aujourd'hui
+     * et en ajoutant une entrée "Aujourd'hui".
+     *
+     * @param array<int,array{statut:string,dotClass:string,date:string,nbrJours:string}> $timeline
+     *
+     * @return array<int,array{statut:string,dotClass:string,date:string,nbrJours:string}>
+     */
+    private function cloturerAvecAujourdhui(array $timeline): array
+    {
+        $lastEntry = end($timeline);
+        $nbrJours  = $this->formatDuration(
+            $this->differenceJoursOuvrables(
+                \DateTime::createFromFormat('d/m/Y', $lastEntry['date']),
+                new \DateTime()
+            )
+        );
+
+        $timeline[array_key_last($timeline)]['nbrJours'] = $nbrJours;
+        $timeline[] = $this->createCurrentDateEntry();
+
+        return $timeline;
     }
 
     /** 
