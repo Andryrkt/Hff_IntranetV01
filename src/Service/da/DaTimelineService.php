@@ -2,12 +2,11 @@
 
 namespace App\Service\da;
 
-use App\Constants\da\StatutDaConstant;
 use App\Entity\da\DaAfficher;
-use App\Entity\da\DemandeAppro;
-use App\Repository\da\DaAfficherRepository;
 use App\Traits\JoursOuvrablesTrait;
+use App\Constants\da\StatutDaConstant;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Repository\da\DaAfficherRepository;
 
 class DaTimelineService
 {
@@ -19,6 +18,11 @@ class DaTimelineService
         $this->daAfficherRepository = $em->getRepository(DaAfficher::class);
     }
 
+    /** 
+     * @param string $numeroDa
+     * 
+     * @return array<string,array<int|string,array{statut:string,dotClass:string,date:string,nbrJours:string}>>
+     */
     public function getTimelineData(string $numeroDa): array
     {
         $allDatas = $this->daAfficherRepository->getTimelineData($numeroDa);
@@ -45,6 +49,11 @@ class DaTimelineService
         ];
     }
 
+    /** 
+     * @param array<int,array{statutDal:string,statutOr:string|null,dateCreation:\DateTime,dateDemande:\DateTime}> $allDatas
+     * 
+     * @return array<int,array{statut:string,dotClass:string,date:string,nbrJours:string}>
+     */
     private function buildTimelineDA(array $allDatas): array
     {
         $tabTemp = [];
@@ -60,7 +69,7 @@ class DaTimelineService
             }
 
             // Déterminer le statut final
-            $statutFinal = $this->getStatutFinal($data['statutOr'], $data['statutDal']);
+            $statutFinal = $this->getStatutFinal($data['statutDal'], $data['statutOr']);
 
             // Ajouter ou mettre à jour le statut
             $lastIndex = count($tabTemp) - 1;
@@ -76,6 +85,12 @@ class DaTimelineService
         return $this->calculateDurations($tabTemp);
     }
 
+    /** 
+     * @param string $numeroDa
+     * @param array{statutDal:string,statutOr:string|null,dateCreation:\DateTime,dateDemande:\DateTime} $lastDataDA
+     * 
+     * @return array<string,array{statut:string,dotClass:string,date:string,nbrJours:string}>
+     */
     private function buildTimelineBC(string $numeroDa, array $lastDataDA): array
     {
         $allDatas = $this->daAfficherRepository->getAllNumCdeAndVmax($numeroDa);
@@ -157,13 +172,19 @@ class DaTimelineService
             }
 
             // Ajouter la date actuelle si le processus n'est pas terminé
-            if (!$dateLivraisonArticle) $tabTemp[$numBC][] = $this->createCurrentDateEntry($today);
+            if (!$dateLivraisonArticle) $tabTemp[$numBC][] = $this->createCurrentDateEntry();
         }
 
         return $tabTemp;
     }
 
-    private function getStatutFinal(?string $statutOr, string $statutDal): string
+    /** 
+     * @param string $statutDal
+     * @param string|null $statutOr
+     * 
+     * @return string
+     */
+    private function getStatutFinal(string $statutDal, ?string $statutOr): string
     {
         $estDaValide = ($statutOr === StatutDaConstant::STATUT_DW_A_MODIFIER &&
             $statutDal === StatutDaConstant::STATUT_EN_COURS_CREATION) ||
@@ -172,6 +193,13 @@ class DaTimelineService
         return $estDaValide ? StatutDaConstant::STATUT_VALIDE : $statutDal;
     }
 
+    /** 
+     * @param string $statut
+     * @param \DateTime|null $date
+     * @param \DateTime|null $dateDemande
+     * 
+     * @return array{statut:string,dotClass:string,date:string,nbrJours:string}
+     */
     private function createTimelineEntry(string $statut, ?\DateTime $date, ?\DateTime $dateDemande): array
     {
         return [
@@ -182,6 +210,9 @@ class DaTimelineService
         ];
     }
 
+    /** 
+     * @return array{statut:string,dotClass:string,date:string,nbrJours:string}
+     */
     private function createCurrentDateEntry(): array
     {
         return [
@@ -192,6 +223,11 @@ class DaTimelineService
         ];
     }
 
+    /** 
+     * @param array<int,array{statutDal:string,statutOr:null,dateCreation:\DateTime,dateDemande:\DateTime}> $timeline
+     * 
+     * @return array<int,array{statut:string,dotClass:string,date:string,nbrJours:string}>
+     */
     private function calculateDurations(array $timeline): array
     {
         for ($i = 0; $i < count($timeline); $i++) {
@@ -210,6 +246,11 @@ class DaTimelineService
         return $timeline;
     }
 
+    /** 
+     * @param int $nbrJours
+     * 
+     * @return string
+     */
     private function formatDuration(int $nbrJours): string
     {
         return $nbrJours === 0 ? "< 1 jour" : $nbrJours . " jour(s)";
