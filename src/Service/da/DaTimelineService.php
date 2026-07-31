@@ -36,16 +36,38 @@ class DaTimelineService
         $lastDataOR = empty($timelineOR) ? $lastDataDA : end($timelineOR);
         $timelineBc = $this->buildTimelineBC($numeroDa, $lastDataOR);
 
-        /* if (empty($timelineBc)) {
-            $nbrJours = $this->formatDuration(
-                $this->differenceJoursOuvrables(
-                    \DateTime::createFromFormat('d/m/Y', $lastData['date']),
-                    new \DateTime()
-                )
-            );
-            $timelineDa[array_key_last($timelineDa)]['nbrJours'] = $nbrJours;
-            $timelineDa[] = $this->createCurrentDateEntry();
-        } */
+        if (empty($timelineBc)) {
+            if ($isDaViaOR) {
+                if (empty($timelineOR)) {
+                    $nbrJours = $this->formatDuration(
+                        $this->differenceJoursOuvrables(
+                            \DateTime::createFromFormat('d/m/Y', $lastDataDA['date']),
+                            new \DateTime()
+                        )
+                    );
+                    $timelineDa[array_key_last($timelineDa)]['nbrJours'] = $nbrJours;
+                    $timelineDa[] = $this->createCurrentDateEntry();
+                } else {
+                    $nbrJours = $this->formatDuration(
+                        $this->differenceJoursOuvrables(
+                            \DateTime::createFromFormat('d/m/Y', $lastDataOR['date']),
+                            new \DateTime()
+                        )
+                    );
+                    $timelineOR[array_key_last($timelineOR)]['nbrJours'] = $nbrJours;
+                    $timelineOR[] = $this->createCurrentDateEntry();
+                }
+            } else {
+                $nbrJours = $this->formatDuration(
+                    $this->differenceJoursOuvrables(
+                        \DateTime::createFromFormat('d/m/Y', $lastDataDA['date']),
+                        new \DateTime()
+                    )
+                );
+                $timelineDa[array_key_last($timelineDa)]['nbrJours'] = $nbrJours;
+                $timelineDa[] = $this->createCurrentDateEntry();
+            }
+        }
 
         return [
             'numeroOr' => $numeroOr,
