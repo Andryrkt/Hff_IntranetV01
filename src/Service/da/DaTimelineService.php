@@ -5,6 +5,7 @@ namespace App\Service\da;
 use App\Entity\da\DaAfficher;
 use App\Traits\JoursOuvrablesTrait;
 use App\Constants\da\StatutDaConstant;
+use App\Constants\da\StatutOrConstant;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\da\DaAfficherRepository;
 
@@ -20,37 +21,42 @@ class DaTimelineService
 
     /** 
      * @param string $numeroDa
+     * @param bool   $isDaViaOR
      * 
      * @return array<string,array<int|string,array{statut:string,dotClass:string,date:string,nbrJours:string}>>
      */
-    public function getTimelineData(string $numeroDa): array
+    public function getTimelineData(string $numeroDa, bool $isDaViaOR = false): array
     {
         $allDatas = $this->daAfficherRepository->getTimelineData($numeroDa);
-        if (empty($allDatas)) return ['DA' => [], 'BC' => []];
+        if (empty($allDatas)) return ['DA' => [], 'OR' => [], 'BC' => []];
 
         $timelineDa = $this->buildTimelineDA($allDatas);
-        $timelineBc = $this->buildTimelineBC($numeroDa, end($timelineDa));
+        $lastDataDA = end($timelineDa);
+        [$numeroOr, $timelineOR] = $isDaViaOR ? $this->buildTimelineOR($allDatas, $lastDataDA) : ["", []];
+        $lastDataOR = empty($timelineOR) ? $lastDataDA : end($timelineOR);
+        $timelineBc = $this->buildTimelineBC($numeroDa, $lastDataOR);
 
-        if (empty($timelineBc)) {
-            $lastEntryData = end($allDatas);
+        /* if (empty($timelineBc)) {
             $nbrJours = $this->formatDuration(
                 $this->differenceJoursOuvrables(
-                    $lastEntryData['dateCreation'],
+                    \DateTime::createFromFormat('d/m/Y', $lastData['date']),
                     new \DateTime()
                 )
             );
             $timelineDa[array_key_last($timelineDa)]['nbrJours'] = $nbrJours;
             $timelineDa[] = $this->createCurrentDateEntry();
-        }
+        } */
 
         return [
-            'DA' => $timelineDa,
-            'BC' => $timelineBc,
+            'numeroOr' => $numeroOr,
+            'DA'       => $timelineDa,
+            'OR'       => $timelineOR,
+            'BC'       => $timelineBc,
         ];
     }
 
     /** 
-     * @param array<int,array{statutDal:string,statutOr:string|null,dateCreation:\DateTime,dateDemande:\DateTime}> $allDatas
+     * @param array<int,array{statutDal:string,dateCreation:\DateTime,dateDemande:\DateTime,numeroOr:string|null,statutOr:string|null,dateMajStatutOr:\DateTime|null}> $allDatas
      * 
      * @return array<int,array{statut:string,dotClass:string,date:string,nbrJours:string}>
      */
@@ -85,6 +91,62 @@ class DaTimelineService
 
         // Calculer les durées
         return $this->calculateDurations($tabTemp);
+    }
+
+    /** 
+     * @param array<int,array{statutDal:string,dateCreation:\DateTime,dateDemande:\DateTime,numeroOr:string|null,statutOr:string|null,dateMajStatutOr:\DateTime|null}> $allDatas
+     * @param array{statut:string,dotClass:string,date:string,nbrJours:string} $lastDataDA
+     * 
+     * @return array{string,array<int,array{statut:string,dotClass:string,date:string,nbrJours:string}>}
+     */
+    private function buildTimelineOR(array $allDatas, $lastDataDA): array
+    {
+        $tabTemp = [];
+        $nbrJours = "";
+
+        foreach ($allDatas as $data) {
+            $numOr        = $data['numeroOr'];
+            $statutOr     = $data['statutOr'];
+            $dateStatutOr = $data['dateMajStatutOr'];
+
+            if ($numOr !== null && $statutOr !== null && $dateStatutOr !== null) {
+                $tabTemp = [
+                    'numeroOr' => $numOr,
+                    'statut'   => "OR - " . $statutOr,
+                    'dotClass' => StatutOrConstant::getCssClassOr("OR - " . $statutOr),
+                    'date'     => $dateStatutOr->format('d/m/Y')
+                ];
+
+                $nbrJours = $this->formatDuration(
+                    $this->differenceJoursOuvrables(
+                        \DateTime::createFromFormat('d/m/Y', $lastDataDA['date']),
+                        $dateStatutOr
+                    )
+                );
+
+                break;
+            }
+        }
+
+        if (empty($tabTemp)) return ["", []];
+
+        return [
+            $tabTemp["numeroOr"],
+            [
+                [
+                    "statut"   => $lastDataDA["statut"],
+                    "dotClass" => $lastDataDA["dotClass"],
+                    "date"     => $lastDataDA['date'],
+                    "nbrJours" => $nbrJours,
+                ],
+                [
+                    "statut"   => $tabTemp["statut"],
+                    "dotClass" => $tabTemp["dotClass"],
+                    "date"     => $tabTemp["date"],
+                    "nbrJours" => "",
+                ]
+            ]
+        ];
     }
 
     /** 
