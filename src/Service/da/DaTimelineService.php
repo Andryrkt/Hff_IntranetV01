@@ -29,7 +29,7 @@ class DaTimelineService
         if (empty($allDatas)) return ['DA' => [], 'BC' => []];
 
         $timelineDa = $this->buildTimelineDA($allDatas);
-        $timelineBc = $this->buildTimelineBC($numeroDa, end($allDatas));
+        $timelineBc = $this->buildTimelineBC($numeroDa, end($timelineDa));
 
         if (empty($timelineBc)) {
             $lastEntryData = end($allDatas);
@@ -58,14 +58,16 @@ class DaTimelineService
     {
         $tabTemp = [];
 
+        $statuts      = array_column($allDatas, 'statutDal');
+        $skipCloturee = in_array(StatutDaConstant::STATUT_VALIDE, $statuts, true) && in_array(StatutDaConstant::STATUT_CLOTUREE, $statuts, true);
+
         foreach ($allDatas as $key => $data) {
+            // Sauter les entrées CLOTUREE si VALIDE est aussi présent
+            if ($skipCloturee && $data['statutDal'] === StatutDaConstant::STATUT_CLOTUREE) continue;
+
             // Ajouter le statut initial si nécessaire
             if ($key === 0 && $data['statutDal'] !== StatutDaConstant::STATUT_SOUMIS_APPRO) {
-                $tabTemp[] = $this->createTimelineEntry(
-                    StatutDaConstant::STATUT_SOUMIS_APPRO,
-                    null,
-                    $data['dateDemande']
-                );
+                $tabTemp[] = $this->createTimelineEntry(StatutDaConstant::STATUT_SOUMIS_APPRO, $data['dateDemande']);
             }
 
             // Déterminer le statut final
@@ -74,7 +76,7 @@ class DaTimelineService
             // Ajouter ou mettre à jour le statut
             $lastIndex = count($tabTemp) - 1;
             if ($lastIndex < 0 || $tabTemp[$lastIndex]['statut'] !== $statutFinal) {
-                $tabTemp[] = $this->createTimelineEntry($statutFinal, $data['dateCreation'], $data['dateDemande']);
+                $tabTemp[] = $this->createTimelineEntry($statutFinal, $data['dateDemande'], $data['dateCreation']);
             } else {
                 // Mettre à jour avec la date la plus récente
                 $tabTemp[$lastIndex]['date'] = $data['dateCreation'];
@@ -87,7 +89,7 @@ class DaTimelineService
 
     /** 
      * @param string $numeroDa
-     * @param array{statutDal:string,statutOr:string|null,dateCreation:\DateTime,dateDemande:\DateTime} $lastDataDA
+     * @param array{statut:string,dotClass:string,date:string,nbrJours:string} $lastDataDA
      * 
      * @return array<string,array{statut:string,dotClass:string,date:string,nbrJours:string}>
      */
@@ -102,7 +104,7 @@ class DaTimelineService
             $numeroVersion = $data['numeroVersion'];
 
             // Récupération de toutes les dates possibles
-            $dateValidationDA     = $lastDataDA['dateCreation'];
+            $dateValidationDA     = \DateTime::createFromFormat('d/m/Y', $lastDataDA['date']);
             $dateCreationBc       = $this->daAfficherRepository->getDateCreationBc($numeroDa, $numeroVersion, $numBC);       // Génération BC
             $dateValidation       = $this->daAfficherRepository->getDateValidationBc($numeroDa, $numeroVersion, $numBC);     // Validation BC
             $dateEnvoi            = $this->daAfficherRepository->getDateEnvoiFournisseur($numeroDa, $numeroVersion, $numBC); // Envoi au fournisseur
@@ -112,8 +114,8 @@ class DaTimelineService
             // Définition de toutes les étapes possibles
             $etapes = [
                 [
-                    'statut'   => $lastDataDA['statutDal'],
-                    'dotClass' => StatutDaConstant::getCssClassDa($lastDataDA['statutDal']),
+                    'statut'   => $lastDataDA['statut'],
+                    'dotClass' => $lastDataDA['dotClass'],
                     'date'     => $dateValidationDA
                 ],
                 [
@@ -195,17 +197,17 @@ class DaTimelineService
 
     /** 
      * @param string $statut
-     * @param \DateTime|null $date
      * @param \DateTime|null $dateDemande
+     * @param \DateTime|null $dateCreation
      * 
      * @return array{statut:string,dotClass:string,date:string,nbrJours:string}
      */
-    private function createTimelineEntry(string $statut, ?\DateTime $date, ?\DateTime $dateDemande): array
+    private function createTimelineEntry(string $statut, ?\DateTime $dateDemande, ?\DateTime $dateCreation = null): array
     {
         return [
             'statut'   => $statut,
             'dotClass' => StatutDaConstant::getCssClassDa($statut),
-            'date'     => $statut === StatutDaConstant::STATUT_SOUMIS_APPRO ? $dateDemande : $date,
+            'date'     => $statut === StatutDaConstant::STATUT_SOUMIS_APPRO ? $dateDemande : $dateCreation,
             'nbrJours' => 0,
         ];
     }
