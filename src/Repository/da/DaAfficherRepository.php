@@ -402,17 +402,6 @@ class DaAfficherRepository extends EntityRepository
      */
     public function findValidatedDas(array $criteria = [], string $codeSociete): array
     {
-        // -------------------------------------
-        // 1. Sous-requête : versions maximales par DA
-        // -------------------------------------
-        $subQb = $this->_em->createQueryBuilder();
-        $subQb->select(
-            'd.numeroDemandeAppro',
-            'MAX(d.numeroVersion) as maxVersion'
-        )
-            ->from(DaAfficher::class, 'd')
-            ->groupBy('d.numeroDemandeAppro');
-
         $statutOrs = [
             StatutOrConstant::STATUT_VALIDE,
             StatutDaConstant::STATUT_DW_VALIDEE
@@ -427,30 +416,24 @@ class DaAfficherRepository extends EntityRepository
             StatutDaConstant::STATUT_VALIDE
         ];
 
-        $subQb->andWhere(
-            $subQb->expr()->orX(
-                $subQb->expr()->in('d.statutOr', ':statutOrs'),
-                $subQb->expr()->in('d.numeroDemandeAppro', ':exceptions')
+        // -------------------------------------
+        // 1. Sous-requête corrélée : version maximale par DA
+        // (remplace l'ancienne boucle PHP qui dépassait la limite de
+        // 2100 paramètres de SQL Server pour les gros volumes de DA)
+        // -------------------------------------
+        $subQb = $this->_em->createQueryBuilder();
+        $subQb->select('MAX(sub.numeroVersion)')
+            ->from(DaAfficher::class, 'sub')
+            ->where('sub.numeroDemandeAppro = d.numeroDemandeAppro')
+            ->andWhere(
+                $subQb->expr()->orX(
+                    $subQb->expr()->in('sub.statutOr', ':statutOrs'),
+                    $subQb->expr()->in('sub.numeroDemandeAppro', ':exceptions')
+                )
             )
-        );
+            ->andWhere('sub.statutDal IN (:statutDal)');
 
-        $subQb->andWhere('d.statutDal IN (:statutDal)');
-
-        $subQb->setParameter('statutOrs', $statutOrs)
-            ->setParameter('exceptions', $exceptions)
-            ->setParameter('statutDal', $statutDas);
-
-        $latestVersions = $subQb->getQuery()->getArrayResult();
-
-        if (empty($latestVersions)) {
-            return [];
-        }
-
-        // Mapping numéro DA -> version max
-        $latestVersionsMap = [];
-        foreach ($latestVersions as $version) {
-            $latestVersionsMap[$version['numeroDemandeAppro']] = $version['maxVersion'];
-        }
+        $subDql = $subQb->getDQL();
 
         // -------------------------------------
         // 2. Requête principale
@@ -473,24 +456,7 @@ class DaAfficherRepository extends EntityRepository
         $filterService->applyDateFilters($qb, "d", $criteria, true);
 
         // garder uniquement les dernières versions
-        $orX = $qb->expr()->orX();
-        $paramIndex = 0;
-
-        foreach ($latestVersionsMap as $numeroDemandeAppro => $maxVersion) {
-            $orX->add(
-                $qb->expr()->andX(
-                    $qb->expr()->eq('d.numeroDemandeAppro', ':numDa' . $paramIndex),
-                    $qb->expr()->eq('d.numeroVersion', ':maxVer' . $paramIndex)
-                )
-            );
-
-            $qb->setParameter('numDa' . $paramIndex, $numeroDemandeAppro);
-            $qb->setParameter('maxVer' . $paramIndex, $maxVersion);
-
-            $paramIndex++;
-        }
-
-        $qb->andWhere($orX);
+        $qb->andWhere('d.numeroVersion = (' . $subDql . ')');
 
         // statuts
         $qb->andWhere('d.statutDal IN (:statutDal)')
@@ -505,6 +471,7 @@ class DaAfficherRepository extends EntityRepository
             ->andWhere('d.codeSociete = :codeSociete')
             ->setParameter('codeSociete', $codeSociete)
             ->setParameter('statutOrsValide', $statutOrs)
+            ->setParameter('statutOrs', $statutOrs)
             ->setParameter('exceptions', $exceptions);
 
         // tri
