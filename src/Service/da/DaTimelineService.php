@@ -147,29 +147,19 @@ class DaTimelineService
      */
     private function buildTimelineBC(string $numeroDa, array $pointDepart): array
     {
-        $allDatas = $this->daAfficherRepository->getAllNumCdeAndVmax($numeroDa);
         $tabTemp = [];
+        $donneesBc = $this->daAfficherRepository->getDonneesBcParNumCde($numeroDa);
         $dateValidationDA = \DateTime::createFromFormat('d/m/Y', $pointDepart['date']);
 
-        foreach ($allDatas as $data) {
-            $numBC = $data['numeroCde'];
-            $numeroVersion = $data['numeroVersion'];
-
-            // Récupération de toutes les dates possibles
-            $dateCreationBc       = $this->daAfficherRepository->getDateCreationBc($numeroDa, $numeroVersion, $numBC);       // Génération BC
-            $dateValidation       = $this->daAfficherRepository->getDateValidationBc($numeroDa, $numeroVersion, $numBC);     // Validation BC
-            $dateEnvoi            = $this->daAfficherRepository->getDateEnvoiFournisseur($numeroDa, $numeroVersion, $numBC); // Envoi au fournisseur
-            $dateReceptionArticle = $this->daAfficherRepository->getDateReceptionArticle($numeroDa, $numeroVersion, $numBC); // Réception des articles
-            $dateLivraisonArticle = $this->daAfficherRepository->getDateLivraisonArticle($numeroDa, $numeroVersion, $numBC); // Livraison des articles
-
+        foreach ($donneesBc as $numBC => $dates) {
             // Définition de toutes les étapes possibles
             $etapes = [
                 $this->creerEtapeBc($pointDepart['statut'], $pointDepart['dotClass'], $dateValidationDA, false),
-                $this->creerEtapeBc('Génération BC', StatutBcConstant::STATUT_A_GENERER, $dateCreationBc),
-                $this->creerEtapeBc('Validation BC', StatutBcConstant::STATUT_VALIDE, $dateValidation),
-                $this->creerEtapeBc('BC envoyé au fournisseur', StatutBcConstant::STATUT_BC_ENVOYE_AU_FOURNISSEUR, $dateEnvoi),
-                $this->creerEtapeBc('Réception des articles', StatutBcConstant::STATUT_PARTIELLEMENT_LIVRE, $dateReceptionArticle),
-                $this->creerEtapeBc('Livraison des articles', StatutBcConstant::STATUT_TOUS_LIVRES, $dateLivraisonArticle),
+                $this->creerEtapeBc('Génération BC', StatutBcConstant::STATUT_A_GENERER, $dates['dateCreationBc']),
+                $this->creerEtapeBc('Validation BC', StatutBcConstant::STATUT_VALIDE, $dates['dateValidationBc']),
+                $this->creerEtapeBc('BC envoyé au fournisseur', StatutBcConstant::STATUT_BC_ENVOYE_AU_FOURNISSEUR, $dates['dateEnvoiFournisseur']),
+                $this->creerEtapeBc('Réception des articles', StatutBcConstant::STATUT_PARTIELLEMENT_LIVRE, $dates['dateReceptionArticle']),
+                $this->creerEtapeBc('Livraison des articles', StatutBcConstant::STATUT_TOUS_LIVRES, $dates['dateLivraisonArticle']),
             ];
 
             // Filtrer les étapes qui ont une date
@@ -182,7 +172,7 @@ class DaTimelineService
             usort($etapesValides, fn($a, $b) => $a['date'] <=> $b['date']);
 
             // Construire le tableau avec calcul automatique des durées
-            $tabTemp[$numBC] = $this->construireEtapesAvecDurees($etapesValides, (bool) $dateLivraisonArticle);
+            $tabTemp[$numBC] = $this->construireEtapesAvecDurees($etapesValides, (bool) $dates['dateLivraisonArticle']);
         }
 
         return $tabTemp;
