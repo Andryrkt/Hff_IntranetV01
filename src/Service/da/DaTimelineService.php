@@ -43,6 +43,7 @@ class DaTimelineService
         }
 
         return [
+            'numeroDa' => $numeroDa,
             'numeroOr' => $numeroOr,
             'DA'       => $timelineDa,
             'OR'       => $timelineOR,
