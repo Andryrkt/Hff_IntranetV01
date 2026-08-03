@@ -2,7 +2,7 @@
 	<h3 class="perso-titre">Timeline de la DA</h3>
 </div>
 
-<div class="mb-4">
+<div class="mb-5">
 	<div class="ps-4">
 		{% for item in timelineData.DA %}
 			<div class="timeline-item">
@@ -10,15 +10,15 @@
 				<div class="timeline-content">
 					<div class="d-flex flex-row align-items-center gap-4">
 						<div class="timeline-date">{{ item.date }}</div>
-						<div class="timeline-status">{{ item.statut }}</div>
+						<div class="timeline-status {{ item.dotClass }}">{{ item.statut }}</div>
 					</div>
-					<div class="timeline-duration mt-4">{{ item.nbrJours }}</div>
+					<div class="timeline-duration mt-3">{{ item.nbrJours }}</div>
 				</div>
 			</div>
 		{% endfor %}
 	</div>
 </div>
-<div class="mb-4">
+<div class="mb-5">
 	<div class="ps-4">
 		{% if timelineData.numeroOr %}
 			<div class="fw-bold fs-6 mb-2 ps-5">OR n°
@@ -31,9 +31,9 @@
 				<div class="timeline-content">
 					<div class="d-flex flex-row align-items-center gap-4">
 						<div class="timeline-date">{{ item.date }}</div>
-						<div class="timeline-status">{{ item.statut }}</div>
+						<div class="timeline-status {{ item.dotClass }}">{{ item.statut }}</div>
 					</div>
-					<div class="timeline-duration mt-4">{{ item.nbrJours }}</div>
+					<div class="timeline-duration mt-3">{{ item.nbrJours }}</div>
 				</div>
 			</div>
 		{% endfor %}
@@ -50,9 +50,9 @@
 					<div class="timeline-content">
 						<div class="d-flex flex-row align-items-center gap-4">
 							<div class="timeline-date">{{ item.date }}</div>
-							<div class="timeline-status">{{ item.statut }}</div>
+							<div class="timeline-status {{ item.dotClass }}">{{ item.statut }}</div>
 						</div>
-						<div class="timeline-duration mt-4">{{ item.nbrJours }}</div>
+						<div class="timeline-duration mt-3">{{ item.nbrJours }}</div>
 					</div>
 				</div>
 			{% endfor %}
