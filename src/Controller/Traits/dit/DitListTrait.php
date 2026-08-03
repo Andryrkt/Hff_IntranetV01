@@ -596,8 +596,10 @@ trait DitListTrait
             $statutCloturerValider = $value->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_CLOTUREE_VALIDER; //CLOTUREE_VALIDER
             $statutTerminer = $value->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_TERMINER; //TERMINER
             $estOrSoumis = $em->getRepository(DitOrsSoumisAValidation::class)->existsNumOrEtDit($value->getNumeroOR(), $value->getNumeroDemandeIntervention());
+            $numDitOr = $em->getRepository(DitOrsSoumisAValidation::class)->findNumDit($value->getNumeroOR());
 
-            if ($statutAffecterSection && !$estOrSoumis) { //si la statut DIT est AFFACTER SECTION et il n'y a pas encore d'OR déjà soumi (c'est la première soumission)
+            //si la statut DIT est AFFACTER SECTION et il n'y a pas encore d'OR déjà soumi (c'est la première soumission) ou la statut DIT est AFFACTER SECTION et il existe une OR soumis et le numero DIT dans l'OR est différent du Dit ou l'on va soumettre l'OR
+            if (($statutAffecterSection && !$estOrSoumis) || ($statutAffecterSection && $estOrSoumis && $numDitOr[0] <> $value->getNumeroDemandeIntervention())) { 
                 $value->setEstOrASoumi(true); //affichage du boutton Soumission document à valider
             } elseif ($value->getInternetExterne() == 'EXTERNE' && $value->getIdStatutDemande()->getId() === 53) { // 
                 $value->setEstOrASoumi(true);

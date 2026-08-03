@@ -135,7 +135,7 @@ class DemandePaiementDaType extends AbstractType
                     'attr' => [
                         'readOnly' => true
                     ],
-                    'data' => $this->formatNumberGeneral($options['data']->montantAPayer)
+                    'data' => number_format($options['data']->montantAPayer,2,',','.')
                 ]
             )
         ;
@@ -177,7 +177,7 @@ class DemandePaiementDaType extends AbstractType
                     'label' => 'Montant total cmde',
                     'required' => false,
                     'disabled' => true,
-                    'data' => $this->formatNumberGeneral($options['data']->totalMontantCommande)
+                    'data' => number_format($options['data']->totalMontantCommande,2,',','.')
                 ]
             )
             ->add(
@@ -187,7 +187,7 @@ class DemandePaiementDaType extends AbstractType
                     'label' => 'Montant déjà payé',
                     'required' => false,
                     'disabled' => true,
-                    'data' => $this->formatNumberGeneral($options['data']->montantDejaPaye)
+                    'data' => number_format($options['data']->montantDejaPaye,2,',','.')
                 ]
             )
             ->add(
@@ -197,7 +197,7 @@ class DemandePaiementDaType extends AbstractType
                     'label' => 'Montant restant à payer',
                     'required' => false,
                     'disabled' => true,
-                    'data' => $this->formatNumberGeneral($options['data']->montantRestantApayer)
+                    'data' => number_format($options['data']->montantRestantApayer,2,',','.')
                 ]
             )
             ->add(
