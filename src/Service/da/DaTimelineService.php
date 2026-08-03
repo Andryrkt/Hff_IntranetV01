@@ -6,6 +6,7 @@ use App\Entity\da\DaAfficher;
 use App\Traits\JoursOuvrablesTrait;
 use App\Constants\da\StatutDaConstant;
 use App\Constants\da\StatutOrConstant;
+use App\Constants\da\StatutBcConstant;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\da\DaAfficherRepository;
 
@@ -83,8 +84,7 @@ class DaTimelineService
             }
         }
 
-        // Calculer les durées
-        return $this->calculateDurations($tabTemp);
+        return $this->construireEtapesAvecDurees($tabTemp, true);
     }
 
     /** 
@@ -97,6 +97,7 @@ class DaTimelineService
     {
         $tabTemp = [];
         $nbrJours = "";
+        $dateValidationDA = \DateTime::createFromFormat('d/m/Y', $lastDataDA['date']);
 
         foreach ($allDatas as $data) {
             $numOr        = $data['numeroOr'];
@@ -111,12 +112,7 @@ class DaTimelineService
                     'date'     => $dateStatutOr->format('d/m/Y')
                 ];
 
-                $nbrJours = $this->formatDuration(
-                    $this->differenceJoursOuvrables(
-                        \DateTime::createFromFormat('d/m/Y', $lastDataDA['date']),
-                        $dateStatutOr
-                    )
-                );
+                $nbrJours = $this->formatDuration($this->differenceJoursOuvrables($dateValidationDA, $dateStatutOr));
 
                 break;
             }
@@ -153,7 +149,6 @@ class DaTimelineService
     {
         $allDatas = $this->daAfficherRepository->getAllNumCdeAndVmax($numeroDa);
         $tabTemp = [];
-        $today = new \DateTime();
         $dateValidationDA = \DateTime::createFromFormat('d/m/Y', $pointDepart['date']);
 
         foreach ($allDatas as $data) {
@@ -169,36 +164,12 @@ class DaTimelineService
 
             // Définition de toutes les étapes possibles
             $etapes = [
-                [
-                    'statut'   => $pointDepart['statut'],
-                    'dotClass' => $pointDepart['dotClass'],
-                    'date'     => $dateValidationDA
-                ],
-                [
-                    'statut'   => 'Génération BC',
-                    'dotClass' => 'bg-bc-a-generer',
-                    'date'     => $dateCreationBc
-                ],
-                [
-                    'statut'   => 'Validation BC',
-                    'dotClass' => 'bg-bc-valide',
-                    'date'     => $dateValidation
-                ],
-                [
-                    'statut'   => 'BC envoyé au fournisseur',
-                    'dotClass' => 'bg-bc-envoye-au-fournisseur',
-                    'date'     => $dateEnvoi
-                ],
-                [
-                    'statut'   => 'Réception des articles',
-                    'dotClass' => 'partiellement-livre',
-                    'date'     => $dateReceptionArticle
-                ],
-                [
-                    'statut'   => 'Livraison des articles',
-                    'dotClass' => 'tout-livre',
-                    'date'     => $dateLivraisonArticle
-                ]
+                $this->creerEtapeBc($pointDepart['statut'], $pointDepart['dotClass'], $dateValidationDA, false),
+                $this->creerEtapeBc('Génération BC', StatutBcConstant::STATUT_A_GENERER, $dateCreationBc),
+                $this->creerEtapeBc('Validation BC', StatutBcConstant::STATUT_VALIDE, $dateValidation),
+                $this->creerEtapeBc('BC envoyé au fournisseur', StatutBcConstant::STATUT_BC_ENVOYE_AU_FOURNISSEUR, $dateEnvoi),
+                $this->creerEtapeBc('Réception des articles', StatutBcConstant::STATUT_PARTIELLEMENT_LIVRE, $dateReceptionArticle),
+                $this->creerEtapeBc('Livraison des articles', StatutBcConstant::STATUT_TOUS_LIVRES, $dateLivraisonArticle),
             ];
 
             // Filtrer les étapes qui ont une date
@@ -211,35 +182,33 @@ class DaTimelineService
             usort($etapesValides, fn($a, $b) => $a['date'] <=> $b['date']);
 
             // Construire le tableau avec calcul automatique des durées
-            $nbEtapes = count($etapesValides);
-            foreach ($etapesValides as $index => $etape) {
-                // Déterminer la date de fin pour le calcul
-                // Si c'est la dernière étape, pas de durée
-                // Sinon, la date de fin est la date de l'étape suivante
-                $isLastStep = ($index === $nbEtapes - 1);
-                $dateFinCalcul = !$isLastStep ? $etapesValides[$index + 1]['date'] : ($dateLivraisonArticle ? NULL : $today);
-
-                $tabTemp[$numBC][] = [
-                    'statut'   => $etape['statut'],
-                    'dotClass' => $etape['dotClass'],
-                    'date'     => $etape['date']->format('d/m/Y'),
-                    'nbrJours' => $dateFinCalcul
-                        ? $this->formatDuration($this->differenceJoursOuvrables($etape['date'], $dateFinCalcul))
-                        : ''
-                ];
-            }
-
-            // Ajouter la date actuelle si le processus n'est pas terminé
-            if (!$dateLivraisonArticle) $tabTemp[$numBC][] = $this->createCurrentDateEntry();
+            $tabTemp[$numBC] = $this->construireEtapesAvecDurees($etapesValides, (bool) $dateLivraisonArticle);
         }
 
         return $tabTemp;
     }
 
-    /** 
+    /**
+     * @param string $statut Libellé affiché pour cette étape
+     * @param string $classKey Clé de statut BC utilisée pour résoudre la classe CSS du point
+     * @param \DateTime|null $date
+     * @param bool $isStatutBc
+     *
+     * @return array{statut:string,dotClass:string,date:\DateTime|null}
+     */
+    private function creerEtapeBc(string $statut, string $classKey, ?\DateTime $date, bool $isStatutBc = true): array
+    {
+        return [
+            'statut'   => $statut,
+            'dotClass' => $isStatutBc ? StatutBcConstant::getCssClassBc($classKey) : $classKey,
+            'date'     => $date,
+        ];
+    }
+
+    /**
      * @param string $statutDal
      * @param string|null $statutOr
-     * 
+     *
      * @return string
      */
     private function getStatutFinal(string $statutDal, ?string $statutOr): string
@@ -282,8 +251,7 @@ class DaTimelineService
     }
 
     /**
-     * Clôture une timeline non terminée en calculant la durée jusqu'à aujourd'hui
-     * et en ajoutant une entrée "Aujourd'hui".
+     * Clôture une timeline non terminée en calculant la durée jusqu'à aujourd'hui et en ajoutant une entrée "Aujourd'hui".
      *
      * @param array<int,array{statut:string,dotClass:string,date:string,nbrJours:string}> $timeline
      *
@@ -305,25 +273,34 @@ class DaTimelineService
         return $timeline;
     }
 
-    /** 
-     * @param array<int,array{statutDal:string,statutOr:null,dateCreation:\DateTime,dateDemande:\DateTime}> $timeline
-     * 
+    /**
+     * Calcule la durée entre étapes consécutives (jours ouvrables) et formate leur date.
+     *
+     * @param array<int,array{statut:string,dotClass:string,date:\DateTime}> $etapes Triées par date croissante
+     * @param bool $isComplete Si $isComplete est faux, la dernière étape est comptée jusqu'à aujourd'hui et une entrée "Aujourd'hui" est ajoutée.
+     *
      * @return array<int,array{statut:string,dotClass:string,date:string,nbrJours:string}>
      */
-    private function calculateDurations(array $timeline): array
+    private function construireEtapesAvecDurees(array $etapes, bool $isComplete): array
     {
-        for ($i = 0; $i < count($timeline); $i++) {
-            if ($i < count($timeline) - 1) {
-                $nbrJours = $this->differenceJoursOuvrables(
-                    $timeline[$i + 1]['date'],
-                    $timeline[$i]['date']
-                );
-                $timeline[$i]['nbrJours'] = $this->formatDuration($nbrJours);
-            } else {
-                $timeline[$i]['nbrJours'] = '';
-            }
-            $timeline[$i]['date'] = $timeline[$i]['date']->format('d/m/Y');
+        $nbEtapes = count($etapes);
+        $timeline = [];
+
+        foreach ($etapes as $index => $etape) {
+            $isLastStep = $index === $nbEtapes - 1;
+            $dateFin = !$isLastStep ? $etapes[$index + 1]['date'] : ($isComplete ? null : new \DateTime());
+
+            $timeline[] = [
+                'statut'   => $etape['statut'],
+                'dotClass' => $etape['dotClass'],
+                'date'     => $etape['date']->format('d/m/Y'),
+                'nbrJours' => $dateFin
+                    ? $this->formatDuration($this->differenceJoursOuvrables($etape['date'], $dateFin))
+                    : '',
+            ];
         }
+
+        if (!$isComplete) $timeline[] = $this->createCurrentDateEntry();
 
         return $timeline;
     }
