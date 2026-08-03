@@ -58,7 +58,7 @@ class DaDetailAvecDitController extends Controller
 		$fichiers = $this->docRattacheService->getAllAttachedFiles($demandeAppro);
 
 		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL(), $demandeAppro->getStatutDal());
-		$timeLineData = $this->daTimelineService->getTimelineData($demandeAppro->getNumeroDemandeAppro());
+		$timeLineData = $this->daTimelineService->getTimelineData($demandeAppro->getNumeroDemandeAppro(), true);
 
 		return $this->render('da/detail.html.twig', [
 			'detailTemplate'      		=> 'detail-avec-dit',

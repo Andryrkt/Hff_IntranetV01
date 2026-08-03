@@ -27,9 +27,9 @@ class ValidationBc
             return true; // Validation failed
         }
 
-        // le statut de devis "A traiter"
-        if (empty($infoDevis)) {
-            $message = 'on ne peut pas soumettre un BC à validation que si la statut de la devis est encore "A traiter".';
+        // le statut de devis "A traiter" ou le statut de devis "Prix à confirmer"
+        if (empty($infoDevis) || $infoDevis['statut'] === StatutDevisNegContant::PRIX_A_CONFIRMER) {
+            $message = 'on ne peut pas soumettre un BC à validation que si la statut de la devis est encore "A traiter" ou "Prix à confirmer".';
             $this->sendNotificationDevisMagasin($message, $bcDto->numeroDevis, false);
             return true; // Validation failed
         }
@@ -40,12 +40,15 @@ class ValidationBc
             $this->sendNotificationDevisMagasin($message, $bcDto->numeroDevis, false);
             return true; // Validation failed
         }
+
         // le statut de devis "Validé - à envoyer client" et le statut BC "en attent BC"
         if ($infoDevis && $infoDevis['statut'] === StatutDevisNegContant::VALIDE_AGENCE && $infoDevis['statut_bc'] === StatutBcNegConstant::EN_ATTENTE_BC) {
             $message = 'on ne peut pas soumettre un BC à validation que si le devis est envoyé au client et la reception du bc est en attente.';
             $this->sendNotificationDevisMagasin($message, $bcDto->numeroDevis, false);
             return true; // Validation failed
         }
+
+
 
 
         return false; // Validation passed
