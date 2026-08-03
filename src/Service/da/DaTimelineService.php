@@ -96,48 +96,37 @@ class DaTimelineService
      */
     private function buildTimelineOR(array $allDatas, array $lastDataDA): array
     {
-        $tabTemp = [];
-        $nbrJours = "";
-        $dateValidationDA = \DateTime::createFromFormat('d/m/Y', $lastDataDA['date']);
+        $numeroOr = "";
+        $etapeOr  = null;
 
         foreach ($allDatas as $data) {
-            $numOr        = $data['numeroOr'];
+            $numeroOr     = $data['numeroOr'];
             $statutOr     = $data['statutOr'];
             $dateStatutOr = $data['dateMajStatutOr'];
 
-            if ($numOr !== null && $statutOr !== null && $dateStatutOr !== null) {
-                $tabTemp = [
-                    'numeroOr' => $numOr,
+            if ($numeroOr !== null && $statutOr !== null && $dateStatutOr !== null) {
+                $etapeOr = [
                     'statut'   => "OR - " . $statutOr,
                     'dotClass' => StatutOrConstant::getCssClassOr("OR - " . $statutOr),
-                    'date'     => $dateStatutOr->format('d/m/Y')
+                    'date'     => $dateStatutOr,
                 ];
-
-                $nbrJours = $this->formatDuration($this->differenceJoursOuvrables($dateValidationDA, $dateStatutOr));
 
                 break;
             }
         }
 
-        if (empty($tabTemp)) return ["", []];
+        if ($etapeOr === null) return ["", []];
 
-        return [
-            $tabTemp["numeroOr"],
+        $etapes = [
             [
-                [
-                    "statut"   => $lastDataDA["statut"],
-                    "dotClass" => $lastDataDA["dotClass"],
-                    "date"     => $lastDataDA['date'],
-                    "nbrJours" => $nbrJours,
-                ],
-                [
-                    "statut"   => $tabTemp["statut"],
-                    "dotClass" => $tabTemp["dotClass"],
-                    "date"     => $tabTemp["date"],
-                    "nbrJours" => "",
-                ]
-            ]
+                'statut'   => $lastDataDA['statut'],
+                'dotClass' => $lastDataDA['dotClass'],
+                'date'     => \DateTime::createFromFormat('d/m/Y', $lastDataDA['date'])
+            ],
+            $etapeOr
         ];
+
+        return [$numeroOr, $this->construireEtapesAvecDurees($etapes, true)];
     }
 
     /**
@@ -169,10 +158,7 @@ class DaTimelineService
             // S'il n'y a aucune étape valide, passer au suivant
             if (empty($etapesValides)) continue;
 
-            // Trier les étapes par date (du plus ancien au plus récent)
-            usort($etapesValides, fn($a, $b) => $a['date'] <=> $b['date']);
-
-            // Construire le tableau avec calcul automatique des durées
+            // Construire le tableau avec tri, calcul automatique des durées
             $tabTemp[$numBC] = $this->construireEtapesAvecDurees($etapesValides, (bool) $dates['dateLivraisonArticle']);
         }
 
@@ -265,9 +251,9 @@ class DaTimelineService
     }
 
     /**
-     * Calcule la durée entre étapes consécutives (jours ouvrables) et formate leur date.
+     * Trie les étapes par date croissante et calcule la durée entre étapes consécutives (jours ouvrables), puis formate leur date.
      *
-     * @param array<int,array{statut:string,dotClass:string,date:\DateTime}> $etapes Triées par date croissante
+     * @param array<int,array{statut:string,dotClass:string,date:\DateTime}> $etapes
      * @param bool $isComplete Si $isComplete est faux, la dernière étape est comptée jusqu'à aujourd'hui et une entrée "Aujourd'hui" est ajoutée.
      *
      * @return array<int,array{statut:string,dotClass:string,date:string,nbrJours:string}>
@@ -276,6 +262,7 @@ class DaTimelineService
     {
         $nbEtapes = count($etapes);
         $timeline = [];
+        usort($etapes, fn($a, $b) => $a['date'] <=> $b['date']);
 
         foreach ($etapes as $index => $etape) {
             $isLastStep = $index === $nbEtapes - 1;
