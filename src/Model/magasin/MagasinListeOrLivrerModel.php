@@ -314,7 +314,7 @@ class MagasinListeOrLivrerModel extends Model
                                 WHEN ss.slor_typlig IN ('F','M','U','C') THEN ss.slor_qterea
                             END
                         ) = SUM(ss.slor_qteres + ss.slor_qterea)
-                        THEN 'COMPLET'
+                        THEN 'COMPLET' --  somme_qte_dispo > 0 AND somme_qte_dem = (somme_qte_dispo + somme_qte_livree)
                     WHEN SUM(ss.slor_qteres) > 0
                         AND SUM(
                             CASE
@@ -322,7 +322,7 @@ class MagasinListeOrLivrerModel extends Model
                                 WHEN ss.slor_typlig IN ('F','M','U','C') THEN ss.slor_qterea
                             END
                         ) > SUM(ss.slor_qteres + ss.slor_qterea)
-                        THEN 'INCOMPLET'
+                        THEN 'INCOMPLET' --  somme_qte_dispo > 0 AND somme_qte_dem > (somme_qte_dispo + somme_qte_livree)
                 END AS situation
             FROM {$this->dbIps}:Informix.sav_lor AS ss
             WHERE ss.slor_numor IN ($numeroOr)
