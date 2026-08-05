@@ -4,40 +4,40 @@ namespace App\Constants\dom;
 
 class StatutDomConstant
 {
-    public const STATUT_ATTENTE_PAIEMENT      = "ATTENTE PAIEMENT";       // OUV -- 175
-    public const STATUT_CONTROLE_SERVICE      = "CONTROLE SERVICE";       // OUV -- 2
-    public const STATUT_OUVERT                = "OUVERT";                 // OUV -- 27
-    public const STATUT_PRE_CONTROLE_ATELIER  = "PRE-CONTROLE ATELIER";   // OUV -- 1
-    public const STATUT_TRAITE_PAR_COMPTA     = "TRAITE PAR COMPTA";      // OUV -- 261
-    public const STATUT_VALIDATION_COMPTA     = "VALIDATION COMPTA";      // OUV -- 1
-    public const STATUT_VALIDATION_DG         = "VALIDATION DG";          // OUV -- 
-    public const STATUT_VALIDATION_RH         = "VALIDATION RH";          // OUV -- 6
-    public const STATUT_VALIDE                = "VALIDE";                 // OUV -- 66
-    public const STATUT_VALIDE_COMPTABILITE   = "VALIDE COMPTABILITE";    // OUV -- 5
-    public const STATUT_ENCOURS               = "ENCOURS";                // ENC -- 
-    public const STATUT_COMPTA                = "COMPTA";                 // CPT -- 
-    public const STATUT_ANNULE                = "ANNULE";                 // ANN -- 36
-    public const STATUT_ANNULE_CHEF_SERVICE   = "ANNULE CHEF DE SERVICE"; // ANN -- 293
-    public const STATUT_ANNULE_COMPTABILITE   = "ANNULE COMPTABILITE";    // ANN -- 120
-    public const STATUT_ANNULE_DG             = "ANNULE DG";              // ANN -- 3
-    public const STATUT_ANNULE_RH             = "ANNULE RH";              // ANN -- 8
-    public const STATUT_ANNULE_SECRETARIAT_RH = "ANNULE SECRETARIAT RH";  // ANN -- 3
-    public const STATUT_PAYE                  = "PAYE";                   // PAY -- 12771
-    public const STATUT_CLOTURE               = "CLOTURE";                // CLO -- 
+    public const STATUT_ATTENTE_PAIEMENT      = "ATTENTE PAIEMENT";
+    public const STATUT_CONTROLE_SERVICE      = "CONTROLE SERVICE";
+    public const STATUT_OUVERT                = "OUVERT";
+    public const STATUT_PRE_CONTROLE_ATELIER  = "PRE-CONTROLE ATELIER";
+    public const STATUT_TRAITE_PAR_COMPTA     = "TRAITE PAR COMPTA";
+    public const STATUT_VALIDATION_COMPTA     = "VALIDATION COMPTA";
+    public const STATUT_VALIDATION_DG         = "VALIDATION DG";
+    public const STATUT_VALIDATION_RH         = "VALIDATION RH";
+    public const STATUT_VALIDE                = "VALIDE";
+    public const STATUT_VALIDE_COMPTABILITE   = "VALIDE COMPTABILITE";
+    public const STATUT_ENCOURS               = "ENCOURS";
+    public const STATUT_COMPTA                = "COMPTA";
+    public const STATUT_ANNULE                = "ANNULE";
+    public const STATUT_ANNULE_CHEF_SERVICE   = "ANNULE CHEF DE SERVICE";
+    public const STATUT_ANNULE_COMPTABILITE   = "ANNULE COMPTABILITE";
+    public const STATUT_ANNULE_DG             = "ANNULE DG";
+    public const STATUT_ANNULE_RH             = "ANNULE RH";
+    public const STATUT_ANNULE_SECRETARIAT_RH = "ANNULE SECRETARIAT RH";
+    public const STATUT_PAYE                  = "PAYE";
+    public const STATUT_CLOTURE               = "CLOTURE";
 
     private const CSS_CLASS_MAP = [
         // OUVERT / EN COURS DE TRAITEMENT
         self::STATUT_OUVERT                => 'bg-warning bg-gradient text-center',
-        self::STATUT_PRE_CONTROLE_ATELIER  => 'bg-warning bg-gradient text-center',
+        self::STATUT_PRE_CONTROLE_ATELIER  => 'bg-warning bg-gradient',
         self::STATUT_CONTROLE_SERVICE      => 'bg-info',
         self::STATUT_ENCOURS               => 'bg-info',
         self::STATUT_COMPTA                => 'bg-primary',
         self::STATUT_TRAITE_PAR_COMPTA     => 'bg-primary',
 
         // VALIDATIONS
-        self::STATUT_VALIDATION_COMPTA     => 'bg-success bg-opacity-50',
-        self::STATUT_VALIDATION_RH         => 'bg-success bg-opacity-50',
-        self::STATUT_VALIDATION_DG         => 'bg-success bg-opacity-50',
+        self::STATUT_VALIDATION_COMPTA     => 'bg-success',
+        self::STATUT_VALIDATION_RH         => 'bg-success',
+        self::STATUT_VALIDATION_DG         => 'bg-success',
         self::STATUT_VALIDE                => 'bg-success',
         self::STATUT_VALIDE_COMPTABILITE   => 'bg-success',
 

@@ -8,19 +8,13 @@
 	Liste des missions
 {% endblock %}
 
-{# {% import "macroForm.html.twig" as form %} #}
-
 {% block content %}
-	{# {% include "/partials/_loader.html.twig" %} #}
-
 	<div class="container mt-6">
 		{% include "/doms/shared/_formulaireRecherche.html.twig" %}
 		{% include "/doms/shared/_pagination.html.twig" %}
 	</div>
-
-
 	<div class="container-fluid">
-		<table class="table rounded table-plein-ecran">
+		<table class="table align-middle">
 			<thead class="table-dark">
 				<tr>
 					<th>
@@ -59,12 +53,7 @@
 								{% endif %}
 							</div>
 						</td>
-
-						{# Statut — classe calculée en PHP, plus de if/elseif en Twig #}
-						<td class="{{ item.classeStatut }}" style="{{ item.styleStatut }}">
-							{{ item.statutDescription }}
-						</td>
-
+						<td class="{{ item.statutClass }}">{{ item.statutDescription }}</td>
 						<td>{{ item.codeSousType }}</td>
 						<td>
 							<a href="{{ path('Dom_detail', {id: item.id}) }}" target="_blank">
