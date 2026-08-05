@@ -2,7 +2,7 @@
 
 namespace App\Entity\ddd;
 
-use App\Repository\admin\ChantierRepository;
+use App\Repository\ddd\ChantierRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;

@@ -3,11 +3,12 @@
 namespace App\Entity\ddd;
 
 use App\Entity\ddd\Chantier;
+use App\Repository\ddd\DemandeDiagnosticPneuRepository;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=DiagnosticPneu::class)
+ * @ORM\Entity(repositoryClass=DemandeDiagnosticPneuRepository::class)
  * @ORM\Table(name="demande_diagnostic_pneu")
  * @ORM\HasLifecycleCallbacks
  */

@@ -2,23 +2,21 @@
 
 namespace App\Form\pol\ddd;
 
-use App\Entity\admin\Agence;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Entity\ddd\Chantier;
+use App\Entity\ddd\DemandeDiagnosticPneu;
+use App\Repository\ddd\ChantierRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
-use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-class demandeDiagnosticPneuType extends AbstractType
+
+class DemandeDiagnosticPneuType extends AbstractType
 {
     private $agenceRepository;
 
@@ -29,14 +27,12 @@ class demandeDiagnosticPneuType extends AbstractType
     ];
 
 
-    public function __construct(EntityManagerInterface $em)
-    {
-        $this->agenceRepository = $em->getRepository(Agence::class);
-    }
+
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
 
-        $codeSociete = $options['data']->getCodeSociete();
+
 
         $builder
             // Livraison
@@ -50,24 +46,18 @@ class demandeDiagnosticPneuType extends AbstractType
                     'placeholder' => 'Sélectionner',
                 ]
             )
-            // Chantier
-            ->add(
-                'codeChantier',
-                TextType::class,
-                [
-                    'label' => 'Code chantier',
-                    'required' => false,
-                ]
-            )
+            ->add('chantier', EntityType::class, [
+                'class' => Chantier::class,
+                'choice_label' => 'nomChantier',
+                'placeholder' => '-- Choisir--',
+                'required' => true,
+                'query_builder' => function (ChantierRepository $repository) {
+                    return $repository->createQueryBuilder('c')
+                        ->orderBy('c.nomChantier', 'ASC');
+                },
+            ])
 
-            ->add(
-                'nomChantier',
-                TextType::class,
-                [
-                    'label' => 'Nom chantier',
-                    'required' => false,
-                ]
-            )
+
             ->add(
                 'nbPneuSurMachine',
                 IntegerType::class,
@@ -107,7 +97,7 @@ class demandeDiagnosticPneuType extends AbstractType
             )
 
             ->add(
-                'idMateriel',
+                'id_materiel',
                 TextType::class,
                 [
                     'label' => " Id Matériel *",
@@ -124,7 +114,7 @@ class demandeDiagnosticPneuType extends AbstractType
                 ]
             )
             ->add(
-                'numParc',
+                'numero_parc_materiel',
                 TextType::class,
                 [
                     'label' => " N° Parc",
@@ -136,39 +126,34 @@ class demandeDiagnosticPneuType extends AbstractType
                 ]
 
             )
-            ->add(
-                'numSerie',
-                TextType::class,
-                [
-                    'label' => " N° Serie",
-                    'required' => false,
-                    'attr' => [
-                        'class' => 'noEntrer autocomplete',
-                        'autocomplete' => 'off',
-                    ]
-                ]
-            )
-            ->add(
-                'pieceJointes',
-                FileType::class,
-                [
-                    'label' => 'Pièce Jointes (PDF, JPG, PNG)',
-                    'required' => false,
-                    'constraints' => [
-                        new File([
-                            'maxSize' => '5M',
-                            'mimeTypes' => [
-                                'application/pdf',
-                                'image/jpeg',
-                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                            ],
-                            'mimeTypesMessage' => 'Please upload a valid PDF file.',
-                        ])
-                    ],
-                ]
-            )
+
+            // ->add(
+            //     'pieceJointes',
+            //     FileType::class,
+            //     [
+            //         'label' => 'Pièce Jointes (PDF, JPG, PNG)',
+            //         'required' => false,
+            //         'constraints' => [
+            //             new File([
+            //                 'maxSize' => '5M',
+            //                 'mimeTypes' => [
+            //                     'application/pdf',
+            //                     'image/jpeg',
+            //                     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            //                     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            //                 ],
+            //                 'mimeTypesMessage' => 'Please upload a valid PDF file.',
+            //             ])
+            //         ],
+            //     ]
+            // )
 
         ;
+    }
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefaults([
+            'data_class' => DemandeDiagnosticPneu::class,
+        ]);
     }
 }

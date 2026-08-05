@@ -13,6 +13,7 @@ class DemandeDiagnosticPneuFactory
     private $entityManager;
     private DemandeDiagnosticPneuModel $demandeDiagnosticPneuModel;
     private $historiqueOperation;
+    
     public function __construct(
         EntityManagerInterface $entityManager,
         DemandeDiagnosticPneuModel $demandeDiagnosticPneuModel,

@@ -364,7 +364,7 @@ class MenuGroupe
                 'subitems' => [
                     [
                         'route' => 'nouveau_demande_diagnostic_pneu',
-                        'label' => 'Demande de diagnostic peu',
+                        'label' => 'Demande de diagnostic pneu',
                         'icon'  => 'plus-circle',
                     ],
                 ],
