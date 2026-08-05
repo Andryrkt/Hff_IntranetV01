@@ -4,6 +4,7 @@ namespace App\Entity\ddd;
 
 use App\Entity\ddd\Chantier;
 use DateTime;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=DiagnosticPneu::class)
