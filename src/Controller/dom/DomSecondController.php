@@ -4,17 +4,14 @@ namespace App\Controller\dom;
 
 
 use App\Entity\dom\Dom;
+use App\Service\FusionPdf;
 use App\Controller\Controller;
 use App\Form\dom\DomForm2Type;
-use App\Entity\admin\Application;
-use App\Entity\admin\utilisateur\User;
 use App\Controller\Traits\dom\DomsTrait;
 use App\Controller\Traits\FormatageTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationDOMService;
-use App\Model\dom\DomModel;
-use App\Service\FusionPdf;
 
 /**
  * @Route("/rh/ordre-de-mission")
@@ -23,15 +20,13 @@ class DomSecondController extends Controller
 {
     use FormatageTrait;
     use DomsTrait;
-    private $historiqueOperation;
-    private $DomModel;
-    private $fusionPdf;
+    private HistoriqueOperationDOMService $historiqueOperation;
+    private FusionPdf $fusionPdf;
 
     public function __construct()
     {
         parent::__construct();
         $this->historiqueOperation = new HistoriqueOperationDOMService($this->getEntityManager());
-        $this->DomModel = new DomModel();
         $this->fusionPdf = new FusionPdf();
     }
     /**
@@ -65,31 +60,18 @@ class DomSecondController extends Controller
 
             $verificationDateExistant = $this->verifierSiDateExistant($dom->getMatricule(),  $dom->getDateDebut(), $dom->getDateFin(), $dom->getCodeSociete());
 
-            if ($codeSousTypeDoc !== 'COMPLEMENT' && $codeSousTypeDoc !== 'TROP PERCU') {
-                if ($verificationDateExistant) {
-                    $message = $dom->getMatricule() . ' ' . $dom->getNom() . ' ' . $dom->getPrenom() . " a déja une mission enregistrée sur ces dates, vérifier SVP!";
-                    $this->historiqueOperation->sendNotificationCreation($message, $dom->getNumeroOrdreMission(), 'dom_first_form');
-                } else {
-                    if ($codeSousTypeDoc  === 'FRAIS EXCEPTIONNEL') {
-                        $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, $this->getEntityManager(), $this->fusionPdf, $user);
-                    } else {
-                        if ((explode(':', $dom->getModePayement())[0] !== 'MOBILE MONEY' || (explode(':', $dom->getModePayement())[0] === 'MOBILE MONEY')) && (int)str_replace('.', '', $dom->getTotalGeneralPayer()) <= 500000) {
-                            $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, $this->getEntityManager(), $this->fusionPdf, $user);
-                        } else {
-                            $message = "Assurez vous que le Montant Total est inférieur à 500.000";
+            $montantOk = (int)str_replace('.', '', $dom->getTotalGeneralPayer()) <= 500000;
 
-                            $this->historiqueOperation->sendNotificationCreation($message, $dom->getNumeroOrdreMission(), 'dom_first_form');
-                        }
-                    }
-                }
+            if ($codeSousTypeDoc !== 'COMPLEMENT' && $codeSousTypeDoc !== 'TROP PERCU' && $verificationDateExistant) {
+                $message = $dom->getMatricule() . ' ' . $dom->getNom() . ' ' . $dom->getPrenom() . " a déja une mission enregistrée sur ces dates, vérifier SVP!";
+                $this->historiqueOperation->sendNotificationCreation($message, $dom->getNumeroOrdreMission(), 'dom_first_form');
+            } elseif ($codeSousTypeDoc !== 'COMPLEMENT' && $codeSousTypeDoc !== 'TROP PERCU' && $codeSousTypeDoc === 'FRAIS EXCEPTIONNEL') {
+                $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, $this->getEntityManager(), $this->fusionPdf, $user);
+            } elseif ($montantOk) {
+                $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, $this->getEntityManager(), $this->fusionPdf, $user);
             } else {
-                if ((explode(':', $dom->getModePayement())[0] !== 'MOBILE MONEY' || (explode(':', $dom->getModePayement())[0] === 'MOBILE MONEY')) && (int)str_replace('.', '', $dom->getTotalGeneralPayer()) <= 500000) {
-                    $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, $this->getEntityManager(), $this->fusionPdf, $user);
-                } else {
-                    $message = "Assurez vous que le Montant Total est inférieur à 500.000";
-
-                    $this->historiqueOperation->sendNotificationCreation($message, $dom->getNumeroOrdreMission(), 'dom_first_form');
-                }
+                $message = "Assurez vous que le Montant Total est inférieur à 500.000";
+                $this->historiqueOperation->sendNotificationCreation($message, $dom->getNumeroOrdreMission(), 'dom_first_form');
             }
 
             $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistré', $dom->getNumeroOrdreMission(), 'doms_liste', true);
