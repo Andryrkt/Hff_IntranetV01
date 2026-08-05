@@ -35,6 +35,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 class demandeInterventionType extends AbstractType
 {
     private $agenceRepository;
+    
     const TYPE_REPARATION = [
         'EN COURS' => 'EN COURS',
         'DEJA EFFECTUEE' => 'DEJA EFFECTUEE',

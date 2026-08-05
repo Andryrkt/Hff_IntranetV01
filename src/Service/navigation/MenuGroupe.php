@@ -359,6 +359,18 @@ class MenuGroupe
                 'icon'  => 'plus-circle',
             ],
             [
+                'label'    => 'DEMANDE DIAGNOSTIC PNEU (DDD)',
+                'icon'     => 'list-ul',
+                'subitems' => [
+                    [
+                        'route' => 'nouveau_demande_diagnostic_pneu',
+                        'label' => 'Demande de diagnostic peu',
+                        'icon'  => 'plus-circle',
+                    ],
+                ],
+            ],
+
+            [
                 'label' => 'Pneumatiques',
                 'icon'  => 'ring',
             ],
