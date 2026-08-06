@@ -36,8 +36,8 @@ class PlanningMagasinController extends Controller
     }
 
     /**
-     * Génère la fenêtre de mois affichée dans l'entête du tableau
-     * (6 mois précédents, le mois en cours, puis 2 mois suivants).
+     * Génère la fenêtre de mois affichée dans l'entête du tableau : toujours 12 mois
+     * (6 mois précédents, le mois en cours, puis 5 mois suivants).
      */
     private function genererMoisAffiches(): array
     {
@@ -45,7 +45,7 @@ class PlanningMagasinController extends Controller
         $moisCourant = new \DateTime('first day of this month');
 
         $uniqueMonths = [];
-        for ($offset = -6; $offset <= 2; $offset++) {
+        for ($offset = -6; $offset <= 5; $offset++) {
             $mois = (clone $moisCourant)->modify($offset . ' month');
 
             $uniqueMonths[] = [
