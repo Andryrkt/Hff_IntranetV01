@@ -43,8 +43,11 @@ class PlanningMagasinController extends Controller
         $form->handleRequest($request);
         $dto = $form->getData() ?? new PlanningMagasinSearchDto();
 
+        $condition = $request->query->get('condition', 'tous');
+
         $data = $this->planningMagasinModel->getPlanningMagasin();
         $data = $this->filtrerDonnees($data, $dto);
+        $data = $this->filtrerParStatut($data, $condition);
 
         $uniqueMonths = $this->genererMoisAffiches($dto->months ?? 3);
         $preparedData = $this->preparerDonnees($data);
@@ -53,7 +56,34 @@ class PlanningMagasinController extends Controller
             'form'         => $form->createView(),
             'uniqueMonths' => $uniqueMonths,
             'preparedData' => $preparedData,
+            'condition'    => $condition,
+            'currentQuery' => $request->query->all(),
         ]);
+    }
+
+    /**
+     * Filtre selon la légende cliquée (TOUT AFFICHER / statut). "back_order" ne peut pas
+     * encore être détecté par PlanningMagasinModel::getPlanningMagasin() (pas de flag
+     * back order/error dans les données) : il ne renverra donc aucune commande pour l'instant.
+     */
+    private function filtrerParStatut(array $data, string $condition): array
+    {
+        $statutParCondition = [
+            'partiel_facture'     => 'Partiellement facturé',
+            'partiel_dispo'       => 'Partiellement dispo',
+            'complet_non_facture' => 'Complet non facturé',
+            'complet_facture'     => 'Complet facturé',
+        ];
+
+        if (!isset($statutParCondition[$condition]) && $condition !== 'back_order') {
+            return $data;
+        }
+
+        $statutAttendu = $statutParCondition[$condition] ?? null;
+
+        return array_values(array_filter($data, function ($item) use ($statutAttendu) {
+            return $statutAttendu !== null && $this->normaliserStatut($item['statut']) === $statutAttendu;
+        }));
     }
 
     /**

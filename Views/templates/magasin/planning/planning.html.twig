@@ -61,28 +61,52 @@
 			</div>
 			<div class="d-flex justify-content-between">
 				<div class="my-2 d-flex flex-row">
-					<div class="fw-bold" id="tout-afficher">
-						<small>TOUT AFFICHER |</small>
+					<div class="{{ condition == 'tous' ? 'fw-bold' : '' }}" id="tout-afficher">
+						<small>
+							<a class="text-dark text-decoration-none" href="{{ path('interface_planning_cde_frn_magasin', currentQuery|merge({'condition': 'tous'})) }}">
+								TOUT AFFICHER |
+							</a>
+						</small>
 					</div>
-					<div id="partiellement-facture">
+					<div class="{{ condition == 'partiel_facture' ? 'fw-bold' : '' }}" id="partiellement-facture">
 						<i class="fa-solid fa-circle text-warning"></i>
-						<small>Partiellement facturé |</small>
+						<small>
+							<a class="text-warning text-decoration-none" href="{{ path('interface_planning_cde_frn_magasin', currentQuery|merge({'condition': 'partiel_facture'})) }}">
+								Partiellement facturé |
+							</a>
+						</small>
 					</div>
-					<div id="partiellement-dispo">
+					<div class="{{ condition == 'partiel_dispo' ? 'fw-bold' : '' }}" id="partiellement-dispo">
 						<i class="fa-solid fa-circle text-info"></i>
-						<small>Partiellement dispo |</small>
+						<small>
+							<a class="text-info text-decoration-none" href="{{ path('interface_planning_cde_frn_magasin', currentQuery|merge({'condition': 'partiel_dispo'})) }}">
+								Partiellement dispo |
+							</a>
+						</small>
 					</div>
-					<div id="complet-non-facture">
+					<div class="{{ condition == 'complet_non_facture' ? 'fw-bold' : '' }}" id="complet-non-facture">
 						<i class="fa-solid fa-circle text-primary"></i>
-						<small>Complet non facturé |</small>
+						<small>
+							<a class="text-primary text-decoration-none" href="{{ path('interface_planning_cde_frn_magasin', currentQuery|merge({'condition': 'complet_non_facture'})) }}">
+								Complet non facturé |
+							</a>
+						</small>
 					</div>
-					<div id="complet-facture">
+					<div class="{{ condition == 'complet_facture' ? 'fw-bold' : '' }}" id="complet-facture">
 						<i class="fa-solid fa-circle text-success"></i>
-						<small>Complet facturé |</small>
+						<small>
+							<a class="text-success text-decoration-none" href="{{ path('interface_planning_cde_frn_magasin', currentQuery|merge({'condition': 'complet_facture'})) }}">
+								Complet facturé |
+							</a>
+						</small>
 					</div>
-					<div id="back-order">
+					<div class="{{ condition == 'back_order' ? 'fw-bold' : '' }}" id="back-order">
 						<i class="fa-solid fa-circle text-danger"></i>
-						<small>Back Order / Error</small>
+						<small>
+							<a class="text-dark text-decoration-none" href="{{ path('interface_planning_cde_frn_magasin', currentQuery|merge({'condition': 'back_order'})) }}">
+								Back Order / Error
+							</a>
+						</small>
 					</div>
 				</div>
 			</div>
