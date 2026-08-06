@@ -3,8 +3,11 @@
 namespace App\Entity\ddd;
 
 use App\Entity\ddd\Chantier;
+use App\Entity\ddd\DiagnosticPneu;
 use App\Repository\ddd\DemandeDiagnosticPneuRepository;
 use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -31,6 +34,12 @@ class DemandeDiagnosticPneu
      * @ORM\JoinColumn(name="id_chantier", referencedColumnName="id_chantier", nullable=false)
      */
     private ?Chantier $chantier = null;
+
+
+    /**
+     * @ORM\OneToMany(targetEntity=DiagnosticPneu::class, mappedBy="demande", cascade={"persist", "remove"}, orphanRemoval=true)
+     */
+    private $diagnosticPneus;
 
     /**
      * @ORM\Column(type="integer", name="id_materiel")
@@ -112,10 +121,21 @@ class DemandeDiagnosticPneu
      */
     private ?string $numeroOr = null;
 
+    /**
+     * @ORM\Column(type="json", nullable=true)
+     */
+    private  $piecesJointes;
+
+    /**
+     * @ORM\Column(type="json", nullable=false)
+     */
+    private ?array $motifs = [];
+
     public function __construct()
     {
         $this->dateCreation = new DateTime();
         $this->statut = 'a_traiter_atelier';
+        $this->diagnosticPneus = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -318,6 +338,57 @@ class DemandeDiagnosticPneu
     public function setNumeroOr(?string $numeroOr): self
     {
         $this->numeroOr = $numeroOr;
+        return $this;
+    }
+
+
+    public function getPiecesJointes()
+    {
+        return $this->piecesJointes;
+    }
+
+
+    public function setPiecesJointes(?array $piecesJointes): self
+    {
+        $this->piecesJointes = $piecesJointes;
+        return $this;
+    }
+    public function getMotifs()
+    {
+        return $this->motifs;
+    }
+
+
+    public function setMotifs(?array $motifs): self
+    {
+        $this->motifs = $motifs;
+
+        return $this;
+    }
+
+    public function getDiagnosticPneus(): Collection
+    {
+        return $this->diagnosticPneus;
+    }
+
+    public function addDiagnosticPneu(DiagnosticPneu $diagnosticPneu): self
+    {
+        if (!$this->diagnosticPneus->contains($diagnosticPneu)) {
+            $this->diagnosticPneus[] = $diagnosticPneu;
+            $diagnosticPneu->setDemande($this);
+        }
+        return $this;
+    }
+
+    public function removeDiagnosticPneu(DiagnosticPneu $diagnosticPneu): self
+    {
+        if ($this->diagnosticPneus->contains($diagnosticPneu)) {
+            $this->diagnosticPneus->removeElement($diagnosticPneu);
+            // set the owning side to null (unless already changed)
+            if ($diagnosticPneu->getDemande() === $this) {
+                $diagnosticPneu->setDemande(null);
+            }
+        }
         return $this;
     }
 }

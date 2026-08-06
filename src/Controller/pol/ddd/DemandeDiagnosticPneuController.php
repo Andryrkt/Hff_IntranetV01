@@ -9,6 +9,7 @@ use App\Factory\pol\DemandeDiagnosticPneuFactory;
 use App\Form\pol\ddd\DemandeDiagnosticPneuType;
 use App\Model\ddd\DemandeDiagnosticPneuModel;
 use App\Service\historiqueOperation\HistoriqueOperationDDDService;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -71,5 +72,87 @@ class DemandeDiagnosticPneuController extends Controller
         ]);
     }
 
-    public  function traitementFormulaire($form, Request $request) {}
+    /**
+     * Traite le formulaire, gère l'upload et la sauvegarde.
+     * Retourne une Response si le formulaire est soumis et valide, sinon null.
+     */
+    private function traitementFormulaire($form, Request $request)
+    {
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var DemandeDiagnosticPneu $demande */
+            $demande = $form->getData();
+            dump($demande);
+            $this->saveDemande($demande);
+
+            // ---- Gestion des pièces jointes ---- 
+            $uploadedFiles = $form->get('piecesJointes')->getData();
+            if ($uploadedFiles) {
+                $this->handlePiecesJointes($uploadedFiles, $demande);
+            }
+
+            // ---- Sauvegarde via une méthode interne ----
+            try {
+                // $this->addFlash('success', 'Demande de diagnostic créée avec succès.');
+                // return $this->redirectToRoute('liste_demandes_diagnostic_pneu');
+            } catch (\Exception $e) {
+                // $this->addFlash('error', $e->getMessage());
+            }
+        }
+        return null;
+    }
+    /**
+     * Sauvegarde la demande avec transaction, génération du numéro, historique.
+     */
+    private function saveDemande(DemandeDiagnosticPneu $demande): void
+    {
+        $em = $this->getEntityManager();
+        $em->beginTransaction();
+
+        try {
+            // Génération du numéro de demande
+            $numero = $this->demandeDiagnosticPneuModel->genererNumeroDemande($em);
+            $demande->setNumeroDemande($numero);
+
+            // Persist des pneus (si cascade persist configurée, suffit de persister la demande)
+            // Sinon, il faut persister chaque pneu manuellement.
+            // On suppose que la cascade est configurée.
+            foreach ($demande->getDiagnosticPneus() as $pneu) {
+                // Si la relation inverse existe, on la définit
+                $pneu->setDemande($demande);
+                // Pas besoin de persist si cascade={"persist"} est défini sur la relation OneToMany
+            }
+            // Persist de la demande (cascade fera le reste)
+            $em->persist($demande);
+            $em->flush();
+            $em->commit();
+
+            dd("Reussie");
+            // Historique (après flush pour avoir l'ID)
+            // $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $demandeInterventions[0]->getNumeroDemandeIntervention(), 'dit_index', true);
+        } catch (\Exception $e) {
+            $em->rollback();
+            throw new \RuntimeException('Erreur lors de la sauvegarde : ' . $e->getMessage(), 0, $e);
+        }
+    }
+
+    /**
+     * Gère l'upload des pièces jointes (exemple).
+     */
+    private function handlePiecesJointes(array $files, DemandeDiagnosticPneu $demande): void
+    {
+        // Définir un répertoire de stockage (ex: public/uploads/diagnostic_pneu/)
+        // $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/diagnostic_pneu/';
+        // if (!is_dir($uploadDir)) {
+        //     mkdir($uploadDir, 0777, true);
+        // }
+
+        // $uploadedPaths = [];
+        // foreach ($files as $file) {
+        //     $newFilename = uniqid() . '.' . $file->guessExtension();
+        //     $file->move($uploadDir, $newFilename);
+        //     $uploadedPaths[] = '/uploads/diagnostic_pneu/' . $newFilename;
+        // }
+        // $demande->setPiecesJointes($uploadedPaths);
+    }
 }

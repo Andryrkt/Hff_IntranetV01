@@ -46,4 +46,7 @@ class DemandeDiagnosticPneuDto
     public ?string $numeroDit = null;
 
     public ?string $numeroOr = null;
+
+
+    public ?array $piecesJointes = [];
 }

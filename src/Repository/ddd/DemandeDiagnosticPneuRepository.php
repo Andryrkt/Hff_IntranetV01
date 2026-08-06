@@ -6,18 +6,12 @@ use App\Entity\ddd\DemandeDiagnosticPneu;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
 
+
 class DemandeDiagnosticPneuRepository extends EntityRepository
 {
 
 
-    public function save(DemandeDiagnosticPneu $entity, bool $flush = false): void
-    {
-        $this->getEntityManager()->persist($entity);
 
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
-    }
 
     /**
      * Liste des demandes diagnostic pneu filtrées
