@@ -546,7 +546,7 @@ trait DomsTrait
             $dateDebut = date('d/m/Y', strtotime($conflit['date_debut']));
             $dateFin   = date('d/m/Y', strtotime($conflit['date_fin']));
             $periode = ($dateDebut === $dateFin) ? "le $dateDebut" : "du $dateDebut au $dateFin";
-            return "{$conflit['numero']} ($periode)";
+            return "<b>{$conflit['numero']}</b> (<b>$periode</b>)";
         }, $conflitsAAfficher);
 
         $texteConflits = implode(', ', $conflitsFormates);
@@ -559,6 +559,6 @@ trait DomsTrait
         // Index 0 = singulier, 1 = pluriel
         $libelle = $libellesParType[$typeConflit][(int) ($nombreConflits > 1)];
 
-        return "$userDom a déjà $libelle sur ces dates : $texteConflits. Vérifiez SVP !";
+        return "<b>$userDom</b> a déjà $libelle sur ces dates : $texteConflits. Vérifiez SVP !";
     }
 }
