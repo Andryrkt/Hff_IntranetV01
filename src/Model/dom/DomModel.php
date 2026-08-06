@@ -91,4 +91,84 @@ class DomModel extends Model
 
         return $result['reponse'];
     }
+
+    /** 
+     * Vérifie les conflits de dates entre les DOM et les congés existants pour un matricule sur une période donnée.
+     * 
+     * @param string             $matricule
+     * @param \DateTimeInterface $dateDebut
+     * @param \DateTimeInterface $dateFin
+     * @param string             $codeSociete
+     * 
+     * @return array{dom:list<array<string,string>>,conge:list<array<string,string>>}
+     */
+    public function verifierConflitDate(string $matricule, \DateTimeInterface $dateDebut, \DateTimeInterface $dateFin, string $codeSociete)
+    {
+        $tableParams     = 'Params';
+        $dateDebutFormat = $dateDebut->format('Y-m-d');
+        $dateFinFormat   = $dateFin->format('Y-m-d');
+
+        $sql = "--sql
+            WITH $tableParams AS (
+                SELECT 
+                    '$matricule'       AS Matricule,
+                    '$codeSociete'     AS CodeSociete,
+                    '$dateDebutFormat' AS DateDebut,
+                    '$dateFinFormat'   AS DateFin
+            )
+            {$this->getQueryConflitDateDom($tableParams)}
+            UNION ALL
+            {$this->getQueryConflitDateConge($tableParams)}
+            ORDER BY date_debut
+        ";
+
+        $stmt = $this->connexion->query($sql);
+
+        $conflits = ['dom' => [], 'conge' => []];
+
+        while ($row = odbc_fetch_array($stmt)) {
+            if ($row['type_conflit'] === 'DOM')   $conflits['dom'][] = $row;
+            else $conflits['conge'][] = $row;
+        }
+
+        return $conflits;
+    }
+
+    private function getQueryConflitDateDom(string $tableParams)
+    {
+        return "SELECT
+                    'DOM'                    AS type_conflit,
+                    dom.Numero_Ordre_Mission AS numero,
+                    dom.Date_Debut           AS date_debut,
+                    dom.Date_Fin             AS date_fin
+                FROM Demande_ordre_mission dom
+                INNER JOIN Statut_demande sd
+                    ON sd.ID_Statut_Demande = dom.ID_Statut_Demande
+                CROSS JOIN $tableParams p
+                WHERE dom.Matricule = p.Matricule
+                    AND dom.Code_Societe = p.CodeSociete
+                    AND sd.Code_Statut <> 'ANN'
+                    AND (
+                        dom.Date_Debut <= p.DateFin
+                        AND dom.Date_Fin >= p.DateDebut
+                    )";
+    }
+
+    private function getQueryConflitDateConge(string $tableParams)
+    {
+        return "SELECT
+                    'CONGE'            AS type_conflit,
+                    ddc.Numero_Demande AS numero,
+                    ddc.Date_Debut     AS date_debut,
+                    ddc.Date_Fin       AS date_fin
+                FROM demande_de_conge ddc
+                CROSS JOIN $tableParams p
+                WHERE ddc.Matricule = p.Matricule
+                    AND ddc.Statut_Demande NOT LIKE '%Refusé%'
+                    AND ddc.Statut_Demande NOT LIKE '%Annulé%'
+                    AND (
+                        ddc.Date_Debut <= p.DateFin
+                        AND ddc.Date_Fin >= p.DateDebut
+                    )";
+    }
 }

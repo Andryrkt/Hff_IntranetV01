@@ -446,36 +446,6 @@ trait DomsTrait
         $genererPdfDom->copyInterneToDOCUWARE($dom->getNumeroOrdreMission(), $dom->getAgenceEmetteurId()->getCodeAgence() . '' . $dom->getServiceEmetteurId()->getCodeService());
     }
 
-    private function verifierSiDateExistant(string $matricule,  $dateDebutInput, $dateFinInput, $codeSociete): bool
-    {
-        $Dates = $this->DomModel->getInfoDOMMatrSelet($matricule, $codeSociete);
-
-        if (empty($Dates)) {
-            return false; // Pas de périodes dans la base
-        }
-
-        // Convertir les dates d'entrée si elles sont en chaînes
-        $dateDebutInputObj = $dateDebutInput instanceof DateTime ? $dateDebutInput : new DateTime($dateDebutInput);
-        $dateFinInputObj = $dateFinInput instanceof DateTime ? $dateFinInput : new DateTime($dateFinInput);
-
-        foreach ($Dates as $periode) {
-            // Convertir les dates en objets DateTime pour faciliter la comparaison
-            $dateDebut = new DateTime($periode['Date_Debut']); //date dans la base de donner
-            $dateFin = new DateTime($periode['Date_Fin']); //date dans la base de donner
-            $dateDebutInputObj = $dateDebutInput; // date entrer par l'utilisateur
-            $dateFinInputObj = $dateFinInput; // date entrer par l'utilisateur
-
-            // Vérifier si la date à vérifier est comprise entre la date de début et la date de fin
-            if (($dateFinInputObj >= $dateDebut && $dateFinInputObj <= $dateFin) || ($dateDebutInputObj >= $dateDebut && $dateDebutInputObj <= $dateFin) || ($dateDebutInputObj === $dateFin)) { // Correction des noms de variables
-                $trouve = true;
-
-                return $trouve;
-            }
-        }
-
-        return false; // Pas de chevauchement
-    }
-
     /**
      * Retourne une valeur monétaire valide.
      * Si la chaîne est vide, retourne "0", sinon retourne la valeur d'origine.
@@ -558,5 +528,37 @@ trait DomsTrait
                 $dom->setStatutTropPercuOk(true);
             }
         }
+    }
+
+    private function formatConflitMessage(string $userDom, string $typeConflit, array $conflits): string
+    {
+        $LIMITE_AFFICHAGE = 2;
+
+        $libellesParType = [
+            'dom'   => ["une mission enregistrée", "des missions enregistrées"],
+            'conge' => ["un congé en cours ou validé", "des congés en cours ou validés"]
+        ];
+
+        $nombreConflits = count($conflits);
+        $conflitsAAfficher = array_slice($conflits, 0, $LIMITE_AFFICHAGE);
+
+        $conflitsFormates = array_map(function ($conflit) {
+            $dateDebut = date('d/m/Y', strtotime($conflit['date_debut']));
+            $dateFin   = date('d/m/Y', strtotime($conflit['date_fin']));
+            $periode = ($dateDebut === $dateFin) ? "le $dateDebut" : "du $dateDebut au $dateFin";
+            return "<b>{$conflit['numero']}</b> (<b>$periode</b>)";
+        }, $conflitsAAfficher);
+
+        $texteConflits = implode(', ', $conflitsFormates);
+
+        $nombreRestant = $nombreConflits - $LIMITE_AFFICHAGE;
+        if ($nombreRestant > 0) {
+            $texteConflits .= " et $nombreRestant autre" . ($nombreRestant > 1 ? 's' : '');
+        }
+
+        // Index 0 = singulier, 1 = pluriel
+        $libelle = $libellesParType[$typeConflit][(int) ($nombreConflits > 1)];
+
+        return "<b>$userDom</b> a déjà $libelle sur ces dates : $texteConflits. Vérifiez SVP !";
     }
 }

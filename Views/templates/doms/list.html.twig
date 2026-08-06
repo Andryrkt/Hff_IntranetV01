@@ -8,20 +8,14 @@
 	Liste des missions
 {% endblock %}
 
-{# {% import "macroForm.html.twig" as form %} #}
-
 {% block content %}
-	{# {% include "/partials/_loader.html.twig" %} #}
-
 	<div class="container mt-6">
 		{% include "/doms/shared/_formulaireRecherche.html.twig" %}
 		{% include "/doms/shared/_pagination.html.twig" %}
 	</div>
-
-
 	<div class="container-fluid">
-		<table class="table rounded table-plein-ecran">
-			<thead class="table-dark">
+		<table class="table align-middle">
+			<thead class="table-dark align-middle">
 				<tr>
 					<th>
 						<i class="fas fa-ellipsis-vertical"></i>
@@ -29,15 +23,15 @@
 					<th>Statut</th>
 					<th>Sous type</th>
 					<th>N° DOM</th>
-					<th>Date de demande</th>
-					<th>Motif de déplacemnt</th>
+					<th class="text-center">Date de demande</th>
+					<th>Motif de déplacement</th>
 					<th class="text-center">Matricule</th>
-					<th>Agence\Service</th>
-					<th>Date de début</th>
-					<th>Date de fin</th>
+					<th>Agence - Service</th>
+					<th class="text-center">Date de début</th>
+					<th class="text-center">Date de fin</th>
 					<th>Client</th>
 					<th>Lieu d'intervention</th>
-					<th>Total général payer</th>
+					<th class="text-end">Total général payer</th>
 					<th>Devis</th>
 				</tr>
 			</thead>
@@ -59,12 +53,7 @@
 								{% endif %}
 							</div>
 						</td>
-
-						{# Statut — classe calculée en PHP, plus de if/elseif en Twig #}
-						<td class="{{ item.classeStatut }}" style="{{ item.styleStatut }}">
-							{{ item.statutDescription }}
-						</td>
-
+						<td class="{{ item.statutClass }}">{{ item.statutDescription }}</td>
 						<td>{{ item.codeSousType }}</td>
 						<td>
 							<a href="{{ path('Dom_detail', {id: item.id}) }}" target="_blank">
