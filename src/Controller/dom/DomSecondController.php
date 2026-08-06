@@ -41,9 +41,8 @@ class DomSecondController extends Controller
         $dom = new Dom();
         //recupération des données qui vient du formulaire 1
         $form1Data = $this->getSessionService()->get('form1Data', []);
-        $codeSousTypeDoc = $form1Data['sousTypeDocument']->getCodeSousType();
-
-        $estComplementOuTropPercu = in_array($codeSousTypeDoc, ['COMPLEMENT', 'TROP PERCU'], true);
+        $codeSousTypeDoc = $form1Data['sousTypeDocument']->getCodeSousType(); // Choix possibles: "Mission", "Frais exceptionnel", "Complément"
+        $isComplement = $codeSousTypeDoc === 'COMPLEMENT';
 
         /** INITIALISATION des données  */
         $this->initialisationSecondForm($form1Data, $this->getEntityManager(), $dom);
@@ -66,11 +65,11 @@ class DomSecondController extends Controller
 
             $montantOk = (int)str_replace('.', '', $dom->getTotalGeneralPayer()) <= 500000;
 
-            if (!$estComplementOuTropPercu && !empty($conflits['dom'])) {
-                $this->historiqueOperation->sendNotificationCreation($this->formatConflitMessage($userDom, "dom", $conflits['dom']), $dom->getNumeroOrdreMission(), 'dom_first_form');
-            } elseif (!$estComplementOuTropPercu && !empty($conflits['conge'])) {
+            if (!empty($conflits['conge'])) { // pas de controle de type de document
                 $this->historiqueOperation->sendNotificationCreation($this->formatConflitMessage($userDom, "conge", $conflits['conge']), $dom->getNumeroOrdreMission(), 'dom_first_form');
-            } elseif (!$estComplementOuTropPercu && $codeSousTypeDoc === 'FRAIS EXCEPTIONNEL') {
+            } elseif (!$isComplement && !empty($conflits['dom'])) {
+                $this->historiqueOperation->sendNotificationCreation($this->formatConflitMessage($userDom, "dom", $conflits['dom']), $dom->getNumeroOrdreMission(), 'dom_first_form');
+            } elseif ($codeSousTypeDoc === 'FRAIS EXCEPTIONNEL') {
                 $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, $this->getEntityManager(), $this->fusionPdf, $user);
             } elseif ($montantOk) {
                 $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, $this->getEntityManager(), $this->fusionPdf, $user);
