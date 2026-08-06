@@ -3,14 +3,20 @@
 namespace App\Controller\magasin\planning;
 
 use App\Controller\Controller;
+use App\Controller\Traits\PlanningTraits;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\planning\PlanningMagasinModel;
+use App\Form\magasin\Planning\PlanningMagasinSearchType;
+use App\Form\magasin\Planning\PlanningMagasinSearchDto;
 
 /**
  * @Route("/magasin/planning-commande-fournisseur")
  */
 class PlanningMagasinController extends Controller
 {
+    use PlanningTraits;
+
     private PlanningMagasinModel $planningMagasinModel;
 
     public function __construct()
@@ -22,41 +28,77 @@ class PlanningMagasinController extends Controller
     /**
      * @Route("", name = "interface_planning_cde_frn_magasin")
      */
-    public function headPlanning()
+    public function headPlanning(Request $request)
     {
-        $data = $this->planningMagasinModel->getPlanningMagasin();
+        $form = $this->getFormFactory()->createBuilder(
+            PlanningMagasinSearchType::class,
+            new PlanningMagasinSearchDto(),
+            ['method' => 'GET']
+        )->getForm();
 
-        $uniqueMonths = $this->genererMoisAffiches();
+        $form->handleRequest($request);
+        $dto = $form->getData() ?? new PlanningMagasinSearchDto();
+
+        $data = $this->planningMagasinModel->getPlanningMagasin();
+        $data = $this->filtrerDonnees($data, $dto);
+
+        $uniqueMonths = $this->genererMoisAffiches($dto->months ?? 3);
         $preparedData = $this->preparerDonnees($data);
 
         return $this->render('magasin/planning/planning.html.twig', [
+            'form'         => $form->createView(),
             'uniqueMonths' => $uniqueMonths,
             'preparedData' => $preparedData,
         ]);
     }
 
     /**
-     * Génère la fenêtre de mois affichée dans l'entête du tableau : toujours 12 mois
-     * (6 mois précédents, le mois en cours, puis 5 mois suivants).
+     * Filtre les commandes selon les critères saisis dans le formulaire de recherche.
      */
-    private function genererMoisAffiches(): array
+    private function filtrerDonnees(array $data, PlanningMagasinSearchDto $dto): array
     {
-        $moisLabels = ['Janv', 'Févr', 'Mars', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sept', 'Oct', 'Nov', 'Déc'];
-        $moisCourant = new \DateTime('first day of this month');
+        $nomFournisseur = trim((string) $dto->nomFournisseur);
+        $codeFournisseur = trim((string) $dto->codeFournisseur);
+        $numeroCommande = trim((string) $dto->numeroCommande);
 
-        $uniqueMonths = [];
-        for ($offset = -6; $offset <= 5; $offset++) {
-            $mois = (clone $moisCourant)->modify($offset . ' month');
-
-            $uniqueMonths[] = [
-                'month'   => $moisLabels[(int) $mois->format('n') - 1],
-                'year'    => (int) $mois->format('Y'),
-                'key'     => $mois->format('Y-m'),
-                'current' => $mois->format('Y-m') === $moisCourant->format('Y-m'),
-            ];
+        if ($nomFournisseur === '' && $codeFournisseur === '' && $numeroCommande === '') {
+            return $data;
         }
 
-        return $uniqueMonths;
+        return array_values(array_filter($data, function ($item) use ($nomFournisseur, $codeFournisseur, $numeroCommande) {
+            if ($nomFournisseur !== '' && stripos(trim($item['nom_fournisseur']), $nomFournisseur) === false) {
+                return false;
+            }
+
+            if ($codeFournisseur !== '' && stripos(trim((string) $item['numero_fournisseur']), $codeFournisseur) === false) {
+                return false;
+            }
+
+            if ($numeroCommande !== '' && stripos(trim((string) $item['numero_commande']), $numeroCommande) === false) {
+                return false;
+            }
+
+            return true;
+        }));
+    }
+
+    /**
+     * Génère la fenêtre de mois affichée dans l'entête du tableau : toujours 12 mois,
+     * alignés selon la période choisie dans le formulaire (form.months).
+     */
+    private function genererMoisAffiches(int $selectedOption): array
+    {
+        $moisLabels = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+        $currentMonth = (int) date('n') - 1;
+        $currentYear = (int) date('Y');
+        $currentKey = sprintf('%04d-%02d', $currentYear, $currentMonth + 1);
+
+        $selectedMonths = $this->getSelectedMonths($moisLabels, $currentMonth, $currentYear, $selectedOption);
+
+        return array_map(function ($mois) use ($currentKey) {
+            $mois['current'] = $mois['key'] === $currentKey;
+            return $mois;
+        }, $selectedMonths);
     }
 
     /**

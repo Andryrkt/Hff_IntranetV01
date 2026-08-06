@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Model\magasin\planning;
+namespace App\Form\magasin\Planning;
 
 
-use App\Form\magasin\Planning\PlanningMagasinSearchDto;
+
+use App\Dto\Magasin\Planning\PlanningMagasinSearchDto;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;

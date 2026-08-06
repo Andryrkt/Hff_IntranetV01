@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Form\magasin\Planning;
+namespace App\Dto\Magasin\Planning;
 
 class PlanningMagasinSearchDto
 {
