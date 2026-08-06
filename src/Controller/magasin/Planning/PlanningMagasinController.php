@@ -71,8 +71,8 @@ class PlanningMagasinController extends Controller
 
             if (!isset($grouped[$cle])) {
                 $grouped[$cle] = [
-                    'fournisseur'   => $item['nom_fournisseur'],
-                    'agenceService' => $item['agence_service'],
+                    'fournisseur'   => trim($item['nom_fournisseur']),
+                    'agenceService' => trim($item['agence_service']),
                     'codeFourn'     => $item['numero_fournisseur'],
                     'commandes'     => [],
                 ];
@@ -87,10 +87,32 @@ class PlanningMagasinController extends Controller
 
             $grouped[$cle]['commandes'][$moisCle][] = [
                 'numero' => $item['numero_commande'],
-                'statut' => $item['statut'],
+                'statut' => $this->normaliserStatut($item['statut']),
             ];
         }
 
         return array_values($grouped);
+    }
+
+    /**
+     * Corrige le mojibake produit par DatabaseInformix::convertToUtf8() : cette méthode
+     * teste 'ISO-8859-1' avant 'UTF-8' pour deviner l'encodage, et comme le Latin-1 accepte
+     * n'importe quel octet, une chaîne déjà en UTF-8 (ex: "facturé") est ré-encodée comme si
+     * elle était en Latin-1, produisant "facturÃ©". On annule ce ré-encodage ici.
+     */
+    private function normaliserStatut(string $statut): string
+    {
+        $statut = trim($statut);
+
+        if (strpos($statut, 'Ã') === false && strpos($statut, 'Â') === false) {
+            return $statut;
+        }
+
+        $repare = @mb_convert_encoding($statut, 'ISO-8859-1', 'UTF-8');
+        if ($repare !== false && mb_check_encoding($repare, 'UTF-8') && $repare !== $statut) {
+            return $repare;
+        }
+
+        return $statut;
     }
 }

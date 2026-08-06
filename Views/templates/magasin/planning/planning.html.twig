@@ -47,6 +47,10 @@
 						<i class="fa-solid fa-circle text-primary"></i>
 						<small>Complet non facturé |</small>
 					</div>
+					<div id="complet-facture">
+						<i class="fa-solid fa-circle text-success"></i>
+						<small>Complet facturé |</small>
+					</div>
 					<div id="back-order">
 						<i class="fa-solid fa-circle text-danger"></i>
 						<small>Back Order / Error</small>
@@ -88,6 +92,8 @@
 											{% set classe = 'bg-info text-white' %}
 										{% elseif commande.statut == 'Complet non facturé' %}
 											{% set classe = 'bg-primary text-white' %}
+										{% elseif commande.statut == 'Complet facturé' %}
+											{% set classe = 'bg-success text-white' %}
 										{% endif %}
 										<span class="d-inline-block px-2 py-1 rounded text-wrap {{ classe }}" title="{{ commande.statut }}">
 											{{ commande.numero }}
