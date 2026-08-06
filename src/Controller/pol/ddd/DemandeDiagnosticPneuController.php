@@ -114,22 +114,23 @@ class DemandeDiagnosticPneuController extends Controller
             $numero = $this->demandeDiagnosticPneuModel->genererNumeroDemande($em);
             $demande->setNumeroDemande($numero);
 
-            // Persist des pneus (si cascade persist configurée, suffit de persister la demande)
-            // Sinon, il faut persister chaque pneu manuellement.
-            // On suppose que la cascade est configurée.
+            // Assigner le numéro de ligne à chaque pneu
+            $ligne = 1;
             foreach ($demande->getDiagnosticPneus() as $pneu) {
-                // Si la relation inverse existe, on la définit
+                $pneu->setNumeroLigne($ligne++);
                 $pneu->setDemande($demande);
-                // Pas besoin de persist si cascade={"persist"} est défini sur la relation OneToMany
             }
-            // Persist de la demande (cascade fera le reste)
+
+            // Persist de la demande (les pneus seront persistés grâce à cascade={"persist"})
             $em->persist($demande);
             $em->flush();
             $em->commit();
 
-            dd("Reussie");
-            // Historique (après flush pour avoir l'ID)
-            // $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $demandeInterventions[0]->getNumeroDemandeIntervention(), 'dit_index', true);
+            // Message de succès (temporaire pour le debug)
+            dd("Sauvegarde réussie !");
+
+            // Historique (à décommenter après validation)
+            // $this->historiqueOperation->sendNotificationCreation(...);      
         } catch (\Exception $e) {
             $em->rollback();
             throw new \RuntimeException('Erreur lors de la sauvegarde : ' . $e->getMessage(), 0, $e);

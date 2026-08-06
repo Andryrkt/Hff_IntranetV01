@@ -11,7 +11,7 @@ class DemandeDiagnosticPneuModel extends Model
     /**
      * informix
      */
-    public function findAllValaibleMateriel($matricule = '0',  $numParc = '0', $numSerie = '0')
+    public function findAllAValaibleMateriel($matricule = '0',  $numParc = '0', $numSerie = '0')
     {
         if ($matricule === '' || $matricule === '0' || $matricule === null) {
             $conditionNummat = "";
@@ -36,7 +36,6 @@ class DemandeDiagnosticPneuModel extends Model
 
 
         $statement = "SELECT
-       
         mmat_marqmat as constructeur,
         trim(mmat_desi) as designation,
         trim(mmat_typmat) as modele,

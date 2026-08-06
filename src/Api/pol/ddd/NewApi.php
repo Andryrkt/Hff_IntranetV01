@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Api\dit;
+namespace App\Api\pol\ddd;
 
 use App\Model\dit\DitModel;
 use App\Entity\admin\Agence;
@@ -16,14 +16,14 @@ class NewApi extends Controller
 
 
     /**
-     * @Route("/api/fetch-all-materiel", name="api_fetch_all_materiel", methods={"GET"})
+     * @Route("/api/fetch-all-available-materiel", name="api_fetch_all_available_materiel", methods={"GET"})
      * cette fonctin permet d'envoyer les informations materiels en ajax
      */
-    public function fetchMateriel()
+    public function fetchAvailableMateriel()
     {
-        $ditModel = new DitModel();
+        $demandeDiagnosticPneuModel = new DemandeDiagnosticPneuModel();
         // Récupérer les données depuis le modèle
-        $data = $ditModel->findAll();
+        $data = $demandeDiagnosticPneuModel->findAllAValaibleMateriel();
 
         // Vérifiez si les données existent
         if (!$data) {
@@ -35,5 +35,4 @@ class NewApi extends Controller
 
         $this->testJson($jsonData);
     }
-    
 }

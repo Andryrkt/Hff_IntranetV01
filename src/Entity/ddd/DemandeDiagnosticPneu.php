@@ -35,7 +35,6 @@ class DemandeDiagnosticPneu
      */
     private ?Chantier $chantier = null;
 
-
     /**
      * @ORM\OneToMany(targetEntity=DiagnosticPneu::class, mappedBy="demande", cascade={"persist", "remove"}, orphanRemoval=true)
      */

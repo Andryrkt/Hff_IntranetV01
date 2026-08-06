@@ -24,7 +24,7 @@ const fetchManager = new FetchManager();
 
 let lastSelectedItem = null;
 async function fetchMateriels() {
-  return await fetchManager.get(`/api/fetch-all-vailable-materiel`);
+  return await fetchManager.get(`api/fetch-all-available-materiel`);
 }
 
 function displayMateriel(item) {
@@ -36,7 +36,33 @@ function onSelectMateriels(item) {
 
   idMaterielInput.value = item.num_matricule;
   numParcInput.value = item.num_parc;
-  //   numSerieInput.value = item.num_serie;
+
+  // Display fields
+  const marqueDisplay = document.getElementById("marqueMaterielDisplay");
+  const typeDisplay = document.getElementById("typeMaterielDisplay");
+  const designationDisplay = document.getElementById(
+    "designationMaterielDisplay",
+  );
+
+  if (marqueDisplay) marqueDisplay.textContent = item.constructeur || "-";
+  if (typeDisplay) typeDisplay.textContent = item.modele || "-";
+  if (designationDisplay)
+    designationDisplay.textContent = item.designation || "-";
+
+  // Form fields
+  const marqueInput = document.getElementById(
+    "demande_diagnostic_pneu_marqueMateriel",
+  );
+  const typeInput = document.getElementById(
+    "demande_diagnostic_pneu_typeMateriel",
+  );
+  const designationInput = document.getElementById(
+    "demande_diagnostic_pneu_designationMateriel",
+  );
+
+  if (marqueInput) marqueInput.value = item.constructeur || "";
+  if (typeInput) typeInput.value = item.modele || "";
+  if (designationInput) designationInput.value = item.designation || "";
 
   createMaterielInfoDisplay(containerInfoMateriel, item);
 }

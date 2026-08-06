@@ -11,6 +11,7 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -168,6 +169,27 @@ class DemandeDiagnosticPneuType extends AbstractType
                 ]
 
             )
+            ->add('marqueMateriel', TextType::class, [
+                'label' => 'Marque',
+                'required' => false,
+                'attr' => [
+                    'readonly' => true,
+                ],
+            ])
+            ->add('typeMateriel', TextType::class, [
+                'label' => 'Type',
+                'required' => false,
+                'attr' => [
+                    'readonly' => true,
+                ],
+            ])
+            ->add('designationMateriel', TextType::class, [
+                'label' => 'Désignation',
+                'required' => false,
+                'attr' => [
+                    'readonly' => true,
+                ],
+            ])
 
 
             ->add(
