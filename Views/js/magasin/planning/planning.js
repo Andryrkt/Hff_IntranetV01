@@ -1,8 +1,17 @@
 import { FetchManager } from "../../api/FetchManager.js";
 import { AutoComplete } from "../../utils/AutoComplete.js";
+import { filterServiceByAgence } from "../../utils/agenceService/filterServiceByAgence.js";
 
 document.addEventListener("DOMContentLoaded", function () {
   const fetchManager = new FetchManager();
+
+  /** ========================================================================
+   * Filtre le champ service en fonction de l'agence choisie
+   *============================================================================*/
+  filterServiceByAgence({
+    agenceSelector: "#planning_magasin_frn_search_agenceService_agence",
+    serviceSelector: "#planning_magasin_frn_search_agenceService_service",
+  });
 
   async function fetchFournisseurs() {
     return await fetchManager.get("api/magasin-planning-liste-fournisseur");

@@ -8,5 +8,8 @@ class PlanningMagasinSearchDto
 
     public ?string $numeroCommande = null;
 
+    /** @var array{agence: ?\App\Entity\admin\Agence, service: ?\App\Entity\admin\Service} */
+    public ?array $agenceService = [];
+
     public ?int $months = 3;
 }

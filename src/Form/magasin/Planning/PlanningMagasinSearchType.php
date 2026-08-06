@@ -5,6 +5,7 @@ namespace App\Form\magasin\Planning;
 
 
 use App\Dto\Magasin\Planning\PlanningMagasinSearchDto;
+use App\Form\common\AgenceServiceType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -27,6 +28,15 @@ class PlanningMagasinSearchType extends AbstractType
                 'label' => 'Numéro Commande',
                 'required' => false,
             ])
+            ->add('agenceService', AgenceServiceType::class, [
+                'label' => false,
+                'required' => false,
+                'agence_label' => 'Agence',
+                'service_label' => 'Service',
+                'agence_placeholder' => '-- Choisir une agence --',
+                'service_placeholder' => '-- Choisir un service --',
+                'em' => $options['em'],
+            ])
             ->add('months', ChoiceType::class, [
                 'choices' => [
                     '3 mois suivant'    => 3,
@@ -47,6 +57,7 @@ class PlanningMagasinSearchType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class'       => PlanningMagasinSearchDto::class,
+            'em'               => null,
         ]);
     }
 }

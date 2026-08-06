@@ -14,6 +14,8 @@ class PlanningMagasinModel extends Model
                 o.fbse_numfou as numero_fournisseur,
                 o.fbse_nomfou as nom_fournisseur,
                 o.asuc_lib || ' - ' || o.atab_lib AS agence_service,
+                o.asuc_num as code_agence,
+                o.atab_code as code_service,
                 o.fcde_datec as date_commande,
                 CASE
                     WHEN o.total_facture > 0 AND o.total_facture < o.total_qte THEN 'Partiellement facturé'
@@ -30,6 +32,8 @@ class PlanningMagasinModel extends Model
                     l.fbse_nomfou,
                     l.asuc_lib,
                     l.atab_lib,
+                    l.asuc_num,
+                    l.atab_code,
                     l.fcde_datec,
                     SUM(l.fcdl_qte)     AS total_qte,
                     SUM(l.qte_recue)    AS total_recu,
@@ -44,6 +48,8 @@ class PlanningMagasinModel extends Model
                         fbse_nomfou,
                         asuc_lib,
                         atab_lib,
+                        asuc_num,
+                        atab_code,
                         fcde_datec,
                         NVL(SUM(fllf.fllf_qteliv), 0) AS qte_recue,
                         NVL(SUM(fllf.fllf_qtefac), 0) AS qte_facturee,
@@ -64,9 +70,9 @@ class PlanningMagasinModel extends Model
                     WHERE year(fcde_date) = 2026
                     AND (fcde_cdeext NOT LIKE '%CIS%' OR fcde_cdeext IS NULL)
                     AND fcdl_constp IN ('AGR','ATC','AUS','CAT','CGM','CMX','DNL','DYN','GRO','HYS','JDR','KIT','MAN','MNT','OLY','OOM','PAR','PDV','PER','PUB','REM','SHM','TBI','THO')
-                    GROUP BY fcdl.fcdl_numcde, fcdl.fcdl_ligne, fcdl.fcdl_qte, fbse_numfou, fbse_nomfou, asuc_lib, atab_lib, fcde_datec
+                    GROUP BY fcdl.fcdl_numcde, fcdl.fcdl_ligne, fcdl.fcdl_qte, fbse_numfou, fbse_nomfou, asuc_lib, atab_lib, asuc_num, atab_code, fcde_datec
                 ) l
-                GROUP BY l.fcdl_numcde, l.fbse_numfou, l.fbse_nomfou, l.asuc_lib, l.atab_lib, l.fcde_datec
+                GROUP BY l.fcdl_numcde, l.fbse_numfou, l.fbse_nomfou, l.asuc_lib, l.atab_lib, l.asuc_num, l.atab_code, l.fcde_datec
             ) o
             ORDER BY o.fcdl_numcde
             ";

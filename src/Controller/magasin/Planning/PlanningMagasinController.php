@@ -34,7 +34,10 @@ class PlanningMagasinController extends Controller
             'planning_magasin_frn_search',
             PlanningMagasinSearchType::class,
             new PlanningMagasinSearchDto(),
-            ['method' => 'GET']
+            [
+                'method' => 'GET',
+                'em'     => $this->getEntityManager(),
+            ]
         )->getForm();
 
         $form->handleRequest($request);
@@ -60,12 +63,14 @@ class PlanningMagasinController extends Controller
     {
         $fournisseur = trim((string) $dto->fournisseur);
         $numeroCommande = trim((string) $dto->numeroCommande);
+        $agence = $dto->agenceService['agence'] ?? null;
+        $service = $dto->agenceService['service'] ?? null;
 
-        if ($fournisseur === '' && $numeroCommande === '') {
+        if ($fournisseur === '' && $numeroCommande === '' && !$agence && !$service) {
             return $data;
         }
 
-        return array_values(array_filter($data, function ($item) use ($fournisseur, $numeroCommande) {
+        return array_values(array_filter($data, function ($item) use ($fournisseur, $numeroCommande, $agence, $service) {
             // Un seul champ pour chercher par nom OU par code fournisseur.
             if ($fournisseur !== '') {
                 $matchNom = stripos(trim($item['nom_fournisseur']), $fournisseur) !== false;
@@ -77,6 +82,14 @@ class PlanningMagasinController extends Controller
             }
 
             if ($numeroCommande !== '' && stripos(trim((string) $item['numero_commande']), $numeroCommande) === false) {
+                return false;
+            }
+
+            if ($agence && trim((string) $item['code_agence']) !== $agence->getCodeAgence()) {
+                return false;
+            }
+
+            if ($service && trim((string) $item['code_service']) !== $service->getCodeService()) {
                 return false;
             }
 
