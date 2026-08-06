@@ -85,7 +85,7 @@
 
                         {# Numéro demande #}
                         <td>
-                            <a href="" target="_blank" data-bs-toggle="tooltip" title="Voir le détail">
+                            <a href="{{ path('demande_diagnostic_pneu_details', {numeroDemande: demande.numeroDemande}) }}" target="_blank" data-bs-toggle="tooltip" title="Voir le détail">
                                 {{ demande.numeroDemande }}
                             </a>
                         </td>

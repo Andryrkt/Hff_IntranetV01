@@ -5,6 +5,7 @@ namespace App\Form\pol\ddd;
 use App\Entity\ddd\DiagnosticPneu;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -49,6 +50,22 @@ class DiagnosticPneuType extends AbstractType
                 'choices' => self::MOTIFS,
                 'placeholder' => 'Sélectionnez un motif',
                 'required' => true,
+            ])
+            ->add('diagnostic', ChoiceType::class, [
+                'label' => 'Diagnostic atelier',
+                'choices' => [
+                    'Réparable'    => 'reparable',
+                    'Remplacer'    => 'remplacer',
+                    'Rechapable'   => 'rechapable',
+                    'Détruit'      => 'detruit',
+                ],
+                'placeholder' => 'Choisir',
+                'required' => false,
+            ])
+            ->add('observationAtelier', TextareaType::class, [
+                'label' => 'Observation atelier',
+                'required' => false,
+                'attr' => ['rows' => 2],
             ]);
     }
 

@@ -1,241 +1,221 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block title %}
-    Création Demande Diagnostic Pneu
+    Détail de la demande {{ demande.numeroDemande }}
 {% endblock %}
 
 {% block stylesheets %}
+    <link href="{{ App.base_path }}/Views/css/detail.css?v=2026.07.03.14.50" rel="stylesheet"/>
+    {# On reprend le style de new pour la cohérence #}
     <link href="{{ App.base_path }}/Views/css/new.css?v=2026.07.03.14.50" rel="stylesheet"/>
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
 
-{% macro pneu_row(prototype) %}
-    <tr>
-        <td>#</td>
-        <td>{{ form_widget(prototype.numeroSerie) }}</td>
-        <td>{{ form_widget(prototype.coteDim) }}</td>
-        <td>{{ form_widget(prototype.positionMachine) }}</td>
-        <td>{{ form_widget(prototype.motifChantier) }}</td>
-        <td><button type="button" class="remove-pneu btn btn-sm btn-danger">✕</button></td>
-    </tr>
-{% endmacro %}
-{% import _self as self %}
 {% block content %}
-
     <div class="container mt-4 mb-4">
-
         <div class="card shadow">
-
             <div class="card-body">
 
                 <h3 class="perso-titre mb-4">
-                    Formulaire Demande Diagnostic Pneu
+                    Détail de la demande <span class="badge bg-primary">{{ demande.numeroDemande }}</span>
                 </h3>
 
                 {% include "/partials/_notification.html.twig" %}
-
-                {{ form_start(form,{
-                attr:{
-                id:'diagnostic-pneu-form',
-                'data-form-type':'formulaire-new-diagnostic-pneu'
-                }
-                }) }}
-
-                {{ form_errors(form) }}
 
                 {# ========================= #}
                 {# Informations générales    #}
                 {# ========================= #}
 
-                {{ macroForm.sousTitre('Informations générales',{class:'sousTitre'}) }}
+                {{ macroForm.sousTitre('Informations générales', {class:'sousTitre'}) }}
 
                 <div class="row">
-
-                    <div class="col-md-4">
-                        {{ form_row(form.livraison) }}
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Statut</label>
+                        <p class="form-control-plaintext">
+                            <span class="badge bg-{{ demande.statut == 'cloturee' ? 'success' : 'warning' }}">
+                                {{ demande.statut|replace({'_': ' '})|capitalize }}
+                            </span>
+                        </p>
                     </div>
-
-                    <div class="col-md-4">
-                        {{ form_row(form.chantier) }}
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Livraison</label>
+                        <p class="form-control-plaintext">{{ demande.livraison ?: '-' }}</p>
                     </div>
-
-                    <div class="col-md-4">
-                        {{ form_row(form.dateDepartChantier) }}
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Chantier</label>
+                        <p class="form-control-plaintext">{{ demande.chantier ? demande.chantier.nomChantier : '-' }}</p>
                     </div>
-
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Date départ chantier</label>
+                        <p class="form-control-plaintext">{{ demande.dateDepartChantier ? demande.dateDepartChantier|date('d/m/Y') : '-' }}</p>
+                    </div>
                 </div>
 
                 {# ========================= #}
                 {# Matériel                  #}
                 {# ========================= #}
 
-                {{ macroForm.sousTitre('Information matériel',{class:'sousTitre'}) }}
+                {{ macroForm.sousTitre('Information matériel', {class:'sousTitre'}) }}
 
                 <div class="row">
-
-                    <div class="col-md-6">
-                        {{ form_row(form.id_materiel) }}
-                    </div>
-                    <div class="col-md-6">
-                        {{ form_row(form.numero_parc_materiel) }}
-                    </div>
-
-                    <div id="suggestion-idMateriel" class="suggestions-container"></div>
-                    <div id="loader-idMateriel" class="spinner d-flex align-items-center" style="display: none;"></div>
-
-                </div>
-                <div class="row mt-2">
-
                     <div class="col-md-4">
-                        {{ form_row(form.marqueMateriel) }}
+                        <label class="form-label fw-bold">Id Matériel</label>
+                        <p class="form-control-plaintext">{{ demande.idMateriel ?: '-' }}</p>
                     </div>
-
                     <div class="col-md-4">
-                        {{ form_row(form.typeMateriel) }}
+                        <label class="form-label fw-bold">N° Parc</label>
+                        <p class="form-control-plaintext">{{ demande.numeroParcMateriel ?: '-' }}</p>
                     </div>
-
                     <div class="col-md-4">
-                        {{ form_row(form.designationMateriel) }}
+                        <label class="form-label fw-bold">Marque</label>
+                        <p class="form-control-plaintext">{{ demande.marqueMateriel ?: '-' }}</p>
                     </div>
-
                 </div>
                 <div class="row">
-                    <div id="error-idMateriel" class="text-danger"></div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Type</label>
+                        <p class="form-control-plaintext">{{ demande.typeMateriel ?: '-' }}</p>
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label fw-bold">Désignation</label>
+                        <p class="form-control-plaintext">{{ demande.designationMateriel ?: '-' }}</p>
+                    </div>
                 </div>
-
 
                 {# ========================= #}
                 {# Pneus                    #}
                 {# ========================= #}
 
-                {{ macroForm.sousTitre('Informations pneus',{class:'sousTitre'}) }}
+                {{ macroForm.sousTitre('Informations pneus', {class:'sousTitre'}) }}
 
                 <div class="row">
-
                     <div class="col-md-4">
-
-                        {{ form_row(form.nbPneuSurMachine) }}
-
+                        <label class="form-label fw-bold">Nombre pneu sur machine</label>
+                        <p class="form-control-plaintext">{{ demande.nbPneuSurMachine }}</p>
                     </div>
-
                     <div class="col-md-4">
-
-                        {{ form_row(form.nbPneuSecours) }}
-
+                        <label class="form-label fw-bold">Nombre pneu secours</label>
+                        <p class="form-control-plaintext">{{ demande.nbPneuSecours }}</p>
                     </div>
-
                     <div class="col-md-4">
-
-                        {{ form_row(form.nbPneuADiagnostiquer) }}
-
+                        <label class="form-label fw-bold">Nombre pneu à diagnostiquer</label>
+                        <p class="form-control-plaintext">{{ demande.nbPneuADiagnostiquer }}</p>
                     </div>
-
                 </div>
 
                 {# ========================= #}
-                {# Diagnostic pneus dynamique #}
+                {# Diagnostic pneus modifiable #}
                 {# ========================= #}
 
-                {{ macroForm.sousTitre('Diagnostic des pneus',{class:'sousTitre'}) }}
+                {{ macroForm.sousTitre('Diagnostic des pneus (atelier)', {class:'sousTitre'}) }}
+
+                {{ form_start(form) }}
 
                 <div class="table-responsive">
-
                     <table class="table table-bordered">
-
                         <thead class="table-light">
-
                             <tr>
-
                                 <th>#</th>
-
-                                <th>N/S pneu *</th>
-
-                                <th>Cote / dim *</th>
-
-                                <th>Position machine *</th>
-
-                                <th>Motif chantier *</th>
-
+                                <th>N/S pneu</th>
+                                <th>Cote / dim</th>
+                                <th>Position machine</th>
+                                <th>Motif chantier</th>
+                                <th>Diagnostic atelier</th>
+                                <th>Observation atelier</th>
                             </tr>
-
                         </thead>
-
-                        <tbody id="pneu-diagnostic-container"
-                            data-prototype-row="{{ self.pneu_row(form.diagnosticPneus.vars.prototype)|e('html_attr') }}">
-                            {% for diagnostic in form.diagnosticPneus %}
+                        <tbody>
+                            {% for pneu in demande.diagnosticPneus %}
                                 <tr>
                                     <td>{{ loop.index }}</td>
-                                    <td>{{ form_widget(diagnostic.numeroSerie) }}</td>
-                                    <td>{{ form_widget(diagnostic.coteDim) }}</td>
-                                    <td>{{ form_widget(diagnostic.positionMachine) }}</td>
-                                    <td>{{ form_widget(diagnostic.motifChantier) }}</td>
-                                    <td><button type="button" class="remove-pneu btn btn-sm btn-danger">✕</button></td>
+                                    <td>{{ pneu.numeroSerie }}</td>
+                                    <td>{{ pneu.coteDim }}</td>
+                                    <td>{{ pneu.positionMachine }}</td>
+                                    <td>{{ pneu.motifChantier }}</td>
+                                    <td>{{ form_widget(form.diagnosticPneus[loop.index0].diagnostic, { attr: { class: 'form-select' } }) }}</td>
+                                    <td>{{ form_widget(form.diagnosticPneus[loop.index0].observationAtelier, { attr: { rows: 2, class: 'form-control' } }) }}</td>
                                 </tr>
                             {% else %}
-                                <tr class="no-data"><td colspan="6">Aucun pneu saisi</td></tr>
+                                <tr class="no-data"><td colspan="7">Aucun pneu enregistré.</td></tr>
                             {% endfor %}
                         </tbody>
-
                     </table>
-
                 </div>
 
                 {# ========================= #}
-                {# Motifs                   #}
+                {# Boutons : Enregistrer + Retour #}
+                {# ========================= #}
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Enregistrer
+                    </button>
+
+                </div>
+
+                {{ form_end(form) }}
+
+                {# ========================= #}
+                {# Motifs généraux           #}
                 {# ========================= #}
 
-                {{ macroForm.sousTitre('Motifs généraux',{class:'sousTitre'}) }}
-
-                {{ form_row(form.motifs) }}
+                {{ macroForm.sousTitre('Motifs généraux', {class:'sousTitre'}) }}
+                <div class="row">
+                    <div class="col-12">
+                        {% if demande.motifs %}
+                            {% for motif in demande.motifs %}
+                                <span class="badge bg-secondary me-1">{{ motif }}</span>
+                            {% endfor %}
+                        {% else %}
+                            <span class="text-muted">Aucun motif renseigné</span>
+                        {% endif %}
+                    </div>
+                </div>
 
                 {# ========================= #}
                 {# Observation               #}
                 {# ========================= #}
 
-                {{ macroForm.sousTitre('Observation',{class:'sousTitre'}) }}
-
-                {# Fixed missing closing brace #}
-                {{ form_row(form.observation) }}
+                {{ macroForm.sousTitre('Observation', {class:'sousTitre'}) }}
+                <div class="row">
+                    <div class="col-12">
+                        <p class="form-control-plaintext">{{ demande.observation ?: '-' }}</p>
+                    </div>
+                </div>
 
                 {# ========================= #}
-                {# Pieces jointes             #}
+                {# Pieces jointes            #}
                 {# ========================= #}
 
-                {{ macroForm.sousTitre('Pièces jointes',{class:'sousTitre'}) }}
+                {{ macroForm.sousTitre('Pièces jointes', {class:'sousTitre'}) }}
+                <div class="row">
+                    <div class="col-12">
+                        {% if demande.piecesJointes %}
+                            <ul class="list-group">
+                                {% for piece in demande.piecesJointes %}
+                                    <li class="list-group-item">
+                                        <a href="{{ asset(piece) }}" target="_blank">
+                                            <i class="fas fa-file"></i> {{ piece|split('/')|last }}
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted">Aucune pièce jointe.</p>
+                        {% endif %}
+                    </div>
+                </div>
 
-                {{ form_row(form.piecesJointes) }}
-
-                <div class="text-end mt-4">
-
-                    <button
-                    type="submit"
-                    class="btn bouton">
-
-                    <i class="fas fa-save"></i>
-
-                    Enregistrer
-
-                </button>
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <a href="{{ path('api_demande_diagnostic_pneu_cloturer', {numeroDemande: demande.numeroDemande}) }}" class="btn btn-danger" onclick="return confirm('Confirmer la clôture de cette demande ?')">
+                        <i class="fas fa-check-circle"></i> Clôturer
+                    </a>
+                    <a href="{{ path('demande_diagnostic_pneu_liste') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Retour à la liste
+                    </a>
+                </div>
 
             </div>
-
-            {{ form_end(form) }}
-
         </div>
-
     </div>
-
-    </div>
-
-{% endblock %}
-
-{% block javascript %}
-
-    {# Only the external module remains – all inline JS is now in this file #}
-    <script
-    type="module"
-    src="{{ App.base_path }}/Views/js/ddd/demandeDiagnosticPneu.js?v=2026.07.03.14.50">
-    </script>
-
 {% endblock %}
