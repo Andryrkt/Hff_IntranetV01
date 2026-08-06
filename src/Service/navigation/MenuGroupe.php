@@ -250,6 +250,7 @@ class MenuGroupe
                 'subitems' => [
                     ['label' => 'Devis',                        'icon' => 'file-invoice', 'route' => 'liste_devis_neg'],
                     ['label' => 'Planning de commande Magasin', 'icon' => 'calendar-alt', 'route' => 'interface_planningMag'],
+                    ['label' => 'Planning Magasin', 'icon' => 'calendar-alt', 'route' => 'interface_planning_cde_frn_magasin'],
                 ],
             ],
             [
