@@ -65,12 +65,14 @@ class PlanningMagasinController extends Controller
         $numeroCommande = trim((string) $dto->numeroCommande);
         $agence = $dto->agenceService['agence'] ?? null;
         $service = $dto->agenceService['service'] ?? null;
+        $dateDebut = $dto->dateCommande['debut'] ?? null;
+        $dateFin = $dto->dateCommande['fin'] ?? null;
 
-        if ($fournisseur === '' && $numeroCommande === '' && !$agence && !$service) {
+        if ($fournisseur === '' && $numeroCommande === '' && !$agence && !$service && !$dateDebut && !$dateFin) {
             return $data;
         }
 
-        return array_values(array_filter($data, function ($item) use ($fournisseur, $numeroCommande, $agence, $service) {
+        return array_values(array_filter($data, function ($item) use ($fournisseur, $numeroCommande, $agence, $service, $dateDebut, $dateFin) {
             // Un seul champ pour chercher par nom OU par code fournisseur.
             if ($fournisseur !== '') {
                 $matchNom = stripos(trim($item['nom_fournisseur']), $fournisseur) !== false;
@@ -91,6 +93,23 @@ class PlanningMagasinController extends Controller
 
             if ($service && trim((string) $item['code_service']) !== $service->getCodeService()) {
                 return false;
+            }
+
+            if ($dateDebut || $dateFin) {
+                $timestamp = strtotime($item['date_commande']);
+                if ($timestamp === false) {
+                    return false;
+                }
+
+                $dateCommande = date('Y-m-d', $timestamp);
+
+                if ($dateDebut && $dateCommande < $dateDebut->format('Y-m-d')) {
+                    return false;
+                }
+
+                if ($dateFin && $dateCommande > $dateFin->format('Y-m-d')) {
+                    return false;
+                }
             }
 
             return true;
