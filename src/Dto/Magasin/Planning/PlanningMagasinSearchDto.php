@@ -4,9 +4,7 @@ namespace App\Dto\Magasin\Planning;
 
 class PlanningMagasinSearchDto
 {
-    public ?string $nomFournisseur = null;
-
-    public ?string $codeFournisseur = null;
+    public ?string $fournisseur = null;
 
     public ?string $numeroCommande = null;
 

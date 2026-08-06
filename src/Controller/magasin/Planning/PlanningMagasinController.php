@@ -58,23 +58,22 @@ class PlanningMagasinController extends Controller
      */
     private function filtrerDonnees(array $data, PlanningMagasinSearchDto $dto): array
     {
-        $nomFournisseur = trim((string) $dto->nomFournisseur);
-        $codeFournisseur = trim((string) $dto->codeFournisseur);
+        $fournisseur = trim((string) $dto->fournisseur);
         $numeroCommande = trim((string) $dto->numeroCommande);
 
-        if ($nomFournisseur === '' && $codeFournisseur === '' && $numeroCommande === '') {
+        if ($fournisseur === '' && $numeroCommande === '') {
             return $data;
         }
 
-        return array_values(array_filter($data, function ($item) use ($nomFournisseur, $codeFournisseur, $numeroCommande) {
-            // nomFournisseur / codeFournisseur viennent d'une liste déroulante (choix exact),
-            // contrairement à numeroCommande qui reste une recherche texte libre.
-            if ($nomFournisseur !== '' && strcasecmp(trim($item['nom_fournisseur']), $nomFournisseur) !== 0) {
-                return false;
-            }
+        return array_values(array_filter($data, function ($item) use ($fournisseur, $numeroCommande) {
+            // Un seul champ pour chercher par nom OU par code fournisseur.
+            if ($fournisseur !== '') {
+                $matchNom = stripos(trim($item['nom_fournisseur']), $fournisseur) !== false;
+                $matchCode = stripos(trim((string) $item['numero_fournisseur']), $fournisseur) !== false;
 
-            if ($codeFournisseur !== '' && trim((string) $item['numero_fournisseur']) !== $codeFournisseur) {
-                return false;
+                if (!$matchNom && !$matchCode) {
+                    return false;
+                }
             }
 
             if ($numeroCommande !== '' && stripos(trim((string) $item['numero_commande']), $numeroCommande) === false) {

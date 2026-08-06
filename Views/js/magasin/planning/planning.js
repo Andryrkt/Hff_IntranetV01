@@ -13,43 +13,22 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   /**===================================================
-   * Autocomplete champ nom fournisseur
+   * Autocomplete champ fournisseur (recherche par nom ou par code)
    *====================================================*/
-  const nomFournisseurInput = document.querySelector(
-    "#planning_magasin_frn_search_nomFournisseur"
+  const fournisseurInput = document.querySelector(
+    "#planning_magasin_frn_search_fournisseur"
   );
-  if (nomFournisseurInput) {
+  if (fournisseurInput) {
     new AutoComplete({
-      inputElement: nomFournisseurInput,
-      suggestionContainer: document.querySelector("#suggestion-nom-fournisseur"),
-      loaderElement: document.querySelector("#loader-nom-fournisseur"),
+      inputElement: fournisseurInput,
+      suggestionContainer: document.querySelector("#suggestion-fournisseur"),
+      loaderElement: document.querySelector("#loader-fournisseur"),
       debounceDelay: 300,
       fetchDataCallback: fetchFournisseurs,
       displayItemCallback: (item) => displayFournisseur(item),
       itemToStringCallback: (item) => displayFournisseur(item),
       onSelectCallback: (item) => {
-        nomFournisseurInput.value = item.nom_fournisseur;
-      },
-    });
-  }
-
-  /**===================================================
-   * Autocomplete champ code fournisseur
-   *====================================================*/
-  const codeFournisseurInput = document.querySelector(
-    "#planning_magasin_frn_search_codeFournisseur"
-  );
-  if (codeFournisseurInput) {
-    new AutoComplete({
-      inputElement: codeFournisseurInput,
-      suggestionContainer: document.querySelector("#suggestion-code-fournisseur"),
-      loaderElement: document.querySelector("#loader-code-fournisseur"),
-      debounceDelay: 300,
-      fetchDataCallback: fetchFournisseurs,
-      displayItemCallback: (item) => displayFournisseur(item),
-      itemToStringCallback: (item) => displayFournisseur(item),
-      onSelectCallback: (item) => {
-        codeFournisseurInput.value = item.num_fournisseur;
+        fournisseurInput.value = item.nom_fournisseur;
       },
     });
   }
