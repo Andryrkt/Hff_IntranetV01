@@ -77,4 +77,27 @@ class PlanningMagasinModel extends Model
 
         return $this->convertirEnUtf8($data);
     }
+
+    public function recupListeFournissseur()
+    {
+        $statement = " SELECT  
+                        FBSE_NUMFOU AS num_fournisseur,
+                        UPPER(FBSE_NOMFOU) AS nom_fournisseur
+                    FROM 
+                        FRN_BSE
+                    JOIN 
+                        FRN_FOU ON FBSE_NUMFOU = FFOU_NUMFOU
+                    WHERE 
+                        FFOU_SOC = 'HF'
+                    ORDER BY 
+                        FBSE_NOMFOU;
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
 }

@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\planning\PlanningMagasinModel;
 use App\Form\magasin\Planning\PlanningMagasinSearchType;
-use App\Form\magasin\Planning\PlanningMagasinSearchDto;
+use App\Dto\Magasin\Planning\PlanningMagasinSearchDto;
 
 /**
  * @Route("/magasin/planning-commande-fournisseur")
@@ -30,7 +30,8 @@ class PlanningMagasinController extends Controller
      */
     public function headPlanning(Request $request)
     {
-        $form = $this->getFormFactory()->createBuilder(
+        $form = $this->getFormFactory()->createNamedBuilder(
+            'planning_magasin_frn_search',
             PlanningMagasinSearchType::class,
             new PlanningMagasinSearchDto(),
             ['method' => 'GET']
@@ -66,11 +67,13 @@ class PlanningMagasinController extends Controller
         }
 
         return array_values(array_filter($data, function ($item) use ($nomFournisseur, $codeFournisseur, $numeroCommande) {
-            if ($nomFournisseur !== '' && stripos(trim($item['nom_fournisseur']), $nomFournisseur) === false) {
+            // nomFournisseur / codeFournisseur viennent d'une liste déroulante (choix exact),
+            // contrairement à numeroCommande qui reste une recherche texte libre.
+            if ($nomFournisseur !== '' && strcasecmp(trim($item['nom_fournisseur']), $nomFournisseur) !== 0) {
                 return false;
             }
 
-            if ($codeFournisseur !== '' && stripos(trim((string) $item['numero_fournisseur']), $codeFournisseur) === false) {
+            if ($codeFournisseur !== '' && trim((string) $item['numero_fournisseur']) !== $codeFournisseur) {
                 return false;
             }
 

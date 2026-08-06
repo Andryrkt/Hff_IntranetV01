@@ -5,6 +5,7 @@
 {% endblock %}
 
 {% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/utils/autocomplete.css?v=2026.08.06.1">
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2026.08.06.1">
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/planning/planning.css?v=2026.08.06.1">
 {% endblock %}
@@ -29,9 +30,13 @@
 							<div class="row">
 								<div class="col-12 col-md-3">
 									{{ form_row(form.nomFournisseur) }}
+									<div id="suggestion-nom-fournisseur" class="suggestions-container"></div>
+									<div id="loader-nom-fournisseur" class="spinner" style="display: none;">Chargement...</div>
 								</div>
 								<div class="col-12 col-md-3">
 									{{ form_row(form.codeFournisseur) }}
+									<div id="suggestion-code-fournisseur" class="suggestions-container"></div>
+									<div id="loader-code-fournisseur" class="spinner" style="display: none;">Chargement...</div>
 								</div>
 								<div class="col-12 col-md-3">
 									{{ form_row(form.numeroCommande) }}
@@ -134,4 +139,5 @@
 
 {% block javascript %}
 	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2026.08.06.1"></script>
+	<script src="{{ App.base_path }}/Views/js/magasin/planning/planning.js?v=2026.08.06.1" type="module"></script>
 {% endblock %}
