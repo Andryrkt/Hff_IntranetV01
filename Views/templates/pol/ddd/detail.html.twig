@@ -1,0 +1,241 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+    Création Demande Diagnostic Pneu
+{% endblock %}
+
+{% block stylesheets %}
+    <link href="{{ App.base_path }}/Views/css/new.css?v=2026.07.03.14.50" rel="stylesheet"/>
+{% endblock %}
+
+{% import "macroForm.html.twig" as macroForm %}
+
+{% macro pneu_row(prototype) %}
+    <tr>
+        <td>#</td>
+        <td>{{ form_widget(prototype.numeroSerie) }}</td>
+        <td>{{ form_widget(prototype.coteDim) }}</td>
+        <td>{{ form_widget(prototype.positionMachine) }}</td>
+        <td>{{ form_widget(prototype.motifChantier) }}</td>
+        <td><button type="button" class="remove-pneu btn btn-sm btn-danger">✕</button></td>
+    </tr>
+{% endmacro %}
+{% import _self as self %}
+{% block content %}
+
+    <div class="container mt-4 mb-4">
+
+        <div class="card shadow">
+
+            <div class="card-body">
+
+                <h3 class="perso-titre mb-4">
+                    Formulaire Demande Diagnostic Pneu
+                </h3>
+
+                {% include "/partials/_notification.html.twig" %}
+
+                {{ form_start(form,{
+                attr:{
+                id:'diagnostic-pneu-form',
+                'data-form-type':'formulaire-new-diagnostic-pneu'
+                }
+                }) }}
+
+                {{ form_errors(form) }}
+
+                {# ========================= #}
+                {# Informations générales    #}
+                {# ========================= #}
+
+                {{ macroForm.sousTitre('Informations générales',{class:'sousTitre'}) }}
+
+                <div class="row">
+
+                    <div class="col-md-4">
+                        {{ form_row(form.livraison) }}
+                    </div>
+
+                    <div class="col-md-4">
+                        {{ form_row(form.chantier) }}
+                    </div>
+
+                    <div class="col-md-4">
+                        {{ form_row(form.dateDepartChantier) }}
+                    </div>
+
+                </div>
+
+                {# ========================= #}
+                {# Matériel                  #}
+                {# ========================= #}
+
+                {{ macroForm.sousTitre('Information matériel',{class:'sousTitre'}) }}
+
+                <div class="row">
+
+                    <div class="col-md-6">
+                        {{ form_row(form.id_materiel) }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form_row(form.numero_parc_materiel) }}
+                    </div>
+
+                    <div id="suggestion-idMateriel" class="suggestions-container"></div>
+                    <div id="loader-idMateriel" class="spinner d-flex align-items-center" style="display: none;"></div>
+
+                </div>
+                <div class="row mt-2">
+
+                    <div class="col-md-4">
+                        {{ form_row(form.marqueMateriel) }}
+                    </div>
+
+                    <div class="col-md-4">
+                        {{ form_row(form.typeMateriel) }}
+                    </div>
+
+                    <div class="col-md-4">
+                        {{ form_row(form.designationMateriel) }}
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div id="error-idMateriel" class="text-danger"></div>
+                </div>
+
+
+                {# ========================= #}
+                {# Pneus                    #}
+                {# ========================= #}
+
+                {{ macroForm.sousTitre('Informations pneus',{class:'sousTitre'}) }}
+
+                <div class="row">
+
+                    <div class="col-md-4">
+
+                        {{ form_row(form.nbPneuSurMachine) }}
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        {{ form_row(form.nbPneuSecours) }}
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        {{ form_row(form.nbPneuADiagnostiquer) }}
+
+                    </div>
+
+                </div>
+
+                {# ========================= #}
+                {# Diagnostic pneus dynamique #}
+                {# ========================= #}
+
+                {{ macroForm.sousTitre('Diagnostic des pneus',{class:'sousTitre'}) }}
+
+                <div class="table-responsive">
+
+                    <table class="table table-bordered">
+
+                        <thead class="table-light">
+
+                            <tr>
+
+                                <th>#</th>
+
+                                <th>N/S pneu *</th>
+
+                                <th>Cote / dim *</th>
+
+                                <th>Position machine *</th>
+
+                                <th>Motif chantier *</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="pneu-diagnostic-container"
+                            data-prototype-row="{{ self.pneu_row(form.diagnosticPneus.vars.prototype)|e('html_attr') }}">
+                            {% for diagnostic in form.diagnosticPneus %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ form_widget(diagnostic.numeroSerie) }}</td>
+                                    <td>{{ form_widget(diagnostic.coteDim) }}</td>
+                                    <td>{{ form_widget(diagnostic.positionMachine) }}</td>
+                                    <td>{{ form_widget(diagnostic.motifChantier) }}</td>
+                                    <td><button type="button" class="remove-pneu btn btn-sm btn-danger">✕</button></td>
+                                </tr>
+                            {% else %}
+                                <tr class="no-data"><td colspan="6">Aucun pneu saisi</td></tr>
+                            {% endfor %}
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                {# ========================= #}
+                {# Motifs                   #}
+                {# ========================= #}
+
+                {{ macroForm.sousTitre('Motifs généraux',{class:'sousTitre'}) }}
+
+                {{ form_row(form.motifs) }}
+
+                {# ========================= #}
+                {# Observation               #}
+                {# ========================= #}
+
+                {{ macroForm.sousTitre('Observation',{class:'sousTitre'}) }}
+
+                {# Fixed missing closing brace #}
+                {{ form_row(form.observation) }}
+
+                {# ========================= #}
+                {# Pieces jointes             #}
+                {# ========================= #}
+
+                {{ macroForm.sousTitre('Pièces jointes',{class:'sousTitre'}) }}
+
+                {{ form_row(form.piecesJointes) }}
+
+                <div class="text-end mt-4">
+
+                    <button
+                    type="submit"
+                    class="btn bouton">
+
+                    <i class="fas fa-save"></i>
+
+                    Enregistrer
+
+                </button>
+
+            </div>
+
+            {{ form_end(form) }}
+
+        </div>
+
+    </div>
+
+    </div>
+
+{% endblock %}
+
+{% block javascript %}
+
+    {# Only the external module remains – all inline JS is now in this file #}
+    <script
+    type="module"
+    src="{{ App.base_path }}/Views/js/ddd/demandeDiagnosticPneu.js?v=2026.07.03.14.50">
+    </script>
+
+{% endblock %}

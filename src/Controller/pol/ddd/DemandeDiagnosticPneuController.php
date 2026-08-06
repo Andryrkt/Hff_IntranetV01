@@ -156,4 +156,9 @@ class DemandeDiagnosticPneuController extends Controller
         // }
         // $demande->setPiecesJointes($uploadedPaths);
     }
+
+
+
+
+    
 }
