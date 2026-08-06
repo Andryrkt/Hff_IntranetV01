@@ -37,9 +37,6 @@
         <table class="table table-sticky">
             <thead class="table-dark align-middle">
                 <tr>
-                    <th>
-                        <i class="fas fa-ellipsis-vertical"></i>
-                    </th>
                     <th>Statut</th>
                     <th>N° Demande</th>
                     <th>Demandeur</th>
@@ -47,7 +44,9 @@
                     <th>Matériel (N° Parc)</th>
                     <th>Date départ</th>
                     <th>Livraison</th>
-                    <th>Nb pneus <br><small>(M/S/D)</small></th>
+                    <th> <span title="Nombre de pneus (Sur Machine / Secours / à Diagnostiser)">
+                        Nb pneus <br><small>(M/S/D)</small>
+                    </span></th>
                     <th>Motifs</th>
                     <th>N° DIT</th>
                     <th>N° OR</th>
@@ -60,105 +59,90 @@
                     {% set classeStatut = demande.statut|lower|replace({' ': '_', 'à': 'a'}) %}
 
                     <tr>
-                        {# Actions (menu déroulant) #}
-                        <td class="align-middle" style="padding: 0px">
-                            <div class="dropdown">
-                                <button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton{{ demande.id }}" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-ellipsis-vertical"></i>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton{{ demande.id }}">
-
-                                    {% if demande.statut == 'a_traiter_atelier' %}
-                                        <li>
-                                            <a class="dropdown-item fw-bold" href="" onclick="return confirm('Confirmer la clôture ?')">
-                                                <i class="fas fa-check-circle me-2"></i>Clôturer
-                                            </a>
-                                        </li>
-                                    {% endif %}
-
-                                </ul>
-                            </div>
-                        </td>
-
                         {# Statut #}
-                        <td class="{{ classeStatut }}">{{ demande.statut|replace({'_': ' '})|capitalize }}</td>
-
-                        {# Numéro demande #}
-                        <td>
-                            <a href="{{ path('demande_diagnostic_pneu_details', {numeroDemande: demande.numeroDemande}) }}" target="_blank" data-bs-toggle="tooltip" title="Voir le détail">
-                                {{ demande.numeroDemande }}
-                            </a>
-                        </td>
-
-                        {# Demandeur #}
-                        <td>{{ demande.demandeur|upper }}</td>
-
-                        {# Chantier #}
-                        <td>{{ demande.chantier ? demande.chantier.nomChantier : '-' }}</td>
-
-                        {# Matériel (N° Parc) #}
-                        <td>{{ demande.numeroParcMateriel ?: '-' }}</td>
-
-                        {# Date départ chantier #}
-                        <td>{{ demande.dateDepartChantier ? demande.dateDepartChantier|date('d/m/Y') : '-' }}</td>
-
-                        {# Livraison #}
-                        <td>{{ demande.livraison ?: '-' }}</td>
-
-                        {# Nombre de pneus (Machine / Secours / À diagnostiquer) #}
-                        <td class="text-center">
-                            <span class="badge bg-secondary">{{ demande.nbPneuSurMachine }}</span>
-                            /
-                            <span class="badge bg-secondary">{{ demande.nbPneuSecours }}</span>
-                            /
-                            <span class="badge bg-primary">{{ demande.nbPneuADiagnostiquer }}</span>
-                        </td>
-
-                        {# Motifs généraux #}
-                        <td>
-                            {% if demande.motifs %}
-                                {% for motif in demande.motifs %}
-                                    <span class="badge bg-light text-dark">{{ motif }}</span>
-                                {% endfor %}
-                            {% else %}
-                                -
+                        <td class="
+                            {% if demande.statut == 'a_traiter_atelier' %}bg-warning text-dark
+                            {% elseif demande.statut == 'cloturee' %}bg-success text-white
+                            {% else %}bg-secondary text-white
                             {% endif %}
-                        </td>
+                            ">{{ demande.statut|replace({'_': ' '})|capitalize }}</td>
 
-                        {# N° DIT #}
-                        <td>{{ demande.numeroDit ?: '-' }}</td>
+                            {# Numéro demande #}
+                            <td>
+                                <a href="{{ path('demande_diagnostic_pneu_details', {numeroDemande: demande.numeroDemande}) }}" target="_blank" data-bs-toggle="tooltip" title="Voir le détail">
+                                    {{ demande.numeroDemande }}
+                                </a>
+                            </td>
 
-                        {# N° OR #}
-                        <td>{{ demande.numeroOr ?: '-' }}</td>
+                            {# Demandeur #}
+                            <td>{{ demande.demandeur|upper }}</td>
 
-                        {# Date création #}
-                        <td>{{ demande.dateCreation ? demande.dateCreation|date('d/m/Y H:i') : '-' }}</td>
-                    </tr>
-                {% else %}
-                    <tr>
-                        <td colspan="13" class="text-center">Aucune demande de diagnostic pneu trouvée.</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+                            {# Chantier #}
+                            <td>{{ demande.chantier ? demande.chantier.nomChantier : '-' }}</td>
 
-    {# Pagination en bas #}
-    <div class="container">
-        {% include "/partials/_pagination.html.twig" with {
-        'data': data,
-        'currentPage': currentPage,
-        'totalPages': totalPages,
-        'route': 'demande_diagnostic_pneu_liste'
-        } %}
-    </div>
+                            {# Matériel (N° Parc) #}
+                            <td>{{ demande.numeroParcMateriel ?: '-' }}</td>
 
-    {# Modales éventuelles (pour détails, pièces jointes, etc.) #}
-    {# {% include "/pol/ddd/shared/_modal.html.twig" %} #}
+                            {# Date départ chantier #}
+                            <td>{{ demande.dateDepartChantier ? demande.dateDepartChantier|date('d/m/Y') : '-' }}</td>
 
-{% endblock %}
+                            {# Livraison #}
+                            <td>{{ demande.livraison ?: '-' }}</td>
 
-{% block javascript %}
-    <script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2026.07.03.14.50"></script>
-    <script src="{{ App.base_path }}/Views/js/pol/ddd/list.js?v=2026.07.03.14.50" type="module"></script>
-{% endblock %}
+                            {# Nombre de pneus (Machine / Secours / À diagnostiquer) #}
+                            <td class="text-center">
+                                <span class="badge bg-secondary">{{ demande.nbPneuSurMachine }}</span>
+                                /
+                                <span class="badge bg-secondary">{{ demande.nbPneuSecours }}</span>
+                                /
+                                <span class="badge bg-primary">{{ demande.nbPneuADiagnostiquer }}</span>
+                            </td>
+
+                            {# Motifs généraux #}
+                            <td>
+                                {% if demande.motifs %}
+                                    {% for motif in demande.motifs %}
+                                        <span class="badge bg-light text-dark">{{ motif }}</span>
+                                    {% endfor %}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+
+                            {# N° DIT #}
+                            <td>{{ demande.numeroDit ?: '-' }}</td>
+
+                            {# N° OR #}
+                            <td>{{ demande.numeroOr ?: '-' }}</td>
+
+                            {# Date création #}
+                            <td>{{ demande.dateCreation ? demande.dateCreation|date('d/m/Y H:i') : '-' }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="13" class="text-center">Aucune demande de diagnostic pneu trouvée.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {# Pagination en bas #}
+        <div class="container">
+            {% include "/partials/_pagination.html.twig" with {
+            'data': data,
+            'currentPage': currentPage,
+            'totalPages': totalPages,
+            'route': 'demande_diagnostic_pneu_liste'
+            } %}
+        </div>
+
+        {# Modales éventuelles (pour détails, pièces jointes, etc.) #}
+        {# {% include "/pol/ddd/shared/_modal.html.twig" %} #}
+
+    {% endblock %}
+
+    {% block javascript %}
+        <script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2026.07.03.14.50"></script>
+        <script src="{{ App.base_path }}/Views/js/pol/ddd/list.js?v=2026.07.03.14.50" type="module"></script>
+    {% endblock %}

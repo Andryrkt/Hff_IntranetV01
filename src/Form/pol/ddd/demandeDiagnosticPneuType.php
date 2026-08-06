@@ -55,17 +55,17 @@ class DemandeDiagnosticPneuType extends AbstractType
                 'livraison',
                 ChoiceType::class,
                 [
-                    'label' => 'Livraison',
+                    'label' => 'Livraison *',
                     'choices' => self::LIVRAISON,
-                    'required' => false,
-                    'placeholder' => 'Sélectionner',
+                    'required' => true,
+                    'placeholder' => '-- Choisir --',
                 ]
             )
             ->add('chantier', EntityType::class, [
                 'class' => Chantier::class,
                 'choice_label' => 'nomChantier',
                 'label' => 'Chantier *',
-                'placeholder' => '-- Choisir--',
+                'placeholder' => '-- Choisir --',
                 'required' => true,
                 'constraints' => [
                     new Assert\NotBlank(['message' => 'la date ne doit pas être vide'])
@@ -91,7 +91,7 @@ class DemandeDiagnosticPneuType extends AbstractType
                 ChoiceType::class,
                 [
                     'label' => 'Nombre pneu sur machine *',
-                    'choices' => array_combine(range(0, 12), range(0, 12)),
+                    'choices' => array_combine(range(1, 12), range(1, 12)),
                     'placeholder' => 'Sélectionner',
                     'required' => false,
                 ]
@@ -113,7 +113,7 @@ class DemandeDiagnosticPneuType extends AbstractType
                 ChoiceType::class,
                 [
                     'label' => 'Nombre pneu à diagnostiquer *',
-                    'choices' => array_combine(range(0, 10), range(0, 10)),
+                    'choices' => array_combine(range(1, 10), range(1, 10)),
                     'placeholder' => 'Sélectionner',
                     'required' => false,
                 ]
@@ -122,14 +122,20 @@ class DemandeDiagnosticPneuType extends AbstractType
             ->add('motifs', ChoiceType::class, [
                 'choices' => self::MOTIFS,
                 'multiple' => true,
-                'expanded' => true, // affiche des checkbox
+                'expanded' => true,
                 'required' => true,
+                'constraints' => [
+                    new Assert\Count([
+                        'min' => 1,
+                        'minMessage' => 'Veuillez sélectionner au moins un motif.',
+                    ]),
+                ],
             ])
             ->add(
                 'observation',
                 TextareaType::class,
                 [
-                    'label' => 'Observation *',
+                    'label' => 'Observation',
                     'required' => false,
                     'attr' => [
                         'rows' => 5,
@@ -143,7 +149,7 @@ class DemandeDiagnosticPneuType extends AbstractType
                 'id_materiel',
                 TextType::class,
                 [
-                    'label' => " Id Matériel *",
+                    'label' => "Id Matériel *",
                     'required' => true,
                     'attr' => [
                         'class' => 'noEntrer autocomplete',
@@ -163,8 +169,8 @@ class DemandeDiagnosticPneuType extends AbstractType
                     'label' => " N° Parc",
                     'required' => false,
                     'attr' => [
-                        'class' => 'noEntrer autocomplete',
                         'autocomplete' => 'off',
+                        'readonly' => true,
                     ]
                 ]
 

@@ -13,14 +13,20 @@
 {% import "macroForm.html.twig" as macroForm %}
 
 {% block content %}
-    <div class="container mt-4 mb-4">
+    <div class="container mt-6 mb-4">
         <div class="card shadow">
             <div class="card-body">
 
-                <h3 class="perso-titre mb-4">
-                    Détail de la demande <span class="badge bg-primary">{{ demande.numeroDemande }}</span>
-                </h3>
-
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class=" mb-0">
+                        Détail de la demande : <span class="fs-6 fw-bold">{{ demande.numeroDemande }}</span>
+                    </h3>
+                    <div>
+                        <span class="badge bg-{{ demande.statut == 'cloturee' ? 'success' : 'warning' }} fs-5 p-2">
+                            {{ demande.statut|replace({'_': ' '})|capitalize }}
+                        </span>
+                    </div>
+                </div>
                 {% include "/partials/_notification.html.twig" %}
 
                 {# ========================= #}
@@ -30,14 +36,7 @@
                 {{ macroForm.sousTitre('Informations générales', {class:'sousTitre'}) }}
 
                 <div class="row">
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold">Statut</label>
-                        <p class="form-control-plaintext">
-                            <span class="badge bg-{{ demande.statut == 'cloturee' ? 'success' : 'warning' }}">
-                                {{ demande.statut|replace({'_': ' '})|capitalize }}
-                            </span>
-                        </p>
-                    </div>
+
                     <div class="col-md-3">
                         <label class="form-label fw-bold">Livraison</label>
                         <p class="form-control-plaintext">{{ demande.livraison ?: '-' }}</p>
@@ -81,6 +80,18 @@
                         <label class="form-label fw-bold">Désignation</label>
                         <p class="form-control-plaintext">{{ demande.designationMateriel ?: '-' }}</p>
                     </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Numero DIT</label>
+                        <p class="form-control-plaintext">{{ demande.numeroDit ?: '-' }}</p>
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label fw-bold">Numero OR</label>
+                        <p class="form-control-plaintext">{{ demande.numeroOR ?: '-' }}</p>
+                    </div>
+
                 </div>
 
                 {# ========================= #}
@@ -103,6 +114,27 @@
                         <p class="form-control-plaintext">{{ demande.nbPneuADiagnostiquer }}</p>
                     </div>
                 </div>
+                {# ========================= #}
+                {# Motifs généraux           #}
+                {# ========================= #}
+
+                {{ macroForm.sousTitre('Motifs généraux', {class:'sousTitre'}) }}
+                <div class="row mt-2">
+                    <div class="col-12">
+                        {% if demande.motifs %}
+                            {% for motif in demande.motifs %}
+                                <span class="fw-bold">{{ motif }}</span>
+                                {% if not loop.last %}
+                                    <span class="text-muted mx-1">|</span>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <div class="mt-2">
+                                <p class="text-muted mb-0">Aucun motif renseigné.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
 
                 {# ========================= #}
                 {# Diagnostic pneus modifiable #}
@@ -112,8 +144,8 @@
 
                 {{ form_start(form) }}
 
-                <div class="table-responsive">
-                    <table class="table table-bordered">
+                <div class="table-responsive mt-2">
+                    <table class="table table-bordered ">
                         <thead class="table-light">
                             <tr>
                                 <th>#</th>
@@ -155,22 +187,6 @@
 
                 {{ form_end(form) }}
 
-                {# ========================= #}
-                {# Motifs généraux           #}
-                {# ========================= #}
-
-                {{ macroForm.sousTitre('Motifs généraux', {class:'sousTitre'}) }}
-                <div class="row">
-                    <div class="col-12">
-                        {% if demande.motifs %}
-                            {% for motif in demande.motifs %}
-                                <span class="badge bg-secondary me-1">{{ motif }}</span>
-                            {% endfor %}
-                        {% else %}
-                            <span class="text-muted">Aucun motif renseigné</span>
-                        {% endif %}
-                    </div>
-                </div>
 
                 {# ========================= #}
                 {# Observation               #}
@@ -188,31 +204,63 @@
                 {# ========================= #}
 
                 {{ macroForm.sousTitre('Pièces jointes', {class:'sousTitre'}) }}
-                <div class="row">
+                <div class="row mt-2">
                     <div class="col-12">
                         {% if demande.piecesJointes %}
-                            <ul class="list-group">
+                            <div class="d-flex flex-wrap gap-2">
                                 {% for piece in demande.piecesJointes %}
-                                    <li class="list-group-item">
-                                        <a href="{{ asset(piece) }}" target="_blank">
-                                            <i class="fas fa-file"></i> {{ piece|split('/')|last }}
-                                        </a>
-                                    </li>
+                                    {% set extension = piece|split('.')|last|lower %}
+                                    {% set iconClass = {
+                                        'pdf': 'fa-file-pdf text-danger',
+                                        'doc': 'fa-file-word text-primary',
+                                        'docx': 'fa-file-word text-primary',
+                                        'xls': 'fa-file-excel text-success',
+                                        'xlsx': 'fa-file-excel text-success',
+                                        'ppt': 'fa-file-powerpoint text-warning',
+                                        'pptx': 'fa-file-powerpoint text-warning',
+                                        'jpg': 'fa-file-image text-info',
+                                        'jpeg': 'fa-file-image text-info',
+                                        'png': 'fa-file-image text-info',
+                                        'gif': 'fa-file-image text-info',
+                                        'zip': 'fa-file-archive text-secondary',
+                                        'rar': 'fa-file-archive text-secondary',
+                                        'txt': 'fa-file-alt text-secondary',
+                                        'csv': 'fa-file-csv text-secondary',
+                                    }[extension] ?? 'fa-file text-secondary' %}
+
+                                    <div class="card shadow-sm" style="width: 180px;">
+                                        <div class="card-body p-2 d-flex align-items-center">
+                                            <i class="fas {{ iconClass }} fa-2x me-2"></i>
+                                            <div class="flex-grow-1 text-truncate" style="max-width: 100px;" title="{{ piece|split('/')|last }}">
+                                                {{ piece|split('/')|last|length > 15 ? piece|split('/')|last|slice(0, 15) ~ '…' : piece|split('/')|last }}
+                                            </div>
+                                            <a href="/Upload/ddd/{{ piece }}" target="_blank" class="btn btn-sm btn-outline-primary ms-1" title="Télécharger / ouvrir">
+                                                <i class="fas fa-download"></i>
+                                            </a>
+                                        </div>
+                                    </div>
                                 {% endfor %}
-                            </ul>
+                            </div>
                         {% else %}
-                            <p class="text-muted">Aucune pièce jointe.</p>
+                            <div >
+                                <p class="text-muted mb-0">Aucune pièce jointe.</p>
+                            </div>
                         {% endif %}
                     </div>
                 </div>
 
                 <div class="d-flex justify-content-end gap-2 mt-4">
-                    <a href="{{ path('api_demande_diagnostic_pneu_cloturer', {numeroDemande: demande.numeroDemande}) }}" class="btn btn-danger" onclick="return confirm('Confirmer la clôture de cette demande ?')">
-                        <i class="fas fa-check-circle"></i> Clôturer
-                    </a>
                     <a href="{{ path('demande_diagnostic_pneu_liste') }}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Retour à la liste
                     </a>
+                    {% if demande.statut != 'cloturee' %}
+                        <a href="{{ path('api_demande_diagnostic_pneu_cloturer', {numeroDemande: demande.numeroDemande}) }}"
+                            class="btn btn-success"
+                            onclick="return confirm('Confirmer la clôture de cette demande ?')">
+                            <i class="fas fa-check-circle"></i> Clôturer
+                        </a>
+                    {% endif %}
+
                 </div>
 
             </div>

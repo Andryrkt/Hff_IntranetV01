@@ -8,6 +8,7 @@ use App\Entity\ddd\DemandeDiagnosticPneu;
 use App\Factory\pol\DemandeDiagnosticPneuFactory;
 use App\Form\pol\ddd\DemandeDiagnosticPneuType;
 use App\Model\ddd\DemandeDiagnosticPneuModel;
+use App\Service\fichier\TraitementDeFichier;
 use App\Service\historiqueOperation\HistoriqueOperationDDDService;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,6 +23,8 @@ class DemandeDiagnosticPneuController extends Controller
 {
     private HistoriqueOperationDDDService $historiqueOperation;
     private DemandeDiagnosticPneuModel $demandeDiagnosticPneuModel;
+    private TraitementDeFichier $traitementDeFichier;
+    private string $cheminDeBase;
     private $demandeDiagnosticPneuRepository;
     private  $demandeDiagnosticPneuFactory;
 
@@ -30,6 +33,9 @@ class DemandeDiagnosticPneuController extends Controller
         parent::__construct();
         $this->historiqueOperation = new HistoriqueOperationDDDService($this->getEntityManager());
         $this->demandeDiagnosticPneuModel = new DemandeDiagnosticPneuModel();
+        $this->traitementDeFichier = new TraitementDeFichier();
+        $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/ddd/';
+
 
         $this->demandeDiagnosticPneuFactory = new DemandeDiagnosticPneuFactory($this->getEntityManager(), $this->demandeDiagnosticPneuModel, $this->historiqueOperation);
 
@@ -82,21 +88,22 @@ class DemandeDiagnosticPneuController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var DemandeDiagnosticPneu $demande */
             $demande = $form->getData();
-            dump($demande);
-            $this->saveDemande($demande);
-
-            // ---- Gestion des pièces jointes ---- 
             $uploadedFiles = $form->get('piecesJointes')->getData();
+            // ---- Gestion des pièces jointes ---- 
+
             if ($uploadedFiles) {
                 $this->handlePiecesJointes($uploadedFiles, $demande);
             }
 
             // ---- Sauvegarde via une méthode interne ----
             try {
+                $this->saveDemande($demande);
+
                 // $this->addFlash('success', 'Demande de diagnostic créée avec succès.');
                 // return $this->redirectToRoute('liste_demandes_diagnostic_pneu');
             } catch (\Exception $e) {
                 // $this->addFlash('error', $e->getMessage());
+                dump($e->getMessage());
             }
         }
         return null;
@@ -133,6 +140,8 @@ class DemandeDiagnosticPneuController extends Controller
             // $this->historiqueOperation->sendNotificationCreation(...);      
         } catch (\Exception $e) {
             $em->rollback();
+            dd("Erreur !",  $e->getMessage());
+
             throw new \RuntimeException('Erreur lors de la sauvegarde : ' . $e->getMessage(), 0, $e);
         }
     }
@@ -142,23 +151,40 @@ class DemandeDiagnosticPneuController extends Controller
      */
     private function handlePiecesJointes(array $files, DemandeDiagnosticPneu $demande): void
     {
-        // Définir un répertoire de stockage (ex: public/uploads/diagnostic_pneu/)
-        // $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/diagnostic_pneu/';
-        // if (!is_dir($uploadDir)) {
-        //     mkdir($uploadDir, 0777, true);
-        // }
+        $numDa = $demande->getNumeroDemande(); // ex: DDD25030001
 
-        // $uploadedPaths = [];
-        // foreach ($files as $file) {
-        //     $newFilename = uniqid() . '.' . $file->guessExtension();
-        //     $file->move($uploadDir, $newFilename);
-        //     $uploadedPaths[] = '/uploads/diagnostic_pneu/' . $newFilename;
-        // }
-        // $demande->setPiecesJointes($uploadedPaths);
+
+        $basePath = rtrim($_ENV['BASE_PATH_FICHIER'], '/') . '/ddd/';
+        $dossier = $basePath . $numDa . '/';
+
+        // Créer le dossier s'il n'existe pas
+        if (!is_dir($dossier)) {
+            mkdir($dossier, 0777, true);
+        }
+
+        $nomsFichiers = [];
+
+        foreach ($files as $file) {
+            if (!$file instanceof UploadedFile) {
+                continue;
+            }
+
+            // Générer un nom unique (ex: 1234567890_nom_original.pdf)
+            $nomOriginal = $file->getClientOriginalName();
+            $extension = $file->guessExtension();
+            $nomUnique = uniqid() . '_' . pathinfo($nomOriginal, PATHINFO_FILENAME) . '.' . $extension;
+
+            // Upload via le service TraitementDeFichier
+            try {
+                $this->traitementDeFichier->upload($file, $dossier, $nomUnique);
+            } catch (\Exception $e) {
+                throw new \RuntimeException("Erreur lors de l'upload du fichier : " . $e->getMessage());
+            }
+
+            // Stocker uniquement le nom du fichier
+            $nomsFichiers[] = $nomUnique;
+        }
+
+        $demande->setPiecesJointes($nomsFichiers);
     }
-
-
-
-
-    
 }

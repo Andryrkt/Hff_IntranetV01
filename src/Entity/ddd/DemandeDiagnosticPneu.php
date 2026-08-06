@@ -46,12 +46,12 @@ class DemandeDiagnosticPneu
     private ?int $idMateriel = null;
 
     /**
-     * @ORM\Column(type="string", length=20, name="numero_parc_materiel")
+     * @ORM\Column(type="string", length=20, name="numero_parc_materiel" , nullable=true)
      */
     private ?string $numeroParcMateriel = null;
 
     /**
-     * @ORM\Column(type="string", length=50, name="marque_materiel")
+     * @ORM\Column(type="string", length=50, name="marque_materiel" ,nullable=true )
      */
     private ?string $marqueMateriel = null;
 

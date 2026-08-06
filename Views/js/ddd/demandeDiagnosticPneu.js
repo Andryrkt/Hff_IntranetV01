@@ -63,8 +63,6 @@ function onSelectMateriels(item) {
   if (marqueInput) marqueInput.value = item.constructeur || "";
   if (typeInput) typeInput.value = item.modele || "";
   if (designationInput) designationInput.value = item.designation || "";
-
-  createMaterielInfoDisplay(containerInfoMateriel, item);
 }
 // Vérifie si la valeur tapée correspond à un item connu
 async function validateInput(input, keyToCompare) {
