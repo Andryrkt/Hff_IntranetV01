@@ -79,10 +79,10 @@ interface WhereConditionInterface
      * le moteur de base de données ciblé par la classe concrète.
      *
      * @param string $column Nom de la colonne
-     * @param ?\DateTimeInterface $d1 Date de début (défaut si null : borne minimale)
-     * @param ?\DateTimeInterface $d2 Date de fin (défaut si null : borne maximale)
+     * @param ?\DateTimeInterface|string $d1 Date de début (défaut si null : borne minimale)
+     * @param ?\DateTimeInterface|string $d2 Date de fin (défaut si null : borne maximale)
      * 
      * @return string Fragment SQL ou chaîne vide
      */
-    public function between(string $column, ?\DateTimeInterface $d1 = null, ?\DateTimeInterface $d2 = null): string;
+    public function between(string $column, ?mixed $d1 = null, ?mixed $d2 = null): string;
 }
