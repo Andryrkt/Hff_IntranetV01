@@ -176,14 +176,15 @@
                 </div>
 
                 {# ========================= #}
-                {# Boutons : Enregistrer + Retour #}
+                {# Boutons : Enregistrer #}
                 {# ========================= #}
-                <div class="d-flex justify-content-end gap-2 mt-4">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Enregistrer
-                    </button>
-
-                </div>
+                {% if not isReadOnly %}
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Enregistrer
+                        </button>
+                    </div>
+                {% endif %}
 
                 {{ form_end(form) }}
 
@@ -253,7 +254,7 @@
                     <a href="{{ path('demande_diagnostic_pneu_liste') }}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Retour à la liste
                     </a>
-                    {% if demande.statut != 'cloturee' %}
+                    {% if not isReadOnly and demande.statut != 'cloturee' %}
                         <a href="{{ path('api_demande_diagnostic_pneu_cloturer', {numeroDemande: demande.numeroDemande}) }}"
                             class="btn btn-success"
                             onclick="return confirm('Confirmer la clôture de cette demande ?')">
@@ -266,4 +267,13 @@
             </div>
         </div>
     </div>
+{% endblock %}
+{% block javascript %}
+
+    {# Only the external module remains – all inline JS is now in this file #}
+    <script
+    type="module"
+    src="{{ App.base_path }}/Views/js/ddd/Detail.js?v=2026.07.03.14.50">
+    </script>
+
 {% endblock %}

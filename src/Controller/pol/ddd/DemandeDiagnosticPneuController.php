@@ -59,6 +59,7 @@ class DemandeDiagnosticPneuController extends Controller
         $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
         $agenceService = $this->agenceServiceIpsObjet();
 
+
         //INITIALISATION DU FORMULAIRE
         $demandeDiagnosticPneu
             ->setDemandeur($utilisateur);
@@ -98,9 +99,6 @@ class DemandeDiagnosticPneuController extends Controller
             // ---- Sauvegarde via une méthode interne ----
             try {
                 $this->saveDemande($demande);
-
-                // $this->addFlash('success', 'Demande de diagnostic créée avec succès.');
-                // return $this->redirectToRoute('liste_demandes_diagnostic_pneu');
             } catch (\Exception $e) {
                 // $this->addFlash('error', $e->getMessage());
                 dump($e->getMessage());
@@ -121,27 +119,22 @@ class DemandeDiagnosticPneuController extends Controller
             $numero = $this->demandeDiagnosticPneuModel->genererNumeroDemande($em);
             $demande->setNumeroDemande($numero);
 
-            // Assigner le numéro de ligne à chaque pneu
             $ligne = 1;
             foreach ($demande->getDiagnosticPneus() as $pneu) {
                 $pneu->setNumeroLigne($ligne++);
                 $pneu->setDemande($demande);
             }
 
-            // Persist de la demande (les pneus seront persistés grâce à cascade={"persist"})
             $em->persist($demande);
             $em->flush();
             $em->commit();
 
-            // Message de succès (temporaire pour le debug)
-            dd("Sauvegarde réussie !");
 
             // Historique (à décommenter après validation)
-            // $this->historiqueOperation->sendNotificationCreation(...);      
+            $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $demande->getNumeroDemande(), 'demande_diagnostic_pneu_liste', true);
         } catch (\Exception $e) {
             $em->rollback();
-            dd("Erreur !",  $e->getMessage());
-
+            $this->historiqueOperation->sendNotificationCreation($e->getMessage(), '-', 'demande_diagnostic_pneu_liste');
             throw new \RuntimeException('Erreur lors de la sauvegarde : ' . $e->getMessage(), 0, $e);
         }
     }

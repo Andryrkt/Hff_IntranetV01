@@ -9,6 +9,7 @@ use App\Form\pol\ddd\DiagnosticPneuType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -22,22 +23,46 @@ class DemandeDiagnosticPneuDetailController extends Controller
     public function detail(string $numeroDemande, Request $request): Response
     {
         $em = $this->getEntityManager();
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+        $agenceService = $this->agenceServiceIpsObjet();
+
+        // [codeAgence , codeService] Autotisé 
+        $allowed = [
+            ['80', 'INF'],
+            ['01', 'ATE'],
+        ];
+
+        $current = [
+            $agenceService['agenceIps']->getCodeAgence(),
+            $agenceService['serviceIps']->getCodeService(),
+        ];
+
+        $isReadOnly = !in_array($current, $allowed, true);
+
+
         $demande = $em->getRepository(DemandeDiagnosticPneu::class)->findOneBy(['numeroDemande' => $numeroDemande]);
-        // if (!$demande) {
-        //     throw $this->createNotFoundException("Demande introuvable");
-        // }
+        if (!$demande) {
+            throw new NotFoundHttpException(
+                'Demande de Diagnostic Pneu introuvable'
+            );
+        }
 
         // Créer un formulaire pour les pneus
         $form = $this->getFormFactory()->createBuilder()
             ->add('diagnosticPneus', CollectionType::class, [
                 'entry_type' => DiagnosticPneuDetailType::class,
                 'allow_add' => false,
+                'entry_options' => [
+                    'disabled' => $isReadOnly,
+                ],
                 'allow_delete' => false,
+                'required' => true,
                 'data' => $demande->getDiagnosticPneus()->toArray(),
             ])
             ->getForm();
 
         $form->handleRequest($request);
+
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
             $pneusModifies = $data['diagnosticPneus'];
@@ -46,13 +71,12 @@ class DemandeDiagnosticPneuDetailController extends Controller
                 $em->persist($pneu);
             }
             $em->flush();
-
-            // return $this->redirectToRoute('demande_diagnostic_pneu_details', ['numeroDemande' => $numeroDemande]);
         }
 
         return $this->render('pol/ddd/detail.html.twig', [
             'demande' => $demande,
             'form' => $form->createView(),
+            'isReadOnly' => $isReadOnly,
         ]);
     }
 

@@ -2,28 +2,39 @@
 
 namespace App\Form\pol\ddd;
 
+use App\Entity\admin\Agence;
 use App\Entity\ddd\DiagnosticPneu;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class DiagnosticPneuDetailType extends AbstractType
 {
+    private const DIAGNOSTICS = [
+        'Réparable' => 'reparable',
+        'Remplacer' => 'remplacer',
+        'Rechapable' => 'rechapable',
+        'Détruit' => 'detruit',
+    ];
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+
         $builder
             ->add('diagnostic', ChoiceType::class, [
                 'label' => 'Diagnostic atelier',
-                'choices' => [
-                    'Réparable' => 'reparable',
-                    'Remplacer' => 'remplacer',
-                    'Rechapable' => 'rechapable',
-                    'Détruit' => 'detruit',
-                ],
+                'choices' => self::DIAGNOSTICS,
                 'placeholder' => 'Choisir',
-                'required' => false,
+                'required' => true,
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'Veuillez sélectionner un diagnostic.',
+                    ]),
+                ],
                 'attr' => ['class' => 'form-select'],
             ])
             ->add('observationAtelier', TextareaType::class, [
