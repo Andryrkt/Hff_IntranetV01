@@ -23,12 +23,7 @@
             {# {% include "/pol/ddd/shared/_carteStatut.html.twig" %} #}
 
             {# Pagination en haut #}
-            {% include "/partials/_pagination.html.twig" with {
-            'data': data,
-            'currentPage': currentPage,
-            'totalPages': totalPages,
-            'route': 'demande_diagnostic_pneu_liste'
-            } %}
+            {% include "/pol/ddd/shared/_pagination.html.twig" %}
         </div>
     </div>
 
@@ -45,7 +40,7 @@
                     <th>Date départ</th>
                     <th>Livraison</th>
                     <th> <span title="Nombre de pneus (Sur Machine / Secours / à Diagnostiser)">
-                        Nb pneus <br><small>(M/S/D)</small>
+                        Nb pneus <small>(M/S/D)</small>
                     </span></th>
                     <th>Motifs</th>
                     <th>N° DIT</th>
@@ -90,7 +85,7 @@
                             <td>{{ demande.livraison ?: '-' }}</td>
 
                             {# Nombre de pneus (Machine / Secours / À diagnostiquer) #}
-                            <td class="text-center">
+                            <td >
                                 <span class="badge bg-secondary">{{ demande.nbPneuSurMachine }}</span>
                                 /
                                 <span class="badge bg-secondary">{{ demande.nbPneuSecours }}</span>
@@ -102,7 +97,7 @@
                             <td>
                                 {% if demande.motifs %}
                                     {% for motif in demande.motifs %}
-                                        <span class="badge bg-light text-dark">{{ motif }}</span>
+                                        <div>- {{ motif }}</div>
                                     {% endfor %}
                                 {% else %}
                                     -

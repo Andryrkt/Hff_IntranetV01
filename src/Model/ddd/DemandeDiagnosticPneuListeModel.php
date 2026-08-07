@@ -32,8 +32,8 @@ class DemandeDiagnosticPneuListeModel
                 ->setParameter('demandeur', '%' . $search->getDemandeur() . '%');
         }
         if ($search->getIdChantier()) {
-            $qb->andWhere('d.idChantier = :idChantier')
-                ->setParameter('idChantier', $search->getIdChantier());
+            $qb->andWhere('d.chantier = :chantierId')
+                ->setParameter('chantierId', $search->getIdChantier());
         }
         if ($search->getStatut()) {
             $qb->andWhere('d.statut = :statut')
@@ -51,10 +51,31 @@ class DemandeDiagnosticPneuListeModel
             $qb->andWhere('d.numeroParcMateriel LIKE :numParc')
                 ->setParameter('numParc', '%' . $search->getNumeroParcMateriel() . '%');
         }
+        if ($search->getDateDepartChantierDebut()) {
+            $qb->andWhere('d.dateDepartChantier >= :dateDepartDebut')
+                ->setParameter('dateDepartDebut', $search->getDateDepartChantierDebut());
+        }
 
+        if ($search->getDateDepartChantierFin()) {
+            $qb->andWhere('d.dateDepartChantier <= :dateDepartFin')
+                ->setParameter('dateDepartFin', $search->getDateDepartChantierFin());
+        }
+        if ($search->getMotifs()) {
+            foreach ($search->getMotifs() as $index => $motif) {
+                $param = 'motif_' . $index;
+
+                $qb->andWhere(
+                    "d.motifs LIKE :$param"
+                );
+
+                $qb->setParameter(
+                    $param,
+                    '%' . $motif . '%'
+                );
+            }
+        }
         // Gestion des permissions (ex: restreindre par agence/service si pas multisuccursale)
         if (!$multisuccursale) {
-          
         }
 
         // Pagination

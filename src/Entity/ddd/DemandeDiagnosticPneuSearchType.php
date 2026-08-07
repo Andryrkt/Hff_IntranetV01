@@ -2,6 +2,7 @@
 
 namespace App\Entity\ddd;
 
+use App\Form\pol\ddd\DemandeDiagnosticPneuType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -14,6 +15,11 @@ class DemandeDiagnosticPneuSearchType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $chantierChoices = [];
+        foreach ($options['chantiers'] as $chantier) {
+            $chantierChoices[$chantier->getNomChantier()] = $chantier->getId();
+        }
+
         $builder
             ->add('numeroDemande', TextType::class, [
                 'label' => 'N° Demande',
@@ -23,11 +29,10 @@ class DemandeDiagnosticPneuSearchType extends AbstractType
                 'label' => 'Demandeur',
                 'required' => false,
             ])
-            ->add('idChantier', EntityType::class, [
-                'class' => Chantier::class,
-                'choice_label' => 'nomChantier',
-                'label' => 'Chantier',
-                'required' => false,
+            ->add('idChantier', ChoiceType::class, [
+                'label'       => 'Chantier',
+                'choices'     => $chantierChoices,
+                'required'    => false,
                 'placeholder' => 'Tous',
             ])
             ->add('statut', ChoiceType::class, [
@@ -49,11 +54,20 @@ class DemandeDiagnosticPneuSearchType extends AbstractType
                 'label' => 'Date création (fin)',
                 'required' => false,
             ])
+            ->add('dateDepartChantierDebut', DateType::class, [
+                'widget' => 'single_text',
+                'label' => 'Date départ chantier (début)',
+                'required' => false,
+            ])
+            ->add('dateDepartChantierFin', DateType::class, [
+                'widget' => 'single_text',
+                'label' => 'Date départ chantier (fin)',
+                'required' => false,
+            ])
             ->add('numeroParcMateriel', TextType::class, [
                 'label' => 'N° Parc matériel',
                 'required' => false,
             ])
-            // ⬇️ NOUVEAUX CHAMPS (ajoutés pour correspondre au template)
             ->add('numeroDit', TextType::class, [
                 'label' => 'N° DIT',
                 'required' => false,
@@ -70,6 +84,13 @@ class DemandeDiagnosticPneuSearchType extends AbstractType
                 ],
                 'required' => false,
                 'placeholder' => 'Tous',
+            ])
+            ->add('motifs', ChoiceType::class, [
+                'label'    => 'Motifs',
+                'choices'  => DemandeDiagnosticPneuType::MOTIFS, // or your constant class
+                'multiple' => true,    // allow multiple selections
+                'expanded' => true,    // render as checkboxes
+                'required' => false,
             ]);
     }
 
@@ -78,6 +99,8 @@ class DemandeDiagnosticPneuSearchType extends AbstractType
         $resolver->setDefaults([
             'data_class' => DemandeDiagnosticPneuSearch::class,
             'csrf_protection' => false,
+            'chantiers' => [],
         ]);
+        $resolver->setAllowedTypes('chantiers', 'array');
     }
 }

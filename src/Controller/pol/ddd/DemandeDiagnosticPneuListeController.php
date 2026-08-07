@@ -3,6 +3,7 @@
 namespace App\Controller\pol\ddd;
 
 use App\Controller\Controller;
+use App\Entity\ddd\Chantier;
 use App\Entity\ddd\DemandeDiagnosticPneuSearch;
 use App\Entity\ddd\DemandeDiagnosticPneuSearchType;
 use App\Model\ddd\DemandeDiagnosticPneuListeModel;
@@ -31,23 +32,26 @@ class DemandeDiagnosticPneuListeController extends Controller
     public function index(Request $request)
     {
         $search = new DemandeDiagnosticPneuSearch();
+        $chantiers = $this->getEntityManager()
+            ->getRepository(Chantier::class)
+            ->findBy([], ['nomChantier' => 'ASC']);
+
+        $criteria = $this->getSessionService()->get('ddd_search_criteria', []);
+        if (!empty($criteria)) {
+            $search->fromArray($criteria);
+        }
+
         $form = $this->getFormFactory()
-            ->createBuilder(DemandeDiagnosticPneuSearchType::class, $search, ['method' => 'GET'])
+            ->createBuilder(DemandeDiagnosticPneuSearchType::class, $search, [
+                'method' => 'GET',
+                'chantiers' => $chantiers,
+            ])
             ->getForm();
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Si le formulaire est soumis, on récupère les critères
-            $criteria = $search->toArray();
-            $this->getSessionService()->set('ddp_search_criteria', $criteria);
-        } else {
-            // Sinon, on prend les critères en session si existants
-            $criteria = $this->getSessionService()->get('ddp_search_criteria', []);
-            // On hydrate l'objet search avec les critères de session
-            if (!empty($criteria)) {
-                $search->fromArray($criteria);
-            }
+            $this->getSessionService()->set('ddd_search_criteria', $search->toArray());
         }
 
         // Récupération des données paginées

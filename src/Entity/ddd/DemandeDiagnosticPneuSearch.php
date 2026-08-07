@@ -15,6 +15,11 @@ class DemandeDiagnosticPneuSearch
     private ?string $numeroOr = null;
     private ?string $livraison = null;
 
+    private ?\DateTime $dateDepartChantierDebut = null;
+    private ?\DateTime $dateDepartChantierFin = null;
+    private ?array $motifs = null;
+
+
     // ----- Getters et Setters -----
 
     public function getNumeroDemande(): ?string
@@ -128,6 +133,37 @@ class DemandeDiagnosticPneuSearch
         $this->livraison = $livraison;
         return $this;
     }
+    public function getDateDepartChantierDebut(): ?\DateTime
+    {
+        return $this->dateDepartChantierDebut;
+    }
+
+    public function setDateDepartChantierDebut(?\DateTime $dateDepartChantierDebut): self
+    {
+        $this->dateDepartChantierDebut = $dateDepartChantierDebut;
+        return $this;
+    }
+
+    public function getDateDepartChantierFin(): ?\DateTime
+    {
+        return $this->dateDepartChantierFin;
+    }
+
+    public function setDateDepartChantierFin(?\DateTime $dateDepartChantierFin): self
+    {
+        $this->dateDepartChantierFin = $dateDepartChantierFin;
+        return $this;
+    }
+    public function getMotifs(): ?array
+    {
+        return $this->motifs;
+    }
+
+    public function setMotifs(?array $motifs): self
+    {
+        $this->motifs = $motifs;
+        return $this;
+    }
 
     // ----- Conversion méthodes -----
 
@@ -148,6 +184,9 @@ class DemandeDiagnosticPneuSearch
             'numeroDit'            => $this->numeroDit,
             'numeroOr'             => $this->numeroOr,
             'livraison'            => $this->livraison,
+            'dateDepartChantierDebut'    => $this->dateDepartChantierDebut,
+            'dateDepartChantierFin'      => $this->dateDepartChantierFin,
+            'motifs' => $this->motifs,
         ];
     }
 
@@ -167,5 +206,8 @@ class DemandeDiagnosticPneuSearch
         $this->numeroDit           = $data['numeroDit'] ?? null;
         $this->numeroOr            = $data['numeroOr'] ?? null;
         $this->livraison           = $data['livraison'] ?? null;
+        $this->dateDepartChantierDebut    = $data['dateDepartChantierDebut'] ?? null;
+        $this->dateDepartChantierFin      = $data['dateDepartChantierFin'] ?? null;
+        $this->motifs = $data['motifs'] ?? null;
     }
 }

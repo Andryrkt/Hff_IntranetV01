@@ -35,7 +35,7 @@ class DemandeDiagnosticPneuType extends AbstractType
         'PNEU' => 'PNEU'
     ];
 
-    const MOTIFS = [
+    public const MOTIFS = [
         'Usure normale' => 'Usure normale',
         'Contrôle préventif' => 'Contrôle préventif',
         'Crevaison / perte de pression' => 'Crevaison / perte de pression',

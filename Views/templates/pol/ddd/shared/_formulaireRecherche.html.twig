@@ -16,23 +16,24 @@
                         {{ form_row(form.numeroDemande) }}
                         {{ form_row(form.demandeur) }}
                         {{ form_row(form.statut) }}
+                    </div>
+
+                    <div class="col-12 col-md-3">
+                        {{ form_row(form.livraison) }}
                         {{ form_row(form.idChantier) }}
+                        {{ form_row(form.dateDepartChantierDebut) }}
+                        {{ form_row(form.dateDepartChantierFin) }}
+                    </div>
+                    <div class="col-12 col-md-3">
+                        {{ form_row(form.numeroParcMateriel) }}
+                        {{ form_row(form.numeroDit) }}
+                        {{ form_row(form.numeroOr) }}
+
                     </div>
                     <div class="col-12 col-md-3">
                         {{ form_row(form.dateCreationDebut) }}
                         {{ form_row(form.dateCreationFin) }}
-                        {{ form_row(form.numeroParcMateriel) }}
-                        {{ form_row(form.numeroDit) }}
-                    </div>
-                    <div class="col-12 col-md-3">
-                        {{ form_row(form.numeroOr) }}
-                        {{ form_row(form.livraison) }}
-                        {# Optionnel : ajouter un champ pour le nombre de pneus à diagnostiquer #}
-                        {# {{ form_row(form.nbPneuADiagnostiquer) }} #}
-                    </div>
-                    <div class="col-12 col-md-3">
-                        {# Espace pour d'autres filtres si besoin #}
-                        {# Par exemple : type de matériel, etc. #}
+
                     </div>
                 </div>
 
