@@ -3,29 +3,32 @@
 namespace App\Controller\dit;
 
 
-use App\Model\dit\DitModel;
 use App\Controller\Controller;
-use App\Entity\admin\Application;
 use App\Controller\Traits\DitTrait;
-use App\Entity\admin\StatutDemande;
-use App\Dto\Dit\DemandeInterventionDto;
-use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\FormatageTrait;
-use App\Form\dit\demandeInterventionType;
-use App\Service\autres\AutoIncDecService;
-use Symfony\Component\Form\FormInterface;
-use App\Entity\admin\dit\WorNiveauUrgence;
-use App\Service\fichier\UploderFileService;
-use App\Service\fichier\TraitementDeFichier;
 use App\Controller\Traits\PdfConversionTrait;
-use App\Service\genererPdf\dit\GenererPdfDit;
-use Symfony\Component\HttpFoundation\Request;
+use App\Dto\Dit\DemandeInterventionDto;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Application;
+use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Entity\admin\Service;
+use App\Entity\admin\StatutDemande;
+use App\Entity\ddd\DemandeDiagnosticPneu;
+use App\Entity\dit\DemandeIntervention;
 use App\Factory\Dit\DemandeInterventionFactory;
+use App\Form\dit\demandeInterventionType;
+use App\Model\dit\DitModel;
 use App\Repository\dit\DitRepository;
+use App\Service\autres\AutoIncDecService;
 use App\Service\dit\fichier\DitNameFileService;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
+use App\Service\fichier\TraitementDeFichier;
+use App\Service\fichier\UploderFileService;
+use App\Service\genererPdf\dit\GenererPdfDit;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/atelier/demande-intervention")
@@ -50,15 +53,15 @@ class DitController extends Controller
         $this->demandeInterventionFactory = new DemandeInterventionFactory($this->getEntityManager(), $this->ditModel, $this->historiqueOperation);
         $this->demandeRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
     }
-
     /**
-     * @Route("/new", name="dit_new")
+     * @Route("/new/{numeroDemandePneu}", name="dit_new", defaults={"numeroDemandePneu"=null})
      *
      * @param Request $request
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @param string|null $numeroDemandePneu
      */
-    public function new(Request $request)
+    public function new(?string $numeroDemandePneu, Request $request)
     {
+
         $demandeIntervention = new DemandeIntervention();
 
         // Code Société de l'utilisateur
@@ -75,8 +78,88 @@ class DitController extends Controller
             ->setCodeSociete($codeSociete)
         ;
 
+
+        $demandePneu = null;
+        /**
+         * Création DIT depuis diagnostic pneu
+         */
+        if ($numeroDemandePneu) {
+
+            $demandePneu = $this->getEntityManager()
+                ->getRepository(DemandeDiagnosticPneu::class)
+                ->findOneBy([
+                    'numeroDemande' => $numeroDemandePneu
+                ]);
+
+
+            if ($demandePneu) {
+
+                // ==========================
+                // Informations matériel
+                // ==========================
+
+                $demandeIntervention
+                    ->setIdMateriel($demandePneu->getIdMateriel())
+                    ->setNumParc($demandePneu->getNumeroParcMateriel());
+
+
+
+
+                // ==========================
+                // Diagnostic des pneus
+                // ==========================
+
+                $observationPneus = [];
+
+                foreach ($demandePneu->getDiagnosticPneus() as $pneu) {
+                    $observationPneus[] = sprintf(
+                        "• N/S Pneu : %s / Position : %s / Diagnostic : %s / Observation : %s",
+                        $pneu->getNumeroSerie() ?? '-',
+                        $pneu->getPositionMachine() ?? '-',
+                        $pneu->getDiagnostic() ?? '-',
+                        $pneu->getObservationAtelier() ?? '-'
+                    );
+                }
+
+                $detailDemande = implode(PHP_EOL, $observationPneus);
+                $detailDemande = "Diagnostic des pneus :" . PHP_EOL;
+                $detailDemande .= implode(PHP_EOL, $observationPneus);
+
+                $demandeIntervention->setDetailDemande($detailDemande);
+                $demandeIntervention->setObjetDemande(
+                    "Demande d'intervention – Suite au diagnostic des pneumatiques"
+                );
+                $demandeIntervention->setReparationRealise("ATE POL TANA");
+
+                $chantier = $demandePneu->getChantier()->getCodeChantier();
+                $serviceDefault  = $this->getEntityManager()
+                    ->getRepository(Service::class)
+                    ->findOneBy([
+                        'codeService' => $chantier
+                    ]);
+                $agenceDefault = $this->getEntityManager()
+                    ->getRepository(Agence::class)
+                    ->findOneBy([
+                        'codeAgence' => '50',
+                        'codeSociete' => $codeSociete
+                    ]);
+
+                $demandeIntervention->setAgence($agenceDefault);
+                $demandeIntervention->setService($serviceDefault);
+            }
+        }
+
+
         //AFFICHAGE ET TRAITEMENT DU FORMULAIRE
-        $form = $this->getFormFactory()->createBuilder(demandeInterventionType::class, $demandeIntervention)->getForm();
+        $form = $this->getFormFactory()
+            ->createBuilder(
+                demandeInterventionType::class,
+                $demandeIntervention,
+                [
+                    'demandePneu' => $demandePneu
+                ]
+            )
+            ->getForm();
         $this->traitementFormulaire($form, $request);
 
         $this->logUserVisit('dit_new'); // historisation du page visité par l'utilisateur

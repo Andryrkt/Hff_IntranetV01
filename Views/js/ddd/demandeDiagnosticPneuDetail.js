@@ -4,41 +4,32 @@ import { displayOverlay } from "../utils/ui/overlay.js";
 // Popup ou Modal de confirmation Demande Diag. Pneu  avec chargement
 
 document.addEventListener("DOMContentLoaded", function () {
-  const form = document.getElementById("diagnostic-pneu-form");
-  if (!form) return;
+  const buttonCloture = document.getElementById(
+    "bouton-cloturer-diagnostic-pneu",
+  );
 
-  form.addEventListener("submit", function (e) {
-    e.preventDefault();
-    confirmation(form);
-  });
-});
-
-function confirmation(form) {
-  const submitBtn =
-    document.getElementById("bouton-diagnostic-pneu") ||
-    form.querySelector('button[type="submit"]');
-
-  // Let the browser display HTML5 validation errors
-  if (!form.checkValidity()) {
-    form.reportValidity();
+  if (!buttonCloture) {
     return;
   }
 
-  Swal.fire({
-    title: "Confirmation",
-    text: "Voulez-vous vraiment créer cette demande de diagnostic ?",
-    icon: "question",
-    showCancelButton: true,
-    confirmButtonText: "Oui",
-    cancelButtonText: "Annuler",
-  }).then((result) => {
-    if (result.isConfirmed) {
-      if (submitBtn) {
-        displayOverlay(true, "Création de la demande en cours...");
-        submitBtn.disabled = true;
-      }
+  buttonCloture.addEventListener("click", function (e) {
+    e.preventDefault();
 
-      form.submit();
-    }
+    const url = this.href;
+
+    Swal.fire({
+      title: "Confirmation",
+      text: "Pour clôturer cette demande, vous allez maintenant être redirigé vers la demande d'intervention.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Oui, clôturer",
+      cancelButtonText: "Annuler",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        displayOverlay(true, "Clôture de la demande en cours...");
+
+        window.location.href = url;
+      }
+    });
   });
-}
+});

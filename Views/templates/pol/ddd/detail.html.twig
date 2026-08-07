@@ -257,7 +257,8 @@
                     {% if not isReadOnly and demande.statut != 'cloturee' %}
                         <a href="{{ path('api_demande_diagnostic_pneu_cloturer', {numeroDemande: demande.numeroDemande}) }}"
                             class="btn btn-success"
-                            onclick="return confirm('Confirmer la clôture de cette demande ?')">
+                            id="bouton-cloturer-diagnostic-pneu"
+                            >
                             <i class="fas fa-check-circle"></i> Clôturer
                         </a>
                     {% endif %}
@@ -273,7 +274,7 @@
     {# Only the external module remains – all inline JS is now in this file #}
     <script
     type="module"
-    src="{{ App.base_path }}/Views/js/ddd/Detail.js?v=2026.07.03.14.50">
+    src="{{ App.base_path }}/Views/js/ddd/demandeDiagnosticPneuDetail.js?v=2026.07.03.14.50">
     </script>
 
 {% endblock %}

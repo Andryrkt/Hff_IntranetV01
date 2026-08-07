@@ -85,6 +85,9 @@ class DemandeDiagnosticPneuDetailController extends Controller
      */
     public function cloturer(string $numeroDemande): Response
     {
+        return $this->redirectToRoute('dit_new', [
+            'numeroDemandePneu' => $numeroDemande,
+        ]);
         $em = $this->getEntityManager();
         $demande = $em->getRepository(DemandeDiagnosticPneu::class)->findOneBy(['numeroDemande' => $numeroDemande]);
 

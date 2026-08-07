@@ -61,19 +61,27 @@ class DemandeDiagnosticPneuListeModel
                 ->setParameter('dateDepartFin', $search->getDateDepartChantierFin());
         }
         if ($search->getMotifs()) {
+            $orConditions = [];
             foreach ($search->getMotifs() as $index => $motif) {
                 $param = 'motif_' . $index;
-
-                $qb->andWhere(
-                    "d.motifs LIKE :$param"
-                );
-
-                $qb->setParameter(
-                    $param,
-                    '%' . $motif . '%'
-                );
+                $escaped = str_replace('"', '\\"', $motif);
+                $orConditions[] = "d.motifs LIKE :$param";
+                $qb->setParameter($param, '%"' . $escaped . '"%');
+            }
+            if ($orConditions) {
+                $qb->andWhere(implode(' OR ', $orConditions));
             }
         }
+        if ($search->getNumeroDit()) {
+            $qb->andWhere('d.numeroDit LIKE :numeroDit')
+                ->setParameter('numeroDit', '%' . $search->getNumeroDit() . '%');
+        }
+
+        if ($search->getNumeroOr()) {
+            $qb->andWhere('d.numeroOr LIKE :numeroOr')
+                ->setParameter('numeroOr', '%' . $search->getNumeroOr() . '%');
+        }
+
         // Gestion des permissions (ex: restreindre par agence/service si pas multisuccursale)
         if (!$multisuccursale) {
         }
