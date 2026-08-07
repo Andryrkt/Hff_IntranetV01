@@ -449,6 +449,7 @@ class demandeInterventionType extends AbstractType
                         'class' => 'noEntrer autocomplete',
                         'autocomplete' => 'off',
                     ],
+                    'disabled' => $demandePneu !== null,
                     'constraints' => [
                         new NotBlank([
                             'message' => 'l\id materiel ne peut pas être vide.', // Message d'erreur si le champ est vide
@@ -462,6 +463,7 @@ class demandeInterventionType extends AbstractType
                 [
                     'label' => " N° Parc",
                     'required' => false,
+                    'disabled' => $demandePneu !== null,
                     'attr' => [
                         'class' => 'noEntrer autocomplete',
                         'autocomplete' => 'off',
@@ -475,6 +477,7 @@ class demandeInterventionType extends AbstractType
                 [
                     'label' => " N° Serie",
                     'required' => false,
+                    'disabled' => $demandePneu !== null,
                     'attr' => [
                         'class' => 'noEntrer autocomplete',
                         'autocomplete' => 'off',

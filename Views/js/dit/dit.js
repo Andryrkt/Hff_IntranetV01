@@ -4,25 +4,26 @@ import { setupConfirmationButtons } from "../utils/ui/boutonConfirmUtils.js";
 import { allowOnlyNumbers } from "../utils/inputUtils.js";
 
 const idMaterielInput = document.querySelector(
-  "#demande_intervention_idMateriel"
+  "#demande_intervention_idMateriel",
 );
 const numParcInput = document.querySelector("#demande_intervention_numParc");
 const numSerieInput = document.querySelector("#demande_intervention_numSerie");
 const numClientInput = document.querySelector(
-  "#demande_intervention_numeroClient"
+  "#demande_intervention_numeroClient",
 );
 const nomClientInput = document.querySelector(
-  "#demande_intervention_nomClient"
+  "#demande_intervention_nomClient",
 );
 
 const containerInfoMateriel = document.querySelector("#containerInfoMateriel");
+const infoMaterielForm = document.querySelector("#info-materiel-form");
 
 const interneExterneInput = document.querySelector(".interneExterne");
 const numTelInput = document.querySelector(".numTel");
 const clientSousContratInput = document.querySelector(".clientSousContrat");
 const mailClientInput = document.querySelector(".mailClient");
 const demandeDevisInput = document.querySelector(
-  "#demande_intervention_demandeDevis"
+  "#demande_intervention_demandeDevis",
 );
 const erreurClient = document.querySelector("#erreurClient");
 
@@ -39,6 +40,68 @@ const fetchManager = new FetchManager();
 
 let lastSelectedItem = null;
 
+function showMaterielLoader() {
+  if (infoMaterielForm) {
+    infoMaterielForm.style.display = "none";
+  }
+
+  if (!containerInfoMateriel) return;
+
+  containerInfoMateriel.innerHTML = `
+        <div class="d-flex justify-content-center align-items-center p-4">
+            <div class="spinner-border text-primary me-2" role="status">
+                <span class="visually-hidden">
+                    Chargement...
+                </span>
+            </div>
+            <span class="fw-bold">
+                Chargement des informations matériel...
+            </span>
+        </div>
+    `;
+}
+/**
+ * Chargement automatique du matériel si l'ID est déjà présent
+ * (cas création DIT depuis diagnostic pneu)
+ */
+async function loadMaterielById() {
+  const idMateriel = idMaterielInput?.value;
+
+  if (!idMateriel) {
+    return;
+  }
+
+  try {
+    showMaterielLoader();
+    const data = await fetchMateriels();
+
+    const materiel = data.find(
+      (item) => String(item.num_matricule) === String(idMateriel),
+    );
+
+    if (materiel) {
+      onSelectMateriels(materiel);
+    } else {
+      containerInfoMateriel.innerHTML = `
+                <div class="text-danger fw-bold">
+                    Aucun matériel trouvé pour l'identifiant ${idMateriel}.
+                </div>
+            `;
+    }
+  } catch (error) {
+    console.error("Erreur récupération matériel automatique :", error);
+    containerInfoMateriel.innerHTML = `
+            <div class="alert alert-danger fw-bold">
+                Impossible de charger les informations matériel.
+            </div>
+        `;
+  }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  loadMaterielById();
+});
+
 async function fetchMateriels() {
   return await fetchManager.get(`api/fetch-all-materiel`);
 }
@@ -49,13 +112,18 @@ function displayMateriel(item) {
 
 // Met à jour les champs et la fiche
 function onSelectMateriels(item) {
-  lastSelectedItem = item;
+  showMaterielLoader();
 
+  lastSelectedItem = item;
   idMaterielInput.value = item.num_matricule;
   numParcInput.value = item.num_parc;
   numSerieInput.value = item.num_serie;
 
   createMaterielInfoDisplay(containerInfoMateriel, item);
+
+  if (infoMaterielForm) {
+    infoMaterielForm.style.display = "flex";
+  }
 }
 
 // Vérifie si la valeur tapée correspond à un item connu
@@ -73,13 +141,13 @@ async function validateInput(input, keyToCompare) {
 
 // Écouteurs de perte de focus pour chaque champ
 idMaterielInput.addEventListener("blur", () =>
-  validateInput(idMaterielInput, "num_matricule")
+  validateInput(idMaterielInput, "num_matricule"),
 );
 numParcInput.addEventListener("blur", () =>
-  validateInput(numParcInput, "num_parc")
+  validateInput(numParcInput, "num_parc"),
 );
 numSerieInput.addEventListener("blur", () =>
-  validateInput(numSerieInput, "num_serie")
+  validateInput(numSerieInput, "num_serie"),
 );
 
 //Activation sur le champ Id Matériel
@@ -249,7 +317,7 @@ inputNoEntrers.forEach((inputNoEntrer) => {
       event.preventDefault(); // Empêche le rechargement de la page
       console.log(
         "La touche Entrée a été pressée dans le champ :",
-        inputNoEntrer.placeholder
+        inputNoEntrer.placeholder,
       );
     }
   });
@@ -475,11 +543,11 @@ textarea.addEventListener("input", function (event) {
  * réparation réalisé par ATE TANA et ATE POL TANA
  *===============================================================================*/
 const reparationRealiseSelect = document.querySelector(
-  "#demande_intervention_reparationRealise"
+  "#demande_intervention_reparationRealise",
 );
 const atePolTanaContainer = document.querySelector("#ate_pol_tana_container");
 const atePolTanaInput = document.querySelector(
-  "#demande_intervention_estAtePolTana"
+  "#demande_intervention_estAtePolTana",
 );
 const valuesAutorisees = ["ATE TANA", "ATE MAS", "ATE STAR"]; // valeurs autorisées pour la réparation réalisé afin de créer deux DIT
 

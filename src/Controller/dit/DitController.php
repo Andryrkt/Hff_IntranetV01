@@ -160,7 +160,8 @@ class DitController extends Controller
                 ]
             )
             ->getForm();
-        $this->traitementFormulaire($form, $request);
+
+        $this->traitementFormulaire($form, $request,  $demandePneu);
 
         $this->logUserVisit('dit_new'); // historisation du page visité par l'utilisateur
 
@@ -169,7 +170,7 @@ class DitController extends Controller
         ]);
     }
 
-    private function traitementFormulaire($form, Request $request)
+    private function traitementFormulaire($form, Request $request,  ?DemandeDiagnosticPneu $demandePneu = null)
     {
         $form->handleRequest($request);
 
@@ -242,7 +243,13 @@ class DitController extends Controller
                 $this->modificationBdPourHitorisationDw($em, $demandeIntervention, $reponse);
             }
 
-            // 10. enregistrement dans l'historisation de la sucès de la demande
+            // 10. Modification du statut de Demande Diagnostic Pneu
+            if ($demandePneu) {
+                $demandePneu->setStatut('traiter atelier');
+                $em->persist($demandePneu);
+                $em->flush();
+            }
+            // 11. enregistrement dans l'historisation de la sucès de la demande
             $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $demandeInterventions[0]->getNumeroDemandeIntervention(), 'dit_index', true);
         }
     }
