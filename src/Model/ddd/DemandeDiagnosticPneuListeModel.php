@@ -2,8 +2,10 @@
 
 namespace App\Model\ddd;
 
+use App\Dto\ddd\DemandeDiagnosticPneuDto;
 use App\Entity\ddd\DemandeDiagnosticPneu;
 use App\Entity\ddd\DemandeDiagnosticPneuSearch;
+use App\Entity\dit\DemandeIntervention;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
@@ -19,8 +21,15 @@ class DemandeDiagnosticPneuListeModel
     public function getPaginatedList(DemandeDiagnosticPneuSearch $search, int $page, int $limit, int $agenceId, int $serviceId, bool $multisuccursale): array
     {
         $qb = $this->em->createQueryBuilder()
-            ->select('d')
-            ->from(DemandeDiagnosticPneu::class, 'd');
+            ->select('d, di')
+            ->from(DemandeDiagnosticPneu::class, 'd')
+            ->leftJoin(
+                DemandeIntervention::class,
+                'di',
+                'WITH',
+                'd.numeroDit = di.numeroDemandeIntervention'
+            );
+
 
         // Application des critères de recherche
         if ($search->getNumeroDemande()) {
@@ -55,6 +64,10 @@ class DemandeDiagnosticPneuListeModel
             $qb->andWhere('d.dateDepartChantier >= :dateDepartDebut')
                 ->setParameter('dateDepartDebut', $search->getDateDepartChantierDebut());
         }
+        if ($search->getLivraison()) {
+            $qb->andWhere('d.livraison >= :livraison')
+                ->setParameter('livraison', $search->getLivraison());
+        }
 
         if ($search->getDateDepartChantierFin()) {
             $qb->andWhere('d.dateDepartChantier <= :dateDepartFin')
@@ -82,20 +95,39 @@ class DemandeDiagnosticPneuListeModel
                 ->setParameter('numeroOr', '%' . $search->getNumeroOr() . '%');
         }
 
-        // Gestion des permissions (ex: restreindre par agence/service si pas multisuccursale)
         if (!$multisuccursale) {
         }
-
         // Pagination
         $qb->orderBy('d.dateCreation', 'DESC')
             ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit);
 
+
         $paginator = new Paginator($qb);
         $totalItems = count($paginator);
 
+        $data = [];
+        $dataDiag = null;
+
+        foreach ($paginator as $item) {
+
+            if ($item instanceof DemandeIntervention) {
+                $data[] = DemandeDiagnosticPneuDto::fromEntities($dataDiag, $item);
+                $dataDiag = null;
+            }
+            if ($item instanceof DemandeDiagnosticPneu) {
+                if ($dataDiag != null) {
+                    $data[] = DemandeDiagnosticPneuDto::fromEntities($dataDiag, null);
+                }
+                $dataDiag = $item;
+            }
+        }
+        if ($dataDiag) {
+            $data[] = DemandeDiagnosticPneuDto::fromEntities($dataDiag, null);
+        }
+
         return [
-            'data' => iterator_to_array($paginator),
+            'data' => $data,
             'currentPage' => $page,
             'lastPage' => (int) ceil($totalItems / $limit),
             'totalItems' => $totalItems,

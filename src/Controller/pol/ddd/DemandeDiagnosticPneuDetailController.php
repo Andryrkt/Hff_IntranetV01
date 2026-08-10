@@ -63,14 +63,32 @@ class DemandeDiagnosticPneuDetailController extends Controller
 
         $form->handleRequest($request);
 
+
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
-            $pneusModifies = $data['diagnosticPneus'];
-            // Persister les modifications
-            foreach ($pneusModifies as $pneu) {
+
+            foreach ($data['diagnosticPneus'] as $pneu) {
                 $em->persist($pneu);
             }
+
+            // Optional: only close if all diagnostics are filled
+            $allFilled = true;
+            foreach ($data['diagnosticPneus'] as $pneu) {
+                if (!$pneu->getDiagnostic()) { // adjust to your field
+                    $allFilled = false;
+                    break;
+                }
+            }
+
+            if ($allFilled && $demande->getStatut() !== 'cloturee') {
+                $demande->setStatut('traitee atelier');
+            }
+
             $em->flush();
+
+            return $this->redirectToRoute('demande_diagnostic_pneu_details', [
+                'numeroDemande' => $numeroDemande
+            ]);
         }
 
         return $this->render('pol/ddd/detail.html.twig', [
@@ -88,11 +106,7 @@ class DemandeDiagnosticPneuDetailController extends Controller
         return $this->redirectToRoute('dit_new', [
             'numeroDemandePneu' => $numeroDemande,
         ]);
-        $em = $this->getEntityManager();
-        $demande = $em->getRepository(DemandeDiagnosticPneu::class)->findOneBy(['numeroDemande' => $numeroDemande]);
 
-        $demande->setStatut('cloturee');
-        $em->flush();
         return $this->redirectToRoute('demande_diagnostic_pneu_liste');
     }
 }

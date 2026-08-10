@@ -27,9 +27,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class DemandeDiagnosticPneuType extends AbstractType
 {
-    private $agenceRepository;
-
-
+  
     const LIVRAISON = [
         'MACHINE' => 'MACHINE',
         'PNEU' => 'PNEU'

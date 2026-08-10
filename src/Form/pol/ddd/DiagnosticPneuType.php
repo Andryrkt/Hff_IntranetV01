@@ -19,29 +19,42 @@ class DiagnosticPneuType extends AbstractType
         'Dommage mécanique' => 'Dommage mécanique',
         'Autre' => 'Autre',
     ];
+    const POSITIONS_TRUCK = [
+        'Avant gauche'       => 'avant_gauche',
+        'Avant droite'       => 'avant_droite',
+        'Avant'              => 'avant',
+        'Arrière gauche'     => 'arriere_gauche',
+        'Arrière droite'     => 'arriere_droite',
+        'Arrière'            => 'arriere',
+        'Gauche'             => 'gauche',
+        'Droite'             => 'droite',
+        'Essieu 1 gauche'    => 'essieu1_gauche',
+        'Essieu 1 droite'    => 'essieu1_droite',
+        'Essieu 2 gauche'    => 'essieu2_gauche',
+        'Essieu 2 droite'    => 'essieu2_droite',
+        'Essieu 3 gauche'    => 'essieu3_gauche',
+        'Essieu 3 droite'    => 'essieu3_droite',
+        'Remorque gauche'    => 'remorque_gauche',
+        'Remorque droite'    => 'remorque_droite',
+        'Remorque'           => 'remorque',
+        'Semi-remorque gauche' => 'semi_gauche',
+        'Semi-remorque droite' => 'semi_droite',
+    ];
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('numeroSerie', TextType::class, [
                 'label' => 'N/S pneu',
-                'attr' => ['placeholder' => 'Ex: 123456'],
                 'required' => true,
             ])
             ->add('coteDim', TextType::class, [
                 'label' => 'Cote / dim',
-                'attr' => ['placeholder' => 'Ex: 18.00R25'],
                 'required' => true,
             ])
             ->add('positionMachine', ChoiceType::class, [
                 'label' => 'Position machine *',
-                'choices' => [
-                    'Avant gauche' => 'avant_gauche',
-                    'Avant droite' => 'avant_droite',
-                    'Arrière gauche' => 'arriere_gauche',
-                    'Arrière droite' => 'arriere_droite',
-                    'Gauche'       => 'gauche',
-                    'Droite'       => 'droite',
-                ],
+                'choices' => self::POSITIONS_TRUCK,
                 'placeholder' => 'Choisissez une position',
                 'required' => true,
             ])

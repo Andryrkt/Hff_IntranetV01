@@ -20,7 +20,20 @@
             {% include "/pol/ddd/shared/_formulaireRecherche.html.twig" %}
 
             {# Cartes de statut (optionnel) #}
-            {# {% include "/pol/ddd/shared/_carteStatut.html.twig" %} #}
+            <div class="row">
+                <div class="col-12 col-md-6 my-2">
+                    <i class="fa-solid fa-circle text-warning"></i>
+                    <small class="text-warning">À traiter atelier |</small>
+                    <i class="fa-solid fa-circle text-primary"></i>
+                    <small class="text-primary">Traitée atelier |</small>
+                    <i class="fa-solid fa-circle text-success"></i>
+                    <small class="text-success">Clôturée</small>
+                </div>
+
+                <div class="col-12 col-md-6 my-2">
+                    {% include "/dit/shared/_carteStatut.html.twig" %}
+                </div>
+            </div>
 
             {# Pagination en haut #}
             {% include "/pol/ddd/shared/_pagination.html.twig" %}
@@ -32,6 +45,9 @@
         <table class="table table-sticky">
             <thead class="table-dark align-middle">
                 <tr>
+                    <th>
+                        <i class="fas fa-ellipsis-vertical"></i>
+                    </th>
                     <th>Statut</th>
                     <th>N° Demande</th>
                     <th>Demandeur</th>
@@ -39,8 +55,8 @@
                     <th>Matériel (N° Parc)</th>
                     <th>Date départ</th>
                     <th>Livraison</th>
-                    <th> <span title="Nombre de pneus (Sur Machine / Secours / à Diagnostiser)">
-                        Nb pneus <small>(M/S/D)</small>
+                    <th> <span title="Nombre de pneus (Sur Machine - Secours - à Diagnostiser)">
+                        Nb pneus <small>(M - S - D)</small>
                     </span></th>
                     <th>Motifs</th>
                     <th>N° DIT</th>
@@ -54,13 +70,35 @@
                     {% set classeStatut = demande.statut|lower|replace({' ': '_', 'à': 'a'}) %}
 
                     <tr>
+                        {# Début Action #}
+                        <td class="align-middle" style="padding: 0px">
+                            <div class="dropdown">
+                                <button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-ellipsis-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+                                    {% if demande.statut == 'traitee atelier' %}
+
+                                        <li>
+                                            <a class="dropdown-item fw-bold" href="{{ path('dit_new', {numeroDemandePneu: demande.numeroDemande}) }}">Créer DIT</a>
+                                        </li>
+
+                                    {% endif %}
+                                    <li>
+                                        <a class="dropdown-item fw-bold" href="{{ path('demande_diagnostic_pneu_details', {numeroDemande: demande.numeroDemande}) }}">Voir les détails</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                        {# Fin Actions #}
                         {# Statut #}
-                        <td class="
-                            {% if demande.statut == 'a_traiter_atelier' %}bg-warning text-dark
-                            {% elseif demande.statut == 'cloturee' %}bg-success text-white
+                        <td class="fw-bold
+                            {% if demande.statut == 'a traiter atelier' %}bg-warning text-dark
+                            {% elseif demande.statut == 'traitee atelier' %}bg-primary text-white
+                            {% elseif demande.statut == 'cloturee' %}bg-success text-white capitalize
                             {% else %}bg-secondary text-white
                             {% endif %}
-                            ">{{ demande.statut|replace({'_': ' '})|capitalize }}</td>
+                            ">{{ demande.statut|upper }}</td>
 
                             {# Numéro demande #}
                             <td>
@@ -87,9 +125,9 @@
                             {# Nombre de pneus (Machine / Secours / À diagnostiquer) #}
                             <td >
                                 <span class="badge bg-secondary">{{ demande.nbPneuSurMachine }}</span>
-                                /
+                                -
                                 <span class="badge bg-secondary">{{ demande.nbPneuSecours }}</span>
-                                /
+                                -
                                 <span class="badge bg-primary">{{ demande.nbPneuADiagnostiquer }}</span>
                             </td>
 
@@ -105,13 +143,28 @@
                             </td>
 
                             {# N° DIT #}
-                            <td>{{ demande.numeroDit ?: '-' }}</td>
+                            <td>
+
+                                {% if demande.numeroDit %}
+                                    <a href="{{ path('dit_validationDit', {
+                                        id: demande.demandeInterventionId,
+                                        numDit: demande.numeroDit
+                                        }) }}"
+                                        target="_blank"
+                                        data-bs-toggle="tooltip"
+                                        title="Afficher le détail">
+                                        {{ demande.numeroDit }}
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
 
                             {# N° OR #}
                             <td>{{ demande.numeroOr ?: '-' }}</td>
 
                             {# Date création #}
-                            <td>{{ demande.dateCreation ? demande.dateCreation|date('d/m/Y H:i') : '-' }}</td>
+                            <td>{{ demande.dateCreation ? demande.dateCreation|date('d/m/Y') : '-' }}</td>
                         </tr>
                     {% else %}
                         <tr>
@@ -139,5 +192,5 @@
 
     {% block javascript %}
         <script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2026.07.03.14.50"></script>
-        <script src="{{ App.base_path }}/Views/js/pol/ddd/list.js?v=2026.07.03.14.50" type="module"></script>
+        {# <script src="{{ App.base_path }}/Views/js/pol/ddd/list.js?v=2026.07.03.14.50" type="module"></script> #}
     {% endblock %}

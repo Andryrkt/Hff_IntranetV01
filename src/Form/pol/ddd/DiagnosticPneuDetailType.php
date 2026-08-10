@@ -39,7 +39,7 @@ class DiagnosticPneuDetailType extends AbstractType
             ])
             ->add('observationAtelier', TextareaType::class, [
                 'label' => 'Observation atelier',
-                'required' => false,
+                'required' => true,
                 'attr' => ['rows' => 2, 'class' => 'form-control'],
             ]);
     }

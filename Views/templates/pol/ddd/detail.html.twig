@@ -151,7 +151,7 @@
                                 <th>#</th>
                                 <th>N/S pneu</th>
                                 <th>Cote / dim</th>
-                                <th>Position machine</th>
+                                <th>Position sur machine</th>
                                 <th>Motif chantier</th>
                                 <th>Diagnostic atelier</th>
                                 <th>Observation atelier</th>
@@ -254,12 +254,11 @@
                     <a href="{{ path('demande_diagnostic_pneu_liste') }}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Retour à la liste
                     </a>
-                    {% if not isReadOnly and demande.statut != 'cloturee' %}
+                    {% if not isReadOnly and demande.statut == 'traitee atelier' %}
                         <a href="{{ path('api_demande_diagnostic_pneu_cloturer', {numeroDemande: demande.numeroDemande}) }}"
                             class="btn btn-success"
-                            id="bouton-cloturer-diagnostic-pneu"
-                            >
-                            <i class="fas fa-check-circle"></i> Clôturer
+                            id="bouton-cloturer-diagnostic-pneu">
+                            <i class="fas fa-check-circle"></i> Créer un DIT pour clôturer
                         </a>
                     {% endif %}
 

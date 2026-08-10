@@ -67,7 +67,6 @@ class DemandeDiagnosticPneuListeController extends Controller
             $serviceIdUser,
             $multisuccursale
         );
-
         // Historique de visite
         $this->logUserVisit('demande_diagnostic_pneu_liste');
 

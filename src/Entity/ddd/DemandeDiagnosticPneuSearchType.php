@@ -37,10 +37,7 @@ class DemandeDiagnosticPneuSearchType extends AbstractType
             ])
             ->add('statut', ChoiceType::class, [
                 'label' => 'Statut',
-                'choices' => [
-                    'À traiter atelier' => 'a_traiter_atelier',
-                    'Clôturée' => 'cloturee',
-                ],
+                'choices' => DemandeDiagnosticPneu::STATUTS,
                 'required' => false,
                 'placeholder' => 'Tous',
             ])

@@ -162,7 +162,6 @@ class DemandeDiagnosticPneuController extends Controller
                 continue;
             }
 
-            // Générer un nom unique (ex: 1234567890_nom_original.pdf)
             $nomOriginal = $file->getClientOriginalName();
             $extension = $file->guessExtension();
             $nomUnique = uniqid() . '_' . pathinfo($nomOriginal, PATHINFO_FILENAME) . '.' . $extension;

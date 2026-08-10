@@ -17,6 +17,18 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class DemandeDiagnosticPneu
 {
+
+    public const STATUT_A_TRAITER_ATELIER = 'a traiter atelier';
+    public const STATUT_TRAITEE_ATELIER   = 'traitee atelier';
+    public const STATUT_CLOTUREE          = 'cloturee';
+
+    public const STATUTS = [
+        'À traiter atelier' => self::STATUT_A_TRAITER_ATELIER,
+        'Traitée atelier'   => self::STATUT_TRAITEE_ATELIER,
+        'Clôturée'          => self::STATUT_CLOTUREE,
+    ];
+
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -108,7 +120,7 @@ class DemandeDiagnosticPneu
     /**
      * @ORM\Column(type="string", length=20)
      */
-    private ?string $statut = 'a_traiter_atelier';
+    private ?string $statut = 'a traiter atelier';
 
     /**
      * @ORM\Column(type="string", length=12, nullable=true, name="numero_dit")
@@ -133,7 +145,7 @@ class DemandeDiagnosticPneu
     public function __construct()
     {
         $this->dateCreation = new DateTime();
-        $this->statut = 'a_traiter_atelier';
+        $this->statut = self::STATUT_A_TRAITER_ATELIER;
         $this->diagnosticPneus = new ArrayCollection();
     }
 

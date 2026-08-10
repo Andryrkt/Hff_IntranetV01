@@ -79,10 +79,10 @@ class DitController extends Controller
         ;
 
 
-        $demandePneu = null;
         /**
          * Création DIT depuis diagnostic pneu
          */
+        $demandePneu = null;
         if ($numeroDemandePneu) {
 
             $demandePneu = $this->getEntityManager()
@@ -148,7 +148,6 @@ class DitController extends Controller
                 $demandeIntervention->setService($serviceDefault);
             }
         }
-
 
         //AFFICHAGE ET TRAITEMENT DU FORMULAIRE
         $form = $this->getFormFactory()
@@ -243,14 +242,18 @@ class DitController extends Controller
                 $this->modificationBdPourHitorisationDw($em, $demandeIntervention, $reponse);
             }
 
-            // 10. Modification du statut de Demande Diagnostic Pneu
+            // 10. Recuperation du numero du premier DIT creer
+            $numeroDitCree = $demandeInterventions[0]->getNumeroDemandeIntervention();
+
+            // 11. Modification du statut de Demande Diagnostic Pneu
             if ($demandePneu) {
-                $demandePneu->setStatut('traiter atelier');
+                $demandePneu->setStatut('cloturee');
+                $demandePneu->setNumeroDit($numeroDitCree);
                 $em->persist($demandePneu);
                 $em->flush();
             }
-            // 11. enregistrement dans l'historisation de la sucès de la demande
-            $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $demandeInterventions[0]->getNumeroDemandeIntervention(), 'dit_index', true);
+            // 12. enregistrement dans l'historisation de la sucès de la demande
+            $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $numeroDitCree, 'dit_index', true);
         }
     }
 
