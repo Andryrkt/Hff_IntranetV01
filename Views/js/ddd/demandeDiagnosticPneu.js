@@ -5,6 +5,10 @@ import { setupConfirmationButtons } from "../utils/ui/boutonConfirmUtils.js";
 import { displayOverlay } from "../utils/ui/overlay.js";
 
 // ---- DOM references for material fields ----
+const materielSearchInput = document.querySelector(
+  "#demande_diagnostic_pneu_materiel_search",
+);
+
 const idMaterielInput = document.querySelector(
   "#demande_diagnostic_pneu_id_materiel",
 );
@@ -29,7 +33,7 @@ async function fetchMateriels() {
 }
 
 function displayMateriel(item) {
-  return `Id: ${item.num_matricule} - Parc: ${item.num_parc} - S/N: ${item.num_serie}`;
+  return `Id: ${item.num_matricule} - Parc: ${item.num_parc} - S/N: ${item.num_serie} - Marque: ${item.constructeur} - Type: ${item.modele} `;
 }
 // Met à jour les champs et la fiche
 function onSelectMateriels(item) {
@@ -84,15 +88,15 @@ idMaterielInput.addEventListener("blur", () =>
 );
 
 new AutoComplete({
-  inputElement: idMaterielInput,
-  suggestionContainer: document.querySelector("#suggestion-idMateriel"),
-  loaderElement: document.querySelector("#loader-idMateriel"), // Ajout du loader
+  inputElement: materielSearchInput,
+  suggestionContainer: document.querySelector("#suggestion-materiel"),
+  loaderElement: document.querySelector("#loader-materiel"), // Ajout du loader
   debounceDelay: 300, // Délai en ms
   fetchDataCallback: fetchMateriels,
   displayItemCallback: displayMateriel,
   onSelectCallback: onSelectMateriels,
   itemToStringCallback: (item) =>
-    `${item.num_matricule} - ${item.num_parc} - ${item.num_serie}`,
+    `${item.num_matricule} - ${item.num_parc} - ${item.num_serie} - ${item.constructeur}`,
 });
 
 document.addEventListener("DOMContentLoaded", function () {

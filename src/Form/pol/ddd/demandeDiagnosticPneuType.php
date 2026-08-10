@@ -142,7 +142,16 @@ class DemandeDiagnosticPneuType extends AbstractType
 
                 ]
             )
+            ->add('materiel_search', TextType::class, [
+                'label' => 'Rechercher un matériel',
+                'mapped' => false,
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control recherche-materiel',
+                    'placeholder' => 'Tapez le numéro de parc, la marque...',
 
+                ],
+            ])
             ->add(
                 'id_materiel',
                 TextType::class,
@@ -152,6 +161,7 @@ class DemandeDiagnosticPneuType extends AbstractType
                     'attr' => [
                         'class' => 'noEntrer autocomplete',
                         'autocomplete' => 'off',
+                        'readonly' => true,
                     ],
                     'constraints' => [
                         new NotBlank([

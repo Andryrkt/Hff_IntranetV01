@@ -163,7 +163,7 @@
                                     <td>{{ loop.index }}</td>
                                     <td>{{ pneu.numeroSerie }}</td>
                                     <td>{{ pneu.coteDim }}</td>
-                                    <td>{{ pneu.positionMachine }}</td>
+                                    <td>{{ pneu.positionMachine|replace({'_': ' '})|capitalize }}</td>
                                     <td>{{ pneu.motifChantier }}</td>
                                     <td>{{ form_widget(form.diagnosticPneus[loop.index0].diagnostic, { attr: { class: 'form-select' } }) }}</td>
                                     <td>{{ form_widget(form.diagnosticPneus[loop.index0].observationAtelier, { attr: { rows: 2, class: 'form-control' } }) }}</td>

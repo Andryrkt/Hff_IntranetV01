@@ -74,18 +74,18 @@
                 {{ macroForm.sousTitre('Information matériel',{class:'sousTitre'}) }}
 
                 <div class="row">
-
-                    <div class="col-md-6">
-                        {{ form_row(form.id_materiel) }}
-                        <div id="suggestion-idMateriel" class="suggestions-container"></div>
-                        <div id="loader-idMateriel" class="spinner d-flex align-items-center" style="display: none;"></div>
+                    <div class="col-md-4">
+                        {{ form_row(form.materiel_search) }}
+                        <div id="suggestion-materiel" class="suggestions-container"></div>
+                        <div id="loader-materiel" class="spinner d-flex align-items-center" style="display: none;"></div>
                     </div>
-
-
-
 
                 </div>
                 <div class="row mt-2">
+                    <div class="col-md-3">
+                        {{ form_row(form.id_materiel) }}
+                    </div>
+
                     <div class="col-md-3">
                         {{ form_row(form.numero_parc_materiel) }}
                     </div>
@@ -138,7 +138,7 @@
                 {# Motifs                   #}
                 {# ========================= #}
 
-                {{ macroForm.sousTitre('Motifs généraux',{class:'sousTitre'}) }}
+                {{ macroForm.sousTitre('Motifs généraux *',{class:'sousTitre'}) }}
 
                 <div class="d-flex flex-wrap gap-3 mt-2">
                     {% for child in form.motifs %}
