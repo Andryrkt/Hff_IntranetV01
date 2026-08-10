@@ -1,7 +1,41 @@
 import { setupConfirmationButtons } from "../utils/ui/boutonConfirmUtils.js";
 import { displayOverlay } from "../utils/ui/overlay.js";
 
-// Popup ou Modal de confirmation Demande Diag. Pneu  avec chargement
+document.addEventListener("DOMContentLoaded", function () {
+  const buttonEnregistrer = document.getElementById(
+    "bouton-enregistrer-diagnostic-pneu",
+  );
+
+  if (!buttonEnregistrer) {
+    return;
+  }
+
+  const form = buttonEnregistrer.closest("form");
+
+  if (!form) {
+    return;
+  }
+
+  buttonEnregistrer.addEventListener("click", function (e) {
+    e.preventDefault();
+
+    Swal.fire({
+      title: "Confirmation",
+      text: "Veuillez vérifier attentivement toutes les informations saisies avant de confirmer l'enregistrement de ces diagnostics.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Oui, enregistrer",
+      cancelButtonText: "Annuler",
+      reverseButtons: true,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        displayOverlay(true, "Enregistrement du diagnostic en cours...");
+
+        form.submit();
+      }
+    });
+  });
+});
 
 document.addEventListener("DOMContentLoaded", function () {
   const buttonCloture = document.getElementById(

@@ -3,6 +3,7 @@
 namespace App\Controller\pol\ddd;
 
 use App\Controller\Controller;
+use App\Dto\ddd\DemandeDiagnosticPneuDto;
 use App\Entity\ddd\DemandeDiagnosticPneu;
 use App\Form\pol\ddd\DiagnosticPneuDetailType;
 use App\Form\pol\ddd\DiagnosticPneuType;
@@ -26,18 +27,18 @@ class DemandeDiagnosticPneuDetailController extends Controller
         $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
         $agenceService = $this->agenceServiceIpsObjet();
 
-        // [codeAgence , codeService] Autotisé 
+        // [codeAgence , codeService] Autorisé 
         $allowed = [
             ['80', 'INF'],
             ['01', 'ATE'],
         ];
 
-        $current = [
+        $statut = [
             $agenceService['agenceIps']->getCodeAgence(),
             $agenceService['serviceIps']->getCodeService(),
         ];
 
-        $isReadOnly = !in_array($current, $allowed, true);
+
 
 
         $demande = $em->getRepository(DemandeDiagnosticPneu::class)->findOneBy(['numeroDemande' => $numeroDemande]);
@@ -46,6 +47,9 @@ class DemandeDiagnosticPneuDetailController extends Controller
                 'Demande de Diagnostic Pneu introuvable'
             );
         }
+        $isAllowed = in_array($statut, $allowed, true);
+
+        $isReadOnly = !$isAllowed || $demande->getStatut() !== 'a traiter atelier';
 
         // Créer un formulaire pour les pneus
         $form = $this->getFormFactory()->createBuilder()
@@ -106,7 +110,5 @@ class DemandeDiagnosticPneuDetailController extends Controller
         return $this->redirectToRoute('dit_new', [
             'numeroDemandePneu' => $numeroDemande,
         ]);
-
-        return $this->redirectToRoute('demande_diagnostic_pneu_liste');
     }
 }

@@ -86,6 +86,7 @@
                     <div class="col-md-4">
                         <label class="form-label fw-bold">Numero DIT</label>
                         <p class="form-control-plaintext">{{ demande.numeroDit ?: '-' }}</p>
+
                     </div>
                     <div class="col-md-8">
                         <label class="form-label fw-bold">Numero OR</label>
@@ -180,7 +181,7 @@
                 {# ========================= #}
                 {% if not isReadOnly %}
                     <div class="d-flex justify-content-end gap-2 mt-4">
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-primary"  id="bouton-enregistrer-diagnostic-pneu">
                             <i class="fas fa-save"></i> Enregistrer
                         </button>
                     </div>
