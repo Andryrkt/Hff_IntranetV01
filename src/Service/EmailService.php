@@ -91,7 +91,7 @@ class EmailService
             return true;
         } catch (\Exception $e) {
             // Gérer l'erreur
-            //dd('erreur: ' . $e->getMessage());
+            dd('erreur: ' . $e->getMessage());
             return false;
         }
     }
