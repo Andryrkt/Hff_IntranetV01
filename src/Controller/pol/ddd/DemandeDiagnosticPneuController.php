@@ -132,10 +132,10 @@ class DemandeDiagnosticPneuController extends Controller
             $em->commit();
 
 
-            // Historique (à décommenter après validation)
-            $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $demande->getNumeroDemande(), 'demande_diagnostic_pneu_liste', true);
             // Envoye mail au responsable atelier
             $this->envoyerMailAtelier($demande);
+            // Historique (à décommenter après validation)
+            $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $demande->getNumeroDemande(), 'demande_diagnostic_pneu_liste', true);
         } catch (\Exception $e) {
             $em->rollback();
             $this->historiqueOperation->sendNotificationCreation($e->getMessage(), '-', 'demande_diagnostic_pneu_liste');
@@ -148,8 +148,7 @@ class DemandeDiagnosticPneuController extends Controller
      */
     private function handlePiecesJointes(array $files, DemandeDiagnosticPneu $demande): void
     {
-        $numDa = $demande->getNumeroDemande(); // ex: DDD25030001
-
+        $numDa = $demande->getNumeroDemande();
 
         $basePath = rtrim($_ENV['BASE_PATH_FICHIER'], '/') . '/ddd/';
         $dossier = $basePath . $numDa . '/';
@@ -190,7 +189,7 @@ class DemandeDiagnosticPneuController extends Controller
      */
     private function envoyerMailAtelier(DemandeDiagnosticPneu $demande): void
     {
-        $destinataire = $_ENV['MAIL_TO_ATELIER'] ?? 'atelier@hffintranet.com';
+        $destinataire = $_ENV['MAIL_TO_ATELIER'];
         $service = 'Atelier Pneu';
 
         // Construction de l'URL de détail : BASE_PATH_COURT + chemin relatif
@@ -208,7 +207,7 @@ class DemandeDiagnosticPneuController extends Controller
 
 
         $variables = [
-            'subject'        => 'Nouvelle demande de diagnostic pneu',
+            'subject'        => $header,
             'header'         => $header,
             'nomDemandeur'   => $demande->getDemandeur(),
             'numeroDemande'  => $demande->getNumeroDemande(),
@@ -220,7 +219,7 @@ class DemandeDiagnosticPneuController extends Controller
 
 
         $this->envoyerEmail([
-            'to'          => $_ENV['MAIL_TO_ATELIER'],
+            'to'          => $destinataire,
             'cc'          => [$_ENV['MAIL_CC_ATELIER']],
             'variables'   => $variables,
 

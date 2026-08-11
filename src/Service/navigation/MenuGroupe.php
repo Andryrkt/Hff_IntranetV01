@@ -360,7 +360,7 @@ class MenuGroupe
                 'icon'  => 'plus-circle',
             ],
             [
-                'label'    => 'DEMANDE DIAGNOSTIC PNEU (DDD)',
+                'label'    => 'DIAGNOSTIC PNEU',
                 'icon'     => 'list-ul',
                 'subitems' => [
                     [
