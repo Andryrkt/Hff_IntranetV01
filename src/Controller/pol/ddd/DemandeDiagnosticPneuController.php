@@ -8,12 +8,13 @@ use App\Entity\ddd\DemandeDiagnosticPneu;
 use App\Factory\pol\DemandeDiagnosticPneuFactory;
 use App\Form\pol\ddd\DemandeDiagnosticPneuType;
 use App\Model\ddd\DemandeDiagnosticPneuModel;
+use App\Service\EmailService;
 use App\Service\fichier\TraitementDeFichier;
 use App\Service\historiqueOperation\HistoriqueOperationDDDService;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-
+use App\Controller\Traits\lienGenerique;
 
 
 /**
@@ -21,6 +22,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DemandeDiagnosticPneuController extends Controller
 {
+    use lienGenerique;
+
     private HistoriqueOperationDDDService $historiqueOperation;
     private DemandeDiagnosticPneuModel $demandeDiagnosticPneuModel;
     private TraitementDeFichier $traitementDeFichier;
@@ -35,7 +38,6 @@ class DemandeDiagnosticPneuController extends Controller
         $this->demandeDiagnosticPneuModel = new DemandeDiagnosticPneuModel();
         $this->traitementDeFichier = new TraitementDeFichier();
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/ddd/';
-
 
         $this->demandeDiagnosticPneuFactory = new DemandeDiagnosticPneuFactory($this->getEntityManager(), $this->demandeDiagnosticPneuModel, $this->historiqueOperation);
 
@@ -132,6 +134,8 @@ class DemandeDiagnosticPneuController extends Controller
 
             // Historique (à décommenter après validation)
             $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $demande->getNumeroDemande(), 'demande_diagnostic_pneu_liste', true);
+            // Envoye mail au responsable atelier
+            $this->envoyerMailAtelier($demande);
         } catch (\Exception $e) {
             $em->rollback();
             $this->historiqueOperation->sendNotificationCreation($e->getMessage(), '-', 'demande_diagnostic_pneu_liste');
@@ -178,5 +182,62 @@ class DemandeDiagnosticPneuController extends Controller
         }
 
         $demande->setPiecesJointes($nomsFichiers);
+    }
+
+
+    /**
+     * Envoie un email à l'atelier pour signaler une nouvelle demande.
+     */
+    private function envoyerMailAtelier(DemandeDiagnosticPneu $demande): void
+    {
+        $destinataire = $_ENV['MAIL_TO_ATELIER'] ?? 'atelier@hffintranet.com';
+        $service = 'Atelier Pneu';
+
+        // Construction de l'URL de détail : BASE_PATH_COURT + chemin relatif
+        $basePath = rtrim($_ENV['BASE_PATH_COURT'] ?? '', '/');
+
+        $relativePath = 'pol/demande-diagnostic-pneu/details/' . $demande->getNumeroDemande();
+        $urlDetail = $this->urlGenerique($basePath . '/' . ltrim($relativePath, '/'));
+
+        $urlIntranet = $this->urlGenerique($basePath);
+
+        $header = sprintf(
+            '%s - DEMANDE DIAGNOSTIC PNEU : <span class="commente">NOUVELLE DEMANDE</span>',
+            $demande->getNumeroDemande()
+        );
+
+
+        $variables = [
+            'subject'        => 'Nouvelle demande de diagnostic pneu',
+            'header'         => $header,
+            'nomDemandeur'   => $demande->getDemandeur(),
+            'numeroDemande'  => $demande->getNumeroDemande(),
+            'urlDetail'      => $urlDetail,
+            'urlIntranet'    => $urlIntranet,
+            'service'        => $service,
+            'dateYear'       => date('Y'),
+        ];
+
+
+        $this->envoyerEmail([
+            'to'          => $_ENV['MAIL_TO_ATELIER'],
+            'cc'          => [$_ENV['MAIL_CC_ATELIER']],
+            'variables'   => $variables,
+
+        ]);
+    }
+
+    /** 
+     * Méthode pour envoyer un email
+     */
+    public function envoyerEmail(array $content): void
+    {
+        $emailTemplate = 'pol/ddd/email/emailDemandeDiagnosticPneu.html.twig';
+
+        $emailService = new EmailService($this->getTwig());
+
+        $emailService->getMailer()->setFrom($_ENV['MAIL_FROM_ADDRESS'], 'noreply.ddd');
+
+        $emailService->sendEmail($content['to'], $content['cc'] ?? [], $emailTemplate, $content['variables'] ?? [], $content['attachments'] ?? []);
     }
 }

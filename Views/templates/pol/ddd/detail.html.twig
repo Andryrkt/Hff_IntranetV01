@@ -255,7 +255,7 @@
                     <a href="{{ path('demande_diagnostic_pneu_liste') }}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Retour à la liste
                     </a>
-                    {% if not isReadOnly and demande.statut == 'traitee atelier' %}
+                    {% if isAllowed and demande.statut == 'traitee atelier' %}
                         <a href="{{ path('api_demande_diagnostic_pneu_cloturer', {numeroDemande: demande.numeroDemande}) }}"
                             class="btn btn-success"
                             id="bouton-cloturer-diagnostic-pneu">

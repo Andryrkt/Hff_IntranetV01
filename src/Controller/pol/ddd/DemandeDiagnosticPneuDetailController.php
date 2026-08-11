@@ -99,6 +99,7 @@ class DemandeDiagnosticPneuDetailController extends Controller
             'demande' => $demande,
             'form' => $form->createView(),
             'isReadOnly' => $isReadOnly,
+            'isAllowed' => $isAllowed,
         ]);
     }
 
