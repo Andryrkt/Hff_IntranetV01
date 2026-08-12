@@ -171,7 +171,7 @@ class MenuGroupe
                 'label'    => 'Dashboard',
                 'icon'     => 'gauge-high',
                 'subitems' => [
-                    ['label' => 'Alertes matériel de location', 'icon' => 'bell', 'route' => 'new_logistique'],
+                    ['label' => 'Alertes matériel de location', 'icon' => 'bell', 'route' => 'alerte_materiel_location'],
                 ],
             ],
         ];
