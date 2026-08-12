@@ -202,7 +202,7 @@ class DemandeDiagnosticPneuController extends Controller
         $urlIntranet = $this->urlGenerique($basePath);
 
         $header = sprintf(
-            '%s - DEMANDE DIAGNOSTIC PNEU : <span class="commente">NOUVELLE DEMANDE</span>',
+            '%s - DEMANDE DIAGNOSTIC PNEU : NOUVELLE DEMANDE',
             $demande->getNumeroDemande()
         );
 
@@ -210,8 +210,10 @@ class DemandeDiagnosticPneuController extends Controller
         $variables = [
             'subject'        => 'Nouvelle demande de diagnostic pneu',
             'header'         => $header,
+            'message' => 'Une nouvelle demande de diagnostic pneu a été créée.',
             'nomDemandeur'   => $demande->getDemandeur(),
             'numeroDemande'  => $demande->getNumeroDemande(),
+            'statut'        => $demande->getStatut(),
             'urlDetail'      => $urlDetail,
             'urlIntranet'    => $urlIntranet,
             'service'        => $service,

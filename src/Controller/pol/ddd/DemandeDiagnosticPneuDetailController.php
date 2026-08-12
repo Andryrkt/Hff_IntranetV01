@@ -55,6 +55,7 @@ class DemandeDiagnosticPneuDetailController extends Controller
 
         $isReadOnly = !$isAllowed
             || !in_array($demande->getStatut(), [
+                'traitee atelier',
                 'a traiter atelier',
                 'diag en cours',
             ], true);
@@ -89,33 +90,39 @@ class DemandeDiagnosticPneuDetailController extends Controller
 
         $form->handleRequest($request);
 
-        $allFilled = true;
+        $allFilled = false;
+        // After $form->handleRequest($request) and before $form->isValid() check
+
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
-
-
+            // Always persist the diagnostic pneus
             foreach ($data['diagnosticPneus'] as $pneu) {
                 $em->persist($pneu);
             }
 
+            // Always update observation
+            $demande->setObservationGlobalAtelier($data['observationGlobalAtelier']);
 
+            // --- Handle button actions ---
+            $demande->setStatut('diag en cours');
 
+            // Check if all diagnostics are filled
+            $allFilled = true;
             foreach ($data['diagnosticPneus'] as $pneu) {
-                if (!$pneu->getDiagnostic()) { // adjust to your field
+                if (!$pneu->getDiagnostic()) {
                     $allFilled = false;
                     break;
                 }
             }
 
             if ($allFilled) {
-                if ($demande->getStatut() !== 'cloturee') {
-                    $demande->setObservationGlobalAtelier($data['observationGlobalAtelier']);
-                    $demande->setStatut('traitee atelier');
-                    $this->envoyerMailAtelier($demande);
-                }
+                $demande->setStatut('traitee atelier');
+                $this->envoyerMailAtelier($demande);
             } else {
+                // Optionally add a flash message and keep as "diag en cours"
                 $demande->setStatut('diag en cours');
             }
+
 
             $em->flush();
 
@@ -160,16 +167,18 @@ class DemandeDiagnosticPneuDetailController extends Controller
         $urlIntranet = $this->urlGenerique($basePath);
 
         $header = sprintf(
-            '%s - DEMANDE DIAGNOSTIC PNEU : <span class="commente">NOUVELLE DEMANDE</span>',
+            '%s - DEMANDE DIAGNOSTIC PNEU : MISE À JOUR ATELIER',
             $demande->getNumeroDemande()
         );
 
 
         $variables = [
-            'subject'        => 'Nouvelle demande de diagnostic pneu',
+            'subject'      => 'Mise à jour et état d’avancement de votre demande de diagnostic pneu',
             'header'         => $header,
+            'message'       => 'Votre demande de diagnostic pneu a été mise à jour.',
             'nomDemandeur'   => $demande->getDemandeur(),
             'numeroDemande'  => $demande->getNumeroDemande(),
+            'statut'        => $demande->getStatut(),
             'urlDetail'      => $urlDetail,
             'urlIntranet'    => $urlIntranet,
             'service'        => $service,

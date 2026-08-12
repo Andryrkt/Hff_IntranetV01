@@ -12,12 +12,14 @@
                 <p>Bonjour,</p>
 
                 <p>
-                    Une nouvelle demande de diagnostic pneu a été reçue et vous est destinée.
+                    {{ message }}
                 </p>
 
                 <p>
                     <strong>Demandeur :</strong> {{ nomDemandeur }}<br>
                     <strong>Numéro de demande :</strong> {{ numeroDemande }}<br>
+                    <strong>État d'avancement :</strong>
+                    {{ statut|replace({'_': ' '})|upper }}
                 </p>
 
                 <p>
