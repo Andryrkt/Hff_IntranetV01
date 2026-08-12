@@ -20,14 +20,20 @@
             {% include "/pol/ddd/shared/_formulaireRecherche.html.twig" %}
 
             {# Cartes de statut (optionnel) #}
+            {# #fbbb01 #}
             <div class="row">
                 <div class="col-12 col-md-6 my-2">
+                    <i class="fa-solid fa-circle text-danger"></i>
+                    <small class="text-danger">À TRAITER ATELIER |</small>
+
+                    <i class="fa-solid fa-circle" style="color: #FA8100 !important;"></i>
+                    <small style="color: #FA8100 !important;">TRAITÉE ATELIER |</small>
+
                     <i class="fa-solid fa-circle text-warning"></i>
-                    <small class="text-warning">À traiter atelier |</small>
-                    <i class="fa-solid fa-circle text-primary"></i>
-                    <small class="text-primary">Traitée atelier |</small>
+                    <small class="text-warning">DIAG EN COURS |</small>
+
                     <i class="fa-solid fa-circle text-success"></i>
-                    <small class="text-success">Clôturée</small>
+                    <small class="text-success">CLÔTURÉE</small>
                 </div>
 
                 <div class="col-12 col-md-6 my-2">

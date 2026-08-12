@@ -190,7 +190,7 @@ class DemandeDiagnosticPneuController extends Controller
      */
     private function envoyerMailAtelier(DemandeDiagnosticPneu $demande): void
     {
-        $destinataire = $_ENV['MAIL_TO_ATELIER'] ?? 'atelier@hffintranet.com';
+        $destinataire = $_ENV['MAIL_TO_ATELIER'];
         $service = 'Atelier Pneu';
 
         // Construction de l'URL de détail : BASE_PATH_COURT + chemin relatif
@@ -220,10 +220,9 @@ class DemandeDiagnosticPneuController extends Controller
 
 
         $this->envoyerEmail([
-            'to'          => $_ENV['MAIL_TO_ATELIER'],
+            'to'          => $destinataire,
             'cc'          => [$_ENV['MAIL_CC_ATELIER']],
             'variables'   => $variables,
-
         ]);
     }
 
