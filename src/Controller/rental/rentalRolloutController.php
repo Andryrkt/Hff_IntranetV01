@@ -7,18 +7,18 @@ use App\Constants\iframe\IframeConstant;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/magasin/dematerialisation")
+ * @Route("/materiel")
  */
 class rentalRolloutController extends Controller
 {
     /**
-     * @Route("/rental-rollout", name="rental_rollout")
+     * @Route("/dashboard/alerte-materiel-location", name="alerte_materiel_location")
      */
     public function rentalRollout()
     {
         return $this->render("iframe/iframe.html.twig", [
             'url'       => IframeConstant::LINK["rental-rollout"],
-            'pageTitle' => "ROLLOUT RENTAL",
+            'pageTitle' => "Alertes Materiels de location",
         ]);
     }
 }
