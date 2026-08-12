@@ -36,6 +36,40 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
+document.addEventListener("DOMContentLoaded", function () {
+  const buttonValider = document.getElementById(
+    "bouton-valider-diagnostic-pneu",
+  );
+
+  if (!buttonValider) {
+    return;
+  }
+
+  const form = buttonValider.closest("form");
+
+  if (!form) {
+    return;
+  }
+
+  buttonValider.addEventListener("click", function (e) {
+    e.preventDefault();
+    Swal.fire({
+      title: "Confirmation de validation",
+      text: "Tous les diagnostics sont renseignés. Valider et envoyer l'email de notification ?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Oui, valider",
+      cancelButtonText: "Annuler",
+      reverseButtons: true,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        displayOverlay(true, "Validation du diagnostic en cours...");
+
+        form.submit();
+      }
+    });
+  });
+});
 
 document.addEventListener("DOMContentLoaded", function () {
   const buttonCloture = document.getElementById(

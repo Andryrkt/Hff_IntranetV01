@@ -29,17 +29,13 @@ class DiagnosticPneuDetailType extends AbstractType
                 'label' => 'Diagnostic atelier',
                 'choices' => self::DIAGNOSTICS,
                 'placeholder' => 'Choisir',
-                'required' => true,
-                'constraints' => [
-                    new NotBlank([
-                        'message' => 'Veuillez sélectionner un diagnostic.',
-                    ]),
-                ],
+                'required' => false,
+
                 'attr' => ['class' => 'form-select'],
             ])
             ->add('observationAtelier', TextareaType::class, [
                 'label' => 'Observation atelier',
-                'required' => true,
+                'required' => false,
                 'attr' => ['rows' => 2, 'class' => 'form-control'],
             ]);
     }

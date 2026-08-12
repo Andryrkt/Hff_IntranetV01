@@ -68,6 +68,9 @@ function onSelectMateriels(item) {
   if (marqueInput) marqueInput.value = item.constructeur || "";
   if (typeInput) typeInput.value = item.modele || "";
   if (designationInput) designationInput.value = item.designation || "";
+  if (materielSearchInput) {
+    materielSearchInput.value = "";
+  }
 }
 // Vérifie si la valeur tapée correspond à un item connu
 async function validateInput(input, keyToCompare) {
@@ -208,16 +211,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // Popup ou Modal de confirmation Demande Diag. Pneu  avec chargement
 
-document.addEventListener("DOMContentLoaded", function () {
-  const form = document.getElementById("diagnostic-pneu-form");
-  if (!form) return;
-
-  form.addEventListener("submit", function (e) {
-    e.preventDefault();
-    confirmation(form);
-  });
-});
-
 function confirmation(form) {
   const submitBtn =
     document.getElementById("bouton-diagnostic-pneu") ||
@@ -247,3 +240,106 @@ function confirmation(form) {
     }
   });
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("diagnostic-pneu-form");
+
+  if (!form) {
+    return;
+  }
+
+  const motifsContainer = document.getElementById("motifs-container");
+  const motifsError = document.getElementById("motifs-error");
+
+  /**
+   * Validation des motifs
+   */
+  function validateMotifs() {
+    if (!motifsContainer) {
+      return true;
+    }
+
+    const motifs = motifsContainer.querySelectorAll('input[type="checkbox"]');
+
+    const hasMotif = Array.from(motifs).some((motif) => motif.checked);
+
+    if (!hasMotif) {
+      if (motifsError) {
+        motifsError.style.display = "block";
+      }
+
+      motifsContainer.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+
+      return false;
+    }
+
+    if (motifsError) {
+      motifsError.style.display = "none";
+    }
+
+    return true;
+  }
+
+  /**
+   * Validation immédiate des motifs
+   */
+  if (motifsContainer) {
+    const motifs = motifsContainer.querySelectorAll('input[type="checkbox"]');
+
+    motifs.forEach((motif) => {
+      motif.addEventListener("change", validateMotifs);
+    });
+  }
+
+  /**
+   * Soumission du formulaire
+   */
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    // ==========================================
+    // 1. Vérification des motifs
+    // ==========================================
+    if (!validateMotifs()) {
+      return;
+    }
+
+    // ==========================================
+    // 2. Validation HTML5
+    // ==========================================
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+    // ==========================================
+    // 3. Seulement maintenant → Swal
+    // ==========================================
+    const submitBtn =
+      document.getElementById("bouton-diagnostic-pneu") ||
+      form.querySelector('button[type="submit"]');
+
+    Swal.fire({
+      title: "Confirmation",
+      text: "Voulez-vous vraiment créer cette demande de diagnostic ?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Oui",
+      cancelButtonText: "Annuler",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        if (submitBtn) {
+          displayOverlay(true, "Création de la demande en cours...");
+
+          submitBtn.disabled = true;
+        }
+
+        // Soumission réelle sans repasser par l'event listener
+        form.submit();
+      }
+    });
+  });
+});

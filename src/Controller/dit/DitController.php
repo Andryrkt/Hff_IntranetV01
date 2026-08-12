@@ -10,7 +10,9 @@ use App\Controller\Traits\PdfConversionTrait;
 use App\Dto\Dit\DemandeInterventionDto;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Application;
+use App\Entity\admin\dit\CategorieAteApp;
 use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Entity\admin\dit\WorTypeDocument;
 use App\Entity\admin\Service;
 use App\Entity\admin\StatutDemande;
 use App\Entity\ddd\DemandeDiagnosticPneu;
@@ -77,8 +79,6 @@ class DitController extends Controller
             ->setIdNiveauUrgence($this->getEntityManager()->getRepository(WorNiveauUrgence::class)->find(1))
             ->setCodeSociete($codeSociete)
         ;
-
-
         /**
          * Création DIT depuis diagnostic pneu
          */
@@ -90,8 +90,6 @@ class DitController extends Controller
                 ->findOneBy([
                     'numeroDemande' => $numeroDemandePneu
                 ]);
-
-
             if ($demandePneu) {
 
                 // ==========================
@@ -101,10 +99,6 @@ class DitController extends Controller
                 $demandeIntervention
                     ->setIdMateriel($demandePneu->getIdMateriel())
                     ->setNumParc($demandePneu->getNumeroParcMateriel());
-
-
-
-
                 // ==========================
                 // Diagnostic des pneus
                 // ==========================
@@ -120,14 +114,14 @@ class DitController extends Controller
                         $pneu->getObservationAtelier() ?? '-'
                     );
                 }
-
-                $detailDemande = implode(PHP_EOL, $observationPneus);
-                $detailDemande = "Diagnostic des pneus :" . PHP_EOL;
+                $observationGlobal = trim($demandePneu->getObservationGlobalAtelier() ?? '');
+                $detailDemande = $observationGlobal . PHP_EOL;
                 $detailDemande .= implode(PHP_EOL, $observationPneus);
 
                 $demandeIntervention->setDetailDemande($detailDemande);
                 $demandeIntervention->setObjetDemande(
-                    "Demande d'intervention – Suite au diagnostic des pneumatiques"
+                    "Demande d'intervention - Suite au diagnostic PNE - "
+                        . $demandePneu->getNumeroDemande()
                 );
                 $demandeIntervention->setReparationRealise("ATE POL TANA");
 
@@ -143,9 +137,20 @@ class DitController extends Controller
                         'codeAgence' => '50',
                         'codeSociete' => $codeSociete
                     ]);
+                $categorieDemandeDefault = $this->getEntityManager()
+                    ->getRepository(CategorieAteApp::class)
+                    ->find(CategorieAteApp::REPARATION);
+                $typeDocumentDemandeDefault = $this->getEntityManager()
+                    ->getRepository(WorTypeDocument::class)
+                    ->find(WorTypeDocument::MAINTENANCE_CURATIVE);
+
+
 
                 $demandeIntervention->setAgence($agenceDefault);
                 $demandeIntervention->setService($serviceDefault);
+
+                $demandeIntervention->setCategorieDemande($categorieDemandeDefault);
+                $demandeIntervention->setTypeDocument($typeDocumentDemandeDefault);
             }
         }
 

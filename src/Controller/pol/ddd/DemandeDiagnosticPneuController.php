@@ -132,10 +132,10 @@ class DemandeDiagnosticPneuController extends Controller
             $em->commit();
 
 
-            // Historique (à décommenter après validation)
-            $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $demande->getNumeroDemande(), 'demande_diagnostic_pneu_liste', true);
             // Envoye mail au responsable atelier
             $this->envoyerMailAtelier($demande);
+            // Historique (à décommenter après validation)
+            $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $demande->getNumeroDemande(), 'demande_diagnostic_pneu_liste', true);
         } catch (\Exception $e) {
             $em->rollback();
             $this->historiqueOperation->sendNotificationCreation($e->getMessage(), '-', 'demande_diagnostic_pneu_liste');
@@ -188,7 +188,7 @@ class DemandeDiagnosticPneuController extends Controller
     /**
      * Envoie un email à l'atelier pour signaler une nouvelle demande.
      */
-    private function envoyerMailAtelier(DemandeDiagnosticPneu $demande): void
+    public function envoyerMailAtelier(DemandeDiagnosticPneu $demande): void
     {
         $destinataire = $_ENV['MAIL_TO_ATELIER'];
         $service = 'Atelier Pneu';
