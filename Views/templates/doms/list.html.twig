@@ -9,12 +9,14 @@
 {% endblock %}
 
 {% block content %}
-	<div class="container mt-6">
-		{% include "/doms/shared/_formulaireRecherche.html.twig" %}
-		{% include "/doms/shared/_pagination.html.twig" %}
+	<div class="sticky-header-titre">
+		<div class="container">
+			{% include "/doms/shared/_formulaireRecherche.html.twig" %}
+			{% include "/doms/shared/_pagination.html.twig" %}
+		</div>
 	</div>
 	<div class="container-fluid">
-		<table class="table align-middle">
+		<table class="table table-sticky align-middle">
 			<thead class="table-dark align-middle">
 				<tr>
 					<th>
@@ -75,11 +77,9 @@
 			</tbody>
 		</table>
 	</div>
-	<!-- FIN tableau -->
-
-
 {% endblock %}
 
 {% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2026.07.03.14.50"></script>
 	<script src="{{ App.base_path }}/Views/js/badm/listBadm.js?v=2026.07.03.14.50" type="module"></script>
 {% endblock %}
