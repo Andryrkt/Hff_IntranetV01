@@ -65,6 +65,7 @@ CREATE TABLE
     diagnostic_pneu (
         id BIGINT IDENTITY (1, 1) PRIMARY KEY,
         id_demande BIGINT NOT NULL,
+        numero_demande VARCHAR(12) NULL,
         numero_ligne SMALLINT NOT NULL CHECK (numero_ligne BETWEEN 1 AND 10),
         ns_pneu VARCHAR(50) NOT NULL,
         cote_dim VARCHAR(30) NOT NULL,
