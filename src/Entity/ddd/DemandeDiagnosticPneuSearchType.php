@@ -22,7 +22,7 @@ class DemandeDiagnosticPneuSearchType extends AbstractType
 
         $builder
             ->add('numeroDemande', TextType::class, [
-                'label' => 'N° Demande',
+                'label' => 'N° DDD',
                 'required' => false,
             ])
             ->add('demandeur', TextType::class, [
@@ -62,7 +62,7 @@ class DemandeDiagnosticPneuSearchType extends AbstractType
                 'required' => false,
             ])
             ->add('numeroParcMateriel', TextType::class, [
-                'label' => 'N° Parc matériel',
+                'label' => 'Matériel',
                 'required' => false,
             ])
             ->add('numeroDit', TextType::class, [

@@ -19,11 +19,13 @@ class DemandeDiagnosticPneu
 {
 
     public const STATUT_A_TRAITER_ATELIER = 'a traiter atelier';
+    public const STATUT_DIAG_EN_COURS   = 'diag en cours';
     public const STATUT_TRAITEE_ATELIER   = 'traitee atelier';
     public const STATUT_CLOTUREE          = 'cloturee';
 
     public const STATUTS = [
         'À traiter atelier' => self::STATUT_A_TRAITER_ATELIER,
+        'Diag en cours'   => self::STATUT_DIAG_EN_COURS,
         'Traitée atelier'   => self::STATUT_TRAITEE_ATELIER,
         'Clôturée'          => self::STATUT_CLOTUREE,
     ];
@@ -106,6 +108,11 @@ class DemandeDiagnosticPneu
      * @ORM\Column(type="text", nullable=true)
      */
     private ?string $observation = null;
+
+    /**
+     * @ORM\Column(type="text", nullable=true , name ="observation_global_atelier")
+     */
+    private ?string $observationGlobalAtelier = null;
 
     /**
      * @ORM\Column(type="string", length=100)
@@ -294,6 +301,16 @@ class DemandeDiagnosticPneu
     public function setObservation(?string $observation): self
     {
         $this->observation = $observation;
+        return $this;
+    }
+    public function getObservationGlobalAtelier(): ?string
+    {
+        return $this->observationGlobalAtelier;
+    }
+
+    public function setObservationGlobalAtelier(?string $observationGlobalAtelier): self
+    {
+        $this->observationGlobalAtelier = $observationGlobalAtelier;
         return $this;
     }
 

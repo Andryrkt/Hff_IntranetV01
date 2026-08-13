@@ -1,0 +1,8 @@
+<div class="status-list">
+    {% for statut, count in statusCounts %}
+        <span class="status-badge {{ statut | lower  }}">
+            <span class="count">{{ statut | upper  }}</span>
+            <span class="label">{{ count }}</span>
+        </span>
+    {% endfor %}
+</div>

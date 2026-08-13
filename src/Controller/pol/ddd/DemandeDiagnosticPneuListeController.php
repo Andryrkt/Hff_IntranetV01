@@ -69,12 +69,12 @@ class DemandeDiagnosticPneuListeController extends Controller
         );
         // Historique de visite
         $this->logUserVisit('demande_diagnostic_pneu_liste');
-
         return $this->render('pol/ddd/list.html.twig', [
             'data' => $paginationData['data'],
             'currentPage' => $paginationData['currentPage'],
             'totalPages' => $paginationData['lastPage'],
             'totalItems' => $paginationData['totalItems'],
+            'statusCounts' => $paginationData['statusCounts'],
             'criteria' => $criteria,
             'form' => $form->createView(),
         ]);

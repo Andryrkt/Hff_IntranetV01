@@ -115,7 +115,6 @@ class DemandeDiagnosticPneuController extends Controller
     {
         $em = $this->getEntityManager();
         $em->beginTransaction();
-
         try {
             // Génération du numéro de demande
             $numero = $this->demandeDiagnosticPneuModel->genererNumeroDemande($em);
@@ -125,8 +124,8 @@ class DemandeDiagnosticPneuController extends Controller
             foreach ($demande->getDiagnosticPneus() as $pneu) {
                 $pneu->setNumeroLigne($ligne++);
                 $pneu->setDemande($demande);
+                $pneu->setNumeroDemande($numero);
             }
-
             $em->persist($demande);
             $em->flush();
             $em->commit();
@@ -187,7 +186,7 @@ class DemandeDiagnosticPneuController extends Controller
     /**
      * Envoie un email à l'atelier pour signaler une nouvelle demande.
      */
-    private function envoyerMailAtelier(DemandeDiagnosticPneu $demande): void
+    public function envoyerMailAtelier(DemandeDiagnosticPneu $demande): void
     {
         $destinataire = $_ENV['MAIL_TO_ATELIER'];
         $service = 'Atelier Pneu';
@@ -201,7 +200,7 @@ class DemandeDiagnosticPneuController extends Controller
         $urlIntranet = $this->urlGenerique($basePath);
 
         $header = sprintf(
-            '%s - DEMANDE DIAGNOSTIC PNEU : <span class="commente">NOUVELLE DEMANDE</span>',
+            '%s - DEMANDE DIAGNOSTIC PNEU : NOUVELLE DEMANDE',
             $demande->getNumeroDemande()
         );
 
@@ -209,8 +208,10 @@ class DemandeDiagnosticPneuController extends Controller
         $variables = [
             'subject'        => $header,
             'header'         => $header,
+            'message' => 'Une nouvelle demande de diagnostic pneu a été créée.',
             'nomDemandeur'   => $demande->getDemandeur(),
             'numeroDemande'  => $demande->getNumeroDemande(),
+            'statut'        => $demande->getStatut(),
             'urlDetail'      => $urlDetail,
             'urlIntranet'    => $urlIntranet,
             'service'        => $service,
@@ -222,7 +223,6 @@ class DemandeDiagnosticPneuController extends Controller
             'to'          => $destinataire,
             'cc'          => [$_ENV['MAIL_CC_ATELIER']],
             'variables'   => $variables,
-
         ]);
     }
 
