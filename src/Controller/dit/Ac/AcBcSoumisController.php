@@ -293,7 +293,7 @@ class AcBcSoumisController extends Controller
      * donc il faut soustraire du montant forfait s'il existe
      *
      * @param array $devis
-     * @return void
+     * @return float
      */
     private function calculMontantDevis(array $devis, string $codeSociete): float
     {
@@ -324,7 +324,7 @@ class AcBcSoumisController extends Controller
      * @param string $numDevis
      * @return boolean
      */
-    public function estCeVente(string $numDevis, $codeSociete): bool
+    public function estCeVente(string $numDevis, string $codeSociete): bool
     {
         $recupConstRefPremDev = $this->ditDevisSoumisAValidationModel->recupConstRefPremDev($numDevis, $codeSociete);
         $recupNbrItvDev = $this->ditDevisSoumisAValidationModel->recupNbrItvDev($numDevis, $codeSociete);
