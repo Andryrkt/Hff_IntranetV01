@@ -142,7 +142,7 @@
 
                 {{ macroForm.sousTitre('Pneu(s) à diagnostiquer', {class:'sousTitre'}) }}
 
-                {{ form_start(form) }}
+                {{ form_start(form ,{ 'attr': { 'id': 'diagnosticForm' } }) }}
 
                 <div class="table-responsive mt-2">
                     <table class="table table-bordered ">
@@ -185,14 +185,15 @@
                 {# Inside the form, after the fields #}
                 <div class="d-flex justify-content-end gap-2 mt-4">
                     {% if not isReadOnly and isAllowed %}
-                        <button type="submit" class="btn btn-primary" name="action" value="enregistrer" id="bouton-enregistrer-diagnostic-pneu">
+                        <button type="submit" class="btn btn-primary" name="enregistrer"  id="bouton-enregistrer-diagnostic-pneu">
                             <i class="fas fa-save"></i>
                             ENREGISTRER
                         </button>
-                        <button type="submit" class="btn btn-success" name="action" value="valider" id="bouton-valider-diagnostic-pneu">
+                        <button type="submit" class="btn btn-success" name="valider" id="bouton-valider-diagnostic-pneu">
                             <i class="fas fa-check"></i>
                             VALIDER
                         </button>
+
                     {% endif %}
 
                 </div>
