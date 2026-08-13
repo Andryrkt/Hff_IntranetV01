@@ -55,7 +55,6 @@ class DemandeDiagnosticPneuDetailController extends Controller
 
         $isReadOnly = !$isAllowed
             || !in_array($demande->getStatut(), [
-                'traitee atelier',
                 'a traiter atelier',
                 'diag en cours',
             ], true);
@@ -90,11 +89,17 @@ class DemandeDiagnosticPneuDetailController extends Controller
 
         $form->handleRequest($request);
 
-        $allFilled = false;
-        // After $form->handleRequest($request) and before $form->isValid() check
+        $allFilled = true;
+        foreach ($demande->getDiagnosticPneus() as $pneu) {
+            if (!$pneu->getDiagnostic()) {
+                $allFilled = false;
+                break;
+            }
+        }
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
+            $action =  $request->request->get("action");
             // Always persist the diagnostic pneus
             foreach ($data['diagnosticPneus'] as $pneu) {
                 $em->persist($pneu);
@@ -107,19 +112,12 @@ class DemandeDiagnosticPneuDetailController extends Controller
             $demande->setStatut('diag en cours');
 
             // Check if all diagnostics are filled
-            $allFilled = true;
-            foreach ($data['diagnosticPneus'] as $pneu) {
-                if (!$pneu->getDiagnostic()) {
-                    $allFilled = false;
-                    break;
-                }
-            }
 
-            if ($allFilled) {
+
+            if ($action == "valider") {
                 $demande->setStatut('traitee atelier');
                 $this->envoyerMailAtelier($demande);
             } else {
-                // Optionally add a flash message and keep as "diag en cours"
                 $demande->setStatut('diag en cours');
             }
 
@@ -130,7 +128,7 @@ class DemandeDiagnosticPneuDetailController extends Controller
                 'numeroDemande' => $numeroDemande
             ]);
         }
-
+        dump($allFilled);
         return $this->render('pol/ddd/detail.html.twig', [
             'demande' => $demande,
             'form' => $form->createView(),

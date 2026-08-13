@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const actionConfig = actionsConfig[action];
 
-    if (!config) {
+    if (!actionConfig) {
       return;
     }
 
@@ -78,7 +78,9 @@ document.addEventListener("DOMContentLoaded", function () {
   buttonCloture.addEventListener("click", function (e) {
     e.preventDefault();
     const actionConfig = actionsConfig["cloture"];
-
+    if (!actionConfig) {
+      return;
+    }
     const url = this.href;
 
     Swal.fire(actionConfig.config).then((result) => {

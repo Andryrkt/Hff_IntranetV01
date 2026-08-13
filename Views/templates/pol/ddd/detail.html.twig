@@ -189,10 +189,12 @@
                             <i class="fas fa-save"></i>
                             ENREGISTRER
                         </button>
-                        <button type="submit" class="btn btn-success" name="valider" id="bouton-valider-diagnostic-pneu">
-                            <i class="fas fa-check"></i>
-                            VALIDER
-                        </button>
+                        {% if allFilled  %}
+                            <button type="submit" class="btn btn-success" name="valider" id="bouton-valider-diagnostic-pneu">
+                                <i class="fas fa-check"></i>
+                                VALIDER
+                            </button>
+                        {% endif %}
 
                     {% endif %}
 
