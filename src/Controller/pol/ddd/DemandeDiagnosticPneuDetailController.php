@@ -128,7 +128,6 @@ class DemandeDiagnosticPneuDetailController extends Controller
                 'numeroDemande' => $numeroDemande
             ]);
         }
-        dump($allFilled);
         return $this->render('pol/ddd/detail.html.twig', [
             'demande' => $demande,
             'form' => $form->createView(),

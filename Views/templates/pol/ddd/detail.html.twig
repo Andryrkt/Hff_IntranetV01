@@ -7,6 +7,8 @@
 {% block stylesheets %}
     {# On reprend le style de new pour la cohérence #}
     <link href="{{ App.base_path }}/Views/css/new.css?v=2026.07.03.14.50" rel="stylesheet"/>
+    <link rel="stylesheet" href="{{ App.base_path }}/Views/css/ddd/liste.css?v=2026.07.03.14.50">
+
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
@@ -15,13 +17,18 @@
     <div class="container mt-6 mb-4">
         <div class="card shadow">
             <div class="card-body">
-
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h3 class=" mb-0">
                         Détail de la demande : <span class="fs-6 fw-bold">{{ demande.numeroDemande }}</span>
                     </h3>
                     <div>
-                        <span class="badge bg-{{ demande.statut == 'cloturee' ? 'success' : 'warning' }} fs-5 p-2">
+                        {% set statusColors = {
+                            'a traiter atelier': 'bg-danger text-white',
+                            'traitee atelier':   'bg-orange text-white',
+                            'diag en cours':     'bg-warning text-dark',
+                            'cloturee':          'bg-success text-white'
+                        } %}
+                        <span class="badge {{ statusColors[demande.statut]|default('bg-secondary') }} fs-5 p-2">
                             {{ demande.statut|replace({'_': ' '})|upper }}
                         </span>
                     </div>

@@ -115,7 +115,6 @@ class DemandeDiagnosticPneuController extends Controller
     {
         $em = $this->getEntityManager();
         $em->beginTransaction();
-
         try {
             // Génération du numéro de demande
             $numero = $this->demandeDiagnosticPneuModel->genererNumeroDemande($em);
@@ -125,8 +124,8 @@ class DemandeDiagnosticPneuController extends Controller
             foreach ($demande->getDiagnosticPneus() as $pneu) {
                 $pneu->setNumeroLigne($ligne++);
                 $pneu->setDemande($demande);
+                $pneu->setNumeroDemande($numero);
             }
-
             $em->persist($demande);
             $em->flush();
             $em->commit();
