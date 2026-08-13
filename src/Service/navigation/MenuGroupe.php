@@ -167,6 +167,13 @@ class MenuGroupe
                     ['label' => 'Consultation',     'icon' => 'search',      'route' => 'listeTemporaire_affichageListeCasier'],
                 ],
             ],
+            [
+                'label'    => 'Dashboard',
+                'icon'     => 'gauge-high',
+                'subitems' => [
+                    ['label' => 'Alertes matériel de location', 'icon' => 'bell', 'route' => 'alerte_materiel_location'],
+                ],
+            ],
         ];
     }
 
@@ -359,6 +366,23 @@ class MenuGroupe
                 'label' => 'Demande de diagnostic',
                 'icon'  => 'plus-circle',
             ],
+            [
+                'label'    => 'DIAGNOSTIC PNEU',
+                'icon'     => 'list-ul',
+                'subitems' => [
+                    [
+                        'route' => 'nouveau_demande_diagnostic_pneu',
+                        'label' => 'Demande de diagnostic pneu',
+                        'icon'  => 'plus-circle',
+                    ],
+                    [
+                        'route' => 'demande_diagnostic_pneu_liste',
+                        'label' => 'Liste des demandes de diagnostic pneu',
+                        'icon'  => 'list-ul',
+                    ],
+                ],
+            ],
+
             [
                 'label' => 'Pneumatiques',
                 'icon'  => 'ring',

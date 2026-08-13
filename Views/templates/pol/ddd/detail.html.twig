@@ -1,0 +1,280 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+    Détail de la demande {{ demande.numeroDemande }}
+{% endblock %}
+
+{% block stylesheets %}
+    <link href="{{ App.base_path }}/Views/css/detail.css?v=2026.07.03.14.50" rel="stylesheet"/>
+    {# On reprend le style de new pour la cohérence #}
+    <link href="{{ App.base_path }}/Views/css/new.css?v=2026.07.03.14.50" rel="stylesheet"/>
+{% endblock %}
+
+{% import "macroForm.html.twig" as macroForm %}
+
+{% block content %}
+    <div class="container mt-6 mb-4">
+        <div class="card shadow">
+            <div class="card-body">
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class=" mb-0">
+                        Détail de la demande : <span class="fs-6 fw-bold">{{ demande.numeroDemande }}</span>
+                    </h3>
+                    <div>
+                        <span class="badge bg-{{ demande.statut == 'cloturee' ? 'success' : 'warning' }} fs-5 p-2">
+                            {{ demande.statut|replace({'_': ' '})|capitalize }}
+                        </span>
+                    </div>
+                </div>
+                {% include "/partials/_notification.html.twig" %}
+
+                {# ========================= #}
+                {# Informations générales    #}
+                {# ========================= #}
+
+                {{ macroForm.sousTitre('Informations générales', {class:'sousTitre'}) }}
+
+                <div class="row">
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Livraison</label>
+                        <p class="form-control-plaintext">{{ demande.livraison ?: '-' }}</p>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Chantier</label>
+                        <p class="form-control-plaintext">{{ demande.chantier ? demande.chantier.nomChantier : '-' }}</p>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Date départ chantier</label>
+                        <p class="form-control-plaintext">{{ demande.dateDepartChantier ? demande.dateDepartChantier|date('d/m/Y') : '-' }}</p>
+                    </div>
+                </div>
+
+                {# ========================= #}
+                {# Matériel                  #}
+                {# ========================= #}
+
+                {{ macroForm.sousTitre('Information matériel', {class:'sousTitre'}) }}
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Id Matériel</label>
+                        <p class="form-control-plaintext">{{ demande.idMateriel ?: '-' }}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">N° Parc</label>
+                        <p class="form-control-plaintext">{{ demande.numeroParcMateriel ?: '-' }}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Marque</label>
+                        <p class="form-control-plaintext">{{ demande.marqueMateriel ?: '-' }}</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Type</label>
+                        <p class="form-control-plaintext">{{ demande.typeMateriel ?: '-' }}</p>
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label fw-bold">Désignation</label>
+                        <p class="form-control-plaintext">{{ demande.designationMateriel ?: '-' }}</p>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Numero DIT</label>
+                        <p class="form-control-plaintext">{{ demande.numeroDit ?: '-' }}</p>
+
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label fw-bold">Numero OR</label>
+                        <p class="form-control-plaintext">{{ demande.numeroOR ?: '-' }}</p>
+                    </div>
+
+                </div>
+
+                {# ========================= #}
+                {# Pneus                    #}
+                {# ========================= #}
+
+                {{ macroForm.sousTitre('Informations pneus', {class:'sousTitre'}) }}
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Nombre pneu sur machine</label>
+                        <p class="form-control-plaintext">{{ demande.nbPneuSurMachine }}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Nombre pneu secours</label>
+                        <p class="form-control-plaintext">{{ demande.nbPneuSecours }}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Nombre pneu à diagnostiquer</label>
+                        <p class="form-control-plaintext">{{ demande.nbPneuADiagnostiquer }}</p>
+                    </div>
+                </div>
+                {# ========================= #}
+                {# Motifs généraux           #}
+                {# ========================= #}
+
+                {{ macroForm.sousTitre('Motifs généraux', {class:'sousTitre'}) }}
+                <div class="row mt-2">
+                    <div class="col-12">
+                        {% if demande.motifs %}
+                            {% for motif in demande.motifs %}
+                                <span class="fw-bold">{{ motif }}</span>
+                                {% if not loop.last %}
+                                    <span class="text-muted mx-1">|</span>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <div class="mt-2">
+                                <p class="text-muted mb-0">Aucun motif renseigné.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {# ========================= #}
+                {# Diagnostic pneus modifiable #}
+                {# ========================= #}
+
+                {{ macroForm.sousTitre('Diagnostic des pneus (atelier)', {class:'sousTitre'}) }}
+
+                {{ form_start(form) }}
+
+                <div class="table-responsive mt-2">
+                    <table class="table table-bordered ">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>N/S pneu</th>
+                                <th>Cote / dim</th>
+                                <th>Position sur machine</th>
+                                <th>Motif chantier</th>
+                                <th>Diagnostic atelier</th>
+                                <th>Observation atelier</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pneu in demande.diagnosticPneus %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ pneu.numeroSerie }}</td>
+                                    <td>{{ pneu.coteDim }}</td>
+                                    <td>{{ pneu.positionMachine|replace({'_': ' '})|capitalize }}</td>
+                                    <td>{{ pneu.motifChantier }}</td>
+                                    <td>{{ form_widget(form.diagnosticPneus[loop.index0].diagnostic, { attr: { class: 'form-select' } }) }}</td>
+                                    <td>{{ form_widget(form.diagnosticPneus[loop.index0].observationAtelier, { attr: { rows: 2, class: 'form-control' } }) }}</td>
+                                </tr>
+                            {% else %}
+                                <tr class="no-data"><td colspan="7">Aucun pneu enregistré.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {# ========================= #}
+                {# Boutons : Enregistrer #}
+                {# ========================= #}
+                {% if not isReadOnly %}
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary"  id="bouton-enregistrer-diagnostic-pneu">
+                            <i class="fas fa-save"></i> Enregistrer
+                        </button>
+                    </div>
+                {% endif %}
+
+                {{ form_end(form) }}
+
+
+                {# ========================= #}
+                {# Observation               #}
+                {# ========================= #}
+
+                {{ macroForm.sousTitre('Observation', {class:'sousTitre'}) }}
+                <div class="row">
+                    <div class="col-12">
+                        <p class="form-control-plaintext">{{ demande.observation ?: '-' }}</p>
+                    </div>
+                </div>
+
+                {# ========================= #}
+                {# Pieces jointes            #}
+                {# ========================= #}
+
+                {{ macroForm.sousTitre('Pièces jointes', {class:'sousTitre'}) }}
+                <div class="row mt-2">
+                    <div class="col-12">
+                        {% if demande.piecesJointes %}
+                            <div class="d-flex flex-wrap gap-2">
+                                {% for piece in demande.piecesJointes %}
+                                    {% set extension = piece|split('.')|last|lower %}
+                                    {% set iconClass = {
+                                        'pdf': 'fa-file-pdf text-danger',
+                                        'doc': 'fa-file-word text-primary',
+                                        'docx': 'fa-file-word text-primary',
+                                        'xls': 'fa-file-excel text-success',
+                                        'xlsx': 'fa-file-excel text-success',
+                                        'ppt': 'fa-file-powerpoint text-warning',
+                                        'pptx': 'fa-file-powerpoint text-warning',
+                                        'jpg': 'fa-file-image text-info',
+                                        'jpeg': 'fa-file-image text-info',
+                                        'png': 'fa-file-image text-info',
+                                        'gif': 'fa-file-image text-info',
+                                        'zip': 'fa-file-archive text-secondary',
+                                        'rar': 'fa-file-archive text-secondary',
+                                        'txt': 'fa-file-alt text-secondary',
+                                        'csv': 'fa-file-csv text-secondary',
+                                    }[extension] ?? 'fa-file text-secondary' %}
+
+                                    <div class="card shadow-sm" style="width: 180px;">
+                                        <div class="card-body p-2 d-flex align-items-center">
+                                            <i class="fas {{ iconClass }} fa-2x me-2"></i>
+                                            <div class="flex-grow-1 text-truncate" style="max-width: 100px;" title="{{ piece|split('/')|last }}">
+                                                {{ piece|split('/')|last|length > 15 ? piece|split('/')|last|slice(0, 15) ~ '…' : piece|split('/')|last }}
+                                            </div>
+                                            <a href="/Upload/ddd/{{ piece }}" target="_blank" class="btn btn-sm btn-outline-primary ms-1" title="Télécharger / ouvrir">
+                                                <i class="fas fa-download"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div >
+                                <p class="text-muted mb-0">Aucune pièce jointe.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <a href="{{ path('demande_diagnostic_pneu_liste') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Retour à la liste
+                    </a>
+                    {% if isAllowed and demande.statut == 'traitee atelier' %}
+                        <a href="{{ path('api_demande_diagnostic_pneu_cloturer', {numeroDemande: demande.numeroDemande}) }}"
+                            class="btn btn-success"
+                            id="bouton-cloturer-diagnostic-pneu">
+                            <i class="fas fa-check-circle"></i> Créer un DIT pour clôturer
+                        </a>
+                    {% endif %}
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block javascript %}
+
+    {# Only the external module remains – all inline JS is now in this file #}
+    <script
+    type="module"
+    src="{{ App.base_path }}/Views/js/ddd/demandeDiagnosticPneuDetail.js?v=2026.07.03.14.50">
+    </script>
+
+{% endblock %}

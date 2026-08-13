@@ -3,29 +3,32 @@
 namespace App\Controller\dit;
 
 
-use App\Model\dit\DitModel;
 use App\Controller\Controller;
-use App\Entity\admin\Application;
 use App\Controller\Traits\DitTrait;
-use App\Entity\admin\StatutDemande;
-use App\Dto\Dit\DemandeInterventionDto;
-use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\FormatageTrait;
-use App\Form\dit\demandeInterventionType;
-use App\Service\autres\AutoIncDecService;
-use Symfony\Component\Form\FormInterface;
-use App\Entity\admin\dit\WorNiveauUrgence;
-use App\Service\fichier\UploderFileService;
-use App\Service\fichier\TraitementDeFichier;
 use App\Controller\Traits\PdfConversionTrait;
-use App\Service\genererPdf\dit\GenererPdfDit;
-use Symfony\Component\HttpFoundation\Request;
+use App\Dto\Dit\DemandeInterventionDto;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Application;
+use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Entity\admin\Service;
+use App\Entity\admin\StatutDemande;
+use App\Entity\ddd\DemandeDiagnosticPneu;
+use App\Entity\dit\DemandeIntervention;
 use App\Factory\Dit\DemandeInterventionFactory;
+use App\Form\dit\demandeInterventionType;
+use App\Model\dit\DitModel;
 use App\Repository\dit\DitRepository;
+use App\Service\autres\AutoIncDecService;
 use App\Service\dit\fichier\DitNameFileService;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
+use App\Service\fichier\TraitementDeFichier;
+use App\Service\fichier\UploderFileService;
+use App\Service\genererPdf\dit\GenererPdfDit;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/atelier/demande-intervention")
@@ -50,15 +53,15 @@ class DitController extends Controller
         $this->demandeInterventionFactory = new DemandeInterventionFactory($this->getEntityManager(), $this->ditModel, $this->historiqueOperation);
         $this->demandeRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
     }
-
     /**
-     * @Route("/new", name="dit_new")
+     * @Route("/new/{numeroDemandePneu}", name="dit_new", defaults={"numeroDemandePneu"=null})
      *
      * @param Request $request
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @param string|null $numeroDemandePneu
      */
-    public function new(Request $request)
+    public function new(?string $numeroDemandePneu, Request $request)
     {
+
         $demandeIntervention = new DemandeIntervention();
 
         // Code Société de l'utilisateur
@@ -75,9 +78,89 @@ class DitController extends Controller
             ->setCodeSociete($codeSociete)
         ;
 
+
+        /**
+         * Création DIT depuis diagnostic pneu
+         */
+        $demandePneu = null;
+        if ($numeroDemandePneu) {
+
+            $demandePneu = $this->getEntityManager()
+                ->getRepository(DemandeDiagnosticPneu::class)
+                ->findOneBy([
+                    'numeroDemande' => $numeroDemandePneu
+                ]);
+
+
+            if ($demandePneu) {
+
+                // ==========================
+                // Informations matériel
+                // ==========================
+
+                $demandeIntervention
+                    ->setIdMateriel($demandePneu->getIdMateriel())
+                    ->setNumParc($demandePneu->getNumeroParcMateriel());
+
+
+
+
+                // ==========================
+                // Diagnostic des pneus
+                // ==========================
+
+                $observationPneus = [];
+
+                foreach ($demandePneu->getDiagnosticPneus() as $pneu) {
+                    $observationPneus[] = sprintf(
+                        "• N/S Pneu : %s / Position : %s / Diagnostic : %s / Observation : %s",
+                        $pneu->getNumeroSerie() ?? '-',
+                        $pneu->getPositionMachine() ?? '-',
+                        $pneu->getDiagnostic() ?? '-',
+                        $pneu->getObservationAtelier() ?? '-'
+                    );
+                }
+
+                $detailDemande = implode(PHP_EOL, $observationPneus);
+                $detailDemande = "Diagnostic des pneus :" . PHP_EOL;
+                $detailDemande .= implode(PHP_EOL, $observationPneus);
+
+                $demandeIntervention->setDetailDemande($detailDemande);
+                $demandeIntervention->setObjetDemande(
+                    "Demande d'intervention – Suite au diagnostic des pneumatiques"
+                );
+                $demandeIntervention->setReparationRealise("ATE POL TANA");
+
+                $chantier = $demandePneu->getChantier()->getCodeChantier();
+                $serviceDefault  = $this->getEntityManager()
+                    ->getRepository(Service::class)
+                    ->findOneBy([
+                        'codeService' => $chantier
+                    ]);
+                $agenceDefault = $this->getEntityManager()
+                    ->getRepository(Agence::class)
+                    ->findOneBy([
+                        'codeAgence' => '50',
+                        'codeSociete' => $codeSociete
+                    ]);
+
+                $demandeIntervention->setAgence($agenceDefault);
+                $demandeIntervention->setService($serviceDefault);
+            }
+        }
+
         //AFFICHAGE ET TRAITEMENT DU FORMULAIRE
-        $form = $this->getFormFactory()->createBuilder(demandeInterventionType::class, $demandeIntervention)->getForm();
-        $this->traitementFormulaire($form, $request);
+        $form = $this->getFormFactory()
+            ->createBuilder(
+                demandeInterventionType::class,
+                $demandeIntervention,
+                [
+                    'demandePneu' => $demandePneu
+                ]
+            )
+            ->getForm();
+
+        $this->traitementFormulaire($form, $request,  $demandePneu);
 
         $this->logUserVisit('dit_new'); // historisation du page visité par l'utilisateur
 
@@ -86,7 +169,7 @@ class DitController extends Controller
         ]);
     }
 
-    private function traitementFormulaire($form, Request $request)
+    private function traitementFormulaire($form, Request $request,  ?DemandeDiagnosticPneu $demandePneu = null)
     {
         $form->handleRequest($request);
 
@@ -143,6 +226,8 @@ class DitController extends Controller
 
                 // 5.enregistrement du numero demande d'intervention et Modifie la colonne dernière_id dans la table applications
                 $demandeIntervention->setNumeroDemandeIntervention($numeroDemandeIntervention);
+                $demandeIntervention->setInternetExterne("INTERNE");
+
                 AutoIncDecService::mettreAJourDerniereIdApplication($application, $em, $numeroDemandeIntervention);
 
                 /** 6. Traitement des fichiers (PDF, pièces jointes) @var array $nomFichierEnregistrer @var string $nomFichier  */
@@ -159,8 +244,18 @@ class DitController extends Controller
                 $this->modificationBdPourHitorisationDw($em, $demandeIntervention, $reponse);
             }
 
-            // 10. enregistrement dans l'historisation de la sucès de la demande
-            $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $demandeInterventions[0]->getNumeroDemandeIntervention(), 'dit_index', true);
+            // 10. Recuperation du numero du premier DIT creer
+            $numeroDitCree = $demandeInterventions[0]->getNumeroDemandeIntervention();
+
+            // 11. Modification du statut de Demande Diagnostic Pneu
+            if ($demandePneu) {
+                $demandePneu->setStatut('cloturee');
+                $demandePneu->setNumeroDit($numeroDitCree);
+                $em->persist($demandePneu);
+                $em->flush();
+            }
+            // 12. enregistrement dans l'historisation de la sucès de la demande
+            $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $numeroDitCree, 'dit_index', true);
         }
     }
 

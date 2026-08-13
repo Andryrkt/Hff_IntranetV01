@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{{ subject }}</title>
+        <link rel="stylesheet" href="css/ddd/mail.css">
+    </head>
+    <body>
+        <div class="email-container">
+            <div class="email-header">{{ header|raw }}</div>
+            <div class="email-body">
+                <p>Bonjour,</p>
+
+                <p>
+                    Une nouvelle demande de diagnostic pneu a été reçue et vous est destinée.
+                </p>
+
+                <p>
+                    <strong>Demandeur :</strong> {{ nomDemandeur }}<br>
+                    <strong>Numéro de demande :</strong> {{ numeroDemande }}<br>
+                </p>
+
+                <p>
+                    Pour consulter l’ensemble des informations et prendre en charge cette demande,
+                    veuillez cliquer sur le bouton ci-dessous :
+                </p>
+
+                <p style="text-align: center;">
+                    <a href="{{ urlDetail }}" class="button">Voir la demande</a>
+                </p>
+
+                <p style="font-size: 0.9em; color: #666;">
+                    <span class="fw-bold">NB :</span> Assurez-vous d’être connecté à
+                    <a href="{{ urlIntranet }}">Hffintranet</a> avant de cliquer sur le bouton.
+                </p>
+
+                <p class="fw-bold">Cordialement,</p>
+            </div>
+            <div class="email-footer">
+                Service {{ service }} - Henri Fraise Fis & Cie<br>
+                &copy; {{ dateYear }} Henri Fraise Fis & Cie.
+            </div>
+        </div>
+    </body>
+</html>
