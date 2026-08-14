@@ -27,7 +27,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class DemandeDiagnosticPneuType extends AbstractType
 {
-  
+
     const LIVRAISON = [
         'MACHINE' => 'MACHINE',
         'PNEU' => 'PNEU'
@@ -227,7 +227,20 @@ class DemandeDiagnosticPneuType extends AbstractType
                 'by_reference' => false,
                 'label' => 'Diagnostic des pneus',
                 'prototype' => true,   // enables JavaScript dynamic adding
-            ]);
+            ])
+            ->add(
+                'observationGlobalAtelier',
+                TextareaType::class,
+                [
+                    'label' => 'Observation global atelier',
+                    'required' => false,
+                    'attr' => [
+                        'rows' => 5,
+                        'class' => 'observation global atelier'
+                    ],
+
+                ]
+            );
     }
 
     public function validateFiles($files, ExecutionContextInterface $context)

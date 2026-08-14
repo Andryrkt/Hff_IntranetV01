@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <title>{{ subject }}</title>
-        <link rel="stylesheet" href="css/ddd/mail.css">
+        <style>{{include('pol/ddd/email/shared/css/style.css')}}</style>
     </head>
     <body>
         <div class="email-container">
@@ -12,12 +12,14 @@
                 <p>Bonjour,</p>
 
                 <p>
-                    Une nouvelle demande de diagnostic pneu a été reçue et vous est destinée.
+                    {{ message }}
                 </p>
 
                 <p>
                     <strong>Demandeur :</strong> {{ nomDemandeur }}<br>
                     <strong>Numéro de demande :</strong> {{ numeroDemande }}<br>
+                    <strong>État d'avancement :</strong>
+                    {{ statut|replace({'_': ' '})|upper }}
                 </p>
 
                 <p>

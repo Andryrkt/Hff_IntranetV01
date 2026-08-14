@@ -361,11 +361,7 @@ class MenuGroupe
                 'label' => 'Devis negoce pol',
                 'icon'  => 'list-ul',
             ],
-            [
-                'route' => 'nouveau_demande_diagnostic',
-                'label' => 'Demande de diagnostic',
-                'icon'  => 'plus-circle',
-            ],
+
             [
                 'label'    => 'DIAGNOSTIC PNEU',
                 'icon'     => 'list-ul',

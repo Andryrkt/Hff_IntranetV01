@@ -27,10 +27,16 @@ class DiagnosticPneu
     private ?DemandeDiagnosticPneu $demande = null;
 
     /**
+     * @ORM\Column(type="string", length=50, name="numero_demande")
+     */
+    private ?string $numeroDemande = null;
+
+    /**
      * @ORM\Column(type="smallint", name="numero_ligne")
      * @Assert\Range(min=1, max=10)
      */
     private ?int $numeroLigne = null;
+
 
     /**
      * @ORM\Column(type="string", length=50, name="ns_pneu")
@@ -171,5 +177,14 @@ class DiagnosticPneu
     {
         $this->dateDiagnostic = $dateDiagnostic;
         return $this;
+    }
+    public function setNumeroDemande(?string $numeroDemande): self
+    {
+        $this->numeroDemande = $numeroDemande;
+        return $this;
+    }
+    public function getNumeroDemande(): ?DateTime
+    {
+        return $this->numeroDemande;
     }
 }
