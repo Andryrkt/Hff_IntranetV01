@@ -8,13 +8,22 @@ use App\Dto\ddd\DemandeDiagnosticPneuDto;
 use App\Entity\ddd\DemandeDiagnosticPneu;
 use App\Form\pol\ddd\DiagnosticPneuDetailType;
 use App\Form\pol\ddd\DiagnosticPneuType;
+use App\Service\dit\fichier\DitNameFileService;
 use App\Service\EmailService;
+use App\Service\fichier\TraitementDeFichier;
+use App\Service\fichier\UploderFileService;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\Traits\PdfConversionTrait;
+
+use App\Service\genererPdf\pol\ddd\GenererPdfDdd;
+use App\Service\pol\ddd\fichier\DddNameFileService;
 
 /**
  * @Route("/pol/demande-diagnostic-pneu")
@@ -22,6 +31,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class DemandeDiagnosticPneuDetailController extends Controller
 {
     use lienGenerique;
+    use PdfConversionTrait;
     /**
      * @Route("/details/{numeroDemande}", name="demande_diagnostic_pneu_details")
      */
@@ -41,9 +51,6 @@ class DemandeDiagnosticPneuDetailController extends Controller
             $agenceService['agenceIps']->getCodeAgence(),
             $agenceService['serviceIps']->getCodeService(),
         ];
-
-
-
 
         $demande = $em->getRepository(DemandeDiagnosticPneu::class)->findOneBy(['numeroDemande' => $numeroDemande]);
         if (!$demande) {
@@ -89,6 +96,10 @@ class DemandeDiagnosticPneuDetailController extends Controller
 
         $form->handleRequest($request);
 
+
+        $genererPdfDit = new GenererPdfDdd();
+        [$nomFichierEnregistrer, $nomFichier]  = $this->traitementDeFichier($form, $demande, $genererPdfDit);
+        dump("Tonga eto");
         $allFilled = true;
         foreach ($demande->getDiagnosticPneus() as $pneu) {
             if (!$pneu->getDiagnostic()) {
@@ -96,6 +107,8 @@ class DemandeDiagnosticPneuDetailController extends Controller
                 break;
             }
         }
+
+
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
@@ -142,6 +155,7 @@ class DemandeDiagnosticPneuDetailController extends Controller
      */
     public function cloturer(string $numeroDemande): Response
     {
+
         return $this->redirectToRoute('dit_new', [
             'numeroDemandePneu' => $numeroDemande,
         ]);
@@ -201,5 +215,74 @@ class DemandeDiagnosticPneuDetailController extends Controller
         $emailService->getMailer()->setFrom($_ENV['MAIL_FROM_ADDRESS'], 'noreply.ddd');
 
         $emailService->sendEmail($content['to'], $content['cc'] ?? [], $emailTemplate, $content['variables'] ?? [], $content['attachments'] ?? []);
+    }
+
+
+    private function traitementDeFichier(
+        FormInterface $form,
+        DemandeDiagnosticPneu $demandeDiagnosticPneu,
+        GenererPdfDdd $genererPdfDdd
+    ): array {
+        // 1. Enregistrement des fichiers (pièces jointes)
+        [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier] =
+            $this->enregistrementFichier(
+                $form,
+                $demandeDiagnosticPneu->getNumeroDemande(),
+                'DDD', // ou un identifiant fixe pour éviter les caractères spéciaux
+            );
+
+        // 2. Génération du PDF principal (sans historique)
+        $genererPdfDdd->genererPdfDiagnosticPneu($demandeDiagnosticPneu, $nomAvecCheminFichier);
+
+        // 3. Fusion avec les pièces jointes uniquement s'il y en a
+        $traitementDeFichier = new TraitementDeFichier();
+        if (!empty($nomEtCheminFichiersEnregistrer)) {
+            // Insère la page de garde en première position
+            $nomEtCheminFichiersEnregistrer = $traitementDeFichier->insertFileAtPosition(
+                $nomEtCheminFichiersEnregistrer,
+                $nomAvecCheminFichier,
+                0
+            );
+
+            // Convertit les fichiers non-PDF en PDF
+            $nomEtCheminFichierConvertie = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
+
+            // Fusionne tous les PDF en un seul fichier final
+            $traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);
+        }
+
+        // 4. On retourne les noms des fichiers enregistrés (pour suivi)
+        return [$nomFichierEnregistrer, $nomFichier];
+    }
+
+    private function enregistrementFichier(
+        FormInterface $form,
+        string $numDemande,
+        string $identifiant,
+        bool $withSuffix = false // optionnel
+    ): array {
+        $nameGenerator = new DddNameFileService();
+        $cheminBaseUpload = $_ENV['BASE_PATH_FICHIER'] . '/ddd/';
+        $uploader = new UploderFileService($cheminBaseUpload, $nameGenerator);
+        $path = $cheminBaseUpload . $numDemande . '/';
+        if (!is_dir($path)) {
+            mkdir($path, 0777, true);
+        }
+
+        [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer] = $uploader->getFichiers($form, [
+            'repertoire' => $path,
+            'generer_nom_callback' => function (
+                UploadedFile $file,
+                int $index
+            ) use ($numDemande, $identifiant, $nameGenerator) {
+                return $nameGenerator->generateDddFileName($file, $numDemande, $identifiant, $index);
+            }
+        ]);
+
+        // Nom du fichier principal
+        $nomFichier = $nameGenerator->generateDddNamePrincipal($numDemande, $identifiant, $withSuffix);
+        $nomAvecCheminFichier = $path . $nomFichier;
+
+        return [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier];
     }
 }
