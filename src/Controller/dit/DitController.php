@@ -102,8 +102,10 @@ class DitController extends Controller
                 // ==========================
                 // Diagnostic des pneus
                 // ==========================
-                $observationPneus = [];
+                // --- 1. Construction du message complet ---
+                $message = "Bonjour,\n\nPour demande d'intervention selon diagnostic ci-après.\n\n";
 
+                $observationPneus = [];
                 foreach ($demandePneu->getDiagnosticPneus() as $pneu) {
                     $positionMachine = $pneu->getPositionMachine() ?? '-';
                     $positionMachine = ucwords(str_replace('_', ' ', $positionMachine));
@@ -116,11 +118,27 @@ class DitController extends Controller
                         $pneu->getObservationAtelier() ?? '-'
                     );
                 }
-                $observationGlobal = trim($demandePneu->getObservationGlobalAtelier() ?? '');
-                $detailDemande = $observationGlobal . PHP_EOL;
-                $detailDemande .= implode(PHP_EOL, $observationPneus);
 
+                // Ajout de la liste des pneus
+                if (!empty($observationPneus)) {
+                    $message .= implode("\n", $observationPneus) . "\n\n";
+                }
+
+                // --- 2. Ajout de l'observation globale et de la phrase d'attente ---
+                $observationGlobal = trim($demandePneu->getObservationGlobalAtelier() ?? '');
+                if ($observationGlobal !== '') {
+                    $message .=  $observationGlobal . "\n";
+                }
+
+                // --- 3. Assignation de $detailDemande (identique à $message) ---
+                // Si tu veux le même contenu, tu peux soit réutiliser $message, soit une copie
+                $detailDemande = $message;
+
+                // --- 4. Enregistrement dans l'entité ---
                 $demandeIntervention->setDetailDemande($detailDemande);
+
+
+
                 $demandeIntervention->setObjetDemande(
                     "Demande d'intervention - Suite au diagnostic PNE - "
                         . $demandePneu->getNumeroDemande()
