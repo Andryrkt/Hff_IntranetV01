@@ -49,7 +49,7 @@ class CdefnrSoumisAValidation
     private string $nomFichier;
 
     /**
-     * @ORM\Column(type="string", length=11, name="numero_da")
+     * ORM\Column(type="string", length=11, name="numero_da")
      */
     private string $numeroDa;
 
