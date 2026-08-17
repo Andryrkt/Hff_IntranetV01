@@ -91,7 +91,7 @@ class DemandeDiagnosticPneuType extends AbstractType
                     'label' => 'Nombre pneu sur machine *',
                     'choices' => array_combine(range(1, 12), range(1, 12)),
                     'placeholder' => 'Sélectionner',
-                    'required' => false,
+                    'required' => true,
                 ]
             )
 
@@ -102,7 +102,7 @@ class DemandeDiagnosticPneuType extends AbstractType
                     'label' => 'Nombre pneu secours *',
                     'choices' => array_combine(range(0, 12), range(0, 12)),
                     'placeholder' => 'Sélectionner',
-                    'required' => false,
+                    'required' => true,
                 ]
             )
 
@@ -113,7 +113,7 @@ class DemandeDiagnosticPneuType extends AbstractType
                     'label' => 'Nombre pneu à diagnostiquer *',
                     'choices' => array_combine(range(1, 10), range(1, 10)),
                     'placeholder' => 'Sélectionner',
-                    'required' => false,
+                    'required' => true,
                 ]
             )
 

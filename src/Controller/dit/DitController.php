@@ -102,14 +102,16 @@ class DitController extends Controller
                 // ==========================
                 // Diagnostic des pneus
                 // ==========================
-
                 $observationPneus = [];
 
                 foreach ($demandePneu->getDiagnosticPneus() as $pneu) {
+                    $positionMachine = $pneu->getPositionMachine() ?? '-';
+                    $positionMachine = ucwords(str_replace('_', ' ', $positionMachine));
+
                     $observationPneus[] = sprintf(
                         "• N/S Pneu : %s / Position : %s / Diagnostic : %s / Observation : %s",
                         $pneu->getNumeroSerie() ?? '-',
-                        $pneu->getPositionMachine() ?? '-',
+                        $positionMachine,
                         $pneu->getDiagnostic() ?? '-',
                         $pneu->getObservationAtelier() ?? '-'
                     );
@@ -143,8 +145,6 @@ class DitController extends Controller
                 $typeDocumentDemandeDefault = $this->getEntityManager()
                     ->getRepository(WorTypeDocument::class)
                     ->find(WorTypeDocument::MAINTENANCE_CURATIVE);
-
-
 
                 $demandeIntervention->setAgence($agenceDefault);
                 $demandeIntervention->setService($serviceDefault);
