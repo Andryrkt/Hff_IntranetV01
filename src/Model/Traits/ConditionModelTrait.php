@@ -148,18 +148,18 @@ trait ConditionModelTrait
         return $orCompletNom;
     }
 
-    private function conditionOrCompletOuNonOrALivrer(string $indexCriteria, array $criteria): string
+    private function conditionOrCompletOuNonOrALivrer(string $indexCriteria, array $criteria, string $tableAlias = 'T'): string
     {
         if (!empty($criteria[$indexCriteria])) {
             if ($criteria[$indexCriteria] === 'ORs COMPLET') {
-                $orCompletNom = " AND T.situation = 'COMPLET' ";
+                $orCompletNom = " AND {$tableAlias}.situation = 'COMPLET' ";
             } elseif ($criteria[$indexCriteria] === 'ORs INCOMPLETS') {
-                $orCompletNom = " AND T.situation = 'INCOMPLET' ";
+                $orCompletNom = " AND {$tableAlias}.situation = 'INCOMPLET' ";
             } else {
                 $orCompletNom = "";
             }
         } else {
-            $orCompletNom =  " AND T.situation = 'COMPLET'";
+            $orCompletNom =  " AND {$tableAlias}.situation = 'COMPLET'";
         }
 
         return $orCompletNom;

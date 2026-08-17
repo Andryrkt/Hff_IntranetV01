@@ -752,7 +752,7 @@ class DaAfficherRepository extends EntityRepository
     public function getTimelineData(string $numDa)
     {
         $qb = $this->createQueryBuilder('d')
-            ->select('DISTINCT d.statutDal', 'd.statutOr', 'd.dateCreation', 'd.dateDemande')
+            ->select('DISTINCT d.statutDal', 'd.dateCreation', 'd.dateDemande', 'd.numeroOr', 'd.statutOr', 'd.dateMajStatutOr')
             ->where('d.numeroDemandeAppro = :numDa')
             ->setParameter('numDa', $numDa)
             ->orderBy('d.dateCreation', 'ASC');
@@ -760,7 +760,13 @@ class DaAfficherRepository extends EntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function getAllNumCdeAndVmax(string $numDa)
+    /**
+     * Récupère, pour chaque numéro de BC de la dernière version d'une DA, les dates clés
+     * du cycle de vie du BC (génération, validation, envoi fournisseur, réception, livraison) en une seule requête groupée.
+     *
+     * @return array<string,array{dateCreationBc:?\DateTimeInterface,dateValidationBc:?\DateTimeInterface,dateEnvoiFournisseur:?\DateTimeInterface,dateReceptionArticle:?\DateTimeInterface,dateLivraisonArticle:?\DateTimeInterface}>
+     */
+    public function getDonneesBcParNumCde(string $numDa): array
     {
         $numeroVersionMax = $this->createQueryBuilder('d')
             ->select('MAX(d.numeroVersion)')
@@ -771,115 +777,41 @@ class DaAfficherRepository extends EntityRepository
 
         if (!$numeroVersionMax) return [];
 
-        $qb = $this->createQueryBuilder('d')
-            ->select('DISTINCT d.numeroCde', 'd.numeroVersion')
+        $rows = $this->createQueryBuilder('d')
+            ->select(
+                'd.numeroCde AS numeroCde',
+                'MIN(d.dateCreationBc) AS dateCreationBc',
+                'MIN(d.dateValidationBc) AS dateValidationBc',
+                'MIN(d.dateEnvoiFournisseur) AS dateEnvoiFournisseur',
+                'MIN(d.dateReceptionArticle) AS dateReceptionArticle',
+                'MIN(d.dateLivraisonArticle) AS dateLivraisonArticle'
+            )
             ->where('d.numeroDemandeAppro = :numDa')
-            ->andWhere('d.numeroVersion = :numeroVersionMax')
+            ->andWhere('d.numeroVersion = :numeroVersion')
             ->andWhere('d.numeroCde IS NOT NULL')
             ->andWhere('d.numeroCde != :vide')
+            ->groupBy('d.numeroCde')
+            ->orderBy('d.numeroCde', 'ASC')
             ->setParameters([
-                'vide' => '',
-                'numDa' => $numDa,
-                'numeroVersionMax' => $numeroVersionMax
-            ])
-            ->orderBy('d.numeroCde', 'ASC');
-
-        return $qb->getQuery()->getResult();
-    }
-
-    public function getDateCreationBc(string $numDa, int $numeroVersion, string $numeroCde): ?\DateTimeInterface
-    {
-        $result = $this->createQueryBuilder('d')
-            ->select('MIN(d.dateCreationBc)')
-            ->where('d.numeroDemandeAppro = :numDa')
-            ->andWhere('d.numeroVersion = :numeroVersion')
-            ->andWhere('d.numeroCde = :numeroCde')
-            ->andWhere('d.dateCreationBc IS NOT NULL')
-            ->setParameters([
-                'numDa' => $numDa,
-                'numeroVersion' => $numeroVersion,
-                'numeroCde' => $numeroCde
+                'vide'          => '',
+                'numDa'         => $numDa,
+                'numeroVersion' => $numeroVersionMax
             ])
             ->getQuery()
-            ->getSingleScalarResult();
+            ->getResult();
 
-        return $result ? new \DateTime($result) : null;
-    }
+        $donnees = [];
+        foreach ($rows as $row) {
+            $donnees[$row['numeroCde']] = [
+                'dateCreationBc'       => $row['dateCreationBc']       ? new \DateTime($row['dateCreationBc'])       : null,
+                'dateValidationBc'     => $row['dateValidationBc']     ? new \DateTime($row['dateValidationBc'])     : null,
+                'dateEnvoiFournisseur' => $row['dateEnvoiFournisseur'] ? new \DateTime($row['dateEnvoiFournisseur']) : null,
+                'dateReceptionArticle' => $row['dateReceptionArticle'] ? new \DateTime($row['dateReceptionArticle']) : null,
+                'dateLivraisonArticle' => $row['dateLivraisonArticle'] ? new \DateTime($row['dateLivraisonArticle']) : null,
+            ];
+        }
 
-    public function getDateValidationBc(string $numDa, int $numeroVersion, string $numeroCde): ?\DateTimeInterface
-    {
-        $result = $this->createQueryBuilder('d')
-            ->select('MIN(d.dateValidationBc)')
-            ->where('d.numeroDemandeAppro = :numDa')
-            ->andWhere('d.numeroVersion = :numeroVersion')
-            ->andWhere('d.numeroCde = :numeroCde')
-            ->andWhere('d.dateValidationBc IS NOT NULL')
-            ->setParameters([
-                'numDa' => $numDa,
-                'numeroVersion' => $numeroVersion,
-                'numeroCde' => $numeroCde
-            ])
-            ->getQuery()
-            ->getSingleScalarResult();
-
-        return $result ? new \DateTime($result) : null;
-    }
-
-    public function getDateEnvoiFournisseur(string $numDa, int $numeroVersion, string $numeroCde): ?\DateTimeInterface
-    {
-        $result = $this->createQueryBuilder('d')
-            ->select('MIN(d.dateEnvoiFournisseur)')
-            ->where('d.numeroDemandeAppro = :numDa')
-            ->andWhere('d.numeroVersion = :numeroVersion')
-            ->andWhere('d.numeroCde = :numeroCde')
-            ->andWhere('d.dateEnvoiFournisseur IS NOT NULL')
-            ->setParameters([
-                'numDa' => $numDa,
-                'numeroVersion' => $numeroVersion,
-                'numeroCde' => $numeroCde
-            ])
-            ->getQuery()
-            ->getSingleScalarResult();
-
-        return $result ? new \DateTime($result) : null;
-    }
-
-    public function getDateReceptionArticle(string $numDa, int $numeroVersion, string $numeroCde): ?\DateTimeInterface
-    {
-        $result = $this->createQueryBuilder('d')
-            ->select('MIN(d.dateReceptionArticle)')
-            ->where('d.numeroDemandeAppro = :numDa')
-            ->andWhere('d.numeroVersion = :numeroVersion')
-            ->andWhere('d.numeroCde = :numeroCde')
-            ->andWhere('d.dateReceptionArticle IS NOT NULL')
-            ->setParameters([
-                'numDa' => $numDa,
-                'numeroVersion' => $numeroVersion,
-                'numeroCde' => $numeroCde
-            ])
-            ->getQuery()
-            ->getSingleScalarResult();
-
-        return $result ? new \DateTime($result) : null;
-    }
-
-    public function getDateLivraisonArticle(string $numDa, int $numeroVersion, string $numeroCde): ?\DateTimeInterface
-    {
-        $result = $this->createQueryBuilder('d')
-            ->select('MIN(d.dateLivraisonArticle)')
-            ->where('d.numeroDemandeAppro = :numDa')
-            ->andWhere('d.numeroVersion = :numeroVersion')
-            ->andWhere('d.numeroCde = :numeroCde')
-            ->andWhere('d.dateLivraisonArticle IS NOT NULL')
-            ->setParameters([
-                'numDa' => $numDa,
-                'numeroVersion' => $numeroVersion,
-                'numeroCde' => $numeroCde
-            ])
-            ->getQuery()
-            ->getSingleScalarResult();
-
-        return $result ? new \DateTime($result) : null;
+        return $donnees;
     }
 
     public function getTypeDaSelonNumDa(string $numDa)

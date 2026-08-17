@@ -398,7 +398,7 @@ class DaFilterService
         // Agence et service autoriser sur l'application DAP
         $agenceServiceAutorises = $this->securityService->getAgenceServices(ApplicationConstant::CODE_DAP);
         // Vérifier si l'utilisateur a le droit de voir la liste avec le débiteur
-        $peutVoirListeAvecDebiteur = $this->securityService->verifierPermission(SecurityService::PERMISSION_AUTH_2);
+        $peutVoirListeAvecDebiteur = $this->securityService->verifierPermission(SecurityService::PERMISSION_AUTH_2, "list_da");
 
         // 1- Emetteur du DOM : agence et service de l'utilisateur
         $ORX->add(

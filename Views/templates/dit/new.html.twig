@@ -5,11 +5,12 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link href="{{ App.base_path }}/Views/css/new.css?v=2026.07.03.14.50" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/dit/news.css?v=2026.07.03.14.50" rel="stylesheet"/>
+    <link href="{{ App.base_path }}/Views/css/new.css?v=2026.07.03.14.50" rel="stylesheet"/>
+    <link href="{{ App.base_path }}/Views/css/dit/news.css?v=2026.07.03.14.50" rel="stylesheet"/>
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
+
 
 {% block content %}
     <div class=" container mt-6 mb-4">
@@ -80,53 +81,48 @@
                             </div>
 
 
-                            {{ macroForm.sousTitre('Info Client', {class: 'sousTitre'})}}
-                            <div class="row">
-                                <div class="col-12 col-md-6">
-                                    {{ form_row(form.numeroClient)}}
-                                    <div id="suggestion-numClient" class="suggestions-container"></div>
-                                    <div id="loader-numClient" class="spinner" style="display: none;"></div>
-                                    {{ form_row(form.nomClient)}}
-                                    <div id="suggestion-nomClient" class="suggestions-container"></div>
-                                    <div id="loader-nomClient" class="spinner" style="display: none;"></div>
-                                    {{ form_row(form.clientSousContrat)}}
-                                </div>
-                                <div class="col-12 col-md-6">
-                                    {{ form_row(form.numeroTel)}}
-                                    {{ form_row(form.mailClient)}}
-                                </div>
-                            </div>
-                            <div class="row">
-                                <span id="erreurClient"></span>
-                            </div>
-                            {{ macroForm.sousTitre('Information Matériel', {class: 'sousTitre'})}}
-                            <div id="materiel-loading" class="text-center my-3 " style="display: none;">
-                                <div class="spinner-border" role="status"></div>
-                                <div class="mt-2">Chargement des matériels...</div>
-                            </div>
+						{{ macroForm.sousTitre('Info Client', {class: 'sousTitre'})}}
+						<div class="row">
+							<div class="col-12 col-md-6">
+								{{ form_row(form.numeroClient)}}
+								<div id="suggestion-numClient" class="suggestions-container"></div>
+								<div id="loader-numClient" class="spinner" style="display: none;"></div>
+								{{ form_row(form.nomClient)}}
+								<div id="suggestion-nomClient" class="suggestions-container"></div>
+								<div id="loader-nomClient" class="spinner" style="display: none;"></div>
+								{{ form_row(form.clientSousContrat)}}
+							</div>
+							<div class="col-12 col-md-6">
+								{{ form_row(form.numeroTel)}}
+								{{ form_row(form.mailClient)}}
+							</div>
+						</div>
+						<div class="row">
+							<span id="erreurClient"></span>
+						</div>
+						{{ macroForm.sousTitre('Information Matériel', {class: 'sousTitre'})}}
+						<div class="row">
+							<div class="col-12 col-md-4">
+								{{ form_row(form.idMateriel)}}
+								<div id="suggestion-idMateriel" class="suggestions-container"></div>
+								<div id="loader-idMateriel" class="spinner d-flex align-items-center" style="display: none;"></div>
 
-                            <div class="row" id="materiel-inputs">
-                                <div class="col-12 col-md-4">
-                                    {{ form_row(form.idMateriel)}}
-                                    <div id="suggestion-idMateriel" class="suggestions-container"></div>
-                                    <div id="loader-idMateriel" class="spinner" style="display: none;">En cours de chargement...</div>
-
-                                </div>
-                                <div class="col-12 col-md-4">
-                                    {{ form_row(form.numParc)}}
-                                    <div id="suggestion-numParc" class="suggestions-container"></div>
-                                    <div id="loader-numParc" class="spinner" style="display: none;">En cours de chargement...</div>
-                                </div>
-                                <div class="col-12 col-md-4">
-                                    {{ form_row(form.numSerie)}}
-                                    <div id="suggestion-numSerie" class="suggestions-container"></div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div id="error-idMateriel" class="text-danger"></div>
-                            </div>
-                            <div id="containerInfoMateriel"></div>
+							</div>
+							<div class="col-12 col-md-4">
+								{{ form_row(form.numParc)}}
+								<div id="suggestion-numParc" class="suggestions-container"></div>
+								<div id="loader-numParc" class="spinner" style="display: none;"></div>
+							</div>
+							<div class="col-12 col-md-4">
+								{{ form_row(form.numSerie)}}
+								<div id="suggestion-numSerie" class="suggestions-container"></div>
+								<div id="loader-numSerie" class="spinner" style="display: none;"></div>
+							</div>
+						</div>
+						<div class="row">
+							<div id="error-idMateriel" class="text-danger"></div>
+						</div>
+						<div id="containerInfoMateriel"></div>
 
                         </div>
                         <div class="col-12 col-md-6">
@@ -196,5 +192,5 @@
 {% endblock %}
 
 {% block javascript %}
-	<script type="module" src="{{ App.base_path }}/Views/js/dit/dit.js?v=2026.07.03.14.50" type="module"></script>
+    <script type="module" src="{{ App.base_path }}/Views/js/dit/dit.js?v=2026.07.03.14.50" type="module"></script>
 {% endblock %}

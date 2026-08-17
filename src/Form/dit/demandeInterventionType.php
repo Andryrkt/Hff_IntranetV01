@@ -35,6 +35,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 class demandeInterventionType extends AbstractType
 {
     private $agenceRepository;
+
     const TYPE_REPARATION = [
         'EN COURS' => 'EN COURS',
         'DEJA EFFECTUEE' => 'DEJA EFFECTUEE',
@@ -71,6 +72,7 @@ class demandeInterventionType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $demandePneu = $options['demandePneu'];
 
         $codeSociete = $options['data']->getCodeSociete();
 
@@ -189,7 +191,9 @@ class demandeInterventionType extends AbstractType
                     'required' => true,
                     'constraints' => [
                         new Assert\NotBlank(['message' => 'le réparation réalisé par doit être sélectionné'])
-                    ]
+                    ],
+                    'disabled' => $demandePneu !== null,
+
                 ]
             )
             ->add(
@@ -215,13 +219,16 @@ class demandeInterventionType extends AbstractType
                     'placeholder' => false,
                     'data' => 'INTERNE',
                     'required' => false,
+                    'disabled' => $demandePneu !== null,
                     'attr' => [
+                        'readonly' => $demandePneu ? true : false,
                         'class' => 'interneExterne',
                         'data-informations' => json_encode([
                             'agenceId' => $options['data']->getAgence() ? $options['data']->getAgence()->getId() : null,
                             'serviceId' => $options['data']->getService() ? $options['data']->getService()->getId() : null
                         ])
                     ]
+
                 ]
             )
             ->add(
@@ -442,6 +449,7 @@ class demandeInterventionType extends AbstractType
                         'class' => 'noEntrer autocomplete',
                         'autocomplete' => 'off',
                     ],
+                    'disabled' => $demandePneu !== null,
                     'constraints' => [
                         new NotBlank([
                             'message' => 'l\id materiel ne peut pas être vide.', // Message d'erreur si le champ est vide
@@ -455,6 +463,7 @@ class demandeInterventionType extends AbstractType
                 [
                     'label' => " N° Parc",
                     'required' => false,
+                    'disabled' => $demandePneu !== null,
                     'attr' => [
                         'class' => 'noEntrer autocomplete',
                         'autocomplete' => 'off',
@@ -468,6 +477,7 @@ class demandeInterventionType extends AbstractType
                 [
                     'label' => " N° Serie",
                     'required' => false,
+                    'disabled' => $demandePneu !== null,
                     'attr' => [
                         'class' => 'noEntrer autocomplete',
                         'autocomplete' => 'off',
@@ -541,6 +551,7 @@ class demandeInterventionType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => DemandeIntervention::class,
+            'demandePneu' => null,
         ]);
     }
 }

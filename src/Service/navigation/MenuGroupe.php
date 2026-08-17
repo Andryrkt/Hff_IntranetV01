@@ -167,6 +167,13 @@ class MenuGroupe
                     ['label' => 'Consultation',     'icon' => 'search',      'route' => 'listeTemporaire_affichageListeCasier'],
                 ],
             ],
+            [
+                'label'    => 'Dashboard',
+                'icon'     => 'gauge-high',
+                'subitems' => [
+                    ['label' => 'Alertes matériel de location', 'icon' => 'bell', 'route' => 'alerte_materiel_location'],
+                ],
+            ],
         ];
     }
 
@@ -250,6 +257,7 @@ class MenuGroupe
                 'subitems' => [
                     ['label' => 'Devis',                        'icon' => 'file-invoice', 'route' => 'liste_devis_neg'],
                     ['label' => 'Planning de commande Magasin', 'icon' => 'calendar-alt', 'route' => 'interface_planningMag'],
+                    ['label' => 'Planning Magasin', 'icon' => 'calendar-alt', 'route' => 'interface_planning_cde_frn_magasin'],
                 ],
             ],
             [
@@ -353,11 +361,24 @@ class MenuGroupe
                 'label' => 'Devis negoce pol',
                 'icon'  => 'list-ul',
             ],
+
             [
-                'route' => 'nouveau_demande_diagnostic',
-                'label' => 'Demande de diagnostic',
-                'icon'  => 'plus-circle',
+                'label'    => 'DIAGNOSTIC PNEU',
+                'icon'     => 'list-ul',
+                'subitems' => [
+                    [
+                        'route' => 'nouveau_demande_diagnostic_pneu',
+                        'label' => 'Demande de diagnostic pneu',
+                        'icon'  => 'plus-circle',
+                    ],
+                    [
+                        'route' => 'demande_diagnostic_pneu_liste',
+                        'label' => 'Liste des demandes de diagnostic pneu',
+                        'icon'  => 'list-ul',
+                    ],
+                ],
             ],
+
             [
                 'label' => 'Pneumatiques',
                 'icon'  => 'ring',
