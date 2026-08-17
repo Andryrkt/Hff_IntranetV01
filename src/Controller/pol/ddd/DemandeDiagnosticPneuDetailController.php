@@ -168,9 +168,8 @@ class DemandeDiagnosticPneuDetailController extends Controller
             $demande->getNumeroDemande()
         );
 
-
         $variables = [
-            'subject'      => 'Mise à jour et état d’avancement de votre demande de diagnostic pneu',
+            'subject'      => $header,
             'header'         => $header,
             'message'       => 'Votre demande de diagnostic pneu a été mise à jour.',
             'nomDemandeur'   => $demande->getDemandeur(),
