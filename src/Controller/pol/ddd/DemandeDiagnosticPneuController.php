@@ -67,8 +67,6 @@ class DemandeDiagnosticPneuController extends Controller
             ->setDemandeur($utilisateur);
 
         //AFFICHAGE ET TRAITEMENT DU FORMULAIRE
-
-
         $form = $this->getFormFactory()->createBuilder(DemandeDiagnosticPneuType::class, $demandeDiagnosticPneu)->getForm();
 
 
