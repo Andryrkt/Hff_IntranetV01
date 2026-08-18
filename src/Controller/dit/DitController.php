@@ -28,6 +28,7 @@ use App\Service\fichier\UploderFileService;
 use App\Service\genererPdf\dit\GenererPdfDit;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -83,6 +84,7 @@ class DitController extends Controller
          * Création DIT depuis diagnostic pneu
          */
         $demandePneu = null;
+        $fichierDemandeDiagnostic = null;
         if ($numeroDemandePneu) {
 
             $demandePneu = $this->getEntityManager()
@@ -136,6 +138,18 @@ class DitController extends Controller
 
                 // --- 4. Enregistrement dans l'entité ---
                 $demandeIntervention->setDetailDemande($detailDemande);
+                $basePath = rtrim($_ENV['BASE_PATH_FICHIER'], '/\\');
+                $dossierPiecesJointes = $basePath
+                    . DIRECTORY_SEPARATOR
+                    . 'ddd'
+                    . DIRECTORY_SEPARATOR
+                    . $numeroDemandePneu
+                    . DIRECTORY_SEPARATOR;
+
+                $fichierDemandeDiagnostic = $dossierPiecesJointes
+                    . $numeroDemandePneu
+                    . '_DDD.pdf';
+
 
 
 
@@ -182,8 +196,12 @@ class DitController extends Controller
                 ]
             )
             ->getForm();
+        if (file_exists($fichierDemandeDiagnostic)) {
+            $form->get('existingPieceJointDemandePneu')->setData($numeroDemandePneu
+                . '_DDD.pdf');
+        }
 
-        $this->traitementFormulaire($form, $request,  $demandePneu);
+        $this->traitementFormulaire($form, $request,  $demandePneu, $fichierDemandeDiagnostic);
 
         $this->logUserVisit('dit_new'); // historisation du page visité par l'utilisateur
 
@@ -192,7 +210,7 @@ class DitController extends Controller
         ]);
     }
 
-    private function traitementFormulaire($form, Request $request,  ?DemandeDiagnosticPneu $demandePneu = null)
+    private function traitementFormulaire($form, Request $request,  ?DemandeDiagnosticPneu $demandePneu = null, ?string $fichierDemandeDiagnostic = null)
     {
         $form->handleRequest($request);
 
@@ -255,7 +273,7 @@ class DitController extends Controller
 
                 /** 6. Traitement des fichiers (PDF, pièces jointes) @var array $nomFichierEnregistrer @var string $nomFichier  */
                 $genererPdfDit = new GenererPdfDit();
-                [$nomFichierEnregistrer, $nomFichier]  = $this->traitementDeFichier($form, $demandeIntervention, $genererPdfDit, $ditPneumatique);
+                [$nomFichierEnregistrer, $nomFichier]  = $this->traitementDeFichier($form, $demandeIntervention, $genererPdfDit, $ditPneumatique, $fichierDemandeDiagnostic);
 
                 // 7. Enregistrement dans la base de donnée
                 $this->enregistrementBd($demandeIntervention, $nomFichierEnregistrer);
@@ -324,7 +342,7 @@ class DitController extends Controller
         $this->getEntityManager()->flush();
     }
 
-    private function traitementDeFichier(FormInterface $form, DemandeIntervention $demandeIntervention, GenererPdfDit $genererPdfDit, bool $ditPneumatique): array
+    private function traitementDeFichier(FormInterface $form, DemandeIntervention $demandeIntervention, GenererPdfDit $genererPdfDit, bool $ditPneumatique,  ?string $fichierDemandeDiagnostic = null): array
     {
         /** 
          * gestion des pieces jointes et generer le nom du fichier PDF
@@ -349,7 +367,14 @@ class DitController extends Controller
         // 2. ajout du page de garde à la premier position
         $traitementDeFichier = new TraitementDeFichier();
         $nomEtCheminFichiersEnregistrer = $traitementDeFichier->insertFileAtPosition($nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, 0);
-        // 3. fusion du page de garde et des pieces jointes (conversion avant la fusion)
+
+        // 3. Insérer le fichier de diagnostic  après la page de garde (position 1)
+        $nomEtCheminFichiersEnregistrer = $traitementDeFichier->insertFileAtPosition(
+            $nomEtCheminFichiersEnregistrer,
+            $fichierDemandeDiagnostic,
+            1   // après la page de garde
+        );
+        // 4. fusion du page de garde et des pieces jointes (conversion avant la fusion)
         $nomEtCheminFichierConvertie = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
         $traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);
 

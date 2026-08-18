@@ -98,8 +98,7 @@ class DemandeDiagnosticPneuDetailController extends Controller
 
 
         $genererPdfDit = new GenererPdfDdd();
-        [$nomFichierEnregistrer, $nomFichier]  = $this->traitementDeFichier($form, $demande, $genererPdfDit);
-        dump("Tonga eto");
+
         $allFilled = true;
         foreach ($demande->getDiagnosticPneus() as $pneu) {
             if (!$pneu->getDiagnostic()) {
@@ -129,6 +128,7 @@ class DemandeDiagnosticPneuDetailController extends Controller
 
             if ($action == "valider") {
                 $demande->setStatut('traitee atelier');
+                $this->traitementDeFichier($form, $demande, $genererPdfDit);
                 $this->envoyerMailAtelier($demande);
             } else {
                 $demande->setStatut('diag en cours');
@@ -223,36 +223,137 @@ class DemandeDiagnosticPneuDetailController extends Controller
         DemandeDiagnosticPneu $demandeDiagnosticPneu,
         GenererPdfDdd $genererPdfDdd
     ): array {
-        // 1. Enregistrement des fichiers (pièces jointes)
-        [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier] =
-            $this->enregistrementFichier(
-                $form,
-                $demandeDiagnosticPneu->getNumeroDemande(),
-                'DDD', // ou un identifiant fixe pour éviter les caractères spéciaux
+        [
+            $nomEtCheminFichiersEnregistrer,
+            $nomFichierEnregistrer,
+            $nomAvecCheminFichier,
+            $nomFichier
+        ] = $this->enregistrementFichier(
+            $form,
+            $demandeDiagnosticPneu->getNumeroDemande(),
+            'DDD'
+        );
+
+        if (!is_array($nomEtCheminFichiersEnregistrer)) {
+            $nomEtCheminFichiersEnregistrer = [];
+        }
+
+        /*
+     * Récupération des pièces jointes
+     */
+        $piecesJointes = $demandeDiagnosticPneu->getPiecesJointes();
+
+        if (is_string($piecesJointes)) {
+            $piecesJointes = json_decode($piecesJointes, true);
+        }
+
+        if (!is_array($piecesJointes)) {
+            $piecesJointes = [];
+        }
+
+        /*
+     * Répertoire des pièces jointes
+     */
+        $basePath = rtrim($_ENV['BASE_PATH_FICHIER'], '/\\');
+
+        $dossierPiecesJointes = $basePath
+            . DIRECTORY_SEPARATOR
+            . 'ddd'
+            // . DIRECTORY_SEPARATOR
+            // . $demandeDiagnosticPneu->getNumeroDemande()
+            . DIRECTORY_SEPARATOR;
+
+        /*
+     * Séparation :
+     * - images -> directement dans le PDF DDD
+     * - autres fichiers -> fusion classique
+     */
+        $images = [];
+        $autresFichiers = [];
+
+        foreach ($piecesJointes as $pieceJointe) {
+            if (empty($pieceJointe)) {
+                continue;
+            }
+
+            $cheminPieceJointe = $dossierPiecesJointes . $pieceJointe;
+
+            if (!file_exists($cheminPieceJointe)) {
+                continue;
+            }
+
+            $extension = strtolower(
+                pathinfo($cheminPieceJointe, PATHINFO_EXTENSION)
             );
 
-        // 2. Génération du PDF principal (sans historique)
-        $genererPdfDdd->genererPdfDiagnosticPneu($demandeDiagnosticPneu, $nomAvecCheminFichier);
+            if (in_array($extension, ['jpg', 'jpeg', 'png'], true)) {
+                $images[] = $cheminPieceJointe;
+            } else {
+                $autresFichiers[] = $cheminPieceJointe;
+            }
+        }
 
-        // 3. Fusion avec les pièces jointes uniquement s'il y en a
+        /*
+     * Ajouter également les nouveaux fichiers
+     * retournés par enregistrementFichier().
+     */
+        foreach ($nomEtCheminFichiersEnregistrer as $fichier) {
+            $extension = strtolower(
+                pathinfo($fichier, PATHINFO_EXTENSION)
+            );
+
+            if (in_array($extension, ['jpg', 'jpeg', 'png'], true)) {
+                $images[] = $fichier;
+            } else {
+                $autresFichiers[] = $fichier;
+            }
+        }
+
+        /*
+     * Génération du PDF principal avec les images
+     */
+        $genererPdfDdd->genererPdfDiagnosticPneu(
+            $demandeDiagnosticPneu,
+            $nomAvecCheminFichier,
+            $images
+        );
+
+        /*
+     * Traitement des autres pièces jointes
+     */
         $traitementDeFichier = new TraitementDeFichier();
-        if (!empty($nomEtCheminFichiersEnregistrer)) {
-            // Insère la page de garde en première position
-            $nomEtCheminFichiersEnregistrer = $traitementDeFichier->insertFileAtPosition(
-                $nomEtCheminFichiersEnregistrer,
+
+        if (!empty($autresFichiers)) {
+
+            /*
+         * Le PDF principal est toujours en première position
+         */
+            $autresFichiers = $traitementDeFichier->insertFileAtPosition(
+                $autresFichiers,
                 $nomAvecCheminFichier,
                 0
             );
 
-            // Convertit les fichiers non-PDF en PDF
-            $nomEtCheminFichierConvertie = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
+            /*
+         * Conversion des autres fichiers
+         */
+            $fichiersConvertis = $this->ConvertirLesPdf(
+                $autresFichiers
+            );
 
-            // Fusionne tous les PDF en un seul fichier final
-            $traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);
+            /*
+         * Fusion finale
+         */
+            $traitementDeFichier->fusionFichers(
+                $fichiersConvertis,
+                $nomAvecCheminFichier
+            );
         }
 
-        // 4. On retourne les noms des fichiers enregistrés (pour suivi)
-        return [$nomFichierEnregistrer, $nomFichier];
+        return [
+            $nomFichierEnregistrer,
+            $nomFichier
+        ];
     }
 
     private function enregistrementFichier(

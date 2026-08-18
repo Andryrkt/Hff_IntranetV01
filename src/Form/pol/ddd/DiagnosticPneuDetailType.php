@@ -16,7 +16,7 @@ class DiagnosticPneuDetailType extends AbstractType
 {
     private const DIAGNOSTICS = [
         'Réparable' => 'reparable',
-        'Remplacer' => 'remplacer',
+        'A Remplacer' => 'a remplacer',
         'Rechapable' => 'rechapable',
         'Détruit' => 'detruit',
     ];
