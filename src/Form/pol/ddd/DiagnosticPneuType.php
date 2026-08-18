@@ -57,7 +57,7 @@ class DiagnosticPneuType extends AbstractType
                 'label' => 'Diagnostic atelier',
                 'choices' => [
                     'Réparable'    => 'reparable',
-                    'Remplacer'    => 'remplacer',
+                    'A remplacer'    => 'a remplacer',
                     'Rechapable'   => 'rechapable',
                     'Détruit'      => 'detruit',
                 ],
