@@ -167,6 +167,13 @@ class MenuGroupe
                     ['label' => 'Consultation',     'icon' => 'search',      'route' => 'listeTemporaire_affichageListeCasier'],
                 ],
             ],
+            [
+                'label'    => 'Dashboard',
+                'icon'     => 'gauge-high',
+                'subitems' => [
+                    ['label' => 'Alertes matériel de location', 'icon' => 'bell', 'route' => 'alerte_materiel_location'],
+                ],
+            ],
         ];
     }
 
