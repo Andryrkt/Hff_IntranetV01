@@ -9,15 +9,15 @@ use App\Entity\dit\DemandeIntervention;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class DitValidationController extends Controller
+/**
+ * @Route("/atelier/demande-intervention")
+ */
+class DitDetailController extends Controller
 {
-
     /**
-     * @Route("/ditValidation/{id<\d+>}/{numDit<\w+>}", name="dit_validationDit")
-     *
-     * @return void
+     * @Route("/fiche-detail-dit/{id<\d+>}", name="dit_fiche_detail")
      */
-    public function validationDit($numDit, $id, Request $request)
+    public function detailDit(int $id, Request $request)
     {
         $autoriser = $this->estAdmin();
 
@@ -55,9 +55,8 @@ class DitValidationController extends Controller
         //RECUPERATION DE LISTE COMMANDE 
         $commandes = $ditModel->RecupereCommandeOr($dit->getNumeroOR());
 
-        $this->logUserVisit('dit_validationDit', [
-            'id'     => $id,
-            'numDit' => $numDit,
+        $this->logUserVisit('dit_fiche_detail', [
+            'id'     => $id
         ]); // historisation du page visité par l'utilisateur       
 
         return  $this->render('dit/validation.html.twig', [

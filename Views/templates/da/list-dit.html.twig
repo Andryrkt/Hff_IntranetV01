@@ -57,7 +57,7 @@
 						</td>
 						<td class="{{classeStatutDit}}">{{item.idStatutDemande.description|trim}}</td>
 						<td>
-							<a href="{{ path("dit_validationDit", {id: item.id, numDit: item.numeroDemandeIntervention})}}" target="_blank" data-bs-toggle="tooltip" title="Afficher le détail">{{ item.numeroDemandeIntervention }}</a>
+							<a href="{{ path("dit_fiche_detail", {id: item.id})}}" target="_blank" data-bs-toggle="tooltip" title="Afficher le détail">{{ item.numeroDemandeIntervention }}</a>
 						</td>
 						<td>{{ item.typeDocument.description}}</td>
 						<td class="text-center">
