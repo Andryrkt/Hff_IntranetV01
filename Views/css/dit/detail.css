@@ -5,4 +5,5 @@
   font-weight: bold;
   min-height: 37.5px;
   background-color: rgba(var(--bs-warning-rgb), 1) !important;
+  font-size: 0.75rem !important;
 }
