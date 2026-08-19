@@ -259,8 +259,8 @@ class DemandeDiagnosticPneuDetailController extends Controller
         $dossierPiecesJointes = $basePath
             . DIRECTORY_SEPARATOR
             . 'ddd'
-            // . DIRECTORY_SEPARATOR
-            // . $demandeDiagnosticPneu->getNumeroDemande()
+            . DIRECTORY_SEPARATOR
+            . $demandeDiagnosticPneu->getNumeroDemande()
             . DIRECTORY_SEPARATOR;
 
         /*
