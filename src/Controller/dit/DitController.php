@@ -69,6 +69,10 @@ class DitController extends Controller
 
         // Code Société de l'utilisateur
         $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+        $demandePneu = null;
+        $fichierDemandeDiagnostic = null;
+
+
 
         //INITIALISATION DU FORMULAIRE
         $agenceService = $this->agenceServiceIpsObjet();
@@ -80,111 +84,10 @@ class DitController extends Controller
             ->setIdNiveauUrgence($this->getEntityManager()->getRepository(WorNiveauUrgence::class)->find(1))
             ->setCodeSociete($codeSociete)
         ;
-        /**
-         * Création DIT depuis diagnostic pneu
-         */
-        $demandePneu = null;
-        $fichierDemandeDiagnostic = null;
         if ($numeroDemandePneu) {
-
-            $demandePneu = $this->getEntityManager()
-                ->getRepository(DemandeDiagnosticPneu::class)
-                ->findOneBy([
-                    'numeroDemande' => $numeroDemandePneu
-                ]);
-            if ($demandePneu) {
-
-                // ==========================
-                // Informations matériel
-                // ==========================
-
-                $demandeIntervention
-                    ->setIdMateriel($demandePneu->getIdMateriel())
-                    ->setNumParc($demandePneu->getNumeroParcMateriel());
-                // ==========================
-                // Diagnostic des pneus
-                // ==========================
-                // --- 1. Construction du message complet ---
-                $message = "Bonjour,\n\nPour demande d'intervention selon diagnostic ci-après.\n\n";
-
-                $observationPneus = [];
-                foreach ($demandePneu->getDiagnosticPneus() as $pneu) {
-                    $positionMachine = $pneu->getPositionMachine() ?? '-';
-                    $positionMachine = ucwords(str_replace('_', ' ', $positionMachine));
-
-                    $observationPneus[] = sprintf(
-                        "• N/S Pneu : %s / Position : %s / Diagnostic : %s / Observation : %s",
-                        $pneu->getNumeroSerie() ?? '-',
-                        $positionMachine,
-                        $pneu->getDiagnostic() ?? '-',
-                        $pneu->getObservationAtelier() ?? '-'
-                    );
-                }
-
-                // Ajout de la liste des pneus
-                if (!empty($observationPneus)) {
-                    $message .= implode("\n", $observationPneus) . "\n\n";
-                }
-
-                // --- 2. Ajout de l'observation globale et de la phrase d'attente ---
-                $observationGlobal = trim($demandePneu->getObservationGlobalAtelier() ?? '');
-                if ($observationGlobal !== '') {
-                    $message .=  $observationGlobal . "\n";
-                }
-
-                // --- 3. Assignation de $detailDemande (identique à $message) ---
-                // Si tu veux le même contenu, tu peux soit réutiliser $message, soit une copie
-                $detailDemande = $message;
-
-                // --- 4. Enregistrement dans l'entité ---
-                $demandeIntervention->setDetailDemande($detailDemande);
-                $basePath = rtrim($_ENV['BASE_PATH_FICHIER'], '/\\');
-                $dossierPiecesJointes = $basePath
-                    . DIRECTORY_SEPARATOR
-                    . 'ddd'
-                    . DIRECTORY_SEPARATOR
-                    . $numeroDemandePneu
-                    . DIRECTORY_SEPARATOR;
-
-                $fichierDemandeDiagnostic = $dossierPiecesJointes
-                    . $numeroDemandePneu
-                    . '_DDD.pdf';
-
-
-
-
-                $demandeIntervention->setObjetDemande(
-                    "Demande d'intervention - Suite au diagnostic PNE - "
-                        . $demandePneu->getNumeroDemande()
-                );
-                $demandeIntervention->setReparationRealise("ATE POL TANA");
-
-                $chantier = $demandePneu->getChantier()->getCodeChantier();
-                $serviceDefault  = $this->getEntityManager()
-                    ->getRepository(Service::class)
-                    ->findOneBy([
-                        'codeService' => $chantier
-                    ]);
-                $agenceDefault = $this->getEntityManager()
-                    ->getRepository(Agence::class)
-                    ->findOneBy([
-                        'codeAgence' => '50',
-                        'codeSociete' => $codeSociete
-                    ]);
-                $categorieDemandeDefault = $this->getEntityManager()
-                    ->getRepository(CategorieAteApp::class)
-                    ->find(CategorieAteApp::REPARATION);
-                $typeDocumentDemandeDefault = $this->getEntityManager()
-                    ->getRepository(WorTypeDocument::class)
-                    ->find(WorTypeDocument::MAINTENANCE_CURATIVE);
-
-                $demandeIntervention->setAgence($agenceDefault);
-                $demandeIntervention->setService($serviceDefault);
-
-                $demandeIntervention->setCategorieDemande($categorieDemandeDefault);
-                $demandeIntervention->setTypeDocument($typeDocumentDemandeDefault);
-            }
+            [$demandePneu, $fichierDemandeDiagnostic] =  $this->creationDitDemandeDiagnositicPneu($numeroDemandePneu, $demandeIntervention, $codeSociete);
         }
+
 
         //AFFICHAGE ET TRAITEMENT DU FORMULAIRE
         $form = $this->getFormFactory()
@@ -196,9 +99,12 @@ class DitController extends Controller
                 ]
             )
             ->getForm();
-        if (file_exists($fichierDemandeDiagnostic)) {
-            $form->get('existingPieceJointDemandePneu')->setData($numeroDemandePneu
-                . '_DDD.pdf');
+
+        if ($numeroDemandePneu) {
+            if (file_exists($fichierDemandeDiagnostic)) {
+                $form->get('existingPieceJointDemandePneu')->setData($numeroDemandePneu
+                    . '_DDD.pdf');
+            }
         }
 
         $this->traitementFormulaire($form, $request,  $demandePneu, $fichierDemandeDiagnostic);
@@ -410,5 +316,114 @@ class DitController extends Controller
         $nomAvecCheminFichier = $path . $nomFichier;
 
         return [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier];
+    }
+
+    private function creationDitDemandeDiagnositicPneu(string $numeroDemandePneu, DemandeIntervention $demandeIntervention, string $codeSociete)
+    {
+        /**
+         * Création DIT depuis diagnostic pneu
+         */
+        $demandePneu = null;
+        $fichierDemandeDiagnostic = null;
+
+
+        $demandePneu = $this->getEntityManager()
+            ->getRepository(DemandeDiagnosticPneu::class)
+            ->findOneBy([
+                'numeroDemande' => $numeroDemandePneu
+            ]);
+        if ($demandePneu) {
+
+            // ==========================
+            // Informations matériel
+            // ==========================
+
+            $demandeIntervention
+                ->setIdMateriel($demandePneu->getIdMateriel())
+                ->setNumParc($demandePneu->getNumeroParcMateriel());
+            // ==========================
+            // Diagnostic des pneus
+            // ==========================
+            // --- 1. Construction du message complet ---
+            $message = "Bonjour,\n\nPour demande d'intervention selon diagnostic ci-après.\n\n";
+
+            $observationPneus = [];
+            foreach ($demandePneu->getDiagnosticPneus() as $pneu) {
+                $positionMachine = $pneu->getPositionMachine() ?? '-';
+                $positionMachine = ucwords(str_replace('_', ' ', $positionMachine));
+
+                $observationPneus[] = sprintf(
+                    "• N/S Pneu : %s / Position : %s / Diagnostic : %s / Observation : %s",
+                    $pneu->getNumeroSerie() ?? '-',
+                    $positionMachine,
+                    $pneu->getDiagnostic() ?? '-',
+                    $pneu->getObservationAtelier() ?? '-'
+                );
+            }
+
+            // Ajout de la liste des pneus
+            if (!empty($observationPneus)) {
+                $message .= implode("\n", $observationPneus) . "\n\n";
+            }
+
+            // --- 2. Ajout de l'observation globale et de la phrase d'attente ---
+            $observationGlobal = trim($demandePneu->getObservationGlobalAtelier() ?? '');
+            if ($observationGlobal !== '') {
+                $message .=  $observationGlobal . "\n";
+            }
+
+            // --- 3. Assignation de $detailDemande (identique à $message) ---
+            // Si tu veux le même contenu, tu peux soit réutiliser $message, soit une copie
+            $detailDemande = $message;
+
+            // --- 4. Enregistrement dans l'entité ---
+            $demandeIntervention->setDetailDemande($detailDemande);
+            $basePath = rtrim($_ENV['BASE_PATH_FICHIER'], '/\\');
+            $dossierPiecesJointes = $basePath
+                . DIRECTORY_SEPARATOR
+                . 'ddd'
+                . DIRECTORY_SEPARATOR
+                . $numeroDemandePneu
+                . DIRECTORY_SEPARATOR;
+
+            $fichierDemandeDiagnostic = $dossierPiecesJointes
+                . $numeroDemandePneu
+                . '_DDD.pdf';
+
+
+            $demandeIntervention->setObjetDemande(
+                "Demande d'intervention - Suite au diagnostic PNE - "
+                    . $demandePneu->getNumeroDemande()
+            );
+            $demandeIntervention->setReparationRealise("ATE POL TANA");
+
+            $chantier = $demandePneu->getChantier()->getCodeChantier();
+            $serviceDefault  = $this->getEntityManager()
+                ->getRepository(Service::class)
+                ->findOneBy([
+                    'codeService' => $chantier
+                ]);
+            $agenceDefault = $this->getEntityManager()
+                ->getRepository(Agence::class)
+                ->findOneBy([
+                    'codeAgence' => '50',
+                    'codeSociete' => $codeSociete
+                ]);
+            $categorieDemandeDefault = $this->getEntityManager()
+                ->getRepository(CategorieAteApp::class)
+                ->find(CategorieAteApp::REPARATION);
+            $typeDocumentDemandeDefault = $this->getEntityManager()
+                ->getRepository(WorTypeDocument::class)
+                ->find(WorTypeDocument::MAINTENANCE_CURATIVE);
+
+            $demandeIntervention->setAgence($agenceDefault);
+            $demandeIntervention->setService($serviceDefault);
+
+            $demandeIntervention->setCategorieDemande($categorieDemandeDefault);
+            $demandeIntervention->setTypeDocument($typeDocumentDemandeDefault);
+        }
+
+
+        return [$demandePneu, $fichierDemandeDiagnostic];
     }
 }

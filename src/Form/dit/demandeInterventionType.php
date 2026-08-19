@@ -3,34 +3,34 @@
 namespace App\Form\dit;
 
 use App\Entity\admin\Agence;
-use App\Entity\admin\dit\CategorieAteApp;
-use App\Entity\admin\dit\WorNiveauUrgence;
-use App\Entity\admin\dit\WorTypeDocument;
 use App\Entity\admin\Service;
-use App\Entity\dit\DemandeIntervention;
-use App\Repository\admin\AgenceRepository;
-use App\Repository\admin\dit\WorTypeDocumentRepository;
-use App\Repository\admin\ServiceRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
-use Symfony\Component\Form\Extension\Core\Type\EmailType;
-use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use Symfony\Component\Form\Extension\Core\Type\TelType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints as Assert;
+use App\Entity\dit\DemandeIntervention;
+use Symfony\Component\Form\AbstractType;
+use App\Entity\admin\dit\CategorieAteApp;
+use App\Entity\admin\dit\WorTypeDocument;
+use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Repository\admin\AgenceRepository;
+use App\Repository\admin\ServiceRepository;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints as Assert;
+use App\Repository\admin\dit\WorTypeDocumentRepository;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\TelType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
+
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 class demandeInterventionType extends AbstractType
 {
@@ -543,8 +543,9 @@ class demandeInterventionType extends AbstractType
                         ])
                     ],
                 ]
-            )
-            ->add(
+            );
+        if ($demandePneu != null) {
+            $builder->add(
                 'existingPieceJointDemandePneu',
                 TextType::class,
                 [
@@ -556,6 +557,7 @@ class demandeInterventionType extends AbstractType
                     ],
                 ]
             );
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver)
