@@ -1,11 +1,13 @@
 {% import "macroForm.html.twig" as macroForm %}
 
 <div class="row">
-	<h3 class="perso-titre">
-		Détail du demande d'intervention
-	</h3>
-	<div class="d-flex justify-content-between">
-		<a href="{{ path("dit_index")}}" class="btn btn-sm text-white my-3 fw-bold fond-btn">Retour</a>
+	<div class="col-md-11">
+		<h3 class="perso-titre">
+			Détail du demande d'intervention
+		</h3>
+	</div>
+	<div class="col-md-1">
+		<a href="{{ path("dit_index")}}" class="btn btn-sm bg-warning fw-bold d-flex align-items-center justify-content-center">Liste des DIT</a>
 	</div>
 </div>
 
