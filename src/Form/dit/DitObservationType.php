@@ -2,7 +2,7 @@
 
 namespace App\Form\dit;
 
-use App\Entity\dit\DemandeIntervention;
+use App\Entity\dit\DitObservation;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -27,7 +27,7 @@ class DitObservationType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => DemandeIntervention::class,
+            'data_class' => DitObservation::class,
         ]);
     }
 }

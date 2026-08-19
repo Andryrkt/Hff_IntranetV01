@@ -4,8 +4,9 @@ namespace App\Controller\dit;
 
 use App\Model\dit\DitModel;
 use App\Controller\Controller;
-use App\Form\dit\DitValidationType;
 use App\Entity\dit\DemandeIntervention;
+use App\Entity\dit\DitObservation;
+use App\Form\dit\DitObservationType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -19,8 +20,6 @@ class DitDetailController extends Controller
      */
     public function detailDit(int $id, Request $request)
     {
-        $autoriser = $this->estAdmin();
-
         $dit = $this->getEntityManager()->getRepository(DemandeIntervention::class)->find($id);
         $ditModel = new DitModel();
         $data = $ditModel->findAll($dit->getIdMateriel(), $dit->getNumParc(), $dit->getNumSerie());
@@ -50,19 +49,16 @@ class DitDetailController extends Controller
             $dit->setInternetExterne('EXTERNE');
         }
 
-        $form = $this->getFormFactory()->createBuilder(DitValidationType::class, $dit)->getForm();
+        $form = $this->getFormFactory()->createBuilder(DitObservationType::class, new DitObservation)->getForm();
 
         //RECUPERATION DE LISTE COMMANDE 
         $commandes = $ditModel->RecupereCommandeOr($dit->getNumeroOR());
 
-        $this->logUserVisit('dit_fiche_detail', [
-            'id'     => $id
-        ]); // historisation du page visité par l'utilisateur       
+        $this->logUserVisit('dit_fiche_detail', ['id' => $id]); // historisation du page visité par l'utilisateur       
 
         return  $this->render('dit/detail.html.twig', [
             'form'      => $form->createView(),
             'dit'       => $dit,
-            'autoriser' => $autoriser,
             'commandes' => $commandes
         ]);
     }
