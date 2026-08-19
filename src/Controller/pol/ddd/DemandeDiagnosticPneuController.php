@@ -205,7 +205,7 @@ class DemandeDiagnosticPneuController extends Controller
 
 
         $variables = [
-            'subject'        => 'Nouvelle demande de diagnostic pneu',
+            'subject'        => $header,
             'header'         => $header,
             'message' => 'Une nouvelle demande de diagnostic pneu a été créée.',
             'nomDemandeur'   => $demande->getDemandeur(),
