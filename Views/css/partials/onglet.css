@@ -1,4 +1,4 @@
-/* Onglet */
+/* Onglet - commun à da/detail.css, tik/detailTik.css, tik/tousCategorie.css */
 .onglet-head {
   border-bottom: 0;
 }
@@ -42,4 +42,20 @@
 
 .border-top-left-radius-0 {
   border-top-left-radius: 0 !important;
+}
+
+.nav-top span {
+  font-size: 1rem !important;
+}
+.nav-top {
+  margin-top: 0;
+  display: block;
+  color: white;
+  background-color: #212529;
+  font-size: 1rem;
+  text-align: center;
+  padding: 10px;
+  font-weight: bold;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
 }
