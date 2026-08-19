@@ -52,9 +52,9 @@
 					{% endif %}
 
 					<li class="nav-item dropdown">
-						<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" id="userName" data-user-full-name="{{ App.userConnecter.fullname }}" aria-expanded="false" style="color: #fbbb01;">
+						<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" id="userName" data-user-full-name="{{ App.connectedUser.fullname }}" aria-expanded="false" style="color: #fbbb01;">
 							<i class="fas fa-user pe-1"></i>
-							{{ App.userConnecter.lastname ~ '.' ~ App.userConnecter.firstname }}
+							{{ App.connectedUser.lastname ~ '.' ~ App.connectedUser.firstname }}
 						</a>
 						<ul
 							class="dropdown-menu dropdown-menu-end">
