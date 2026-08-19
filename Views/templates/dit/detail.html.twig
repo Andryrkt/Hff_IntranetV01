@@ -1,6 +1,9 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block nav %}{% endblock %}
+
+{% block title %}Fiche détail d'un DIT{% endblock %}
+
 {% block stylesheets %}
 	<link href="{{ App.base_path }}/Views/css/new.css?v=2026.07.03.14.50" rel="stylesheet"/>
 {% endblock %}
@@ -8,27 +11,18 @@
 {% import "macroForm.html.twig" as macroForm %}
 
 {% block content %}
-<div class=" container mt-3">
+<div class=" container mt-6">
 	<div class="card mb-3">
 		<div class="card-body">
-
 			<class="container">
 				<h3 class="perso-titre">
 					Détail de la demande
 				</h3>
 				<div class="d-flex justify-content-between">
 					<a href="{{ path("dit_index")}}" class="btn btn-sm  text-white my-3 fw-bold  fond-btn">Retour</a>
-					{# {% set nomFichier = dit.numeroDemandeIntervention ~'_'~ dit.agenceServiceEmetteur| replace({'-':''}) %} #}
-				{# <a href="/Upload/dit/{{nomFichier}}" class="btn btn-sm  text-black my-3 fw-bold  fond-btn" target="_blank"> #}
-					{# <i class="fas fa-print"></i> #}
-					{# Imprimer #}
-					{# </a> #}
 				</div>
 
-
-				<div
-					class="row">
-					{# DEBUT DIT #}
+				<div class="row">
 					<div class="col-12 col-md-6">
 						{{ macroForm.sousTitre('DIT', {class: 'sousTitre'})}}
 						<div class="row">
@@ -166,7 +160,7 @@
 									</div>
 									<div class="col-12 col-md-6">
 										{{ macroForm.affichage('Coût d\'acquisition', dit.coutAcquisition | number_format(2, ',', '.'))}}
-                                    	{{ macroForm.affichage('Amortissement', dit.amortissement | number_format(2, ',', '.'))}}
+										{{ macroForm.affichage('Amortissement', dit.amortissement | number_format(2, ',', '.'))}}
                                         {{ macroForm.affichage('VNC', dit.valeurNetComptable | number_format(2, ',', '.'))}}
 									</div>
 								</div>
@@ -180,74 +174,38 @@
 						<div class="row">
 							<div class="col-12 col-md-6">
 								{{ macroForm.affichage('Niveau d\'urgence', dit.idNiveauUrgence)}}
-									</div>
-									<div class="col-12 col-md-6">
-										{{ macroForm.affichage('Date prévu travaux', dit.datePrevueTravaux|date('d/m/Y'))}}
-									</div>
-								</div>
-								{{ macroForm.sousTitre('Réparation', {class: 'sousTitre'})}}
-								<div class="row">
-									<div class="col-12 col-md-6">
-										{{ macroForm.affichage('Type de réparation',  dit.typeReparation)}}
-									</div>
-									<div class="col-12 col-md-6">
-										{{ macroForm.affichage('Réparation réalisé par', dit.reparationRealise)}}
-									</div>
-								</div>
-								{# FIN INTERVENTION#}
-
-								{# DEBUT PIECE JOINTE#}
-								{{ macroForm.sousTitre('Pièces Jointes', {class: 'sousTitre'})}}
-
-								{{ macroForm.affichageFile('Pièce jointe 01', dit.pieceJoint01, "/Upload/dit/" ~ dit.numeroDemandeIntervention)}}
-
-								{{ macroForm.affichageFile('Pièce jointe 02', dit.pieceJoint02, "/Upload/dit/" ~ dit.numeroDemandeIntervention)}}
-
-								{{ macroForm.affichageFile('Pièce jointe 03', dit.pieceJoint03, "/Upload/dit/" ~ dit.numeroDemandeIntervention)}}
-								{# FIN PIECE JOINTE #}
-
-
-								{% if autoriser %}
-									{# DEBUT OBSERVATION TECHNIQUE#}
-									{{ form_start(form, {'attr':{'id':'formDit'}}
-									) }}
-									{{ form_errors(form)}}
-									{{ macroForm.sousTitre('Observation DT', {class: 'sousTitre mb-3'})}}
-									<div class="row">
-										<div class="col-12 col-md-6">{{form_row(form.idServiceIntervenant)}}</div>
-										<div class="col-12 col-md-6">{{form_row(form.codeSection)}}</div>
-									</div>
-
-									{{ form_row(form.observationDirectionTechnique)}}
-
-								</div>
 							</div>
-
-
-							<div class="d-flex justify-content-end">
-								<button type="submit" class="btn bouton mx-3 text-white bg-danger" name="refuser" id="btn_refuser">
-									<i class="fas fa-xmark"></i>
-									Réfuser
-								</button>
-								<button type="submit" class="btn bouton" name="valider" id="btn_valider">
-									<i class="fas fa-check"></i>
-									Valider
-								</button>
+							<div class="col-12 col-md-6">
+								{{ macroForm.affichage('Date prévu travaux', dit.datePrevueTravaux|date('d/m/Y'))}}
 							</div>
+						</div>
+						{{ macroForm.sousTitre('Réparation', {class: 'sousTitre'})}}
+						<div class="row">
+							<div class="col-12 col-md-6">
+								{{ macroForm.affichage('Type de réparation',  dit.typeReparation)}}
+							</div>
+							<div class="col-12 col-md-6">
+								{{ macroForm.affichage('Réparation réalisé par', dit.reparationRealise)}}
+							</div>
+						</div>
+						{# FIN INTERVENTION#}
 
+						{# DEBUT PIECE JOINTE#}
+						{{ macroForm.sousTitre('Pièces Jointes', {class: 'sousTitre'})}}
 
-							{{ form_end(form) }}
-							{# FIN OBSERVATION#}
-						{% endif %}
+						{{ macroForm.affichageFile('Pièce jointe 01', dit.pieceJoint01, "/Upload/dit/" ~ dit.numeroDemandeIntervention)}}
+
+						{{ macroForm.affichageFile('Pièce jointe 02', dit.pieceJoint02, "/Upload/dit/" ~ dit.numeroDemandeIntervention)}}
+
+						{{ macroForm.affichageFile('Pièce jointe 03', dit.pieceJoint03, "/Upload/dit/" ~ dit.numeroDemandeIntervention)}}
+						{# FIN PIECE JOINTE #}
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-
-	<div id="materielInfos"></div>
+</div>
 {% endblock %}
 
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/dit/ditValidation.js?v=2026.07.03.14.50"></script>
 {% endblock %}

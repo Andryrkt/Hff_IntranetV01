@@ -59,9 +59,9 @@ class DitDetailController extends Controller
             'id'     => $id
         ]); // historisation du page visité par l'utilisateur       
 
-        return  $this->render('dit/validation.html.twig', [
-            'form' => $form->createView(),
-            'dit' => $dit,
+        return  $this->render('dit/detail.html.twig', [
+            'form'      => $form->createView(),
+            'dit'       => $dit,
             'autoriser' => $autoriser,
             'commandes' => $commandes
         ]);
