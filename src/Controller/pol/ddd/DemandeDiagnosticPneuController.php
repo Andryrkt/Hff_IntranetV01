@@ -90,15 +90,9 @@ class DemandeDiagnosticPneuController extends Controller
             /** @var DemandeDiagnosticPneu $demande */
             $demande = $form->getData();
             $uploadedFiles = $form->get('piecesJointes')->getData();
-            // ---- Gestion des pièces jointes ---- 
-
-            if ($uploadedFiles) {
-                $this->handlePiecesJointes($uploadedFiles, $demande);
-            }
-
             // ---- Sauvegarde via une méthode interne ----
             try {
-                $this->saveDemande($demande);
+                $this->saveDemande($demande, $uploadedFiles);
             } catch (\Exception $e) {
                 // $this->addFlash('error', $e->getMessage());
                 dump($e->getMessage());
@@ -109,7 +103,7 @@ class DemandeDiagnosticPneuController extends Controller
     /**
      * Sauvegarde la demande avec transaction, génération du numéro, historique.
      */
-    private function saveDemande(DemandeDiagnosticPneu $demande): void
+    private function saveDemande(DemandeDiagnosticPneu $demande,  $uploadedFiles): void
     {
         $em = $this->getEntityManager();
         $em->beginTransaction();
@@ -118,6 +112,7 @@ class DemandeDiagnosticPneuController extends Controller
             $numero = $this->demandeDiagnosticPneuModel->genererNumeroDemande($em);
             $demande->setNumeroDemande($numero);
 
+            // ---- Gestion des pièces jointes ---- 
             $ligne = 1;
             foreach ($demande->getDiagnosticPneus() as $pneu) {
                 $pneu->setNumeroLigne($ligne++);
@@ -128,6 +123,9 @@ class DemandeDiagnosticPneuController extends Controller
             $em->flush();
             $em->commit();
 
+            if ($uploadedFiles) {
+                $this->handlePiecesJointes($uploadedFiles, $demande);
+            }
 
             // Envoye mail au responsable atelier
             $this->envoyerMailAtelier($demande);
@@ -154,17 +152,19 @@ class DemandeDiagnosticPneuController extends Controller
         if (!is_dir($dossier)) {
             mkdir($dossier, 0777, true);
         }
-
         $nomsFichiers = [];
 
-        foreach ($files as $file) {
+        foreach ($files as $index => $file) {
             if (!$file instanceof UploadedFile) {
                 continue;
             }
 
             $nomOriginal = $file->getClientOriginalName();
             $extension = $file->guessExtension();
-            $nomUnique = uniqid() . '_' . pathinfo($nomOriginal, PATHINFO_FILENAME) . '.' . $extension;
+            $nomUnique = $numDa . '_'
+                . ($index + 1) . '_'
+                . pathinfo($nomOriginal, PATHINFO_FILENAME)
+                . '.' . $extension;
 
             // Upload via le service TraitementDeFichier
             try {

@@ -164,6 +164,12 @@
 
                             {{ form_row(form.pieceJoint03)}}
                             {{ form_errors(form.pieceJoint03) }}
+
+                            {% if form.existingPieceJointDemandePneu %}
+                                {{ form_row(form.existingPieceJointDemandePneu) }}
+                                {{ form_errors(form.existingPieceJointDemandePneu) }}
+                            {% endif %}
+
                         </div>
 
                     </div>

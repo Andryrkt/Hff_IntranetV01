@@ -30,6 +30,13 @@ class DiagnosticPneuType extends AbstractType
         'Semi-remorque droite' => 'semi_droite',
     ];
 
+    const DIAGNOSTICS = [
+        'Réparable' => 'reparable',
+        'A Remplacer' => 'a remplacer',
+        'Rechapable' => 'rechapable',
+        'Détruit' => 'detruit',
+    ];
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -55,12 +62,7 @@ class DiagnosticPneuType extends AbstractType
             ])
             ->add('diagnostic', ChoiceType::class, [
                 'label' => 'Diagnostic atelier',
-                'choices' => [
-                    'Réparable'    => 'reparable',
-                    'Remplacer'    => 'remplacer',
-                    'Rechapable'   => 'rechapable',
-                    'Détruit'      => 'detruit',
-                ],
+                'choices' => self::DIAGNOSTICS,
                 'placeholder' => 'Choisir',
                 'required' => false,
             ])

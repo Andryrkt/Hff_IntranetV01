@@ -543,8 +543,21 @@ class demandeInterventionType extends AbstractType
                         ])
                     ],
                 ]
-            )
-        ;
+            );
+        if ($demandePneu != null) {
+            $builder->add(
+                'existingPieceJointDemandePneu',
+                TextType::class,
+                [
+                    'mapped' => false,
+                    'required' => false,
+                    'label' => 'Pièce Jointe Diagnostic Pneu',
+                    'attr' => [
+                        'readonly' => true,
+                    ],
+                ]
+            );
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver)

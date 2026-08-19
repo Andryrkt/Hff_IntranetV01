@@ -84,12 +84,12 @@
                                     {% if demande.statut == 'traitee atelier' %}
 
                                         <li>
-                                            <a class="dropdown-item fw-bold" href="{{ path('dit_new', {numeroDemandePneu: demande.numeroDemande}) }}">Créer DIT</a>
+                                            <a class="dropdown-item fw-bold" href="{{ path('dit_new', {numeroDemandePneu: demande.numeroDemande}) }}" target="_blank">Créer DIT</a>
                                         </li>
 
                                     {% endif %}
                                     <li>
-                                        <a class="dropdown-item fw-bold" href="{{ path('demande_diagnostic_pneu_details', {numeroDemande: demande.numeroDemande}) }}">Voir les détails</a>
+                                        <a class="dropdown-item fw-bold" href="{{ path('demande_diagnostic_pneu_details', {numeroDemande: demande.numeroDemande}) }}" target="_blank">Voir les détails</a>
                                     </li>
                                 </ul>
                             </div>
