@@ -9,21 +9,14 @@ use App\Factory\Dit\DemandeInterventionFactory;
 
 trait DitTrait
 {
-
-    /**
-     * @var DemandeInterventionFactory
-     * Cette propriété doit être injectée dans le constructeur du contrôleur qui utilise ce trait.
-     */
-    private $demandeInterventionFactory;
-
-    private function createDemandeInterventionFromDto(DemandeInterventionDto $dto): array
+    private function createDemandeInterventionFromDto(DemandeInterventionDto $dto, DemandeInterventionFactory $demandeInterventionFactory): array
     {
         if ($dto->estAtePolTana) {
-            $ditAteTana =  $this->demandeInterventionFactory->createFromDto($dto);
-            $ditAteTanaPol =  $this->demandeInterventionFactory->createFromDtoPol($dto);
+            $ditAteTana =  $demandeInterventionFactory->createFromDto($dto);
+            $ditAteTanaPol =  $demandeInterventionFactory->createFromDtoPol($dto);
             return [$ditAteTana, $ditAteTanaPol];
         } else {
-            return [$this->demandeInterventionFactory->createFromDto($dto)];
+            return [$demandeInterventionFactory->createFromDto($dto)];
         }
     }
 
