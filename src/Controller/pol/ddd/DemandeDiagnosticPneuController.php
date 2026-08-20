@@ -54,7 +54,8 @@ class DemandeDiagnosticPneuController extends Controller
         $demandeDiagnosticPneu = new DemandeDiagnosticPneu();
 
         //Nom d'utilisateur
-        $utilisateur = $this->getSecurityService()->getUserName();
+        $nomUtilisateur = $this->getSecurityService()->getUserName();
+        $mailUtilisateur = $this->getSecurityService()->getUserEmail();
 
 
         // Code Société et Agence de l'utilisateur
@@ -64,7 +65,9 @@ class DemandeDiagnosticPneuController extends Controller
 
         //INITIALISATION DU FORMULAIRE
         $demandeDiagnosticPneu
-            ->setDemandeur($utilisateur);
+            ->setDemandeur($nomUtilisateur);
+        $demandeDiagnosticPneu
+            ->setMailDemandeur($mailUtilisateur);
 
         //AFFICHAGE ET TRAITEMENT DU FORMULAIRE
         $form = $this->getFormFactory()->createBuilder(DemandeDiagnosticPneuType::class, $demandeDiagnosticPneu)->getForm();

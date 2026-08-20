@@ -162,11 +162,20 @@ class DemandeDiagnosticPneuDetailController extends Controller
     }
 
     /**
-     * Envoie un email à l'atelier pour signaler une nouvelle demande.
+     * Envoie un email à l'atelier pour signaler une la validation de la diagnostic de la demande.
      */
     public function envoyerMailAtelier(DemandeDiagnosticPneu $demande): void
     {
-        $destinataire = $_ENV['MAIL_TO_ATELIER'];
+
+        $mailRespAtelier = $_ENV['MAIL_TO_RESP_ATELIER'];
+
+        $mailDemandeur = $demande->getMailDemandeur();
+
+        $destinataires = [$mailRespAtelier];
+        if (!empty($mailDemandeur)) {
+            $destinataires[] = $mailDemandeur;
+        }
+
         $service = 'Atelier Pneu';
 
         // Construction de l'URL de détail : BASE_PATH_COURT + chemin relatif
@@ -183,12 +192,12 @@ class DemandeDiagnosticPneuDetailController extends Controller
         );
 
         $variables = [
-            'subject'      => $header,
+            'subject'        => $header,
             'header'         => $header,
-            'message'       => 'Votre demande de diagnostic pneu a été mise à jour.',
+            'message'        => 'Votre demande de diagnostic pneu a été mise à jour.',
             'nomDemandeur'   => $demande->getDemandeur(),
             'numeroDemande'  => $demande->getNumeroDemande(),
-            'statut'        => $demande->getStatut(),
+            'statut'         => $demande->getStatut(),
             'urlDetail'      => $urlDetail,
             'urlIntranet'    => $urlIntranet,
             'service'        => $service,
@@ -197,7 +206,7 @@ class DemandeDiagnosticPneuDetailController extends Controller
 
 
         $this->envoyerEmail([
-            'to'          => $destinataire,
+            'to'          => $destinataires,
             'cc'          => [$_ENV['MAIL_CC_ATELIER']],
             'variables'   => $variables,
         ]);

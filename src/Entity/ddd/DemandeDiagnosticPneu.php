@@ -118,6 +118,10 @@ class DemandeDiagnosticPneu
      * @ORM\Column(type="string", length=100)
      */
     private ?string $demandeur = null;
+    /**
+     * @ORM\Column(type="string", length=100)
+     */
+    private ?string $mailDemandeur = null;
 
     /**
      * @ORM\Column(type="datetime", name="date_creation")
@@ -322,6 +326,16 @@ class DemandeDiagnosticPneu
     public function setDemandeur(string $demandeur): self
     {
         $this->demandeur = $demandeur;
+        return $this;
+    }
+    public function getMailDemandeur(): ?string
+    {
+        return $this->mailDemandeur;
+    }
+
+    public function setMailDemandeur(string $mailDemandeur): self
+    {
+        $this->mailDemandeur = $mailDemandeur;
         return $this;
     }
 
