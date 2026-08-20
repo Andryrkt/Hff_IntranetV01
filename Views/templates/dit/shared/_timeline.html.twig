@@ -10,4 +10,26 @@
 	</div>
 </div>
 
-<p>Timeline non disponible pour l'instant.</p>
+{% if timelineData.DIT is defined and timelineData.DIT|length > 0 %}
+	<div class="mb-5">
+		<div class="ps-4">
+			<div class="fw-bold fs-6 mb-2 ps-5">DIT n°
+				{{ timelineData.numeroDit }}
+			</div>
+			{% for item in timelineData.DIT %}
+				<div class="timeline-item">
+					<div class="timeline-dot {{ item.dotClass }}"></div>
+					<div class="timeline-content">
+						<div class="d-flex flex-row align-items-center gap-4">
+							<div class="timeline-date">{{ item.date }}</div>
+							<div class="timeline-status {{ item.dotClass }}">{{ item.statut }}</div>
+						</div>
+						<div class="timeline-duration mt-3">{{ item.nbrJours }}</div>
+					</div>
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+{% else %}
+	<p>Timeline non disponible pour l'instant.</p>
+{% endif %}

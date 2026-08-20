@@ -8,6 +8,7 @@ use App\Service\Admin\UrlIdCipher;
 use App\Entity\dit\DitObservation;
 use App\Form\dit\DitObservationType;
 use App\Entity\dit\DemandeIntervention;
+use App\Service\dit\DitTimelineService;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -18,12 +19,22 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException;
  */
 class DitDetailController extends Controller
 {
+    private DitTimelineService $ditTimelineService;
+    private UrlIdCipher $urlIdCipher;
+
+    public function __construct(DitTimelineService $ditTimelineService, UrlIdCipher $urlIdCipher)
+    {
+        parent::__construct();
+        $this->ditTimelineService = $ditTimelineService;
+        $this->urlIdCipher = $urlIdCipher;
+    }
+
     /**
      * @Route("/fiche-detail-dit/{token}", name="dit_fiche_detail")
      */
     public function detailDit(string $token, Request $request)
     {
-        $realId = (new UrlIdCipher)->decryptInt($token);
+        $realId = $this->urlIdCipher->decryptInt($token);
 
         if (empty($realId) && $realId !== 0) throw new ResourceNotFoundException();
 
@@ -42,6 +53,7 @@ class DitDetailController extends Controller
             'form'         => $form->createView(),
             'dto'          => DitDetailDto::fromEntity($dit),
             'observations' => $observations,
+            'timelineData' => $this->ditTimelineService->getTimelineData($dit),
         ]);
     }
 
