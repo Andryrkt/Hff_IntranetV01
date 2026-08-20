@@ -129,7 +129,7 @@ class DemandeDiagnosticPneuDetailController extends Controller
             if ($action == "valider") {
                 $demande->setStatut('traitee atelier');
                 $this->traitementDeFichier($form, $demande, $genererPdfDit);
-                $this->envoyerMailAtelier($demande);
+                $this->envoyerMail($demande);
             } else {
                 $demande->setStatut('diag en cours');
             }
@@ -164,7 +164,7 @@ class DemandeDiagnosticPneuDetailController extends Controller
     /**
      * Envoie un email à l'atelier pour signaler une la validation de la diagnostic de la demande.
      */
-    public function envoyerMailAtelier(DemandeDiagnosticPneu $demande): void
+    public function envoyerMail(DemandeDiagnosticPneu $demande): void
     {
 
         $mailRespAtelier = $_ENV['MAIL_TO_RESP_ATELIER'];
@@ -194,7 +194,7 @@ class DemandeDiagnosticPneuDetailController extends Controller
         $variables = [
             'subject'        => $header,
             'header'         => $header,
-            'message'        => 'Votre demande de diagnostic pneu a été mise à jour.',
+            'message'        => 'La demande de diagnostic pneu a été mise à jour.',
             'nomDemandeur'   => $demande->getDemandeur(),
             'numeroDemande'  => $demande->getNumeroDemande(),
             'statut'         => $demande->getStatut(),
