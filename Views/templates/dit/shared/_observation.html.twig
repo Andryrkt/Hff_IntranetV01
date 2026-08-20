@@ -1,4 +1,3 @@
-
 <div class="row">
 	<div class="col-md-11">
 		<h3 class="perso-titre">
@@ -26,7 +25,7 @@
 									{% set dateTemp = observation.dateCreation|date('d/m/Y') %}
 								{% endif %}
 
-								{% set isCurrentUser = connectedUser.nomUtilisateur == observation.utilisateur %}
+								{% set isCurrentUser = App.connectedUser.username == observation.utilisateur %}
 
 								<div class="talk {{ isCurrentUser ? 'right' : 'left' }} mb-2">
 									{% if not isCurrentUser %}
@@ -43,14 +42,6 @@
 											<p>{{ observation.observation|raw }}</p>
 											<span class="time">{{ observation.dateCreation|date('H:i') }}</span>
 										</div>
-										{% for fileName in observation.fileNames %}
-											<div class="file-comment">
-												<i class="fas fa-file-pdf text-primary fs-6"></i>
-												<span data-file-path="{{ App.base_path_fichier }}/da/{{ demandeAppro.numeroDemandeAppro }}/{{ fileName }}" data-file-name="{{ fileName }}">
-													{{ fileName }}
-												</span>
-											</div>
-										{% endfor %}
 									</div>
 								</div>
 
@@ -75,4 +66,3 @@
 		</div>
 	</div>
 </div>
-
