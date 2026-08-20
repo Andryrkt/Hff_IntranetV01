@@ -81,48 +81,48 @@
                             </div>
 
 
-						{{ macroForm.sousTitre('Info Client', {class: 'sousTitre'})}}
-						<div class="row">
-							<div class="col-12 col-md-6">
-								{{ form_row(form.numeroClient)}}
-								<div id="suggestion-numClient" class="suggestions-container"></div>
-								<div id="loader-numClient" class="spinner" style="display: none;"></div>
-								{{ form_row(form.nomClient)}}
-								<div id="suggestion-nomClient" class="suggestions-container"></div>
-								<div id="loader-nomClient" class="spinner" style="display: none;"></div>
-								{{ form_row(form.clientSousContrat)}}
-							</div>
-							<div class="col-12 col-md-6">
-								{{ form_row(form.numeroTel)}}
-								{{ form_row(form.mailClient)}}
-							</div>
-						</div>
-						<div class="row">
-							<span id="erreurClient"></span>
-						</div>
-						{{ macroForm.sousTitre('Information Matériel', {class: 'sousTitre'})}}
-						<div class="row">
-							<div class="col-12 col-md-4">
-								{{ form_row(form.idMateriel)}}
-								<div id="suggestion-idMateriel" class="suggestions-container"></div>
-								<div id="loader-idMateriel" class="spinner d-flex align-items-center" style="display: none;"></div>
+                            {{ macroForm.sousTitre('Info Client', {class: 'sousTitre'})}}
+                            <div class="row">
+                                <div class="col-12 col-md-6">
+                                    {{ form_row(form.numeroClient)}}
+                                    <div id="suggestion-numClient" class="suggestions-container"></div>
+                                    <div id="loader-numClient" class="spinner" style="display: none;"></div>
+                                    {{ form_row(form.nomClient)}}
+                                    <div id="suggestion-nomClient" class="suggestions-container"></div>
+                                    <div id="loader-nomClient" class="spinner" style="display: none;"></div>
+                                    {{ form_row(form.clientSousContrat)}}
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    {{ form_row(form.numeroTel)}}
+                                    {{ form_row(form.mailClient)}}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <span id="erreurClient"></span>
+                            </div>
+                            {{ macroForm.sousTitre('Information Matériel', {class: 'sousTitre'})}}
+                            <div class="row">
+                                <div class="col-12 col-md-4">
+                                    {{ form_row(form.idMateriel)}}
+                                    <div id="suggestion-idMateriel" class="suggestions-container"></div>
+                                    <div id="loader-idMateriel" class="spinner d-flex align-items-center" style="display: none;"></div>
 
-							</div>
-							<div class="col-12 col-md-4">
-								{{ form_row(form.numParc)}}
-								<div id="suggestion-numParc" class="suggestions-container"></div>
-								<div id="loader-numParc" class="spinner" style="display: none;"></div>
-							</div>
-							<div class="col-12 col-md-4">
-								{{ form_row(form.numSerie)}}
-								<div id="suggestion-numSerie" class="suggestions-container"></div>
-								<div id="loader-numSerie" class="spinner" style="display: none;"></div>
-							</div>
-						</div>
-						<div class="row">
-							<div id="error-idMateriel" class="text-danger"></div>
-						</div>
-						<div id="containerInfoMateriel"></div>
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    {{ form_row(form.numParc)}}
+                                    <div id="suggestion-numParc" class="suggestions-container"></div>
+                                    <div id="loader-numParc" class="spinner" style="display: none;"></div>
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    {{ form_row(form.numSerie)}}
+                                    <div id="suggestion-numSerie" class="suggestions-container"></div>
+                                    <div id="loader-numSerie" class="spinner" style="display: none;"></div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div id="error-idMateriel" class="text-danger"></div>
+                            </div>
+                            <div id="containerInfoMateriel"></div>
 
                         </div>
                         <div class="col-12 col-md-6">
@@ -166,10 +166,22 @@
                             {{ form_errors(form.pieceJoint03) }}
 
                             {% if form.existingPieceJointDemandePneu %}
-                                {{ form_row(form.existingPieceJointDemandePneu) }}
-                                {{ form_errors(form.existingPieceJointDemandePneu) }}
+                                <div class="mb-3">
+                                    {{ form_label(form.existingPieceJointDemandePneu) }}
+                                    <div class="pdf-container d-flex align-items-center gap-2">
+                                        {{ form_widget(form.existingPieceJointDemandePneu, { attr: { class: 'd-none' } }) }}
+                                        <button type="button"
+                                            class="btn btn-link p-0 text-decoration-underline view-pdf-btn"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#pdfModal"
+                                            style="font-size: inherit; color: #0d6efd;">
+                                            <i class="fas fa-file-pdf text-danger me-1"></i>
+                                            {{ form.existingPieceJointDemandePneu.vars.value }}
+                                        </button>
+                                    </div>
+                                    {{ form_errors(form.existingPieceJointDemandePneu) }}
+                                </div>
                             {% endif %}
-
                         </div>
 
                     </div>
@@ -193,10 +205,64 @@
 
     <div id="materielInfos"></div>
     </div>
-    {% include "/dit/shared/_modalNiveauUrgence.html.twig"  %}
 
+
+    {% include "/dit/shared/_modalNiveauUrgence.html.twig"  %}
+    {% include "/dit/shared/_modalViewPdf.html.twig"  %}
 {% endblock %}
 
 {% block javascript %}
     <script type="module" src="{{ App.base_path }}/Views/js/dit/dit.js?v=2026.07.03.14.50" type="module"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.view-pdf-btn').forEach(function(btn) {
+                btn.addEventListener('click', function(e) {
+                    const container = this.closest('.pdf-container');
+                    if (!container) return;
+
+                    // 1. Find the field containing the filename
+                    const field = container.querySelector('[id$="existingPieceJointDemandePneu"]');
+                    let filename = '';
+                    if (field) {
+                        filename = (field.tagName === 'INPUT') ? field.value : field.textContent.trim();
+                    }
+
+                    // Fallback: if we still have nothing, extract text manually
+                    if (!filename) {
+                        const clone = container.cloneNode(true);
+                        clone.querySelector('.view-pdf-btn').remove();
+                        clone.querySelectorAll('input, label, .form-label').forEach(el => el.remove());
+                        filename = clone.textContent.trim();
+                    }
+
+                    if (!filename) {
+                        alert('Nom du fichier introuvable.');
+                        e.preventDefault();
+                        return;
+                    }
+
+                    // 2. Extraction numDemande
+                    const numeroDemande = filename.split('_')[0];
+                    if (!numeroDemande) {
+                        alert('Impossible d\'extraire le numéro de demande du nom de fichier.');
+                        e.preventDefault();
+                        return;
+                    }
+
+                    // 3. Build the full URL
+                    const pdfUrl = `/Upload/ddd/${numeroDemande}/${filename}#toolbar=0&navpanes=0`;
+
+                    // 4. Inject into modal
+                    document.getElementById('pdfIframe').src = pdfUrl;
+                    document.getElementById('pdfDownloadLink').href = pdfUrl;
+                });
+            });
+
+            // 5. Clear iframe when modal closes (stops background loading)
+            const pdfModal = document.getElementById('pdfModal');
+            pdfModal.addEventListener('hidden.bs.modal', function() {
+                document.getElementById('pdfIframe').src = '';
+            });
+        });
+    </script>
 {% endblock %}
