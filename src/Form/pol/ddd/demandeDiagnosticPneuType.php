@@ -211,9 +211,14 @@ class DemandeDiagnosticPneuType extends AbstractType
                 FileType::class,
                 [
                     'label' => 'Pièces Jointes',
+                    'help' => 'Formats acceptés : PDF, Images (.pdf, .jpg, .jpeg, .png) • Taille max : 5 Mo par fichier',
                     'required' => false,
                     'multiple' => true,
-                    // 'data_class' => null,
+                    'attr' => [
+                        'accept' => '.pdf, .jpg, .jpeg, .png',
+                        'class' => 'form-control-file',
+                        'data-max-size' => '5M',
+                    ],
                     'mapped' => false,
                     'constraints' => [
                         new Callback([$this, 'validateFiles']),
@@ -249,11 +254,8 @@ class DemandeDiagnosticPneuType extends AbstractType
         $mimeTypes = [
             'application/pdf',
             'image/jpeg',
+            'image/jpg',
             'image/png',
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'application/vnd.ms-powerpoint',
-            'application/vnd.openxmlformats-officedocument.presentationml.presentation',
         ];
 
         if ($files) {
