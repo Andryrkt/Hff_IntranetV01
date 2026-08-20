@@ -41,6 +41,7 @@ CREATE TABLE
         nb_pneu_a_diagnostiquer SMALLINT NOT NULL CHECK (nb_pneu_a_diagnostiquer BETWEEN 0 AND 10),
         observation VARCHAR(MAX),
         demandeur VARCHAR(100) NOT NULL,
+        mailDemandeur VARCHAR(100) NOT NULL,
         date_creation DATETIME2 NOT NULL DEFAULT SYSDATETIME (),
         statut VARCHAR(20) NOT NULL DEFAULT 'a traiter atelier',
         numero_dit VARCHAR(12),

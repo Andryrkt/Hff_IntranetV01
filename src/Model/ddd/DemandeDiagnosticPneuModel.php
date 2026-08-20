@@ -55,13 +55,14 @@ class DemandeDiagnosticPneuModel extends Model
       
       FROM MAT_MAT
       LEFT JOIN mat_bil on mbil_nummat = mmat_nummat and mbil_dateclot <= '01/01/1900' and mbil_dateclot = '12/31/1899'
-      WHERE MMAT_ETSTOCK in ('ST','AT', '--')
-      AND MMAT_AFFECT <> 'CAS'
+       WHERE MMAT_ETSTOCK in ('ST','AT', '--')
+      AND MMAT_AFFECT in ('LCD','IMM', 'VTE')
+      AND mmat_etvente = '--' AND  mmat_etachat = 'FA' AND mmat_dispo = 'O' 
+      AND mmat_datedisp < '31/12/2999'
       " . $conditionNummat . "
       " . $conditionNumParc . "
       " . $conditionNumSerie . "
       ";
-
 
         $result = $this->connect->executeQuery($statement);
 
