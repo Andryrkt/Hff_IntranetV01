@@ -256,7 +256,7 @@
                                             <div class="flex-grow-1 text-truncate" style="max-width: 100px;" title="{{ piece|split('/')|last }}">
                                                 {{ piece|split('/')|last|length > 15 ? piece|split('/')|last|slice(0, 15) ~ '…' : piece|split('/')|last }}
                                             </div>
-                                            <a href="/Upload/ddd/{{ piece }}" target="_blank" class="btn btn-sm btn-outline-primary ms-1" title="Télécharger / ouvrir">
+                                            <a href="/Upload/ddd/{{ demande.numeroDemande }}/{{ piece }}" target="_blank" class="btn btn-sm btn-outline-primary ms-1" title="Télécharger / ouvrir">
                                                 <i class="fas fa-download"></i>
                                             </a>
                                         </div>
