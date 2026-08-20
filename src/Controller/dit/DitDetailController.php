@@ -3,12 +3,15 @@
 namespace App\Controller\dit;
 
 use App\Model\dit\DitModel;
+use App\Dto\Dit\DitDetailDto;
 use App\Controller\Controller;
-use App\Entity\dit\DemandeIntervention;
+use App\Service\Admin\UrlIdCipher;
 use App\Entity\dit\DitObservation;
 use App\Form\dit\DitObservationType;
+use App\Entity\dit\DemandeIntervention;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 /**
  * @Route("/atelier/demande-intervention")
@@ -16,11 +19,15 @@ use Symfony\Component\Routing\Annotation\Route;
 class DitDetailController extends Controller
 {
     /**
-     * @Route("/fiche-detail-dit/{id<\d+>}", name="dit_fiche_detail")
+     * @Route("/fiche-detail-dit/{token}", name="dit_fiche_detail")
      */
-    public function detailDit(int $id, Request $request)
+    public function detailDit(string $token, Request $request)
     {
-        $dit = $this->getEntityManager()->getRepository(DemandeIntervention::class)->find($id);
+        $realId = (new UrlIdCipher)->decryptInt($token);
+
+        if (empty($realId) && $realId !== 0) throw new ResourceNotFoundException();
+
+        $dit = $this->getEntityManager()->getRepository(DemandeIntervention::class)->find($realId);
         $ditModel = new DitModel();
         $data = $ditModel->findAll($dit->getIdMateriel(), $dit->getNumParc(), $dit->getNumSerie());
 
@@ -54,12 +61,11 @@ class DitDetailController extends Controller
         //RECUPERATION DE LISTE COMMANDE 
         $commandes = $ditModel->RecupereCommandeOr($dit->getNumeroOR());
 
-        $this->logUserVisit('dit_fiche_detail', ['id' => $id]); // historisation du page visité par l'utilisateur       
+        $this->logUserVisit('dit_fiche_detail', ['id' => $realId]); // historisation du page visité par l'utilisateur
 
         return  $this->render('dit/detail.html.twig', [
-            'form'      => $form->createView(),
-            'dit'       => $dit,
-            'commandes' => $commandes
+            'form' => $form->createView(),
+            'dit'  => DitDetailDto::fromEntity($dit, $commandes)
         ]);
     }
 }
