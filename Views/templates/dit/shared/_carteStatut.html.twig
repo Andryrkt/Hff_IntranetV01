@@ -1,6 +1,6 @@
 <div class="status-list">
 	{% for statut in statusCounts %}
-		<span class="status-badge {{ statut.statut | lower | replace({' ': '_'}) }}">
+		<span class="status-badge {{ statut.cssClass }}">
 			<span class="count">{{ statut.count }}</span>
 			<span class="label">{{ statut.statut }}</span>
 		</span>
