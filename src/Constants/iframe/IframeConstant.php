@@ -5,6 +5,6 @@ namespace App\Constants\iframe;
 class IframeConstant
 {
     public const LINK = [
-        "rental-rollout" => "/RentalRollout/dashboard_v5.html"
+        "rental-rollout" => "/RentalRollout/dashboard_rental.html"
     ];
 }

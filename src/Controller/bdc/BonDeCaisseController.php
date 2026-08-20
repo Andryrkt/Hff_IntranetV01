@@ -156,7 +156,7 @@ class BonDeCaisseController extends Controller
         $serviceCodeUser = $this->getSecurityService()->getCodeServiceUser();
 
         // Vérifier la permission de voir tous les données
-        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE, "bon_caisse_liste");
 
         // Vérifier le permission de voir liste avec débiteur sur la page courante
         $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2, "bon_caisse_liste");

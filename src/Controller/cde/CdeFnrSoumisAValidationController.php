@@ -62,7 +62,7 @@ class CdefnrSoumisAValidationController extends Controller
 
             $blockages = $this->conditionDeBlockage($originalName, $numCdeFournisseur);
 
-            if ($this->blockageSoumissionCdeFnr($blockages, $numCdeFournisseur, $originalName)) {
+            // if ($this->blockageSoumissionCdeFnr($blockages, $numCdeFournisseur, $originalName)) {
                 $cdeFournisseur = $this->ajoutDonnerEntity($numCdeFournisseur, $codeFournisseur);
 
                 //Enregistrement du fichier
@@ -90,7 +90,7 @@ class CdefnrSoumisAValidationController extends Controller
                 //historisation de l'operation
                 $message = 'La commade fournisseur a été soumis avec succès';
                 $this->historiqueOperation->sendNotificationCreation($message, $numFnrCde, 'cde_fournisseur', true);
-            }
+            // }
         }
     }
 
