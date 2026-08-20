@@ -58,7 +58,7 @@ class DemandeDiagnosticPneuModel extends Model
        WHERE MMAT_ETSTOCK in ('ST','AT', '--')
       AND MMAT_AFFECT in ('LCD','IMM', 'VTE')
       AND mmat_etvente = '--' AND  mmat_etachat = 'FA' AND mmat_dispo = 'O' 
-      AND mmat_datedisp < '31/12/2999'
+    --   AND mmat_datedisp <= '31/12/2999'
       " . $conditionNummat . "
       " . $conditionNumParc . "
       " . $conditionNumSerie . "
