@@ -11,6 +11,7 @@ class DitDetailDto
     public ?string $numDit = null;
     public ?string $dateDemande = null;
     public ?string $statutDit = null;
+    public ?string $statutCssClass = null;
     public ?string $objetDemande = null;
     public ?string $detailDemande = null;
     public ?string $typeDocument = null;
@@ -60,6 +61,7 @@ class DitDetailDto
         $dto->numDit                      = $dit->getNumeroDemandeIntervention();
         $dto->dateDemande                 = $dit->getDateDemande() ? $dit->getDateDemande()->format('d/m/Y') : null;
         $dto->statutDit                   = $dit->getIdStatutDemande() ? $dit->getIdStatutDemande()->getDescription() : "-";
+        $dto->statutCssClass              = str_replace(" ", "_", strtolower($dto->statutDit));
         $dto->objetDemande                = $dit->getObjetDemande();
         $dto->detailDemande               = $dit->getDetailDemande();
         $dto->typeDocument                = $dit->getTypeDocument();

@@ -2,47 +2,49 @@
 
 {% block nav %}{% endblock %}
 
-{% block title %}Fiche détail d'un DIT{% endblock %}
+{% block title %}
+	Fiche détail d'un DIT
+{% endblock %}
 
 {% block stylesheets %}
 	<link href="{{ App.base_path }}/Views/css/new.css?v=2026.07.03.14.50" rel="stylesheet"/>
 	<link href="{{ App.base_path }}/Views/css/partials/onglet.css?v=2026.07.03.14.50" rel="stylesheet"/>
 	<link href="{{ App.base_path }}/Views/css/dit/detail.css?v=2026.07.03.14.50" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/dit/liste.css?v=2026.07.03.14.50" rel="stylesheet"/>
 	<link href="{{ App.base_path }}/Views/css/da/detail.css?v=2026.07.03.14.50" rel="stylesheet"/>
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
 
 {% block content %}
-<div class="container-spaced">
-	<nav>
-		<div class="onglet-head nav nav-tabs" id="nav-tab" role="tablist">
-			<button class="nav-link active" id="nav-detail-tab" data-bs-toggle="tab" data-bs-target="#nav-detail" type="button" role="tab" aria-controls="nav-detail" aria-selected="true">Détail</button>
-			<button class="nav-link" id="nav-observation-tab" data-bs-toggle="tab" data-bs-target="#nav-observation" type="button" role="tab" aria-controls="nav-observation" aria-selected="false">Observation</button>
-			<button class="nav-link" id="nav-timeline-tab" data-bs-toggle="tab" data-bs-target="#nav-timeline" type="button" role="tab" aria-controls="nav-timeline" aria-selected="false">Timeline</button>
-		</div>
-	</nav>
-	<div class="card border-top-left-radius-0">
-		<div class="card-body">
-			<div class="container-fluid">
-				<div class="tab-content" id="nav-tabContent">
-					<div class="tab-pane fade active show" id="nav-detail" role="tabpanel" aria-labelledby="nav-detail-tab">
-						{{ include('dit/shared/_detail.html.twig') }}
-					</div>
+	<div class="container-spaced">
+		<nav>
+			<div class="onglet-head nav nav-tabs" id="nav-tab" role="tablist">
+				<button class="nav-link active" id="nav-detail-tab" data-bs-toggle="tab" data-bs-target="#nav-detail" type="button" role="tab" aria-controls="nav-detail" aria-selected="true">Détail</button>
+				<button class="nav-link" id="nav-observation-tab" data-bs-toggle="tab" data-bs-target="#nav-observation" type="button" role="tab" aria-controls="nav-observation" aria-selected="false">Observation</button>
+				<button class="nav-link" id="nav-timeline-tab" data-bs-toggle="tab" data-bs-target="#nav-timeline" type="button" role="tab" aria-controls="nav-timeline" aria-selected="false">Timeline</button>
+			</div>
+		</nav>
+		<div class="card border-top-left-radius-0">
+			<div class="card-body">
+				<div class="container-fluid">
+					<div class="tab-content" id="nav-tabContent">
+						<div class="tab-pane fade active show" id="nav-detail" role="tabpanel" aria-labelledby="nav-detail-tab">
+							{{ include('dit/shared/_detail.html.twig') }}
+						</div>
 
-					<div class="tab-pane fade" id="nav-observation" role="tabpanel" aria-labelledby="nav-observation-tab">
-						{{ include('dit/shared/_observation.html.twig') }}
-					</div>
+						<div class="tab-pane fade" id="nav-observation" role="tabpanel" aria-labelledby="nav-observation-tab">
+							{{ include('dit/shared/_observation.html.twig') }}
+						</div>
 
-					<div class="tab-pane fade" id="nav-timeline" role="tabpanel" aria-labelledby="nav-timeline-tab">
-						{{ include('dit/shared/_timeline.html.twig') }}
+						<div class="tab-pane fade" id="nav-timeline" role="tabpanel" aria-labelledby="nav-timeline-tab">
+							{{ include('dit/shared/_timeline.html.twig') }}
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-</div>
 {% endblock %}
 
-{% block javascript %}
-{% endblock %}
+{% block javascript %}{% endblock %}
