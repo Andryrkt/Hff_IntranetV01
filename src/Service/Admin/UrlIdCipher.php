@@ -12,9 +12,10 @@ class UrlIdCipher
 
     public function __construct()
     {
-        // Clé secrète 32 octets, généré une fois avec `echo base64_encode(sodium_crypto_secretbox_keygen());`
-        $key = base64_decode($_ENV['APP_URL_CIPHER_KEY'], true);
+        // Clé secrète 32 octets, généré une fois avec `echo base64_encode(random_bytes(32));`
+        $key = base64_decode($_ENV['APP_URL_CIPHER_KEY'] ?? "", true);
 
+        if (empty($key)) throw new \RuntimeException('Clé inexistante dans le fichier `.env` (APP_URL_CIPHER_KEY)');
         if ($key === false || strlen($key) !== 32) throw new \RuntimeException('Clé invalide : attendu 32 octets en base64.');
 
         $this->key = $key;
