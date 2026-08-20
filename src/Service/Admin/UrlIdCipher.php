@@ -7,6 +7,7 @@ class UrlIdCipher
     private const CIPHER_METHOD = 'aes-256-gcm';
     private const NONCE_LENGTH = 12;
     private const TAG_LENGTH = 16;
+    private const MIN_TOKEN_LENGTH = 38;
     private string $key;
 
     public function __construct()
@@ -84,5 +85,17 @@ class UrlIdCipher
             return null;
         }
         return (int) $plain;
+    }
+
+    /** Vérifier qu'une chaîne a été chiffré à l'aide de cette classe */
+    public static function isValid(string $token): bool
+    {
+        if (strlen($token) < self::MIN_TOKEN_LENGTH) return false;
+
+        static $instance = null;
+
+        if ($instance === null) $instance = new self();
+
+        return $instance->decrypt($token) !== null;
     }
 }

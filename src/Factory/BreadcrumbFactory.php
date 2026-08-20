@@ -2,6 +2,7 @@
 
 namespace App\Factory;
 
+use App\Service\Admin\UrlIdCipher;
 use App\Service\navigation\MenuService;
 
 class BreadcrumbFactory
@@ -103,7 +104,10 @@ class BreadcrumbFactory
 
         // 3. Filtrer les segments non numériques
         $segments = array_values(array_filter($segments, function ($segment) {
-            return !is_numeric($segment) && !preg_match('/\d$/', $segment);
+            if (is_numeric($segment)) return false;
+            if (UrlIdCipher::isValid($segment)) return false;
+
+            return true;
         }));
 
         $breadcrumbs = [$accueil];
