@@ -2,6 +2,7 @@
 
 namespace App\Dto\Dit;
 
+use App\Model\dit\DitModel;
 use App\Entity\dit\DemandeIntervention;
 
 class DitDetailDto
@@ -54,9 +55,10 @@ class DitDetailDto
     /** @var DitCommandeDto[] */
     public array $commandes = [];
 
-    public static function fromEntity(DemandeIntervention $dit, array $commandes): self
+    public static function fromEntity(DemandeIntervention $dit): self
     {
         $dto = new self();
+        $ditModel = new DitModel();
 
         $dto->numDit                      = $dit->getNumeroDemandeIntervention();
         $dto->dateDemande                 = $dit->getDateDemande() ? $dit->getDateDemande()->format('d/m/Y') : null;
@@ -69,7 +71,7 @@ class DitDetailDto
         $dto->demandeDevis                = $dit->getDemandeDevis();
         $dto->categorieDemandeLibelle     = $dit->getCategorieDemande() ? $dit->getCategorieDemande()->getLibelleCategorieAteApp() : "-";
         $dto->livraisonPartiel            = $dit->getLivraisonPartiel();
-        $dto->internetExterne             = $dit->getInternetExterne();
+        $dto->internetExterne             = $dto->libelleInterneExterne($dit->getInternetExterne());
         $dto->numeroOr                    = $dit->getNumeroOR();
         $dto->statutOr                    = $dit->getStatutOr();
         $dto->sectionAffectee             = self::supprimerMots($dit->getSectionAffectee(), self::MOTS_A_SUPPRIMER_SECTION);
@@ -80,30 +82,52 @@ class DitDetailDto
         $dto->clientSousContrat           = $dit->getClientSousContrat();
         $dto->niveauUrgence               = $dit->getIdNiveauUrgence() ? $dit->getIdNiveauUrgence()->getDescription() : "-";
         $dto->datePrevueTravauxFormatee   = $dit->getDatePrevueTravaux() ? $dit->getDatePrevueTravaux()->format('d/m/Y') : null;
-        $dto->chiffreAffaireFormate       = self::formaterMontant($dit->getChiffreAffaire());
-        $dto->chargeEntretientFormate     = self::formaterMontant($dit->getChargeEntretient());
-        $dto->chargeLocativeFormate       = self::formaterMontant($dit->getChargeLocative());
-        $dto->resultatExploitationFormate = self::formaterMontant($dit->getResultatExploitation());
-        $dto->coutAcquisitionFormate      = self::formaterMontant($dit->getCoutAcquisition());
-        $dto->amortissementFormate        = self::formaterMontant($dit->getAmortissement());
-        $dto->valeurNetComptableFormatee  = self::formaterMontant($dit->getValeurNetComptable());
-        $dto->idMateriel                  = $dit->getIdMateriel();
-        $dto->numSerie                    = $dit->getNumSerie();
-        $dto->numParc                     = $dit->getNumParc();
-        $dto->constructeur                = $dit->getConstructeur();
-        $dto->designation                 = $dit->getDesignation();
-        $dto->km                          = $dit->getKm();
-        $dto->modele                      = $dit->getModele();
-        $dto->casier                      = $dit->getCasier();
-        $dto->heure                       = $dit->getHeure();
         $dto->typeReparation              = $dit->getTypeReparation();
         $dto->reparationRealise           = $dit->getReparationRealise();
         $dto->pieceJoint01                = $dit->getPieceJoint01();
         $dto->pieceJoint02                = $dit->getPieceJoint02();
         $dto->pieceJoint03                = $dit->getPieceJoint03();
-        $dto->commandes                   = array_map([DitCommandeDto::class, 'fromRow'], $commandes);
+
+        $dto->hydraterLigneMateriel($ditModel->findAll($dit->getIdMateriel(), $dit->getNumParc(), $dit->getNumSerie())[0] ?? []);
+
+        $dto->commandes = array_map([DitCommandeDto::class, 'fromRow'], $ditModel->RecupereCommandeOr($dit->getNumeroOR()));
 
         return $dto;
+    }
+
+    /**
+     * Hydrate les champs matériel/bilan financier du DTO à partir d'une ligne Informix (résultat de DitModel::findAll).
+     *
+     * @param array{num_matricule:?string,num_parc:?string,num_serie:?string,constructeur:?string,modele:?string,designation:?string,casier_emetteur:?string,km:?string,heure:?string,prix_achat:?string,amortissement:?string,chiffreaffaires:?string,chargeentretien:?string,chargelocative:?string} $row
+     */
+    private function hydraterLigneMateriel(array $row): void
+    {
+        $this->idMateriel   = $row['num_matricule'] ?? null;
+        $this->numParc      = $row['num_parc'] ?? null;
+        $this->numSerie     = $row['num_serie'] ?? null;
+        $this->constructeur = $row['constructeur'] ?? null;
+        $this->modele       = $row['modele'] ?? null;
+        $this->designation  = $row['designation'] ?? null;
+        $this->casier       = $row['casier_emetteur'] ?? null;
+        $this->km           = $row['km'] ?? null;
+        $this->heure        = $row['heure'] ?? null;
+        $this->coutAcquisitionFormate      = self::formaterMontant($row['prix_achat'] ?? null);
+        $this->amortissementFormate        = self::formaterMontant($row['amortissement'] ?? null);
+        $this->chiffreAffaireFormate       = self::formaterMontant($row['chiffreaffaires'] ?? null);
+        $this->chargeEntretientFormate     = self::formaterMontant($row['chargeentretien'] ?? null);
+        $this->chargeLocativeFormate       = self::formaterMontant($row['chargelocative'] ?? null);
+        $this->resultatExploitationFormate = self::formaterMontant(($row['chiffreaffaires'] ?? 0) - (($row['chargeentretien'] ?? 0) + ($row['chargelocative'] ?? 0)));
+        $this->valeurNetComptableFormatee  = self::formaterMontant(($row['prix_achat'] ?? 0) - ($row['amortissement'] ?? 0));
+    }
+
+    /**
+     * Traduit le code Informix ('I'/'E') en libellé affichable.
+     */
+    private function libelleInterneExterne(?string $internetExterne): ?string
+    {
+        if ($internetExterne === "I") return "INTERNE";
+        if ($internetExterne === "E") return "EXTERNE";
+        return $internetExterne;
     }
 
     private static function formaterMontant(?float $montant): string
