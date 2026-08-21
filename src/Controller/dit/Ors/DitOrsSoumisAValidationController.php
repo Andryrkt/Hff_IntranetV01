@@ -13,6 +13,7 @@ use App\Controller\Traits\FormatageTrait;
 use App\Entity\admin\StatutDemande;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DemandeAppro;
+use App\Entity\ddd\DemandeDiagnosticPneu;
 use App\Entity\dit\BcSoumis;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitOrsSoumisAValidation;
@@ -180,6 +181,10 @@ class DitOrsSoumisAValidationController extends Controller
 
                 /** modifier la colonne numero_or dans la table demande_intervention */
                 $this->modificationDuNumeroOrDansDit($numDit, $ditInsertionOrSoumis, $codeSociete);
+
+                /** modifier la colonne numero_or dans la table demande_diagnostic_pneu */
+
+                $this->modificationDuNumeroOrDansDDD($numDit,  $ditInsertionOrSoumis);
 
                 /** modification da_valider */
                 $this->modificationDaAfficher($numDit, $ditInsertionOrSoumis->getNumeroOR(), $daAfficherRepository);
@@ -583,5 +588,12 @@ class DitOrsSoumisAValidationController extends Controller
         }
 
         return true;
+    }
+
+    private function modificationDuNumeroOrDansDDD($numDit, $ditInsertionOrSoumis)
+    {
+        $demandeDiagnosticPneu = $this->getEntityManager()->getRepository(DemandeDiagnosticPneu::class)->findOneBy(['numeroDit' => $numDit]);
+        $demandeDiagnosticPneu->setNumeroOR($ditInsertionOrSoumis->getNumeroOR());
+        $this->getEntityManager()->flush();
     }
 }

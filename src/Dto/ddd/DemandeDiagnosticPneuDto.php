@@ -63,7 +63,6 @@ class DemandeDiagnosticPneuDto
     public static function fromEntities($demande, $intervention = null): self
     {
         $dto = new self();
-
         // Remplir les données de DemandeDiagnosticPneu
         $dto->id = $demande->getId();
         $dto->numeroDemande = $demande->getNumeroDemande();
@@ -95,15 +94,14 @@ class DemandeDiagnosticPneuDto
         $dto->demandeur = $demande->getDemandeur();
         $dto->dateCreation = $demande->getDateCreation();
         $dto->statut = $demande->getStatut();
-        $dto->numeroDit = $demande->getNumeroDit();
-        $dto->numeroOr = $demande->getNumeroOr(); // Le numéro OR de la demande elle-même
+
         $dto->piecesJointes = $demande->getPiecesJointes() ?? [];
 
         // Remplir les données de DemandeIntervention si disponible
         if ($intervention) {
+            $dto->numeroDit = $demande->getNumeroDit();
             $dto->demandeInterventionId = $intervention->getId();
-            $dto->numeroOrIntervention = $intervention->getNumeroOR();
-    
+            $dto->numeroOr = $demande->getNumeroOr();
         }
 
         return $dto;
