@@ -11,7 +11,7 @@ class DemandeDiagnosticPneuModel extends Model
     /**
      * informix
      */
-    public function findAllAValaibleMateriel($matricule = '0',  $numParc = '0', $numSerie = '0')
+    public function findAllAValaibleMateriel($matricule = '0',  $numParc = '0', $numSerie = '0', $designation = '0')
     {
         if ($matricule === '' || $matricule === '0' || $matricule === null) {
             $conditionNummat = "";
@@ -32,6 +32,12 @@ class DemandeDiagnosticPneuModel extends Model
             $conditionNumSerie = "and TRIM(mmat_numserie) = '" . $numSerie . "'";
         }
 
+        if ($designation === '' || $designation === '0' || $designation === null) {
+            $conditionDesignation = "";
+        } else {
+            $conditionDesignation = "and TRIM(mmat_desi) = '" . $designation . "'";
+        }
+
 
 
 
@@ -43,25 +49,18 @@ class DemandeDiagnosticPneuModel extends Model
         mmat_nummat as num_matricule,
         trim(mmat_numserie) as num_serie,
         trim(mmat_recalph) as num_parc,
-
         (select mhir_compteur from mat_hir a where a.mhir_nummat = mmat_nummat and a.mhir_daterel = (select max(b.mhir_daterel) from mat_hir b where b.mhir_nummat = a.mhir_nummat)) as heure,
-        (select mhir_cumcomp from mat_hir a where a.mhir_nummat = mmat_nummat and a.mhir_daterel = (select max(b.mhir_daterel) from mat_hir b where b.mhir_nummat = a.mhir_nummat)) as km,
-        (select nvl(sum(mofi_mt),0) from mat_ofi where mofi_classe = 30 and mofi_ssclasse in (10,11,12,13,14,16,17,18,19) and mofi_numbil = mbil_numbil and mofi_typmt = 'R') as Prix_achat,
-        (select nvl(sum(mofi_mt),0) from mat_ofi where mofi_classe = 30 and mofi_ssclasse = 15 and mofi_numbil = mbil_numbil and mofi_typmt = 'R') as Amortissement,
-
-        (select nvl(sum(mofi_mt),0) from mat_ofi where mofi_classe = 10 and mofi_ssclasse in (100,21,22,23) and mofi_numbil = mbil_numbil and mofi_typmt = 'R') as ChiffreAffaires,
-        (select nvl(sum(mofi_mt),0) from mat_ofi where mofi_classe = 40 and mofi_ssclasse in (100,110) and mofi_numbil = mbil_numbil and mofi_typmt = 'R') as ChargeLocative,
-        (select nvl(sum(mofi_mt),0) from mat_ofi where mofi_classe = 40 and mofi_ssclasse in (21,22,23) and mofi_numbil = mbil_numbil and mofi_typmt = 'R') as ChargeEntretien
-      
+        (select mhir_cumcomp from mat_hir a where a.mhir_nummat = mmat_nummat and a.mhir_daterel = (select max(b.mhir_daterel) from mat_hir b where b.mhir_nummat = a.mhir_nummat)) as km
       FROM MAT_MAT
       LEFT JOIN mat_bil on mbil_nummat = mmat_nummat and mbil_dateclot <= '01/01/1900' and mbil_dateclot = '12/31/1899'
-       WHERE MMAT_ETSTOCK in ('ST','AT', '--')
+      WHERE MMAT_ETSTOCK in ('ST','AT', '--')
       AND MMAT_AFFECT in ('LCD','IMM', 'VTE')
-      AND mmat_etvente = '--' AND  mmat_etachat = 'FA' AND mmat_dispo = 'O' 
-    --   AND mmat_datedisp <= '31/12/2999'
+      AND mmat_etvente = '--' AND  mmat_etachat = 'FA' AND mmat_dispo = 'O'
+      AND mmat_datedisp < '12/31/2999'
       " . $conditionNummat . "
       " . $conditionNumParc . "
       " . $conditionNumSerie . "
+      " . $conditionDesignation . "
       ";
 
         $result = $this->connect->executeQuery($statement);

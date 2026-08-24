@@ -148,7 +148,7 @@ class DemandeDiagnosticPneuType extends AbstractType
                 'required' => false,
                 'attr' => [
                     'class' => 'form-control recherche-materiel',
-                    'placeholder' => 'Tapez le numéro de parc, la marque...',
+                    'placeholder' => "Tapez l'Id ou le numéro de parc ou la marque de l'application",
 
                 ],
             ])
