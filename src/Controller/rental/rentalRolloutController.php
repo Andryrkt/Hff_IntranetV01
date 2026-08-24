@@ -12,13 +12,13 @@ use Symfony\Component\Routing\Annotation\Route;
 class rentalRolloutController extends Controller
 {
     /**
-     * @Route("/dashboard/alerte-materiel-location", name="alerte_materiel_location")
+     * @Route("/dashboard/rental-rollout", name="rental_rollout")
      */
     public function rentalRollout()
     {
         return $this->render("iframe/iframe.html.twig", [
             'url'       => IframeConstant::LINK["rental-rollout"],
-            'pageTitle' => "Alertes Materiels de location",
+            'pageTitle' => "RENTAL Rollout",
         ]);
     }
 }
