@@ -38,19 +38,7 @@ class DemandeDiagnosticPneuDetailController extends Controller
     public function detail(string $numeroDemande, Request $request): Response
     {
         $em = $this->getEntityManager();
-        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
-        $agenceService = $this->agenceServiceIpsObjet();
 
-        // [codeAgence , codeService] Autorisé 
-        $allowed = [
-            ['80', 'INF'],
-            ['01', 'ATE'],
-        ];
-
-        $statut = [
-            $agenceService['agenceIps']->getCodeAgence(),
-            $agenceService['serviceIps']->getCodeService(),
-        ];
 
         $demande = $em->getRepository(DemandeDiagnosticPneu::class)->findOneBy(['numeroDemande' => $numeroDemande]);
         if (!$demande) {
@@ -58,7 +46,7 @@ class DemandeDiagnosticPneuDetailController extends Controller
                 'Demande de Diagnostic Pneu introuvable'
             );
         }
-        $isAllowed = in_array($statut, $allowed, true);
+        $isAllowed = $this->estAtelier() || $this->estAdmin();
 
         $isReadOnly = !$isAllowed
             || !in_array($demande->getStatut(), [
