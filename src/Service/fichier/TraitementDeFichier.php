@@ -56,12 +56,16 @@ class TraitementDeFichier
      *  ex : ['fichier1.pdf', 'fichier2.pdf', 'fichier3.pdf', 'fichier4.pdf']
      *
      * @param array $uploadedFiles // tableau des chemin de fichier à fusionner
-     * @param string $mainFilePathName // chemin du fichier principal (ilay atsofoka)
+     * @param string|null $mainFilePathName // chemin du fichier principal (ilay atsofoka)
      * @param integer $position // position du fichier principal
      * @return array
      */
-    public function insertFileAtPosition(array $uploadedFiles, string $mainFilePathName, int $position = 0): array
+    public function insertFileAtPosition(array $uploadedFiles, ?string $mainFilePathName, int $position = 0): array
     {
+        if (empty($mainFilePathName)) {
+            return $uploadedFiles;
+        }
+
         // S'assurer que la position est valide
         $position = max(0, min($position, count($uploadedFiles)));
 

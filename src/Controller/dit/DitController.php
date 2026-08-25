@@ -274,12 +274,14 @@ class DitController extends Controller
         $traitementDeFichier = new TraitementDeFichier();
         $nomEtCheminFichiersEnregistrer = $traitementDeFichier->insertFileAtPosition($nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, 0);
 
-        // 3. Insérer le fichier de diagnostic  après la page de garde (position 1)
-        $nomEtCheminFichiersEnregistrer = $traitementDeFichier->insertFileAtPosition(
-            $nomEtCheminFichiersEnregistrer,
-            $fichierDemandeDiagnostic,
-            1   // après la page de garde
-        );
+        // 3. Insérer le fichier de diagnostic après la page de garde (position 1) s'il existe
+        if (!empty($fichierDemandeDiagnostic)) {
+            $nomEtCheminFichiersEnregistrer = $traitementDeFichier->insertFileAtPosition(
+                $nomEtCheminFichiersEnregistrer,
+                $fichierDemandeDiagnostic,
+                1   // après la page de garde
+            );
+        }
         // 4. fusion du page de garde et des pieces jointes (conversion avant la fusion)
         $nomEtCheminFichierConvertie = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
         $traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);
