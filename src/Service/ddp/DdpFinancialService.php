@@ -66,8 +66,10 @@ class DdpFinancialService
      * 
      * @throws \Exception
      */
-    public function recuperationMontantTotalCommande(string $numeroCommande, string $codeSociete)
-    {
+    public function recuperationMontantTotalCommande(
+        string $numeroCommande,
+        string $codeSociete
+    ): array {
         $demandePaiementModel = new DemandePaiementModel();
         $montantTotalCommande = $demandePaiementModel->getMontantCde($numeroCommande, $codeSociete);
         if ($montantTotalCommande['montant_total_cde_ht'] <= 0) throw new \Exception("Le montant total de la commande est nul");
@@ -88,7 +90,7 @@ class DdpFinancialService
     }
 
     /**
-     * Calcul du montant à régulariser par rapport au montant total de la commande.
+     * Calcul du montant à régulariser par rapport au montant total TTC de la commande.
      * -----------------------------------------------------------------------------
      * Le montant à régulariser correspond à la différence entre le montant total de la commande et le montant déjà payé.
      * 

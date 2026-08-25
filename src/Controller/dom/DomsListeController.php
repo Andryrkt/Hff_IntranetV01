@@ -131,7 +131,7 @@ class DomsListeController extends Controller
         $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DOM);
 
         // Vérifier la permission de voir tous les données
-        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE, "doms_liste");
 
         // Vérifier le permission de voir liste avec débiteur sur la page 'doms_liste'
         $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2, "doms_liste");
