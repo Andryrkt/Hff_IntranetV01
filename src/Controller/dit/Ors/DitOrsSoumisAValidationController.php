@@ -593,7 +593,9 @@ class DitOrsSoumisAValidationController extends Controller
     private function modificationDuNumeroOrDansDDD($numDit, $ditInsertionOrSoumis)
     {
         $demandeDiagnosticPneu = $this->getEntityManager()->getRepository(DemandeDiagnosticPneu::class)->findOneBy(['numeroDit' => $numDit]);
-        $demandeDiagnosticPneu->setNumeroOR($ditInsertionOrSoumis->getNumeroOR());
-        $this->getEntityManager()->flush();
+        if ($demandeDiagnosticPneu !== null) {
+            $demandeDiagnosticPneu->setNumeroOR($ditInsertionOrSoumis->getNumeroOR());
+            $this->getEntityManager()->flush();
+        }
     }
 }
