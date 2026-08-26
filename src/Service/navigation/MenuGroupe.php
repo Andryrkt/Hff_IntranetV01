@@ -172,6 +172,7 @@ class MenuGroupe
                 'icon'     => 'gauge-high',
                 'subitems' => [
                     ['label' => 'RENTAL Rollout', 'icon' => 'bell', 'route' => 'rental_rollout', 'target' => '_blank'],
+                    ['label' => 'GE Rollout', 'icon' => 'bell', 'route' => 'ge_rollout', 'target' => '_blank'],
                 ],
             ],
         ];
