@@ -171,8 +171,8 @@ class MenuGroupe
                 'label'    => 'Dashboard',
                 'icon'     => 'gauge-high',
                 'subitems' => [
-                    ['label' => 'RENTAL Rollout', 'icon' => 'bell', 'route' => 'rental_rollout', 'target' => '_blank'],
-                    ['label' => 'GE Rollout', 'icon' => 'bell', 'route' => 'ge_rollout', 'target' => '_blank'],
+                    ['label' => 'RENTAL Rollout', 'icon' => 'snowplow', 'route' => 'rental_rollout', 'target' => '_blank'],
+                    ['label' => 'GE Rollout', 'icon' => 'car-battery', 'route' => 'ge_rollout', 'target' => '_blank'],
                 ],
             ],
         ];
