@@ -4,25 +4,26 @@ import { setupConfirmationButtons } from "../utils/ui/boutonConfirmUtils.js";
 import { allowOnlyNumbers } from "../utils/inputUtils.js";
 
 const idMaterielInput = document.querySelector(
-  "#demande_intervention_idMateriel"
+  "#demande_intervention_idMateriel",
 );
 const numParcInput = document.querySelector("#demande_intervention_numParc");
 const numSerieInput = document.querySelector("#demande_intervention_numSerie");
 const numClientInput = document.querySelector(
-  "#demande_intervention_numeroClient"
+  "#demande_intervention_numeroClient",
 );
 const nomClientInput = document.querySelector(
-  "#demande_intervention_nomClient"
+  "#demande_intervention_nomClient",
 );
 
 const containerInfoMateriel = document.querySelector("#containerInfoMateriel");
+const infoMaterielForm = document.querySelector("#info-materiel-form");
 
 const interneExterneInput = document.querySelector(".interneExterne");
 const numTelInput = document.querySelector(".numTel");
 const clientSousContratInput = document.querySelector(".clientSousContrat");
 const mailClientInput = document.querySelector(".mailClient");
 const demandeDevisInput = document.querySelector(
-  "#demande_intervention_demandeDevis"
+  "#demande_intervention_demandeDevis",
 );
 const erreurClient = document.querySelector("#erreurClient");
 
@@ -34,14 +35,109 @@ allowOnlyNumbers(idMaterielInput);
 /** ===================================================================
  * recupère l'idMateriel et afficher les information du matériel
  * ==================================================================*/
+const loadingEl = document.getElementById("materiel-loading");
+const inputsEl = document.getElementById("materiel-inputs");
 
+function showLoading() {
+  if (loadingEl) loadingEl.style.display = "block";
+  if (inputsEl) inputsEl.classList.add("d-none");
+}
+
+function hideLoading() {
+  if (loadingEl) loadingEl.style.display = "none";
+  if (inputsEl) inputsEl.classList.remove("d-none");
+}
 const fetchManager = new FetchManager();
 
+let materielsCache = null;
 let lastSelectedItem = null;
 
-async function fetchMateriels() {
-  return await fetchManager.get(`api/fetch-all-materiel`);
+function showMaterielLoader() {
+  if (infoMaterielForm) {
+    infoMaterielForm.style.display = "none";
+  }
+
+  if (!containerInfoMateriel) return;
+
+  containerInfoMateriel.innerHTML = `
+        <div class="d-flex justify-content-center align-items-center p-4">
+            <div class="spinner-border text-primary me-2" role="status">
+                <span class="visually-hidden">
+                    Chargement...
+                </span>
+            </div>
+            <span class="fw-bold">
+                Chargement des informations matériel...
+            </span>
+        </div>
+    `;
 }
+/**
+ * Chargement automatique du matériel si l'ID est déjà présent
+ * (cas création DIT depuis diagnostic pneu)
+ */
+async function loadMaterielById() {
+  const idMateriel = idMaterielInput?.value;
+
+  if (!idMateriel) {
+    return;
+  }
+
+  try {
+    showMaterielLoader();
+    const data = await fetchMateriels();
+
+    const materiel = data.find(
+      (item) => String(item.num_matricule) === String(idMateriel),
+    );
+
+    if (materiel) {
+      onSelectMateriels(materiel);
+    } else {
+      containerInfoMateriel.innerHTML = `
+                <div class="text-danger fw-bold">
+                    Aucun matériel trouvé pour l'identifiant ${idMateriel}.
+                </div>
+            `;
+    }
+  } catch (error) {
+    console.error("Erreur récupération matériel automatique :", error);
+    containerInfoMateriel.innerHTML = `
+            <div class="alert alert-danger fw-bold">
+                Impossible de charger les informations matériel.
+            </div>
+        `;
+  }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  loadMaterielById();
+});
+
+async function fetchMateriels() {
+  try {
+    if (materielsCache) return materielsCache;
+
+    const data = await fetchManager.get(`api/fetch-all-materiel`);
+    materielsCache = data;
+
+    return data;
+  } catch (err) {
+    console.error("Error fetching materiels:", err);
+    throw err;
+  }
+}
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    showLoading();
+
+    await fetchMateriels(); // preload cache
+
+    initAutoComplete(); // your autocomplete setup function
+  } finally {
+    hideLoading();
+  }
+});
 
 function displayMateriel(item) {
   return `Id: ${item.num_matricule} - Parc: ${item.num_parc} - S/N: ${item.num_serie}`;
@@ -49,13 +145,18 @@ function displayMateriel(item) {
 
 // Met à jour les champs et la fiche
 function onSelectMateriels(item) {
-  lastSelectedItem = item;
+  showMaterielLoader();
 
-  idMaterielInput.value = item.num_matricule;
-  numParcInput.value = item.num_parc;
-  numSerieInput.value = item.num_serie;
+  lastSelectedItem = item;
+  if (idMaterielInput) idMaterielInput.value = item.num_matricule;
+  if (numParcInput) numParcInput.value = item.num_parc;
+  if (numSerieInput) numSerieInput.value = item.num_serie;
 
   createMaterielInfoDisplay(containerInfoMateriel, item);
+
+  if (infoMaterielForm) {
+    infoMaterielForm.style.display = "flex";
+  }
 }
 
 // Vérifie si la valeur tapée correspond à un item connu
@@ -72,54 +173,53 @@ async function validateInput(input, keyToCompare) {
 }
 
 // Écouteurs de perte de focus pour chaque champ
-idMaterielInput.addEventListener("blur", () =>
-  validateInput(idMaterielInput, "num_matricule")
+idMaterielInput?.addEventListener("blur", () =>
+  validateInput(idMaterielInput, "num_matricule"),
 );
-numParcInput.addEventListener("blur", () =>
-  validateInput(numParcInput, "num_parc")
+numParcInput?.addEventListener("blur", () =>
+  validateInput(numParcInput, "num_parc"),
 );
-numSerieInput.addEventListener("blur", () =>
-  validateInput(numSerieInput, "num_serie")
+numSerieInput?.addEventListener("blur", () =>
+  validateInput(numSerieInput, "num_serie"),
 );
 
-//Activation sur le champ Id Matériel
-new AutoComplete({
-  inputElement: idMaterielInput,
-  suggestionContainer: document.querySelector("#suggestion-idMateriel"),
-  loaderElement: document.querySelector("#loader-idMateriel"), // Ajout du loader
-  debounceDelay: 300, // Délai en ms
-  fetchDataCallback: fetchMateriels,
-  displayItemCallback: displayMateriel,
-  onSelectCallback: onSelectMateriels,
-  itemToStringCallback: (item) =>
-    `${item.num_matricule} - ${item.num_parc} - ${item.num_serie}`,
-});
+function initAutoComplete() {
+  new AutoComplete({
+    inputElement: idMaterielInput,
+    suggestionContainer: document.querySelector("#suggestion-idMateriel"),
+    loaderElement: document.querySelector("#loader-idMateriel"),
+    debounceDelay: 300,
+    fetchDataCallback: fetchMateriels,
+    displayItemCallback: displayMateriel,
+    onSelectCallback: onSelectMateriels,
+    itemToStringCallback: (item) =>
+      `${item.num_matricule} - ${item.num_parc} - ${item.num_serie}`,
+  });
 
-//Activation sur le champ numSerie
-new AutoComplete({
-  inputElement: numSerieInput,
-  suggestionContainer: document.querySelector("#suggestion-numSerie"),
-  loaderElement: document.querySelector("#loader-numSerie"), // Ajout du loader
-  debounceDelay: 300, // Délai en ms
-  fetchDataCallback: fetchMateriels,
-  displayItemCallback: displayMateriel,
-  onSelectCallback: onSelectMateriels,
-  itemToStringCallback: (item) =>
-    `${item.num_matricule} - ${item.num_parc} - ${item.num_serie}`,
-});
+  new AutoComplete({
+    inputElement: numSerieInput,
+    suggestionContainer: document.querySelector("#suggestion-numSerie"),
+    loaderElement: document.querySelector("#loader-numSerie"),
+    debounceDelay: 300,
+    fetchDataCallback: fetchMateriels,
+    displayItemCallback: displayMateriel,
+    onSelectCallback: onSelectMateriels,
+    itemToStringCallback: (item) =>
+      `${item.num_matricule} - ${item.num_parc} - ${item.num_serie}`,
+  });
 
-//Activation sur le champ numParc
-new AutoComplete({
-  inputElement: numParcInput,
-  suggestionContainer: document.querySelector("#suggestion-numParc"),
-  loaderElement: document.querySelector("#loader-numParc"), // Ajout du loader
-  debounceDelay: 300, // Délai en ms
-  fetchDataCallback: fetchMateriels,
-  displayItemCallback: displayMateriel,
-  onSelectCallback: onSelectMateriels,
-  itemToStringCallback: (item) =>
-    `${item.num_matricule} - ${item.num_parc} - ${item.num_serie}`,
-});
+  new AutoComplete({
+    inputElement: numParcInput,
+    suggestionContainer: document.querySelector("#suggestion-numParc"),
+    loaderElement: document.querySelector("#loader-numParc"),
+    debounceDelay: 300,
+    fetchDataCallback: fetchMateriels,
+    displayItemCallback: displayMateriel,
+    onSelectCallback: onSelectMateriels,
+    itemToStringCallback: (item) =>
+      `${item.num_matricule} - ${item.num_parc} - ${item.num_serie}`,
+  });
+}
 
 function createMaterielInfoDisplay(container, data) {
   if (!container) {
@@ -249,7 +349,7 @@ inputNoEntrers.forEach((inputNoEntrer) => {
       event.preventDefault(); // Empêche le rechargement de la page
       console.log(
         "La touche Entrée a été pressée dans le champ :",
-        inputNoEntrer.placeholder
+        inputNoEntrer.placeholder,
       );
     }
   });
@@ -262,7 +362,9 @@ const agenceDebiteurInput = document.querySelector(".agenceDebiteur");
 const serviceDebiteurInput = document.querySelector(".serviceDebiteur");
 const spinnerService = document.getElementById("spinner-service");
 const serviceContainer = document.getElementById("service-container");
-agenceDebiteurInput.addEventListener("change", selectAgence);
+if (agenceDebiteurInput) {
+  agenceDebiteurInput.addEventListener("change", selectAgence);
+}
 
 function selectAgence() {
   const agenceDebiteur = agenceDebiteurInput.value;
@@ -308,24 +410,30 @@ function updateServiceOptions(services) {
  * CHAMP CLIENT MISE EN MAJUSCULE
  =================================*/
 
-nomClientInput.addEventListener("input", MiseMajuscule);
+if (nomClientInput) {
+  nomClientInput.addEventListener("input", MiseMajuscule);
+}
 function MiseMajuscule() {
-  nomClientInput.value = nomClientInput.value.toUpperCase();
+  if (nomClientInput) {
+    nomClientInput.value = nomClientInput.value.toUpperCase();
+  }
 }
 
 /**================================
  * INTERNE - EXTERNE (champ )
  ================================*/
 
-if (interneExterneInput.value === "INTERNE") {
-  nomClientInput.setAttribute("disabled", true);
-  numClientInput.setAttribute("disabled", true);
-  numTelInput.setAttribute("disabled", true);
-  clientSousContratInput.setAttribute("disabled", true);
-  mailClientInput.setAttribute("disabled", true);
-}
+if (interneExterneInput) {
+  if (interneExterneInput.value === "INTERNE") {
+    nomClientInput?.setAttribute("disabled", true);
+    numClientInput?.setAttribute("disabled", true);
+    numTelInput?.setAttribute("disabled", true);
+    clientSousContratInput?.setAttribute("disabled", true);
+    mailClientInput?.setAttribute("disabled", true);
+  }
 
-interneExterneInput.addEventListener("change", interneExterne);
+  interneExterneInput.addEventListener("change", interneExterne);
+}
 
 function interneExterne() {
   console.log(interneExterneInput.value);
@@ -386,10 +494,12 @@ allowOnlyNumbers(numTelInput);
 /** FORM */
 const ditForm = document.querySelector("#dit-form");
 
-ditForm.addEventListener("submit", intExtEnvoier);
+if (ditForm) {
+  ditForm.addEventListener("submit", intExtEnvoier);
+}
 function intExtEnvoier() {
-  agenceDebiteurInput.removeAttribute("disabled");
-  serviceDebiteurInput.removeAttribute("disabled");
+  agenceDebiteurInput?.removeAttribute("disabled");
+  serviceDebiteurInput?.removeAttribute("disabled");
 }
 
 /**=========================================================================================================
@@ -414,9 +524,11 @@ function formatNumber(input) {
  =========================================================================*/
 const objetDemande = document.querySelector(".noEntrer");
 
-objetDemande.addEventListener("input", function () {
-  objetDemande.value = objetDemande.value.substring(0, 86);
-});
+if (objetDemande) {
+  objetDemande.addEventListener("input", function () {
+    objetDemande.value = objetDemande.value.substring(0, 86);
+  });
+}
 
 /**===================
  * BOUTON ENREGISTRER
@@ -475,11 +587,11 @@ textarea.addEventListener("input", function (event) {
  * réparation réalisé par ATE TANA et ATE POL TANA
  *===============================================================================*/
 const reparationRealiseSelect = document.querySelector(
-  "#demande_intervention_reparationRealise"
+  "#demande_intervention_reparationRealise",
 );
 const atePolTanaContainer = document.querySelector("#ate_pol_tana_container");
 const atePolTanaInput = document.querySelector(
-  "#demande_intervention_estAtePolTana"
+  "#demande_intervention_estAtePolTana",
 );
 const valuesAutorisees = ["ATE TANA", "ATE MAS", "ATE STAR"]; // valeurs autorisées pour la réparation réalisé afin de créer deux DIT
 

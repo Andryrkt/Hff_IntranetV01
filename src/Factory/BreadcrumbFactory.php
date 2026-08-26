@@ -155,6 +155,7 @@ class BreadcrumbFactory
             'detail-direct'                         => 'Fiche détail DA directe',
             'da-list'                               => 'Liste des demandes d\'achat',
             'da-list-cde-frn'                       => 'Liste des commandes fournisseurs',
+            'new-da-achat'                          => "Nouvelle demande d'achat directe",
             'soumission-bc'                         => 'Soumission Bon de Commande',
             'soumission-facbl'                      => 'Soumission Facture / Bon de Livraison',
             'cde-fournisseur'                       => 'Soumission Commande Fournisseur',

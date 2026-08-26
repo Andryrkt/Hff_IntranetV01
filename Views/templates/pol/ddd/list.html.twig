@@ -1,0 +1,195 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+    Liste des demandes de diagnostic pneu
+{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2026.07.03.14.50">
+    <link rel="stylesheet" href="{{ App.base_path }}/Views/css/ddd/liste.css?v=2026.07.03.14.50">
+{% endblock %}
+
+{% import "macroForm.html.twig" as macroForm %}
+
+{% block content %}
+    <div class="sticky-header-titre">
+        <div class="container">
+            {% include "/partials/_notification.html.twig" %}
+
+            {# Formulaire de recherche (à créer) #}
+            {% include "/pol/ddd/shared/_formulaireRecherche.html.twig" %}
+            {% set statusColors = {
+                'a traiter atelier': 'bg-danger text-white',
+                'traitee atelier':   'bg-orange text-white',
+                'diag en cours':     'bg-warning text-dark',
+                'cloturee':          'bg-success text-white'
+            } %}
+            {# #fbbb01 #}
+            <div class="row">
+                <div class="col-12 my-2">
+                    <div class="status-list">
+                        {% for statut, count in statusCounts  %}
+                            {% set colorClass = statusColors[statut] ?? 'badge-secondary' %}
+                            <span class="status-badge {{ colorClass }}">
+                                <span class="count">{{ count }}</span>
+                                <span class="label">{{ statut | upper }}</span>
+                            </span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            {# Pagination en haut #}
+            {% include "/pol/ddd/shared/_pagination.html.twig" %}
+        </div>
+    </div>
+
+    {# Tableau #}
+    <div class="container-fluid">
+        <table class="table table-sticky">
+            <thead class="table-dark align-middle">
+                <tr>
+                    <th>
+                        <i class="fas fa-ellipsis-vertical"></i>
+                    </th>
+                    <th>Statut</th>
+                    <th>N° Demande</th>
+                    <th>Demandeur</th>
+                    <th>Chantier</th>
+                    <th>Matériel (N° Parc)</th>
+                    <th>Date départ</th>
+                    <th>Livraison</th>
+                    <th> <span title="Nombre de pneus (Sur Machine - Secours - à Diagnostiser)">
+                        Nb pneus <small>(M - S - D)</small>
+                    </span></th>
+                    <th>Motifs</th>
+                    <th>N° DIT</th>
+                    <th>N° OR</th>
+                    <th>Date création</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for demande in data %}
+                    {# Définition des classes CSS pour le statut #}
+                    {% set classeStatut = demande.statut|lower|replace({' ': '_', 'à': 'a'}) %}
+
+                    <tr>
+                        {# Début Action #}
+                        <td class="align-middle" style="padding: 0px">
+                            <div class="dropdown">
+                                <button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-ellipsis-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+                                    {% if demande.statut == 'traitee atelier' %}
+
+                                        <li>
+                                            <a class="dropdown-item fw-bold" href="{{ path('dit_new', {numeroDemandePneu: demande.numeroDemande}) }}" target="_blank">Créer DIT</a>
+                                        </li>
+
+                                    {% endif %}
+                                    <li>
+                                        <a class="dropdown-item fw-bold" href="{{ path('demande_diagnostic_pneu_details', {numeroDemande: demande.numeroDemande}) }}" target="_blank">Voir les détails</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                        {# Fin Actions #}
+                        {# Statut #}
+                        <td class="fw-bold {{ statusColors[demande.statut] ?? 'bg-secondary text-white' }}">
+                            {{ demande.statut|upper }}
+                        </td>
+
+                        {# Numéro demande #}
+                        <td>
+                            <a href="{{ path('demande_diagnostic_pneu_details', {numeroDemande: demande.numeroDemande}) }}" target="_blank" data-bs-toggle="tooltip" title="Voir le détail">
+                                {{ demande.numeroDemande }}
+                            </a>
+                        </td>
+
+                        {# Demandeur #}
+                        <td>{{ demande.demandeur|upper }}</td>
+
+                        {# Chantier #}
+                        <td>{{ demande.chantier ? demande.chantier.nomChantier : '-' }}</td>
+
+                        {# Matériel (N° Parc) #}
+                        <td>{{ demande.numeroParcMateriel ?: '-' }}</td>
+
+                        {# Date départ chantier #}
+                        <td>{{ demande.dateDepartChantier ? demande.dateDepartChantier|date('d/m/Y') : '-' }}</td>
+
+                        {# Livraison #}
+                        <td>{{ demande.livraison ?: '-' }}</td>
+
+                        {# Nombre de pneus (Machine / Secours / À diagnostiquer) #}
+                        <td >
+                            <span class="badge bg-secondary">{{ demande.nbPneuSurMachine }}</span>
+                            -
+                            <span class="badge bg-secondary">{{ demande.nbPneuSecours }}</span>
+                            -
+                            <span class="badge bg-primary">{{ demande.nbPneuADiagnostiquer }}</span>
+                        </td>
+
+                        {# Motifs généraux #}
+                        <td>
+                            {% if demande.motifs %}
+                                {% for motif in demande.motifs %}
+                                    <div>- {{ motif }}</div>
+                                {% endfor %}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+
+                        {# N° DIT #}
+                        <td>
+
+                            {% if demande.numeroDit %}
+                                <a href="{{ path('dit_validationDit', {
+                                    id: demande.demandeInterventionId,
+                                    numDit: demande.numeroDit
+                                    }) }}"
+                                    target="_blank"
+                                    data-bs-toggle="tooltip"
+                                    title="Afficher le détail">
+                                    {{ demande.numeroDit }}
+                                </a>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+
+                        {# N° OR #}
+                        <td>{{ demande.numeroOr ?: '-' }}</td>
+
+                        {# Date création #}
+                        <td>{{ demande.dateCreation ? demande.dateCreation|date('d/m/Y') : '-' }}</td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="13" class="text-center">Aucune demande de diagnostic pneu trouvée.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {# Pagination en bas #}
+    <div class="container">
+        {% include "/partials/_pagination.html.twig" with {
+        'data': data,
+        'currentPage': currentPage,
+        'totalPages': totalPages,
+        'route': 'demande_diagnostic_pneu_liste'
+        } %}
+    </div>
+
+    {# Modales éventuelles (pour détails, pièces jointes, etc.) #}
+    {# {% include "/pol/ddd/shared/_modal.html.twig" %} #}
+
+{% endblock %}
+
+{% block javascript %}
+    <script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2026.07.03.14.50"></script>
+{% endblock %}

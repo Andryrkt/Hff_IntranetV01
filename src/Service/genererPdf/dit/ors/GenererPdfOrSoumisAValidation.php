@@ -22,7 +22,7 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
     /**
      * generer pdf pour la soumission OR
      */
-    function GenererPdf($ditInsertionOr, $montantPdf, $quelqueaffichage, $email, string $suffix, array $pieceFaibleAchat = [], string $nomAvecCheminFichier)
+    function GenererPdf($ditInsertionOr, $montantPdf, $quelqueaffichage, $email, string $suffix, array $pieceFaibleAchat = [], array $ctrlDesConsommationsDePieces = [], string $nomAvecCheminFichier)
     {
         $pdf = new HeaderPdf($email);
         $tableGenerator = new PdfTableGeneratorFlexible();
@@ -151,7 +151,7 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
         );
 
         $pdf->writeHTML($html, true, false, true, false, '');
-        $pdf->Ln(10, true);
+
         //==========================================================================================================
         //Titre: Pièce(s) à faible activité d'achat
         $pdf->SetTextColor(255, 0, 0);
@@ -168,6 +168,21 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
 
             $pdf->writeHTML($html, true, false, true, false, '');
         }
+        //==========================================================================================================
+        //Titre: Controle quantité des consommations de pièces
+        $this->addTitle($pdf, "Consommations de pièces", 'helvetica',  'B', 10, 'L',  5);
+        if (!empty($ctrlDesConsommationsDePieces)) {
+            $pdf->setFont('helvetica', '', 12);
+            $html = $tableGenerator->generateTable(
+                $this->headerCtrlConsommationMaterielsOR(),
+                $ctrlDesConsommationsDePieces,
+                []
+            );
+
+            $pdf->writeHTML($html, true, false, true, false, '');
+        }
+        $pdf->Ln(10, true);
+
         //==========================================================================================================
         //Titre: Observation
         $pdf->setFont('helvetica', 'B', 12);
@@ -388,6 +403,100 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
                 'type'         => 'number'
             ]
         ];
+    }
+    /**===============================================================
+     * -------- Pour le tableau controle consommations des pieces  ------------------
+     *================================================================*/
+
+    private function headerCtrlConsommationMaterielsOR(): array
+    {
+        return [
+        [
+            'key'          => 'constructeur',
+            'label'        => 'Constructeur',
+            'width'        => 60,
+            'style'        => 'font-weight: bold; text-align: center;',
+            'header_style' => 'font-weight: bold; text-align: center;',
+            'cell_style'   => 'text-align: center;',
+            'type'         => 'text'
+        ],
+        [
+            'key'          => 'reference',
+            'label'        => 'Référence',
+            'width'        => 90,
+            'style'        => 'font-weight: bold; text-align: center;',
+            'header_style' => 'font-weight: bold; text-align: center;',
+            'cell_style'   => 'text-align: center;',
+            'footer_style' => 'font-weight: bold; text-align: right;',
+            'type'         => 'text'
+        ],
+        [
+            'key'          => 'designation',
+            'label'        => 'Désignation',
+            'width'        => 110,
+            'style'        => 'font-weight: bold; text-align: center;',
+            'header_style' => 'font-weight: bold; text-align: center;',
+            'cell_style'   => 'text-align: left;',
+            'footer_style' => 'font-weight: bold; text-align: right;',
+            'type'         => 'text'
+        ],
+        [
+            'key'          => 'qte_or',
+            'label'        => 'Qté dem',
+            'width'        => 25,
+            'style'        => 'font-weight: bold; text-align: center;',
+            'header_style' => 'font-weight: bold; text-align: center;',
+            'cell_style'   => 'text-align: center;',
+            'footer_style' => 'font-weight: bold; text-align: right;',
+        ],
+        [
+            'key'          => 'qte_sur_or_encours',
+            'label'        => 'Qté sur OR encours',
+            'width'        => 50,
+            'style'        => 'font-weight: bold; text-align: center;',
+            'header_style' => 'font-weight: bold; text-align: center;',
+            'cell_style'   => 'text-align: center;',
+            'footer_style' => 'font-weight: bold; text-align: right;',
+        ],
+        [
+            'key'          => 'qte_sur_or_livre_facture',
+            'label'        => 'Qté conso 6 mois',
+            'width'        => 50,
+            'style'        => 'font-weight: bold; text-align: center;',
+            'header_style' => 'font-weight: bold; text-align: center;',
+            'cell_style'   => 'text-align: center;',
+            'footer_style' => 'font-weight: bold; text-align: right;',
+        ],
+        [
+            'key'          => 'nbr_or',
+            'label'        => 'Nbr OR encours',
+            'width'        => 45,
+            'style'        => 'font-weight: bold; text-align: center;',
+            'header_style' => 'font-weight: bold; text-align: center;',
+            'cell_style'   => 'text-align: center;',
+            'footer_style' => 'font-weight: bold; text-align: right;',
+        ],
+        [
+            'key'          => 'date_derniere_conso',
+            'label'        => 'Date max OR encours',
+            'width'        => 55,
+            'style'        => 'font-weight: bold; text-align: center;',
+            'header_style' => 'font-weight: bold; text-align: center;',
+            'cell_style'   => 'text-align: center;',
+            'footer_style' => 'font-weight: bold; text-align: right;',
+            'type'         => 'date'
+        ],
+        [
+            'key'          => 'date_premiere_conso',
+            'label'        => 'Date min OR encours',
+            'width'        => 55,
+            'style'        => 'font-weight: bold; text-align: center;',
+            'header_style' => 'font-weight: bold; text-align: center;',
+            'cell_style'   => 'text-align: center;',
+            'footer_style' => 'font-weight: bold; text-align: right;',
+            'type'         => 'date'
+        ],
+    ];
     }
 
     private function footerRecapitulationOR(array $montantPdf): array
