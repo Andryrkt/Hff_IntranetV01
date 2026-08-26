@@ -88,108 +88,119 @@
                                         </li>
 
                                     {% endif %}
-                                    <li>
-                                        <a class="dropdown-item fw-bold" href="{{ path('demande_diagnostic_pneu_details', {numeroDemande: demande.numeroDemande}) }}" target="_blank">Voir les détails</a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </td>
-                        {# Fin Actions #}
-                        {# Statut #}
-                        <td class="fw-bold {{ statusColors[demande.statut] ?? 'bg-secondary text-white' }}">
-                            {{ demande.statut|upper }}
-                        </td>
+                                    {% if showDetailsLink %}
+                                        <li>
+                                            <a class="dropdown-item fw-bold"
+                                                href="{{ path(detailsRoute, {numeroDemande: demande.numeroDemande}) }}"
+                                                target="_blank">Voir les détails</a>
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </td>
+                            {# Fin Actions #}
+                            {# Statut #}
+                            <td class="fw-bold {{ statusColors[demande.statut] ?? 'bg-secondary text-white' }}">
+                                {{ demande.statut|upper }}
+                            </td>
 
-                        {# Numéro demande #}
-                        <td>
-                            <a href="{{ path('demande_diagnostic_pneu_details', {numeroDemande: demande.numeroDemande}) }}" target="_blank" data-bs-toggle="tooltip" title="Voir le détail">
-                                {{ demande.numeroDemande }}
-                            </a>
-                        </td>
+                            {# Numéro demande #}
+                            <td>
+                                {% if showDetailsLink %}
+                                    <a href="{{ path(detailsRoute, {numeroDemande: demande.numeroDemande}) }}"
+                                        target="_blank"
+                                        data-bs-toggle="tooltip"
+                                        title="Voir le détail">
+                                        {{ demande.numeroDemande }}
+                                    </a>
+                                {% else %}
+                                    {{ demande.numeroDemande }}
+                                {% endif %}
+                            </td>
 
-                        {# Demandeur #}
-                        <td>{{ demande.demandeur|upper }}</td>
+                            {# Demandeur #}
+                            <td>{{ demande.demandeur|upper }}</td>
 
-                        {# Chantier #}
-                        <td>{{ demande.chantier ? demande.chantier.nomChantier : '-' }}</td>
+                            {# Chantier #}
+                            <td>{{ demande.chantier ? demande.chantier.nomChantier : '-' }}</td>
 
-                        {# Matériel (N° Parc) #}
-                        <td>{{ demande.numeroParcMateriel ?: '-' }}</td>
+                            {# Matériel (N° Parc) #}
+                            <td>{{ demande.numeroParcMateriel ?: '-' }}</td>
 
-                        {# Date départ chantier #}
-                        <td>{{ demande.dateDepartChantier ? demande.dateDepartChantier|date('d/m/Y') : '-' }}</td>
+                            {# Date départ chantier #}
+                            <td>{{ demande.dateDepartChantier ? demande.dateDepartChantier|date('d/m/Y') : '-' }}</td>
 
-                        {# Livraison #}
-                        <td>{{ demande.livraison ?: '-' }}</td>
+                            {# Livraison #}
+                            <td>{{ demande.livraison ?: '-' }}</td>
 
-                        {# Nombre de pneus (Machine / Secours / À diagnostiquer) #}
-                        <td >
-                            <span class="badge bg-secondary">{{ demande.nbPneuSurMachine }}</span>
-                            -
-                            <span class="badge bg-secondary">{{ demande.nbPneuSecours }}</span>
-                            -
-                            <span class="badge bg-primary">{{ demande.nbPneuADiagnostiquer }}</span>
-                        </td>
-
-                        {# Motifs généraux #}
-                        <td>
-                            {% if demande.motifs %}
-                                {% for motif in demande.motifs %}
-                                    <div>- {{ motif }}</div>
-                                {% endfor %}
-                            {% else %}
+                            {# Nombre de pneus (Machine / Secours / À diagnostiquer) #}
+                            <td >
+                                <span class="badge bg-secondary">{{ demande.nbPneuSurMachine }}</span>
                                 -
-                            {% endif %}
-                        </td>
+                                <span class="badge bg-secondary">{{ demande.nbPneuSecours }}</span>
+                                -
+                                <span class="badge bg-primary">{{ demande.nbPneuADiagnostiquer }}</span>
+                            </td>
 
-                        {# N° DIT #}
-                        <td>
+                            {# Motifs généraux #}
+                            <td>
+                                {% if demande.motifs %}
+                                    {% for motif in demande.motifs %}
+                                        <div>- {{ motif }}</div>
+                                    {% endfor %}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
 
-                            {% if demande.numeroDit %}
-                                <a href="{{ path('dit_validationDit', {
-                                    id: demande.demandeInterventionId,
-                                    numDit: demande.numeroDit
-                                    }) }}"
-                                    target="_blank"
-                                    data-bs-toggle="tooltip"
-                                    title="Afficher le détail">
-                                    {{ demande.numeroDit }}
-                                </a>
-                            {% else %}
-                                <span class="text-muted">-</span>
-                            {% endif %}
-                        </td>
+                            {# N° DIT #}
+                            <td>
 
-                        {# N° OR #}
-                        <td>{{ demande.numeroOr ?: '-' }}</td>
+                                {% if demande.numeroDit %}
+                                    <a href="{{ path('dit_validationDit', {
+                                        id: demande.demandeInterventionId,
+                                        numDit: demande.numeroDit
+                                        }) }}"
+                                        target="_blank"
+                                        data-bs-toggle="tooltip"
+                                        title="Afficher le détail">
+                                        {{ demande.numeroDit }}
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
 
-                        {# Date création #}
-                        <td>{{ demande.dateCreation ? demande.dateCreation|date('d/m/Y') : '-' }}</td>
-                    </tr>
-                {% else %}
-                    <tr>
-                        <td colspan="13" class="text-center">Aucune demande de diagnostic pneu trouvée.</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+                            {# N° OR #}
+                            <td>{{ demande.numeroOr ?: '-' }}</td>
 
-    {# Pagination en bas #}
-    <div class="container">
-        {% include "/partials/_pagination.html.twig" with {
-        'data': data,
-        'currentPage': currentPage,
-        'totalPages': totalPages,
-        'route': 'demande_diagnostic_pneu_liste'
-        } %}
-    </div>
+                            {# Date création #}
+                            <td>{{ demande.dateCreation ? demande.dateCreation|date('d/m/Y') : '-' }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="13" class="text-center">Aucune demande de diagnostic pneu trouvée.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
-    {# Modales éventuelles (pour détails, pièces jointes, etc.) #}
-    {# {% include "/pol/ddd/shared/_modal.html.twig" %} #}
+        {# Pagination en bas #}
+        <div class="container">
+            {% include "/partials/_pagination.html.twig" with {
+            'data': data,
+            'currentPage': currentPage,
+            'totalPages': totalPages,
+            'route': 'demande_diagnostic_pneu_liste'
+            } %}
+        </div>
 
-{% endblock %}
+        {# Modales éventuelles (pour détails, pièces jointes, etc.) #}
+        {# {% include "/pol/ddd/shared/_modal.html.twig" %} #}
 
-{% block javascript %}
-    <script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2026.07.03.14.50"></script>
-{% endblock %}
+    {% endblock %}
+
+    {% block javascript %}
+        <script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2026.07.03.14.50"></script>
+    {% endblock %}

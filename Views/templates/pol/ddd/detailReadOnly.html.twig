@@ -149,7 +149,6 @@
 
                 {{ macroForm.sousTitre('Pneu(s) à diagnostiquer', {class:'sousTitre'}) }}
 
-                {{ form_start(form ,{ 'attr': { 'id': 'diagnosticForm' } }) }}
 
                 <div class="table-responsive mt-2">
                     <table class="table table-bordered ">
@@ -172,8 +171,8 @@
                                     <td>{{ pneu.coteDim }}</td>
                                     <td>{{ pneu.positionMachine|replace({'_': ' '})|capitalize }}</td>
                                     <td>{{ pneu.motifChantier }}</td>
-                                    <td>{{ form_widget(form.diagnosticPneus[loop.index0].diagnostic, { attr: { class: 'form-select' } }) }}</td>
-                                    <td>{{ form_widget(form.diagnosticPneus[loop.index0].observationAtelier, { attr: { rows: 2, class: 'form-control' } }) }}</td>
+                                    <td>{{ pneu.diagnostic }}</td>
+                                    <td>{{ pneu.observationAtelier }}</td>
                                 </tr>
                             {% else %}
                                 <tr class="no-data"><td colspan="7">Aucun pneu enregistré.</td></tr>
@@ -183,31 +182,10 @@
                 </div>
 
 
-                {{ form_row(form.observationGlobalAtelier) }}
-                {{ form_row(form.piecesJointesAtelier) }}
+                {{ macroForm.affichageTextarea('Observation Global Atelier', demande.observationGlobalAtelier, 'mb-2') }}
 
-                {# ========================= #}
-                {# Boutons : Enregistrer #}
-                {# ========================= #}
-                {# Inside the form, after the fields #}
-                <div class="d-flex justify-content-end gap-2 mt-4">
-                    {% if not isReadOnly and isAllowed %}
-                        <button type="submit" class="btn btn-primary" name="enregistrer"  id="bouton-enregistrer-diagnostic-pneu">
-                            <i class="fas fa-save"></i>
-                            ENREGISTRER
-                        </button>
-                        {% if allFilled  %}
-                            <button type="submit" class="btn btn-success" name="valider" id="bouton-valider-diagnostic-pneu">
-                                <i class="fas fa-check"></i>
-                                VALIDER
-                            </button>
-                        {% endif %}
 
-                    {% endif %}
 
-                </div>
-
-                {{ form_end(form) }}
 
 
                 {# ========================= #}
@@ -275,7 +253,7 @@
                     <a href="{{ path('demande_diagnostic_pneu_liste') }}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Retour à la liste
                     </a>
-                    {% if isAllowed and demande.statut == 'traitee atelier' %}
+                    {% if demande.statut == 'traitee atelier' %}
                         <a href="{{ path('api_demande_diagnostic_pneu_cloturer', {numeroDemande: demande.numeroDemande}) }}"
                             class="btn btn-success"
                             id="bouton-cloturer-diagnostic-pneu">

@@ -114,6 +114,13 @@ class DemandeDiagnosticPneu
      */
     private ?string $observationGlobalAtelier = null;
 
+
+    /**
+     * @ORM\Column(type="text", nullable=true )
+     */
+    private  $piecesJointesAtelier = null;
+
+
     /**
      * @ORM\Column(type="string", length=100)
      */
@@ -315,6 +322,18 @@ class DemandeDiagnosticPneu
     public function setObservationGlobalAtelier(?string $observationGlobalAtelier): self
     {
         $this->observationGlobalAtelier = $observationGlobalAtelier;
+        return $this;
+    }
+
+    public function getPiecesJointesAtelier()
+    {
+        return $this->piecesJointes;
+    }
+
+
+    public function setPiecesJointesAtelier(?array $piecesJointesAtelier): self
+    {
+        $this->piecesJointesAtelier = $piecesJointesAtelier;
         return $this;
     }
 

@@ -36,6 +36,17 @@ class DemandeDiagnosticPneuListeController extends Controller
             ->getRepository(Chantier::class)
             ->findBy([], ['nomChantier' => 'ASC']);
 
+
+        $hasAtelier = $this->getSecurityService()->hasAccesRoute("demande_diagnostic_pneu_details_atelier");
+        $hasNormal  = $this->getSecurityService()->hasAccesRoute("demande_diagnostic_pneu_details");
+
+        // Show link if at least one is allowed
+        $showDetailsLink = $hasAtelier || $hasNormal;
+
+        // Choose the best route (atelier first, otherwise normal)
+        $detailsRoute = $hasAtelier ? "demande_diagnostic_pneu_details_atelier"
+            : ($hasNormal ? "demande_diagnostic_pneu_details" : null);
+
         $criteria = $this->getSessionService()->get('ddd_search_criteria', []);
         if (!empty($criteria)) {
             $search->fromArray($criteria);
@@ -76,6 +87,8 @@ class DemandeDiagnosticPneuListeController extends Controller
             'totalItems' => $paginationData['totalItems'],
             'statusCounts' => $paginationData['statusCounts'],
             'criteria' => $criteria,
+            'showDetailsLink' => $showDetailsLink,
+            'detailsRoute'    => $detailsRoute,
             'form' => $form->createView(),
         ]);
     }

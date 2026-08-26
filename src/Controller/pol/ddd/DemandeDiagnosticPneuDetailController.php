@@ -4,6 +4,7 @@ namespace App\Controller\pol\ddd;
 
 use App\Controller\Controller;
 use App\Controller\Traits\lienGenerique;
+use App\Controller\Traits\PdfConversionTrait;
 use App\Dto\ddd\DemandeDiagnosticPneuDto;
 use App\Entity\ddd\DemandeDiagnosticPneu;
 use App\Form\pol\ddd\DiagnosticPneuDetailType;
@@ -12,7 +13,10 @@ use App\Service\dit\fichier\DitNameFileService;
 use App\Service\EmailService;
 use App\Service\fichier\TraitementDeFichier;
 use App\Service\fichier\UploderFileService;
+use App\Service\genererPdf\pol\ddd\GenererPdfDdd;
+use App\Service\pol\ddd\fichier\DddNameFileService;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -20,10 +24,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\PdfConversionTrait;
-
-use App\Service\genererPdf\pol\ddd\GenererPdfDdd;
-use App\Service\pol\ddd\fichier\DddNameFileService;
+use Symfony\Component\Validator\Constraints\Callback;
+use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * @Route("/pol/demande-diagnostic-pneu")
@@ -35,10 +38,40 @@ class DemandeDiagnosticPneuDetailController extends Controller
     /**
      * @Route("/details/{numeroDemande}", name="demande_diagnostic_pneu_details")
      */
-    public function detail(string $numeroDemande, Request $request): Response
+    public function detailReadonly(string $numeroDemande): Response
     {
         $em = $this->getEntityManager();
+        $demande = $em->getRepository(DemandeDiagnosticPneu::class)->findOneBy(['numeroDemande' => $numeroDemande]);
+        if (!$demande) {
+            throw new NotFoundHttpException(
+                'Demande de Diagnostic Pneu introuvable'
+            );
+        }
 
+        return $this->render('pol/ddd/detailReadOnly.html.twig', [
+            'demande' => $demande
+        ]);
+    }
+
+    /**
+     * @Route("/details-atelier/{numeroDemande}", name="demande_diagnostic_pneu_details_atelier")
+     */
+    public function detailAtelier(string $numeroDemande, Request $request): Response
+    {
+        $em = $this->getEntityManager();
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+        $agenceService = $this->agenceServiceIpsObjet();
+
+        // [codeAgence , codeService] Autorisé 
+        $allowed = [
+            ['80', 'INF'],
+            ['60', 'ATE'],
+        ];
+
+        $statut = [
+            $agenceService['agenceIps']->getCodeAgence(),
+            $agenceService['serviceIps']->getCodeService(),
+        ];
 
         $demande = $em->getRepository(DemandeDiagnosticPneu::class)->findOneBy(['numeroDemande' => $numeroDemande]);
         if (!$demande) {
@@ -46,13 +79,14 @@ class DemandeDiagnosticPneuDetailController extends Controller
                 'Demande de Diagnostic Pneu introuvable'
             );
         }
-        $isAllowed = $this->estAtelier() || $this->estAdmin();
 
-        $isReadOnly = !$isAllowed
-            || !in_array($demande->getStatut(), [
-                'a traiter atelier',
-                'diag en cours',
-            ], true);
+        $isAllowed = in_array($statut, $allowed, true);
+
+
+        $isReadOnly =  !in_array($demande->getStatut(), [
+            'a traiter atelier',
+            'diag en cours',
+        ], true);
 
         // Créer un formulaire pour les pneus
         $form = $this->getFormFactory()->createBuilder()
@@ -78,6 +112,25 @@ class DemandeDiagnosticPneuDetailController extends Controller
                         'class' => 'observation global atelier'
                     ],
 
+                ]
+            )
+            ->add(
+                'piecesJointesAtelier',
+                FileType::class,
+                [
+                    'label' => 'Pièces Jointes Atelier',
+                    'help' => 'Formats acceptés : PDF, Images (.pdf, .jpg, .jpeg, .png) • Taille max : 5 Mo par fichier',
+                    'required' => false,
+                    'multiple' => true,
+                    'attr' => [
+                        'accept' => '.pdf, .jpg, .jpeg, .png',
+                        'class' => 'form-control-file',
+                        'data-max-size' => '5M',
+                    ],
+                    'mapped' => false,
+                    'constraints' => [
+                        new Callback([$this, 'validateFiles']),
+                    ],
                 ]
             )
             ->getForm();
@@ -119,10 +172,9 @@ class DemandeDiagnosticPneuDetailController extends Controller
                 $this->traitementDeFichier($form, $demande, $genererPdfDit);
                 $this->envoyerMail($demande);
             } else {
+                $uploadedFiles = $form->get('piecesJointesAtelier')->getData();
                 $demande->setStatut('diag en cours');
             }
-
-
             $em->flush();
 
             return $this->redirectToRoute('demande_diagnostic_pneu_details', [
@@ -382,5 +434,36 @@ class DemandeDiagnosticPneuDetailController extends Controller
         $nomAvecCheminFichier = $path . $nomFichier;
 
         return [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier];
+    }
+
+    public function validateFiles($files, ExecutionContextInterface $context)
+    {
+        $maxSize = '5M';
+        $mimeTypes = [
+            'application/pdf',
+            'image/jpeg',
+            'image/jpg',
+            'image/png',
+        ];
+
+        if ($files) {
+            foreach ($files as $file) {
+                $fileConstraint = new File([
+                    'maxSize' => $maxSize,
+                    'maxSizeMessage' => 'La taille du fichier ne doit pas dépasser 5 Mo.',
+                    'mimeTypes' => $mimeTypes,
+                    'mimeTypesMessage' => 'Veuillez télécharger un fichier valide.',
+                ]);
+
+                $violations = $context->getValidator()->validate($file, $fileConstraint);
+
+                if (count($violations) > 0) {
+                    foreach ($violations as $violation) {
+                        $context->buildViolation($violation->getMessage())
+                            ->addViolation();
+                    }
+                }
+            }
+        }
     }
 }
