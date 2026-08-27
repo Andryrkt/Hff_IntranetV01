@@ -306,7 +306,7 @@ class DemandeDiagnosticPneuDetailController extends Controller
         ] = $this->enregistrementFichier(
             $form,
             $demandeDiagnosticPneu->getNumeroDemande(),
-            'DDD-ATE'
+            'DDD'
         );
 
         if (!is_array($nomEtCheminFichiersEnregistrer)) {

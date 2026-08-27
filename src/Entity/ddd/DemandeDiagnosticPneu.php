@@ -158,7 +158,7 @@ class DemandeDiagnosticPneu
     /**
      * @ORM\Column(type="json", nullable=false)
      */
-    private ?array $motifs = [];
+    private  $motifs = [];
 
     public function __construct()
     {
