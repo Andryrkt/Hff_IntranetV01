@@ -173,7 +173,11 @@ class DitController extends Controller
 
                 // 5.enregistrement du numero demande d'intervention et Modifie la colonne dernière_id dans la table applications
                 $demandeIntervention->setNumeroDemandeIntervention($numeroDemandeIntervention);
-                $demandeIntervention->setInternetExterne("INTERNE");
+
+                // Interne si demandePneu
+                if ($demandePneu) {
+                    $demandeIntervention->setInternetExterne("INTERNE");
+                }
 
                 AutoIncDecService::mettreAJourDerniereIdApplication($application, $em, $numeroDemandeIntervention);
 

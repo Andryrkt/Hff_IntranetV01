@@ -142,12 +142,12 @@ class DomModel extends Model
                     dom.Date_Debut           AS date_debut,
                     dom.Date_Fin             AS date_fin
                 FROM Demande_ordre_mission dom
-                INNER JOIN Statut_demande sd
+                LEFT JOIN Statut_demande sd
                     ON sd.ID_Statut_Demande = dom.ID_Statut_Demande
                 CROSS JOIN $tableParams p
                 WHERE dom.Matricule = p.Matricule
                     AND dom.Code_Societe = p.CodeSociete
-                    AND sd.Code_Statut <> 'ANN'
+                    AND (sd.Code_Statut IS NULL OR sd.Code_Statut <> 'ANN')
                     AND (
                         dom.Date_Debut <= p.DateFin
                         AND dom.Date_Fin >= p.DateDebut
