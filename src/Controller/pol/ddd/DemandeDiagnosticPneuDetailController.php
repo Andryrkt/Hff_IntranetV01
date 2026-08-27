@@ -146,6 +146,7 @@ class DemandeDiagnosticPneuDetailController extends Controller
                     'help' => 'Formats acceptés : PDF, Images (.pdf, .jpg, .jpeg, .png) • Taille max : 5 Mo par fichier',
                     'required' => false,
                     'multiple' => true,
+                    'disabled' => $isReadOnly,
                     'attr' => [
                         'accept' => '.pdf, .jpg, .jpeg, .png',
                         'class' => 'form-control-file',
@@ -191,9 +192,9 @@ class DemandeDiagnosticPneuDetailController extends Controller
 
             // Check if all diagnostics are filled
             if ($action == "valider") {
-                $demande->setStatut('traitee atelier');
                 $this->traitementDeFichier($form, $demande, $genererPdfDit);
-                $this->envoyerMail($demande);
+                $demande->setStatut('traitee atelier');
+                $this->envoyerMailNotification($demande);
             } else {
                 $demande->setStatut('diag en cours');
                 $this->handlePiecesJointesAtelier($uploadedFiles, $demande);
@@ -229,19 +230,19 @@ class DemandeDiagnosticPneuDetailController extends Controller
     /**
      * Envoie un email à l'atelier pour signaler une la validation de la diagnostic de la demande.
      */
-    public function envoyerMail(DemandeDiagnosticPneu $demande): void
+    public function envoyerMailNotification(DemandeDiagnosticPneu $demande): void
     {
 
-        $mailRespAtelier = $_ENV['MAIL_TO_RESP_ATELIER'];
-
+        $mailRespAtelier = $_ENV['MAIL_TO_RESP_PNEUMATIQUE'];
+        $mailRentaL = $_ENV['MAIL_TO_RENTAL'];
         $mailDemandeur = $demande->getMailDemandeur();
 
-        $destinataires = [$mailRespAtelier];
+        $destinataires = [$mailRespAtelier, $mailRentaL];
         if (!empty($mailDemandeur)) {
             $destinataires[] = $mailDemandeur;
         }
 
-        $service = 'Atelier Pneu';
+        $service = 'Atelier';
 
         // Construction de l'URL de détail : BASE_PATH_COURT + chemin relatif
         $basePath = rtrim($_ENV['BASE_PATH_COURT'] ?? '', '/');
@@ -316,13 +317,19 @@ class DemandeDiagnosticPneuDetailController extends Controller
      * Récupération des pièces jointes
      */
         $piecesJointes = $demandeDiagnosticPneu->getPiecesJointes();
+        $piecesJointesAtelier = $demandeDiagnosticPneu->getPiecesJointesAtelier();
 
         if (is_string($piecesJointes)) {
             $piecesJointes = json_decode($piecesJointes, true);
         }
-
         if (!is_array($piecesJointes)) {
             $piecesJointes = [];
+        }
+        if (is_string($piecesJointesAtelier)) {
+            $piecesJointesAtelier = json_decode($piecesJointesAtelier, true);
+        }
+        if (!is_array($piecesJointesAtelier)) {
+            $piecesJointesAtelier = [];
         }
 
         /*
@@ -337,47 +344,45 @@ class DemandeDiagnosticPneuDetailController extends Controller
             . $demandeDiagnosticPneu->getNumeroDemande()
             . DIRECTORY_SEPARATOR;
 
-        /*
-     * Séparation :
-     * - images -> directement dans le PDF DDD
-     * - autres fichiers -> fusion classique
-     */
-        $images = [];
-        $autresFichiers = [];
 
-        foreach ($piecesJointes as $pieceJointe) {
-            if (empty($pieceJointe)) {
-                continue;
+        $imagesDemandeur = [];
+        $imagesAtelier   = [];
+        $autresFichiers  = [];
+
+        $traiterPieces = function (array $liste, string $origine) use ($dossierPiecesJointes, &$imagesDemandeur, &$imagesAtelier, &$autresFichiers) {
+            foreach ($liste as $piece) {
+                if (empty($piece)) {
+                    continue;
+                }
+                $chemin = $dossierPiecesJointes . $piece;
+                if (!file_exists($chemin)) {
+                    continue;
+                }
+                $extension = strtolower(pathinfo($chemin, PATHINFO_EXTENSION));
+                if (in_array($extension, ['jpg', 'jpeg', 'png'], true)) {
+                    if ($origine === 'demandeur') {
+                        $imagesDemandeur[] = $chemin;
+                    } else {
+                        $imagesAtelier[] = $chemin;
+                    }
+                } else {
+                    $autresFichiers[] = $chemin;
+                }
             }
+        };
+        $traiterPieces($piecesJointes, 'demandeur');
+        $traiterPieces($piecesJointesAtelier, 'atelier');
 
-            $cheminPieceJointe = $dossierPiecesJointes . $pieceJointe;
+        // Ajouter les nouveaux fichiers du formulaire (issus de handlePiecesJointesAtelier)
+        // On les considère comme appartenant à l'atelier
 
-            if (!file_exists($cheminPieceJointe)) {
-                continue;
-            }
-
-            $extension = strtolower(
-                pathinfo($cheminPieceJointe, PATHINFO_EXTENSION)
-            );
-
-            if (in_array($extension, ['jpg', 'jpeg', 'png'], true)) {
-                $images[] = $cheminPieceJointe;
-            } else {
-                $autresFichiers[] = $cheminPieceJointe;
-            }
-        }
-
-        /*
-     * Ajouter également les nouveaux fichiers
-     * retournés par enregistrementFichier().
-     */
         foreach ($nomEtCheminFichiersEnregistrer as $fichier) {
-            $extension = strtolower(
-                pathinfo($fichier, PATHINFO_EXTENSION)
-            );
-
+            if (empty($fichier)) {
+                continue;
+            }
+            $extension = strtolower(pathinfo($fichier, PATHINFO_EXTENSION));
             if (in_array($extension, ['jpg', 'jpeg', 'png'], true)) {
-                $images[] = $fichier;
+                $imagesAtelier[] = $fichier;
             } else {
                 $autresFichiers[] = $fichier;
             }
@@ -389,16 +394,15 @@ class DemandeDiagnosticPneuDetailController extends Controller
         $genererPdfDdd->genererPdfDiagnosticPneu(
             $demandeDiagnosticPneu,
             $nomAvecCheminFichier,
-            $images
+            $imagesDemandeur,
+            $imagesAtelier
         );
 
         /*
      * Traitement des autres pièces jointes
      */
         $traitementDeFichier = new TraitementDeFichier();
-
         if (!empty($autresFichiers)) {
-
             /*
          * Le PDF principal est toujours en première position
          */
@@ -525,7 +529,7 @@ class DemandeDiagnosticPneuDetailController extends Controller
             $extension = $file->guessExtension() ?: pathinfo($nomOriginal, PATHINFO_EXTENSION);
 
             // Génère le nom qui serait utilisé pour ce fichier
-            $nomUnique = $numDa . '_ATE__' . $nomSansExtension . '.' . $extension;
+            $nomUnique = $numDa . '_ATE_' . $nomSansExtension . '.' . $extension;
 
             // Vérifie si ce nom exact existe déjà dans la liste existante ou dans les nouveaux ajoutés
             if (in_array($nomUnique, $existants, true) || in_array($nomUnique, $nouveauxNoms, true)) {

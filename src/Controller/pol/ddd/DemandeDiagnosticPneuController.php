@@ -130,7 +130,7 @@ class DemandeDiagnosticPneuController extends Controller
                 $this->handlePiecesJointes($uploadedFiles, $demande);
             }
 
-            // Envoye mail au responsable atelier
+            // Envoye mail au atelier
             $this->envoyerMailAtelier($demande);
             // Historique (à décommenter après validation)
             $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $demande->getNumeroDemande(), 'demande_diagnostic_pneu_liste', true);
@@ -189,8 +189,12 @@ class DemandeDiagnosticPneuController extends Controller
      */
     public function envoyerMailAtelier(DemandeDiagnosticPneu $demande): void
     {
-        $destinataire = $_ENV['MAIL_TO_ATELIER'];
-        $service = 'Atelier Pneu';
+        $mailRespPneumatique = $_ENV['MAIL_TO_RESP_PNEUMATIQUE'];
+        $mailAtelier = $_ENV['MAIL_TO_ATELIER'];
+
+        $destinataires = [$mailRespPneumatique, $mailAtelier];
+
+        $service = 'Atelier';
 
         // Construction de l'URL de détail : BASE_PATH_COURT + chemin relatif
         $basePath = rtrim($_ENV['BASE_PATH_COURT'] ?? '', '/');
@@ -221,7 +225,7 @@ class DemandeDiagnosticPneuController extends Controller
 
 
         $this->envoyerEmail([
-            'to'          => $destinataire,
+            'to'          => $destinataires,
             'cc'          => [$_ENV['MAIL_CC_ATELIER']],
             'variables'   => $variables,
         ]);
