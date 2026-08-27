@@ -116,9 +116,9 @@ class DemandeDiagnosticPneu
 
 
     /**
-     * @ORM\Column(type="text", nullable=true )
+     * @ORM\Column(type="json", nullable=true)
      */
-    private  $piecesJointesAtelier = null;
+    private $piecesJointesAtelier;
 
 
     /**
@@ -327,7 +327,7 @@ class DemandeDiagnosticPneu
 
     public function getPiecesJointesAtelier()
     {
-        return $this->piecesJointes;
+        return $this->piecesJointesAtelier;
     }
 
 

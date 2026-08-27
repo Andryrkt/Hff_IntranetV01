@@ -7,13 +7,16 @@ use App\Controller\Traits\lienGenerique;
 use App\Controller\Traits\PdfConversionTrait;
 use App\Dto\ddd\DemandeDiagnosticPneuDto;
 use App\Entity\ddd\DemandeDiagnosticPneu;
+use App\Factory\pol\DemandeDiagnosticPneuFactory;
 use App\Form\pol\ddd\DiagnosticPneuDetailType;
 use App\Form\pol\ddd\DiagnosticPneuType;
+use App\Model\ddd\DemandeDiagnosticPneuModel;
 use App\Service\dit\fichier\DitNameFileService;
 use App\Service\EmailService;
 use App\Service\fichier\TraitementDeFichier;
 use App\Service\fichier\UploderFileService;
 use App\Service\genererPdf\pol\ddd\GenererPdfDdd;
+use App\Service\historiqueOperation\HistoriqueOperationDDDService;
 use App\Service\pol\ddd\fichier\DddNameFileService;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -35,6 +38,27 @@ class DemandeDiagnosticPneuDetailController extends Controller
 {
     use lienGenerique;
     use PdfConversionTrait;
+
+    private HistoriqueOperationDDDService $historiqueOperation;
+    private DemandeDiagnosticPneuModel $demandeDiagnosticPneuModel;
+    private TraitementDeFichier $traitementDeFichier;
+    private string $cheminDeBase;
+    private $demandeDiagnosticPneuRepository;
+    private  $demandeDiagnosticPneuFactory;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->historiqueOperation = new HistoriqueOperationDDDService($this->getEntityManager());
+        $this->demandeDiagnosticPneuModel = new DemandeDiagnosticPneuModel();
+        $this->traitementDeFichier = new TraitementDeFichier();
+        $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/ddd/';
+
+        $this->demandeDiagnosticPneuFactory = new DemandeDiagnosticPneuFactory($this->getEntityManager(), $this->demandeDiagnosticPneuModel, $this->historiqueOperation);
+
+        $this->demandeDiagnosticPneuRepository = $this->getEntityManager()->getRepository(DemandeDiagnosticPneu::class);
+    }
+
     /**
      * @Route("/details/{numeroDemande}", name="demande_diagnostic_pneu_details")
      */
@@ -148,11 +172,12 @@ class DemandeDiagnosticPneuDetailController extends Controller
             }
         }
 
-
-
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
-            $action =  $request->request->get("action");
+            $action = $request->request->get('action');
+            $uploadedFiles = $form->get('piecesJointesAtelier')->getData();
+
+
             // Always persist the diagnostic pneus
             foreach ($data['diagnosticPneus'] as $pneu) {
                 $em->persist($pneu);
@@ -165,22 +190,22 @@ class DemandeDiagnosticPneuDetailController extends Controller
             $demande->setStatut('diag en cours');
 
             // Check if all diagnostics are filled
-
-
             if ($action == "valider") {
                 $demande->setStatut('traitee atelier');
                 $this->traitementDeFichier($form, $demande, $genererPdfDit);
                 $this->envoyerMail($demande);
             } else {
-                $uploadedFiles = $form->get('piecesJointesAtelier')->getData();
                 $demande->setStatut('diag en cours');
+                $this->handlePiecesJointesAtelier($uploadedFiles, $demande);
             }
+
             $em->flush();
 
-            return $this->redirectToRoute('demande_diagnostic_pneu_details', [
+            return $this->redirectToRoute('demande_diagnostic_pneu_details_atelier', [
                 'numeroDemande' => $numeroDemande
             ]);
         }
+
         return $this->render('pol/ddd/detail.html.twig', [
             'demande' => $demande,
             'form' => $form->createView(),
@@ -280,7 +305,7 @@ class DemandeDiagnosticPneuDetailController extends Controller
         ] = $this->enregistrementFichier(
             $form,
             $demandeDiagnosticPneu->getNumeroDemande(),
-            'DDD'
+            'DDD-ATE'
         );
 
         if (!is_array($nomEtCheminFichiersEnregistrer)) {
@@ -465,5 +490,47 @@ class DemandeDiagnosticPneuDetailController extends Controller
                 }
             }
         }
+    }
+
+    /**
+     * Gère l'upload des pièces jointes atelier.
+     */
+    private function handlePiecesJointesAtelier(array $files, DemandeDiagnosticPneu $demande): void
+    {
+        $numDa = $demande->getNumeroDemande();
+
+        $basePath = rtrim($_ENV['BASE_PATH_FICHIER'], '/') . '/ddd/';
+        $dossier = $basePath . $numDa . '/';
+
+        // Créer le dossier s'il n'existe pas
+        if (!is_dir($dossier)) {
+            mkdir($dossier, 0777, true);
+        }
+        $nomsFichiers = [];
+
+        foreach ($files as $index => $file) {
+            if (!$file instanceof UploadedFile) {
+                continue;
+            }
+
+            $nomOriginal = $file->getClientOriginalName();
+            $extension = $file->guessExtension();
+            $nomUnique = $numDa . '_' . 'ATE_'
+                . ($index + 1) . '_'
+                . pathinfo($nomOriginal, PATHINFO_FILENAME)
+                . '.' . $extension;
+
+            // Upload via le service TraitementDeFichier
+            try {
+                $this->traitementDeFichier->upload($file, $dossier, $nomUnique);
+            } catch (\Exception $e) {
+                throw new \RuntimeException("Erreur lors de l'upload du fichier : " . $e->getMessage());
+            }
+
+            // Stocker uniquement le nom du fichier
+            $nomsFichiers[] = $nomUnique;
+        }
+
+        $demande->setPiecesJointesAtelier($nomsFichiers);
     }
 }

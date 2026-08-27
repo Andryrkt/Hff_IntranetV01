@@ -12,6 +12,49 @@
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
+{# Define a macro at the top of your file or in a separate _macros.html.twig #}
+{% macro pieceCard(piece, demande, section) %}
+    {% set extension = piece|split('.')|last|lower %}
+    {% set iconClass = {
+        'pdf': 'fa-file-pdf text-danger',
+        'doc': 'fa-file-word text-primary',
+        'docx': 'fa-file-word text-primary',
+        'xls': 'fa-file-excel text-success',
+        'xlsx': 'fa-file-excel text-success',
+        'ppt': 'fa-file-powerpoint text-warning',
+        'pptx': 'fa-file-powerpoint text-warning',
+        'jpg': 'fa-file-image text-info',
+        'jpeg': 'fa-file-image text-info',
+        'png': 'fa-file-image text-info',
+        'gif': 'fa-file-image text-info',
+        'zip': 'fa-file-archive text-secondary',
+        'rar': 'fa-file-archive text-secondary',
+        'txt': 'fa-file-alt text-secondary',
+        'csv': 'fa-file-csv text-secondary',
+    }[extension] ?? 'fa-file text-secondary' %}
+
+    <div class="card shadow-sm" style="width: 210px;" data-file="{{ piece }}">
+        <div class="card-body p-2 d-flex align-items-center">
+            <i class="fas {{ iconClass }} fa-2x me-2"></i>
+            <div class="flex-grow-1 text-truncate" style="max-width: 80px;" title="{{ piece|split('/')|last }}">
+                {{ piece|split('/')|last|length > 15 ? piece|split('/')|last|slice(0, 15) ~ '…' : piece|split('/')|last }}
+            </div>
+            <!-- Download Button -->
+            <a href="/Upload/ddd/{{ demande.numeroDemande }}/{{ piece }}" target="_blank" class="btn btn-sm btn-outline-primary" title="Télécharger">
+                <i class="fas fa-download"></i>
+            </a>
+            <!-- Delete Button -->
+            <button type="button" class="btn btn-sm btn-outline-danger ms-1 delete-piece-btn"
+                data-id="{{ demande.id }}"
+                data-file="{{ piece }}"
+                data-section="{{ section }}"
+                data-token="{{ csrf_token('delete_piece_' ~ demande.id) }}"
+                title="Supprimer">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+    </div>
+{% endmacro %}
 
 {% block content %}
     <div class="container mt-6 mb-4">
@@ -185,7 +228,53 @@
 
                 {{ form_row(form.observationGlobalAtelier) }}
                 {{ form_row(form.piecesJointesAtelier) }}
+                {# ========================= #}
+                {# Pièces jointes Atelier    #}
+                {# ========================= #}
+                <div class="row mt-2">
+                    <div class="col-12">
+                        {% if demande.piecesJointesAtelier %}
+                            <div class="d-flex flex-wrap gap-2">
+                                {% for piece in demande.piecesJointesAtelier %}
+                                    {# Même logique d'affichage que ci-dessus, vous pouvez factoriser dans un macro #}
+                                    {% set extension = piece|split('.')|last|lower %}
+                                    {% set iconClass = {
+                                        'pdf': 'fa-file-pdf text-danger',
+                                        'doc': 'fa-file-word text-primary',
+                                        'docx': 'fa-file-word text-primary',
+                                        'xls': 'fa-file-excel text-success',
+                                        'xlsx': 'fa-file-excel text-success',
+                                        'ppt': 'fa-file-powerpoint text-warning',
+                                        'pptx': 'fa-file-powerpoint text-warning',
+                                        'jpg': 'fa-file-image text-info',
+                                        'jpeg': 'fa-file-image text-info',
+                                        'png': 'fa-file-image text-info',
+                                        'gif': 'fa-file-image text-info',
+                                        'zip': 'fa-file-archive text-secondary',
+                                        'rar': 'fa-file-archive text-secondary',
+                                        'txt': 'fa-file-alt text-secondary',
+                                        'csv': 'fa-file-csv text-secondary',
+                                    }[extension] ?? 'fa-file text-secondary' %}
 
+                                    <div class="card shadow-sm" style="width: 180px;">
+                                        <div class="card-body p-2 d-flex align-items-center">
+                                            <i class="fas {{ iconClass }} fa-2x me-2"></i>
+                                            <div class="flex-grow-1 text-truncate" style="max-width: 100px;" title="{{ piece|split('/')|last }}">
+                                                {{ piece|split('/')|last|length > 15 ? piece|split('/')|last|slice(0, 15) ~ '…' : piece|split('/')|last }}
+                                            </div>
+                                            <a href="/Upload/ddd/{{ demande.numeroDemande }}/{{ piece }}" target="_blank" class="btn btn-sm btn-outline-primary ms-1" title="Télécharger / ouvrir">
+                                                <i class="fas fa-download"></i>
+                                            </a>
+
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-muted mb-0">Aucune pièce jointe de l’atelier.</p>
+                        {% endif %}
+                    </div>
+                </div>
                 {# ========================= #}
                 {# Boutons : Enregistrer #}
                 {# ========================= #}
@@ -270,6 +359,8 @@
                         {% endif %}
                     </div>
                 </div>
+
+
 
                 <div class="d-flex justify-content-end gap-2 mt-4">
                     <a href="{{ path('demande_diagnostic_pneu_liste') }}" class="btn btn-secondary">
