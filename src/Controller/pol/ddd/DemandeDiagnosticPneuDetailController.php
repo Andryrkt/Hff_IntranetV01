@@ -498,39 +498,51 @@ class DemandeDiagnosticPneuDetailController extends Controller
     private function handlePiecesJointesAtelier(array $files, DemandeDiagnosticPneu $demande): void
     {
         $numDa = $demande->getNumeroDemande();
-
         $basePath = rtrim($_ENV['BASE_PATH_FICHIER'], '/') . '/ddd/';
         $dossier = $basePath . $numDa . '/';
 
-        // Créer le dossier s'il n'existe pas
         if (!is_dir($dossier)) {
             mkdir($dossier, 0777, true);
         }
-        $nomsFichiers = [];
 
-        foreach ($files as $index => $file) {
+        // Récupère la liste existante (peut être un tableau ou une chaîne JSON)
+        $existants = $demande->getPiecesJointesAtelier();
+        if (is_string($existants)) {
+            $existants = json_decode($existants, true);
+        }
+        if (!is_array($existants)) {
+            $existants = [];
+        }
+
+        $nouveauxNoms = [];
+        foreach ($files as $file) {
             if (!$file instanceof UploadedFile) {
                 continue;
             }
 
             $nomOriginal = $file->getClientOriginalName();
-            $extension = $file->guessExtension();
-            $nomUnique = $numDa . '_' . 'ATE_'
-                . ($index + 1) . '_'
-                . pathinfo($nomOriginal, PATHINFO_FILENAME)
-                . '.' . $extension;
+            $nomSansExtension = pathinfo($nomOriginal, PATHINFO_FILENAME);
+            $extension = $file->guessExtension() ?: pathinfo($nomOriginal, PATHINFO_EXTENSION);
 
-            // Upload via le service TraitementDeFichier
+            // Génère le nom qui serait utilisé pour ce fichier
+            $nomUnique = $numDa . '_ATE__' . $nomSansExtension . '.' . $extension;
+
+            // Vérifie si ce nom exact existe déjà dans la liste existante ou dans les nouveaux ajoutés
+            if (in_array($nomUnique, $existants, true) || in_array($nomUnique, $nouveauxNoms, true)) {
+                continue; // Ignorer ce fichier (déjà présent)
+            }
+
             try {
                 $this->traitementDeFichier->upload($file, $dossier, $nomUnique);
             } catch (\Exception $e) {
                 throw new \RuntimeException("Erreur lors de l'upload du fichier : " . $e->getMessage());
             }
 
-            // Stocker uniquement le nom du fichier
-            $nomsFichiers[] = $nomUnique;
+            $nouveauxNoms[] = $nomUnique;
         }
 
-        $demande->setPiecesJointesAtelier($nomsFichiers);
+        // Fusionner les anciens et les nouveaux (uniquement ceux qui n'existaient pas)
+        $tous = array_merge($existants, $nouveauxNoms);
+        $demande->setPiecesJointesAtelier($tous);
     }
 }
