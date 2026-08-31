@@ -211,7 +211,7 @@ class DemandeDiagnosticPneuController extends Controller
         $sendToOne = function ($recipient, $urlType) use ($demande, $basePath, $commonVariables) {
             $relativePath = ($urlType === 'resp')
                 ? 'pol/demande-diagnostic-pneu/details/' . $demande->getNumeroDemande()
-                : 'pol/demande-diagnostic-pneu/details_atelier/' . $demande->getNumeroDemande();
+                : 'pol/demande-diagnostic-pneu/details-atelier/' . $demande->getNumeroDemande();
 
             $urlDetail = $this->urlGenerique($basePath . '/' . ltrim($relativePath, '/'));
 
