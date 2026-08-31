@@ -233,11 +233,13 @@ class DemandeDiagnosticPneuDetailController extends Controller
     public function envoyerMailNotification(DemandeDiagnosticPneu $demande): void
     {
 
-        $mailRespAtelier = $_ENV['MAIL_TO_RESP_PNEUMATIQUE'];
+        $mailRespPneu1 = $_ENV['MAIL_TO_RESP_PNEUMATIQUE_1'];
+        $mailRespPneu2 = $_ENV['MAIL_TO_RESP_PNEUMATIQUE_2'];
         $mailRentaL = $_ENV['MAIL_TO_RENTAL'];
+        
         $mailDemandeur = $demande->getMailDemandeur();
 
-        $destinataires = [$mailRespAtelier, $mailRentaL];
+        $destinataires = [$mailRespPneu1, $mailRespPneu2, $mailRentaL];
         if (!empty($mailDemandeur)) {
             $destinataires[] = $mailDemandeur;
         }
