@@ -106,7 +106,6 @@ class DemandeDiagnosticPneuDetailController extends Controller
 
         $isAllowed = in_array($statut, $allowed, true);
 
-
         $isReadOnly =  !in_array($demande->getStatut(), [
             'a traiter atelier',
             'diag en cours',
@@ -118,7 +117,7 @@ class DemandeDiagnosticPneuDetailController extends Controller
                 'entry_type' => DiagnosticPneuDetailType::class,
                 'allow_add' => false,
                 'entry_options' => [
-                    'disabled' => $isReadOnly,
+                    'disabled' => $isReadOnly || !$isAllowed,
                 ],
                 'allow_delete' => false,
                 'data' => $demande->getDiagnosticPneus()->toArray(),
@@ -129,7 +128,7 @@ class DemandeDiagnosticPneuDetailController extends Controller
                 [
                     'label' => 'Observation global atelier',
                     'required' => false,
-                    'disabled' => $isReadOnly,
+                    'disabled' => $isReadOnly || !$isAllowed,
                     'data' => $demande->getObservationGlobalAtelier(),
                     'attr' => [
                         'rows' => 5,
@@ -146,7 +145,7 @@ class DemandeDiagnosticPneuDetailController extends Controller
                     'help' => 'Formats acceptés : PDF, Images (.pdf, .jpg, .jpeg, .png) • Taille max : 5 Mo par fichier',
                     'required' => false,
                     'multiple' => true,
-                    'disabled' => $isReadOnly,
+                    'disabled' => $isReadOnly || !$isAllowed,
                     'attr' => [
                         'accept' => '.pdf, .jpg, .jpeg, .png',
                         'class' => 'form-control-file',
