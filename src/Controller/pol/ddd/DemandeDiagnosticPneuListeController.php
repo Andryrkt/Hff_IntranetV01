@@ -35,7 +35,18 @@ class DemandeDiagnosticPneuListeController extends Controller
         $chantiers = $this->getEntityManager()
             ->getRepository(Chantier::class)
             ->findBy([], ['nomChantier' => 'ASC']);
+        $agenceService = $this->agenceServiceIpsObjet();
 
+        // [codeAgence , codeService] Autorisé 
+        $allowedDIT = [
+            ['80', 'INF'],
+            ['50', 'LCD'],
+        ];
+        $statut = [
+            $agenceService['agenceIps']->getCodeAgence(),
+            $agenceService['serviceIps']->getCodeService(),
+        ];
+        $isAllowedDIT = in_array($statut, $allowedDIT, true);
 
         $hasAtelier = $this->getSecurityService()->hasAccesRoute("demande_diagnostic_pneu_details_atelier");
         $hasNormal  = $this->getSecurityService()->hasAccesRoute("demande_diagnostic_pneu_details");
@@ -80,6 +91,7 @@ class DemandeDiagnosticPneuListeController extends Controller
         );
         // Historique de visite
         $this->logUserVisit('demande_diagnostic_pneu_liste');
+
         return $this->render('pol/ddd/list.html.twig', [
             'data' => $paginationData['data'],
             'currentPage' => $paginationData['currentPage'],
@@ -90,6 +102,7 @@ class DemandeDiagnosticPneuListeController extends Controller
             'showDetailsLink' => $showDetailsLink,
             'detailsRoute'    => $detailsRoute,
             'form' => $form->createView(),
+            'isAllowedDIT' => $isAllowedDIT,
         ]);
     }
 }

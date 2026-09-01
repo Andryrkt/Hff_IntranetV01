@@ -81,7 +81,7 @@
                                     <i class="fas fa-ellipsis-vertical"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
-                                    {% if demande.statut == 'traitee atelier' %}
+                                    {% if demande.statut == 'traitee atelier' and isAllowedDIT %}
 
                                         <li>
                                             <a class="dropdown-item fw-bold" href="{{ path('dit_new', {numeroDemandePneu: demande.numeroDemande}) }}" target="_blank">Créer DIT</a>

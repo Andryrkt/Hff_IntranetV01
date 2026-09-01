@@ -86,6 +86,11 @@ class DemandeDiagnosticPneuDetailController extends Controller
         $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
         $agenceService = $this->agenceServiceIpsObjet();
 
+        // [codeAgence , codeService] Autorisé à creer DIT
+        $allowedDIT = [
+            ['80', 'INF'],
+            ['50', 'LCD'],
+        ];
         // [codeAgence , codeService] Autorisé 
         $allowed = [
             ['80', 'INF'],
@@ -96,6 +101,9 @@ class DemandeDiagnosticPneuDetailController extends Controller
             $agenceService['agenceIps']->getCodeAgence(),
             $agenceService['serviceIps']->getCodeService(),
         ];
+        $isAllowed = in_array($statut, $allowed, true);
+        $isAllowedDIT = in_array($statut, $allowedDIT, true);
+
 
         $demande = $em->getRepository(DemandeDiagnosticPneu::class)->findOneBy(['numeroDemande' => $numeroDemande]);
         if (!$demande) {
@@ -104,7 +112,7 @@ class DemandeDiagnosticPneuDetailController extends Controller
             );
         }
 
-        $isAllowed = in_array($statut, $allowed, true);
+
 
         $isReadOnly =  !in_array($demande->getStatut(), [
             'a traiter atelier',
@@ -212,6 +220,7 @@ class DemandeDiagnosticPneuDetailController extends Controller
             'isReadOnly' => $isReadOnly,
             'isAllowed' => $isAllowed,
             'allFilled' => $allFilled,
+            'isAllowedDIT' => $isAllowedDIT,
         ]);
     }
 
@@ -235,7 +244,7 @@ class DemandeDiagnosticPneuDetailController extends Controller
         $mailRespPneu1 = $_ENV['MAIL_TO_RESP_PNEUMATIQUE_1'];
         $mailRespPneu2 = $_ENV['MAIL_TO_RESP_PNEUMATIQUE_2'];
         $mailRentaL = $_ENV['MAIL_TO_RENTAL'];
-        
+
         $mailDemandeur = $demande->getMailDemandeur();
 
         $destinataires = [$mailRespPneu1, $mailRespPneu2, $mailRentaL];
