@@ -22,7 +22,7 @@ class SecurityService
     // ─── Routes publiques (pas de contrôle d'accès) ──────────────────────────
     private const ROUTES_SEMI_PRIVEES = ['choix_societe', 'sso_annuaire'];
     private const ROUTE_ACCUEIL = 'profil_acceuil';
-    private const ROUTES_PUBLIQUES = ['security_signin', 'auth_deconnexion'];
+    private const ROUTES_PUBLIQUES = ['security_signin', 'auth_deconnexion', 'sso_connect'];
     private const PREFIXES_API = ['api_'];
     private const PREFIXES_EXPORT = ['export_'];
 
