@@ -173,7 +173,6 @@ class DitController extends Controller
 
                 // 5.enregistrement du numero demande d'intervention et Modifie la colonne dernière_id dans la table applications
                 $demandeIntervention->setNumeroDemandeIntervention($numeroDemandeIntervention);
-                $demandeIntervention->setInternetExterne("INTERNE");
 
                 AutoIncDecService::mettreAJourDerniereIdApplication($application, $em, $numeroDemandeIntervention);
 
@@ -274,12 +273,14 @@ class DitController extends Controller
         $traitementDeFichier = new TraitementDeFichier();
         $nomEtCheminFichiersEnregistrer = $traitementDeFichier->insertFileAtPosition($nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, 0);
 
-        // 3. Insérer le fichier de diagnostic  après la page de garde (position 1)
-        $nomEtCheminFichiersEnregistrer = $traitementDeFichier->insertFileAtPosition(
-            $nomEtCheminFichiersEnregistrer,
-            $fichierDemandeDiagnostic,
-            1   // après la page de garde
-        );
+        // 3. Insérer le fichier de diagnostic après la page de garde (position 1) s'il existe
+        if (!empty($fichierDemandeDiagnostic)) {
+            $nomEtCheminFichiersEnregistrer = $traitementDeFichier->insertFileAtPosition(
+                $nomEtCheminFichiersEnregistrer,
+                $fichierDemandeDiagnostic,
+                1   // après la page de garde
+            );
+        }
         // 4. fusion du page de garde et des pieces jointes (conversion avant la fusion)
         $nomEtCheminFichierConvertie = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
         $traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);
@@ -421,6 +422,8 @@ class DitController extends Controller
 
             $demandeIntervention->setCategorieDemande($categorieDemandeDefault);
             $demandeIntervention->setTypeDocument($typeDocumentDemandeDefault);
+            // Interne si demandePneu
+            $demandeIntervention->setInternetExterne("INTERNE");
         }
 
 

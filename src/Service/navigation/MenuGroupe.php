@@ -171,7 +171,8 @@ class MenuGroupe
                 'label'    => 'Dashboard',
                 'icon'     => 'gauge-high',
                 'subitems' => [
-                    ['label' => 'Alertes matériel de location', 'icon' => 'bell', 'route' => 'alerte_materiel_location', 'target' => '_blank'],
+                    ['label' => 'RENTAL Rollout', 'icon' => 'snowplow', 'route' => 'rental_rollout', 'target' => '_blank'],
+                    ['label' => 'GE Rollout', 'icon' => 'plug-circle-bolt', 'route' => 'ge_rollout', 'target' => '_blank'],
                 ],
             ],
         ];
@@ -361,7 +362,11 @@ class MenuGroupe
                 'label' => 'Devis negoce pol',
                 'icon'  => 'list-ul',
             ],
-
+            [
+                'route' => 'nouveau_demande_diagnostic',
+                'label' => 'Demande de diagnostic',
+                'icon'  => 'plus-circle',
+            ],
             [
                 'label'    => 'DIAGNOSTIC PNEU',
                 'icon'     => 'list-ul',

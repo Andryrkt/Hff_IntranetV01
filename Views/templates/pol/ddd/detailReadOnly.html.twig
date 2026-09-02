@@ -12,39 +12,6 @@
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
-{# Define a macro at the top of your file or in a separate _macros.html.twig #}
-{% macro pieceCard(piece, demande, section) %}
-    {% set extension = piece|split('.')|last|lower %}
-    {% set iconClass = {
-        'pdf': 'fa-file-pdf text-danger',
-        'doc': 'fa-file-word text-primary',
-        'docx': 'fa-file-word text-primary',
-        'xls': 'fa-file-excel text-success',
-        'xlsx': 'fa-file-excel text-success',
-        'ppt': 'fa-file-powerpoint text-warning',
-        'pptx': 'fa-file-powerpoint text-warning',
-        'jpg': 'fa-file-image text-info',
-        'jpeg': 'fa-file-image text-info',
-        'png': 'fa-file-image text-info',
-        'gif': 'fa-file-image text-info',
-        'zip': 'fa-file-archive text-secondary',
-        'rar': 'fa-file-archive text-secondary',
-        'txt': 'fa-file-alt text-secondary',
-        'csv': 'fa-file-csv text-secondary',
-    }[extension] ?? 'fa-file text-secondary' %}
-
-    <div class="card shadow-sm" style="width: 180px;" data-file="{{ piece }}">
-        <div class="card-body p-2 d-flex align-items-center">
-            <i class="fas {{ iconClass }} fa-2x me-2"></i>
-            <div class="flex-grow-1 text-truncate" style="max-width: 100px;" title="{{ piece|split('/')|last }}">
-                {{ piece|split('/')|last|length > 15 ? piece|split('/')|last|slice(0, 15) ~ '…' : piece|split('/')|last }}
-            </div>
-            <a href="/Upload/ddd/{{ demande.numeroDemande }}/{{ piece }}" target="_blank" class="btn btn-sm btn-outline-primary ms-1" title="Télécharger / ouvrir">
-                <i class="fas fa-download"></i>
-            </a>
-        </div>
-    </div>
-{% endmacro %}
 
 {% block content %}
     <div class="container mt-6 mb-4">
@@ -182,7 +149,6 @@
 
                 {{ macroForm.sousTitre('Pneu(s) à diagnostiquer', {class:'sousTitre'}) }}
 
-                {{ form_start(form ,{ 'attr': { 'id': 'diagnosticForm' } }) }}
 
                 <div class="table-responsive mt-2">
                     <table class="table table-bordered ">
@@ -205,8 +171,8 @@
                                     <td>{{ pneu.coteDim }}</td>
                                     <td>{{ pneu.positionMachine|replace({'_': ' '})|capitalize }}</td>
                                     <td>{{ pneu.motifChantier }}</td>
-                                    <td>{{ form_widget(form.diagnosticPneus[loop.index0].diagnostic, { attr: { class: 'form-select' } }) }}</td>
-                                    <td>{{ form_widget(form.diagnosticPneus[loop.index0].observationAtelier, { attr: { rows: 2, class: 'form-control' } }) }}</td>
+                                    <td>{{ pneu.diagnostic }}</td>
+                                    <td>{{ pneu.observationAtelier }}</td>
                                 </tr>
                             {% else %}
                                 <tr class="no-data"><td colspan="7">Aucun pneu enregistré.</td></tr>
@@ -216,47 +182,10 @@
                 </div>
 
 
-                {{ form_row(form.observationGlobalAtelier) }}
-                {{ form_row(form.piecesJointesAtelier) }}
-                <input type="hidden" id="fichiers_a_supprimer_atelier" name="fichiers_a_supprimer_atelier" value="[]">
-                {# ========================= #}
-                {# Pièces jointes Atelier    #}
-                {# ========================= #}
-                <div class="row mt-2">
-                    <div class="col-12">
-                        {% if demande.piecesJointesAtelier %}
-                            <div class="d-flex flex-wrap gap-2">
-                                {% for pieceAtelier in demande.piecesJointesAtelier %}
-                                    {{ _self.pieceCard(pieceAtelier, demande, 'atelier') }}
-                                {% endfor %}
-                            </div>
-                        {% else %}
-                            <p class="text-muted mb-0">Aucune pièce jointe du demandeur.</p>
-                        {% endif %}
-                    </div>
-                </div>
-                {# ========================= #}
-                {# Boutons : Enregistrer #}
-                {# ========================= #}
-                {# Inside the form, after the fields #}
-                <div class="d-flex justify-content-end gap-2 mt-4">
-                    {% if not isReadOnly and isAllowed %}
-                        <button type="submit" class="btn btn-primary" name="enregistrer"  id="bouton-enregistrer-diagnostic-pneu">
-                            <i class="fas fa-save"></i>
-                            ENREGISTRER
-                        </button>
-                        {% if allFilled  %}
-                            <button type="submit" class="btn btn-success" name="valider" id="bouton-valider-diagnostic-pneu">
-                                <i class="fas fa-check"></i>
-                                VALIDER
-                            </button>
-                        {% endif %}
+                {{ macroForm.affichageTextarea('Observation Global Atelier', demande.observationGlobalAtelier, 'mb-2') }}
 
-                    {% endif %}
 
-                </div>
 
-                {{ form_end(form) }}
 
 
                 {# ========================= #}
@@ -280,22 +209,51 @@
                         {% if demande.piecesJointes %}
                             <div class="d-flex flex-wrap gap-2">
                                 {% for piece in demande.piecesJointes %}
-                                    {{ _self.pieceCard(piece, demande, 'demandeur') }}
+                                    {% set extension = piece|split('.')|last|lower %}
+                                    {% set iconClass = {
+                                        'pdf': 'fa-file-pdf text-danger',
+                                        'doc': 'fa-file-word text-primary',
+                                        'docx': 'fa-file-word text-primary',
+                                        'xls': 'fa-file-excel text-success',
+                                        'xlsx': 'fa-file-excel text-success',
+                                        'ppt': 'fa-file-powerpoint text-warning',
+                                        'pptx': 'fa-file-powerpoint text-warning',
+                                        'jpg': 'fa-file-image text-info',
+                                        'jpeg': 'fa-file-image text-info',
+                                        'png': 'fa-file-image text-info',
+                                        'gif': 'fa-file-image text-info',
+                                        'zip': 'fa-file-archive text-secondary',
+                                        'rar': 'fa-file-archive text-secondary',
+                                        'txt': 'fa-file-alt text-secondary',
+                                        'csv': 'fa-file-csv text-secondary',
+                                    }[extension] ?? 'fa-file text-secondary' %}
+
+                                    <div class="card shadow-sm" style="width: 180px;">
+                                        <div class="card-body p-2 d-flex align-items-center">
+                                            <i class="fas {{ iconClass }} fa-2x me-2"></i>
+                                            <div class="flex-grow-1 text-truncate" style="max-width: 100px;" title="{{ piece|split('/')|last }}">
+                                                {{ piece|split('/')|last|length > 15 ? piece|split('/')|last|slice(0, 15) ~ '…' : piece|split('/')|last }}
+                                            </div>
+                                            <a href="/Upload/ddd/{{ demande.numeroDemande }}/{{ piece }}" target="_blank" class="btn btn-sm btn-outline-primary ms-1" title="Télécharger / ouvrir">
+                                                <i class="fas fa-download"></i>
+                                            </a>
+                                        </div>
+                                    </div>
                                 {% endfor %}
                             </div>
                         {% else %}
-                            <p class="text-muted mb-0">Aucune pièce jointe du demandeur.</p>
+                            <div >
+                                <p class="text-muted mb-0">Aucune pièce jointe.</p>
+                            </div>
                         {% endif %}
                     </div>
                 </div>
-
-
 
                 <div class="d-flex justify-content-end gap-2 mt-4">
                     <a href="{{ path('demande_diagnostic_pneu_liste') }}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Retour à la liste
                     </a>
-                    {% if isAllowedDIT and demande.statut == 'traitee atelier' %}
+                    {% if demande.statut == 'traitee atelier' %}
                         <a href="{{ path('api_demande_diagnostic_pneu_cloturer', {numeroDemande: demande.numeroDemande}) }}"
                             class="btn btn-success"
                             id="bouton-cloturer-diagnostic-pneu">

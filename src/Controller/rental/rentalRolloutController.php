@@ -9,16 +9,27 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @Route("/materiel")
  */
-class rentalRolloutController extends Controller
+class RentalRolloutController extends Controller
 {
     /**
-     * @Route("/dashboard/alerte-materiel-location", name="alerte_materiel_location")
+     * @Route("/dashboard/rental-rollout", name="rental_rollout")
      */
     public function rentalRollout()
     {
         return $this->render("iframe/iframe.html.twig", [
             'url'       => IframeConstant::LINK["rental-rollout"],
-            'pageTitle' => "Alertes Materiels de location",
+            'pageTitle' => "RENTAL Rollout",
+        ]);
+    }
+
+    /**
+     * @Route("/dashboard/ge-rollout", name="ge_rollout")
+     */
+    public function geRollout()
+    {
+        return $this->render("iframe/iframe.html.twig", [
+            'url'       => IframeConstant::LINK["ge-rollout"],
+            'pageTitle' => "GE Rollout",
         ]);
     }
 }

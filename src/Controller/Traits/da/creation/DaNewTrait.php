@@ -42,6 +42,9 @@ trait DaNewTrait
             $daAfficher->setDateDemande($demandeAppro->getDateCreation());
             $daAfficher->setNumeroVersion($numeroVersion);
 
+            // Gestion caractères spéciaux
+            $daAfficher->setArtDesi($this->normalizeTypographicChars($daAfficher->getArtDesi()));
+
             $this->getEntityManager()->persist($daAfficher);
         }
         $this->getEntityManager()->flush();

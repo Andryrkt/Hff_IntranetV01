@@ -39,13 +39,13 @@ const loadingEl = document.getElementById("materiel-loading");
 const inputsEl = document.getElementById("materiel-inputs");
 
 function showLoading() {
-  loadingEl.style.display = "block";
-  inputsEl.classList.add("d-none");
+  if (loadingEl) loadingEl.style.display = "block";
+  if (inputsEl) inputsEl.classList.add("d-none");
 }
 
 function hideLoading() {
-  loadingEl.style.display = "none";
-  inputsEl.classList.remove("d-none");
+  if (loadingEl) loadingEl.style.display = "none";
+  if (inputsEl) inputsEl.classList.remove("d-none");
 }
 const fetchManager = new FetchManager();
 
@@ -148,9 +148,9 @@ function onSelectMateriels(item) {
   showMaterielLoader();
 
   lastSelectedItem = item;
-  idMaterielInput.value = item.num_matricule;
-  numParcInput.value = item.num_parc;
-  numSerieInput.value = item.num_serie;
+  if (idMaterielInput) idMaterielInput.value = item.num_matricule;
+  if (numParcInput) numParcInput.value = item.num_parc;
+  if (numSerieInput) numSerieInput.value = item.num_serie;
 
   createMaterielInfoDisplay(containerInfoMateriel, item);
 
@@ -173,13 +173,13 @@ async function validateInput(input, keyToCompare) {
 }
 
 // Écouteurs de perte de focus pour chaque champ
-idMaterielInput.addEventListener("blur", () =>
+idMaterielInput?.addEventListener("blur", () =>
   validateInput(idMaterielInput, "num_matricule"),
 );
-numParcInput.addEventListener("blur", () =>
+numParcInput?.addEventListener("blur", () =>
   validateInput(numParcInput, "num_parc"),
 );
-numSerieInput.addEventListener("blur", () =>
+numSerieInput?.addEventListener("blur", () =>
   validateInput(numSerieInput, "num_serie"),
 );
 
@@ -362,7 +362,9 @@ const agenceDebiteurInput = document.querySelector(".agenceDebiteur");
 const serviceDebiteurInput = document.querySelector(".serviceDebiteur");
 const spinnerService = document.getElementById("spinner-service");
 const serviceContainer = document.getElementById("service-container");
-agenceDebiteurInput.addEventListener("change", selectAgence);
+if (agenceDebiteurInput) {
+  agenceDebiteurInput.addEventListener("change", selectAgence);
+}
 
 function selectAgence() {
   const agenceDebiteur = agenceDebiteurInput.value;
@@ -408,24 +410,30 @@ function updateServiceOptions(services) {
  * CHAMP CLIENT MISE EN MAJUSCULE
  =================================*/
 
-nomClientInput.addEventListener("input", MiseMajuscule);
+if (nomClientInput) {
+  nomClientInput.addEventListener("input", MiseMajuscule);
+}
 function MiseMajuscule() {
-  nomClientInput.value = nomClientInput.value.toUpperCase();
+  if (nomClientInput) {
+    nomClientInput.value = nomClientInput.value.toUpperCase();
+  }
 }
 
 /**================================
  * INTERNE - EXTERNE (champ )
  ================================*/
 
-if (interneExterneInput.value === "INTERNE") {
-  nomClientInput.setAttribute("disabled", true);
-  numClientInput.setAttribute("disabled", true);
-  numTelInput.setAttribute("disabled", true);
-  clientSousContratInput.setAttribute("disabled", true);
-  mailClientInput.setAttribute("disabled", true);
-}
+if (interneExterneInput) {
+  if (interneExterneInput.value === "INTERNE") {
+    nomClientInput?.setAttribute("disabled", true);
+    numClientInput?.setAttribute("disabled", true);
+    numTelInput?.setAttribute("disabled", true);
+    clientSousContratInput?.setAttribute("disabled", true);
+    mailClientInput?.setAttribute("disabled", true);
+  }
 
-interneExterneInput.addEventListener("change", interneExterne);
+  interneExterneInput.addEventListener("change", interneExterne);
+}
 
 function interneExterne() {
   console.log(interneExterneInput.value);
@@ -486,10 +494,12 @@ allowOnlyNumbers(numTelInput);
 /** FORM */
 const ditForm = document.querySelector("#dit-form");
 
-ditForm.addEventListener("submit", intExtEnvoier);
+if (ditForm) {
+  ditForm.addEventListener("submit", intExtEnvoier);
+}
 function intExtEnvoier() {
-  agenceDebiteurInput.removeAttribute("disabled");
-  serviceDebiteurInput.removeAttribute("disabled");
+  agenceDebiteurInput?.removeAttribute("disabled");
+  serviceDebiteurInput?.removeAttribute("disabled");
 }
 
 /**=========================================================================================================
@@ -514,9 +524,11 @@ function formatNumber(input) {
  =========================================================================*/
 const objetDemande = document.querySelector(".noEntrer");
 
-objetDemande.addEventListener("input", function () {
-  objetDemande.value = objetDemande.value.substring(0, 86);
-});
+if (objetDemande) {
+  objetDemande.addEventListener("input", function () {
+    objetDemande.value = objetDemande.value.substring(0, 86);
+  });
+}
 
 /**===================
  * BOUTON ENREGISTRER
