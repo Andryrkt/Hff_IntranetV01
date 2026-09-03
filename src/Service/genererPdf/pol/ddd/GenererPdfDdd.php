@@ -19,7 +19,8 @@ class GenererPdfDdd extends GeneratePdf
     public function genererPdfDiagnosticPneu(
         DemandeDiagnosticPneu $demande,
         string $filePath,
-        array $images = []
+        array $imagesDemandeur = [],
+        array $imagesAtelier = []
 
     ): void {
         $pdf = new TCPDF();
@@ -166,133 +167,96 @@ class GenererPdfDdd extends GeneratePdf
             $pdf->setFont('helvetica', '', 9);
             $pdf->MultiCell(0, 6, $obsGlobal, 0, 'L', false, 1);
         }
-        // --- Pièces jointes images : 2 images par page ---
-        if (!empty($images)) {
-            // On garde uniquement les images valides
-            $imagesValides = array_filter($images, function ($imagePath) {
-                if (!file_exists($imagePath)) {
-                    return false;
-                }
-
-                $extension = strtolower(
-                    pathinfo($imagePath, PATHINFO_EXTENSION)
-                );
-
-                return in_array(
-                    $extension,
-                    ['jpg', 'jpeg', 'png'],
-                    true
-                );
-            });
-
-            $imagesValides = array_values($imagesValides);
-
-            /*
-     * Traitement par groupe de 2 images
-     */
-            foreach (array_chunk($imagesValides, 2) as $groupeImages) {
-
-                // Nouvelle page
-                $pdf->AddPage();
-
-                $pageWidth = $pdf->getPageWidth();
-                $pageHeight = $pdf->getPageHeight();
-
-                $margin = 10;
-
-                // Largeur disponible
-                $maxWidth = $pageWidth - ($margin * 2);
-
-                // Hauteur disponible pour chaque image
-                $maxHeight = 115;
-
-                /*
-         * Positions verticales
-         */
-                $positionsY = [
-                    25,
-                    155
-                ];
-
-                foreach ($groupeImages as $index => $imagePath) {
-
-                    $imageSize = getimagesize($imagePath);
-
-                    if ($imageSize === false) {
-                        continue;
-                    }
-
-                    [$imageWidth, $imageHeight] = $imageSize;
-
-                    /*
-             * Calcul du ratio pour conserver
-             * les proportions de l'image
-             */
-                    $ratio = min(
-                        $maxWidth / $imageWidth,
-                        $maxHeight / $imageHeight
-                    );
-
-                    $displayWidth = $imageWidth * $ratio;
-                    $displayHeight = $imageHeight * $ratio;
-
-                    /*
-             * Centrage horizontal
-             */
-                    $x = ($pageWidth - $displayWidth) / 2;
-
-                    /*
-             * Position verticale
-             */
-                    $y = $positionsY[$index];
-
-                    /*
-             * Titre de l'image
-             */
-                    $pdf->setFont('helvetica', 'B', 9);
-
-                    $pdf->SetXY(
-                        $margin,
-                        $y - 7
-                    );
-
-                    $pdf->Cell(
-                        $maxWidth,
-                        6,
-                        'Pièce jointe : ' . basename($imagePath),
-                        0,
-                        1,
-                        'L'
-                    );
-
-                    /*
-             * Ajout de l'image
-             */
-                    $pdf->Image(
-                        $imagePath,
-                        $x,
-                        $y,
-                        $displayWidth,
-                        $displayHeight,
-                        '',
-                        '',
-                        '',
-                        false,
-                        300,
-                        '',
-                        false,
-                        false,
-                        0,
-                        false,
-                        false,
-                        false
-                    );
-                }
-            }
+        if (!empty($imagesDemandeur)) {
+            $this->ajouterSectionImages($pdf, $imagesDemandeur, 'Images jointes demandeur :');
         }
+        // Section Atelier
+        if (!empty($imagesAtelier)) {
+            $this->ajouterSectionImages($pdf, $imagesAtelier, 'Images jointes atelier :');
+        }
+
 
 
         // Génération du fichier
         $pdf->Output($filePath, 'F');
+    }
+
+    private function ajouterSectionImages(TCPDF $pdf, array $images, string $titre): void
+    {
+        // Filtrer les images valides
+        $imagesValides = array_filter($images, function ($imagePath) {
+            if (!file_exists($imagePath)) {
+                return false;
+            }
+            $extension = strtolower(pathinfo($imagePath, PATHINFO_EXTENSION));
+            return in_array($extension, ['jpg', 'jpeg', 'png'], true);
+        });
+        $imagesValides = array_values($imagesValides);
+
+        if (empty($imagesValides)) {
+            return;
+        }
+        $totalImages = count($imagesValides);
+        $imageCounter = 0; // compteur global pour la section
+        // Traiter par groupe de 2
+        foreach (array_chunk($imagesValides, 2) as $groupeImages) {
+            $pdf->SetDrawColor(0, 0, 0); // couleur par défaut
+            $pdf->SetLineStyle(array('width' => 0.1, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0)));
+            // Puis AddPage()
+            $pdf->AddPage();
+            $pdf->setFont('helvetica', 'B', 12);
+            $pdf->SetXY(10, 10);
+            $pdf->Cell(0, 6, $titre, 0, 1, 'L');
+
+            $pageWidth = $pdf->getPageWidth();
+            $pageHeight = $pdf->getPageHeight();
+            $margin = 10;
+            $maxWidth = $pageWidth - ($margin * 2);
+            $maxHeight = 115;
+            $positionsY = [25, 155]; // deux images par page
+
+            foreach ($groupeImages as $index => $imagePath) {
+                $imageSize = getimagesize($imagePath);
+                if ($imageSize === false) {
+                    continue;
+                }
+                [$imageWidth, $imageHeight] = $imageSize;
+                $ratio = min($maxWidth / $imageWidth, $maxHeight / $imageHeight);
+                $displayWidth = $imageWidth * $ratio;
+                $displayHeight = $imageHeight * $ratio;
+                $x = ($pageWidth - $displayWidth) / 2;
+                $y = $positionsY[$index];
+
+
+                // Incrémenter le compteur global
+                $imageCounter++;
+                $label = 'Image ' . $imageCounter . '/' . $totalImages;
+                // Titre de l'image (nom du fichier)
+                $pdf->setFont('helvetica', 'B', 9);
+                $pdf->SetXY($margin, $y - 7);
+                $pdf->Cell($maxWidth, 6, $label, 0, 1, 'L');
+
+                // Ajout de l'image
+                $pdf->Image(
+                    $imagePath,
+                    $x,
+                    $y,
+                    $displayWidth,
+                    $displayHeight,
+                    '',
+                    '',
+                    '',
+                    false,
+                    300,
+                    '',
+                    false,
+                    false,
+                    0,
+                    false,
+                    false,
+                    false
+                );
+            }
+        }
     }
 }

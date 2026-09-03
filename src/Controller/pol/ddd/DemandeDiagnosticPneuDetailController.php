@@ -4,15 +4,22 @@ namespace App\Controller\pol\ddd;
 
 use App\Controller\Controller;
 use App\Controller\Traits\lienGenerique;
+use App\Controller\Traits\PdfConversionTrait;
 use App\Dto\ddd\DemandeDiagnosticPneuDto;
 use App\Entity\ddd\DemandeDiagnosticPneu;
+use App\Factory\pol\DemandeDiagnosticPneuFactory;
 use App\Form\pol\ddd\DiagnosticPneuDetailType;
 use App\Form\pol\ddd\DiagnosticPneuType;
+use App\Model\ddd\DemandeDiagnosticPneuModel;
 use App\Service\dit\fichier\DitNameFileService;
 use App\Service\EmailService;
 use App\Service\fichier\TraitementDeFichier;
 use App\Service\fichier\UploderFileService;
+use App\Service\genererPdf\pol\ddd\GenererPdfDdd;
+use App\Service\historiqueOperation\HistoriqueOperationDDDService;
+use App\Service\pol\ddd\fichier\DddNameFileService;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -20,10 +27,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\PdfConversionTrait;
-
-use App\Service\genererPdf\pol\ddd\GenererPdfDdd;
-use App\Service\pol\ddd\fichier\DddNameFileService;
+use Symfony\Component\Validator\Constraints\Callback;
+use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * @Route("/pol/demande-diagnostic-pneu")
@@ -32,12 +38,71 @@ class DemandeDiagnosticPneuDetailController extends Controller
 {
     use lienGenerique;
     use PdfConversionTrait;
+
+    private HistoriqueOperationDDDService $historiqueOperation;
+    private DemandeDiagnosticPneuModel $demandeDiagnosticPneuModel;
+    private TraitementDeFichier $traitementDeFichier;
+    private string $cheminDeBase;
+    private $demandeDiagnosticPneuRepository;
+    private  $demandeDiagnosticPneuFactory;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->historiqueOperation = new HistoriqueOperationDDDService($this->getEntityManager());
+        $this->demandeDiagnosticPneuModel = new DemandeDiagnosticPneuModel();
+        $this->traitementDeFichier = new TraitementDeFichier();
+        $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/ddd/';
+
+        $this->demandeDiagnosticPneuFactory = new DemandeDiagnosticPneuFactory($this->getEntityManager(), $this->demandeDiagnosticPneuModel, $this->historiqueOperation);
+
+        $this->demandeDiagnosticPneuRepository = $this->getEntityManager()->getRepository(DemandeDiagnosticPneu::class);
+    }
+
     /**
      * @Route("/details/{numeroDemande}", name="demande_diagnostic_pneu_details")
      */
-    public function detail(string $numeroDemande, Request $request): Response
+    public function detailReadonly(string $numeroDemande): Response
     {
         $em = $this->getEntityManager();
+        $demande = $em->getRepository(DemandeDiagnosticPneu::class)->findOneBy(['numeroDemande' => $numeroDemande]);
+        if (!$demande) {
+            throw new NotFoundHttpException(
+                'Demande de Diagnostic Pneu introuvable'
+            );
+        }
+
+        return $this->render('pol/ddd/detailReadOnly.html.twig', [
+            'demande' => $demande
+        ]);
+    }
+
+    /**
+     * @Route("/details-atelier/{numeroDemande}", name="demande_diagnostic_pneu_details_atelier")
+     */
+    public function detailAtelier(string $numeroDemande, Request $request): Response
+    {
+        $em = $this->getEntityManager();
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+        $agenceService = $this->agenceServiceIpsObjet();
+
+        // [codeAgence , codeService] Autorisé à creer DIT
+        $allowedDIT = [
+            ['80', 'INF'],
+            ['50', 'LCD'],
+        ];
+        // [codeAgence , codeService] Autorisé 
+        $allowed = [
+            ['80', 'INF'],
+            ['60', 'ATE'],
+        ];
+
+        $statut = [
+            $agenceService['agenceIps']->getCodeAgence(),
+            $agenceService['serviceIps']->getCodeService(),
+        ];
+        $isAllowed = in_array($statut, $allowed, true);
+        $isAllowedDIT = in_array($statut, $allowedDIT, true);
 
 
         $demande = $em->getRepository(DemandeDiagnosticPneu::class)->findOneBy(['numeroDemande' => $numeroDemande]);
@@ -46,13 +111,13 @@ class DemandeDiagnosticPneuDetailController extends Controller
                 'Demande de Diagnostic Pneu introuvable'
             );
         }
-        $isAllowed = $this->estAtelier() || $this->estAdmin();
 
-        $isReadOnly = !$isAllowed
-            || !in_array($demande->getStatut(), [
-                'a traiter atelier',
-                'diag en cours',
-            ], true);
+
+
+        $isReadOnly =  !in_array($demande->getStatut(), [
+            'a traiter atelier',
+            'diag en cours',
+        ], true);
 
         // Créer un formulaire pour les pneus
         $form = $this->getFormFactory()->createBuilder()
@@ -60,7 +125,7 @@ class DemandeDiagnosticPneuDetailController extends Controller
                 'entry_type' => DiagnosticPneuDetailType::class,
                 'allow_add' => false,
                 'entry_options' => [
-                    'disabled' => $isReadOnly,
+                    'disabled' => $isReadOnly || !$isAllowed,
                 ],
                 'allow_delete' => false,
                 'data' => $demande->getDiagnosticPneus()->toArray(),
@@ -71,13 +136,33 @@ class DemandeDiagnosticPneuDetailController extends Controller
                 [
                     'label' => 'Observation global atelier',
                     'required' => false,
-                    'disabled' => $isReadOnly,
+                    'disabled' => $isReadOnly || !$isAllowed,
                     'data' => $demande->getObservationGlobalAtelier(),
                     'attr' => [
                         'rows' => 5,
                         'class' => 'observation global atelier'
                     ],
 
+                ]
+            )
+            ->add(
+                'piecesJointesAtelier',
+                FileType::class,
+                [
+                    'label' => 'Pièces Jointes Atelier',
+                    'help' => 'Formats acceptés : PDF, Images (.pdf, .jpg, .jpeg, .png) • Taille max : 5 Mo par fichier',
+                    'required' => false,
+                    'multiple' => true,
+                    'disabled' => $isReadOnly || !$isAllowed,
+                    'attr' => [
+                        'accept' => '.pdf, .jpg, .jpeg, .png',
+                        'class' => 'form-control-file',
+                        'data-max-size' => '5M',
+                    ],
+                    'mapped' => false,
+                    'constraints' => [
+                        new Callback([$this, 'validateFiles']),
+                    ],
                 ]
             )
             ->getForm();
@@ -95,11 +180,12 @@ class DemandeDiagnosticPneuDetailController extends Controller
             }
         }
 
-
-
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
-            $action =  $request->request->get("action");
+            $action = $request->request->get('action');
+            $uploadedFiles = $form->get('piecesJointesAtelier')->getData();
+
+
             // Always persist the diagnostic pneus
             foreach ($data['diagnosticPneus'] as $pneu) {
                 $em->persist($pneu);
@@ -112,29 +198,29 @@ class DemandeDiagnosticPneuDetailController extends Controller
             $demande->setStatut('diag en cours');
 
             // Check if all diagnostics are filled
-
-
             if ($action == "valider") {
-                $demande->setStatut('traitee atelier');
                 $this->traitementDeFichier($form, $demande, $genererPdfDit);
-                $this->envoyerMail($demande);
+                $demande->setStatut('traitee atelier');
+                $this->envoyerMailNotification($demande);
             } else {
                 $demande->setStatut('diag en cours');
+                $this->handlePiecesJointesAtelier($uploadedFiles, $demande);
             }
-
 
             $em->flush();
 
-            return $this->redirectToRoute('demande_diagnostic_pneu_details', [
+            return $this->redirectToRoute('demande_diagnostic_pneu_details_atelier', [
                 'numeroDemande' => $numeroDemande
             ]);
         }
+
         return $this->render('pol/ddd/detail.html.twig', [
             'demande' => $demande,
             'form' => $form->createView(),
             'isReadOnly' => $isReadOnly,
             'isAllowed' => $isAllowed,
             'allFilled' => $allFilled,
+            'isAllowedDIT' => $isAllowedDIT,
         ]);
     }
 
@@ -152,19 +238,21 @@ class DemandeDiagnosticPneuDetailController extends Controller
     /**
      * Envoie un email à l'atelier pour signaler une la validation de la diagnostic de la demande.
      */
-    public function envoyerMail(DemandeDiagnosticPneu $demande): void
+    public function envoyerMailNotification(DemandeDiagnosticPneu $demande): void
     {
 
-        $mailRespAtelier = $_ENV['MAIL_TO_RESP_ATELIER'];
+        $mailRespPneu1 = $_ENV['MAIL_TO_RESP_PNEUMATIQUE_1'];
+        $mailRespPneu2 = $_ENV['MAIL_TO_RESP_PNEUMATIQUE_2'];
+        $mailRentaL = $_ENV['MAIL_TO_RENTAL'];
 
         $mailDemandeur = $demande->getMailDemandeur();
 
-        $destinataires = [$mailRespAtelier];
+        $destinataires = [$mailRespPneu1, $mailRespPneu2, $mailRentaL];
         if (!empty($mailDemandeur)) {
             $destinataires[] = $mailDemandeur;
         }
 
-        $service = 'Atelier Pneu';
+        $service = 'Atelier';
 
         // Construction de l'URL de détail : BASE_PATH_COURT + chemin relatif
         $basePath = rtrim($_ENV['BASE_PATH_COURT'] ?? '', '/');
@@ -239,13 +327,19 @@ class DemandeDiagnosticPneuDetailController extends Controller
      * Récupération des pièces jointes
      */
         $piecesJointes = $demandeDiagnosticPneu->getPiecesJointes();
+        $piecesJointesAtelier = $demandeDiagnosticPneu->getPiecesJointesAtelier();
 
         if (is_string($piecesJointes)) {
             $piecesJointes = json_decode($piecesJointes, true);
         }
-
         if (!is_array($piecesJointes)) {
             $piecesJointes = [];
+        }
+        if (is_string($piecesJointesAtelier)) {
+            $piecesJointesAtelier = json_decode($piecesJointesAtelier, true);
+        }
+        if (!is_array($piecesJointesAtelier)) {
+            $piecesJointesAtelier = [];
         }
 
         /*
@@ -260,47 +354,45 @@ class DemandeDiagnosticPneuDetailController extends Controller
             . $demandeDiagnosticPneu->getNumeroDemande()
             . DIRECTORY_SEPARATOR;
 
-        /*
-     * Séparation :
-     * - images -> directement dans le PDF DDD
-     * - autres fichiers -> fusion classique
-     */
-        $images = [];
-        $autresFichiers = [];
 
-        foreach ($piecesJointes as $pieceJointe) {
-            if (empty($pieceJointe)) {
-                continue;
+        $imagesDemandeur = [];
+        $imagesAtelier   = [];
+        $autresFichiers  = [];
+
+        $traiterPieces = function (array $liste, string $origine) use ($dossierPiecesJointes, &$imagesDemandeur, &$imagesAtelier, &$autresFichiers) {
+            foreach ($liste as $piece) {
+                if (empty($piece)) {
+                    continue;
+                }
+                $chemin = $dossierPiecesJointes . $piece;
+                if (!file_exists($chemin)) {
+                    continue;
+                }
+                $extension = strtolower(pathinfo($chemin, PATHINFO_EXTENSION));
+                if (in_array($extension, ['jpg', 'jpeg', 'png'], true)) {
+                    if ($origine === 'demandeur') {
+                        $imagesDemandeur[] = $chemin;
+                    } else {
+                        $imagesAtelier[] = $chemin;
+                    }
+                } else {
+                    $autresFichiers[] = $chemin;
+                }
             }
+        };
+        $traiterPieces($piecesJointes, 'demandeur');
+        $traiterPieces($piecesJointesAtelier, 'atelier');
 
-            $cheminPieceJointe = $dossierPiecesJointes . $pieceJointe;
+        // Ajouter les nouveaux fichiers du formulaire (issus de handlePiecesJointesAtelier)
+        // On les considère comme appartenant à l'atelier
 
-            if (!file_exists($cheminPieceJointe)) {
-                continue;
-            }
-
-            $extension = strtolower(
-                pathinfo($cheminPieceJointe, PATHINFO_EXTENSION)
-            );
-
-            if (in_array($extension, ['jpg', 'jpeg', 'png'], true)) {
-                $images[] = $cheminPieceJointe;
-            } else {
-                $autresFichiers[] = $cheminPieceJointe;
-            }
-        }
-
-        /*
-     * Ajouter également les nouveaux fichiers
-     * retournés par enregistrementFichier().
-     */
         foreach ($nomEtCheminFichiersEnregistrer as $fichier) {
-            $extension = strtolower(
-                pathinfo($fichier, PATHINFO_EXTENSION)
-            );
-
+            if (empty($fichier)) {
+                continue;
+            }
+            $extension = strtolower(pathinfo($fichier, PATHINFO_EXTENSION));
             if (in_array($extension, ['jpg', 'jpeg', 'png'], true)) {
-                $images[] = $fichier;
+                $imagesAtelier[] = $fichier;
             } else {
                 $autresFichiers[] = $fichier;
             }
@@ -312,16 +404,15 @@ class DemandeDiagnosticPneuDetailController extends Controller
         $genererPdfDdd->genererPdfDiagnosticPneu(
             $demandeDiagnosticPneu,
             $nomAvecCheminFichier,
-            $images
+            $imagesDemandeur,
+            $imagesAtelier
         );
 
         /*
      * Traitement des autres pièces jointes
      */
         $traitementDeFichier = new TraitementDeFichier();
-
         if (!empty($autresFichiers)) {
-
             /*
          * Le PDF principal est toujours en première position
          */
@@ -382,5 +473,90 @@ class DemandeDiagnosticPneuDetailController extends Controller
         $nomAvecCheminFichier = $path . $nomFichier;
 
         return [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier];
+    }
+
+    public function validateFiles($files, ExecutionContextInterface $context)
+    {
+        $maxSize = '5M';
+        $mimeTypes = [
+            'application/pdf',
+            'image/jpeg',
+            'image/jpg',
+            'image/png',
+        ];
+
+        if ($files) {
+            foreach ($files as $file) {
+                $fileConstraint = new File([
+                    'maxSize' => $maxSize,
+                    'maxSizeMessage' => 'La taille du fichier ne doit pas dépasser 5 Mo.',
+                    'mimeTypes' => $mimeTypes,
+                    'mimeTypesMessage' => 'Veuillez télécharger un fichier valide.',
+                ]);
+
+                $violations = $context->getValidator()->validate($file, $fileConstraint);
+
+                if (count($violations) > 0) {
+                    foreach ($violations as $violation) {
+                        $context->buildViolation($violation->getMessage())
+                            ->addViolation();
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Gère l'upload des pièces jointes atelier.
+     */
+    private function handlePiecesJointesAtelier(array $files, DemandeDiagnosticPneu $demande): void
+    {
+        $numDa = $demande->getNumeroDemande();
+        $basePath = rtrim($_ENV['BASE_PATH_FICHIER'], '/') . '/ddd/';
+        $dossier = $basePath . $numDa . '/';
+
+        if (!is_dir($dossier)) {
+            mkdir($dossier, 0777, true);
+        }
+
+        // Récupère la liste existante (peut être un tableau ou une chaîne JSON)
+        $existants = $demande->getPiecesJointesAtelier();
+        if (is_string($existants)) {
+            $existants = json_decode($existants, true);
+        }
+        if (!is_array($existants)) {
+            $existants = [];
+        }
+
+        $nouveauxNoms = [];
+        foreach ($files as $file) {
+            if (!$file instanceof UploadedFile) {
+                continue;
+            }
+
+            $nomOriginal = $file->getClientOriginalName();
+            $nomSansExtension = pathinfo($nomOriginal, PATHINFO_FILENAME);
+            $extension = $file->guessExtension() ?: pathinfo($nomOriginal, PATHINFO_EXTENSION);
+
+            // Génère le nom qui serait utilisé pour ce fichier
+            $nomUnique = $numDa . '_ATE_' . $nomSansExtension . '.' . $extension;
+
+            // Vérifie si ce nom exact existe déjà dans la liste existante ou dans les nouveaux ajoutés
+            if (in_array($nomUnique, $existants, true) || in_array($nomUnique, $nouveauxNoms, true)) {
+                continue; // Ignorer ce fichier (déjà présent)
+            }
+
+            try {
+                $this->traitementDeFichier->upload($file, $dossier, $nomUnique);
+            } catch (\Exception $e) {
+                throw new \RuntimeException("Erreur lors de l'upload du fichier : " . $e->getMessage());
+            }
+
+            $nouveauxNoms[] = $nomUnique;
+        }
+
+        // Fusionner les anciens et les nouveaux (uniquement ceux qui n'existaient pas)
+        $tous = array_merge($existants, $nouveauxNoms);
+        $demande->setPiecesJointesAtelier($tous);
     }
 }

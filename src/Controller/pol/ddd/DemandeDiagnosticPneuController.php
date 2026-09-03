@@ -130,7 +130,7 @@ class DemandeDiagnosticPneuController extends Controller
                 $this->handlePiecesJointes($uploadedFiles, $demande);
             }
 
-            // Envoye mail au responsable atelier
+            // Envoye mail au atelier
             $this->envoyerMailAtelier($demande);
             // Historique (à décommenter après validation)
             $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $demande->getNumeroDemande(), 'demande_diagnostic_pneu_liste', true);
@@ -189,42 +189,51 @@ class DemandeDiagnosticPneuController extends Controller
      */
     public function envoyerMailAtelier(DemandeDiagnosticPneu $demande): void
     {
-        $destinataire = $_ENV['MAIL_TO_ATELIER'];
-        $service = 'Atelier Pneu';
-
-        // Construction de l'URL de détail : BASE_PATH_COURT + chemin relatif
+        $mailRespPneu1 = $_ENV['MAIL_TO_RESP_PNEUMATIQUE_1'];
+        $mailRespPneu2 = $_ENV['MAIL_TO_RESP_PNEUMATIQUE_2'];
+        $mailAtelier         = $_ENV['MAIL_TO_ATELIER'];
         $basePath = rtrim($_ENV['BASE_PATH_COURT'] ?? '', '/');
+        $service  = 'Atelier';
+        $dateYear = date('Y');
 
-        $relativePath = 'pol/demande-diagnostic-pneu/details/' . $demande->getNumeroDemande();
-        $urlDetail = $this->urlGenerique($basePath . '/' . ltrim($relativePath, '/'));
-
-        $urlIntranet = $this->urlGenerique($basePath);
-
-        $header = sprintf(
-            '%s - DEMANDE DIAGNOSTIC PNEU : NOUVELLE DEMANDE',
-            $demande->getNumeroDemande()
-        );
-
-
-        $variables = [
-            'subject'        => $header,
-            'header'         => $header,
-            'message' => 'Une nouvelle demande de diagnostic pneu a été créée.',
-            'nomDemandeur'   => $demande->getDemandeur(),
-            'numeroDemande'  => $demande->getNumeroDemande(),
+        // Common data
+        $commonVariables = [
+            'header'        => sprintf('%s - DEMANDE DIAGNOSTIC PNEU : NOUVELLE DEMANDE', $demande->getNumeroDemande()),
+            'message'       => 'Une nouvelle demande de diagnostic pneu a été créée.',
+            'nomDemandeur'  => $demande->getDemandeur(),
+            'numeroDemande' => $demande->getNumeroDemande(),
             'statut'        => $demande->getStatut(),
-            'urlDetail'      => $urlDetail,
-            'urlIntranet'    => $urlIntranet,
-            'service'        => $service,
-            'dateYear'       => date('Y'),
+            'urlIntranet'   => $this->urlGenerique($basePath),
+            'service'       => $service,
+            'dateYear'      => $dateYear,
         ];
 
+        // Helper to send one email with a given recipient and URL type
+        $sendToOne = function ($recipient, $urlType) use ($demande, $basePath, $commonVariables) {
+            $relativePath = ($urlType === 'resp')
+                ? 'pol/demande-diagnostic-pneu/details/' . $demande->getNumeroDemande()
+                : 'pol/demande-diagnostic-pneu/details-atelier/' . $demande->getNumeroDemande();
 
-        $this->envoyerEmail([
-            'to'          => $destinataire,
-            'cc'          => [$_ENV['MAIL_CC_ATELIER']],
-            'variables'   => $variables,
-        ]);
+            $urlDetail = $this->urlGenerique($basePath . '/' . ltrim($relativePath, '/'));
+
+            $variables = array_merge($commonVariables, [
+                'subject'   => $commonVariables['header'],
+                'urlDetail' => $urlDetail,
+            ]);
+
+            $this->envoyerEmail([
+                'to'        => [$recipient],
+                'cc'        => [$_ENV['MAIL_CC_ATELIER']], // or adjust per recipient
+                'variables' => $variables,
+            ]);
+        };
+
+        // Send to responsables with "details" URL
+        $sendToOne($mailRespPneu2, 'resp');
+        $sendToOne($mailRespPneu1, 'resp');
+
+        // Send to atelier with "details_atelier" URL
+        $sendToOne($mailAtelier, 'atelier');
     }
 
     /** 
