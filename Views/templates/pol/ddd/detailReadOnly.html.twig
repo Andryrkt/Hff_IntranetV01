@@ -12,6 +12,42 @@
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
+{% macro pieceCard(piece, demande, section) %}
+    {% set fileName = piece|split('/')|last %}
+    {% set extension = fileName|split('.')|last|lower %}
+    {% set iconClass = {
+        'pdf': 'fa-file-pdf text-danger',
+        'doc': 'fa-file-word text-primary',
+        'docx': 'fa-file-word text-primary',
+        'xls': 'fa-file-excel text-success',
+        'xlsx': 'fa-file-excel text-success',
+        'ppt': 'fa-file-powerpoint text-warning',
+        'pptx': 'fa-file-powerpoint text-warning',
+        'jpg': 'fa-file-image text-info',
+        'jpeg': 'fa-file-image text-info',
+        'png': 'fa-file-image text-info',
+        'gif': 'fa-file-image text-info',
+        'zip': 'fa-file-archive text-secondary',
+        'rar': 'fa-file-archive text-secondary',
+        'txt': 'fa-file-alt text-secondary',
+        'csv': 'fa-file-csv text-secondary',
+    }[extension] ?? 'fa-file text-secondary' %}
+
+    <div class="card shadow-sm piece-card" style="width: 200px;" data-file="{{ piece }}">
+        <div class="card-body p-2 d-flex align-items-center">
+            <i class="fas {{ iconClass }} fa-2x me-2"></i>
+            <div class="flex-grow-1 text-truncate me-1"  title="{{ fileName }}">
+                {{ fileName|length > 12 ? fileName|slice(0, 12) ~ '…' : fileName }}
+            </div>
+            <a href="/Upload/ddd/{{ demande.numeroDemande }}/{{ piece }}" target="_blank" class="btn btn-sm btn-outline-primary me-1" title="Télécharger / ouvrir">
+                <i class="fas fa-eye"></i>
+            </a>
+            {# <button type="button" class="btn btn-sm btn-outline-danger btn-delete-file" title="Supprimer le fichier">
+            <i class="fas fa-trash-alt"></i>
+            </button> #}
+        </div>
+    </div>
+{% endmacro %}
 
 {% block content %}
     <div class="container mt-6 mb-4">
@@ -184,8 +220,22 @@
 
                 {{ macroForm.affichageTextarea('Observation Global Atelier', demande.observationGlobalAtelier, 'mb-2') }}
 
-
-
+                {# ========================= #}
+                {# Pièces jointes Atelier    #}
+                {# ========================= #}
+                <div class="row mt-2">
+                    <div class="col-12">
+                        {% if demande.piecesJointesAtelier %}
+                            <div class="d-flex flex-wrap gap-2">
+                                {% for pieceAtelier in demande.piecesJointesAtelier %}
+                                    {{ _self.pieceCard(pieceAtelier, demande, 'atelier') }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-muted mb-0">Aucune pièce jointe atelier.</p>
+                        {% endif %}
+                    </div>
+                </div>
 
 
                 {# ========================= #}
