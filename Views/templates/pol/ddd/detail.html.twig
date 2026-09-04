@@ -12,9 +12,9 @@
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
-{# Define a macro at the top of your file or in a separate _macros.html.twig #}
 {% macro pieceCard(piece, demande, section) %}
-    {% set extension = piece|split('.')|last|lower %}
+    {% set fileName = piece|split('/')|last %}
+    {% set extension = fileName|split('.')|last|lower %}
     {% set iconClass = {
         'pdf': 'fa-file-pdf text-danger',
         'doc': 'fa-file-word text-primary',
@@ -33,15 +33,18 @@
         'csv': 'fa-file-csv text-secondary',
     }[extension] ?? 'fa-file text-secondary' %}
 
-    <div class="card shadow-sm" style="width: 180px;" data-file="{{ piece }}">
+    <div class="card shadow-sm piece-card" style="width: 200px;" data-file="{{ piece }}">
         <div class="card-body p-2 d-flex align-items-center">
             <i class="fas {{ iconClass }} fa-2x me-2"></i>
-            <div class="flex-grow-1 text-truncate" style="max-width: 100px;" title="{{ piece|split('/')|last }}">
-                {{ piece|split('/')|last|length > 15 ? piece|split('/')|last|slice(0, 15) ~ '…' : piece|split('/')|last }}
+            <div class="flex-grow-1 text-truncate me-1"  title="{{ fileName }}">
+                {{ fileName|length > 12 ? fileName|slice(0, 12) ~ '…' : fileName }}
             </div>
-            <a href="/Upload/ddd/{{ demande.numeroDemande }}/{{ piece }}" target="_blank" class="btn btn-sm btn-outline-primary ms-1" title="Télécharger / ouvrir">
-                <i class="fas fa-download"></i>
+            <a href="/Upload/ddd/{{ demande.numeroDemande }}/{{ piece }}" target="_blank" class="btn btn-sm btn-outline-primary me-1" title="Télécharger / ouvrir">
+                <i class="fas fa-eye"></i>
             </a>
+            {# <button type="button" class="btn btn-sm btn-outline-danger btn-delete-file" title="Supprimer le fichier">
+            <i class="fas fa-trash-alt"></i>
+            </button> #}
         </div>
     </div>
 {% endmacro %}
@@ -217,7 +220,14 @@
 
 
                 {{ form_row(form.observationGlobalAtelier) }}
-                {{ form_row(form.piecesJointesAtelier) }}
+                <div class="fichiers-jointes">
+                    {# Le champ original #}
+                    {{ form_row(form.piecesJointesAtelier) }}
+                    {# Conteneur pour la liste des fichiers sélectionnés #}
+                    <div id="liste-fichiers" class="mt-2">
+                        <ul id="fichier-list" class="list-unstyled"></ul>
+                    </div>
+                </div>
                 <input type="hidden" id="fichiers_a_supprimer_atelier" name="fichiers_a_supprimer_atelier" value="[]">
                 {# ========================= #}
                 {# Pièces jointes Atelier    #}
