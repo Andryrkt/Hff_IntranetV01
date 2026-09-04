@@ -236,18 +236,19 @@ class DemandeDiagnosticPneuDetailController extends Controller
     }
 
     /**
-     * Envoie un email à l'atelier pour signaler une la validation de la diagnostic de la demande.
+     * Envoie un email à l'atelier pour signaler la validation de la diagnostic de la demande.
      */
     public function envoyerMailNotification(DemandeDiagnosticPneu $demande): void
     {
 
         $mailRespPneu1 = $_ENV['MAIL_TO_RESP_PNEUMATIQUE_1'];
         $mailRespPneu2 = $_ENV['MAIL_TO_RESP_PNEUMATIQUE_2'];
-        $mailRentaL = $_ENV['MAIL_TO_RENTAL'];
+        $mailRental1 = $_ENV['MAIL_TO_RENTAL_1'];
+        $mailRental2 = $_ENV['MAIL_TO_RENTAL_2'];
 
         $mailDemandeur = $demande->getMailDemandeur();
 
-        $destinataires = [$mailRespPneu1, $mailRespPneu2, $mailRentaL];
+        $destinataires = [$mailRespPneu1, $mailRespPneu2, $mailRental1, $mailRental2];
         if (!empty($mailDemandeur)) {
             $destinataires[] = $mailDemandeur;
         }
