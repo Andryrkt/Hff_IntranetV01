@@ -97,6 +97,7 @@ class DaEditDirectController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             $demandeAppro = $form->getData();
             $numDa = $demandeAppro->getNumeroDemandeAppro();
+            $this->gererAgenceServiceDebiteur($demandeAppro);
 
             $this->modificationDa($demandeAppro, $form->get('DAL'), StatutDaConstant::STATUT_SOUMIS_APPRO);
             if ($demandeAppro->getObservation() !== null) {
@@ -112,5 +113,13 @@ class DaEditDirectController extends Controller
             $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre modification a été enregistrée']);
             $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
         }
+    }
+
+    private function gererAgenceServiceDebiteur(DemandeAppro $demandeAppro)
+    {
+        $demandeAppro
+            ->setAgenceDebiteur($demandeAppro->getDebiteur()['agence'])
+            ->setServiceDebiteur($demandeAppro->getDebiteur()['service'])
+            ->setAgenceServiceDebiteur($demandeAppro->getAgenceDebiteur()->getCodeAgence() . '-' . $demandeAppro->getServiceDebiteur()->getCodeService());
     }
 }
