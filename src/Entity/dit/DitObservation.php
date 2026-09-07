@@ -39,6 +39,11 @@ class DitObservation
      */
     private ?string $observation = '';
 
+    /**
+     * @ORM\Column(type="json", name="file_names")
+     */
+    private $fileNames = [];
+
     /**===========================================================================
      * GETTER & SETTER
      *
@@ -106,6 +111,24 @@ class DitObservation
     public function setObservation(?string $observation)
     {
         $this->observation = $observation;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of fileNames
+     */
+    public function getFileNames()
+    {
+        return $this->fileNames;
+    }
+
+    /**
+     * Set the value of fileNames
+     */
+    public function setFileNames($fileNames): self
+    {
+        $this->fileNames = $fileNames;
 
         return $this;
     }
