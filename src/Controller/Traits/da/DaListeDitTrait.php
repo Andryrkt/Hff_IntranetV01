@@ -119,7 +119,7 @@ trait DaListeDitTrait
     /**
      * Methode pour recupérer tous les données à afficher
      *
-     * @return void
+     * @return array
      */
     private function data(Request $request, DitSearch $ditSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeAgenceUser, bool $peutVoirListeAvecDebiteur, string $codeSociete, bool $multisuccursale): array
     {

@@ -50,28 +50,27 @@
 			{% if data is not empty %}
 				{# DEBUT LOGIQUE #}
 				{% for item in data %}
-					{% set classeStatutDit = item.idStatutDemande.description|lower|replace({' ': '_'}) %}
 					<tr role="button">
 						<td class="text-center" style="width: 2%;">
 							<input type="checkbox" name="option" class="checkbox" value="{{item.id}}" role="button">
 						</td>
-						<td class="{{classeStatutDit}}">{{item.idStatutDemande.description|trim}}</td>
+						<td class="{{item.statutCssClass}}">{{item.statutLibelle}}</td>
 						<td>
-							<a href="{{ path("dit_validationDit", {id: item.id})}}" target="_blank" data-bs-toggle="tooltip" title="Afficher le détail">{{ item.numeroDemandeIntervention }}</a>
+							<a href="{{ item.urlFicheDit }}" target="_blank" data-bs-toggle="tooltip" title="Afficher le détail">{{ item.numDit }}</a>
 						</td>
-						<td>{{ item.typeDocument.description}}</td>
+						<td>{{ item.typeDocumentLibelle}}</td>
 						<td class="text-center">
-							{{ item.idNiveauUrgence.description}}
+							{{ item.niveauUrgenceLibelle}}
 						</td>
-						<td>{{ item.categorieDemande.libelleCategorieAteApp }}</td>
+						<td>{{ item.categorieDemandeLibelle }}</td>
 						<td>{{ item.numSerie}}</td>
 						<td>{{ item.numParc}}</td>
-						<td>{{ item.dateDemande|date('d/m/Y')}}</td>
+						<td>{{ item.dateDemande}}</td>
 						<td>{{ item.internetExterne}}</td>
 						<td>{{ item.agenceServiceEmetteur }}</td>
 						<td>{{ item.agenceServiceDebiteur}}</td>
 						<td>{{ item.objetDemande}}</td>
-						<td>{{ item.sectionAffectee|remove_words(mots_a_supprimer)}}</td>
+						<td>{{ item.sectionAffectee}}</td>
 					</tr>
 				{% endfor %}
 			{% elseif data is empty and formIsSubmitted %}
