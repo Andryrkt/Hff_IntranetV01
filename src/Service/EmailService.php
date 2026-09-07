@@ -56,9 +56,11 @@ class EmailService
             // Obtenir l'instance de PHPMailer
             $mailer = $this->twigMailer->getPhpMailer();
 
-            // Ajouter le destinataire
-            $mailer->addAddress($to);
-
+            // Ajouter le ou les destinataires
+            $recipients = is_array($to) ? $to : [$to];
+            foreach ($recipients as $recipient) {
+                $mailer->addAddress($recipient);
+            }
             // Ajouter les CC
             if ($cc !== null) {
                 foreach ($cc as $c) {
@@ -91,7 +93,7 @@ class EmailService
             return true;
         } catch (\Exception $e) {
             // Gérer l'erreur
-            //dd('erreur: ' . $e->getMessage());
+            dd('erreur: ' . $e->getMessage());
             return false;
         }
     }

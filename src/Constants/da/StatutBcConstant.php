@@ -33,6 +33,10 @@ class StatutBcConstant
 
     public const BC_EN_COURS = 'BC en cours';
 
+    public const BC_VALIDE_CLOTURE = [
+        self::STATUT_VALIDE,
+        self::STATUT_CLOTURE
+    ];
 
     public const STATUT_BC = [
         self::STATUT_A_GENERER                => self::STATUT_A_GENERER,

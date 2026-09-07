@@ -30,6 +30,8 @@ class TypeDocument
     const TYPE_DOCUMENT_SW_NAME = 'SW';
     const TYPE_DOCUMENT_MUT_NAME = 'MUT';
 
+    const TYPE_DOCUMENT_POL_NAME = 'POL';
+
     const TYPE_DOCUMENT_DIT_ID = 1;
     const TYPE_DOCUMENT_OR_ID = 2;
     const TYPE_DOCUMENT_FAC_ID = 3;
@@ -45,6 +47,10 @@ class TypeDocument
     const TYPE_DOCUMENT_AC_ID = 13;
     const TYPE_DOCUMENT_SW_ID = 15;
     const TYPE_DOCUMENT_MUT_ID = 16;
+
+    // A revoir 
+    const TYPE_DOCUMENT_POL_ID = 17;
+
 
     /**
      * @ORM\Id

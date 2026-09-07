@@ -82,6 +82,7 @@ class DemandePaiementDto
     public int $numeroVersionBc = 0;
     public string $nomPdfFusionnerBc = '';
     public array $daDdpa = [];
+    public ?string $statutBcAppro = null;
     public string $titreDaDdpa = "historique des demandes de paiement à l'avance déjà effectuées dans le formulaire.";
 
 

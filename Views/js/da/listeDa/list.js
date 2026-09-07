@@ -7,7 +7,6 @@ import { initCentraleCodeDesiInputs } from "../newReappro/event.js";
 import { FetchManager } from "../../api/FetchManager.js";
 const fetchManager = new FetchManager();
 
-
 document.addEventListener("DOMContentLoaded", function () {
   initCentraleCodeDesiInputs(
     "da_search_codeCentrale",
@@ -33,11 +32,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Attachement des événements pour les agences
   configAgenceService.emetteur.agenceInput.addEventListener("change", () =>
-    handleAgenceChange("emetteur")
+    handleAgenceChange("emetteur"),
   );
 
   configAgenceService.debiteur.agenceInput.addEventListener("change", () =>
-    handleAgenceChange("debiteur")
+    handleAgenceChange("debiteur"),
   );
 
   /**==================================================
@@ -179,7 +178,9 @@ document.addEventListener("DOMContentLoaded", function () {
   /**
    * Evenement sur "Afficher les DA à traiter" pour filtrer les statuts
    **/
-  const checkboxAfficherTraiter = document.getElementById("da_search_afficherDaTraiter");
+  const checkboxAfficherTraiter = document.getElementById(
+    "da_search_afficherDaTraiter",
+  );
   const selectStatutDA = document.getElementById("da_search_statutDA");
   const selectStatutBC = document.getElementById("da_search_statutBC");
 
@@ -219,7 +220,10 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         // Si l'option actuellement sélectionnée est maintenant cachée, on reset le select
-        if (select.selectedOptions[0] && select.selectedOptions[0].style.display === "none") {
+        if (
+          select.selectedOptions[0] &&
+          select.selectedOptions[0].style.display === "none"
+        ) {
           select.value = "";
         }
       });
@@ -281,7 +285,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
-
 /** ===================================================
  * MODAL de clôture de DDP
  *==================================================*/
@@ -317,25 +320,23 @@ document.addEventListener("DOMContentLoaded", function () {
         .get(`api/statut-compta/${numeroDa}/${numeroCde}`)
         .then((data) => {
           modalBody.innerHTML = data
-            .map(
-              (item) => {
-                let styleStatut = "statut-" + transformerPhrase(item.statut);
-                return `
+            .map((item) => {
+              let styleStatut = "statut-" + transformerPhrase(item.statut);
+              return `
                         <tr>
                             <td>${item.date_soumission}</td>
                             <td>${item.numero}</td>
                             <td>${item.type}</td>
-                            <td>${item.motif || '-'}</td>
+                            <td>${item.motif || "-"}</td>
                             <td>${item.ratio_deja_paye}%</td>
                             <td class="text-end">${item.montant_ht}</td>
                             <td class="${styleStatut}">${item.statut}</td>
                         </tr>
                     `;
-              }
-            )
+            })
             .join("");
         })
-        .catch(error => {
+        .catch((error) => {
           console.error("Erreur:", error);
           modalBody.innerHTML = `<tr><td colspan="6" class="text-center">Erreur de chargement</td></tr>`;
         });
@@ -343,14 +344,19 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 function transformerPhrase(phrase) {
-  if (!phrase || typeof phrase !== 'string') {
-    return '';
+  if (!phrase || typeof phrase !== "string") {
+    return "";
   }
 
   // 1. Enlever les accents
-  const sansAccents = phrase.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const sansAccents = phrase.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
   // 2. Mettre en minuscules et remplacer les espaces par des tirets
-  return sansAccents.toLowerCase().trim().replace(/\s+/g, '-');
-
+  return sansAccents.toLowerCase().trim().replace(/\s+/g, "-");
 }
+
+const label = document.querySelector(
+  'label[for="da_search_afficherDaTraiter"]',
+);
+
+label.classList.add("text-danger");

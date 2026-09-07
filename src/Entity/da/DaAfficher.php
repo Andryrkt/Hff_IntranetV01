@@ -5,6 +5,7 @@ namespace App\Entity\da;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\Traits\DateTrait;
 use App\Repository\da\DaAfficherRepository;
+use App\Service\TextNormalizer;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -711,7 +712,7 @@ class DaAfficher
      */
     public function setArtDesi($artDesi)
     {
-        $this->artDesi = $artDesi;
+        $this->artDesi = TextNormalizer::normalize($artDesi);
 
         return $this;
     }

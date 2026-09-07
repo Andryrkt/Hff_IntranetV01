@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{{ subject }}</title>
+        <style>{{include('pol/ddd/email/shared/css/style.css')}}</style>
+    </head>
+    <body>
+        {% set currentStatut = statut|replace({'_': ' '})|lower %}
+
+        {# Dictionnaire des styles Inline (compatible tous clients mail) #}
+        {% set statusStyles = {
+            'a traiter atelier': 'background-color: #dc3545; color: #ffffff;',
+            'traitee atelier':   'background-color: #fd7e14; color: #ffffff;',
+            'diag en cours':     'background-color: #ffc107; color: #212529;',
+            'cloturee':          'background-color: #198754; color: #ffffff;'
+        } %}
+        {% set defaultStyle = 'background-color: #6c757d; color: #ffffff;' %}
+
+        <div class="email-container">
+            <div class="email-header">{{ header|raw }}</div>
+            <div class="email-body">
+                <p>Bonjour,</p>
+
+                <p>
+                    {{ message }}
+                </p>
+
+                <p>
+                    <strong>Demandeur :</strong> {{ nomDemandeur }}<br>
+                    <strong>Numéro de demande :</strong> {{ numeroDemande }}<br>
+                    <strong>État d'avancement :</strong>
+                    <span style="display: inline-block; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85em; {{ statusStyles[currentStatut] ?? defaultStyle }}">
+                        {{ statut|replace({'_': ' '})|upper }}
+                    </span>
+                </p>
+
+                <p>
+                    Pour consulter l’ensemble des informations et prendre en charge cette demande,
+                    veuillez cliquer sur le bouton ci-dessous :
+                </p>
+
+                <p style="text-align: center;">
+                    <a href="{{ urlDetail }}" class="button">Voir la demande</a>
+                </p>
+
+                <p style="font-size: 0.9em; color: #666;">
+                    <span class="fw-bold">NB :</span> Assurez-vous d’être connecté à
+                    <a href="{{ urlIntranet }}">Hffintranet</a> avant de cliquer sur le bouton.
+                </p>
+
+                <p class="fw-bold">Cordialement,</p>
+            </div>
+            <div class="email-footer">
+                Service {{ service }} - Henri Fraise Fis & Cie<br>
+                &copy; {{ dateYear }} Henri Fraise Fis & Cie.
+            </div>
+        </div>
+    </body>
+</html>

@@ -5,6 +5,7 @@ namespace App\Api\dit;
 use App\Model\dit\DitModel;
 use App\Entity\admin\Agence;
 use App\Controller\Controller;
+use App\Model\ddd\DemandeDiagnosticPneuModel;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -34,4 +35,5 @@ class NewApi extends Controller
 
         $this->testJson($jsonData);
     }
+    
 }

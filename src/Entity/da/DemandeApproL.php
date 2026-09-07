@@ -2,11 +2,12 @@
 
 namespace App\Entity\da;
 
-use Doctrine\ORM\Mapping as ORM;
 use App\Entity\Traits\DateTrait;
 use App\Repository\da\DemandeApproLRepository;
+use App\Service\TextNormalizer;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=DemandeApproLRepository::class)
@@ -352,7 +353,7 @@ class DemandeApproL
      */
     public function setArtDesi($artDesi)
     {
-        $this->artDesi = $artDesi;
+         $this->artDesi = TextNormalizer::normalize($artDesi);
 
         return $this;
     }

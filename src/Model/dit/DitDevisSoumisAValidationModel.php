@@ -41,7 +41,7 @@ class DitDevisSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupNumeroDevis($numDit, string $codeSociete)
+    public function recupNumeroDevis(string $numDit, string $codeSociete): array
     {
         $statement = "SELECT  seor_numor  as numDevis
                 from sav_eor
@@ -131,10 +131,10 @@ class DitDevisSoumisAValidationModel extends Model
      * Methode pour recupérer l'information du devis pour enregistrer dans le base de donnée
      *
      * @param string $numDevis
-     * @param boolean $estCeForfait
-     * @return void
+     * @param string $codeSociete
+     * @return array
      */
-    public function recupDevisSoumisValidation(string $numDevis, string $codeSociete)
+    public function recupDevisSoumisValidation(string $numDevis, string $codeSociete): array
     {
         $statement = " SELECT 
         sitv_succdeb as num_agence, 
@@ -302,7 +302,7 @@ class DitDevisSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupNumDitIps($numDevis, string $codeSociete)
+    public function recupNumDitIps(string $numDevis, string $codeSociete): array
     {
         $statement = " SELECT trim(seor_refdem) as num_dit
                     FROM sav_eor 
@@ -318,7 +318,7 @@ class DitDevisSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupServDebiteur($numDevis, string $codeSociete)
+    public function recupServDebiteur(string $numDevis, string $codeSociete): array
     {
         $statement = " SELECT sitv_succdeb as serv_debiteur
                         FROM sav_itv sitv 
@@ -387,7 +387,7 @@ class DitDevisSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupNbrPieceMagasin($numDevis, string $codeSociete)
+    public function recupNbrPieceMagasin(string $numDevis, string $codeSociete)
     {
         $statement = "SELECT SUM(slor_nolign)  as nbLigne
                         from sav_lor 

@@ -64,6 +64,7 @@ export function ajouterUneLigne(articleStockeList) {
       createFieldAndAppendTo(classe, prototype, fieldName, row);
     }
   });
+
   prototype.querySelectorAll(".mb-3").forEach((el) => el.remove()); // supprimer tous les <div class="mb-3"> à l'intérieur de prototype
   createRemoveButtonAndAppendTo(prototype, row);
 
@@ -77,6 +78,8 @@ export function ajouterUneLigne(articleStockeList) {
 
   formatAllField(newIndex); // formater les champs à la ligne newIndex
   autocompleteTheFields(newIndex, articleStockeList); // autocomplète les champs
+
+  document.getElementById(`${prototype.id}_artDesi`).focus(); // focus le champ designation apres crea ligne
 }
 
 export function replaceNameToNewIndex(element, newIndex) {

@@ -102,40 +102,48 @@
 						</td>
 						{# Fin Actions #}
 
-						<td class="{{ item.statutCssClass }}">{{ item.statutLibelle }}</td>
+						<td class="{{ classeStatutDit}}">{{ item.idStatutDemande.description|trim }}</td>
 						<td>
-							<a href="{{ item.urlFicheDit }}" target="_blank" data-bs-toggle="tooltip" title="Afficher le détail">
-								{{ item.numDit }}
+							<a href="{{ path("dit_validationDit", {id: item.id, numDit: item.numeroDemandeIntervention})}}" target="_blank" data-bs-toggle="tooltip" title="Afficher le détail">
+								{{ item.numeroDemandeIntervention }}
 							</a>
 						</td>
 						<td>{{ item.reparationRealise }}</td>
-						<td>{{ item.typeDocumentLibelle }}</td>
+						<td>{{ item.typeDocument.description }}</td>
 						<td class="text-center">
-							{{ item.niveauUrgenceLibelle }}
+							{{ item.idNiveauUrgence.description }}
 						</td>
-						<td>{{ item.categorieDemandeLibelle }}</td>
+						<td>{{ item.categorieDemande.libelleCategorieAteApp}}</td>
 						<td>{{ item.numSerie}}</td>
 						<td>{{ item.numParc}}</td>
-						<td>{{ item.dateDemande }}</td>
+						<td>{{ item.dateDemande|date('d/m/Y')}}</td>
 						<td>{{ item.internetExterne}}</td>
 						<td>{{ item.agenceServiceEmetteur }}</td>
 						<td>{{ item.agenceServiceDebiteur}}</td>
-						<td>{{ item.objetDemande }}</td>
+						<td>
+							{% set numero = item.objetDemande|split('-')|last|trim %}
+							{% if numero matches '/^DDD\\d{8}$/' %}
+								{# optional sanity check #}
+								{{ item.objetDemande|replace({ (numero): '<a href="' ~ path('demande_diagnostic_pneu_details', {numeroDemande: numero}) ~ '">' ~ numero ~ '</a>' })|raw }}
+							{% else %}
+								{{ item.objetDemande }}
+							{% endif %}
+						</td>
 						<td>
 							<a href="#" data-bs-toggle="modal" data-bs-target="#sectionAffectee" data-id="{{item.id}}" id="">
-								{{ item.sectionAffectee }}
+								{{ item.sectionAffectee|remove_words(mots_a_supprimer)}}
 							</a>
 						</td>
 						<td>{{item.numeroDevisRattache}}</td>
 						<td>{{ item.statutDevis}}</td>
 						<td>
 							{% if item.numeroOr != '' %}
-								<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{item.numeroOr}}" id="numOr" class="{{ item.quatreStatutOrCssClass }} text-black" data-bs-toggle="tooltip" title="lister les commandes">{{ item.numeroOr }}</a>
+								<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{item.numeroOr}}" id="numOr" class="{{ classeQuatreStatutOr }} text-black" data-bs-toggle="tooltip" title="lister les commandes">{{ item.numeroOr }}</a>
 							{% endif %}
 						</td>
-						<td class="fw-bold ">{{ item.statutOr }}</td>
-						<td style="text-align: right;">{{ item.montantTotalOrFormate }}</td>
-						<td>{{ item.dateSoumissionOrFormatee }}</td>
+						<td class="fw-bold ">{{ item.statutor }}</td>
+						<td style="text-align: right;">{{ item.montantTotalOR is not null ? item.montantTotalOR|number_format(2, ',', '.') : '' }}</td>
+						<td>{{ item.dateSoumissionOR is not null ? item.dateSoumissionOR|date('d/m/Y') : '' }}</td>
 						<td>
 							<a href="#" data-bs-toggle="modal" data-bs-target="#facturation" data-id="{{item.numeroOr}}" id="numOr">
 								{{ item.etatFacturation }}
@@ -147,25 +155,25 @@
 							</a>
 						</td>
 						<td class="text-center">{{ item.nbrPj}}</td>
-						<td>{{ item.utilisateurDemandeur }}</td>
+						<td>{{ item.utilisateurDemandeur|upper }}</td>
 					</tr>
 				{% endfor %}
 			</tbody>
 		</table>
 	</div>
-
 	{% include "/partials/_pagination.html.twig" %}
+	<!-- FIN tableau -->
+	{# body modal #}
 	{% include "/dit/shared/_modal.html.twig"  %}
 	{% include "/dit/shared/_modalDocDansDW.html.twig"  %}
 	{% include "/dit/shared/_modalSectionAffectee.html.twig"  %}
 	{% include "/dit/shared/_modalFacturation.html.twig"  %}
-	{% include "/dit/shared/_modalRi.html.twig" %}
-	{% include "/dit/shared/_modalNiveauUrgence.html.twig" %}
+	{% include "/dit/shared/_modalRi.html.twig"  %}
+{% include "/dit/shared/_modalNiveauUrgence.html.twig"  %}
 
 {% endblock %}
 
-{% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2026.07.03.14.50"></script>
+	{% block javascript %}<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2026.07.03.14.50"> </script>
 	<script src="{{ App.base_path }}/Views/js/dit/listDit.js?v=2026.07.03.14.50" type="module"></script>
 	<script src="{{ App.base_path }}/Views/js/dit/listDitModal.js?v=2026.07.03.14.50" type="module"></script>
 {% endblock %}

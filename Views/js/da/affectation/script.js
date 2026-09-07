@@ -83,7 +83,7 @@ function setupAutocompleteField(articleStockeList) {
       debounceDelay: 300,
       fetchDataCallback: async () => {
         const cache = JSON.parse(
-          localStorage.getItem("autocompleteCache") || "{}"
+          localStorage.getItem("autocompleteCache") || "{}",
         );
 
         if (!cache.fournisseurs) {
@@ -129,6 +129,9 @@ function setupAutocompleteField(articleStockeList) {
     let suggestionContainer = refp.nextElementSibling;
     let loaderElement = suggestionContainer.nextElementSibling;
 
+    const div = document.querySelector(".text-start.div-disabled");
+    const designationInit = div.textContent;
+
     if (fields.articleStocke.checked)
       fields.desi.classList.add("non-modifiable");
 
@@ -158,7 +161,7 @@ function setupAutocompleteField(articleStockeList) {
         refp.value = item.reference;
         fields.articleStocke.checked = articleStocke;
         fields.constp.value = item.constp;
-        fields.desi.value = item.desi;
+        // fields.desi.value = item.desi;
         fields.prix.value = item.prix_unitaire;
         if (articleStocke) {
           fields.nomFrn.value = item.nom_frn; // changer le fournisseur si article stocké
@@ -178,6 +181,12 @@ function setupAutocompleteField(articleStockeList) {
           }
         } else {
           fields.desi.classList.remove("non-modifiable");
+        }
+
+        if (item.constp === "ZDI") {
+          fields.desi.value = designationInit;
+        } else {
+          fields.desi.value = item.desi;
         }
       },
     });

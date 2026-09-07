@@ -116,8 +116,11 @@ class GenererPdfBonAPayer extends GeneratePdf
         $this->addInfoLine($pdf, 'Identité', $infoMateriel["identite"] ?? "-", $w100 * self::LARGEUR_DROITE, 25, 0, $daViaOr);
         $pdf->Ln();
 
+        $this->addInfoLine($pdf, 'Succursale', $infoBC["succ_cde"] ?? "-", $w100 * self::LARGEUR_GAUCHE - 6, 35, 0);
+        $this->addInfoLine($pdf, 'Casier', $infoMateriel["casier"] ?? "-", $w100 * self::LARGEUR_DROITE, 25, 0, $daViaOr);
+        $pdf->Ln();
+
         $fields = [
-            'Succursale'         => $infoBC["succ_cde"] ?? "-",
             'Service'            => $infoBC["serv_cde"] ?? "-",
             'Opérateur'          => $infoBC["nom_ope"] ?? "-",
             'Montant HT'         => $this->formaterPrix($infoBC["mtn_cde"] ?? 0) . " " . ($infoBC["devise"] ?? ""),

@@ -3,6 +3,7 @@
  * @param {HTMLElement} input - Le champ d'entrée à convertir.
  */
 export function toUppercase(input) {
+  if (!input) return;
   input.value = input.value.toUpperCase();
 }
 
@@ -11,6 +12,7 @@ export function toUppercase(input) {
  * @param {HTMLElement} input - Le champ d'entrée à filtrer.
  */
 export function allowOnlyNumbers(input) {
+  if (!input) return;
   input.addEventListener("input", function () {
     input.value = input.value.replace(/[^0-9]/g, "");
   });
@@ -22,6 +24,7 @@ export function allowOnlyNumbers(input) {
  * @param {number} maxLength - Le nombre maximum de caractères autorisés.
  */
 export function limitInputLength(input, maxLength) {
+  if (!input) return;
   input.addEventListener("input", function () {
     if (input.value.length > maxLength) {
       input.value = input.value.slice(0, maxLength);
@@ -30,6 +33,7 @@ export function limitInputLength(input, maxLength) {
 }
 
 export function populateServiceOptions(services, serviceInput) {
+  if (!serviceInput) return;
   // Supprimer toutes les options existantes
   while (serviceInput.options.length > 0) {
     serviceInput.remove(0);

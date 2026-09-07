@@ -1,0 +1,170 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Planning de commande Magasin
+{% endblock %}
+
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/utils/autocomplete.css?v=2026.08.06.1">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2026.08.06.1">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/planning/planning.css?v=2026.08.06.1">
+{% endblock %}
+
+{% block overlay %}
+	{% include "/shared/_overlay.html.twig" %}
+{% endblock %}
+
+{% block content %}
+	<div class="sticky-header-titre">
+		<div class="container">
+			<div class="accordion" id="formAccordion">
+				<div class="accordion-item">
+					<h2 class="accordion-header">
+						<button class="accordion-button enteteAccordion collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+							Formulaire de recherche
+						</button>
+					</h2>
+					<div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#formAccordion">
+						<div class="accordion-body">
+							{{ form_start(form, { 'attr': { 'id': 'planning_magasin_frn_search_form' } }) }}
+							<div class="row">
+								<div class="col-12 col-md-2">
+									{{ form_row(form.fournisseur) }}
+									<div id="suggestion-fournisseur" class="suggestions-container"></div>
+									<div id="loader-fournisseur" class="spinner" style="display: none;">Chargement...</div>
+									{{ form_row(form.numeroCommande) }}
+								</div>
+								<div class="col-12 col-md-2">
+									{{ form_row(form.agenceService.agence) }}
+									{{ form_row(form.agenceService.service) }}
+								</div>
+								<div class="col-12 col-md-2">
+									{{ form_row(form.dateCommande.debut) }}
+									{{ form_row(form.dateCommande.fin) }}
+								</div>
+								<div class="col-12 col-md-2">
+									{{ form_row(form.months, {'label': 'Période'}) }}
+								</div>
+								<div class="col-12 col-md-2"></div>
+								<div class="col-12 col-md-2"></div>
+							</div>
+							<div class="d-flex justify-content-end mb-2">
+								<button class="btn btn-warning fw-bold" id="btn_search" type="submit">
+									<i class="fab fa-searchengin"></i>
+									Recherche
+								</button>
+							</div>
+							{{ form_end(form) }}
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="d-flex justify-content-between">
+				<div class="my-2 d-flex flex-row">
+					<div class="{{ condition == 'tous' ? 'fw-bold' : '' }}" id="tout-afficher">
+						<small>
+							<a class="text-dark text-decoration-none" href="{{ path('interface_planning_cde_frn_magasin', currentQuery|merge({'condition': 'tous'})) }}">
+								TOUT AFFICHER |
+							</a>
+						</small>
+					</div>
+					<div class="{{ condition == 'partiel_facture' ? 'fw-bold' : '' }}" id="partiellement-facture">
+						<i class="fa-solid fa-circle text-warning"></i>
+						<small>
+							<a class="text-warning text-decoration-none" href="{{ path('interface_planning_cde_frn_magasin', currentQuery|merge({'condition': 'partiel_facture'})) }}">
+								Partiellement facturé |
+							</a>
+						</small>
+					</div>
+					<div class="{{ condition == 'partiel_dispo' ? 'fw-bold' : '' }}" id="partiellement-dispo">
+						<i class="fa-solid fa-circle text-info"></i>
+						<small>
+							<a class="text-info text-decoration-none" href="{{ path('interface_planning_cde_frn_magasin', currentQuery|merge({'condition': 'partiel_dispo'})) }}">
+								Partiellement dispo |
+							</a>
+						</small>
+					</div>
+					<div class="{{ condition == 'complet_non_facture' ? 'fw-bold' : '' }}" id="complet-non-facture">
+						<i class="fa-solid fa-circle text-primary"></i>
+						<small>
+							<a class="text-primary text-decoration-none" href="{{ path('interface_planning_cde_frn_magasin', currentQuery|merge({'condition': 'complet_non_facture'})) }}">
+								Complet non facturé |
+							</a>
+						</small>
+					</div>
+					<div class="{{ condition == 'complet_facture' ? 'fw-bold' : '' }}" id="complet-facture">
+						<i class="fa-solid fa-circle text-success"></i>
+						<small>
+							<a class="text-success text-decoration-none" href="{{ path('interface_planning_cde_frn_magasin', currentQuery|merge({'condition': 'complet_facture'})) }}">
+								Complet facturé |
+							</a>
+						</small>
+					</div>
+					<div class="{{ condition == 'back_order' ? 'fw-bold' : '' }}" id="back-order">
+						<i class="fa-solid fa-circle text-danger"></i>
+						<small>
+							<a class="text-dark text-decoration-none" href="{{ path('interface_planning_cde_frn_magasin', currentQuery|merge({'condition': 'back_order'})) }}">
+								Back Order / Error
+							</a>
+						</small>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container-fluid">
+		<table class="table table-sticky">
+			<thead class="table-dark">
+				<tr>
+					<th>Fournisseur</th>
+					<th>Agence / Service</th>
+					<th>Code Fourn.</th>
+					{% for month in uniqueMonths %}
+						<th class="{{ month.current ? 'bg-warning text-dark' : '' }}">
+							{{ month.month|upper }}
+							{{ month.year }}
+						</th>
+					{% endfor %}
+				</tr>
+			</thead>
+			<tbody>
+				{% for item in preparedData %}
+					<tr>
+						<td class="text-start">{{ item.fournisseur }}</td>
+						<td>{{ item.agenceService }}</td>
+						<td>{{ item.codeFourn }}</td>
+						{% for month in uniqueMonths %}
+							<td>
+								{% set commandes = item.commandes[month.key] | default([]) %}
+								{% if commandes|length > 0 %}
+									{% for commande in commandes %}
+										{% set classe = '' %}
+										{% if commande.statut == 'Partiellement facturé' %}
+											{% set classe = 'bg-warning text-white' %}
+										{% elseif commande.statut == 'Partiellement dispo' %}
+											{% set classe = 'bg-info text-white' %}
+										{% elseif commande.statut == 'Complet non facturé' %}
+											{% set classe = 'bg-primary text-white' %}
+										{% elseif commande.statut == 'Complet facturé' %}
+											{% set classe = 'bg-success text-white' %}
+										{% endif %}
+										<span class="d-inline-block px-2 py-1 rounded text-wrap {{ classe }}" title="{{ commande.statut }}">
+											{{ commande.numero }}
+										</span><br>
+									{% endfor %}
+								{% else %}
+									-
+								{% endif %}
+							</td>
+						{% endfor %}
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2026.08.06.1"></script>
+	<script src="{{ App.base_path }}/Views/js/magasin/planning/planning.js?v=2026.08.06.1" type="module"></script>
+{% endblock %}
