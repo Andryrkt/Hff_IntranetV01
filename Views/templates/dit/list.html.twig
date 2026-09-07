@@ -102,21 +102,21 @@
 						</td>
 						{# Fin Actions #}
 
-						<td class="{{ classeStatutDit}}">{{ item.idStatutDemande.description|trim }}</td>
+						<td class="{{ item.statutCssClass }}">{{ item.statutLibelle }}</td>
 						<td>
-							<a href="{{ path("dit_validationDit", {id: item.id, numDit: item.numeroDemandeIntervention})}}" target="_blank" data-bs-toggle="tooltip" title="Afficher le détail">
-								{{ item.numeroDemandeIntervention }}
+							<a href="{{ item.urlFicheDit }}" target="_blank" data-bs-toggle="tooltip" title="Afficher le détail">
+								{{ item.numDit }}
 							</a>
 						</td>
 						<td>{{ item.reparationRealise }}</td>
-						<td>{{ item.typeDocument.description }}</td>
+						<td>{{ item.typeDocumentLibelle }}</td>
 						<td class="text-center">
-							{{ item.idNiveauUrgence.description }}
+							{{ item.niveauUrgenceLibelle }}
 						</td>
-						<td>{{ item.categorieDemande.libelleCategorieAteApp}}</td>
+						<td>{{ item.categorieDemandeLibelle }}</td>
 						<td>{{ item.numSerie}}</td>
 						<td>{{ item.numParc}}</td>
-						<td>{{ item.dateDemande|date('d/m/Y')}}</td>
+						<td>{{ item.dateDemande }}</td>
 						<td>{{ item.internetExterne}}</td>
 						<td>{{ item.agenceServiceEmetteur }}</td>
 						<td>{{ item.agenceServiceDebiteur}}</td>
@@ -131,19 +131,19 @@
 						</td>
 						<td>
 							<a href="#" data-bs-toggle="modal" data-bs-target="#sectionAffectee" data-id="{{item.id}}" id="">
-								{{ item.sectionAffectee|remove_words(mots_a_supprimer)}}
+								{{ item.sectionAffectee }}
 							</a>
 						</td>
 						<td>{{item.numeroDevisRattache}}</td>
 						<td>{{ item.statutDevis}}</td>
 						<td>
 							{% if item.numeroOr != '' %}
-								<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{item.numeroOr}}" id="numOr" class="{{ classeQuatreStatutOr }} text-black" data-bs-toggle="tooltip" title="lister les commandes">{{ item.numeroOr }}</a>
+								<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{item.numeroOr}}" id="numOr" class="{{ item.quatreStatutOrCssClass }} text-black" data-bs-toggle="tooltip" title="lister les commandes">{{ item.numeroOr }}</a>
 							{% endif %}
 						</td>
 						<td class="fw-bold ">{{ item.statutor }}</td>
-						<td style="text-align: right;">{{ item.montantTotalOR is not null ? item.montantTotalOR|number_format(2, ',', '.') : '' }}</td>
-						<td>{{ item.dateSoumissionOR is not null ? item.dateSoumissionOR|date('d/m/Y') : '' }}</td>
+						<td style="text-align: right;">{{ item.montantTotalOrFormate }}</td>
+						<td>{{ item.dateSoumissionOrFormatee }}</td>
 						<td>
 							<a href="#" data-bs-toggle="modal" data-bs-target="#facturation" data-id="{{item.numeroOr}}" id="numOr">
 								{{ item.etatFacturation }}
@@ -155,7 +155,7 @@
 							</a>
 						</td>
 						<td class="text-center">{{ item.nbrPj}}</td>
-						<td>{{ item.utilisateurDemandeur|upper }}</td>
+						<td>{{ item.utilisateurDemandeur }}</td>
 					</tr>
 				{% endfor %}
 			</tbody>
