@@ -42,6 +42,14 @@
 											<p>{{ observation.observation|raw }}</p>
 											<span class="time">{{ observation.dateCreation|date('H:i') }}</span>
 										</div>
+										{% for fileName in observation.fileNames %}
+											<div class="file-comment">
+												<i class="fas {{ fileName|split('.')|last in ['jpg', 'jpeg', 'png'] ? 'fa-file-image' : 'fa-file-pdf' }} text-primary fs-6"></i>
+												<span data-file-path="{{ App.base_path_fichier }}/dit/{{ dto.numDit }}/{{ fileName }}" data-file-name="{{ fileName }}">
+													{{ fileName }}
+												</span>
+											</div>
+										{% endfor %}
 									</div>
 								</div>
 
@@ -50,10 +58,24 @@
 					</div>
 				</div>
 			</div>
+			<div class="attached-files-preview d-none">
+				<div class="attached-files-header">
+					<small class="text-muted"></small>
+				</div>
+				<div class="attached-files-list"></div>
+			</div>
 			<div class="card-footer" style="padding: 0.75rem;">
 				{{ form_start(form) }}
 				<div class="input-container mb-2">
 					{{ form_widget(form.observation) }}
+					<div class="input-actions">
+						<label for="dit_observation_fileNames" class="btn-icon" title="Joindre des fichiers">
+							<i class="fas fa-paperclip"></i>
+							<div class="d-none">
+								{{ form_widget(form.fileNames) }}
+							</div>
+						</label>
+					</div>
 				</div>
 				<div class="form-footer">
 					<button type="submit" class="btn bouton" name="observation">
@@ -62,6 +84,15 @@
 					</button>
 				</div>
 				{{ form_end(form) }}
+			</div>
+		</div>
+	</div>
+	<div class="col-7 col-md-7">
+		<div class="card">
+			<div class="card-body bg-light p-3">
+				<div id="file-viewer-observation">
+					<p>Sélectionnez un fichier pour l'afficher ici</p>
+				</div>
 			</div>
 		</div>
 	</div>
