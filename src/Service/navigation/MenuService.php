@@ -18,6 +18,7 @@ class MenuService
     public UserDataService $userDataService;
     private TagAwareCacheInterface $cache;
     private string $basePath;
+    private string $basePathUpload;
 
     /**
      * Cache intra-requête indexé par profilId — évite de reconstruire les menus
@@ -34,7 +35,8 @@ class MenuService
     {
         $this->userDataService = $userDataService;
         $this->cache           = $cache;
-        $this->basePath        = $_ENV['BASE_PATH_FICHIER_COURT'];
+        $this->basePath        = $_ENV['BASE_PATH_COURT'];
+        $this->basePathUpload  = $_ENV['BASE_PATH_FICHIER_COURT'];
     }
 
     /**
@@ -291,14 +293,18 @@ class MenuService
 
     /**
      * Résout le lien d'un item :
-     * - 'link' explicite (externe, '#', chemin avec {basePath}) → retourne tel quel après substitution
+     * - 'link' explicite (externe, '#', chemin avec {basePathUpload}) → retourne tel quel après substitution
      * - 'route' → retourne le nom de route (les builders Twig/contrôleur génèrent l'URL)
      * - ni l'un ni l'autre → '#'
      */
     private function resoudreLink(array $definition): string
     {
         if (isset($definition['link'])) {
-            return str_replace('{basePath}', $this->basePath, $definition['link']);
+            return str_replace(
+                ['{basePathUpload}', '{basePath}'],
+                [$this->basePathUpload, $this->basePath],
+                $definition['link']
+            );
         }
 
         return $definition['route'] ?? '#';

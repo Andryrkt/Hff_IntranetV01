@@ -37,7 +37,7 @@ class MenuGroupe
             [
                 'label'    => 'Plan analytique HFF',
                 'icon'     => 'ruler-vertical',
-                'link'     => '{basePath}/documentation/Structure%20analytique%20HFF.pdf',
+                'link'     => '{basePathUpload}/documentation/Structure%20analytique%20HFF.pdf',
                 'route'    => 'documentation_interne', // accessible si 'documentation_interne' est accesible
                 'target'   => '_blank',
             ],
@@ -175,6 +175,13 @@ class MenuGroupe
                     ['label' => 'GE Rollout', 'icon' => 'plug-circle-bolt', 'route' => 'ge_rollout', 'target' => '_blank'],
                 ],
             ],
+            [
+                'label'    => 'Location',
+                'icon'     => 'tags',
+                'subitems' => [
+                    ['label' => 'BADM Rental', 'icon' => 'tags', 'link' => '{basePath}/badm-rental', 'route' => 'badm_rental', 'target' => '_blank']
+                ],
+            ]
         ];
     }
 
@@ -188,14 +195,14 @@ class MenuGroupe
                     ['label' => 'Nouvelle demande',            'icon' => 'plus-circle', 'route' => 'dit_new'],
                     ['label' => 'Consultation',                'icon' => 'search',      'route' => 'dit_index'],
                     ['label' => 'Dossier DIT',                 'icon' => 'folder',      'route' => 'dit_dossier_intervention_atelier'],
-                    ['label' => 'Matrice des responsabilités', 'icon' => 'table',       'route' => 'dit_new', 'link'  => '{basePath}/documentation/MATRICE DE RESPONSABILITES OR v9.xlsx'],
+                    ['label' => 'Matrice des responsabilités', 'icon' => 'table',       'route' => 'dit_new', 'link'  => '{basePathUpload}/documentation/MATRICE DE RESPONSABILITES OR v9.xlsx'],
                 ],
             ],
             [
                 'route'    => 'dit_new',
                 'label'    => 'Glossaire OR',
                 'icon'     => 'book',
-                'link'     => '{basePath}/dit/glossaire_or/Glossaire_OR.pdf',
+                'link'     => '{basePathUpload}/dit/glossaire_or/Glossaire_OR.pdf',
                 'target'   => '_blank',
             ],
             [
