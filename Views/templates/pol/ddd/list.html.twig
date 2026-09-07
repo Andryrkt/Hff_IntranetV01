@@ -119,7 +119,7 @@
                             </td>
 
                             {# Demandeur #}
-                            <td>{{ demande.demandeur|upper }}</td>
+                            <td>{{ demande.demandeur|capitalize }}</td>
 
                             {# Chantier #}
                             <td>{{ demande.chantier ? demande.chantier.nomChantier : '-' }}</td>
@@ -135,11 +135,21 @@
 
                             {# Nombre de pneus (Machine / Secours / À diagnostiquer) #}
                             <td >
-                                <span class="badge bg-secondary">{{ demande.nbPneuSurMachine }}</span>
-                                -
-                                <span class="badge bg-secondary">{{ demande.nbPneuSecours }}</span>
-                                -
-                                <span class="badge bg-primary">{{ demande.nbPneuADiagnostiquer }}</span>
+                                <table class="table table-borderless table-sm mb-0" style="width: auto; min-width: 120px;">
+                                    <tbody>
+                                        <tr>
+                                            <td class="text-center  py-0">
+                                                <span class="badge bg-secondary">{{ demande.nbPneuSurMachine }}</span>
+                                            </td>
+                                            <td class="text-center py-0">
+                                                <span class="badge bg-secondary">{{ demande.nbPneuSecours }}</span>
+                                            </td>
+                                            <td class="text-center py-0">
+                                                <span class="badge bg-primary">{{ demande.nbPneuADiagnostiquer }}</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </td>
 
                             {# Motifs généraux #}
