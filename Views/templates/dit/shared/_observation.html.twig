@@ -66,6 +66,13 @@
 			</div>
 			<div class="card-footer" style="padding: 0.75rem;">
 				{{ form_start(form) }}
+				{% set fileErrors = [] %}
+				{% for error in form.fileNames.vars.errors %}
+					{% set fileErrors = fileErrors|merge([error.message]) %}
+				{% endfor %}
+				{% if fileErrors is not empty %}
+					<div id="dit-observation-file-errors" class="d-none">{{ fileErrors|join('\n') }}</div>
+				{% endif %}
 				<div class="input-container mb-2">
 					{{ form_widget(form.observation) }}
 					<div class="input-actions">
