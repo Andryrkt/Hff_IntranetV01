@@ -9,6 +9,7 @@ use App\Entity\dit\DitObservation;
 use App\Form\dit\DitObservationType;
 use App\Entity\dit\DemandeIntervention;
 use App\Service\dit\DitTimelineService;
+use App\Service\dit\FileUploaderForDitService;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -21,12 +22,14 @@ class DitDetailController extends Controller
 {
     private DitTimelineService $ditTimelineService;
     private UrlIdCipher $urlIdCipher;
+    private FileUploaderForDitService $ditFileUploader;
 
     public function __construct(DitTimelineService $ditTimelineService, UrlIdCipher $urlIdCipher)
     {
         parent::__construct();
         $this->ditTimelineService = $ditTimelineService;
         $this->urlIdCipher = $urlIdCipher;
+        $this->ditFileUploader = new FileUploaderForDitService();
     }
 
     /**
@@ -89,6 +92,14 @@ class DitDetailController extends Controller
             $ditObservation = $form->getData();
             $text = str_replace(["\r\n", "\n", "\r"], "<br>", $ditObservation->getObservation());
             $ditObservation->setObservation($text);
+
+            $files = $ditObservation->getFileNames();
+            if ($files) {
+                $fileNames = $this->ditFileUploader->uploadMultipleDitFiles($files, $ditObservation->getNumDit(), FileUploaderForDitService::FILE_TYPE["OBSERVATION"]);
+                $ditObservation->setFileNames($fileNames);
+            } else {
+                $ditObservation->setFileNames([]);
+            }
 
             $this->getEntityManager()->persist($ditObservation);
             $this->getEntityManager()->flush();
