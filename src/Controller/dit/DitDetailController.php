@@ -30,7 +30,7 @@ class DitDetailController extends Controller
     }
 
     /**
-     * @Route("/fiche-detail-dit/{token}", name="dit_fiche_detail")
+     * @Route("/fiche-detail-dit/{token}", name="dit_validationDit")
      */
     public function detailDit(string $token, Request $request)
     {
@@ -47,7 +47,7 @@ class DitDetailController extends Controller
 
         $observations = $this->getEntityManager()->getRepository(DitObservation::class)->findBy(['numDit' => $dit->getNumeroDemandeIntervention()], ['dateCreation' => 'ASC']);
 
-        $this->logUserVisit('dit_fiche_detail', ['id' => $realId]); // historisation du page visité par l'utilisateur
+        $this->logUserVisit('dit_validationDit', ['id' => $realId]); // historisation du page visité par l'utilisateur
 
         return  $this->render('dit/detail.html.twig', [
             'form'         => $form->createView(),

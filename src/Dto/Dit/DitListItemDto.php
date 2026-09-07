@@ -81,7 +81,7 @@ class DitListItemDto
         $dto->utilisateurDemandeur      = $item->getUtilisateurDemandeur() ? strtoupper($item->getUtilisateurDemandeur()) : null;
         $dto->estOrASoumi               = (bool) $item->getEstOrASoumi();
         $dto->estAnnulable              = (bool) $item->getEstAnnulable();
-        $dto->urlFicheDit               = $urlGenerator->generate('dit_fiche_detail', ['token' => $urlIdCipher->encrypt($item->getId(), "DIT")]);
+        $dto->urlFicheDit               = $urlGenerator->generate('dit_validationDit', ['token' => $urlIdCipher->encrypt($item->getId(), "DIT")]);
 
         return $dto;
     }
