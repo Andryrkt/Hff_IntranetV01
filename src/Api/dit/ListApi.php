@@ -7,6 +7,7 @@ use App\Model\dit\DitListModel;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitRiSoumisAValidation;
 use App\Entity\dit\DitFactureSoumisAValidation;
+use App\Model\dit\DitModel;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ListApi extends Controller
@@ -22,7 +23,8 @@ class ListApi extends Controller
         if ($numOr === '') {
             $commandes = [];
         } else {
-            $commandes = $this->ditModel->RecupereCommandeOr($numOr);
+            $ditModel = new DitModel();
+            $commandes = $ditModel->RecupereCommandeOr($numOr);
         }
 
         header("Content-type:application/json");
