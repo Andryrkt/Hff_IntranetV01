@@ -102,6 +102,7 @@ class DemandePaiementDto
     public float $sommeMontantDdpaValider = 0.0;
     public float $sommeMontantFactureDejaPayer = 0.0;
     public float $soldeAvance = 0.0; // montant de l'avance qui n'a pas encore été régularisé
+    public  bool $isFrnNonImmatricule;
 
     public function montantAPayer(): float
     {

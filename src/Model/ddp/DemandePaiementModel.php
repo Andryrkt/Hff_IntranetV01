@@ -545,4 +545,13 @@ class DemandePaiementModel extends Model
 
         return $data;
     }
+
+    public function isFrnNonImmatricule(int $numFrn): bool
+    {
+        $statement = "SELECT  1 FROM frn_bse WHERE fbse_asstva = '' AND fbse_siret  = '' AND fbse_numfou ='$numFrn' LIMIT 1";
+        $result = $this->connect->executeQuery($statement, [$numFrn]);
+
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+        return !empty($data);
+    }
 }

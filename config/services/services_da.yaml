@@ -42,6 +42,7 @@ services:
       $calculService: '@App\Service\da\DaSoumissionCalculService'
       $dataService: '@App\Service\da\DaSoumissionDataService'
       $securityService: '@App\Service\security\SecurityService'
+      $ddpModel: '@App\Model\ddp\DemandePaiementModel'
     public: true
 
   # Contrôleurs DA
