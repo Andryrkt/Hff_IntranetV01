@@ -172,6 +172,7 @@ class DemandePaiementFactory
             $dto->beneficiaire = $data['nom_fournisseur'];
             $dto->modePaiement = $data['mode_paiement'];
             $dto->devise = $data['devise'];
+            $dto->isFrnNonImmatricule = $this->ddpModel->isFrnNonImmatricule($dto->numeroFournisseur);
         }
     }
 

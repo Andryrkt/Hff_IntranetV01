@@ -23,11 +23,11 @@ class DdpFinancialService
     {
         $totalMontantCommande = $dto->totalMontantCommande;
         $dto->montantDejaPaye = $dto->montantDejaPaye;
-        $dto->montantRestantApayer = $totalMontantCommande - $dto->montantDejaPaye;
-        $dto->montantAPayer = $dto->montantRestantApayer;
+        $dto->montantAPayer = $dto->isFrnNonImmatricule ? $totalMontantCommande * 0.95 - $dto->montantDejaPaye : $totalMontantCommande - $dto->montantDejaPaye;
+        $dto->montantRestantApayer = $dto->isFrnNonImmatricule ? $totalMontantCommande * 0.95 - ($dto->montantDejaPaye + $dto->montantAPayer) : $totalMontantCommande - ($dto->montantDejaPaye + $dto->montantAPayer);
 
         if ($totalMontantCommande > 0) {
-            $pourcentageAvance = (($dto->montantDejaPaye + $dto->montantAPayer) / $totalMontantCommande) * 100 . ' %';
+            $pourcentageAvance =  $dto->isFrnNonImmatricule ? (($dto->montantDejaPaye + $dto->montantAPayer) / ($totalMontantCommande * 0.95)) * 100 . ' %' : (($dto->montantDejaPaye + $dto->montantAPayer) / $totalMontantCommande) * 100 . ' %';
             $pourcentageAPayer = (int)(($dto->montantAPayer / $totalMontantCommande) * 100);
         } else {
             $pourcentageAvance = '0 %';
@@ -103,7 +103,7 @@ class DdpFinancialService
         $totalMontantCommande = $dto->totalMontantCommande;
         $montantDejaPaye = $this->montantTotalDejaPaye($dto);
 
-        return $totalMontantCommande - $montantDejaPaye;
+        return $dto->isFrnNonImmatricule ? ($totalMontantCommande * 0.95) - $montantDejaPaye : $totalMontantCommande - $montantDejaPaye;;
     }
 
     /**
