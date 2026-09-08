@@ -217,7 +217,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         poucentageAPayer.classList.remove("is-invalid");
       }
-    } else {
     }
 
     //  Mise à jour de la valeur affichée dans poucentageAvance
