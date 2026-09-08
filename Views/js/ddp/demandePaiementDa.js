@@ -201,15 +201,20 @@ document.addEventListener("DOMContentLoaded", function () {
         ((montantDejaPayerValue + montantAPayer) /
           (montantTotalCdeValue * 0.95)) *
         100;
-
       if (totalAvancePourcentage > 100) {
-        totalAvancePourcentage = 100;
-        document.querySelector("#pourcentageAPayerError").textContent =
-          "Le pourcentage à payer ne peut pas dépasser 95 %.";
+        const error = document.querySelector("#pourcentageAPayerError");
+
+        error.textContent =
+          "Le total des pourcentages ne peut pas dépasser 95 %.";
+        error.classList.add("d-block");
 
         poucentageAPayer.classList.add("is-invalid");
       } else {
-        document.querySelector("#pourcentageAPayerError").textContent = "";
+        const error = document.querySelector("#pourcentageAPayerError");
+
+        error.textContent = "";
+        error.classList.remove("d-block");
+
         poucentageAPayer.classList.remove("is-invalid");
       }
     } else {
