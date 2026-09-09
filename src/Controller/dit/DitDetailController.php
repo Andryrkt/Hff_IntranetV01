@@ -56,7 +56,7 @@ class DitDetailController extends Controller
             'form'         => $form->createView(),
             'dto'          => DitDetailDto::fromEntity($dit),
             'observations' => $observations,
-            'timelineData' => $this->ditTimelineService->getTimelineData($dit),
+            'timelineData' => $this->ditTimelineService->getTimelineData($dit->getNumeroDemandeIntervention()),
         ]);
     }
 
