@@ -424,8 +424,6 @@ class DitController extends Controller
             $demandeIntervention->setCategorieDemande($categorieDemandeDefault);
             $demandeIntervention->setTypeDocument($typeDocumentDemandeDefault);
             $demandeIntervention->setInternetExterne("INTERNE");
-            // Interne si demandePneu
-            $demandeIntervention->setInternetExterne("INTERNE");
         }
 
 
