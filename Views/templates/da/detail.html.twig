@@ -5,12 +5,12 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link href="{{ App.base_path }}/Views/css/new.css?v=2026.07.03.14.50" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/da/style.css?v=2026.07.03.14.50" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/partials/onglet.css?v=2026.07.03.14.50" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/da/detail.css?v=2026.07.03.14.50" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/dit/news.css?v=2026.07.03.14.50" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/da/timeline.css?v=2026.08.03.15.03" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/new.css?v={{ App.browserHash }}" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/style.css?v={{ App.browserHash }}" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/partials/onglet.css?v={{ App.browserHash }}" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/detail.css?v={{ App.browserHash }}" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/dit/news.css?v={{ App.browserHash }}" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/timeline.css?v={{ App.browserHash }}" rel="stylesheet"/>
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
@@ -53,8 +53,8 @@
 {% endblock %}
 
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/da/reappro/daReappro.js?v=2026.07.03.14.50" type="module"></script>
-	<script src="{{ App.base_path }}/Views/js/da/detail/detail.js?v=2026.07.03.14.50" type="module"></script>
-	<script src="{{ App.base_path }}/Views/js/da/observation/observation.js?v=2026.07.03.14.50" type="module"></script>
-	<script src="{{ App.base_path }}/Views/js/da/detail/document-rattache.js?v=2026.07.03.14.50" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/da/reappro/daReappro.js?v={{ App.browserHash }}" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/da/detail/detail.js?v={{ App.browserHash }}" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/da/observation/observation.js?v={{ App.browserHash }}" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/da/detail/document-rattache.js?v={{ App.browserHash }}" type="module"></script>
 {% endblock %}

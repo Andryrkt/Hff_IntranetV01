@@ -1,10 +1,10 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block stylesheets %}
-	<link href="{{ App.base_path }}/Views/css/new.css?v=2026.07.03.14.50" rel="stylesheet"/>
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2026.07.03.14.50">
-	<link href="{{ App.base_path }}/Views/css/dit/ditInsertionOr.css?v=2026.07.03.14.50" rel="stylesheet"/>
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/cde/cdeFnr.css?v=2026.07.03.14.50">
+	<link href="{{ App.base_path }}/Views/css/new.css?v={{ App.browserHash }}" rel="stylesheet"/>
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v={{ App.browserHash }}">
+	<link href="{{ App.base_path }}/Views/css/dit/ditInsertionOr.css?v={{ App.browserHash }}" rel="stylesheet"/>
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/cde/cdeFnr.css?v={{ App.browserHash }}">
 {% endblock %}
 
 {% block content %}
@@ -83,5 +83,5 @@
 {% endblock %}
 
 {% block javascript %}
-	<script type="module" src="{{ App.base_path }}/Views/js/cde/cdeFnrSoumisAValidation.js?v=2026.07.03.14.50" type="module"></script>
+	<script type="module" src="{{ App.base_path }}/Views/js/cde/cdeFnrSoumisAValidation.js?v={{ App.browserHash }}" type="module"></script>
 {% endblock %}
