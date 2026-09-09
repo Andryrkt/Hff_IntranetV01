@@ -11,6 +11,8 @@ trait DitTrait
 {
     private function createDemandeInterventionFromDto(DemandeInterventionDto $dto, DemandeInterventionFactory $demandeInterventionFactory): array
     {
+        /** @var DemandeInterventionFactory $demandeInterventionFactory */
+        $demandeInterventionFactory = $this->demandeInterventionFactory;
         if ($dto->estAtePolTana) {
             $ditAteTana =  $demandeInterventionFactory->createFromDto($dto);
             $ditAteTanaPol =  $demandeInterventionFactory->createFromDtoPol($dto);

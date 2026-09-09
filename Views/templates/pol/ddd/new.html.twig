@@ -234,7 +234,15 @@
         {# Pieces jointes             #}
         {# ========================= #}
 
-        {{ form_row(form.piecesJointes) }}
+        {# {{ form_row(form.piecesJointes) }} #}
+        <div class="fichiers-jointes">
+            {# Le champ original #}
+            {{ form_row(form.piecesJointes) }}
+            {# Conteneur pour la liste des fichiers sélectionnés #}
+            <div id="liste-fichiers" class="mt-2">
+                <ul id="fichier-list" class="list-unstyled"></ul>
+            </div>
+        </div>
 
         <div class="text-end mt-4">
 
