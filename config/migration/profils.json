@@ -123,7 +123,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -445,7 +446,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -865,7 +867,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -1350,7 +1353,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -1694,7 +1698,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -2060,7 +2065,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -2404,7 +2410,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -2638,7 +2645,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -2850,7 +2858,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -3457,7 +3466,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -3906,7 +3916,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -4242,7 +4253,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -4691,7 +4703,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -5089,7 +5102,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -5301,7 +5315,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -5607,7 +5622,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -6140,7 +6156,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -6374,7 +6391,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -6618,7 +6636,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -6900,7 +6919,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -7182,7 +7202,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -7486,7 +7507,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -7698,7 +7720,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -7910,7 +7933,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -8144,7 +8168,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -8543,7 +8568,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -8971,7 +8997,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -9305,7 +9332,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -9655,7 +9683,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -10005,7 +10034,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -10385,7 +10415,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -10667,7 +10698,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -11003,7 +11035,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -11339,7 +11372,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -11551,7 +11585,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -12169,7 +12204,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -12654,7 +12690,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -12974,7 +13011,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -13161,7 +13199,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -13405,7 +13444,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -13730,7 +13770,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -13904,7 +13945,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -14375,7 +14417,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -14587,7 +14630,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -14941,7 +14985,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -15277,7 +15322,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -15451,7 +15497,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -15663,7 +15710,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -15875,7 +15923,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -16238,7 +16287,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -16565,7 +16615,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -16739,7 +16790,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -17267,7 +17319,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -17595,7 +17648,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -17973,7 +18027,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -18156,7 +18211,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -18848,7 +18904,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -19397,7 +19454,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -19724,7 +19782,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -20179,7 +20238,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -20738,7 +20798,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -21108,7 +21169,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -21591,7 +21653,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -21765,7 +21828,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -21987,7 +22051,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -22161,7 +22226,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -22426,7 +22492,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -22708,7 +22775,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -23431,7 +23499,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -23753,7 +23822,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -24075,7 +24145,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -24397,7 +24468,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -24622,7 +24694,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -24944,7 +25017,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -25156,7 +25230,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -25478,7 +25553,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -25910,7 +25986,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -26100,7 +26177,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -26422,7 +26500,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -26696,7 +26775,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -26996,7 +27076,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -27296,7 +27377,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -27833,7 +27915,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -28341,7 +28424,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -28837,7 +28921,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -29098,7 +29183,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -29746,7 +29832,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -29920,7 +30007,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -30250,7 +30338,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -30690,7 +30779,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -31292,7 +31382,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -31927,7 +32018,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -32393,7 +32485,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,
@@ -33405,7 +33498,8 @@
             "peut_multi_succursale": false,
             "peut_supprimer": false,
             "peut_exporter": false
-          },{
+          },
+          {
             "nom_route": "dit_insertion_devis",
             "peut_voir": true,
             "peut_voir_liste_avec_debiteur": false,

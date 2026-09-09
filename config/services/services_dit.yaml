@@ -1,0 +1,16 @@
+services:
+  # Services DIT
+  App\Service\dit\DitTimelineService:
+    public: true
+
+  App\Service\Admin\UrlIdCipher:
+    public: true
+
+  # Contrôleurs DIT
+  App\Controller\dit\DitDetailController:
+    autowire: true
+    autoconfigure: true
+    arguments:
+      $ditTimelineService: '@App\Service\dit\DitTimelineService'
+      $urlIdCipher: '@App\Service\Admin\UrlIdCipher'
+    public: true

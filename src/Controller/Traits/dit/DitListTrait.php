@@ -350,50 +350,6 @@ trait DitListTrait
         return $tab;
     }
 
-
-    private function donnerAAfficher($ditListeModel, $ditSearch, $option, $page, $limit, $em)
-    {
-        $paginationData = $em->getRepository(DemandeIntervention::class)->findPaginatedAndFiltered($page, $limit, $ditSearch, $option);
-
-        //ajout de donner du statut achat piece dans data
-        $this->ajoutStatutAchatPiece($paginationData['data']);
-
-        //ajout de donner du statut achat locaux dans data
-        $this->ajoutStatutAchatLocaux($paginationData['data']);
-
-        //ajout nombre de pièce joint
-        $this->ajoutNbrPj($paginationData['data'], $em);
-
-        //recuperation de numero de serie et parc pour l'affichage
-        $this->ajoutNumSerieNumParc($paginationData['data']);
-
-        $this->ajoutQuatreStatutOr($paginationData['data']);
-
-        $this->ajoutConditionOrEqDit($paginationData['data']);
-
-        $this->ajoutri($paginationData['data'], $ditListeModel, $em);
-
-        $this->ajoutMarqueCasierMateriel($paginationData['data']);
-
-        return $paginationData;
-    }
-
-    // private function dossierDit($request, $formDocDansDW)
-    // {
-
-    //     $formDocDansDW->handleRequest($request);
-
-    //     if($formDocDansDW->isSubmitted() && $formDocDansDW->isValid()) {
-    //         if($formDocDansDW->getData()['docDansDW'] === 'OR'){
-    //             $this->redirectToRoute("dit_insertion_or", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
-    //         } else if($formDocDansDW->getData()['docDansDW'] === 'FACTURE'){
-    //             $this->redirectToRoute("dit_insertion_facture", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
-    //         } elseif ($formDocDansDW->getData()['docDansDW'] === 'RI') {
-    //             $this->redirectToRoute("dit_insertion_ri", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
-    //         }
-    //     } 
-    // }
-
     private function Option($autoriser): array
     {
         return  [
@@ -507,7 +463,7 @@ trait DitListTrait
 
         /** @var DitRepository $repository */
         $repository = $em->getRepository(DemandeIntervention::class);
-        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur, $codeAgenceUser, $codeSociete, $multisuccursale);
+        $paginationData = $repository->findPaginatedAndFiltered($ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $peutVoirListeAvecDebiteur, $codeAgenceUser, $codeSociete, $multisuccursale, $page, $limit);
 
         //ajout de donner du statut achat piece dans data
         $this->ajoutStatutAchatPiece($paginationData['data']);
@@ -599,7 +555,7 @@ trait DitListTrait
             $numDitOr = $em->getRepository(DitOrsSoumisAValidation::class)->findNumDit($value->getNumeroOR());
 
             //si la statut DIT est AFFACTER SECTION et il n'y a pas encore d'OR déjà soumi (c'est la première soumission) ou la statut DIT est AFFACTER SECTION et il existe une OR soumis et le numero DIT dans l'OR est différent du Dit ou l'on va soumettre l'OR
-            if (($statutAffecterSection && !$estOrSoumis) || ($statutAffecterSection && $estOrSoumis && $numDitOr[0] <> $value->getNumeroDemandeIntervention())) { 
+            if (($statutAffecterSection && !$estOrSoumis) || ($statutAffecterSection && $estOrSoumis && $numDitOr[0] <> $value->getNumeroDemandeIntervention())) {
                 $value->setEstOrASoumi(true); //affichage du boutton Soumission document à valider
             } elseif ($value->getInternetExterne() == 'EXTERNE' && $value->getIdStatutDemande()->getId() === 53) { // 
                 $value->setEstOrASoumi(true);

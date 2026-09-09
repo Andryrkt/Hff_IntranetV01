@@ -5,9 +5,9 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/utils/autocomplete.css?v=2026.07.03.14.50">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2026.07.03.14.50">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/planning/planning.css?v=2026.07.03.14.50">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/utils/autocomplete.css?v={{ App.browserHash }}">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v={{ App.browserHash }}">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/planning/planning.css?v={{ App.browserHash }}">
 {% endblock %}
 
 {% block overlay %}
@@ -96,8 +96,8 @@
 	{% include "/planningMagasin/_modal.html.twig"  %}
 {% endblock %}
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2026.07.03.14.50"></script>
-	<script src="{{ App.base_path }}/Views/js/planningMagasin/planning.js?v=2026.07.03.14.50" type="module"></script>
-	<script src="{{ App.base_path }}/Views/js/planningMagasin/listPlanning.js?v=2026.07.03.14.50" type="module"></script>
-	<script src="{{ App.base_path }}/Views/js/planningMagasin/agServPlanning.js?v=2026.07.03.14.50" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v={{ App.browserHash }}"></script>
+	<script src="{{ App.base_path }}/Views/js/planningMagasin/planning.js?v={{ App.browserHash }}" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/planningMagasin/listPlanning.js?v={{ App.browserHash }}" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/planningMagasin/agServPlanning.js?v={{ App.browserHash }}" type="module"></script>
 {% endblock %}

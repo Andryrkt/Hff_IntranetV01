@@ -43,10 +43,10 @@ class DitController extends Controller
     use PdfConversionTrait;
 
 
-    private $historiqueOperation;
-    private $demandeInterventionFactory;
     private DitModel $ditModel;
     private DitRepository $demandeRepository;
+    private HistoriqueOperationDITService $historiqueOperation;
+    private DemandeInterventionFactory $demandeInterventionFactory;
 
     public function __construct()
     {
@@ -161,7 +161,7 @@ class DitController extends Controller
             $dto->idStatutDemande = $statutRepository->find($idStatut);
 
             /**   @var DemandeIntervention[] $demandeInterventions 3. Utiliser la factory pour créer l'entité complète*/
-            $demandeInterventions = $this->createDemandeInterventionFromDto($dto);
+            $demandeInterventions = $this->createDemandeInterventionFromDto($dto, $this->demandeInterventionFactory);
 
             foreach ($demandeInterventions as $demandeIntervention) {
                 // Type de DIT
@@ -423,8 +423,6 @@ class DitController extends Controller
             $demandeIntervention->setService($serviceDefault);
             $demandeIntervention->setCategorieDemande($categorieDemandeDefault);
             $demandeIntervention->setTypeDocument($typeDocumentDemandeDefault);
-            $demandeIntervention->setInternetExterne("INTERNE");
-            // Interne si demandePneu
             $demandeIntervention->setInternetExterne("INTERNE");
         }
 

@@ -1,0 +1,62 @@
+
+<div class="row">
+	<div class="col-md-11">
+		<h3 class="perso-titre">
+			Timeline du demande d'intervention n° {{ dto.numDit }}
+		</h3>
+	</div>
+	<div class="col-md-1">
+		<a href="{{ path("dit_index") }}" class="btn btn-list-dit">Liste des DIT</a>
+	</div>
+</div>
+
+{% if timelineData.DIT is defined and timelineData.DIT|length > 0 %}
+	<div class="timeline-section timeline-single">
+		<div class="timeline-section-header">Demande d'intervention</div>
+		<div class="timeline-block">
+			<div class="timeline-block-title">DIT n° {{ dto.numDit }}</div>
+			{% for item in timelineData.DIT %}
+				<div class="timeline-item {{ item.dotClass ? 'is-done' }}">
+					<div class="timeline-dot {{ item.dotClass ?: 'timeline-dot-empty' }}"></div>
+					<div class="timeline-content">
+						<div class="d-flex flex-row align-items-center gap-4">
+							<div class="timeline-date">{{ item.date }}</div>
+							<div class="timeline-status {{ item.dotClass }}">{{ item.statut }}</div>
+						</div>
+						<div class="timeline-duration mt-3">{{ item.nbrJours }}</div>
+					</div>
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+
+	{% if timelineData.OR|length > 0 %}
+		<div class="timeline-section">
+			<div class="timeline-section-header">Ordres de réparation</div>
+			<div class="timeline-scroll-wrap">
+				<div class="timeline-scroll-track-top"><div class="timeline-scroll-spacer"></div></div>
+				<div class="timeline-scroll-row">
+					{% for bloc in timelineData.OR %}
+						<div class="timeline-block">
+							<div class="timeline-block-title">OR n° {{ bloc.numeroOr }}</div>
+							{% for item in bloc.etapes %}
+								<div class="timeline-item {{ item.dotClass ? 'is-done' }}">
+									<div class="timeline-dot {{ item.dotClass ?: 'timeline-dot-empty' }}"></div>
+									<div class="timeline-content">
+										<div class="d-flex flex-row align-items-center gap-4">
+											<div class="timeline-date">{{ item.date }}</div>
+											<div class="timeline-status {{ item.dotClass }}">{{ item.statut }}</div>
+										</div>
+										<div class="timeline-duration mt-3">{{ item.nbrJours }}</div>
+									</div>
+								</div>
+							{% endfor %}
+						</div>
+					{% endfor %}
+				</div>
+			</div>
+		</div>
+	{% endif %}
+{% else %}
+	<p>Timeline non disponible pour l'instant.</p>
+{% endif %}

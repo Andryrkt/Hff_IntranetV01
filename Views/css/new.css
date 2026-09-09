@@ -45,7 +45,9 @@
   padding: 10px 20px; /* Ajout d'un peu de padding pour un meilleur visuel */
   border: none; /* Optionnel : pour retirer une bordure si tu en as une */
   cursor: pointer; /* Optionnel : change le curseur pour indiquer que c'est un bouton */
-  transition: background-color 0.3s, transform 0.2s; /* Ajout d'une transition douce */
+  transition:
+    background-color 0.3s,
+    transform 0.2s; /* Ajout d'une transition douce */
 }
 
 .bouton:hover {
@@ -59,10 +61,6 @@
   padding: 10px;
 }
 
-.fond-btn {
-  background-color: #e7dfc7;
-}
-
 /* Bouton principal : action clé (ex: Enregistrer) */
 .bouton-principal {
   background-color: #fbbb01;
@@ -72,7 +70,9 @@
   border: none;
   border-radius: 6px; /* arrondi léger pour modernité */
   cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
+  transition:
+    background-color 0.3s,
+    transform 0.2s;
 }
 
 .bouton-principal:hover {
@@ -89,7 +89,9 @@
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
+  transition:
+    background-color 0.3s,
+    transform 0.2s;
 }
 
 .bouton-secondaire:hover {
@@ -106,7 +108,9 @@
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
+  transition:
+    background-color 0.3s,
+    transform 0.2s;
 }
 
 .bouton-brouillon:hover {

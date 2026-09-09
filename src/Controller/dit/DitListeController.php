@@ -3,11 +3,13 @@
 
 namespace App\Controller\dit;
 
-use DateTime;
 use App\Model\dit\DitModel;
 use App\Entity\dit\DitSearch;
 use App\Service\ExcelService;
 use App\Controller\Controller;
+use App\Dto\Dit\DitListItemDto;
+use App\Dto\Dit\DitStatusCountDto;
+use App\Service\Admin\UrlIdCipher;
 use App\Form\dit\DitSearchType;
 use App\Form\dit\DocDansDwType;
 use App\Model\dit\DitListModel;
@@ -30,6 +32,7 @@ class DitListeController extends Controller
     private $historiqueOperation;
     private $excelService;
     private DitModel $ditModel;
+    private UrlIdCipher $urlIdCipher;
 
     public function __construct()
     {
@@ -37,6 +40,7 @@ class DitListeController extends Controller
         $this->historiqueOperation = new HistoriqueOperationDITService($this->getEntityManager());
         $this->excelService = new \App\Service\ExcelService();
         $this->ditModel = new DitModel();
+        $this->urlIdCipher = new UrlIdCipher();
     }
 
     /**
@@ -138,37 +142,16 @@ class DitListeController extends Controller
         $this->logUserVisit(...$logType);
 
         return $this->render('dit/list.html.twig', [
-            'data'          => $paginationData['data'],
+            'data'          => array_map(fn($item) => DitListItemDto::fromEntity($item, $this->getUrlGenerator(), $this->urlIdCipher), $paginationData['data']),
             'currentPage'   => $paginationData['currentPage'],
             'totalPages'    => $paginationData['lastPage'],
             'criteria'      => $criteria,
             'resultat'      => $paginationData['totalItems'],
-            'statusCounts'  => $paginationData['statusCounts'],
+            'statusCounts'  => array_map([DitStatusCountDto::class, 'fromRow'], $paginationData['statusCounts']),
             'form'          => $form->createView(),
             'formDocDansDW' => $formDocDansDW->createView()
         ]);
     }
-
-    // private function updateNumeroDevis(array $paginationData, DitListModel $ditListModel): array
-    // {
-    //     foreach ($paginationData['data'] as $item) {
-    //         if ($item->getInternetExterne() === 'EXTERNE' && (is_null($item->getNumeroDevisRattache()) || empty($item->getNumeroDevisRattache()))) {
-    //             // Récupération du numéro de devis
-    //             $numeroDevisModel = $ditListModel->recupNumeroDevis($item->getNumeroDemandeIntervention());
-
-    //             // Vérification de la récupération du numéro de devis
-    //             $numeroDevis = !empty($numeroDevisModel) ? $numeroDevisModel[0]['numdevis'] : null;
-
-    //             // Mise à jour de l'élément avec le numéro de devis
-    //             $item->setNumeroDevisRattache($numeroDevis);
-
-    //             $this->getEntityManager()->persist($item);
-    //         }
-    //     }
-    //     $this->getEntityManager()->flush();
-
-    //     return $paginationData;
-    // }
 
     /**
      * @Route("/export-excel", name="export_excel")
