@@ -107,7 +107,7 @@ class DitTimelineService
         $etapeDit = [
             'statut'   => $lastDataDit['statut'],
             'dotClass' => $lastDataDit['dotClass'],
-            'date'     => \DateTime::createFromFormat('d/m/Y', $lastDataDit['date']),
+            'date'     => \DateTime::createFromFormat('d/m/Y', $lastDataDit['date'])->setTime(0, 0, 0),
         ];
 
         foreach ($allDatas as $ligne) {

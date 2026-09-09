@@ -121,7 +121,7 @@ class DaTimelineService
             [
                 'statut'   => $lastDataDA['statut'],
                 'dotClass' => $lastDataDA['dotClass'],
-                'date'     => \DateTime::createFromFormat('d/m/Y', $lastDataDA['date'])
+                'date'     => \DateTime::createFromFormat('d/m/Y', $lastDataDA['date'])->setTime(0, 0, 0),
             ],
             $etapeOr
         ];
@@ -139,7 +139,7 @@ class DaTimelineService
     {
         $tabTemp = [];
         $donneesBc = $this->daAfficherRepository->getDonneesBcParNumCde($numeroDa);
-        $dateValidationDA = \DateTime::createFromFormat('d/m/Y', $pointDepart['date']);
+        $dateValidationDA = \DateTime::createFromFormat('d/m/Y', $pointDepart['date'])->setTime(0, 0, 0);
 
         foreach ($donneesBc as $numBC => $dates) {
             // Définition de toutes les étapes possibles
