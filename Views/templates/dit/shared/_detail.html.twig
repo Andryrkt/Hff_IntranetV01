@@ -3,72 +3,72 @@
 <div class="row">
 	<div class="col-md-11">
 		<h3 class="perso-titre">
-			Détail du demande d'intervention
+			Détail du demande d'intervention n° {{ dto.numDit }}
 		</h3>
 	</div>
 	<div class="col-md-1">
-		<a href="{{ path("dit_index")}}" class="btn btn-list-dit">Liste des DIT</a>
+		<a href="{{ path("dit_index") }}" class="btn btn-list-dit">Liste des DIT</a>
 	</div>
 </div>
 
 <div class="row">
 	<div class="col-12 col-md-4">
-		{{ macroForm.sousTitre('DIT', {class: 'sousTitre'})}}
+		{{ macroForm.sousTitre('DIT', {class: 'sousTitre'}) }}
 		<div class="row">
-			<div class="col-12 col-md-4">{{ macroForm.affichage2('Numero DIT', dto.numDit, 'mb-1')}}</div>
-			<div class="col-12 col-md-4">{{ macroForm.affichage2('Date Demande', dto.dateDemande, 'mb-1')}}</div>
-			<div class="col-12 col-md-4">{{ macroForm.affichage2('Statut DIT', dto.statutDit, "mb-1 border-0 " ~ dto.statutCssClass, "box-shadow: 1px 1px 2px #6f6f6f;")}}</div>
+			<div class="col-12 col-md-4">{{ macroForm.affichage2('Numero DIT', dto.numDit, 'mb-1') }}</div>
+			<div class="col-12 col-md-4">{{ macroForm.affichage2('Date Demande', dto.dateDemande, 'mb-1') }}</div>
+			<div class="col-12 col-md-4">{{ macroForm.affichage2('Statut DIT', dto.statutDit, "mb-1 border-0 " ~ dto.statutCssClass, "box-shadow: 1px 1px 2px #6f6f6f;") }}</div>
 		</div>
 		<div class="row">
-			<div class="col-12">{{ macroForm.affichage2('Objet de la demande', dto.objetDemande, 'mb-1')}}</div>
-			<div class="col-12">{{ macroForm.affichageTextarea('Détail de la demande', dto.detailDemande, 'mb-1')}}</div>
+			<div class="col-12">{{ macroForm.affichage2('Objet de la demande', dto.objetDemande, 'mb-1') }}</div>
+			<div class="col-12">{{ macroForm.affichageTextarea('Détail de la demande', dto.detailDemande, 'mb-1') }}</div>
 		</div>
 		<div class="row">
 			<div class="col-12 col-md-4">
-				{{ macroForm.affichage2('Type de document', dto.typeDocument, 'mb-1')}}
-				{{ macroForm.affichage2('Avis de recouvrement', dto.avisRecouvrement, 'mb-1')}}
+				{{ macroForm.affichage2('Type de document', dto.typeDocument, 'mb-1') }}
+				{{ macroForm.affichage2('Avis de recouvrement', dto.avisRecouvrement, 'mb-1') }}
 			</div>
 			<div class="col-12 col-md-4">
-				{{ macroForm.affichage2('Demande de devis', dto.demandeDevis, 'mb-1')}}
-				{{ macroForm.affichage2('Catégorie de demande', dto.categorieDemandeLibelle, 'mb-1')}}
+				{{ macroForm.affichage2('Demande de devis', dto.demandeDevis, 'mb-1') }}
+				{{ macroForm.affichage2('Catégorie de demande', dto.categorieDemandeLibelle, 'mb-1') }}
 			</div>
 			<div class="col-12 col-md-4">
-				{{ macroForm.affichage2('Livraison Partielle', dto.livraisonPartiel, 'mb-1')}}
-				{{ macroForm.affichage2('Interne et Externe', dto.internetExterne, 'mb-1')}}
+				{{ macroForm.affichage2('Livraison Partielle', dto.livraisonPartiel, 'mb-1') }}
+				{{ macroForm.affichage2('Interne et Externe', dto.internetExterne, 'mb-1') }}
 			</div>
 		</div>
 	</div>
 
 	<div class="col-12 col-md-4">
-		{{ macroForm.sousTitre('Or', {class: 'sousTitre'})}}
+		{{ macroForm.sousTitre('Or', {class: 'sousTitre'}) }}
 		<div class="row">
-			<div class="col-12 col-md-4">{{ macroForm.affichage2('N° Or', dto.numeroOr, 'mb-1')}}</div>
-			<div class="col-12 col-md-4">{{ macroForm.affichage2('Statut Or', dto.statutOr, 'mb-1')}}</div>
-			<div class="col-12 col-md-4">{{ macroForm.affichage2('Section affectée', dto.sectionAffectee, 'mb-1')}}</div>
+			<div class="col-12 col-md-4">{{ macroForm.affichage2('N° Or', dto.numeroOr, 'mb-1') }}</div>
+			<div class="col-12 col-md-4">{{ macroForm.affichage2('Statut Or', dto.statutOr, 'mb-1') }}</div>
+			<div class="col-12 col-md-4">{{ macroForm.affichage2('Section affectée', dto.sectionAffectee, 'mb-1') }}</div>
 		</div>
 
-		{{ macroForm.sousTitre('Agence et Service', {class: 'sousTitre'})}}
+		{{ macroForm.sousTitre('Agence et Service', {class: 'sousTitre'}) }}
 		<div class="row">
-			<div class="col-12 col-md-6">{{ macroForm.affichage2('Débiteur', dto.agenceServiceDebiteur, 'mb-1')}}</div>
-			<div class="col-12 col-md-6">{{ macroForm.affichage2('Emetteur', dto.agenceServiceEmetteur, 'mb-1')}}</div>
+			<div class="col-12 col-md-6">{{ macroForm.affichage2('Débiteur', dto.agenceServiceDebiteur, 'mb-1') }}</div>
+			<div class="col-12 col-md-6">{{ macroForm.affichage2('Emetteur', dto.agenceServiceEmetteur, 'mb-1') }}</div>
 		</div>
 
-		{{ macroForm.sousTitre('Info Client', {class: 'sousTitre'})}}
+		{{ macroForm.sousTitre('Info Client', {class: 'sousTitre'}) }}
 		<div class="row">
-			<div class="col-12 col-md-4">{{ macroForm.affichage2('Nom du client', dto.nomClient, 'mb-1')}}</div>
-			<div class="col-12 col-md-4">{{ macroForm.affichage2('N° téléphone', dto.numeroTel, 'mb-1')}}</div>
-			<div class="col-12 col-md-4">{{ macroForm.affichage2('Client sous contrat', dto.clientSousContrat, 'mb-1')}}</div>
+			<div class="col-12 col-md-4">{{ macroForm.affichage2('Nom du client', dto.nomClient, 'mb-1') }}</div>
+			<div class="col-12 col-md-4">{{ macroForm.affichage2('N° téléphone', dto.numeroTel, 'mb-1') }}</div>
+			<div class="col-12 col-md-4">{{ macroForm.affichage2('Client sous contrat', dto.clientSousContrat, 'mb-1') }}</div>
 		</div>
 
-		{{ macroForm.sousTitre('Intervention', {class: 'sousTitre'})}}
+		{{ macroForm.sousTitre('Intervention', {class: 'sousTitre'}) }}
 		<div class="row">
-			<div class="col-12 col-md-6">{{ macroForm.affichage2('Niveau d\'urgence', dto.niveauUrgence, 'mb-1')}}</div>
-			<div class="col-12 col-md-6">{{ macroForm.affichage2('Date prévu travaux', dto.datePrevueTravauxFormatee, 'mb-1')}}</div>
+			<div class="col-12 col-md-6">{{ macroForm.affichage2('Niveau d\'urgence', dto.niveauUrgence, 'mb-1') }}</div>
+			<div class="col-12 col-md-6">{{ macroForm.affichage2('Date prévu travaux', dto.datePrevueTravauxFormatee, 'mb-1') }}</div>
 		</div>
 	</div>
 
 	<div class="col-12 col-md-4">
-		{{ macroForm.sousTitre('Commande', {class: 'sousTitre'})}}
+		{{ macroForm.sousTitre('Commande', {class: 'sousTitre'}) }}
 		<table class="table rounded mt-1">
 			<thead class="table">
 				<tr>
@@ -92,54 +92,51 @@
 
 <div class="row">
 	<div class="col-12 col-md-4">
-		{{ macroForm.sousTitre('Bilan Financière', {class: 'sousTitre mb-3'})}}
+		{{ macroForm.sousTitre('Bilan Financière', {class: 'sousTitre mb-3'}) }}
 		<div class="cadre">
 			<div class="row">
 				<div class="col-12 col-md-6">
-
-					{{ macroForm.affichage2("CA", dto.chiffreAffaireFormate, 'mb-1')}}
-					{{ macroForm.affichage2("Charge d'entretien", dto.chargeEntretientFormate, 'mb-1')}}
-					{{ macroForm.affichage2("Charge Locative", dto.chargeLocativeFormate, 'mb-1')}}
-					{{ macroForm.affichage2("Résultat d'exploitation", dto.resultatExploitationFormate, 'mb-1')}}
-
+					{{ macroForm.affichage2("CA", dto.chiffreAffaireFormate, 'mb-1') }}
+					{{ macroForm.affichage2("Charge d'entretien", dto.chargeEntretientFormate, 'mb-1') }}
+					{{ macroForm.affichage2("Charge Locative", dto.chargeLocativeFormate, 'mb-1') }}
+					{{ macroForm.affichage2("Résultat d'exploitation", dto.resultatExploitationFormate, 'mb-1') }}
 				</div>
 				<div class="col-12 col-md-6">
-
-					{{ macroForm.affichage2("Coût d'acquisition", dto.coutAcquisitionFormate, 'mb-1')}}
-					{{ macroForm.affichage2('Amortissement', dto.amortissementFormate, 'mb-1')}}
-					{{ macroForm.affichage2('VNC', dto.valeurNetComptableFormatee, 'mb-1')}}
+					{{ macroForm.affichage2("Coût d'acquisition", dto.coutAcquisitionFormate, 'mb-1') }}
+					{{ macroForm.affichage2('Amortissement', dto.amortissementFormate, 'mb-1') }}
+					{{ macroForm.affichage2('VNC', dto.valeurNetComptableFormatee, 'mb-1') }}
 				</div>
 			</div>
 		</div>
 	</div>
 	<div class="col-12 col-md-4">
-		{{ macroForm.sousTitre('Information Matériel', {class: 'sousTitre'})}}
+		{{ macroForm.sousTitre('Information Matériel', {class: 'sousTitre'}) }}
 		<div class="row">
-			<div class="col-12 col-md-4">{{ macroForm.affichage2('Id Materiel', dto.idMateriel, 'mb-1')}}</div>
-			<div class="col-12 col-md-4">{{ macroForm.affichage2('n° Serie', dto.numSerie, 'mb-1')}}</div>
-			<div class="col-12 col-md-4">{{ macroForm.affichage2('n° Parc', dto.numParc, 'mb-1')}}</div>
+			<div class="col-12 col-md-4">{{ macroForm.affichage2('Id Materiel', dto.idMateriel, 'mb-1') }}</div>
+			<div class="col-12 col-md-4">{{ macroForm.affichage2('n° Serie', dto.numSerie, 'mb-1') }}</div>
+			<div class="col-12 col-md-4">{{ macroForm.affichage2('n° Parc', dto.numParc, 'mb-1') }}</div>
 			<div class="col-12 col-md-6">
-				{{ macroForm.affichage2('Constructeur', dto.constructeur, 'mb-1')}}
-				{{ macroForm.affichage2('Designation', dto.designation, 'mb-1')}}
-				{{ macroForm.affichage2('Km', dto.km, 'mb-1')}}
+				{{ macroForm.affichage2('Constructeur', dto.constructeur, 'mb-1') }}
+				{{ macroForm.affichage2('Designation', dto.designation, 'mb-1') }}
+				{{ macroForm.affichage2('Km', dto.km, 'mb-1') }}
 			</div>
 			<div class="col-12 col-md-6">
-				{{ macroForm.affichage2('Modele', dto.modele, 'mb-1')}}
-				{{ macroForm.affichage2('Casier', dto.casier, 'mb-1')}}
-				{{ macroForm.affichage2('Heure', dto.heure, 'mb-1')}}
+				{{ macroForm.affichage2('Modele', dto.modele, 'mb-1') }}
+				{{ macroForm.affichage2('Casier', dto.casier, 'mb-1') }}
+				{{ macroForm.affichage2('Heure', dto.heure, 'mb-1') }}
 			</div>
 		</div>
 	</div>
 	<div class="col-12 col-md-4">
-		{{ macroForm.sousTitre('Réparation', {class: 'sousTitre'})}}
+		{{ macroForm.sousTitre('Réparation', {class: 'sousTitre'}) }}
 		<div class="row">
-			<div class="col-12 col-md-6">{{ macroForm.affichage2('Type de réparation', dto.typeReparation, 'mb-1')}}</div>
-			<div class="col-12 col-md-6">{{ macroForm.affichage2('Réparation réalisé par', dto.reparationRealise, 'mb-1')}}</div>
+			<div class="col-12 col-md-6">{{ macroForm.affichage2('Type de réparation', dto.typeReparation, 'mb-1') }}</div>
+			<div class="col-12 col-md-6">{{ macroForm.affichage2('Réparation réalisé par', dto.reparationRealise, 'mb-1') }}</div>
 		</div>
 
-		{{ macroForm.sousTitre('Pièces Jointes', {class: 'sousTitre'})}}
-		{{ macroForm.affichageFile('Pièce jointe 01', dto.pieceJoint01, "/Upload/dit/" ~ dto.numeroDemandeIntervention)}}
-		{{ macroForm.affichageFile('Pièce jointe 02', dto.pieceJoint02, "/Upload/dit/" ~ dto.numeroDemandeIntervention)}}
-		{{ macroForm.affichageFile('Pièce jointe 03', dto.pieceJoint03, "/Upload/dit/" ~ dto.numeroDemandeIntervention)}}
+		{{ macroForm.sousTitre('Pièces Jointes', {class: 'sousTitre'}) }}
+		{{ macroForm.affichageFile('Pièce jointe 01', dto.pieceJoint01, "/Upload/dit/" ~ dto.numeroDemandeIntervention) }}
+		{{ macroForm.affichageFile('Pièce jointe 02', dto.pieceJoint02, "/Upload/dit/" ~ dto.numeroDemandeIntervention) }}
+		{{ macroForm.affichageFile('Pièce jointe 03', dto.pieceJoint03, "/Upload/dit/" ~ dto.numeroDemandeIntervention) }}
 	</div>
 </div>
