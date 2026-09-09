@@ -6,7 +6,14 @@ use App\Model\Model;
 
 class DitTimelineModel extends Model
 {
-    public function fetchTimelineDit(string $numDit)
+    /**
+     * Méthode pour retourner les données de la timeline d'un DIT
+     *
+     * @param string $numDit numéro du DIT
+     *
+     * @return array<int,array{date_demande:string,statut_debut:string,dit_numero_or:string,dodr_numero_or:string,date_soumission_or:string,date_demande_modification:string,date_validation_devis:string,date_validation_ca:string,date_validation_dt:string,date_validation_ci:string,date_validation_fleet_m:string,date_validation_dg:string,date_validation_ser_em:string,date_validation_ser_des:string,date_validation_compta:string,date_validation_info:string,date_validation_mag:string,date_validation_finale_or:string,date_validation_section:string}> 
+     */
+    public function fetchTimelineDit(string $numDit): array
     {
         $reparationRealisePol = "ATE POL TANA";
         $statutDebutDefaut = "A AFFECTER";
@@ -20,6 +27,7 @@ class DitTimelineModel extends Model
             END                              AS statut_debut,
             di.numero_or                     AS dit_numero_or,
             dodr.numero_or                   AS dodr_numero_or,
+            dodr.numero_version              AS num_version_or,
             dodr.date_soumission             AS date_soumission_or,
             dodr.date_demande_modification   AS date_demande_modification,
             dodr.date_validation_devis       AS date_validation_devis,
@@ -40,8 +48,16 @@ class DitTimelineModel extends Model
         WHERE di.numero_demande_dit='$numDit'
         ";
 
-        $result = $this->connexion->query($statement);
+        $odbcRessource = $this->connexion->query($statement);
+        $data = [];
+        while ($result = odbc_fetch_array($odbcRessource)) {
+            // if ($result["dit_numero_or"] != $result["dodr_numero_or"]) {
+            //     throw new \Exception("Numero DIT : " . $numDit . " n'a pas de numéro OR dans DW_Ordre_De_Reparation");
+            // }
 
-        return $result;
+            $data[] = $result;
+        }
+
+        return $data;
     }
 }
