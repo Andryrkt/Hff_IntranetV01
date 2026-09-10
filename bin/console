@@ -16,6 +16,7 @@ use App\Command\MigrationPdfCommand;
 use App\Command\MigrationDataCommand;
 use App\Command\MigrationDevisCommand;
 use Symfony\Component\Console\Application;
+use App\Command\magasin\ExportDevisNegExcelCommand;
 use App\Command\magasin\MigrationPdfDevisMagasinVdCommand;
 use App\Command\magasin\MigrationPdfDevisMagasinVpCommand;
 use App\Command\migration\MigrationAffectationProfilsCommand;
@@ -38,6 +39,7 @@ $application->add(new MigrationPdfDevisMagasinVpCommand($entitymanager));
 $application->add(new MigrationPdfDevisMagasinVdCommand($entitymanager));
 $application->add(new InsertDevisSoumisAValidationCommand($entitymanager));
 $application->add(new InsertOrSoumisAValidationCommand($entitymanager));
+$application->add(new ExportDevisNegExcelCommand());
 
 $cachePermissions = new FilesystemTagAwareAdapter('security', 0, dirname(__DIR__) . '/var/cache/pools');
 $userDataService = new UserDataService($entityManager, $cachePermissions);
