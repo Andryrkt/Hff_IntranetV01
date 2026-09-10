@@ -1,11 +1,16 @@
 {% import "macroForm.html.twig" as macroForm %}
 
 <div class="row">
-	<h3 class="perso-titre">
-		<span class="urgency-level">{{ demandeAppro.niveauUrgence }}</span>
-		Détails Demande d'achat, n°
-		{{ demandeAppro.numeroDemandeAppro }}
-	</h3>
+	<div class="col-md-11">
+		<h3 class="perso-titre">
+			<span class="urgency-level">{{ demandeAppro.niveauUrgence }}</span>
+			Détails Demande d'achat, n°
+			{{ demandeAppro.numeroDemandeAppro }}
+		</h3>
+	</div>
+	<div class="col-md-1">
+		<a href="{{ path("list_da") }}" class="btn btn-list-da">Liste des DA</a>
+	</div>
 </div>
 
 <div class="row">
