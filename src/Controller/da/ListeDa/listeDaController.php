@@ -12,6 +12,7 @@ use App\Form\da\daCdeFrn\DaModalDateLivraisonType;
 use App\Form\da\DaSearchType;
 use App\Mapper\Da\DaAfficherMapper;
 use App\Repository\da\DaAfficherRepository;
+use App\Service\Admin\UrlIdCipher;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,7 +31,7 @@ class listeDaController extends Controller
     {
         parent::__construct();
         $this->daAfficherRepository = $entityManager->getRepository(DaAfficher::class);
-        $this->daAfficherMapper = new DaAfficherMapper($this->getUrlGenerator(), $this->getEntityManager());
+        $this->daAfficherMapper = new DaAfficherMapper($this->getUrlGenerator(), $this->getEntityManager(), new UrlIdCipher());
     }
 
     /**

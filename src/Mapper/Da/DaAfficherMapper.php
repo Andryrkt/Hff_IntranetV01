@@ -13,6 +13,7 @@ use App\Entity\da\DaSoumissionBc;
 use App\Entity\da\DemandeAppro;
 use App\Model\da\DaSoumissionFacBlModel;
 use App\Service\da\PermissionDaService;
+use App\Service\Admin\UrlIdCipher;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Markup;
@@ -24,14 +25,17 @@ class DaAfficherMapper
     private UrlGeneratorInterface $router;
     private PermissionDaService $permissionDaService;
     private EntityManagerInterface $em;
+    private UrlIdCipher $urlIdCipher;
 
     public function __construct(
         UrlGeneratorInterface $router,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        UrlIdCipher $urlIdCipher
     ) {
         $this->em = $em;
         $this->router = $router;
         $this->permissionDaService = new PermissionDaService();
+        $this->urlIdCipher = $urlIdCipher;
     }
 
     public function map(DaAfficher $data, array $options = []): DaAfficherDto
@@ -171,6 +175,7 @@ class DaAfficherMapper
 
         $parametres = [
             'daId'           => $item->getDemandeAppro() ? ['id' => $item->getDemandeAppro()->getId()] : [],
+            'daToken'        => $item->getDemandeAppro() ? ['token' => $this->urlIdCipher->encrypt((string) $item->getDemandeAppro()->getId())] : [],
             'daParentId'     => $item->getDemandeApproParent() ? ['id' => $item->getDemandeApproParent()->getId()] : [],
             'daId-0-ditId'   => $item->getDit() ? ['daId' => 0, 'ditId' => $item->getDit()->getId()] : [],
             'daId-ditId'     => $item->getDemandeAppro() && $item->getDit() ? ['daId' => $item->getDemandeAppro()->getId(), 'ditId' => $item->getDit()->getId()] : [],
@@ -180,10 +185,11 @@ class DaAfficherMapper
         // URLs optimisées : On ne génère que ce qui est nécessaire
         $daEntity = $item->getDemandeAppro();
         $paramsDa = $daEntity ? ['id' => $daEntity->getId()] : null;
+        $paramsDaToken = $daEntity ? ['token' => $this->urlIdCipher->encrypt((string) $daEntity->getId())] : null;
 
         // URL Detail
-        if ($paramsDa) {
-            $dto->urlDetail = isset(RouteConstant::DETAIL[$dto->datype]) ? $this->router->generate(RouteConstant::DETAIL[$dto->datype], $paramsDa) : '#';
+        if ($paramsDaToken) {
+            $dto->urlDetail = isset(RouteConstant::DETAIL[$dto->datype]) ? $this->router->generate(RouteConstant::DETAIL[$dto->datype], $paramsDaToken) : '#';
         } else {
             $dto->urlDetail = '#';
         }
@@ -209,7 +215,9 @@ class DaAfficherMapper
                 : (($dto->datype == DemandeAppro::TYPE_DA_PARENT) ? $parametres['daParentId'] : $parametres['daId']);
             $dto->urlProposition = $this->router->generate(RouteConstant::CREATION[$dto->datype], $params);
         } else {
-            $params = ($dto->datype == DemandeAppro::TYPE_DA_PARENT) ? $parametres['daParentId'] : $parametres['daId'];
+            $params = in_array($dto->datype, [DemandeAppro::TYPE_DA_AVEC_DIT, DemandeAppro::TYPE_DA_DIRECT])
+                ? $parametres['daToken']
+                : (($dto->datype == DemandeAppro::TYPE_DA_PARENT) ? $parametres['daParentId'] : $parametres['daId']);
             $dto->urlProposition = isset(RouteConstant::PROPOSITION[$dto->datype]) ? $this->router->generate(RouteConstant::PROPOSITION[$dto->datype], $params) : '#';
         }
 

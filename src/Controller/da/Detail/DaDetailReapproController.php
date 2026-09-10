@@ -10,8 +10,10 @@ use App\Service\da\EmailDaService;
 use App\Form\da\DaObservationType;
 use App\Service\da\DaTimelineService;
 use App\Service\da\DocRattacheService;
+use App\Service\Admin\UrlIdCipher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 /**
  * @Route("/demande-appro")
@@ -22,19 +24,25 @@ class DaDetailReapproController extends Controller
 	private DaService $daService;
 	private DocRattacheService $docRattacheService;
 	private DaTimelineService $daTimelineService;
+	private UrlIdCipher $urlIdCipher;
 
-	public function __construct(DaService $daService, DocRattacheService $docRattacheService, DaTimelineService $daTimelineService)
+	public function __construct(DaService $daService, DocRattacheService $docRattacheService, DaTimelineService $daTimelineService, UrlIdCipher $urlIdCipher)
 	{
 		$this->daService = $daService;
 		$this->docRattacheService = $docRattacheService;
 		$this->daTimelineService = $daTimelineService;
+		$this->urlIdCipher = $urlIdCipher;
 	}
 
 	/**
-	 * @Route("/detail-reappro/{id}", name="da_detail_reappro")
+	 * @Route("/detail-reappro/{token}", name="da_detail_reappro")
 	 */
-	public function detail(int $id, Request $request)
+	public function detail(string $token, Request $request)
 	{
+		$id = $this->urlIdCipher->decryptInt($token);
+
+		if (empty($id) && $id !== 0) throw new ResourceNotFoundException();
+
 		$demandeAppro = $this->daService->getDemandeAppro($id); // recupération de la DA
 		$observations = $this->daService->getObservations($demandeAppro->getNumeroDemandeAppro());
 
