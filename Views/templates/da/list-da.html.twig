@@ -110,7 +110,7 @@
 						<td>{{ row.numeroOr }}</td>
 						<td>{{ row.demandeur }}</td>
 						<td>{{ row.dateDemande }}</td>
-						<td class="text-center fw-bold {{ row.styleStatutDA }}" data-bs-toggle="{{ row.actionLibelle ? 'popover' : '' }}" data-bs-trigger="hover focus" data-bs-placement="right" title="{{ row.actionActeur }}" data-bs-content="{{ row.actionLibelle }}">{{ row.statutDal }}</td>
+						<td class="text-center fw-bold {{ row.styleStatutDA }} {{ row.actionLibelle ? 'action-popover-trigger' : '' }}" data-bs-toggle="{{ row.actionLibelle ? 'popover' : '' }}" data-bs-trigger="hover focus" data-bs-placement="right" data-bs-custom-class="popover-action" title="{{ row.actionActeur }}" data-bs-content="{{ row.actionLibelle }}">{{ row.statutDal }}</td>
 						<td class="text-center fw-bold {{ row.styleStatutOR }}">{{ row.statutOr }}</td>
 						<td class="text-center fw-bold {{ row.styleStatutBC }}">{{ row.statutCde }}</td>
 						<td class="text-center fw-bold">{{ row.numeroCde }}</td>
