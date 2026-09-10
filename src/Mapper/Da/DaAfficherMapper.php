@@ -3,6 +3,7 @@
 namespace App\Mapper\Da;
 
 use App\Constants\da\RouteConstant;
+use App\Constants\da\StatutActionConstant;
 use App\Constants\da\StatutBcConstant;
 use App\Constants\da\StatutDaConstant;
 use App\Controller\Traits\da\MarkupIconTrait;
@@ -110,6 +111,7 @@ class DaAfficherMapper
 
         // DAL
         $dto->statutDal = !$estAppro && in_array($data->getStatutDal(), StatutDaConstant::STATUT_TRAITEMENT_APPRO) ? StatutDaConstant::TRAITEMENT_APPRO : $data->getStatutDal();
+        $dto->actionAFaire = StatutActionConstant::getAction($data->getStatutDal(), $dto->datype, $dto->demandeur);
         $dto->verouille = $dto->datype === DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL ? true : $this->permissionDaService->estDaVerrouillee(
             $dto->datype,
             $dto->statutDal,
