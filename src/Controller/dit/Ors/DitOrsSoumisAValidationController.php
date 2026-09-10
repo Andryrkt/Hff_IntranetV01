@@ -389,9 +389,11 @@ class DitOrsSoumisAValidationController extends Controller
         $statutBc = $bcSoumisRepository->getStatut($numDit, $numeroDevis, $codeSociete);
 
         /** verification si meme devise */
+        dump($internetExterne);
+        dump($this->ditOrsoumisAValidationModel->estMemeDevise($ditInsertionOrSoumis->getNumeroOR(), $codeSociete));
         $estMemeDevise = $internetExterne === 'Externe' && !$this->ditOrsoumisAValidationModel->estMemeDevise($ditInsertionOrSoumis->getNumeroOR(), $codeSociete);
 
-
+        dd($estMemeDevise);
         return [
             'nomFichier'            => strpos($originalName, 'Ordre de réparation') !== 0,
             'numeroOrDifferent'     => $numOr !== $ditInsertionOrSoumis->getNumeroOR(),

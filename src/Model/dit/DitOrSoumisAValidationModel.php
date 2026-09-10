@@ -695,7 +695,8 @@ class DitOrSoumisAValidationModel extends Model
         $statement = " SELECT  case when seor_devise = cbse_devise then 'OUI' else 'NON' end as meme_devise 
             from informix.sav_eor
             inner join informix.cli_bse on cbse_numcli = seor_numcli 
-            where seor_numor=$numOr and seor_soc =$codeSociete";
+            where seor_numor='$numOr' and seor_soc ='$codeSociete'";
+
 
         $result = $this->connect->executeQuery($statement);
 
