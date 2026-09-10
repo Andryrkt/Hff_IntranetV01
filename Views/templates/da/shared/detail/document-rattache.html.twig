@@ -1,12 +1,18 @@
 <div class="row mb-3">
-	<div class="col-md-11">
+	{% if isDdp is defined %}
 		<h3 class="perso-titre">
-			Documents rattachés à la DA
+			Documents rattachés au demande de paiement
 		</h3>
-	</div>
-	<div class="col-md-1">
-		<a href="{{ path("list_da") }}" class="btn btn-list-da">Liste des DA</a>
-	</div>
+	{% else %}
+		<div class="col-md-11">
+			<h3 class="perso-titre">
+				Documents rattachés à la DA
+			</h3>
+		</div>
+		<div class="col-md-1">
+			<a href="{{ path("list_da") }}" class="btn btn-list-da">Liste des DA</a>
+		</div>
+	{% endif %}
 </div>
 <div class="row mb-2">
 	<div class="col-3 col-md-3">

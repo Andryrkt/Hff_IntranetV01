@@ -1,4 +1,6 @@
-.btn-list-dit {
+/* Bouton "Liste des ..." affiché sur chaque onglet des pages de détail DIT/DA */
+.btn-list-dit,
+.btn-list-da {
   display: flex;
   align-items: center;
   justify-content: center;
