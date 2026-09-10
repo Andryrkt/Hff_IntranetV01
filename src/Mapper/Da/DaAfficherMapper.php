@@ -111,7 +111,9 @@ class DaAfficherMapper
 
         // DAL
         $dto->statutDal = !$estAppro && in_array($data->getStatutDal(), StatutDaConstant::STATUT_TRAITEMENT_APPRO) ? StatutDaConstant::TRAITEMENT_APPRO : $data->getStatutDal();
-        $dto->actionAFaire = StatutActionConstant::getAction($data->getStatutDal(), $dto->datype, $dto->demandeur);
+        $action = StatutActionConstant::getAction($data->getStatutDal(), $dto->datype, $dto->demandeur);
+        $dto->actionActeur = $action['acteur'];
+        $dto->actionLibelle = $action['libelle'];
         $dto->verouille = $dto->datype === DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL ? true : $this->permissionDaService->estDaVerrouillee(
             $dto->datype,
             $dto->statutDal,

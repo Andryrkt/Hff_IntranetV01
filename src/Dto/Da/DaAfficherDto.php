@@ -62,7 +62,8 @@ class DaAfficherDto
     public $positionBc;
     // DAL
     public $statutDal;
-    public $actionAFaire;
+    public $actionActeur;
+    public $actionLibelle;
     // DIT
     public $numeroDemandeDit;
     // Actions & URLs
