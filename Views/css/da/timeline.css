@@ -63,15 +63,15 @@
   -webkit-mask-image: linear-gradient(
     to right,
     transparent,
-    #000 12px,
-    #000 calc(100% - 12px),
+    #000 8px,
+    #000 calc(100% - 8px),
     transparent
   );
   mask-image: linear-gradient(
     to right,
     transparent,
-    #000 12px,
-    #000 calc(100% - 12px),
+    #000 8px,
+    #000 calc(100% - 8px),
     transparent
   );
 }
@@ -107,21 +107,22 @@
 .timeline-block-title {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #212529;
+  gap: 0.6rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1c1f23;
+  letter-spacing: 0.01em;
   padding-bottom: 0.75rem;
-  margin-bottom: 0.75rem;
-  border-bottom: 1px solid #eef0f2;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #edf0f2;
 }
 
 .timeline-block-title::before {
   content: "";
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #6c757d;
+  width: 4px;
+  height: 16px;
+  border-radius: 2px;
+  background: #adb5bd;
   flex-shrink: 0;
 }
 

@@ -44,13 +44,14 @@ class DitTimelineModel extends Model
             dodr.date_validation_finale_or   AS date_validation_finale_or,
             dodr.date_fin_validation_section AS date_validation_section
         FROM demande_intervention di 
-        JOIN DW_Ordre_De_Reparation dodr ON di.numero_demande_dit=dodr.numero_dit
+        LEFT JOIN DW_Ordre_De_Reparation dodr ON di.numero_demande_dit=dodr.numero_dit
         WHERE di.numero_demande_dit='$numDit'
         ";
 
         $odbcRessource = $this->connexion->query($statement);
         $data = [];
         while ($result = odbc_fetch_array($odbcRessource)) {
+            // ? Que se passe-t-il si le numero OR dans DIT et dans DW_Ordre_De_Reparation sont différent ?
             // if ($result["dit_numero_or"] != $result["dodr_numero_or"]) {
             //     throw new \Exception("Numero DIT : " . $numDit . " n'a pas de numéro OR dans DW_Ordre_De_Reparation");
             // }
