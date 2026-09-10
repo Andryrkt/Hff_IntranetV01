@@ -689,4 +689,18 @@ class DitOrSoumisAValidationModel extends Model
 
         return $this->convertirEnUtf8($data);
     }
+
+    public function estMemeDevise(string $numOr, string $codeSociete): bool
+    {
+        $statement = " SELECT  case when seor_devise = cbse_devise then 'OUI' else 'NON' end as meme_devise 
+            from informix.sav_eor
+            inner join informix.cli_bse on cbse_numcli = seor_numcli 
+            where seor_numor=$numOr and seor_soc =$codeSociete";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data[0]['meme_devise'] === 'OUI' ? true : false;
+    }
 }

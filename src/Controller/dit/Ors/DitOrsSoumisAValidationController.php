@@ -388,6 +388,10 @@ class DitOrsSoumisAValidationController extends Controller
         $bcSoumisRepository = $this->getEntityManager()->getRepository(BcSoumis::class);
         $statutBc = $bcSoumisRepository->getStatut($numDit, $numeroDevis, $codeSociete);
 
+        /** verification si meme devise */
+        $estMemeDevise = !$this->ditOrsoumisAValidationModel->estMemeDevise($ditInsertionOrSoumis->getNumeroOR(), $codeSociete);
+
+
         return [
             'nomFichier'            => strpos($originalName, 'Ordre de réparation') !== 0,
             'numeroOrDifferent'     => $numOr !== $ditInsertionOrSoumis->getNumeroOR(),
@@ -402,6 +406,7 @@ class DitOrsSoumisAValidationController extends Controller
             'numcliExiste'          => $nbrNumcli[0] != 'existe_bdd',
             'premierSoumissionDatePlanningInferieurDateDuJour' => $this->premierSoumissionDatePlanningInferieurDateDuJour($numOr, $codeSociete),
             'statutBcNonValide'           => $statutBc !== 'Validé atelier' && $internetExterne === 'Externe',
+            'estMemeDevise'         => $estMemeDevise,
         ];
     }
 
@@ -476,6 +481,10 @@ class DitOrsSoumisAValidationController extends Controller
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
         } elseif ($conditionBloquage['statutBcNonValide']) {
             $message = "Echec de la soumission de l'OR . . . le bon de commande n'est pas validé";
+            $okey = false;
+            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+        } elseif ($conditionBloquage['estMemeDevise']) {
+            $message = "La soumission de l'OR est bloquée car la devise sur l'OR est différente de celle du client.";
             $okey = false;
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
         } else {
