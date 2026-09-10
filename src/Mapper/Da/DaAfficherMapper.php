@@ -173,23 +173,20 @@ class DaAfficherMapper
         $dto->centrale = (!$dto->daViaOR) ? $item->getDesiCentrale() : $safeIconBan;
         $dto->statutValide = $item->getStatutDal() === StatutDaConstant::STATUT_VALIDE;
 
+        // URLs optimisées : On ne génère que ce qui est nécessaire
+        $daEntity = $item->getDemandeAppro();
         $parametres = [
-            'daId'           => $item->getDemandeAppro() ? ['id' => $item->getDemandeAppro()->getId()] : [],
-            'daToken'        => $item->getDemandeAppro() ? ['token' => $this->urlIdCipher->encrypt((string) $item->getDemandeAppro()->getId())] : [],
+            'daId'           => $daEntity ? ['id' => $daEntity->getId()] : [],
+            'daToken'        => $daEntity ? ['token' => $this->urlIdCipher->encrypt((string) $daEntity->getId())] : [],
             'daParentId'     => $item->getDemandeApproParent() ? ['id' => $item->getDemandeApproParent()->getId()] : [],
             'daId-0-ditId'   => $item->getDit() ? ['daId' => 0, 'ditId' => $item->getDit()->getId()] : [],
-            'daId-ditId'     => $item->getDemandeAppro() && $item->getDit() ? ['daId' => $item->getDemandeAppro()->getId(), 'ditId' => $item->getDit()->getId()] : [],
+            'daId-ditId'     => $daEntity && $item->getDit() ? ['daId' => $daEntity->getId(), 'ditId' => $item->getDit()->getId()] : [],
             'numDa-numLigne' => ['numDa' => $item->getNumeroDemandeAppro(), 'ligne' => $item->getNumeroLigne()],
         ];
 
-        // URLs optimisées : On ne génère que ce qui est nécessaire
-        $daEntity = $item->getDemandeAppro();
-        $paramsDa = $daEntity ? ['id' => $daEntity->getId()] : null;
-        $paramsDaToken = $daEntity ? ['token' => $this->urlIdCipher->encrypt((string) $daEntity->getId())] : null;
-
         // URL Detail
-        if ($paramsDaToken) {
-            $dto->urlDetail = isset(RouteConstant::DETAIL[$dto->datype]) ? $this->router->generate(RouteConstant::DETAIL[$dto->datype], $paramsDaToken) : '#';
+        if ($parametres["daToken"]) {
+            $dto->urlDetail = isset(RouteConstant::DETAIL[$dto->datype]) ? $this->router->generate(RouteConstant::DETAIL[$dto->datype], $parametres["daToken"]) : '#';
         } else {
             $dto->urlDetail = '#';
         }
@@ -222,7 +219,7 @@ class DaAfficherMapper
         }
 
         // URL Demande Devis
-        $dto->urlDemandeDevis = ($item->getDemandeAppro())  ? $this->router->generate('api_da_demande_devis_en_cours', $paramsDa) : '#';
+        $dto->urlDemandeDevis = $daEntity ? $this->router->generate('api_da_demande_devis_en_cours', $parametres["daId"]) : '#';
     }
 
     private function prepareTdNumCdeAttributes(DaAfficherDto $dto): array
