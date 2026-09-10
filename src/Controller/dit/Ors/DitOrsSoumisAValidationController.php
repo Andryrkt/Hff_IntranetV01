@@ -389,7 +389,7 @@ class DitOrsSoumisAValidationController extends Controller
         $statutBc = $bcSoumisRepository->getStatut($numDit, $numeroDevis, $codeSociete);
 
         /** verification si meme devise */
-        $estMemeDevise = !$this->ditOrsoumisAValidationModel->estMemeDevise($ditInsertionOrSoumis->getNumeroOR(), $codeSociete);
+        $estMemeDevise = $internetExterne === 'Externe' && !$this->ditOrsoumisAValidationModel->estMemeDevise($ditInsertionOrSoumis->getNumeroOR(), $codeSociete);
 
 
         return [
