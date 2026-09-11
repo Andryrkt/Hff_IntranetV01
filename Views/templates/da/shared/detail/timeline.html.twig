@@ -15,9 +15,16 @@
 			<div class="timeline-item {{ item.dotClass ? 'is-done' }}">
 				<div class="timeline-dot {{ item.dotClass ?: 'timeline-dot-empty' }}"></div>
 				<div class="timeline-content">
-					<div class="d-flex flex-row align-items-center gap-4">
+					<div class="d-flex flex-row align-items-start gap-4">
 						<div class="timeline-date">{{ item.date }}</div>
-						<div class="timeline-status {{ item.dotClass }}">{{ item.statut }}</div>
+						<div>
+							<div class="timeline-status {{ item.dotClass }}">
+								{{ item.statut }}
+							</div>
+							{% if item.action %}
+								<div class="timeline-action {{ item.dotClass }}">{{ item.action }}</div>
+							{% endif %}
+						</div>
 					</div>
 					<div class="timeline-duration mt-3">{{ item.nbrJours }}</div>
 				</div>

@@ -3,12 +3,13 @@
 namespace App\Service\da;
 
 use App\Entity\da\DaAfficher;
+use App\Entity\da\DemandeAppro;
 use App\Traits\JoursOuvrablesTrait;
 use App\Constants\da\StatutDaConstant;
 use App\Constants\da\StatutOrConstant;
 use App\Constants\da\StatutBcConstant;
-use App\Entity\da\DemandeAppro;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Constants\da\StatutActionConstant;
 use App\Repository\da\DaAfficherRepository;
 
 class DaTimelineService
@@ -37,7 +38,7 @@ class DaTimelineService
         $allDatas = $this->daAfficherRepository->getTimelineData($numeroDa);
         if (empty($allDatas)) return ['DA' => [], 'OR' => [], 'BC' => []];
 
-        $timelineDa = $this->buildTimelineDA($allDatas);
+        $timelineDa = $this->buildTimelineDA($allDatas, $daTypeId, $demandeur, $agenceServiceEmetteur);
         $lastDataDA = end($timelineDa);
         $isDaViaOR = $daTypeId === DemandeAppro::TYPE_DA_AVEC_DIT;
         [$numeroOr, $timelineOR] = $isDaViaOR ? $this->buildTimelineOR($allDatas, $lastDataDA) : ["", []];
@@ -58,14 +59,18 @@ class DaTimelineService
         ];
     }
 
-    /** 
+    /**
      * @param array<int,array{statutDal:string,dateCreation:\DateTime,dateDemande:\DateTime,numeroOr:string|null,statutOr:string|null,dateMajStatutOr:\DateTime|null}> $allDatas
-     * 
-     * @return array<int,array{statut:string,dotClass:string,date:string,nbrJours:string}>
+     * @param int $daTypeId
+     * @param string|null $demandeur
+     * @param string|null $agenceServiceEmetteur
+     *
+     * @return array<int,array{statut:string,dotClass:string,date:string,nbrJours:string,action:string}>
      */
-    private function buildTimelineDA(array $allDatas): array
+    private function buildTimelineDA(array $allDatas, int $daTypeId, ?string $demandeur, ?string $agenceServiceEmetteur): array
     {
         $tabTemp = [];
+        $acteur  = "{$agenceServiceEmetteur} — {$demandeur}";
 
         $statuts      = array_column($allDatas, 'statutDal');
         $skipCloturee = in_array(StatutDaConstant::STATUT_VALIDE, $statuts, true) && in_array(StatutDaConstant::STATUT_CLOTUREE, $statuts, true);
@@ -76,7 +81,7 @@ class DaTimelineService
 
             // Ajouter le statut initial si nécessaire
             if ($key === 0 && $data['statutDal'] !== StatutDaConstant::STATUT_SOUMIS_APPRO) {
-                $tabTemp[] = $this->createTimelineEntry(StatutDaConstant::STATUT_SOUMIS_APPRO, $data['dateDemande']);
+                $tabTemp[] = $this->createTimelineEntry(StatutDaConstant::STATUT_SOUMIS_APPRO, $data['dateDemande'], null, $daTypeId, $acteur);
             }
 
             // Déterminer le statut final
@@ -85,7 +90,7 @@ class DaTimelineService
             // Ajouter ou mettre à jour le statut
             $lastIndex = count($tabTemp) - 1;
             if ($lastIndex < 0 || $tabTemp[$lastIndex]['statut'] !== $statutFinal) {
-                $tabTemp[] = $this->createTimelineEntry($statutFinal, $data['dateDemande'], $data['dateCreation']);
+                $tabTemp[] = $this->createTimelineEntry($statutFinal, $data['dateDemande'], $data['dateCreation'], $daTypeId, $acteur);
             } else {
                 // Mettre à jour avec la date la plus récente
                 $tabTemp[$lastIndex]['date'] = $data['dateCreation'];
@@ -204,25 +209,28 @@ class DaTimelineService
         return $estDaValide ? StatutDaConstant::STATUT_VALIDE : $statutDal;
     }
 
-    /** 
+    /**
      * @param string $statut
      * @param \DateTime|null $dateDemande
      * @param \DateTime|null $dateCreation
-     * 
-     * @return array{statut:string,dotClass:string,date:string,nbrJours:string}
+     * @param int|null $daTypeId
+     * @param string|null $acteur
+     *
+     * @return array{statut:string,dotClass:string,date:string,nbrJours:string,action:string}
      */
-    private function createTimelineEntry(string $statut, ?\DateTime $dateDemande, ?\DateTime $dateCreation = null): array
+    private function createTimelineEntry(string $statut, ?\DateTime $dateDemande, ?\DateTime $dateCreation = null, ?int $daTypeId = null, ?string $acteur = null): array
     {
         return [
             'statut'   => $statut,
             'dotClass' => StatutDaConstant::getCssClassDa($statut),
             'date'     => $statut === StatutDaConstant::STATUT_SOUMIS_APPRO ? $dateDemande : $dateCreation,
             'nbrJours' => 0,
+            'action'   => $daTypeId !== null ? StatutActionConstant::getAction($statut, $daTypeId, $acteur ?? '')['action'] : '',
         ];
     }
 
     /**
-     * @return array{statut:string,dotClass:string,date:string,nbrJours:string}
+     * @return array{statut:string,dotClass:string,date:string,nbrJours:string,action:string}
      */
     private function createCurrentDateEntry(): array
     {
@@ -231,6 +239,7 @@ class DaTimelineService
             'dotClass' => '',
             'date'     => 'Aujourd’hui',
             'nbrJours' => '',
+            'action'   => '',
         ];
     }
 
@@ -282,6 +291,7 @@ class DaTimelineService
                 'nbrJours' => $dateFin
                     ? $this->formatDuration($this->differenceJoursOuvrables($etape['date'], $dateFin))
                     : '',
+                'action'   => $etape['action'] ?? '',
             ];
         }
 
