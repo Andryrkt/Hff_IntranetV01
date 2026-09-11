@@ -63,15 +63,15 @@
   -webkit-mask-image: linear-gradient(
     to right,
     transparent,
-    #000 12px,
-    #000 calc(100% - 12px),
+    #000 8px,
+    #000 calc(100% - 8px),
     transparent
   );
   mask-image: linear-gradient(
     to right,
     transparent,
-    #000 12px,
-    #000 calc(100% - 12px),
+    #000 8px,
+    #000 calc(100% - 8px),
     transparent
   );
 }
@@ -107,21 +107,22 @@
 .timeline-block-title {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #212529;
+  gap: 0.6rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1c1f23;
+  letter-spacing: 0.01em;
   padding-bottom: 0.75rem;
-  margin-bottom: 0.75rem;
-  border-bottom: 1px solid #eef0f2;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #edf0f2;
 }
 
 .timeline-block-title::before {
   content: "";
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #6c757d;
+  width: 4px;
+  height: 16px;
+  border-radius: 2px;
+  background: #adb5bd;
   flex-shrink: 0;
 }
 
@@ -233,6 +234,23 @@
   color: #6c757d;
   font-weight: 600;
   padding: 0 0 0.25rem;
+}
+
+.timeline-content .timeline-action {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #495057;
+  background: #f1f3f5;
+  border-radius: 0.35rem;
+  margin-top: 0.15rem;
+  padding: 0.2rem 1rem 0.15rem;
+}
+
+/* Version pastel du statut : dérivée de --c (définie sur chaque .bg-* dans style.css), pas de la couleur pleine du badge */
+.timeline-content .timeline-action[class*="bg-"] {
+  background-color: color-mix(in srgb, var(--c, #6c757d) 18%, #fff) !important;
+  color: var(--c, #6c757d) !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

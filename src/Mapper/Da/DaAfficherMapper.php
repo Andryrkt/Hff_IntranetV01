@@ -3,6 +3,7 @@
 namespace App\Mapper\Da;
 
 use App\Constants\da\RouteConstant;
+use App\Constants\da\StatutActionConstant;
 use App\Constants\da\StatutBcConstant;
 use App\Constants\da\StatutDaConstant;
 use App\Controller\Traits\da\MarkupIconTrait;
@@ -12,6 +13,7 @@ use App\Entity\da\DaSoumissionBc;
 use App\Entity\da\DemandeAppro;
 use App\Model\da\DaSoumissionFacBlModel;
 use App\Service\da\PermissionDaService;
+use App\Service\Admin\UrlIdCipher;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Markup;
@@ -23,14 +25,17 @@ class DaAfficherMapper
     private UrlGeneratorInterface $router;
     private PermissionDaService $permissionDaService;
     private EntityManagerInterface $em;
+    private UrlIdCipher $urlIdCipher;
 
     public function __construct(
         UrlGeneratorInterface $router,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        UrlIdCipher $urlIdCipher
     ) {
         $this->em = $em;
         $this->router = $router;
         $this->permissionDaService = new PermissionDaService();
+        $this->urlIdCipher = $urlIdCipher;
     }
 
     public function map(DaAfficher $data, array $options = []): DaAfficherDto
@@ -41,6 +46,7 @@ class DaAfficherMapper
         $estAtelier = $options['estAtelier'] ?? false;
         $codeAgenceUser = $options['codeAgenceUser'] ?? null;
         $codeServiceUser = $options['codeServiceUser'] ?? null;
+        $agenceServiceIndex = $options['agenceServiceIndex'] ?? [];
 
         $dto = new DaAfficherDto();
         $dto->id = $data->getId();
@@ -108,6 +114,12 @@ class DaAfficherMapper
         $dto->statutCde = !$estAppro && in_array($data->getStatutCde(), StatutBcConstant::STATUT_BC_EN_COURS) ? StatutBcConstant::BC_EN_COURS : $data->getStatutCde();
         $dto->statutDaSoumissionBc = $this->getStatutDaSoumissionBc($dto->numeroCde, $data->getCodeSociete());
 
+        // acteur et action à faire
+        $agServEmetteur = $agenceServiceIndex["{$data->getAgenceEmetteur()}-{$data->getServiceEmetteur()}"] ?? "N/A";
+        $action = StatutActionConstant::getAction($data->getStatutDal(), $dto->datype, "{$agServEmetteur} — {$dto->demandeur}");
+        $dto->actionActeur = $action['acteur'];
+        $dto->actionLibelle = $action['libelle'];
+
         // DAL
         $dto->statutDal = !$estAppro && in_array($data->getStatutDal(), StatutDaConstant::STATUT_TRAITEMENT_APPRO) ? StatutDaConstant::TRAITEMENT_APPRO : $data->getStatutDal();
         $dto->verouille = $dto->datype === DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL ? true : $this->permissionDaService->estDaVerrouillee(
@@ -165,21 +177,20 @@ class DaAfficherMapper
         $dto->centrale = (!$dto->daViaOR) ? $item->getDesiCentrale() : $safeIconBan;
         $dto->statutValide = $item->getStatutDal() === StatutDaConstant::STATUT_VALIDE;
 
+        // URLs optimisées : On ne génère que ce qui est nécessaire
+        $daEntity = $item->getDemandeAppro();
         $parametres = [
-            'daId'           => $item->getDemandeAppro() ? ['id' => $item->getDemandeAppro()->getId()] : [],
+            'daId'           => $daEntity ? ['id' => $daEntity->getId()] : [],
+            'daToken'        => $daEntity ? ['token' => $this->urlIdCipher->encrypt((string) $daEntity->getId())] : [],
             'daParentId'     => $item->getDemandeApproParent() ? ['id' => $item->getDemandeApproParent()->getId()] : [],
             'daId-0-ditId'   => $item->getDit() ? ['daId' => 0, 'ditId' => $item->getDit()->getId()] : [],
-            'daId-ditId'     => $item->getDemandeAppro() && $item->getDit() ? ['daId' => $item->getDemandeAppro()->getId(), 'ditId' => $item->getDit()->getId()] : [],
+            'daId-ditId'     => $daEntity && $item->getDit() ? ['daId' => $daEntity->getId(), 'ditId' => $item->getDit()->getId()] : [],
             'numDa-numLigne' => ['numDa' => $item->getNumeroDemandeAppro(), 'ligne' => $item->getNumeroLigne()],
         ];
 
-        // URLs optimisées : On ne génère que ce qui est nécessaire
-        $daEntity = $item->getDemandeAppro();
-        $paramsDa = $daEntity ? ['id' => $daEntity->getId()] : null;
-
         // URL Detail
-        if ($paramsDa) {
-            $dto->urlDetail = isset(RouteConstant::DETAIL[$dto->datype]) ? $this->router->generate(RouteConstant::DETAIL[$dto->datype], $paramsDa) : '#';
+        if ($parametres["daToken"]) {
+            $dto->urlDetail = isset(RouteConstant::DETAIL[$dto->datype]) ? $this->router->generate(RouteConstant::DETAIL[$dto->datype], $parametres["daToken"]) : '#';
         } else {
             $dto->urlDetail = '#';
         }
@@ -205,12 +216,14 @@ class DaAfficherMapper
                 : (($dto->datype == DemandeAppro::TYPE_DA_PARENT) ? $parametres['daParentId'] : $parametres['daId']);
             $dto->urlProposition = $this->router->generate(RouteConstant::CREATION[$dto->datype], $params);
         } else {
-            $params = ($dto->datype == DemandeAppro::TYPE_DA_PARENT) ? $parametres['daParentId'] : $parametres['daId'];
+            $params = in_array($dto->datype, [DemandeAppro::TYPE_DA_AVEC_DIT, DemandeAppro::TYPE_DA_DIRECT])
+                ? $parametres['daToken']
+                : (($dto->datype == DemandeAppro::TYPE_DA_PARENT) ? $parametres['daParentId'] : $parametres['daId']);
             $dto->urlProposition = isset(RouteConstant::PROPOSITION[$dto->datype]) ? $this->router->generate(RouteConstant::PROPOSITION[$dto->datype], $params) : '#';
         }
 
         // URL Demande Devis
-        $dto->urlDemandeDevis = ($item->getDemandeAppro())  ? $this->router->generate('api_da_demande_devis_en_cours', $paramsDa) : '#';
+        $dto->urlDemandeDevis = $daEntity ? $this->router->generate('api_da_demande_devis_en_cours', $parametres["daId"]) : '#';
     }
 
     private function prepareTdNumCdeAttributes(DaAfficherDto $dto): array

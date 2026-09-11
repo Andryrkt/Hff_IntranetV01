@@ -1,10 +1,15 @@
 <div class="row mb-3">
-	<h3 class="perso-titre">
-		{% if demandeAppro.daTypeId != 2 %}
-			<span class="urgency-level">{{ demandeAppro.niveauUrgence }}</span>
-		{% endif %}
-		Observations sur la Demande d'achat
-	</h3>
+	<div class="col-md-11">
+		<h3 class="perso-titre">
+			{% if demandeAppro.daTypeId != 2 %}
+				<span class="urgency-level">{{ demandeAppro.niveauUrgence }}</span>
+			{% endif %}
+			Observations sur la Demande d'achat
+		</h3>
+	</div>
+	<div class="col-md-1">
+		<a href="{{ path("list_da") }}" class="btn btn-list-da">Liste des DA</a>
+	</div>
 </div>
 <div class="row mb-2">
 	<div class="col-5 col-md-5">

@@ -110,7 +110,7 @@
 						<td>{{ row.numeroOr }}</td>
 						<td>{{ row.demandeur }}</td>
 						<td>{{ row.dateDemande }}</td>
-						<td class="text-center fw-bold {{ row.styleStatutDA }}">{{ row.statutDal }}</td>
+						<td class="text-center fw-bold {{ row.styleStatutDA }} {{ row.actionLibelle ? 'action-popover-trigger' : '' }}" data-bs-toggle="{{ row.actionLibelle ? 'popover' : '' }}" data-bs-trigger="hover focus" data-bs-placement="right" data-bs-custom-class="popover-action" title="{{ row.actionActeur }}" data-bs-content="{{ row.actionLibelle }}">{{ row.statutDal }}</td>
 						<td class="text-center fw-bold {{ row.styleStatutOR }}">{{ row.statutOr }}</td>
 						<td class="text-center fw-bold {{ row.styleStatutBC }}">{{ row.statutCde }}</td>
 						<td class="text-center fw-bold">{{ row.numeroCde }}</td>
@@ -146,7 +146,7 @@
 						<td class="text-center fw-bold {{ row.styleStatutCompta }}">
 							{% if row.statutCompta %}
 								<a {% for attr, val in row.ddpCloture %} {{ attr }}="{{ val }}" {% endfor %}>
-									{{row.statutCompta}}
+									{{ row.statutCompta }}
 								</a>
 							{% else %}
 								-
@@ -177,45 +177,4 @@
 {% block javascript %}
 	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v={{ App.browserHash }}"></script>
 	<script src="{{ App.base_path }}/Views/js/da/listeDa/list.js?v={{ App.browserHash }}" type="module"></script>
-	<script>
-		// Optimisation : Délégation des tooltips pour ne pas surcharger le chargement initial
-document.addEventListener( 'mouseover', function ( e ) {
-
-
-
-
-
-const target = e.target.closest( '[data-bs-toggle="tooltip"]' );
-if ( target && !bootstrap.Tooltip.getInstance( target ) ) {
-
-
-
-
-
-const tooltip = new bootstrap.Tooltip( target );
-tooltip.show();
-
-// Correction : On force la fermeture quand on quitte l'élément
-target.addEventListener( 'mouseleave', () => {
-
-
-
-
-
-tooltip.hide();
-
-
-
-
-
-}, { once: true } );
-
-
-
-
-
-}
-
-} );
-	</script>
 {% endblock %}

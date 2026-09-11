@@ -296,6 +296,11 @@ class SecurityService
         return $this->dataService->getAllAgenceService();
     }
 
+    public function getAgenceServiceCodeIndex(): array
+    {
+        return $this->dataService->getAgenceServiceCodeIndex();
+    }
+
     /**
      * Retourne la liste des agences et services groupés par id pour une application donnée
      */

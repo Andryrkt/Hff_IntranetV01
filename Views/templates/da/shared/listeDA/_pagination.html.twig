@@ -1,9 +1,13 @@
 <div class="d-flex justify-content-between">
 	<div class="align-self-center">
-		<a href="{{ path("export_excel_list_da")}}" class="btn btn-sm bg-success text-white fw-bold me-3 afficher-overlay">
+		<a href="{{ path("export_excel_list_da") }}" class="btn btn-sm bg-success text-white fw-bold me-3 afficher-overlay">
 			<i class="fas fa-table"></i>
 			Excel
 		</a>
+	</div>
+	<div class="alert alert-primary mb-0 pt-2 pb-1 px-3">
+		<i class="fas fa-circle-info me-2 fs-6"></i>
+		Survolez le statut de la DA pour voir l'action à faire et l'acteur concerné.
 	</div>
 	<div class="align-self-center">
 		<p class="fw-bold m-0">{{ resultat }}

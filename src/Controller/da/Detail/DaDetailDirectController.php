@@ -10,8 +10,10 @@ use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeAppro;
 use App\Form\da\DaObservationType;
 use App\Service\da\DocRattacheService;
+use App\Service\Admin\UrlIdCipher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use App\Controller\Traits\da\detail\DaDetailDirectTrait;
 use App\Service\da\DaTimelineService;
 
@@ -26,21 +28,27 @@ class DaDetailDirectController extends Controller
 
 	private DocRattacheService $docRattacheService;
 	private DaTimelineService $daTimelineService;
+	private UrlIdCipher $urlIdCipher;
 
-	public function __construct(DocRattacheService $docRattacheService, DaTimelineService $daTimelineService)
+	public function __construct(DocRattacheService $docRattacheService, DaTimelineService $daTimelineService, UrlIdCipher $urlIdCipher)
 	{
 		parent::__construct();
 
 		$this->initDaDetailDirectTrait();
 		$this->docRattacheService = $docRattacheService;
 		$this->daTimelineService = $daTimelineService;
+		$this->urlIdCipher = $urlIdCipher;
 	}
 
 	/**
-	 * @Route("/detail-direct/{id}", name="da_detail_direct")
+	 * @Route("/detail-direct/{token}", name="da_detail_direct")
 	 */
-	public function detail(int $id, Request $request)
+	public function detail(string $token, Request $request)
 	{
+		$id = $this->urlIdCipher->decryptInt($token);
+
+		if (empty($id) && $id !== 0) throw new ResourceNotFoundException();
+
 		/** @var DemandeAppro $demandeAppro la demande appro correspondant à l'id $id */
 		$demandeAppro = $this->demandeApproRepository->find($id); // recupération de la DA
 
@@ -51,10 +59,13 @@ class DaDetailDirectController extends Controller
 
 		$observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()], ['dateCreation' => 'ASC']);
 
-		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL(), $demandeAppro->getStatutDal());
+		$statutEtAction = $this->daAfficherRepository->getStatutEtActionAffichage($demandeAppro);
+		$statutDa = $statutEtAction['statutDa'] ?? "";
+
+		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL(), $statutDa);
 
 		$fichiers = $this->docRattacheService->getAllAttachedFiles($demandeAppro);
-		$timeLineData = $this->daTimelineService->getTimelineData($demandeAppro->getNumeroDemandeAppro());
+		$timeLineData = $this->daTimelineService->getTimelineData($demandeAppro);
 
 		return $this->render('da/detail.html.twig', [
 			'detailTemplate'      		=> 'detail-direct',
@@ -64,7 +75,10 @@ class DaDetailDirectController extends Controller
 			'observations'      		=> $observations,
 			'fichiers'            		=> $fichiers,
 			'connectedUser'     		=> $this->getUser(),
-			'statutAutoriserModifAte' 	=> $demandeAppro->getStatutDal() === StatutDaConstant::STATUT_AUTORISER_EMETTEUR,
+			'statutDa'          		=> $statutDa,
+			'classStatutDa'    		    => $statutEtAction['classStatutDa'],
+			'action'      		        => $statutEtAction['action'],
+			'statutAutoriserModifAte' 	=> $statutDa === StatutDaConstant::STATUT_AUTORISER_EMETTEUR,
 			'estCreateurDaDirecte'      => $this->estCreateurDaDirecte(),
 			'estAppro'          		=> $this->estAppro(),
 			'timelineData'      		=> $timeLineData,

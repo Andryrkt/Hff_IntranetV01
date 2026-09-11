@@ -14,8 +14,10 @@ use App\Form\da\DaObservationType;
 use App\Form\da\DaPropositionValidationType;
 use App\Form\da\DemandeApproLRCollectionType;
 use App\Service\da\DocRattacheService;
+use App\Service\Admin\UrlIdCipher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use App\Controller\Traits\da\detail\DaDetailDirectTrait;
 use App\Service\da\FileUploaderForDAService;
 use App\Controller\Traits\da\validation\DaValidationDirectTrait;
@@ -32,11 +34,13 @@ class DaPropositionArticleDirectController extends Controller
     use DaDetailDirectTrait;
     private const EDIT = 0;
     private DocRattacheService $docRattacheService;
+    private UrlIdCipher $urlIdCipher;
 
-    public function __construct(DocRattacheService $docRattacheService)
+    public function __construct(DocRattacheService $docRattacheService, UrlIdCipher $urlIdCipher)
     {
         parent::__construct();
         $this->docRattacheService = $docRattacheService;
+        $this->urlIdCipher = $urlIdCipher;
 
         $this->initDaPropositionDirectTrait();
         $this->initDaValidationDirectTrait();
@@ -44,10 +48,14 @@ class DaPropositionArticleDirectController extends Controller
     }
 
     /**
-     * @Route("/proposition-direct/{id}", name="da_proposition_direct")
+     * @Route("/proposition-direct/{token}", name="da_proposition_direct")
      */
-    public function propositionDeReference($id, Request $request)
+    public function propositionDeReference(string $token, Request $request)
     {
+        $id = $this->urlIdCipher->decryptInt($token);
+
+        if (empty($id) && $id !== 0) throw new ResourceNotFoundException();
+
         $da = $this->demandeApproRepository->find($id);
         $numDa = $da->getNumeroDemandeAppro();
         $dals = $da->getDAL();
