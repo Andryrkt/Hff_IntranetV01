@@ -65,7 +65,7 @@ class DaDetailDirectController extends Controller
 		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL(), $statutDa);
 
 		$fichiers = $this->docRattacheService->getAllAttachedFiles($demandeAppro);
-		$timeLineData = $this->daTimelineService->getTimelineData($demandeAppro->getNumeroDemandeAppro(), $demandeAppro->getDaTypeId(), $demandeAppro->getAgenceServiceEmetteur());
+		$timeLineData = $this->daTimelineService->getTimelineData($demandeAppro);
 
 		return $this->render('da/detail.html.twig', [
 			'detailTemplate'      		=> 'detail-direct',

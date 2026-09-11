@@ -22,14 +22,18 @@ class DaTimelineService
     }
 
     /** 
-     * @param string $numeroDa Numéro de la DA
-     * @param int    $daTypeId Identifiant du type de da (voir DemandeAppro::TYPE_DA_*)
-     * @param string $agenceServiceEmetteur Agence ou service émetteur de la DA
+     * @param DemandeAppro $demandeAppro objet de la DA
      * 
      * @return array<string,array<int|string,array{statut:string,dotClass:string,date:string,nbrJours:string}>>
      */
-    public function getTimelineData(string $numeroDa, int $daTypeId, string $agenceServiceEmetteur): array
+    public function getTimelineData(DemandeAppro $demandeAppro): array
     {
+        // Informations sur la DA
+        $numeroDa              = $demandeAppro->getNumeroDemandeAppro();
+        $daTypeId              = $demandeAppro->getDaTypeId();
+        $demandeur             = $demandeAppro->getDemandeur();
+        $agenceServiceEmetteur = $demandeAppro->getAgenceServiceEmetteur();
+
         $allDatas = $this->daAfficherRepository->getTimelineData($numeroDa);
         if (empty($allDatas)) return ['DA' => [], 'OR' => [], 'BC' => []];
 

@@ -69,7 +69,7 @@ class DaDetailAvecDitController extends Controller
 		$statutDa = $statutEtAction['statutDa'] ?? "";
 
 		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL(), $statutDa);
-		$timeLineData = $this->daTimelineService->getTimelineData($demandeAppro->getNumeroDemandeAppro(), $demandeAppro->getDaTypeId(), $demandeAppro->getAgenceServiceEmetteur());
+		$timeLineData = $this->daTimelineService->getTimelineData($demandeAppro);
 
 		return $this->render('da/detail.html.twig', [
 			'detailTemplate'      		=> 'detail-avec-dit',
