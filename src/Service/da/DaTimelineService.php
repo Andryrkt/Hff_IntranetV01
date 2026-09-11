@@ -7,6 +7,7 @@ use App\Traits\JoursOuvrablesTrait;
 use App\Constants\da\StatutDaConstant;
 use App\Constants\da\StatutOrConstant;
 use App\Constants\da\StatutBcConstant;
+use App\Entity\da\DemandeAppro;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\da\DaAfficherRepository;
 
@@ -22,17 +23,18 @@ class DaTimelineService
 
     /** 
      * @param string $numeroDa
-     * @param bool   $isDaViaOR
+     * @param int    $daTypeId
      * 
      * @return array<string,array<int|string,array{statut:string,dotClass:string,date:string,nbrJours:string}>>
      */
-    public function getTimelineData(string $numeroDa, bool $isDaViaOR = false): array
+    public function getTimelineData(string $numeroDa, int $daTypeId): array
     {
         $allDatas = $this->daAfficherRepository->getTimelineData($numeroDa);
         if (empty($allDatas)) return ['DA' => [], 'OR' => [], 'BC' => []];
 
         $timelineDa = $this->buildTimelineDA($allDatas);
         $lastDataDA = end($timelineDa);
+        $isDaViaOR = $daTypeId === DemandeAppro::TYPE_DA_AVEC_DIT;
         [$numeroOr, $timelineOR] = $isDaViaOR ? $this->buildTimelineOR($allDatas, $lastDataDA) : ["", []];
         $lastDataOR = empty($timelineOR) ? $lastDataDA : end($timelineOR);
         $timelineBc = $this->buildTimelineBC($numeroDa, $lastDataOR);
