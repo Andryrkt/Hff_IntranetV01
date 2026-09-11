@@ -4,8 +4,10 @@ namespace App\Controller\da\Detail;
 
 use App\Service\da\DaService;
 use App\Controller\Controller;
+use App\Entity\da\DaAfficher;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
+use App\Repository\da\DaAfficherRepository;
 use App\Service\da\EmailDaService;
 use App\Form\da\DaObservationType;
 use App\Service\da\DaTimelineService;
@@ -25,6 +27,7 @@ class DaDetailReapproController extends Controller
 	private DocRattacheService $docRattacheService;
 	private DaTimelineService $daTimelineService;
 	private UrlIdCipher $urlIdCipher;
+	private DaAfficherRepository $daAfficherRepository;
 
 	public function __construct(DaService $daService, DocRattacheService $docRattacheService, DaTimelineService $daTimelineService, UrlIdCipher $urlIdCipher)
 	{
@@ -32,6 +35,7 @@ class DaDetailReapproController extends Controller
 		$this->docRattacheService = $docRattacheService;
 		$this->daTimelineService = $daTimelineService;
 		$this->urlIdCipher = $urlIdCipher;
+		$this->daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
 	}
 
 	/**
@@ -53,6 +57,7 @@ class DaDetailReapproController extends Controller
 
 		$fichiers = $this->docRattacheService->getAllAttachedFiles($demandeAppro);
 		$timeLineData = $this->daTimelineService->getTimelineData($demandeAppro->getNumeroDemandeAppro());
+		$statutEtAction = $this->daAfficherRepository->getStatutEtActionAffichage($demandeAppro);
 
 		return $this->render('da/detail.html.twig', [
 			'detailTemplate'    => 'detail-reappro',
@@ -64,6 +69,10 @@ class DaDetailReapproController extends Controller
 			'fichiers'          => $fichiers,
 			'timelineData'      => $timeLineData,
 			'connectedUser'     => $this->getUser(),
+			'statutDa'          => $statutEtAction['statutDa'],
+			'classStatutDa'    	=> $statutEtAction['classStatutDa'],
+			'actionActeur'      => $statutEtAction['actionActeur'],
+			'actionLibelle'     => $statutEtAction['actionLibelle'],
 		]);
 	}
 

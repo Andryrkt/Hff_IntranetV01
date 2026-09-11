@@ -65,7 +65,10 @@ class DaDetailAvecDitController extends Controller
 
 		$fichiers = $this->docRattacheService->getAllAttachedFiles($demandeAppro);
 
-		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL(), $demandeAppro->getStatutDal());
+		$statutEtAction = $this->daAfficherRepository->getStatutEtActionAffichage($demandeAppro);
+		$statutDa = $statutEtAction['statutDa'] ?? "";
+
+		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL(), $statutDa);
 		$timeLineData = $this->daTimelineService->getTimelineData($demandeAppro->getNumeroDemandeAppro(), true);
 
 		return $this->render('da/detail.html.twig', [
@@ -78,7 +81,11 @@ class DaDetailAvecDitController extends Controller
 			'numParc'           		=> $dataModel[0]['num_parc'],
 			'fichiers'            		=> $fichiers,
 			'connectedUser'     		=> $this->getUser(),
-			'statutAutoriserModifAte' 	=> $demandeAppro->getStatutDal() === StatutDaConstant::STATUT_AUTORISER_EMETTEUR,
+			'statutDa'          		=> $statutDa,
+			'classStatutDa'    		    => $statutEtAction['classStatutDa'],
+			'actionActeur'      		=> $statutEtAction['actionActeur'],
+			'actionLibelle'     		=> $statutEtAction['actionLibelle'],
+			'statutAutoriserModifAte' 	=> $statutDa === StatutDaConstant::STATUT_AUTORISER_EMETTEUR,
 			'estAte'            		=> $this->estAtelier(),
 			'estAppro'          		=> $this->estAppro(),
 			'timelineData'      		=> $timeLineData,

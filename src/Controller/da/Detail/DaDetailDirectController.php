@@ -59,7 +59,10 @@ class DaDetailDirectController extends Controller
 
 		$observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()], ['dateCreation' => 'ASC']);
 
-		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL(), $demandeAppro->getStatutDal());
+		$statutEtAction = $this->daAfficherRepository->getStatutEtActionAffichage($demandeAppro);
+		$statutDa = $statutEtAction['statutDa'] ?? "";
+
+		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL(), $statutDa);
 
 		$fichiers = $this->docRattacheService->getAllAttachedFiles($demandeAppro);
 		$timeLineData = $this->daTimelineService->getTimelineData($demandeAppro->getNumeroDemandeAppro());
@@ -72,7 +75,11 @@ class DaDetailDirectController extends Controller
 			'observations'      		=> $observations,
 			'fichiers'            		=> $fichiers,
 			'connectedUser'     		=> $this->getUser(),
-			'statutAutoriserModifAte' 	=> $demandeAppro->getStatutDal() === StatutDaConstant::STATUT_AUTORISER_EMETTEUR,
+			'statutDa'          		=> $statutDa,
+			'classStatutDa'    		    => $statutEtAction['classStatutDa'],
+			'actionActeur'      		=> $statutEtAction['actionActeur'],
+			'actionLibelle'     		=> $statutEtAction['actionLibelle'],
+			'statutAutoriserModifAte' 	=> $statutDa === StatutDaConstant::STATUT_AUTORISER_EMETTEUR,
 			'estCreateurDaDirecte'      => $this->estCreateurDaDirecte(),
 			'estAppro'          		=> $this->estAppro(),
 			'timelineData'      		=> $timeLineData,
