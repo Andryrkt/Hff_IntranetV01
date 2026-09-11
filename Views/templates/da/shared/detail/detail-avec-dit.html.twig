@@ -26,12 +26,12 @@
 			<div class="col-6 col-md-6">
 				{{ macroForm.sousTitre('Emetteur') }}
 				{{ macroForm.affichage2('Agence', demandeAppro.agenceEmetteur.codeAgence ~ ' ' ~ demandeAppro.agenceEmetteur.libelleAgence, 'mb-2') }}
-				{{ macroForm.affichage2('Service', demandeAppro.serviceEmetteur.codeService ~ ' ' ~  demandeAppro.serviceEmetteur.libelleService, 'mb-2') }}
+				{{ macroForm.affichage2('Service', demandeAppro.serviceEmetteur.codeService ~ ' ' ~ demandeAppro.serviceEmetteur.libelleService, 'mb-2') }}
 			</div>
 			<div class="col-6 col-md-6">
 				{{ macroForm.sousTitre('Débiteur') }}
 				{{ macroForm.affichage2('Agence Débiteur', demandeAppro.agenceDebiteur.codeAgence ~ ' ' ~ demandeAppro.agenceDebiteur.libelleAgence, 'mb-2') }}
-				{{ macroForm.affichage2('Service Débiteur', demandeAppro.serviceDebiteur.codeService ~ ' ' ~  demandeAppro.serviceDebiteur.libelleService, 'mb-2') }}
+				{{ macroForm.affichage2('Service Débiteur', demandeAppro.serviceDebiteur.codeService ~ ' ' ~ demandeAppro.serviceDebiteur.libelleService, 'mb-2') }}
 			</div>
 		</div>
 	</div>
@@ -49,14 +49,25 @@
 			<div class="col-md-12 col-12">
 				{{ macroForm.affichage2('Objet du DIT', demandeAppro.dit.objetDemande, 'mb-2') }}
 			</div>
+			<div class="col-md-12 col-12">
+				{{ macroForm.sousTitre('Statut actuel et action à faire') }}
+				<div class="row">
+					<div class="col-md-3 col-3">
+						{{ macroForm.affichage2('Statut', statutDa, 'fw-bold ' ~ classStatutDa) }}
+					</div>
+					<div class="col-md-9 col-9">
+						{{ macroForm.affichage2('Acteur et action à faire', action, 'fw-bold ' ~ classStatutDa) }}
+					</div>
+				</div>
+			</div>
 			{% if demandeAppro.nomFichierBav is not null and estAte %}
-				<a class="fw-bold" href="{{ App.base_path_fichier }}/da/{{ demandeAppro.numeroDemandeAppro }}/{{demandeAppro.nomFichierBav}}" download>Télécharger le bon d'achat</a>
+				<a class="fw-bold" href="{{ App.base_path_fichier }}/da/{{ demandeAppro.numeroDemandeAppro }}/{{ demandeAppro.nomFichierBav }}" download>Télécharger le bon d'achat</a>
 			{% endif %}
 		</div>
 	</div>
 </div>
 <div class="d-flex justify-content-end">
-	<a href="{{ path("da_edit_avec_dit", {id: demandeAppro.id})}}" class="btn bouton mt-2 me-4 {{ estAte and statutAutoriserModifAte ? '' : 'd-none'}}" target="_blank">
+	<a href="{{ path("da_edit_avec_dit", {id: demandeAppro.id}) }}" class="btn bouton mt-2 me-4 {{ estAte and statutAutoriserModifAte ? '' : 'd-none' }}" target="_blank">
 		Modifier la demande
 	</a>
 </div>
