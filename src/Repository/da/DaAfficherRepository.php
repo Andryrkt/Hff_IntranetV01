@@ -680,7 +680,7 @@ class DaAfficherRepository extends EntityRepository
         $statutDaAfficher = $this->getLastStatutDaAfficher($demandeAppro->getNumeroDemandeAppro(), $demandeAppro->getCodeSociete());
         $statutDa = $statutDaAfficher[0] ?? "";
 
-        $action = StatutActionConstant::getAction($statutDa, $demandeAppro->getDaTypeId(), (string) $demandeAppro->getDemandeur());
+        $action = StatutActionConstant::getAction($statutDa, $demandeAppro->getDaTypeId(), "{$demandeAppro->getAgenceServiceEmetteur()} — {$demandeAppro->getDemandeur()}");
 
         return [
             'statutDa'      => $statutDa,

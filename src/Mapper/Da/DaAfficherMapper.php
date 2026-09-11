@@ -46,6 +46,7 @@ class DaAfficherMapper
         $estAtelier = $options['estAtelier'] ?? false;
         $codeAgenceUser = $options['codeAgenceUser'] ?? null;
         $codeServiceUser = $options['codeServiceUser'] ?? null;
+        $agenceServiceIndex = $options['agenceServiceIndex'] ?? [];
 
         $dto = new DaAfficherDto();
         $dto->id = $data->getId();
@@ -113,11 +114,14 @@ class DaAfficherMapper
         $dto->statutCde = !$estAppro && in_array($data->getStatutCde(), StatutBcConstant::STATUT_BC_EN_COURS) ? StatutBcConstant::BC_EN_COURS : $data->getStatutCde();
         $dto->statutDaSoumissionBc = $this->getStatutDaSoumissionBc($dto->numeroCde, $data->getCodeSociete());
 
-        // DAL
-        $dto->statutDal = !$estAppro && in_array($data->getStatutDal(), StatutDaConstant::STATUT_TRAITEMENT_APPRO) ? StatutDaConstant::TRAITEMENT_APPRO : $data->getStatutDal();
-        $action = StatutActionConstant::getAction($data->getStatutDal(), $dto->datype, $dto->demandeur);
+        // acteur et action à faire
+        $agServEmetteur = $agenceServiceIndex["{$data->getAgenceEmetteur()}-{$data->getServiceEmetteur()}"] ?? "N/A";
+        $action = StatutActionConstant::getAction($data->getStatutDal(), $dto->datype, "{$agServEmetteur} — {$dto->demandeur}");
         $dto->actionActeur = $action['acteur'];
         $dto->actionLibelle = $action['libelle'];
+
+        // DAL
+        $dto->statutDal = !$estAppro && in_array($data->getStatutDal(), StatutDaConstant::STATUT_TRAITEMENT_APPRO) ? StatutDaConstant::TRAITEMENT_APPRO : $data->getStatutDal();
         $dto->verouille = $dto->datype === DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL ? true : $this->permissionDaService->estDaVerrouillee(
             $dto->datype,
             $dto->statutDal,
