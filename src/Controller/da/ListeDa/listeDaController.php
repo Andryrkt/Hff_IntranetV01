@@ -82,6 +82,7 @@ class listeDaController extends Controller
             'estAtelier' => $this->estAtelier(),
             'estCreateur' => $this->estCreateurDaDirecte(),
             'demandePaiementRepository' => $this->getEntityManager()->getRepository(DemandePaiement::class),
+            'agenceServiceIndex' => $this->getSecurityService()->getAgenceServiceCodeIndex(),
         ]);
 
         /** === Formulaire pour la date de livraison prevu === */

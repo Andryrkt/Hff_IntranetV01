@@ -84,6 +84,7 @@ class DaListCdeFrnController extends Controller
             'codeAgenceUser' => $this->getSecurityService()->getCodeAgenceUser(),
             'codeServiceUser' => $this->getSecurityService()->getCodeServiceUser(),
             'demandePaiementRepository' => $this->getEntityManager()->getRepository(DemandePaiement::class),
+            'agenceServiceIndex' => $this->getSecurityService()->getAgenceServiceCodeIndex(),
         ]);
 
         // Formulaire de soumission BC, FAC + BL, BL Reappro
