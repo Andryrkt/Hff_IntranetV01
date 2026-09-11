@@ -71,8 +71,7 @@ class DaDetailReapproController extends Controller
 			'connectedUser'     => $this->getUser(),
 			'statutDa'          => $statutEtAction['statutDa'],
 			'classStatutDa'    	=> $statutEtAction['classStatutDa'],
-			'actionActeur'      => $statutEtAction['actionActeur'],
-			'actionLibelle'     => $statutEtAction['actionLibelle'],
+			'action'      		=> $statutEtAction['action'],
 		]);
 	}
 

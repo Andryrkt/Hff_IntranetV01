@@ -673,7 +673,7 @@ class DaAfficherRepository extends EntityRepository
      * Récupère le statut fiable (dernière version de DaAfficher) + classe de couleur d'affichage d'une DA,
      * ainsi que l'acteur et l'action à faire correspondants.
      *
-     * @return array{statutDa:string,classStatutDa:string,actionActeur:string,actionLibelle:string}
+     * @return array{action:string,statutDa:string,classStatutDa:string}
      */
     public function getStatutEtActionAffichage(DemandeAppro $demandeAppro): array
     {
@@ -683,10 +683,9 @@ class DaAfficherRepository extends EntityRepository
         $action = StatutActionConstant::getAction($statutDa, $demandeAppro->getDaTypeId(), "{$demandeAppro->getAgenceServiceEmetteur()} — {$demandeAppro->getDemandeur()}");
 
         return [
+            'action'        => $action['acteur'] ? "{$action['acteur']} : {$action['libelle']}" : "-",
             'statutDa'      => $statutDa,
             'classStatutDa' => StatutDaConstant::getCssClassDa($statutDa),
-            'actionActeur'  => $action['acteur'],
-            'actionLibelle' => $action['libelle'],
         ];
     }
 

@@ -83,7 +83,7 @@ class DaDetailAvecDitController extends Controller
 			'connectedUser'     		=> $this->getUser(),
 			'statutDa'          		=> $statutDa,
 			'classStatutDa'    		    => $statutEtAction['classStatutDa'],
-			'action'      		        => "{$statutEtAction['actionActeur']} : {$statutEtAction['actionLibelle']}",
+			'action'      		        => $statutEtAction['action'],
 			'statutAutoriserModifAte' 	=> $statutDa === StatutDaConstant::STATUT_AUTORISER_EMETTEUR,
 			'estAte'            		=> $this->estAtelier(),
 			'estAppro'          		=> $this->estAppro(),

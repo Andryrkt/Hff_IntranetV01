@@ -55,6 +55,13 @@ class StatutActionConstant
         ],
     ];
 
+    /** 
+     * @param ?string $statutDal
+     * @param int $datype
+     * @param string $demandeur
+     * 
+     * @return array{acteur:string,libelle:string}
+     */
     public static function getAction(?string $statutDal, int $datype, string $demandeur): array
     {
         $action = self::STATUT_DA_ACTION[$statutDal][$datype] ?? null;
