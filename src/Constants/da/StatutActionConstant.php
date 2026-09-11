@@ -60,16 +60,16 @@ class StatutActionConstant
      * @param int $datype
      * @param string $demandeur
      * 
-     * @return array{acteur:string,libelle:string}
+     * @return array{acteur:string,libelle:string,action:string}
      */
     public static function getAction(?string $statutDal, int $datype, string $demandeur): array
     {
         $action = self::STATUT_DA_ACTION[$statutDal][$datype] ?? null;
 
-        if (!$action) return ['acteur' => '', 'libelle' => ''];
+        if (!$action) return ['acteur' => '', 'libelle' => '', 'action' => ''];
 
         $acteur = $action['acteur'] === self::ACTEUR_DEMANDEUR ? $demandeur : self::ACTEUR_APPRO;
 
-        return ['acteur' => $acteur, 'libelle' => $action['libelle']];
+        return ['acteur' => $acteur, 'libelle' => $action['libelle'], 'action' => "{$acteur} : {$action['libelle']}"];
     }
 }

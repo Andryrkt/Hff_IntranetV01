@@ -683,7 +683,7 @@ class DaAfficherRepository extends EntityRepository
         $action = StatutActionConstant::getAction($statutDa, $demandeAppro->getDaTypeId(), "{$demandeAppro->getAgenceServiceEmetteur()} — {$demandeAppro->getDemandeur()}");
 
         return [
-            'action'        => $action['acteur'] ? "{$action['acteur']} : {$action['libelle']}" : "-",
+            'action'        => $action["action"] ?: "-",
             'statutDa'      => $statutDa,
             'classStatutDa' => StatutDaConstant::getCssClassDa($statutDa),
         ];
