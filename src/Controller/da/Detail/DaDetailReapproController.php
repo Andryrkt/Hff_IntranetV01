@@ -56,7 +56,7 @@ class DaDetailReapproController extends Controller
 		$this->traitementFormulaire($formObservation, $request, $demandeAppro);
 
 		$fichiers = $this->docRattacheService->getAllAttachedFiles($demandeAppro);
-		$timeLineData = $this->daTimelineService->getTimelineData($demandeAppro->getNumeroDemandeAppro(), $demandeAppro->getDaTypeId());
+		$timeLineData = $this->daTimelineService->getTimelineData($demandeAppro->getNumeroDemandeAppro(), $demandeAppro->getDaTypeId(), $demandeAppro->getAgenceServiceEmetteur());
 		$statutEtAction = $this->daAfficherRepository->getStatutEtActionAffichage($demandeAppro);
 
 		return $this->render('da/detail.html.twig', [
