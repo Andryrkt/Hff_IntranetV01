@@ -236,6 +236,23 @@
   padding: 0 0 0.25rem;
 }
 
+.timeline-content .timeline-action {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #495057;
+  background: #f1f3f5;
+  border-radius: 0.35rem;
+  margin-top: 0.15rem;
+  padding: 0.2rem 1rem 0.15rem;
+}
+
+/* Version pastel du statut : dérivée de --c (définie sur chaque .bg-* dans style.css), pas de la couleur pleine du badge */
+.timeline-content .timeline-action[class*="bg-"] {
+  background-color: color-mix(in srgb, var(--c, #6c757d) 18%, #fff) !important;
+  color: var(--c, #6c757d) !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .timeline-item {
     opacity: 1;

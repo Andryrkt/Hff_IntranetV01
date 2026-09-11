@@ -485,57 +485,68 @@ a.choix:hover {
 }
 
 /* Pour les statuts de la DA */
+/* --c : couleur identitaire du statut, réutilisée pour dériver une version pastel (voir .timeline-action[class*="bg-"] dans timeline.css) */
 .bg-demande-achat,
 .bg-creation-demande-initiale {
+  --c: #7d7d00;
   background-color: #ffff00 !important;
-  color: #7d7d00 !important;
+  color: var(--c) !important;
 }
 
 .bg-demande-devis {
+  --c: #4b3280;
   background-color: #e0d4f7 !important;
-  color: #4b3280 !important;
+  color: var(--c) !important;
 }
 
 .bg-devis-a-relancer {
+  --c: #8c2f1f;
   background-color: #ffd6d0 !important;
-  color: #8c2f1f !important;
+  color: var(--c) !important;
 }
 
 .bg-en-cours-proposition {
+  --c: #7d6600;
   background-color: #fbbb01 !important;
   /* jaune clair tirant vers le beige */
-  color: #7d6600 !important;
+  color: var(--c) !important;
   /* couleur texte sombre pour contraste */
 }
 
 .bg-proposition-achat {
+  --c: #073763;
   background-color: #9fc5e8 !important;
-  color: #073763 !important;
+  color: var(--c) !important;
 }
 
 .bg-bon-achat-valide {
+  --c: #274e13;
   background-color: #a9d08e !important;
-  color: #274e13 !important;
+  color: var(--c) !important;
 }
 
 .bg-modif-autorisee {
+  --c: #5a3000;
   background-color: #fbbb01 !important;
-  color: #5a3000 !important;
+  color: var(--c) !important;
 }
 
 .bg-soumis-validation {
+  --c: #7f6000;
   background-color: #ffd966 !important;
   /* orange clair soutenu */
-  color: #7f6000 !important;
+  color: var(--c) !important;
 }
 
 .bg-en-cours-creation {
+  --c: #41464b;
   background-color: #e2e3e5 !important;
   /* gris clair */
-  color: #41464b !important;
+  color: var(--c) !important;
 }
 
 .bg-refuse-appro {
+  --c: #c00000;
   background-color: #c00000 !important;
   color: #fff !important;
 }
