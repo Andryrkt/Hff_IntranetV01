@@ -2,11 +2,13 @@
 
 namespace App\Repository\da;
 
+use App\Entity\da\DaAfficher;
+use App\Entity\da\DemandeAppro;
+use Doctrine\ORM\EntityRepository;
 use App\Constants\da\StatutBcConstant;
 use App\Constants\da\StatutDaConstant;
 use App\Constants\da\StatutOrConstant;
-use App\Entity\da\DaAfficher;
-use Doctrine\ORM\EntityRepository;
+use App\Constants\da\StatutActionConstant;
 
 class DaAfficherRepository extends EntityRepository
 {
@@ -665,6 +667,27 @@ class DaAfficherRepository extends EntityRepository
             ])
             ->getQuery()
             ->getSingleColumnResult();
+    }
+
+    /**
+     * Récupère le statut fiable (dernière version de DaAfficher) + classe de couleur d'affichage d'une DA,
+     * ainsi que l'acteur et l'action à faire correspondants.
+     *
+     * @return array{statutDa:string,classStatutDa:string,actionActeur:string,actionLibelle:string}
+     */
+    public function getStatutEtActionAffichage(DemandeAppro $demandeAppro): array
+    {
+        $statutDaAfficher = $this->getLastStatutDaAfficher($demandeAppro->getNumeroDemandeAppro(), $demandeAppro->getCodeSociete());
+        $statutDa = $statutDaAfficher[0] ?? "";
+
+        $action = StatutActionConstant::getAction($statutDa, $demandeAppro->getDaTypeId(), (string) $demandeAppro->getDemandeur());
+
+        return [
+            'statutDa'      => $statutDa,
+            'classStatutDa' => StatutDaConstant::getCssClassDa($statutDa),
+            'actionActeur'  => $action['acteur'],
+            'actionLibelle' => $action['libelle'],
+        ];
     }
 
 
