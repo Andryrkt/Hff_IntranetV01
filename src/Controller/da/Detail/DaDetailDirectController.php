@@ -30,14 +30,14 @@ class DaDetailDirectController extends Controller
 	private DaTimelineService $daTimelineService;
 	private UrlIdCipher $urlIdCipher;
 
-	public function __construct(DocRattacheService $docRattacheService, DaTimelineService $daTimelineService, UrlIdCipher $urlIdCipher)
+	public function __construct(DocRattacheService $docRattacheService, DaTimelineService $daTimelineService)
 	{
 		parent::__construct();
 
 		$this->initDaDetailDirectTrait();
 		$this->docRattacheService = $docRattacheService;
 		$this->daTimelineService = $daTimelineService;
-		$this->urlIdCipher = $urlIdCipher;
+		$this->urlIdCipher = new UrlIdCipher;
 	}
 
 	/**

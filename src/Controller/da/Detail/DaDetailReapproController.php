@@ -29,12 +29,12 @@ class DaDetailReapproController extends Controller
 	private UrlIdCipher $urlIdCipher;
 	private DaAfficherRepository $daAfficherRepository;
 
-	public function __construct(DaService $daService, DocRattacheService $docRattacheService, DaTimelineService $daTimelineService, UrlIdCipher $urlIdCipher)
+	public function __construct(DaService $daService, DocRattacheService $docRattacheService, DaTimelineService $daTimelineService)
 	{
 		$this->daService = $daService;
 		$this->docRattacheService = $docRattacheService;
 		$this->daTimelineService = $daTimelineService;
-		$this->urlIdCipher = $urlIdCipher;
+		$this->urlIdCipher = new UrlIdCipher;
 		$this->daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
 	}
 
