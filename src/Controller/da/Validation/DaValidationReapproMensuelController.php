@@ -67,7 +67,7 @@ class DaValidationReapproMensuelController extends Controller
         return $this->render("da/validation-reappro.html.twig", [
             'demandeAppro'      => $demandeAppro,
             'urlRetour'         => $this->getUrlGenerator()->generate('list_da'),
-            'titreBoutonRetour' => 'Liste des DA',
+            'titreBoutonRetour' => 'Liste des demandes d’achats',
             'numDa'           => $demandeAppro->getNumeroDemandeAppro(),
             'fichiers'        => $fichiers,
             'codeCentrale'    => in_array($demandeAppro->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92']),

@@ -85,7 +85,7 @@ class DaPropositionRefAvecDitController extends Controller
             'demandeAppro'            => $da,
             'id'                      => $id,
             'urlRetour'               => $this->getUrlGenerator()->generate('list_da'),
-            'titreBoutonRetour'       => 'Liste des DA',
+            'titreBoutonRetour'       => 'Liste des demandes d’achats',
             'urlModifierDa'           => $this->getUrlGenerator()->generate('da_edit_avec_dit', ['token' => $token]),
             'form'                    => $form->createView(),
             'formValidation'          => $formValidation->createView(),

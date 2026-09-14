@@ -74,7 +74,7 @@ class DaDetailAvecDitController extends Controller
 		return $this->render('da/detail.html.twig', [
 			'detailTemplate'      		=> 'detail-avec-dit',
 			'urlRetour'           		=> $this->getUrlGenerator()->generate('list_da'),
-			'titreBoutonRetour'   		=> 'Liste des DA',
+			'titreBoutonRetour'   		=> 'Liste des demandes d’achats',
 			'urlModifierDa'      		=> $this->getUrlGenerator()->generate('da_edit_avec_dit', ['token' => $token]),
 			'formObservation'			=> $formObservation->createView(),
 			'demandeAppro'      		=> $demandeAppro,
