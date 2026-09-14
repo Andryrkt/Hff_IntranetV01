@@ -95,7 +95,7 @@ class DemandeDiagnosticPneuDto
         if ($intervention) {
             $dto->numeroDit = $demande->getNumeroDit();
             $dto->numeroOr = $demande->getNumeroOr();
-            $dto->urlDetailDit = $urlGenerator->generate('dit_validationDit', ['token' => $urlIdCipher->encrypt($intervention->getId(), "DIT")]);
+            $dto->urlDetailDit = $urlGenerator->generate('dit_fiche_detail', ['token' => $urlIdCipher->encrypt($intervention->getId(), "DIT")]);
         }
 
         return $dto;
