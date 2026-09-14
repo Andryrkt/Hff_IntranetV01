@@ -187,7 +187,7 @@ class DemandePaiementFactory
         $dto->ratioMontantDejaPaye = $ratioMontantDejaPaye;
         $dto->montantAregulariser = $montantAregulariser;
         $dto->ratioMontantARegul = $ratioMontantARegul;
-
+        $dto->isFrnNonImmatricule = $this->ddpModel->isFrnNonImmatricule($dto->numeroFournisseur);
         [$pourcentageAvance, $pourcentageAPayer] = $this->financialService->calculateGlobalFinancials($dto);
         $dto->pourcentageAvance = $pourcentageAvance;
         $dto->pourcentageAPayer = $pourcentageAPayer;

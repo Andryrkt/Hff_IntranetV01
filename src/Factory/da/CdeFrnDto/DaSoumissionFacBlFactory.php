@@ -85,6 +85,7 @@ class DaSoumissionFacBlFactory
         $dto->infoBc = $this->dataService->getInfoBc($dto->numeroCde, $dto->codeSociete);
         $dto->numeroFournisseur = $dto->infoBc['num_fournisseur'];
         $dto->nomFournisseur = $dto->infoBc['nom_fournisseur'];
+        $dto->isFrnNonImmatricule =  $this->ddpModel->isFrnNonImmatricule($dto->numeroFournisseur);
 
         // DDPL ==========================
         $dto->statutFacBl = self::STATUT_SOUMISSION;
@@ -105,9 +106,8 @@ class DaSoumissionFacBlFactory
 
         //
         $dto->totalMontantDdpValid = $this->em->getRepository(DemandePaiement::class)->getSommeMontantValide($dto->numeroCde, $dto->codeSociete) ?? 0.0;
-        $isFrnNonImmatricule =  $this->ddpModel->isFrnNonImmatricule($dto->numeroFournisseur);
 
-        $dto->estRegule = $isFrnNonImmatricule ? ($dto->totalMontantCommandeTTC * 0.95) : $dto->totalMontantCommandeTTC  == $dto->totalMontantDdpValid && !in_array($dto->dernierStatutDdp, StatutConstants::REFUSES_DDP);
+        $dto->estRegule = $dto->isFrnNonImmatricule ? ($dto->totalMontantCommandeTTC * 0.95) == $dto->totalMontantDdpValid && !in_array($dto->dernierStatutDdp, StatutConstants::REFUSES_DDP) : $dto->totalMontantCommandeTTC  == $dto->totalMontantDdpValid && !in_array($dto->dernierStatutDdp, StatutConstants::REFUSES_DDP);
 
         $dto->posl = $this->daSoumissionFacBlModel->getPosl($dto->numeroCde, $dto->codeSociete);
         $dto->devise = $this->daSoumissionFacBlModel->getDevise($dto->numeroCde, $dto->codeSociete);
