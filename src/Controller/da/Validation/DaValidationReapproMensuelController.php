@@ -65,7 +65,9 @@ class DaValidationReapproMensuelController extends Controller
         $fichiers = $this->docRattacheService->getAllAttachedFiles($demandeAppro);
 
         return $this->render("da/validation-reappro.html.twig", [
-            'demandeAppro'    => $demandeAppro,
+            'demandeAppro'      => $demandeAppro,
+            'urlRetour'         => $this->getUrlGenerator()->generate('list_da'),
+            'titreBoutonRetour' => 'Liste des DA',
             'numDa'           => $demandeAppro->getNumeroDemandeAppro(),
             'fichiers'        => $fichiers,
             'codeCentrale'    => in_array($demandeAppro->getAgenceEmetteur()->getCodeAgence(), ['90', '91', '92']),

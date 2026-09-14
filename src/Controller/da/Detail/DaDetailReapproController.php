@@ -61,6 +61,8 @@ class DaDetailReapproController extends Controller
 
 		return $this->render('da/detail.html.twig', [
 			'detailTemplate'    => 'detail-reappro',
+			'urlRetour'         => $this->getUrlGenerator()->generate('list_da'),
+			'titreBoutonRetour' => 'Liste des DA',
 			'formObservation'	=> $formObservation->createView(),
 			'demandeAppro'      => $demandeAppro,
 			'isMensuel'         => $demandeAppro->getDaTypeId() == DemandeAppro::TYPE_DA_REAPPRO_MENSUEL,

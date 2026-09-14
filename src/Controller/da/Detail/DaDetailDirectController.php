@@ -69,6 +69,8 @@ class DaDetailDirectController extends Controller
 
 		return $this->render('da/detail.html.twig', [
 			'detailTemplate'      		=> 'detail-direct',
+			'urlRetour'           		=> $this->getUrlGenerator()->generate('list_da'),
+			'titreBoutonRetour'   		=> 'Liste des DA',
 			'urlModifierDa'      		=> $this->getUrlGenerator()->generate('da_edit_direct', ['token' => $token]),
 			'formObservation'			=> $formObservation->createView(),
 			'demandeAppro'      		=> $demandeAppro,

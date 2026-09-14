@@ -84,6 +84,8 @@ class DaPropositionRefAvecDitController extends Controller
         return $this->render("da/proposition.html.twig", [
             'demandeAppro'            => $da,
             'id'                      => $id,
+            'urlRetour'               => $this->getUrlGenerator()->generate('list_da'),
+            'titreBoutonRetour'       => 'Liste des DA',
             'urlModifierDa'           => $this->getUrlGenerator()->generate('da_edit_avec_dit', ['token' => $token]),
             'form'                    => $form->createView(),
             'formValidation'          => $formValidation->createView(),
