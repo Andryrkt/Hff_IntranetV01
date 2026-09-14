@@ -37,11 +37,11 @@ class DaPropositionRefAvecDitController extends Controller
     private DocRattacheService $docRattacheService;
     private UrlIdCipher $urlIdCipher;
 
-    public function __construct(DocRattacheService $docRattacheService, UrlIdCipher $urlIdCipher)
+    public function __construct(DocRattacheService $docRattacheService)
     {
         parent::__construct();
         $this->docRattacheService = $docRattacheService;
-        $this->urlIdCipher = $urlIdCipher;
+        $this->urlIdCipher = new UrlIdCipher;
 
         $this->initDaPropositionAvecDitTrait();
         $this->initDaValidationAvecDitTrait();
@@ -84,6 +84,7 @@ class DaPropositionRefAvecDitController extends Controller
         return $this->render("da/proposition.html.twig", [
             'demandeAppro'            => $da,
             'id'                      => $id,
+            'urlModifierDa'           => $this->getUrlGenerator()->generate('da_edit_avec_dit', ['token' => $token]),
             'form'                    => $form->createView(),
             'formValidation'          => $formValidation->createView(),
             'formObservation'         => $formObservation->createView(),
