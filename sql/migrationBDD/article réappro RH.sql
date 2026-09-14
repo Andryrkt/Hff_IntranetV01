@@ -84,4 +84,18 @@ VALUES
 ('FBU','1F0010',TRIM('BLANCO')                             ,'1' ,'6175'  , '80', 'PER', '2026-01-16 00:00:00.000','2026-01-16 00:00:00.000'),
 ('FBU','1F0027',TRIM('PILE LR3')                           ,'1' ,'9500'  , '80', 'PER', '2026-01-16 00:00:00.000','2026-01-16 00:00:00.000'),
 ('FBU','1F0028',TRIM('PILE LR6')                           ,'1' ,'9500'  , '80', 'PER', '2026-01-16 00:00:00.000','2026-01-16 00:00:00.000'),
-('FBU','1F0046',TRIM('TROMBONE PM')                        ,'1' ,'950'   , '80', 'PER', '2026-01-16 00:00:00.000','2026-01-16 00:00:00.000'),
+('FBU','1F0046',TRIM('TROMBONE PM')                        ,'1' ,'950'   , '80', 'PER', '2026-01-16 00:00:00.000','2026-01-16 00:00:00.000');
+
+
+INSERT INTO HFF_INTRANET.dbo.da_article_reappro
+(art_constp, art_refp, art_desi, qte_validee_appro, art_pu, code_agence, code_service, date_creation, date_modification)
+VALUES
+(N'FBU', N'1C0017', N'SURLIGNEUR', N'3', N'11875', N'80', N'PER', '2026-09-11 00:00:00.000', '2026-09-11 00:00:00.000'),
+(N'FBU', N'1F0036', N'RÈGLE 30CM', N'2', N'1615', N'80', N'PER', '2026-09-11 00:00:00.000', '2026-09-11 00:00:00.000');
+
+INSERT INTO HFF_INTRANET_PRE_PROD_2026.dbo.da_article_reappro
+(art_constp, art_refp, art_desi, qte_validee_appro, art_pu, code_agence, code_service, date_creation, date_modification)
+VALUES
+(N'FBU', N'1C0017', N'SURLIGNEUR', N'3', N'11875', N'80', N'PER', '2026-09-11 00:00:00.000', '2026-09-11 00:00:00.000'),
+(N'FBU', N'1F0036', N'RÈGLE 30CM', N'2', N'1615', N'80', N'PER', '2026-09-11 00:00:00.000', '2026-09-11 00:00:00.000');
+
