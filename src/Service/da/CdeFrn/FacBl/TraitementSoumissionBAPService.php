@@ -146,7 +146,7 @@ class TraitementSoumissionBAPService
         $numLiv = $dto->numLiv;
         $mttFac = $dto->montantBlFacture;
         $infoLivraison = $dto->infoLiv[$numLiv];
-
+        $montant_livraison = $dto->isFrnNonImmatricule ? $infoLivraison['montant_fac_bl'] * 0.95 : $infoLivraison['montant_fac_bl'];
         $nomOriginalFichier = $dto->pieceJoint1->getClientOriginalName();
 
         $mttFacFormate = $mttFac ? (float)str_replace(',', '.', str_replace(' ', '', $mttFac)) : 0.0;
@@ -165,7 +165,7 @@ class TraitementSoumissionBAPService
             $okey = false;
         }
         // Blocage si montant ne correspond pas au montant de la livraison dans IPS
-        elseif ($mttFacFormate !== (float) $infoLivraison['montant_fac_bl']) {
+        elseif ($mttFacFormate !== (float) $montant_livraison) {
             $message = "Le montant de la facture <b>{$mttFac}</b> ne correspond pas au montant de la livraison dans IPS. Merci de vérifier le montant de la facture avant de le soumettre dans DocuWare.";
             $okey = false;
         }
