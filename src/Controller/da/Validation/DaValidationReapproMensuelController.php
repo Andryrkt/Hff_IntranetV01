@@ -13,6 +13,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\validation\DaValidationReapproTrait;
 use App\Service\da\DaConsumptionHistory;
 use App\Service\da\DocRattacheService;
+use App\Service\Admin\UrlIdCipher;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 /**
  * @Route("/demande-appro")
@@ -22,6 +24,7 @@ class DaValidationReapproMensuelController extends Controller
     use DaAfficherTrait;
     use DaValidationReapproTrait;
     private DocRattacheService $docRattacheService;
+    private UrlIdCipher $urlIdCipher;
 
     public function __construct(DocRattacheService $docRattacheService)
     {
@@ -29,13 +32,18 @@ class DaValidationReapproMensuelController extends Controller
 
         $this->initDaValidationReapproTrait();
         $this->docRattacheService = $docRattacheService;
+        $this->urlIdCipher = new UrlIdCipher;
     }
 
     /**
-     * @Route("/validation-reappro-mensuel/{id}", name="da_validate_reappro_mensuel")
+     * @Route("/validation-reappro-mensuel/{token}", name="da_validate_reappro_mensuel")
      */
-    public function validationDaReapproMensuel($id, Request $request)
+    public function validationDaReapproMensuel(string $token, Request $request)
     {
+        $id = $this->urlIdCipher->decryptInt($token);
+
+        if (empty($id) && $id !== 0) throw new ResourceNotFoundException();
+
         $demandeAppro = $this->demandeApproRepository->find($id);
 
         $daObservation = new DaObservation();
