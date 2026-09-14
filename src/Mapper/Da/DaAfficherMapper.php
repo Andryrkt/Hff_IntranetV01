@@ -40,12 +40,12 @@ class DaAfficherMapper
 
     public function map(DaAfficher $data, array $options = []): DaAfficherDto
     {
-        $estAdmin   = $options['estAdmin'] ?? false;
-        $estAppro   = $options['estAppro'] ?? false;
-        $estCreateur = $options['estCreateur'] ?? false;
-        $estAtelier = $options['estAtelier'] ?? false;
-        $codeAgenceUser = $options['codeAgenceUser'] ?? null;
-        $codeServiceUser = $options['codeServiceUser'] ?? null;
+        $estAdmin           = $options['estAdmin'] ?? false;
+        $estAppro           = $options['estAppro'] ?? false;
+        $estCreateur        = $options['estCreateur'] ?? false;
+        $estAtelier         = $options['estAtelier'] ?? false;
+        $codeAgenceUser     = $options['codeAgenceUser'] ?? null;
+        $codeServiceUser    = $options['codeServiceUser'] ?? null;
         $agenceServiceIndex = $options['agenceServiceIndex'] ?? [];
 
         $dto = new DaAfficherDto();
@@ -115,10 +115,12 @@ class DaAfficherMapper
         $dto->statutDaSoumissionBc = $this->getStatutDaSoumissionBc($dto->numeroCde, $data->getCodeSociete());
 
         // acteur et action à faire
-        $agServEmetteur = $agenceServiceIndex["{$data->getAgenceEmetteur()}-{$data->getServiceEmetteur()}"] ?? "N/A";
-        $action = StatutActionConstant::getAction($data->getStatutDal(), $dto->datype, "{$agServEmetteur} — {$dto->demandeur}");
-        $dto->actionActeur = $action['acteur'];
-        $dto->actionLibelle = $action['libelle'];
+        if (!empty($agenceServiceIndex)) {
+            $agServEmetteur = $agenceServiceIndex["{$data->getAgenceEmetteur()}-{$data->getServiceEmetteur()}"] ?? "N/A";
+            $action = StatutActionConstant::getAction($data->getStatutDal(), $dto->datype, "{$agServEmetteur} — {$dto->demandeur}");
+            $dto->actionActeur = $action['acteur'];
+            $dto->actionLibelle = $action['libelle'];
+        }
 
         // DAL
         $dto->statutDal = !$estAppro && in_array($data->getStatutDal(), StatutDaConstant::STATUT_TRAITEMENT_APPRO) ? StatutDaConstant::TRAITEMENT_APPRO : $data->getStatutDal();

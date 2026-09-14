@@ -75,16 +75,13 @@ class DaListCdeFrnController extends Controller
         $paginationData = $this->daAfficherRepository->findValidatedPaginatedDas($criteriaTab, $page, $limit, $codeSociete);
         $daAfficherMapper = new DaAfficherMapper($this->getUrlGenerator(), $this->getEntityManager(), new UrlIdCipher());
         $dataPrepared = $daAfficherMapper->mapList($paginationData['data'], [
-            // TODO: à decommenter 'estAdmin'   => $this->estAdmin(),
             'estAdmin'   => false,
-            // TODO: à decommenter 'estAppro'   => $this->estAppro(),
             'estAppro'   => true,
             'estAtelier' => $this->estAtelier(),
             'estCreateur' => $this->estCreateurDaDirecte(),
             'codeAgenceUser' => $this->getSecurityService()->getCodeAgenceUser(),
             'codeServiceUser' => $this->getSecurityService()->getCodeServiceUser(),
             'demandePaiementRepository' => $this->getEntityManager()->getRepository(DemandePaiement::class),
-            'agenceServiceIndex' => $this->getSecurityService()->getAgenceServiceCodeIndex(),
         ]);
 
         // Formulaire de soumission BC, FAC + BL, BL Reappro
