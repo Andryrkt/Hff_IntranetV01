@@ -2,7 +2,7 @@
 
 namespace App\Controller\da\ListeCdeFrn;
 
-
+use App\Constants\da\RouteConstant;
 use App\Controller\Controller;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DaSoumissionBc;
@@ -82,6 +82,7 @@ class DaListCdeFrnController extends Controller
             'codeAgenceUser' => $this->getSecurityService()->getCodeAgenceUser(),
             'codeServiceUser' => $this->getSecurityService()->getCodeServiceUser(),
             'demandePaiementRepository' => $this->getEntityManager()->getRepository(DemandePaiement::class),
+            'redirect' => RouteConstant::SLUG_LISTE_CDE_FRN
         ]);
 
         // Formulaire de soumission BC, FAC + BL, BL Reappro

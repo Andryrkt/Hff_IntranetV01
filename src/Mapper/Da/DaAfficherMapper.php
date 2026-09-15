@@ -139,7 +139,7 @@ class DaAfficherMapper
         $dto->niveauUrgence = $dto->daReappro ? $safeIconBan : $data->getNiveauUrgence();
 
         // Calculs de droits & URLs (Actions & URLs)
-        $this->computeRightsAndUrls($dto, $data, $safeIconBan, $estAdmin, $estAppro, $estAtelier);
+        $this->computeRightsAndUrls($dto, $data, $safeIconBan, $estAdmin, $estAppro, $estAtelier, $options['redirect']);
 
         // HTML Attributes
         $dto->tdNumCdeAttributes = $this->prepareTdNumCdeAttributes($dto);
@@ -170,7 +170,7 @@ class DaAfficherMapper
         return $datasPrepared;
     }
 
-    private function computeRightsAndUrls(DaAfficherDto $dto, DaAfficher $item, Markup $safeIconBan,  bool $estAdmin, bool $estAppro, bool $estAtelier): void
+    private function computeRightsAndUrls(DaAfficherDto $dto, DaAfficher $item, Markup $safeIconBan,  bool $estAdmin, bool $estAppro, bool $estAtelier, string $slugRedirect): void
     {
         $dto->ajouterDA = $dto->daViaOR && ($estAtelier || $estAdmin);
         $statutDASupprimable = [StatutDaConstant::STATUT_SOUMIS_APPRO, StatutDaConstant::STATUT_SOUMIS_ATE, StatutDaConstant::STATUT_AUTORISER_EMETTEUR, StatutDaConstant::STATUT_VALIDE];
@@ -192,7 +192,7 @@ class DaAfficherMapper
 
         // URL Detail
         if ($parametres["daToken"]) {
-            $dto->urlDetail = isset(RouteConstant::DETAIL[$dto->datype]) ? $this->router->generate(RouteConstant::DETAIL[$dto->datype], $parametres["daToken"]) : '#';
+            $dto->urlDetail = isset(RouteConstant::DETAIL[$dto->datype]) ? $this->router->generate(RouteConstant::DETAIL[$dto->datype], array_merge($parametres["daToken"], ['redirect' => $slugRedirect])) : '#';
         } else {
             $dto->urlDetail = '#';
         }
