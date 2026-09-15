@@ -36,6 +36,9 @@ class DaSoumissionFacBlType extends AbstractType
                     if (in_array($choice, ['bap', 'ddpl']) && $options['data']->estRegule) {
                         $attr['disabled'] = 'disabled';
                     }
+                    if ($choice === 'regul' && !$options['data']->estRegule) {
+                        $attr['disabled'] = 'disabled';
+                    }
                     $attr['data-field-name'] = 'Type de traitement de paiement';
                     return $attr;
                 },
