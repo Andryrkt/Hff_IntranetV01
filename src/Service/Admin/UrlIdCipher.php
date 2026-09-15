@@ -2,6 +2,7 @@
 
 namespace App\Service\Admin;
 
+use App\Constants\da\RouteConstant;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class UrlIdCipher
@@ -13,12 +14,12 @@ class UrlIdCipher
     private string $key;
 
     private array $slugMap = [
-        'liste-des-demandes-d-achats' => [
-            'path_name'  => 'list_da',
+        RouteConstant::SLUG_LISTE_DA      => [
+            'path_name'  => RouteConstant::PATH_NAME_LISTE_DA,
             'title_page' => 'Liste des demandes d’achats'
         ],
-        'liste-des-commandes-fournisseurs' => [
-            'path_name'  => 'da_list_cde_frn',
+        RouteConstant::SLUG_LISTE_CDE_FRN => [
+            'path_name'  => RouteConstant::PATH_NAME_LISTE_CDE_FRN,
             'title_page' => 'Liste des commandes fournisseurs'
         ]
     ];
@@ -123,7 +124,7 @@ class UrlIdCipher
      **/
     public function resolveSlugDemandeAppro(string $slug, UrlGeneratorInterface $urlGenerator): array
     {
-        $config = $this->slugMap[$slug] ?? $this->slugMap["liste-des-demandes-d-achats"];
+        $config = $this->slugMap[$slug] ?? $this->slugMap[RouteConstant::SLUG_LISTE_DA];
 
         $url = $urlGenerator->generate($config["path_name"]);
 
