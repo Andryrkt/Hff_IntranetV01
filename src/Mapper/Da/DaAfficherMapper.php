@@ -117,7 +117,7 @@ class DaAfficherMapper
         // acteur et action à faire
         if (!empty($agenceServiceIndex)) {
             $agServEmetteur = $agenceServiceIndex["{$data->getAgenceEmetteur()}-{$data->getServiceEmetteur()}"] ?? "N/A";
-            $action = StatutActionConstant::getAction($data->getStatutDal(), $dto->datype, "{$agServEmetteur} — {$dto->demandeur}");
+            $action = StatutActionConstant::getAction($data->getStatutDal(), $dto->datype, "{$agServEmetteur} — {$dto->demandeur}", $data->getStatutOr(), $data->getStatutCde());
             $dto->actionActeur = $action['acteur'];
             $dto->actionLibelle = $action['libelle'];
         }

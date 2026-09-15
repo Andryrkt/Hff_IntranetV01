@@ -58,7 +58,7 @@ class StatutActionConstant
                     self::ANY => ['acteur' => self::ACTEUR_DEMANDEUR, 'libelle' => "Soumettre l'OR à validation"]
                 ],
                 StatutOrConstant::STATUT_VALIDE => [
-                    StatutBcConstant::STATUT_PAS_DANS_OR => ['acteur' => self::ACTEUR_DEMANDEUR, 'libelle' => 'Test de libellé'],
+                    StatutBcConstant::STATUT_PAS_DANS_OR => ['acteur' => self::ACTEUR_DEMANDEUR, 'libelle' => 'Veuillez vérifier la désignation de l’article dans l’OR dans IPS, car elle diffère de celle indiquée dans la DA'],
                 ],
             ],
         ],
