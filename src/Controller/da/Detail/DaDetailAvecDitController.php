@@ -71,11 +71,12 @@ class DaDetailAvecDitController extends Controller
 
 		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL(), $statutDa);
 		$timeLineData = $this->daTimelineService->getTimelineData($demandeAppro);
+		$resolvedSlug = $this->urlIdCipher->resolveSlugDemandeAppro($request->query->get('redirect'), $this->getUrlGenerator());
 
 		return $this->render('da/detail.html.twig', [
 			'detailTemplate'      		=> 'detail-avec-dit',
-			'urlRetour'           		=> $this->getUrlGenerator()->generate('list_da'),
-			'titreBoutonRetour'   		=> 'Liste des demandes d’achats',
+			'urlRetour'           		=> $resolvedSlug['url'],
+			'titreBoutonRetour'   		=> $resolvedSlug['title'],
 			'urlModifierDa'      		=> $this->getUrlGenerator()->generate('da_edit_avec_dit', ['token' => $token]),
 			'formObservation'			=> $formObservation->createView(),
 			'demandeAppro'      		=> $demandeAppro,

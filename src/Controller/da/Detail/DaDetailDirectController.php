@@ -67,11 +67,12 @@ class DaDetailDirectController extends Controller
 
 		$fichiers = $this->docRattacheService->getAllAttachedFiles($demandeAppro);
 		$timeLineData = $this->daTimelineService->getTimelineData($demandeAppro);
+		$resolvedSlug = $this->urlIdCipher->resolveSlugDemandeAppro($request->query->get('redirect'), $this->getUrlGenerator());
 
 		return $this->render('da/detail.html.twig', [
 			'detailTemplate'      		=> 'detail-direct',
-			'urlRetour'           		=> $this->getUrlGenerator()->generate('list_da'),
-			'titreBoutonRetour'   		=> 'Liste des demandes d’achats',
+			'urlRetour'           		=> $resolvedSlug['url'],
+			'titreBoutonRetour'   		=> $resolvedSlug['title'],
 			'urlModifierDa'      		=> $this->getUrlGenerator()->generate('da_edit_direct', ['token' => $token]),
 			'formObservation'			=> $formObservation->createView(),
 			'demandeAppro'      		=> $demandeAppro,

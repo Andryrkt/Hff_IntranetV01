@@ -59,11 +59,12 @@ class DaDetailReapproController extends Controller
 		$fichiers = $this->docRattacheService->getAllAttachedFiles($demandeAppro);
 		$timeLineData = $this->daTimelineService->getTimelineData($demandeAppro);
 		$statutEtAction = (new DaAfficherModel)->getStatutEtActionAffichage($demandeAppro->getNumeroDemandeAppro(), "{$demandeAppro->getAgenceServiceEmetteur()} — {$demandeAppro->getDemandeur()}");
+		$resolvedSlug = $this->urlIdCipher->resolveSlugDemandeAppro($request->query->get('redirect'), $this->getUrlGenerator());
 
 		return $this->render('da/detail.html.twig', [
 			'detailTemplate'    => 'detail-reappro',
-			'urlRetour'         => $this->getUrlGenerator()->generate('list_da'),
-			'titreBoutonRetour' => 'Liste des demandes d’achats',
+			'urlRetour'         => $resolvedSlug['url'],
+			'titreBoutonRetour' => $resolvedSlug['title'],
 			'formObservation'	=> $formObservation->createView(),
 			'demandeAppro'      => $demandeAppro,
 			'isMensuel'         => $demandeAppro->getDaTypeId() == DemandeAppro::TYPE_DA_REAPPRO_MENSUEL,
