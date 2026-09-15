@@ -37,6 +37,7 @@ class UserDataService
     private ?array $cacheAgServDonneesId = null;
     private ?array $cacheAgServDonneesCode = null;
     private ?array $cacheAllAgServDonnees = null;
+    private ?array $cacheAgServCodeIndex = null;
     private ?array $cacheRoutesIndex = null;
     private ?int $profilId = null;
 
@@ -377,6 +378,24 @@ class UserDataService
             $item->expiresAfter(null);
             return $this->calculerAllAgenceService($codeSociete);
         });
+    }
+
+    /**
+     * Construit un tableau lookup à partir de getAllAgenceService() (déjà en cache par société).
+     * Permet de retrouver le code agence et code service à partir de l'id agence et id service.
+     */
+    public function getAgenceServiceCodeIndex(): array
+    {
+        if ($this->cacheAgServCodeIndex !== null) {
+            return $this->cacheAgServCodeIndex;
+        }
+
+        $index = [];
+        foreach ($this->getAllAgenceService() as $agenceService) {
+            $index[$agenceService['agence_id'] . '-' . $agenceService['service_id']] = $agenceService['agence_code'] . '-' . $agenceService['service_code'];
+        }
+
+        return $this->cacheAgServCodeIndex = $index;
     }
 
     /**

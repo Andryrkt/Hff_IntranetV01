@@ -1,0 +1,106 @@
+<div class="row">
+	<div class="col-md-11">
+		<h3 class="perso-titre">
+			Observation du demande d'intervention n° {{ dto.numDit }}
+		</h3>
+	</div>
+	<div class="col-md-1">
+		<a href="{{ path("dit_index") }}" class="btn btn-list-dit">Liste des DIT</a>
+	</div>
+</div>
+
+<div class="row my-3">
+	<div class="col-5 col-md-5">
+		<div class="card">
+			<div class="card-body bg-light">
+				<div class="overflow-auto pe-1" style="max-height: 60vh;" id="conversationContainer">
+					<div class="conversation">
+						{% if observations is empty %}
+							<p class="align-self-center">Pas encore d'observations</p>
+						{% else %}
+							{% set dateTemp = null %}
+							{% for observation in observations %}
+								{% if dateTemp != observation.dateCreation|date('d/m/Y') %}
+									<span class="header-time">{{ observation.dateCreation|date('d/m/Y') }}</span>
+									{% set dateTemp = observation.dateCreation|date('d/m/Y') %}
+								{% endif %}
+
+								{% set isCurrentUser = App.connectedUser.username == observation.utilisateur %}
+
+								<div class="talk {{ isCurrentUser ? 'right' : 'left' }} mb-2">
+									{% if not isCurrentUser %}
+										<div class="user">
+											<div class="icon-user d-flex align-items-end justify-content-center">
+												<i class="fa fa-user"></i>
+											</div>
+											<span>{{ observation.utilisateur }}</span>
+										</div>
+									{% endif %}
+
+									<div class="msg-file {{ isCurrentUser ? 'align-items-end' : 'align-items-start' }}">
+										<div class="msg">
+											<p>{{ observation.observation|raw }}</p>
+											<span class="time">{{ observation.dateCreation|date('H:i') }}</span>
+										</div>
+										{% for fileName in observation.fileNames %}
+											<div class="file-comment">
+												<i class="fas {{ fileName|split('.')|last in ['jpg', 'jpeg', 'png'] ? 'fa-file-image' : 'fa-file-pdf' }} text-primary fs-6"></i>
+												<span data-file-path="{{ App.base_path_fichier }}/dit/{{ dto.numDit }}/{{ fileName }}" data-file-name="{{ fileName }}">
+													{{ fileName }}
+												</span>
+											</div>
+										{% endfor %}
+									</div>
+								</div>
+
+							{% endfor %}
+						{% endif %}
+					</div>
+				</div>
+			</div>
+			<div class="attached-files-preview d-none">
+				<div class="attached-files-header">
+					<small class="text-muted"></small>
+				</div>
+				<div class="attached-files-list"></div>
+			</div>
+			<div class="card-footer" style="padding: 0.75rem;">
+				{{ form_start(form) }}
+				{% set fileErrors = [] %}
+				{% for error in form.fileNames.vars.errors %}
+					{% set fileErrors = fileErrors|merge([error.message]) %}
+				{% endfor %}
+				{% if fileErrors is not empty %}
+					<div id="dit-observation-file-errors" class="d-none">{{ fileErrors|join('\n') }}</div>
+				{% endif %}
+				<div class="input-container mb-2">
+					{{ form_widget(form.observation) }}
+					<div class="input-actions">
+						<label for="dit_observation_fileNames" class="btn-icon" title="Joindre des fichiers">
+							<i class="fas fa-paperclip"></i>
+							<div class="d-none">
+								{{ form_widget(form.fileNames) }}
+							</div>
+						</label>
+					</div>
+				</div>
+				<div class="form-footer">
+					<button type="submit" class="btn bouton" name="observation">
+						Envoyer
+						<i class="fa-solid fa-paper-plane"></i>
+					</button>
+				</div>
+				{{ form_end(form) }}
+			</div>
+		</div>
+	</div>
+	<div class="col-7 col-md-7">
+		<div class="card">
+			<div class="card-body bg-light p-3">
+				<div id="file-viewer-observation">
+					<p>Sélectionnez un fichier pour l'afficher ici</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

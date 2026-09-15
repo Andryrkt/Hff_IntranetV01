@@ -30,6 +30,7 @@ class DaDossierDaController extends Controller
         $fichiers = $this->docRattacheService->getAllAttachedFiles($demandeAppro);
 
         return $this->render("da/dossier-da.html.twig", [
+            'isDdp' => true,
             'fichiers' => $fichiers,
         ]);
     }

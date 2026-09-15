@@ -12,6 +12,13 @@ document.addEventListener("DOMContentLoaded", () => {
     new bootstrap.Tooltip(el);
   });
 
+  /*=============================*
+   * POPOVER BOOTSTRAP           *
+   *=============================*/
+  document.querySelectorAll('[data-bs-toggle="popover"]').forEach((el) => {
+    new bootstrap.Popover(el);
+  });
+
   const logoutLink = document.getElementById("logoutLink");
   const logoutUrl = logoutLink?.getAttribute("href");
 

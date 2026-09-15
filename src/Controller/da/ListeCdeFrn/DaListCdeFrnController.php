@@ -16,6 +16,7 @@ use App\Form\da\daCdeFrn\DaModalDateLivraisonType;
 use App\Form\da\daCdeFrn\DaSoumissionType;
 use App\Mapper\Da\DaAfficherMapper;
 use App\Repository\da\DaSoumissionBcRepository;
+use App\Service\Admin\UrlIdCipher;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -72,11 +73,9 @@ class DaListCdeFrnController extends Controller
 
         // Récupération et préparation des données
         $paginationData = $this->daAfficherRepository->findValidatedPaginatedDas($criteriaTab, $page, $limit, $codeSociete);
-        $daAfficherMapper = new DaAfficherMapper($this->getUrlGenerator(), $this->getEntityManager());
+        $daAfficherMapper = new DaAfficherMapper($this->getUrlGenerator(), $this->getEntityManager(), new UrlIdCipher());
         $dataPrepared = $daAfficherMapper->mapList($paginationData['data'], [
-            // TODO: à decommenter 'estAdmin'   => $this->estAdmin(),
             'estAdmin'   => false,
-            // TODO: à decommenter 'estAppro'   => $this->estAppro(),
             'estAppro'   => true,
             'estAtelier' => $this->estAtelier(),
             'estCreateur' => $this->estCreateurDaDirecte(),

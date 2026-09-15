@@ -30,7 +30,9 @@ class AppExtension extends AbstractExtension implements GlobalsInterface
 
         return [
             'App' => [
-                'userConnecter'     => [
+                'browserHash'      => hash('crc32b', date('Y-m-d')),
+                'connectedUser'    => [
+                    'username'     => $userInfo['username'] ?? '',
                     'firstname'    => $userInfo['firstname'] ?? '',
                     'lastname'     => $userInfo['lastname'] ?? '',
                     'fullname'     => $userInfo['fullname'] ?? '',

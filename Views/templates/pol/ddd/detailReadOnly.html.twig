@@ -6,8 +6,8 @@
 
 {% block stylesheets %}
     {# On reprend le style de new pour la cohérence #}
-    <link href="{{ App.base_path }}/Views/css/new.css?v=2026.07.03.14.50" rel="stylesheet"/>
-    <link rel="stylesheet" href="{{ App.base_path }}/Views/css/ddd/liste.css?v=2026.07.03.14.50">
+    <link href="{{ App.base_path }}/Views/css/new.css?v={{ App.browserHash }}" rel="stylesheet"/>
+    <link rel="stylesheet" href="{{ App.base_path }}/Views/css/ddd/liste.css?v={{ App.browserHash }}">
 
 {% endblock %}
 
@@ -322,7 +322,7 @@
     {# Only the external module remains – all inline JS is now in this file #}
     <script
     type="module"
-    src="{{ App.base_path }}/Views/js/ddd/demandeDiagnosticPneuDetail.js?v=2026.07.03.14.50">
+    src="{{ App.base_path }}/Views/js/ddd/demandeDiagnosticPneuDetail.js?v={{ App.browserHash }}">
     </script>
 
 {% endblock %}

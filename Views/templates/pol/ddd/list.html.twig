@@ -5,8 +5,8 @@
 {% endblock %}
 
 {% block stylesheets %}
-    <link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2026.07.03.14.50">
-    <link rel="stylesheet" href="{{ App.base_path }}/Views/css/ddd/liste.css?v=2026.07.03.14.50">
+    <link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v={{ App.browserHash }}">
+    <link rel="stylesheet" href="{{ App.base_path }}/Views/css/ddd/liste.css?v={{ App.browserHash }}">
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
@@ -28,11 +28,11 @@
             <div class="row">
                 <div class="col-12 my-2">
                     <div class="status-list">
-                        {% for statut, count in statusCounts  %}
+                        {% for statut, count in statusCounts %}
                             {% set colorClass = statusColors[statut] ?? 'badge-secondary' %}
                             <span class="status-badge {{ colorClass }}">
                                 <span class="count">{{ count }}</span>
-                                <span class="label">{{ statut | upper }}</span>
+                                <span class="label">{{ statut|upper }}</span>
                             </span>
                         {% endfor %}
                     </div>
@@ -59,9 +59,11 @@
                     <th>Matériel (N° Parc)</th>
                     <th>Date départ</th>
                     <th>Livraison</th>
-                    <th> <span title="Nombre de pneus (Sur Machine - Secours - à Diagnostiser)">
-                        Nb pneus <small>(M - S - D)</small>
-                    </span></th>
+                    <th>
+                        <span title="Nombre de pneus (Sur Machine - Secours - à Diagnostiquer)">
+                            Nb. Pneus <small>(M - S - D)</small>
+                        </span>
+                    </th>
                     <th>Motifs</th>
                     <th>N° DIT</th>
                     <th>N° OR</th>
@@ -90,127 +92,118 @@
                                     {% endif %}
                                     {% if showDetailsLink %}
                                         <li>
-                                            <a class="dropdown-item fw-bold"
-                                                href="{{ path(detailsRoute, {numeroDemande: demande.numeroDemande}) }}"
-                                                target="_blank">Voir les détails</a>
-                                            </li>
-                                        {% endif %}
-                                    </ul>
-                                </div>
-                            </td>
-                            {# Fin Actions #}
-                            {# Statut #}
-                            <td class="fw-bold {{ statusColors[demande.statut] ?? 'bg-secondary text-white' }}">
-                                {{ demande.statut|upper }}
-                            </td>
+                                            <a class="dropdown-item fw-bold" href="{{ path(detailsRoute, {numeroDemande: demande.numeroDemande}) }}" target="_blank">
+                                                Voir les détails
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </td>
+                        {# Fin Actions #}
+                        {# Statut #}
+                        <td class="fw-bold {{ statusColors[demande.statut] ?? 'bg-secondary text-white' }}">
+                            {{ demande.statut|upper }}
+                        </td>
 
-                            {# Numéro demande #}
-                            <td>
-                                {% if showDetailsLink %}
-                                    <a href="{{ path(detailsRoute, {numeroDemande: demande.numeroDemande}) }}"
-                                        target="_blank"
-                                        data-bs-toggle="tooltip"
-                                        title="Voir le détail">
-                                        {{ demande.numeroDemande }}
-                                    </a>
-                                {% else %}
+                        {# Numéro demande #}
+                        <td>
+                            {% if showDetailsLink %}
+                                <a href="{{ path(detailsRoute, {numeroDemande: demande.numeroDemande}) }}" target="_blank" data-bs-toggle="tooltip" title="Voir le détail">
                                     {{ demande.numeroDemande }}
-                                {% endif %}
-                            </td>
+                                </a>
+                            {% else %}
+                                {{ demande.numeroDemande }}
+                            {% endif %}
+                        </td>
 
-                            {# Demandeur #}
-                            <td>{{ demande.demandeur|capitalize }}</td>
+                        {# Demandeur #}
+                        <td>{{ demande.demandeur|capitalize }}</td>
 
-                            {# Chantier #}
-                            <td>{{ demande.chantier ? demande.chantier.nomChantier : '-' }}</td>
+                        {# Chantier #}
+                        <td>{{ demande.chantier ? demande.chantier.nomChantier : '-' }}</td>
 
-                            {# Matériel (N° Parc) #}
-                            <td>{{ demande.numeroParcMateriel ?: '-' }}</td>
+                        {# Matériel (N° Parc) #}
+                        <td>{{ demande.numeroParcMateriel ?: '-' }}</td>
 
-                            {# Date départ chantier #}
-                            <td>{{ demande.dateDepartChantier ? demande.dateDepartChantier|date('d/m/Y') : '-' }}</td>
+                        {# Date départ chantier #}
+                        <td>{{ demande.dateDepartChantier ? demande.dateDepartChantier|date('d/m/Y') : '-' }}</td>
 
-                            {# Livraison #}
-                            <td>{{ demande.livraison ?: '-' }}</td>
+                        {# Livraison #}
+                        <td>{{ demande.livraison ?: '-' }}</td>
 
-                            {# Nombre de pneus (Machine / Secours / À diagnostiquer) #}
-                            <td >
-                                <table class="table table-borderless table-sm mb-0" style="width: auto; min-width: 120px;">
-                                    <tbody>
-                                        <tr>
-                                            <td class="text-center  py-0">
-                                                <span class="badge bg-secondary">{{ demande.nbPneuSurMachine }}</span>
-                                            </td>
-                                            <td class="text-center py-0">
-                                                <span class="badge bg-secondary">{{ demande.nbPneuSecours }}</span>
-                                            </td>
-                                            <td class="text-center py-0">
-                                                <span class="badge bg-primary">{{ demande.nbPneuADiagnostiquer }}</span>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </td>
+                        {# Nombre de pneus (Machine / Secours / À diagnostiquer) #}
+                        <td>
+                            <table class="table table-borderless table-sm mb-0" style="width: auto; min-width: 120px;">
+                                <tbody>
+                                    <tr>
+                                        <td class="text-center  py-0">
+                                            <span class="badge bg-secondary">{{ demande.nbPneuSurMachine }}</span>
+                                        </td>
+                                        <td class="text-center py-0">
+                                            <span class="badge bg-secondary">{{ demande.nbPneuSecours }}</span>
+                                        </td>
+                                        <td class="text-center py-0">
+                                            <span class="badge bg-primary">{{ demande.nbPneuADiagnostiquer }}</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
 
-                            {# Motifs généraux #}
-                            <td>
-                                {% if demande.motifs %}
-                                    {% for motif in demande.motifs %}
-                                        <div>- {{ motif }}</div>
-                                    {% endfor %}
-                                {% else %}
-                                    -
-                                {% endif %}
-                            </td>
+                        {# Motifs généraux #}
+                        <td>
+                            {% if demande.motifs %}
+                                {% for motif in demande.motifs %}
+                                    <div>- {{ motif }}</div>
+                                {% endfor %}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
 
-                            {# N° DIT #}
-                            <td>
+                        {# N° DIT #}
+                        <td>
 
-                                {% if demande.numeroDit %}
-                                    <a href="{{ path('dit_validationDit', {
-                                        id: demande.demandeInterventionId,
-                                        numDit: demande.numeroDit
-                                        }) }}"
-                                        target="_blank"
-                                        data-bs-toggle="tooltip"
-                                        title="Afficher le détail">
-                                        {{ demande.numeroDit }}
-                                    </a>
-                                {% else %}
-                                    <span class="text-muted">-</span>
-                                {% endif %}
-                            </td>
+                            {% if demande.numeroDit %}
+                                <a href="{{ demande.urlDetailDit }}" target="_blank" data-bs-toggle="tooltip" title="Afficher le détail">
+                                    {{ demande.numeroDit }}
+                                </a>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
 
-                            {# N° OR #}
-                            <td>{{ demande.numeroOr ?: '-' }}</td>
+                        {# N° OR #}
+                        <td>{{ demande.numeroOr ?: '-' }}</td>
 
-                            {# Date création #}
-                            <td>{{ demande.dateCreation ? demande.dateCreation|date('d/m/Y') : '-' }}</td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="13" class="text-center">Aucune demande de diagnostic pneu trouvée.</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                        {# Date création #}
+                        <td>{{ demande.dateCreation ? demande.dateCreation|date('d/m/Y') : '-' }}</td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="13" class="text-center">Aucune demande de diagnostic pneu trouvée.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-        {# Pagination en bas #}
-        <div class="container">
-            {% include "/partials/_pagination.html.twig" with {
+    {# Pagination en bas #}
+    <div class="container">
+        {% include "/partials/_pagination.html.twig" with {
             'data': data,
             'currentPage': currentPage,
             'totalPages': totalPages,
             'route': 'demande_diagnostic_pneu_liste'
             } %}
-        </div>
+    </div>
 
-        {# Modales éventuelles (pour détails, pièces jointes, etc.) #}
-        {# {% include "/pol/ddd/shared/_modal.html.twig" %} #}
+    {# Modales éventuelles (pour détails, pièces jointes, etc.) #}
+    {# {% include "/pol/ddd/shared/_modal.html.twig" %} #}
 
-    {% endblock %}
+{% endblock %}
 
-    {% block javascript %}
-        <script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2026.07.03.14.50"></script>
-    {% endblock %}
+{% block javascript %}
+    <script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v={{ App.browserHash }}"></script>
+{% endblock %}

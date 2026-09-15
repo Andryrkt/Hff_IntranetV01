@@ -9,7 +9,7 @@ use App\Factory\Dit\DemandeInterventionFactory;
 
 trait DitTrait
 {
-    private function createDemandeInterventionFromDto(DemandeInterventionDto $dto): array
+    private function createDemandeInterventionFromDto(DemandeInterventionDto $dto, DemandeInterventionFactory $demandeInterventionFactory): array
     {
         /** @var DemandeInterventionFactory $demandeInterventionFactory */
         $demandeInterventionFactory = $this->demandeInterventionFactory;

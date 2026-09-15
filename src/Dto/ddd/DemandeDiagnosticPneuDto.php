@@ -2,8 +2,12 @@
 
 namespace App\Dto\ddd;
 
-use App\Entity\ddd\Chantier;
 use DateTime;
+use App\Entity\ddd\Chantier;
+use App\Entity\ddd\DemandeDiagnosticPneu;
+use App\Entity\dit\DemandeIntervention;
+use App\Service\Admin\UrlIdCipher;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class DemandeDiagnosticPneuDto
 {
@@ -47,20 +51,10 @@ class DemandeDiagnosticPneuDto
     public ?string $numeroOr = null;
     public ?array $piecesJointes = [];
 
+    public ?string $urlDetailDit = null;
 
-    // AJOUT : Champs de DemandeIntervention
-    public ?int $demandeInterventionId = null;  // ID de l'intervention
-    public ?string $numeroOrIntervention = null;  // Numéro OR depuis l'intervention
-    public ?string $statutIntervention = null;  // Statut de l'intervention
-    public ?DateTime $dateCreationIntervention = null;  // Date de création de l'intervention
-    public ?string $typeIntervention = null;  // Type d'intervention si besoin
-
-    public function __construct()
-    {
-        // Constructeur vide pour permettre la création via setters
-    }
     // Méthode de fabrique pour créer le DTO à partir des entités
-    public static function fromEntities($demande, $intervention = null): self
+    public static function fromEntities(DemandeDiagnosticPneu $demande, ?DemandeIntervention $intervention = null, ?UrlGeneratorInterface $urlGenerator = null, ?UrlIdCipher $urlIdCipher = null): self
     {
         $dto = new self();
         // Remplir les données de DemandeDiagnosticPneu
@@ -73,8 +67,8 @@ class DemandeDiagnosticPneuDto
             $dto->chantier = $chantier;
             $dto->idChantier = $chantier->getId();
             // Adaptez les noms de méthodes selon votre entité Chantier
-            $dto->codeChantier = $chantier->getCodeChantier() ?? $chantier->getCode();
-            $dto->nomChantier = $chantier->getNomChantier() ?? $chantier->getNom();
+            $dto->codeChantier = $chantier->getCodeChantier() ?? "-";
+            $dto->nomChantier = $chantier->getNomChantier() ?? "-";
         }
 
         // Matériel (les champs sont directement dans l'entité)
@@ -100,77 +94,10 @@ class DemandeDiagnosticPneuDto
         // Remplir les données de DemandeIntervention si disponible
         if ($intervention) {
             $dto->numeroDit = $demande->getNumeroDit();
-            $dto->demandeInterventionId = $intervention->getId();
             $dto->numeroOr = $demande->getNumeroOr();
+            $dto->urlDetailDit = $urlGenerator->generate('dit_fiche_detail', ['token' => $urlIdCipher->encrypt($intervention->getId(), "DIT")]);
         }
 
         return $dto;
-    }
-
-    // Getters et Setters si nécessaire
-    public function getDemandeInterventionId(): ?int
-    {
-        return $this->demandeInterventionId;
-    }
-
-    public function setDemandeInterventionId(?int $demandeInterventionId): self
-    {
-        $this->demandeInterventionId = $demandeInterventionId;
-        return $this;
-    }
-
-    public function getNumeroDit(): ?string
-    {
-        return $this->numeroDit;
-    }
-
-    public function setNumeroDit(?string $numeroDit): self
-    {
-        $this->numeroDit = $numeroDit;
-        return $this;
-    }
-
-    public function getNumeroOrIntervention(): ?string
-    {
-        return $this->numeroOrIntervention;
-    }
-
-    public function setNumeroOrIntervention(?string $numeroOrIntervention): self
-    {
-        $this->numeroOrIntervention = $numeroOrIntervention;
-        return $this;
-    }
-
-    public function getStatutIntervention(): ?string
-    {
-        return $this->statutIntervention;
-    }
-
-    public function setStatutIntervention(?string $statutIntervention): self
-    {
-        $this->statutIntervention = $statutIntervention;
-        return $this;
-    }
-
-    public function getDateCreationIntervention(): ?DateTime
-    {
-        return $this->dateCreationIntervention;
-    }
-
-    public function setDateCreationIntervention(?DateTime $dateCreationIntervention): self
-    {
-        $this->dateCreationIntervention = $dateCreationIntervention;
-        return $this;
-    }
-
-    public function getTypeIntervention(): ?string
-    {
-        return $this->typeIntervention;
-    }
-
-    public function setTypeIntervention(?string $typeIntervention): self
-    {
-        $this->typeIntervention = $typeIntervention;
-        return $this;
     }
 }
