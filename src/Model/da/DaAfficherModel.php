@@ -41,6 +41,7 @@ class DaAfficherModel extends Model
         $firstRow = $lastRow = $rowPasDansOR = null;
 
         while ($row = odbc_fetch_array($result)) {
+            $row = $this->convertDataSqlServerToUTF8($row);
             $firstRow ??= $row;
             $lastRow = $row;
 
