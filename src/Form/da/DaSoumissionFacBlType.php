@@ -45,6 +45,7 @@ class DaSoumissionFacBlType extends AbstractType
                 'expanded' => true,
                 'multiple' => false,
                 'required' => true,
+                'data' => $options['data']->estRegule ? 'regul' : 'ddpl',
             ])
             ->add('numeroCde', TextType::class, [
                 'label' => 'Numéro Commande',
