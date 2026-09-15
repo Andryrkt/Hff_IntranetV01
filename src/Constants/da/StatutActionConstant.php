@@ -66,17 +66,17 @@ class StatutActionConstant
 
     /**
      * @param ?string $statutDal
-     * @param int     $daType
+     * @param ?int    $daType
      * @param string  $demandeur
      * @param ?string $statutOr
      * @param ?string $statutCde
      *
      * @return array{acteur:string,libelle:string,action:string}
      */
-    public static function getAction(?string $statutDal, int $daType, string $demandeur, ?string $statutOr = null, ?string $statutCde = null): array
+    public static function getAction(?string $statutDal, ?int $daType, string $demandeur, ?string $statutOr = null, ?string $statutCde = null): array
     {
         $parStatutOr = self::STATUT_DA_ACTION[$statutDal][$daType] ?? null;
-        $parStatutCde = $parStatutOr[$statutOr ?? "N/A"] ?? $parStatutOr[self::ANY] ?? null;
+        $parStatutCde = $parStatutOr[$statutOr ?? ""] ?? $parStatutOr[self::ANY] ?? null;
         $action = $parStatutCde[$statutCde ?? "N/A"] ?? $parStatutCde[self::ANY] ?? null;
 
         if (!$action) return ['acteur' => '', 'libelle' => '', 'action' => ''];

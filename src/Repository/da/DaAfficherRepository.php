@@ -669,27 +669,6 @@ class DaAfficherRepository extends EntityRepository
             ->getSingleColumnResult();
     }
 
-    /**
-     * Récupère le statut fiable (dernière version de DaAfficher) + classe de couleur d'affichage d'une DA,
-     * ainsi que l'acteur et l'action à faire correspondants.
-     *
-     * @return array{action:string,statutDa:string,classStatutDa:string}
-     */
-    public function getStatutEtActionAffichage(DemandeAppro $demandeAppro): array
-    {
-        $statutDaAfficher = $this->getLastStatutDaAfficher($demandeAppro->getNumeroDemandeAppro(), $demandeAppro->getCodeSociete());
-        $statutDa = $statutDaAfficher[0] ?? "";
-
-        $action = StatutActionConstant::getAction($statutDa, $demandeAppro->getDaTypeId(), "{$demandeAppro->getAgenceServiceEmetteur()} — {$demandeAppro->getDemandeur()}");
-
-        return [
-            'action'        => $action["action"] ?: "-",
-            'statutDa'      => $statutDa,
-            'classStatutDa' => StatutDaConstant::getCssClassDa($statutDa),
-        ];
-    }
-
-
     public function findDerniereVersionDesDA(
         array $criteria,
         string $codeSociete
