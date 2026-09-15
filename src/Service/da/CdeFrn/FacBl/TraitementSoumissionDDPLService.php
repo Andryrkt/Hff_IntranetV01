@@ -292,9 +292,9 @@ class TraitementSoumissionDDPLService
         $numLiv = $dto->numLiv;
         $mttFac = $dto->montantBlFacture;
         $infoLivraison = $dto->infoLiv[$numLiv];
-        $montant_livraison = $dto->isFrnNonImmatricule ? $infoLivraison['montant_fac_bl'] * 0.95 : $infoLivraison['montant_fac_bl'];
+        $montant_fac_bl =  $infoLivraison['montant_fac_bl'];
         $mttFacFormate = $mttFac ? (float)str_replace(',', '.', str_replace(' ', '', $mttFac)) : 0.0;
-       
+
         $nonReceptionnes = array_filter($dto->receptions, function ($item) {
             return $item->statutRecep === 'Non receptionnee';
         });
@@ -316,7 +316,7 @@ class TraitementSoumissionDDPLService
             $message = " le type de traitement de paiement doit être régularisation car le montant à payer est égal à 0 ";
             $okey = false;
         } // Blocage si montant ne correspond pas au montant de la livraison dans IPS
-        elseif ($mttFacFormate !== (float) $montant_livraison) {
+        elseif ($mttFacFormate !== (float) $montant_fac_bl) {
             $message = "Le montant de la facture <b>{$mttFac}</b> ne correspond pas au montant de la livraison dans IPS. Merci de vérifier le montant de la facture avant de le soumettre dans DocuWare.";
             $okey = false;
         }

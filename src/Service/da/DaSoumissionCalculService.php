@@ -69,6 +69,10 @@ class DaSoumissionCalculService
             $TotalMontantFactureSoumise *= 1.2;
         }
 
+        if ($dto->isFrnNonImmatricule) {
+            $MontantFactureEnCours *= 0.95;
+        }
+
         $ratioDejaPayer = ($totalCommandeTTC > 0) ? ($TotalMontantFactureSoumise / $totalCommandeTTC) * 100 : 0;
 
 
