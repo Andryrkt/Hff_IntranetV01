@@ -11,6 +11,7 @@ use App\Form\da\DaObservationType;
 use App\Controller\Traits\lienGenerique;
 use App\Controller\Traits\da\DaAfficherTrait;
 use App\Controller\Traits\da\detail\DaDetailAvecDitTrait;
+use App\Model\da\DaAfficherModel;
 use App\Model\dit\DitModel;
 use App\Service\da\DaTimelineService;
 use App\Service\da\DocRattacheService;
@@ -65,7 +66,7 @@ class DaDetailAvecDitController extends Controller
 
 		$fichiers = $this->docRattacheService->getAllAttachedFiles($demandeAppro);
 
-		$statutEtAction = $this->daAfficherRepository->getStatutEtActionAffichage($demandeAppro);
+		$statutEtAction = (new DaAfficherModel)->getStatutEtActionAffichage($demandeAppro->getNumeroDemandeAppro(), "{$demandeAppro->getAgenceServiceEmetteur()} — {$demandeAppro->getDemandeur()}");
 		$statutDa = $statutEtAction['statutDa'] ?? "";
 
 		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL(), $statutDa);

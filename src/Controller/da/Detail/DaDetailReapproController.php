@@ -10,6 +10,7 @@ use App\Entity\da\DaObservation;
 use App\Repository\da\DaAfficherRepository;
 use App\Service\da\EmailDaService;
 use App\Form\da\DaObservationType;
+use App\Model\da\DaAfficherModel;
 use App\Service\da\DaTimelineService;
 use App\Service\da\DocRattacheService;
 use App\Service\Admin\UrlIdCipher;
@@ -57,7 +58,7 @@ class DaDetailReapproController extends Controller
 
 		$fichiers = $this->docRattacheService->getAllAttachedFiles($demandeAppro);
 		$timeLineData = $this->daTimelineService->getTimelineData($demandeAppro);
-		$statutEtAction = $this->daAfficherRepository->getStatutEtActionAffichage($demandeAppro);
+		$statutEtAction = (new DaAfficherModel)->getStatutEtActionAffichage($demandeAppro->getNumeroDemandeAppro(), "{$demandeAppro->getAgenceServiceEmetteur()} — {$demandeAppro->getDemandeur()}");
 
 		return $this->render('da/detail.html.twig', [
 			'detailTemplate'    => 'detail-reappro',
