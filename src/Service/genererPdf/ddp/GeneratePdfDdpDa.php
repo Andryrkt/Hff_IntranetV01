@@ -144,28 +144,41 @@ class GeneratePdfDdpDa extends GeneratePdf
 
         $pdf->Ln(5);
 
-        $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell(50, 10, 'Bénéficiaire', 1, 0);
-
         if ($dto->isFrnNonImmatricule) {
             $tagText = '(Non Immatriculé)';
+            $w       = 50;   // largeur cellule
+            $h       = 10;   // hauteur totale cellule
+            $padY    = 1;    // padding vertical (bas)
 
-            // 1. Nom béneficiaire sans border gauche LTB
-            $pdf->SetFont('helvetica', '', 12);
-            $nameW = $pdf->GetStringWidth($tagText);
+            // Position de départ
+            $x = $pdf->GetX();
+            $y = $pdf->GetY();
+
+            // 1) Bordure extérieure de la cellule
+            $pdf->Rect($x, $y, $w, $h);
+
+            // 2) "Bénéficiaire" en HAUT (avec padding gauche aussi)
+            $pdf->SetXY($x, $y + $padY);
+            $pdf->SetFont('helvetica', 'B', 12);
             $pdf->SetTextColor(0, 0, 0);
-            $pdf->Cell($usable_width - 50 - $nameW, 10, $dto->beneficiaire, 'LTB', 0, 'L');
+            $pdf->MultiCell($w, 5, 'Bénéficiaire', 0, 'L');
 
-            // 2. Texte si immatriculé sans border droite RTB
-            $pdf->SetFont('helvetica', 'B', 10);
+            // 3) Tag rouge en BAS (avec padding gauche + bas)
+            $pdf->SetXY($x, $y + $h - 4 - $padY);
+            $pdf->SetFont('helvetica', 'B', 9);
             $pdf->SetTextColor(255, 0, 0);
-            $pdf->Cell($nameW, 10, $tagText, 'RTB', 1, 'L');
+            $pdf->MultiCell($w, 4, $tagText, 0, 'L');
             $pdf->SetTextColor(0, 0, 0);
+
+            // 4) Replacer le curseur APRÈS la cellule
+            $pdf->SetXY($x + $w, $y);
         } else {
-            $pdf->SetFont('helvetica', '', 12);
-            $pdf->Cell($usable_width - 50, 10, $dto->beneficiaire, 1, 1, 'L');
+            $pdf->SetFont('helvetica', 'B', 12);
+            $pdf->Cell(50, 10, 'Bénéficiaire', 1, 0);
         }
 
+        $pdf->SetFont('helvetica', '', 12);
+        $pdf->Cell($usable_width - 50, 10, $dto->beneficiaire, 1, 1, 'L');
 
         $pdf->SetFont('helvetica', 'B', 12);
         $pdf->Cell(50, 10, 'Motif ', 1, 0);
