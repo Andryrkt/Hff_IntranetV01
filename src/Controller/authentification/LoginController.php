@@ -43,7 +43,7 @@ class LoginController extends Controller
 
                 if (!$user) throw new \Exception('Utilisateur non trouvé avec le nom d\'utilisateur : ' . $username);
 
-                if (!$this->ldapModel->userConnect($username, $password)) {
+                if (!$this->ldapModel->authenticate($username, $password)) {
                     $this->logUserVisit('security_signin');
                     $error_msg = "Vérifier les informations de connexion, veuillez saisir le nom d'utilisateur et le mot de passe de votre session Windows";
                 } else {
@@ -64,10 +64,6 @@ class LoginController extends Controller
                     ];
 
                     $this->getSessionService()->set('user_info', $userInfo);
-
-                    $filename = $_ENV['BASE_PATH_LONG'] . "\src\Controller\authentification.csv";
-                    $newData = [$userId, $username, $password];
-                    $this->synchronizeCSV($filename, $newData);
 
                     if ($profils->count() > 1) $this->redirectToRoute('choix_societe');
 
@@ -100,56 +96,6 @@ class LoginController extends Controller
         ]);
     }
 
-    private function synchronizeCSV(string $filename, array $newData)
-    {
-        $rows = [];
-        $found = false;
-
-        // Vérifier si le fichier existe avant de tenter de le lire
-        if (file_exists($filename)) {
-            $handle = fopen($filename, "r");
-
-            if (!$handle) {
-                die("Erreur : Impossible d'ouvrir le fichier $filename en lecture.");
-            }
-
-            while (($data = fgetcsv($handle, 1000, ";")) !== FALSE) {
-                if ($data[0] == $newData[0]) { // Vérifie si l'ID existe déjà
-                    if ($data[2] !== $newData[2]) { // Vérifie si l'email est différent
-                        $data[2] = $newData[2]; // Met à jour l'email
-                    }
-                    $found = true;
-                }
-                $rows[] = $data; // Stocke la ligne (modifiée ou non)
-            }
-
-            fclose($handle);
-        }
-
-        // Si l'ID n'existe pas, ajoute une nouvelle ligne
-        if (!$found) {
-            $rows[] = $newData;
-        }
-
-        // Vérifier si le fichier est accessible en écriture
-        if (!is_writable($filename) && file_exists($filename)) {
-            die("Erreur : Impossible d'écrire dans le fichier $filename");
-        }
-
-        // Réécriture complète du fichier CSV
-        $handle = fopen($filename, "w");
-
-        if (!$handle) {
-            die("Erreur : Impossible d'ouvrir le fichier $filename en écriture.");
-        }
-
-        foreach ($rows as $row) {
-            fputcsv($handle, $row, ";");
-        }
-
-        fclose($handle);
-    }
-
     /**
      * @Route("/logout", name="auth_deconnexion")
      */
@@ -180,7 +126,7 @@ class LoginController extends Controller
                 throw new \Exception('Utilisateur non trouvé avec le nom d\'utilisateur : ' . $username);
             }
 
-            if (!$this->ldapModel->userConnect($username, $password)) {
+            if (!$this->ldapModel->authenticate($username, $password)) {
                 return new \Symfony\Component\HttpFoundation\JsonResponse(['error' => 'Identifiants invalides'], 401);
             }
 
