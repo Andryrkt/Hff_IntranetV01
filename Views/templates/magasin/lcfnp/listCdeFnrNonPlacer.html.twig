@@ -1,8 +1,8 @@
 {% extends "baseTemplate.html.twig" %}
 {% block stylesheets %}
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2026.07.03.14.50">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/magasin/magasin.css?v=2026.07.03.14.50">
-	<link href="{{ App.base_path }}/Views/css/dit/news.css?v=2026.07.03.14.50" rel="stylesheet"/>
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v={{ App.browserHash }}">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/magasin/magasin.css?v={{ App.browserHash }}">
+	<link href="{{ App.base_path }}/Views/css/dit/news.css?v={{ App.browserHash }}" rel="stylesheet"/>
 {% endblock %}
 {% import "macroForm.html.twig" as macroForm %}
 {% block content %}
@@ -56,6 +56,6 @@
 	</div>
 {% endblock %}
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/magasin/main.js?v=2026.07.03.14.50" type="module"></script>
-	<script src="{{ App.base_path }}/Views/js/magasin/autoFrsnp.js?v=2026.07.03.14.50" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/magasin/main.js?v={{ App.browserHash }}" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/magasin/autoFrsnp.js?v={{ App.browserHash }}" type="module"></script>
 {% endblock %}

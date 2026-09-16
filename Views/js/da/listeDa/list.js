@@ -5,12 +5,31 @@ import { handleAgenceChange } from "../../dit/fonctionUtils/fonctionListDit.js";
 import { allowOnlyNumbers } from "../../magasin/utils/inputUtils.js";
 import { initCentraleCodeDesiInputs } from "../newReappro/event.js";
 import { FetchManager } from "../../api/FetchManager.js";
+
+// Optimisation : Délégation des tooltips pour ne pas surcharger le chargement initial
+document.addEventListener("mouseover", function (e) {
+  const target = e.target.closest('[data-bs-toggle="tooltip"]');
+  if (target && !bootstrap.Tooltip.getInstance(target)) {
+    const tooltip = new bootstrap.Tooltip(target);
+    tooltip.show();
+
+    // Correction : On force la fermeture quand on quitte l'élément
+    target.addEventListener(
+      "mouseleave",
+      () => {
+        tooltip.hide();
+      },
+      { once: true }
+    );
+  }
+});
+
 const fetchManager = new FetchManager();
 
 document.addEventListener("DOMContentLoaded", function () {
   initCentraleCodeDesiInputs(
     "da_search_codeCentrale",
-    "da_search_desiCentrale",
+    "da_search_desiCentrale"
   );
   const designations = document.querySelectorAll(".designation-btn");
   designations.forEach((designation) => {
@@ -32,11 +51,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Attachement des événements pour les agences
   configAgenceService.emetteur.agenceInput.addEventListener("change", () =>
-    handleAgenceChange("emetteur"),
+    handleAgenceChange("emetteur")
   );
 
   configAgenceService.debiteur.agenceInput.addEventListener("change", () =>
-    handleAgenceChange("debiteur"),
+    handleAgenceChange("debiteur")
   );
 
   /**==================================================
@@ -45,7 +64,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const idMaterielInput = document.querySelector("#da_search_idMateriel");
   idMaterielInput.addEventListener("input", () =>
-    allowOnlyNumbers(idMaterielInput),
+    allowOnlyNumbers(idMaterielInput)
   );
 
   /**
@@ -179,7 +198,7 @@ document.addEventListener("DOMContentLoaded", function () {
    * Evenement sur "Afficher les DA à traiter" pour filtrer les statuts
    **/
   const checkboxAfficherTraiter = document.getElementById(
-    "da_search_afficherDaTraiter",
+    "da_search_afficherDaTraiter"
   );
   const selectStatutDA = document.getElementById("da_search_statutDA");
   const selectStatutBC = document.getElementById("da_search_statutBC");
@@ -260,7 +279,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Pré-rempli le champ de date dans le formulaire du modal
         const dateInput = modalDateLivraison.querySelector(
-          "#da_modal_date_livraison_dateLivraisonPrevue",
+          "#da_modal_date_livraison_dateLivraisonPrevue"
         );
         if (dateInput) {
           dateInput.value = formatted;
@@ -276,7 +295,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // remplir le champ cacher avec le numero commande
       const numeroCdeInput = modalDateLivraison.querySelector(
-        "#da_modal_date_livraison_numeroCde",
+        "#da_modal_date_livraison_numeroCde"
       );
       if (numeroCdeInput) {
         numeroCdeInput.value = numeroCde;
@@ -356,7 +375,7 @@ function transformerPhrase(phrase) {
 }
 
 const label = document.querySelector(
-  'label[for="da_search_afficherDaTraiter"]',
+  'label[for="da_search_afficherDaTraiter"]'
 );
 
 label.classList.add("text-danger");

@@ -2,11 +2,13 @@
 
 namespace App\Repository\da;
 
+use App\Entity\da\DaAfficher;
+use App\Entity\da\DemandeAppro;
+use Doctrine\ORM\EntityRepository;
 use App\Constants\da\StatutBcConstant;
 use App\Constants\da\StatutDaConstant;
 use App\Constants\da\StatutOrConstant;
-use App\Entity\da\DaAfficher;
-use Doctrine\ORM\EntityRepository;
+use App\Constants\da\StatutActionConstant;
 
 class DaAfficherRepository extends EntityRepository
 {
@@ -667,7 +669,6 @@ class DaAfficherRepository extends EntityRepository
             ->getSingleColumnResult();
     }
 
-
     public function findDerniereVersionDesDA(
         array $criteria,
         string $codeSociete
@@ -752,7 +753,7 @@ class DaAfficherRepository extends EntityRepository
     public function getTimelineData(string $numDa)
     {
         $qb = $this->createQueryBuilder('d')
-            ->select('DISTINCT d.statutDal', 'd.dateCreation', 'd.dateDemande', 'd.numeroOr', 'd.statutOr', 'd.dateMajStatutOr')
+            ->select('DISTINCT d.statutDal', 'd.dateCreation', 'd.dateDemande', 'd.numeroOr', 'd.statutOr', 'd.dateMajStatutOr', 'd.statutCde')
             ->where('d.numeroDemandeAppro = :numDa')
             ->setParameter('numDa', $numDa)
             ->orderBy('d.dateCreation', 'ASC');

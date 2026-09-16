@@ -8,10 +8,12 @@ use App\Controller\Traits\da\modification\DaEditAvecDitTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
+use App\Service\Admin\UrlIdCipher;
 use App\Form\da\DemandeApproFormType;
 use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 /**
  * @Route("/demande-appro")
@@ -20,18 +22,25 @@ class DaEditAvecDitController extends Controller
 {
     use DaAfficherTrait;
     use DaEditAvecDitTrait;
+    private UrlIdCipher $urlIdCipher;
+
     public function __construct()
     {
         parent::__construct();
 
         $this->initDaEditAvecDitTrait();
+        $this->urlIdCipher = new UrlIdCipher;
     }
 
     /**
-     * @Route("/edit-avec-dit/{id}", name="da_edit_avec_dit")
+     * @Route("/edit-avec-dit/{token}", name="da_edit_avec_dit")
      */
-    public function edit(int $id, Request $request)
+    public function edit(string $token, Request $request)
     {
+        $id = $this->urlIdCipher->decryptInt($token);
+
+        if (empty($id) && $id !== 0) throw new ResourceNotFoundException();
+
         /** @var DemandeAppro $demandeAppro la demande appro correspondant à l'id $id */
         $demandeAppro = $this->demandeApproRepository->find($id); // recupération de la DA
         $numDa = $demandeAppro->getNumeroDemandeAppro();

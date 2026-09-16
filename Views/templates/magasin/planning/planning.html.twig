@@ -5,9 +5,9 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/utils/autocomplete.css?v=2026.08.06.1">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2026.08.06.1">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/planning/planning.css?v=2026.08.06.1">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/utils/autocomplete.css?v={{ App.browserHash }}">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v={{ App.browserHash }}">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/planning/planning.css?v={{ App.browserHash }}">
 {% endblock %}
 
 {% block overlay %}
@@ -165,6 +165,6 @@
 {% endblock %}
 
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2026.08.06.1"></script>
-	<script src="{{ App.base_path }}/Views/js/magasin/planning/planning.js?v=2026.08.06.1" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v={{ App.browserHash }}"></script>
+	<script src="{{ App.base_path }}/Views/js/magasin/planning/planning.js?v={{ App.browserHash }}" type="module"></script>
 {% endblock %}

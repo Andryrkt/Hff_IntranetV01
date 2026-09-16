@@ -39,6 +39,7 @@ class DdpDetailController extends Controller
 
         return $this->render('ddp/detail.html.twig', [
             'data' => $this->prepareForDisplay($demandePaiement),
+            'isDdp' => true,
             'fichiers' => $this->docRattacheService->getAllAttachedFiles($demandeAppro),
         ]);
     }

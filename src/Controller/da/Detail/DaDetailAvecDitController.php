@@ -11,11 +11,14 @@ use App\Form\da\DaObservationType;
 use App\Controller\Traits\lienGenerique;
 use App\Controller\Traits\da\DaAfficherTrait;
 use App\Controller\Traits\da\detail\DaDetailAvecDitTrait;
+use App\Model\da\DaAfficherModel;
 use App\Model\dit\DitModel;
 use App\Service\da\DaTimelineService;
 use App\Service\da\DocRattacheService;
+use App\Service\Admin\UrlIdCipher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 /**
  * @Route("/demande-appro")
@@ -28,6 +31,7 @@ class DaDetailAvecDitController extends Controller
 
 	private DocRattacheService $docRattacheService;
 	private DaTimelineService $daTimelineService;
+	private UrlIdCipher $urlIdCipher;
 
 	public function __construct(DocRattacheService $docRattacheService, DaTimelineService $daTimelineService)
 	{
@@ -36,13 +40,18 @@ class DaDetailAvecDitController extends Controller
 		$this->initDaDetailAvecDitTrait();
 		$this->docRattacheService = $docRattacheService;
 		$this->daTimelineService = $daTimelineService;
+		$this->urlIdCipher = new UrlIdCipher;
 	}
 
 	/**
-	 * @Route("/detail-avec-dit/{id}", name="da_detail_avec_dit")
+	 * @Route("/detail-avec-dit/{token}", name="da_detail_avec_dit")
 	 */
-	public function detail(int $id, Request $request)
+	public function detail(string $token, Request $request)
 	{
+		$id = $this->urlIdCipher->decryptInt($token);
+
+		if (empty($id) && $id !== 0) throw new ResourceNotFoundException();
+
 		/** @var DemandeAppro $demandeAppro la demande appro correspondant à l'id $id */
 		$demandeAppro = $this->demandeApproRepository->find($id); // recupération de la DA
 		$ditModel = new DitModel();
@@ -57,11 +66,18 @@ class DaDetailAvecDitController extends Controller
 
 		$fichiers = $this->docRattacheService->getAllAttachedFiles($demandeAppro);
 
-		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL(), $demandeAppro->getStatutDal());
-		$timeLineData = $this->daTimelineService->getTimelineData($demandeAppro->getNumeroDemandeAppro(), true);
+		$statutEtAction = (new DaAfficherModel)->getStatutEtActionAffichage($demandeAppro->getNumeroDemandeAppro(), "{$demandeAppro->getAgenceServiceEmetteur()} — {$demandeAppro->getDemandeur()}");
+		$statutDa = $statutEtAction['statutDa'] ?? "";
+
+		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL(), $statutDa);
+		$timeLineData = $this->daTimelineService->getTimelineData($demandeAppro);
+		$resolvedSlug = $this->urlIdCipher->resolveSlugDemandeAppro($request->query->get('redirect'), $this->getUrlGenerator());
 
 		return $this->render('da/detail.html.twig', [
 			'detailTemplate'      		=> 'detail-avec-dit',
+			'urlRetour'           		=> $resolvedSlug['url'],
+			'titreBoutonRetour'   		=> $resolvedSlug['title'],
+			'urlModifierDa'      		=> $this->getUrlGenerator()->generate('da_edit_avec_dit', ['token' => $token]),
 			'formObservation'			=> $formObservation->createView(),
 			'demandeAppro'      		=> $demandeAppro,
 			'demandeApproLines'   		=> $demandeApproLPrepared,
@@ -70,7 +86,10 @@ class DaDetailAvecDitController extends Controller
 			'numParc'           		=> $dataModel[0]['num_parc'],
 			'fichiers'            		=> $fichiers,
 			'connectedUser'     		=> $this->getUser(),
-			'statutAutoriserModifAte' 	=> $demandeAppro->getStatutDal() === StatutDaConstant::STATUT_AUTORISER_EMETTEUR,
+			'statutDa'          		=> $statutDa,
+			'classStatutDa'    		    => $statutEtAction['classStatutDa'],
+			'action'      		        => $statutEtAction['action'],
+			'statutAutoriserModifAte' 	=> $statutDa === StatutDaConstant::STATUT_AUTORISER_EMETTEUR,
 			'estAte'            		=> $this->estAtelier(),
 			'estAppro'          		=> $this->estAppro(),
 			'timelineData'      		=> $timeLineData,

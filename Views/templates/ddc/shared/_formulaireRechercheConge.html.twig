@@ -216,7 +216,7 @@ console.warn("Certains éléments nécessaires à l'autocomplete sont manquants"
 });
 					</script>
 					<div class="col-md-3">
-						{{ form_row(form.agence, {'attr': {'class': 'form-select-sm', 'data-default-agence': App.userConnecter.agenceIPS|default('') }}) }}
+						{{ form_row(form.agence, {'attr': {'class': 'form-select-sm', 'data-default-agence': App.connectedUser.agenceIPS|default('') }}) }}
 					</div>
 					<div class="col-md-3">
 						{{ form_row(form.dateDemande, {'attr': {'class': 'form-control-sm datepicker', 'type': 'date'}})}}
@@ -235,7 +235,7 @@ console.warn("Certains éléments nécessaires à l'autocomplete sont manquants"
 							<span class="ms-2 small text-muted">Chargement des services...</span>
 						</div>
 						<div id="serviceFieldContainer">
-							{{ form_row(form.service, {'attr': {'class': 'form-select-sm', 'data-default-service': App.userConnecter.serviceIPS|default('')}}) }}
+							{{ form_row(form.service, {'attr': {'class': 'form-select-sm', 'data-default-service': App.connectedUser.serviceIPS|default('')}}) }}
 						</div>
 					</div>
 					<div class="col-md-3">

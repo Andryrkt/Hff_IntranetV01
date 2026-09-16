@@ -5,13 +5,10 @@ namespace App\Controller\pol\ddd;
 use App\Controller\Controller;
 use App\Controller\Traits\lienGenerique;
 use App\Controller\Traits\PdfConversionTrait;
-use App\Dto\ddd\DemandeDiagnosticPneuDto;
 use App\Entity\ddd\DemandeDiagnosticPneu;
 use App\Factory\pol\DemandeDiagnosticPneuFactory;
 use App\Form\pol\ddd\DiagnosticPneuDetailType;
-use App\Form\pol\ddd\DiagnosticPneuType;
 use App\Model\ddd\DemandeDiagnosticPneuModel;
-use App\Service\dit\fichier\DitNameFileService;
 use App\Service\EmailService;
 use App\Service\fichier\TraitementDeFichier;
 use App\Service\fichier\UploderFileService;
@@ -236,18 +233,19 @@ class DemandeDiagnosticPneuDetailController extends Controller
     }
 
     /**
-     * Envoie un email à l'atelier pour signaler une la validation de la diagnostic de la demande.
+     * Envoie un email à l'atelier pour signaler la validation de la diagnostic de la demande.
      */
     public function envoyerMailNotification(DemandeDiagnosticPneu $demande): void
     {
 
         $mailRespPneu1 = $_ENV['MAIL_TO_RESP_PNEUMATIQUE_1'];
         $mailRespPneu2 = $_ENV['MAIL_TO_RESP_PNEUMATIQUE_2'];
-        $mailRentaL = $_ENV['MAIL_TO_RENTAL'];
+        $mailRental1 = $_ENV['MAIL_TO_RENTAL_1'];
+        $mailRental2 = $_ENV['MAIL_TO_RENTAL_2'];
 
         $mailDemandeur = $demande->getMailDemandeur();
 
-        $destinataires = [$mailRespPneu1, $mailRespPneu2, $mailRentaL];
+        $destinataires = [$mailRespPneu1, $mailRespPneu2, $mailRental1, $mailRental2];
         if (!empty($mailDemandeur)) {
             $destinataires[] = $mailDemandeur;
         }

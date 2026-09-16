@@ -34,21 +34,20 @@ export const baseUrl = "/Hffintranet";
 
 Branche ts maints andalovana aloha: "dev", "pre_prod"
 
-Ref nikitika JS na CSS de ampiakarina ny version ny CSS sy JS
+Ny version an'ny CSS sy JS dia calculée automatiquement (`App.browserHash`, dans `AppExtension::getGlobals()`), tsy mila ovaina intsony manuellement isaky ny fichier na deploiement.
 **_Exemple actuel:_**
 
 ```html
 <link
-  href="{{ App.base_path }}/Views/css/new.css?v=2026.07.03.14.50"
+  href="{{ App.base_path }}/Views/css/new.css?v={{ App.browserHash }}"
   rel="stylesheet"
 />
 <script
-  src="{{ App.base_path }}/Views/js/scripts.js?v=2026.07.03.14.50"
+  src="{{ App.base_path }}/Views/js/scripts.js?v={{ App.browserHash }}"
   type="module"
 ></script>
 ```
 
-Mila ovaina daholo ny version.
-===> Ctrl + Shift + H (raccourci pour remplacer tout) - mot à chercher = 2025.08.29.16.20 - remplacer par = <YYYY>.<MM>.<dd>.<HH>.<mm>
+`App.browserHash` dia `hash('crc32b', date('Y-m-d'))` : mitovy mandritra ny andro iray, ary miova ho azy isaky ny andro vaovao (invalide ny cache navigateur ho an'ny CSS/JS rehetra).
 
 .......

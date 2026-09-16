@@ -28,13 +28,20 @@ class DitRepository extends EntityRepository
     /**
      * FONCTION Pour récupérer les donnée filtrer
      *
-     * @param integer $page
-     * @param integer $limit
      * @param DitSearch $ditSearch
-     * @param array $options
-     * @return void
+     * @param integer   $agenceIdUser
+     * @param integer   $serviceIdUser
+     * @param array     $agenceServiceAutorises
+     * @param boolean   $peutVoirListeAvecDebiteur
+     * @param string    $codeAgenceUser
+     * @param string    $codeSociete
+     * @param boolean   $multisuccursale
+     * @param integer   $page
+     * @param integer   $limit
+     * 
+     * @return array
      */
-    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, DitSearch $ditSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, bool $peutVoirListeAvecDebiteur, string $codeAgenceUser, string $codeSociete, bool $multisuccursale)
+    public function findPaginatedAndFiltered(DitSearch $ditSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, bool $peutVoirListeAvecDebiteur, string $codeAgenceUser, string $codeSociete, bool $multisuccursale, int $page = 1, int $limit = 10)
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.typeDocument', 'td')
@@ -118,13 +125,19 @@ class DitRepository extends EntityRepository
 
 
     /** =====================================================
-     * Undocumented function
-     *
      * @param DitSearch $ditSearch
-     * @param array $options
-     * @return void
+     * @param int       $agenceIdUser
+     * @param int       $serviceIdUser
+     * @param array     $agenceServiceAutorises
+     * @param string    $codeAgenceUser
+     * @param string    $codeSociete
+     * @param bool      $peutVoirListeAvecDebiteur
+     * @param bool      $avecAtelierRealisePar
+     * @param bool      $multisuccursale
+     * 
+     * @return array
      *======================================================*/
-    public function countByStatus(DitSearch $ditSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeAgenceUser, string $codeSociete, bool $peutVoirListeAvecDebiteur, bool $avecAtelierRealisePar, bool $multisuccursale)
+    public function countByStatus(DitSearch $ditSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeAgenceUser, string $codeSociete, bool $peutVoirListeAvecDebiteur, bool $avecAtelierRealisePar, bool $multisuccursale): array
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->select('s.description AS statut, COUNT(d.id) AS count')
@@ -159,10 +172,17 @@ class DitRepository extends EntityRepository
      * recupère les donnnées à ajouter dans excel
      *
      * @param DitSearch $ditSearch
-     * @param array $options
+     * @param int       $agenceIdUser
+     * @param int       $serviceIdUser
+     * @param array     $agenceServiceAutorises
+     * @param string    $codeAgenceUser
+     * @param string    $codeSociete
+     * @param bool      $peutVoirListeAvecDebiteur
+     * @param bool      $multisuccursale
+     * 
      * @return array
      */
-    public function findAndFilteredExcel(DitSearch $ditSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeAgenceUser, $codeSociete, bool $peutVoirListeAvecDebiteur, bool $multisuccursale)
+    public function findAndFilteredExcel(DitSearch $ditSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeAgenceUser, string $codeSociete, bool $peutVoirListeAvecDebiteur, bool $multisuccursale): array
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.typeDocument', 'td')
@@ -658,13 +678,20 @@ class DitRepository extends EntityRepository
     /**
      * FONCTION Pour récupérer les donnée filtrer  pour demande d'approvisionnement
      *
-     * @param integer $page
-     * @param integer $limit
      * @param DitSearch $ditSearch
-     * @param array $options
-     * @return void
+     * @param int       $agenceIdUser
+     * @param int       $serviceIdUser
+     * @param array     $agenceServiceAutorises
+     * @param string    $codeAgenceUser
+     * @param bool      $peutVoirListeAvecDebiteur
+     * @param string    $codeSociete
+     * @param bool      $multisuccursale
+     * @param int       $page
+     * @param int       $limit
+     * 
+     * @return array
      */
-    public function findPaginatedAndFilteredDa(int $page = 1, int $limit = 10, DitSearch $ditSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeAgenceUser, bool $peutVoirListeAvecDebiteur, string $codeSociete, bool $multisuccursale)
+    public function findPaginatedAndFilteredDa(DitSearch $ditSearch, int $agenceIdUser, int $serviceIdUser, array $agenceServiceAutorises, string $codeAgenceUser, bool $peutVoirListeAvecDebiteur, string $codeSociete, bool $multisuccursale, int $page = 1, int $limit = 10)
     {
 
         $queryBuilder = $this->createQueryBuilder('d')

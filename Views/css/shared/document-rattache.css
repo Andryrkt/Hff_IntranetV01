@@ -1,0 +1,142 @@
+/* ========================================================================= */
+/* DOCUMENT RATTACHÉ - navigateur de fichiers (onglet Document rattaché DA) */
+/* ========================================================================= */
+.list-file-item {
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  background-color: #ffffff;
+  transition:
+    background-color 0.2s,
+    box-shadow 0.2s,
+    border-left-color 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.border-left-bai {
+  border-left: 3px solid #fbbb01;
+}
+
+.border-left-bad {
+  border-left: 3px solid #0d6efd;
+}
+
+.border-left-or {
+  border-left: 3px solid #fd7e14;
+}
+
+.border-left-bc {
+  border-left: 3px solid #198754;
+}
+
+.border-left-facbl {
+  border-left: 3px solid #6f42c1;
+}
+
+.border-left-devpj {
+  border-left: 3px solid #d63384;
+}
+
+.list-file-item:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-3px);
+}
+
+.list-file-item:active {
+  transform: scale(0.99);
+}
+
+.list-file-item.selected {
+  background-color: #e7f1ff;
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+}
+
+.list-file-item.related {
+  background-color: #fff7e6;
+  box-shadow: 0 0 0 3px rgba(255, 153, 0, 0.2); /* effet léger */
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* Style de la carte de chaque type de document */
+.document-type {
+  transition:
+    transform 0.2s ease-in-out,
+    box-shadow 0.2s ease-in-out;
+}
+
+.document-type:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.document-type .badge.bg-light {
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+/* Style pour chaque fichier */
+.file-item {
+  background-color: #f8f9fa;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    transform 0.1s;
+}
+
+.file-item:hover {
+  background-color: #e9ecef;
+}
+
+.file-item:active {
+  transform: scale(0.98);
+}
+
+.file-item.selected {
+  background-color: #dbeafe; /* bleu clair */
+  border: 1px solid #5b9cff;
+  box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.2);
+}
+
+#file-viewer > p:only-child {
+  color: #adb5bd;
+  font-size: 0.8rem;
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.file-item.related {
+  border: 3px dashed #ff9900; /* orange vif pour marquer la relation */
+  background-color: #fff3e0; /* fond clair, subtil mais perceptible */
+  box-shadow: none; /* pas de shadow pour rester secondaire */
+  transition: background-color 0.2s ease; /* pour un hover fluide */
+}
+
+.file-item.related:hover {
+  background-color: #ffe0b2; /* légèrement plus visible au survol */
+}
+
+.checkmark-selected {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font-size: 1.2rem;
+}
+
+.file-item.selected .checkmark-selected {
+  display: inline;
+}
+
+/* Lien de téléchargement */
+.download-link {
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
+}
+
+.download-link:hover {
+  color: #0d6efd;
+}
