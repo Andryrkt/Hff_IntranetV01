@@ -8,8 +8,8 @@ class LdapModel
     private string $ldapHost;
     private string $ldapPort;
     private string $domain;
-    private string $ldap_dn;
-    private string $user;
+    private string $baseDn;
+    private string $username;
     private string $password;
     private bool   $ldapAuthEnabled;
 
@@ -18,8 +18,8 @@ class LdapModel
         $this->ldapHost        = $_ENV['LDAP_HOST'];
         $this->ldapPort        = $_ENV['LDAP_PORT'];
         $this->domain          = $_ENV['LDAP_DOMAIN'];
-        $this->ldap_dn         = $_ENV['LDAP_DN'];
-        $this->user            = $_ENV['LDAP_USER'];
+        $this->baseDn          = $_ENV['LDAP_DN'];
+        $this->username        = $_ENV['LDAP_USER'];
         $this->password        = $_ENV['LDAP_PASSWORD'];
         $this->ldapAuthEnabled = filter_var($_ENV['LDAP_AUTH_ENABLED'] ?? true, FILTER_VALIDATE_BOOLEAN);
 
@@ -33,36 +33,32 @@ class LdapModel
     /**
      * Authentifie un utilisateur dans l'annuaire LDAP
      *
-     * @param string $user
+     * @param string $username
      * @param string $password
      * 
      * @return boolean
      */
-    public function authenticate(string $user, string $password): bool
+    public function authenticate(string $username, string $password): bool
     {
         if (!$this->ldapAuthEnabled) return true;
 
-        return @ldap_bind($this->ldap, "{$user}{$this->domain}", $password);
+        return @ldap_bind($this->ldap, "{$username}{$this->domain}", $password);
     }
 
     public function infoUser(): array
     {
-        ldap_bind($this->ldap, $this->user . $this->domain, $this->password);
-        // Recherche dans l'annuaire LDAP
-        $search_filter = "(objectClass=*)";
-        $search_result = ldap_search($this->ldap, $this->ldap_dn, $search_filter);
+        ldap_bind($this->ldap, "{$this->username}{$this->domain}", $this->password);
+        $results = ldap_search($this->ldap, $this->baseDn, "(objectClass=*)");
 
-        if (!$search_result) {
+        if (!$results) {
             echo "Échec de la recherche LDAP : " . ldap_error($this->ldap);
             return [];
         }
 
-        // Récupération des entrées
-        $entries = ldap_get_entries($this->ldap, $search_result);
+        $entries = ldap_get_entries($this->ldap, $results);
 
         $data = [];
         if ($entries["count"] > 0) {
-
             for ($i = 0; $i < $entries["count"]; $i++) {
                 if (isset($entries[$i]["userprincipalname"][0])) {
 
