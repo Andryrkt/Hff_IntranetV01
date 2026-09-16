@@ -43,7 +43,7 @@ class LoginController extends Controller
 
                 if (!$user) throw new \Exception('Utilisateur non trouvé avec le nom d\'utilisateur : ' . $username);
 
-                if (!$this->ldapModel->userConnect($username, $password)) {
+                if (!$this->ldapModel->authenticate($username, $password)) {
                     $this->logUserVisit('security_signin');
                     $error_msg = "Vérifier les informations de connexion, veuillez saisir le nom d'utilisateur et le mot de passe de votre session Windows";
                 } else {
@@ -180,7 +180,7 @@ class LoginController extends Controller
                 throw new \Exception('Utilisateur non trouvé avec le nom d\'utilisateur : ' . $username);
             }
 
-            if (!$this->ldapModel->userConnect($username, $password)) {
+            if (!$this->ldapModel->authenticate($username, $password)) {
                 return new \Symfony\Component\HttpFoundation\JsonResponse(['error' => 'Identifiants invalides'], 401);
             }
 

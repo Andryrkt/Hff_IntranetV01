@@ -4,68 +4,61 @@ namespace App\Model;
 
 class LdapModel
 {
-    private $ldapHost;
-    private $ldapPort;
-    private $ldapconn;
-    private $Domain;
-    private $ldap_dn;
-    private $user;
-    private $password;
+    private $ldap;
+    private string $ldapHost;
+    private string $ldapPort;
+    private string $domain;
+    private string $ldap_dn;
+    private string $user;
+    private string $password;
+    private bool   $ldapAuthEnabled;
 
     public function __construct()
     {
-        $this->ldapHost = $_ENV['LDAP_HOST'];
-        $this->ldapPort = $_ENV['LDAP_PORT'];
-        $this->Domain = $_ENV['LDAP_DOMAIN'];
-        $this->ldap_dn = $_ENV['LDAP_DN'];
-        $this->user = $_ENV['LDAP_USER'];
-        $this->password = $_ENV['LDAP_PASSWORD'];
+        $this->ldapHost        = $_ENV['LDAP_HOST'];
+        $this->ldapPort        = $_ENV['LDAP_PORT'];
+        $this->domain          = $_ENV['LDAP_DOMAIN'];
+        $this->ldap_dn         = $_ENV['LDAP_DN'];
+        $this->user            = $_ENV['LDAP_USER'];
+        $this->password        = $_ENV['LDAP_PASSWORD'];
+        $this->ldapAuthEnabled = filter_var($_ENV['LDAP_AUTH_ENABLED'] ?? true, FILTER_VALIDATE_BOOLEAN);
 
-        $this->ldapconn = ldap_connect("ldap://{$this->ldapHost}:{$this->ldapPort}");
+        $this->ldap = ldap_connect("ldap://{$this->ldapHost}:{$this->ldapPort}");
+        if (!$this->ldap) die("Connexion au serveur LDAP échouée.");
 
-        ldap_set_option($this->ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);
-        ldap_set_option($this->ldapconn, LDAP_OPT_REFERRALS, 0);
-
-        if (!$this->ldapconn) {
-            die("Connexion au serveur LDAP échouée.");
-        }
-    }
-
-    public function showconnect()
-    {
-        return $this->ldapconn;
+        ldap_set_option($this->ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
+        ldap_set_option($this->ldap, LDAP_OPT_REFERRALS, 0);
     }
 
     /**
-     * @Andryrkt
-     * 
-     * récupère le non d'utilisateur et le mot de passe et comparer avec ce qui dans ldap
+     * Authentifie un utilisateur dans l'annuaire LDAP
      *
      * @param string $user
      * @param string $password
+     * 
      * @return boolean
      */
-    public function userConnect(string $user, string $password): bool
+    public function authenticate(string $user, string $password): bool
     {
-        $bind = @ldap_bind($this->ldapconn, $user . $this->Domain, $password);
-        return $bind;
-    }
+        if (!$this->ldapAuthEnabled) return true;
 
+        return @ldap_bind($this->ldap, "{$user}{$this->domain}", $password);
+    }
 
     public function infoUser(): array
     {
-        ldap_bind($this->ldapconn, $this->user . $this->Domain, $this->password);
+        ldap_bind($this->ldap, $this->user . $this->domain, $this->password);
         // Recherche dans l'annuaire LDAP
         $search_filter = "(objectClass=*)";
-        $search_result = ldap_search($this->ldapconn, $this->ldap_dn, $search_filter);
+        $search_result = ldap_search($this->ldap, $this->ldap_dn, $search_filter);
 
         if (!$search_result) {
-            echo "Échec de la recherche LDAP : " . ldap_error($this->ldapconn);
+            echo "Échec de la recherche LDAP : " . ldap_error($this->ldap);
             return [];
         }
 
         // Récupération des entrées
-        $entries = ldap_get_entries($this->ldapconn, $search_result);
+        $entries = ldap_get_entries($this->ldap, $search_result);
 
         $data = [];
         if ($entries["count"] > 0) {
