@@ -10,6 +10,7 @@ use App\Entity\da\DaObservation;
 use App\Repository\da\DaAfficherRepository;
 use App\Service\da\EmailDaService;
 use App\Form\da\DaObservationType;
+use App\Model\da\DaAfficherModel;
 use App\Service\da\DaTimelineService;
 use App\Service\da\DocRattacheService;
 use App\Service\Admin\UrlIdCipher;
@@ -29,12 +30,12 @@ class DaDetailReapproController extends Controller
 	private UrlIdCipher $urlIdCipher;
 	private DaAfficherRepository $daAfficherRepository;
 
-	public function __construct(DaService $daService, DocRattacheService $docRattacheService, DaTimelineService $daTimelineService, UrlIdCipher $urlIdCipher)
+	public function __construct(DaService $daService, DocRattacheService $docRattacheService, DaTimelineService $daTimelineService)
 	{
 		$this->daService = $daService;
 		$this->docRattacheService = $docRattacheService;
 		$this->daTimelineService = $daTimelineService;
-		$this->urlIdCipher = $urlIdCipher;
+		$this->urlIdCipher = new UrlIdCipher;
 		$this->daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
 	}
 
@@ -57,10 +58,13 @@ class DaDetailReapproController extends Controller
 
 		$fichiers = $this->docRattacheService->getAllAttachedFiles($demandeAppro);
 		$timeLineData = $this->daTimelineService->getTimelineData($demandeAppro);
-		$statutEtAction = $this->daAfficherRepository->getStatutEtActionAffichage($demandeAppro);
+		$statutEtAction = (new DaAfficherModel)->getStatutEtActionAffichage($demandeAppro->getNumeroDemandeAppro(), "{$demandeAppro->getAgenceServiceEmetteur()} — {$demandeAppro->getDemandeur()}");
+		$resolvedSlug = $this->urlIdCipher->resolveSlugDemandeAppro($request->query->get('redirect'), $this->getUrlGenerator());
 
 		return $this->render('da/detail.html.twig', [
 			'detailTemplate'    => 'detail-reappro',
+			'urlRetour'         => $resolvedSlug['url'],
+			'titreBoutonRetour' => $resolvedSlug['title'],
 			'formObservation'	=> $formObservation->createView(),
 			'demandeAppro'      => $demandeAppro,
 			'isMensuel'         => $demandeAppro->getDaTypeId() == DemandeAppro::TYPE_DA_REAPPRO_MENSUEL,

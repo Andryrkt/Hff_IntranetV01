@@ -40,12 +40,12 @@ class DaAfficherMapper
 
     public function map(DaAfficher $data, array $options = []): DaAfficherDto
     {
-        $estAdmin   = $options['estAdmin'] ?? false;
-        $estAppro   = $options['estAppro'] ?? false;
-        $estCreateur = $options['estCreateur'] ?? false;
-        $estAtelier = $options['estAtelier'] ?? false;
-        $codeAgenceUser = $options['codeAgenceUser'] ?? null;
-        $codeServiceUser = $options['codeServiceUser'] ?? null;
+        $estAdmin           = $options['estAdmin'] ?? false;
+        $estAppro           = $options['estAppro'] ?? false;
+        $estCreateur        = $options['estCreateur'] ?? false;
+        $estAtelier         = $options['estAtelier'] ?? false;
+        $codeAgenceUser     = $options['codeAgenceUser'] ?? null;
+        $codeServiceUser    = $options['codeServiceUser'] ?? null;
         $agenceServiceIndex = $options['agenceServiceIndex'] ?? [];
 
         $dto = new DaAfficherDto();
@@ -115,10 +115,12 @@ class DaAfficherMapper
         $dto->statutDaSoumissionBc = $this->getStatutDaSoumissionBc($dto->numeroCde, $data->getCodeSociete());
 
         // acteur et action à faire
-        $agServEmetteur = $agenceServiceIndex["{$data->getAgenceEmetteur()}-{$data->getServiceEmetteur()}"] ?? "N/A";
-        $action = StatutActionConstant::getAction($data->getStatutDal(), $dto->datype, "{$agServEmetteur} — {$dto->demandeur}");
-        $dto->actionActeur = $action['acteur'];
-        $dto->actionLibelle = $action['libelle'];
+        if (!empty($agenceServiceIndex)) {
+            $agServEmetteur = $agenceServiceIndex["{$data->getAgenceEmetteur()}-{$data->getServiceEmetteur()}"] ?? "N/A";
+            $action = StatutActionConstant::getAction($data->getStatutDal(), $dto->datype, "{$agServEmetteur} — {$dto->demandeur}", $data->getStatutOr(), $data->getStatutCde());
+            $dto->actionActeur = $action['acteur'];
+            $dto->actionLibelle = $action['libelle'];
+        }
 
         // DAL
         $dto->statutDal = !$estAppro && in_array($data->getStatutDal(), StatutDaConstant::STATUT_TRAITEMENT_APPRO) ? StatutDaConstant::TRAITEMENT_APPRO : $data->getStatutDal();
@@ -137,7 +139,7 @@ class DaAfficherMapper
         $dto->niveauUrgence = $dto->daReappro ? $safeIconBan : $data->getNiveauUrgence();
 
         // Calculs de droits & URLs (Actions & URLs)
-        $this->computeRightsAndUrls($dto, $data, $safeIconBan, $estAdmin, $estAppro, $estAtelier);
+        $this->computeRightsAndUrls($dto, $data, $safeIconBan, $estAdmin, $estAppro, $estAtelier, $options['redirect']);
 
         // HTML Attributes
         $dto->tdNumCdeAttributes = $this->prepareTdNumCdeAttributes($dto);
@@ -168,7 +170,7 @@ class DaAfficherMapper
         return $datasPrepared;
     }
 
-    private function computeRightsAndUrls(DaAfficherDto $dto, DaAfficher $item, Markup $safeIconBan,  bool $estAdmin, bool $estAppro, bool $estAtelier): void
+    private function computeRightsAndUrls(DaAfficherDto $dto, DaAfficher $item, Markup $safeIconBan,  bool $estAdmin, bool $estAppro, bool $estAtelier, string $slugRedirect): void
     {
         $dto->ajouterDA = $dto->daViaOR && ($estAtelier || $estAdmin);
         $statutDASupprimable = [StatutDaConstant::STATUT_SOUMIS_APPRO, StatutDaConstant::STATUT_SOUMIS_ATE, StatutDaConstant::STATUT_AUTORISER_EMETTEUR, StatutDaConstant::STATUT_VALIDE];
@@ -190,7 +192,7 @@ class DaAfficherMapper
 
         // URL Detail
         if ($parametres["daToken"]) {
-            $dto->urlDetail = isset(RouteConstant::DETAIL[$dto->datype]) ? $this->router->generate(RouteConstant::DETAIL[$dto->datype], $parametres["daToken"]) : '#';
+            $dto->urlDetail = isset(RouteConstant::DETAIL[$dto->datype]) ? $this->router->generate(RouteConstant::DETAIL[$dto->datype], array_merge($parametres["daToken"], ['redirect' => $slugRedirect])) : '#';
         } else {
             $dto->urlDetail = '#';
         }
@@ -213,10 +215,10 @@ class DaAfficherMapper
 
         if (in_array($dto->statutDal, [StatutDaConstant::STATUT_EN_COURS_CREATION, StatutDaConstant::STATUT_AUTORISER_EMETTEUR]) && isset(RouteConstant::CREATION[$dto->datype])) {
             $params = ($dto->datype == DemandeAppro::TYPE_DA_AVEC_DIT) ? $parametres['daId-ditId']
-                : (($dto->datype == DemandeAppro::TYPE_DA_PARENT) ? $parametres['daParentId'] : $parametres['daId']);
+                : (($dto->datype == DemandeAppro::TYPE_DA_PARENT) ? $parametres['daParentId'] : ($dto->datype == DemandeAppro::TYPE_DA_REAPPRO_MENSUEL ? $parametres['daId'] : $parametres['daToken']));
             $dto->urlProposition = $this->router->generate(RouteConstant::CREATION[$dto->datype], $params);
         } else {
-            $params = in_array($dto->datype, [DemandeAppro::TYPE_DA_AVEC_DIT, DemandeAppro::TYPE_DA_DIRECT])
+            $params = in_array($dto->datype, [DemandeAppro::TYPE_DA_AVEC_DIT, DemandeAppro::TYPE_DA_DIRECT, DemandeAppro::TYPE_DA_REAPPRO_MENSUEL])
                 ? $parametres['daToken']
                 : (($dto->datype == DemandeAppro::TYPE_DA_PARENT) ? $parametres['daParentId'] : $parametres['daId']);
             $dto->urlProposition = isset(RouteConstant::PROPOSITION[$dto->datype]) ? $this->router->generate(RouteConstant::PROPOSITION[$dto->datype], $params) : '#';

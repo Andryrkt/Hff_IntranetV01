@@ -247,9 +247,8 @@
   padding: 0.2rem 1rem 0.15rem;
 }
 
-/* Version pastel du statut : dérivée de --c (définie sur chaque .bg-* dans style.css), pas de la couleur pleine du badge */
 .timeline-content .timeline-action[class*="bg-"] {
-  background-color: color-mix(in srgb, var(--c, #6c757d) 18%, #fff) !important;
+  background-color: color-mix(in srgb, var(--c, #6c757d) 15%, #fff) !important;
   color: var(--c, #6c757d) !important;
 }
 

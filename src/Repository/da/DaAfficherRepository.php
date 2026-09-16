@@ -669,27 +669,6 @@ class DaAfficherRepository extends EntityRepository
             ->getSingleColumnResult();
     }
 
-    /**
-     * Récupère le statut fiable (dernière version de DaAfficher) + classe de couleur d'affichage d'une DA,
-     * ainsi que l'acteur et l'action à faire correspondants.
-     *
-     * @return array{action:string,statutDa:string,classStatutDa:string}
-     */
-    public function getStatutEtActionAffichage(DemandeAppro $demandeAppro): array
-    {
-        $statutDaAfficher = $this->getLastStatutDaAfficher($demandeAppro->getNumeroDemandeAppro(), $demandeAppro->getCodeSociete());
-        $statutDa = $statutDaAfficher[0] ?? "";
-
-        $action = StatutActionConstant::getAction($statutDa, $demandeAppro->getDaTypeId(), "{$demandeAppro->getAgenceServiceEmetteur()} — {$demandeAppro->getDemandeur()}");
-
-        return [
-            'action'        => $action["action"] ?: "-",
-            'statutDa'      => $statutDa,
-            'classStatutDa' => StatutDaConstant::getCssClassDa($statutDa),
-        ];
-    }
-
-
     public function findDerniereVersionDesDA(
         array $criteria,
         string $codeSociete
@@ -774,7 +753,7 @@ class DaAfficherRepository extends EntityRepository
     public function getTimelineData(string $numDa)
     {
         $qb = $this->createQueryBuilder('d')
-            ->select('DISTINCT d.statutDal', 'd.dateCreation', 'd.dateDemande', 'd.numeroOr', 'd.statutOr', 'd.dateMajStatutOr')
+            ->select('DISTINCT d.statutDal', 'd.dateCreation', 'd.dateDemande', 'd.numeroOr', 'd.statutOr', 'd.dateMajStatutOr', 'd.statutCde')
             ->where('d.numeroDemandeAppro = :numDa')
             ->setParameter('numDa', $numDa)
             ->orderBy('d.dateCreation', 'ASC');

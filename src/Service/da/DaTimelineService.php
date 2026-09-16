@@ -81,7 +81,7 @@ class DaTimelineService
 
             // Ajouter le statut initial si nécessaire
             if ($key === 0 && $data['statutDal'] !== StatutDaConstant::STATUT_SOUMIS_APPRO) {
-                $tabTemp[] = $this->createTimelineEntry(StatutDaConstant::STATUT_SOUMIS_APPRO, $data['dateDemande'], null, $daTypeId, $acteur);
+                $tabTemp[] = $this->createTimelineEntry(StatutDaConstant::STATUT_SOUMIS_APPRO, $data['dateDemande'], null, $daTypeId, $acteur, $data['statutOr'], $data['statutCde']);
             }
 
             // Déterminer le statut final
@@ -90,7 +90,7 @@ class DaTimelineService
             // Ajouter ou mettre à jour le statut
             $lastIndex = count($tabTemp) - 1;
             if ($lastIndex < 0 || $tabTemp[$lastIndex]['statut'] !== $statutFinal) {
-                $tabTemp[] = $this->createTimelineEntry($statutFinal, $data['dateDemande'], $data['dateCreation'], $daTypeId, $acteur);
+                $tabTemp[] = $this->createTimelineEntry($statutFinal, $data['dateDemande'], $data['dateCreation'], $daTypeId, $acteur, $data['statutOr'], $data['statutCde']);
             } else {
                 // Mettre à jour avec la date la plus récente
                 $tabTemp[$lastIndex]['date'] = $data['dateCreation'];
@@ -210,22 +210,24 @@ class DaTimelineService
     }
 
     /**
-     * @param string $statut
-     * @param \DateTime|null $dateDemande
-     * @param \DateTime|null $dateCreation
-     * @param int|null $daTypeId
-     * @param string|null $acteur
+     * @param string $statutDa
+     * @param ?\DateTime $dateDemande
+     * @param ?\DateTime $dateCreation
+     * @param ?int       $daTypeId
+     * @param ?string    $acteur
+     * @param ?string    $statutOr
+     * @param ?string    $statutCde
      *
      * @return array{statut:string,dotClass:string,date:string,nbrJours:string,action:string}
      */
-    private function createTimelineEntry(string $statut, ?\DateTime $dateDemande, ?\DateTime $dateCreation = null, ?int $daTypeId = null, ?string $acteur = null): array
+    private function createTimelineEntry(string $statutDa, ?\DateTime $dateDemande, ?\DateTime $dateCreation = null, ?int $daTypeId = null, ?string $acteur = null, ?string $statutOr = null, ?string $statutCde = null): array
     {
         return [
-            'statut'   => $statut,
-            'dotClass' => StatutDaConstant::getCssClassDa($statut),
-            'date'     => $statut === StatutDaConstant::STATUT_SOUMIS_APPRO ? $dateDemande : $dateCreation,
+            'statut'   => $statutDa,
+            'dotClass' => StatutDaConstant::getCssClassDa($statutDa),
+            'date'     => $statutDa === StatutDaConstant::STATUT_SOUMIS_APPRO ? $dateDemande : $dateCreation,
             'nbrJours' => 0,
-            'action'   => $daTypeId !== null ? StatutActionConstant::getAction($statut, $daTypeId, $acteur ?? '')['action'] : '',
+            'action'   => $daTypeId !== null ? StatutActionConstant::getAction($statutDa, $daTypeId, $acteur ?? '', $statutOr, $statutCde)['action'] : '',
         ];
     }
 

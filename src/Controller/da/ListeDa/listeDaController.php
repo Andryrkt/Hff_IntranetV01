@@ -2,6 +2,7 @@
 
 namespace App\Controller\da\ListeDa;
 
+use App\Constants\da\RouteConstant;
 use App\Controller\Controller;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
@@ -83,6 +84,7 @@ class listeDaController extends Controller
             'estCreateur' => $this->estCreateurDaDirecte(),
             'demandePaiementRepository' => $this->getEntityManager()->getRepository(DemandePaiement::class),
             'agenceServiceIndex' => $this->getSecurityService()->getAgenceServiceCodeIndex(),
+            'redirect' => RouteConstant::SLUG_LISTE_DA
         ]);
 
         /** === Formulaire pour la date de livraison prevu === */

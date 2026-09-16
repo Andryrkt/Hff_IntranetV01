@@ -21,9 +21,7 @@ class DemandeDiagnosticPneuListeController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->listModel = new DemandeDiagnosticPneuListeModel(
-            $this->getEntityManager()
-        );
+        $this->listModel = new DemandeDiagnosticPneuListeModel($this->getEntityManager(), $this->getUrlGenerator());
     }
 
     /**

@@ -11,6 +11,7 @@ use App\Form\da\DaObservationType;
 use App\Controller\Traits\lienGenerique;
 use App\Controller\Traits\da\DaAfficherTrait;
 use App\Controller\Traits\da\detail\DaDetailAvecDitTrait;
+use App\Model\da\DaAfficherModel;
 use App\Model\dit\DitModel;
 use App\Service\da\DaTimelineService;
 use App\Service\da\DocRattacheService;
@@ -32,14 +33,14 @@ class DaDetailAvecDitController extends Controller
 	private DaTimelineService $daTimelineService;
 	private UrlIdCipher $urlIdCipher;
 
-	public function __construct(DocRattacheService $docRattacheService, DaTimelineService $daTimelineService, UrlIdCipher $urlIdCipher)
+	public function __construct(DocRattacheService $docRattacheService, DaTimelineService $daTimelineService)
 	{
 		parent::__construct();
 
 		$this->initDaDetailAvecDitTrait();
 		$this->docRattacheService = $docRattacheService;
 		$this->daTimelineService = $daTimelineService;
-		$this->urlIdCipher = $urlIdCipher;
+		$this->urlIdCipher = new UrlIdCipher;
 	}
 
 	/**
@@ -65,14 +66,18 @@ class DaDetailAvecDitController extends Controller
 
 		$fichiers = $this->docRattacheService->getAllAttachedFiles($demandeAppro);
 
-		$statutEtAction = $this->daAfficherRepository->getStatutEtActionAffichage($demandeAppro);
+		$statutEtAction = (new DaAfficherModel)->getStatutEtActionAffichage($demandeAppro->getNumeroDemandeAppro(), "{$demandeAppro->getAgenceServiceEmetteur()} — {$demandeAppro->getDemandeur()}");
 		$statutDa = $statutEtAction['statutDa'] ?? "";
 
 		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL(), $statutDa);
 		$timeLineData = $this->daTimelineService->getTimelineData($demandeAppro);
+		$resolvedSlug = $this->urlIdCipher->resolveSlugDemandeAppro($request->query->get('redirect'), $this->getUrlGenerator());
 
 		return $this->render('da/detail.html.twig', [
 			'detailTemplate'      		=> 'detail-avec-dit',
+			'urlRetour'           		=> $resolvedSlug['url'],
+			'titreBoutonRetour'   		=> $resolvedSlug['title'],
+			'urlModifierDa'      		=> $this->getUrlGenerator()->generate('da_edit_avec_dit', ['token' => $token]),
 			'formObservation'			=> $formObservation->createView(),
 			'demandeAppro'      		=> $demandeAppro,
 			'demandeApproLines'   		=> $demandeApproLPrepared,

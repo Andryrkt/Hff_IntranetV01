@@ -36,11 +36,11 @@ class DaPropositionArticleDirectController extends Controller
     private DocRattacheService $docRattacheService;
     private UrlIdCipher $urlIdCipher;
 
-    public function __construct(DocRattacheService $docRattacheService, UrlIdCipher $urlIdCipher)
+    public function __construct(DocRattacheService $docRattacheService)
     {
         parent::__construct();
         $this->docRattacheService = $docRattacheService;
-        $this->urlIdCipher = $urlIdCipher;
+        $this->urlIdCipher = new UrlIdCipher;
 
         $this->initDaPropositionDirectTrait();
         $this->initDaValidationDirectTrait();
@@ -83,6 +83,9 @@ class DaPropositionArticleDirectController extends Controller
         return $this->render("da/proposition.html.twig", [
             'demandeAppro'            => $da,
             'id'                      => $id,
+            'urlRetour'               => $this->getUrlGenerator()->generate('list_da'),
+            'titreBoutonRetour'       => 'Liste des demandes d’achats',
+            'urlModifierDa'           => $this->getUrlGenerator()->generate('da_edit_direct', ['token' => $token]),
             'form'                    => $form->createView(),
             'formValidation'          => $formValidation->createView(),
             'formObservation'         => $formObservation->createView(),

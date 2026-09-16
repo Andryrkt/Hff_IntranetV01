@@ -2,6 +2,9 @@
 
 namespace App\Service\Admin;
 
+use App\Constants\da\RouteConstant;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+
 class UrlIdCipher
 {
     private const CIPHER_METHOD = 'aes-256-gcm';
@@ -9,6 +12,17 @@ class UrlIdCipher
     private const TAG_LENGTH = 16;
     private const MIN_TOKEN_LENGTH = 38;
     private string $key;
+
+    private array $slugMap = [
+        RouteConstant::SLUG_LISTE_DA      => [
+            'path_name'  => RouteConstant::PATH_NAME_LISTE_DA,
+            'title_page' => 'Liste des demandes d’achats'
+        ],
+        RouteConstant::SLUG_LISTE_CDE_FRN => [
+            'path_name'  => RouteConstant::PATH_NAME_LISTE_CDE_FRN,
+            'title_page' => 'Liste des commandes fournisseurs'
+        ]
+    ];
 
     public function __construct()
     {
@@ -98,5 +112,22 @@ class UrlIdCipher
         if ($instance === null) $instance = new self();
 
         return $instance->decrypt($token) !== null;
+    }
+
+    /** 
+     * Résout le slug pour les liens des listes de la vignette APPRO 
+     * 
+     * @param string $slug 
+     * @param UrlGeneratorInterface $urlGenerator 
+     * 
+     * @return array{"url":string,"title":string}
+     **/
+    public function resolveSlugDemandeAppro(string $slug, UrlGeneratorInterface $urlGenerator): array
+    {
+        $config = $this->slugMap[$slug] ?? $this->slugMap[RouteConstant::SLUG_LISTE_DA];
+
+        $url = $urlGenerator->generate($config["path_name"]);
+
+        return ["url" => $url, "title" => $config["title_page"]];
     }
 }

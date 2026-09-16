@@ -6,17 +6,23 @@ use App\Dto\ddd\DemandeDiagnosticPneuDto;
 use App\Entity\ddd\DemandeDiagnosticPneu;
 use App\Entity\ddd\DemandeDiagnosticPneuSearch;
 use App\Entity\dit\DemandeIntervention;
+use App\Service\Admin\UrlIdCipher;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class DemandeDiagnosticPneuListeModel
 {
     private EntityManagerInterface $em;
+    private UrlGeneratorInterface $urlGenerator;
+    private UrlIdCipher $urlIdCipher;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(EntityManagerInterface $em, UrlGeneratorInterface $urlGenerator)
     {
         $this->em = $em;
+        $this->urlGenerator = $urlGenerator;
+        $this->urlIdCipher = new UrlIdCipher;
     }
 
     public function getPaginatedList(DemandeDiagnosticPneuSearch $search, int $page, int $limit, int $agenceId, int $serviceId, bool $multisuccursale): array
@@ -49,18 +55,18 @@ class DemandeDiagnosticPneuListeModel
         foreach ($paginator as $item) {
 
             if ($item instanceof DemandeIntervention) {
-                $data[] = DemandeDiagnosticPneuDto::fromEntities($dataDiag, $item);
+                $data[] = DemandeDiagnosticPneuDto::fromEntities($dataDiag, $item, $this->urlGenerator, $this->urlIdCipher);
                 $dataDiag = null;
             }
             if ($item instanceof DemandeDiagnosticPneu) {
                 if ($dataDiag != null) {
-                    $data[] = DemandeDiagnosticPneuDto::fromEntities($dataDiag, null);
+                    $data[] = DemandeDiagnosticPneuDto::fromEntities($dataDiag);
                 }
                 $dataDiag = $item;
             }
         }
         if ($dataDiag) {
-            $data[] = DemandeDiagnosticPneuDto::fromEntities($dataDiag, null);
+            $data[] = DemandeDiagnosticPneuDto::fromEntities($dataDiag);
         }
         $statusCounts = $this->getStatusCounts($search, $agenceId, $serviceId, $multisuccursale);
         return [
