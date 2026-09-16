@@ -63,15 +63,18 @@ class DaSoumissionCalculService
 
 
         $TotalMontantFactureSoumise = $dto->sommeMontantFactureDejaPayer;
+
+        // Montant facture à 95% si Fournisseur non immatricule"
+        if ($dto->isFrnNonImmatricule) {
+            $MontantFactureEnCours *= 0.95;
+        }
         // si le fournisseur est assujéti  à la TVA ==> montant HT < Montant TTC 
         if ($totalCommande < $totalCommandeTTC) {
             $MontantFactureEnCours *= 1.2;
             $TotalMontantFactureSoumise *= 1.2;
         }
 
-        if ($dto->isFrnNonImmatricule) {
-            $MontantFactureEnCours *= 0.95;
-        }
+
 
         $ratioDejaPayer = ($totalCommandeTTC > 0) ? ($TotalMontantFactureSoumise / $totalCommandeTTC) * 100 : 0;
 
