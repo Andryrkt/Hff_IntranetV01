@@ -147,8 +147,25 @@ class GeneratePdfDdpDa extends GeneratePdf
         $pdf->SetFont('helvetica', 'B', 12);
         $pdf->Cell(50, 10, 'Bénéficiaire', 1, 0);
 
-        $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell($usable_width - 50, 10, $dto->beneficiaire, 1, 1); // valeur de "Bénéficiaire" (nom du fournisseur)
+        if ($dto->isFrnNonImmatricule) {
+            $tagText = '(Non Immatriculé)';
+
+            // 1. Nom béneficiaire sans border gauche LTB
+            $pdf->SetFont('helvetica', '', 12);
+            $nameW = $pdf->GetStringWidth($tagText);
+            $pdf->SetTextColor(0, 0, 0);
+            $pdf->Cell($usable_width - 50 - $nameW, 10, $dto->beneficiaire, 'LTB', 0, 'L');
+
+            // 2. Texte si immatriculé sans border droite RTB
+            $pdf->SetFont('helvetica', 'B', 10);
+            $pdf->SetTextColor(255, 0, 0);
+            $pdf->Cell($nameW, 10, $tagText, 'RTB', 1, 'L');
+            $pdf->SetTextColor(0, 0, 0);
+        } else {
+            $pdf->SetFont('helvetica', '', 12);
+            $pdf->Cell($usable_width - 50, 10, $dto->beneficiaire, 1, 1, 'L');
+        }
+
 
         $pdf->SetFont('helvetica', 'B', 12);
         $pdf->Cell(50, 10, 'Motif ', 1, 0);
@@ -375,27 +392,27 @@ class GeneratePdfDdpDa extends GeneratePdf
 
     private function renderRecapOR(TCPDF $pdf, array $dataRecapOR, $dto)
     {
-        $numOR = $dto->numeroOR;
-        $numDIT = $dto->numeroDemandeDit;
-        $numDIT = $numDIT ? "- $numDIT" : "";
-        $this->renderInfoSection($pdf, "RECAPITULATIF DE L’OR $numOR $numDIT", '', function () use ($pdf, $dataRecapOR) {
-            $this->addInfoLine($pdf, 'Utilisateur Créateur', $dataRecapOR["createur_or"] ?? "-", 120, 30);
-            $pdf->Ln(2);
-            $tableGenerator = new PdfTableGeneratorFlexible();
-            $tableGenerator->setOptions([
-                'table_attributes' => 'border="0" cellpadding="0" cellspacing="0" align="center" style="font-size: 8px;"',
-                'header_row_style' => 'background-color: #D3D3D3;',
-                'footer_row_style' => 'background-color: #D3D3D3;'
-            ]);
+        // $numOR = $dto->numeroOR;
+        // $numDIT = $dto->numeroDemandeDit;
+        // $numDIT = $numDIT ? "- $numDIT" : "";
+        // $this->renderInfoSection($pdf, "RECAPITULATIF DE L’OR $numOR $numDIT", '', function () use ($pdf, $dataRecapOR) {
+        //     $this->addInfoLine($pdf, 'Utilisateur Créateur', $dataRecapOR["createur_or"] ?? "-", 120, 30);
+        //     $pdf->Ln(2);
+        //     $tableGenerator = new PdfTableGeneratorFlexible();
+        //     $tableGenerator->setOptions([
+        //         'table_attributes' => 'border="0" cellpadding="0" cellspacing="0" align="center" style="font-size: 8px;"',
+        //         'header_row_style' => 'background-color: #D3D3D3;',
+        //         'footer_row_style' => 'background-color: #D3D3D3;'
+        //     ]);
 
-            $pdf->writeHTML(
-                $tableGenerator->generateTable(
-                    $dataRecapOR["header"],
-                    $dataRecapOR["body"],
-                    $dataRecapOR["footer"]
-                )
-            );
-        });
+        //     $pdf->writeHTML(
+        //         $tableGenerator->generateTable(
+        //             $dataRecapOR["header"],
+        //             $dataRecapOR["body"],
+        //             $dataRecapOR["footer"]
+        //         )
+        //     );
+        // });
     }
 
     private function renderRecapDA(TCPDF $pdf, int $w100, DemandeAppro $demandeAppro)
