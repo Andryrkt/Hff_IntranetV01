@@ -261,7 +261,22 @@ class DitOrsSoumisAValidationController extends Controller
         // $this->fusionPdfDaAvecORfusionner($numDit, $mainPdf, $daAfficherRepository);
 
         // 6.  envoyer le pdf fusionner dans DW
-        $genererPdfOrSoumisAValidation->copyToDw($nomFichier, $ditInsertionOrSoumis->getNumeroDit());
+        $reponse = $genererPdfOrSoumisAValidation->copyToDw($nomFichier, $ditInsertionOrSoumis->getNumeroDit());
+        // 9. modification de la colonne pdf_deposer_dw et date_depot_pdf_dw
+        $this->modificationBdPourHitorisationDw($ditInsertionOrSoumis, $reponse);
+    }
+
+    private function modificationBdPourHitorisationDw(DitOrsSoumisAValidation $ditInsertionOrSoumis, bool $reponse): void
+    {
+        $em = $this->getEntityManager();
+        $ors = $em->getRepository(DitOrsSoumisAValidation::class)->findBy(['numeroOR' => $ditInsertionOrSoumis->getNumeroOR(), 'numeroDit' => $ditInsertionOrSoumis->getNumeroDit(), 'codeSociete' => $ditInsertionOrSoumis->getCodeSociete()]);
+        foreach ($ors as $value) {
+            $value->setPdfDeposerDw($reponse)
+                ->setDateDepotPdfDw(new \DateTime());
+            $em->persist($value);
+        }
+
+        $em->flush();
     }
 
     private function enregistrementFichier(FormInterface $form, DitOrsSoumisAValidation $ditInsertionOrSoumis, string $suffix): array
