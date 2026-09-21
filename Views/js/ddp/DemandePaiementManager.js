@@ -172,7 +172,7 @@ export class DemandePaiementManager {
       $(this.elements.numFactureInput).on("change", () => {
         this.changeCommandeSelonFacture(item.num_fournisseur, this.typeId);
       });
-    } else if (this.typeId == 1 && this.typeDa === null) {
+    } else if (this.typeId == 1 && !this.typeDa) {
       this.listeCommande(item.num_fournisseur, this.typeId);
     }
   }
@@ -181,7 +181,7 @@ export class DemandePaiementManager {
     try {
       const url = this.config.urls.commandes
         .replace(":numFournisseur", numFournisseur)
-        .replace(":id_type", id_type);
+        .replace(":typeId", id_type);
       const commandes = await this.fetchManager.get(url);
       this.ajoutDesOptions(this.elements.numCommandeInput, commandes.numCdes);
     } catch (error) {
@@ -193,7 +193,7 @@ export class DemandePaiementManager {
     try {
       const url = this.config.urls.commandes
         .replace(":numFournisseur", numFournisseur)
-        .replace(":id_type", id_type);
+        .replace(":typeId", id_type);
       const commandes = await this.fetchManager.get(url);
       const listeCommande = this.transformTab(commandes.listeGcot, "Numero_PO");
       this.ajoutDesOptions(this.elements.numCommandeInput, listeCommande);
