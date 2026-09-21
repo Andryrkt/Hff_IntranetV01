@@ -267,8 +267,11 @@ export class DemandePaiementManager {
       const facturesString = facturesCorrespondantes
         .map((f) => f.Numero_Facture)
         .join(",");
-      if (numFacs.length === 0) {
+      if (facturesString === "") {
+        // Aucune facture sélectionnée : pas de montant à récupérer
+        // (l'URL contiendrait un segment vide et donnerait un 404)
         this.elements.montantInput.value = 0;
+        return;
       }
 
       const montantUrl = this.config.urls.montantFacture
