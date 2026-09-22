@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", function () {
     "#demande_paiement_da_pourcentageAvance",
   );
   const container = document.getElementById("fournisseur-container");
-  const isFrnNonImmatricule = container.dataset.isNonImmatricule;
+  const isFrnNonImmatricule = container.dataset.isNonImmatricule === "true";
 
   let lastValidPourcentageAPayer = 0; // Pour stocker la dernière valeur valide
 
