@@ -19,7 +19,7 @@
 					Liste des utilisateurs
 				</h3>
 				{% include "admin/utilisateur/shared/_formulaireRecherche.html.twig" %}
-				<a href="{{ path("utilisateur_new")}}" class="btn btn-success fw-bold my-3">
+				<a href="{{ path("utilisateur_new") }}" class="btn btn-success fw-bold my-3">
 					Ajouter nouvel utilisateur
 				</a>
 				<table class="table align-middle">
@@ -30,6 +30,7 @@
 							<th class="text-center">Matricule</th>
 							<th class="text-start">Email</th>
 							<th class="text-center">Code Sage</th>
+							<th class="text-center">Agence-Service</th>
 							<th class="text-start ps-4">Profil</th>
 						</tr>
 					</thead>
@@ -55,6 +56,7 @@
 								<td class="text-center" data-label="matricule">{{ row.matricule }}</td>
 								<td class="text-start" data-label="mail">{{ row.email }}</td>
 								<td class="text-center" data-label="code-sage">{{ row.codeSage }}</td>
+								<td class="text-center" data-label="ag-serv">{{ row.agServ }}</td>
 								<td class="text-start p-0" data-label="profil">
 									{% if row.profils.isEmpty() %}
 										-
