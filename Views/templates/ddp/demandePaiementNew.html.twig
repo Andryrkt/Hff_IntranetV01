@@ -18,7 +18,7 @@
 						<div class="row">
 							<div class="col-12 col-md-11">
 								<h3 class="perso-titre">
-									{% if type_ddp == 1 %}
+									{% if id_type == 1 %}
 										Formulaire Demande de paiement à l’avance
 									{% else %}
 										Formulaire Demande de paiement après arrivage
@@ -27,51 +27,52 @@
 							</div>
 
 							<div class=" col-12 col-md-1">
-								<a href="{{ path("profil_acceuil")}}" class="tablinks p-2 btn btn-outline-warning" style="text-decoration: none;color:black">Retour</a>
+								<a href="{{ path("profil_acceuil") }}" class="tablinks p-2 btn btn-outline-warning" style="text-decoration: none;color:black">Retour</a>
 							</div>
 						</div>
 						{{ form_start(form, {'attr': {'id': 'myForm'}}) }}
-						{{ form_errors(form)}}
+						{{ form_errors(form) }}
 						<div class="row">
 							<div class="col-12 col-md-2">
 								{{ form_row(form.numeroFournisseur) }}
 								<div id="suggestion-num-fournisseur" class="suggestions-container"></div>
 								<div id="loader-num-fournisseur" class="spinner" style="display: none;">Chargement...</div>
-								{{ form_row(form.modePaiement)}}
+								{{ form_row(form.modePaiement) }}
 
 							</div>
 							<div class="col-12 col-md-4">
-								{{ form_row(form.beneficiaire)}}
+								{{ form_row(form.beneficiaire) }}
 								<div id="suggestion-nom-fournisseur" class="suggestions-container"></div>
 								<div id="loader-nom-fournisseur" class="spinner" style="display: none;">Chargement...</div>
 								{{ form_row(form.ribFournisseur) }}
 
 							</div>
 							<div class="col-12 col-md-3">
-								{{ macroForm.agence_service_change(form.agence, form.service, 'spinner-service', 'service-container')}}
+								{{ macroForm.agence_service_change(form.agence, form.service, 'spinner-service', 'service-container') }}
 							</div>
 							<div class="col-12 col-md-3">
-								{{ form_row(form.contact)}}
-								{{ form_row(form.montantAPayer)}}
+								{{ form_row(form.contact) }}
+								{{ form_row(form.montantAPayer) }}
 							</div>
 						</div>
 						<div class="row">
-							<div class="col-12 col-md-2">{{ form_row(form.devise)}}</div>
+							<div class="col-12 col-md-2">{{ form_row(form.devise) }}</div>
 
-							<div class="col-12 col-md-10">{{ form_row(form.motif)}}</div>
+							<div class="col-12 col-md-10">{{ form_row(form.motif) }}</div>
 						</div>
 						<div class="row">
 							<div class="col-12 col-md-4">
-								{{ form_row(form.numeroFacture)}}
+								{{ form_row(form.numeroFacture) }}
 							</div>
 							<div class="col-12 col-md-4">
-								{{ form_row(form.numeroCommande)}}
+								{{ form_row(form.numeroCommande) }}
 								<div id="suggestion-num-commande" class="suggestions-container"></div>
 								<div id="loader" style="display: none;">Chargement...</div>
 							</div>
 
 							<div
-								class="col-12 col-md-4">
+								class="col-12 col-md-4"
+							>
 								{# <p><b>Listes des fichiers</b></p> #}
 								<ul id="liste_fichiers" class="d-none"></ul>
 								{# liste des fichiers #}
@@ -120,7 +121,8 @@
 							</div>
 						</div>
 						<div
-							class="row">
+							class="row"
+						>
 							<!-- Debut affichage du tableau liste des factures-->
 							<div class="row d-none" id="tableau_facture"></div>
 							<div class="row d-none" id="tableau_dossier"></div>
@@ -138,7 +140,9 @@
 			</div>
 			<div class="col-12 col-md-6">
 				<div
-					id="file-viewer" class="mt-3">
+					id="file-viewer"
+					class="mt-3"
+				>
 					<!-- Onglets -->
 					<ul class="nav nav-tabs" id="pdfTabs" role="tablist">
 						<li class="nav-item" role="presentation">
@@ -165,7 +169,9 @@
 
 					<!-- Contenu des onglets -->
 					<div
-						class="tab-content border border-top-0 p-3" id="pdfTabContent">
+						class="tab-content border border-top-0 p-3"
+						id="pdfTabContent"
+					>
 						<!-- Tab 1 -->
 						<div class="tab-pane fade show active" id="tab1" role="tabpanel" aria-labelledby="tab1-tab">
 							<div id="file-list-1" class="mt-3"></div>

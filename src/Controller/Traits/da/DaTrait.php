@@ -39,7 +39,7 @@ trait DaTrait
         if ($this->daTraitInitialise) return;
 
         $em = $this->getEntityManager();
-        $this->emailDaService           = new EmailDaService($this->getTwig()); // Injection du service Twig depuis Controller
+        $this->emailDaService           = new EmailDaService($this->getTwig(), $this->getUrlGenerator()); // Injection du service Twig depuis Controller
         $this->daFileUploader           = new FileUploaderForDAService();
         $this->daAfficherRepository     = $em->getRepository(DaAfficher::class);
         $this->demandeApproRepository   = $em->getRepository(DemandeAppro::class);

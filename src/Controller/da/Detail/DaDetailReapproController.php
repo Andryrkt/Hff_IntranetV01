@@ -97,7 +97,7 @@ class DaDetailReapproController extends Controller
 				'message' => 'Votre observation a été enregistré avec succès.',
 			];
 
-			$emailDaService = new EmailDaService($this->getTwig());
+			$emailDaService = new EmailDaService($this->getTwig(), $this->getUrlGenerator());
 			$emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estAppro());
 
 			$this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
