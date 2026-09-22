@@ -142,6 +142,16 @@ class DitOrsSoumisAValidation
      * @ORM\Column(type="string", length=2, name="code_societe", nullable=true)
      */
     private $codeSociete;
+
+    /**
+     * @ORM\Column(type="boolean", name="pdf_deposer_dw", nullable=true)
+     */
+    private $pdfDeposerDw;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_depot_pdf_dw", nullable=true)
+     */
+    private $dateDepotPdfDw;
     //==========================================================================================
 
 
@@ -627,6 +637,42 @@ class DitOrsSoumisAValidation
     public function setCodeSociete($codeSociete): self
     {
         $this->codeSociete = $codeSociete;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pdfDeposerDw
+     */
+    public function getPdfDeposerDw()
+    {
+        return $this->pdfDeposerDw;
+    }
+
+    /**
+     * Set the value of pdfDeposerDw
+     */
+    public function setPdfDeposerDw($pdfDeposerDw): self
+    {
+        $this->pdfDeposerDw = $pdfDeposerDw;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateDepotPdfDw
+     */
+    public function getDateDepotPdfDw()
+    {
+        return $this->dateDepotPdfDw;
+    }
+
+    /**
+     * Set the value of dateDepotPdfDw
+     */
+    public function setDateDepotPdfDw($dateDepotPdfDw): self
+    {
+        $this->dateDepotPdfDw = $dateDepotPdfDw;
 
         return $this;
     }

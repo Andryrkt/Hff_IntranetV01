@@ -12,11 +12,11 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
     use FormatageTrait;
 
     // ORDRE DE REPARATION (OR)
-    public function copyToDw($filename, string $numDit)
+    public function copyToDw($filename, string $numDit): bool
     {
         $cheminFichierDistant = $this->baseCheminDocuware . 'OR/' . $filename;
         $cheminDestinationLocal = $this->baseCheminDuFichier . 'dit/' . $numDit . '/' . $filename;
-        copy($cheminDestinationLocal, $cheminFichierDistant);
+        return copy($cheminDestinationLocal, $cheminFichierDistant);
     }
 
     /**
@@ -411,92 +411,92 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
     private function headerCtrlConsommationMaterielsOR(): array
     {
         return [
-        [
-            'key'          => 'constructeur',
-            'label'        => 'Constructeur',
-            'width'        => 60,
-            'style'        => 'font-weight: bold; text-align: center;',
-            'header_style' => 'font-weight: bold; text-align: center;',
-            'cell_style'   => 'text-align: center;',
-            'type'         => 'text'
-        ],
-        [
-            'key'          => 'reference',
-            'label'        => 'Référence',
-            'width'        => 90,
-            'style'        => 'font-weight: bold; text-align: center;',
-            'header_style' => 'font-weight: bold; text-align: center;',
-            'cell_style'   => 'text-align: center;',
-            'footer_style' => 'font-weight: bold; text-align: right;',
-            'type'         => 'text'
-        ],
-        [
-            'key'          => 'designation',
-            'label'        => 'Désignation',
-            'width'        => 110,
-            'style'        => 'font-weight: bold; text-align: center;',
-            'header_style' => 'font-weight: bold; text-align: center;',
-            'cell_style'   => 'text-align: left;',
-            'footer_style' => 'font-weight: bold; text-align: right;',
-            'type'         => 'text'
-        ],
-        [
-            'key'          => 'qte_or',
-            'label'        => 'Qté dem',
-            'width'        => 25,
-            'style'        => 'font-weight: bold; text-align: center;',
-            'header_style' => 'font-weight: bold; text-align: center;',
-            'cell_style'   => 'text-align: center;',
-            'footer_style' => 'font-weight: bold; text-align: right;',
-        ],
-        [
-            'key'          => 'qte_sur_or_encours',
-            'label'        => 'Qté sur OR encours',
-            'width'        => 50,
-            'style'        => 'font-weight: bold; text-align: center;',
-            'header_style' => 'font-weight: bold; text-align: center;',
-            'cell_style'   => 'text-align: center;',
-            'footer_style' => 'font-weight: bold; text-align: right;',
-        ],
-        [
-            'key'          => 'qte_sur_or_livre_facture',
-            'label'        => 'Qté conso 6 mois',
-            'width'        => 50,
-            'style'        => 'font-weight: bold; text-align: center;',
-            'header_style' => 'font-weight: bold; text-align: center;',
-            'cell_style'   => 'text-align: center;',
-            'footer_style' => 'font-weight: bold; text-align: right;',
-        ],
-        [
-            'key'          => 'nbr_or',
-            'label'        => 'Nbr OR encours',
-            'width'        => 45,
-            'style'        => 'font-weight: bold; text-align: center;',
-            'header_style' => 'font-weight: bold; text-align: center;',
-            'cell_style'   => 'text-align: center;',
-            'footer_style' => 'font-weight: bold; text-align: right;',
-        ],
-        [
-            'key'          => 'date_derniere_conso',
-            'label'        => 'Date max OR encours',
-            'width'        => 55,
-            'style'        => 'font-weight: bold; text-align: center;',
-            'header_style' => 'font-weight: bold; text-align: center;',
-            'cell_style'   => 'text-align: center;',
-            'footer_style' => 'font-weight: bold; text-align: right;',
-            'type'         => 'date'
-        ],
-        [
-            'key'          => 'date_premiere_conso',
-            'label'        => 'Date min OR encours',
-            'width'        => 55,
-            'style'        => 'font-weight: bold; text-align: center;',
-            'header_style' => 'font-weight: bold; text-align: center;',
-            'cell_style'   => 'text-align: center;',
-            'footer_style' => 'font-weight: bold; text-align: right;',
-            'type'         => 'date'
-        ],
-    ];
+            [
+                'key'          => 'constructeur',
+                'label'        => 'Constructeur',
+                'width'        => 60,
+                'style'        => 'font-weight: bold; text-align: center;',
+                'header_style' => 'font-weight: bold; text-align: center;',
+                'cell_style'   => 'text-align: center;',
+                'type'         => 'text'
+            ],
+            [
+                'key'          => 'reference',
+                'label'        => 'Référence',
+                'width'        => 90,
+                'style'        => 'font-weight: bold; text-align: center;',
+                'header_style' => 'font-weight: bold; text-align: center;',
+                'cell_style'   => 'text-align: center;',
+                'footer_style' => 'font-weight: bold; text-align: right;',
+                'type'         => 'text'
+            ],
+            [
+                'key'          => 'designation',
+                'label'        => 'Désignation',
+                'width'        => 110,
+                'style'        => 'font-weight: bold; text-align: center;',
+                'header_style' => 'font-weight: bold; text-align: center;',
+                'cell_style'   => 'text-align: left;',
+                'footer_style' => 'font-weight: bold; text-align: right;',
+                'type'         => 'text'
+            ],
+            [
+                'key'          => 'qte_or',
+                'label'        => 'Qté dem',
+                'width'        => 25,
+                'style'        => 'font-weight: bold; text-align: center;',
+                'header_style' => 'font-weight: bold; text-align: center;',
+                'cell_style'   => 'text-align: center;',
+                'footer_style' => 'font-weight: bold; text-align: right;',
+            ],
+            [
+                'key'          => 'qte_sur_or_encours',
+                'label'        => 'Qté sur OR encours',
+                'width'        => 50,
+                'style'        => 'font-weight: bold; text-align: center;',
+                'header_style' => 'font-weight: bold; text-align: center;',
+                'cell_style'   => 'text-align: center;',
+                'footer_style' => 'font-weight: bold; text-align: right;',
+            ],
+            [
+                'key'          => 'qte_sur_or_livre_facture',
+                'label'        => 'Qté conso 6 mois',
+                'width'        => 50,
+                'style'        => 'font-weight: bold; text-align: center;',
+                'header_style' => 'font-weight: bold; text-align: center;',
+                'cell_style'   => 'text-align: center;',
+                'footer_style' => 'font-weight: bold; text-align: right;',
+            ],
+            [
+                'key'          => 'nbr_or',
+                'label'        => 'Nbr OR encours',
+                'width'        => 45,
+                'style'        => 'font-weight: bold; text-align: center;',
+                'header_style' => 'font-weight: bold; text-align: center;',
+                'cell_style'   => 'text-align: center;',
+                'footer_style' => 'font-weight: bold; text-align: right;',
+            ],
+            [
+                'key'          => 'date_derniere_conso',
+                'label'        => 'Date max OR encours',
+                'width'        => 55,
+                'style'        => 'font-weight: bold; text-align: center;',
+                'header_style' => 'font-weight: bold; text-align: center;',
+                'cell_style'   => 'text-align: center;',
+                'footer_style' => 'font-weight: bold; text-align: right;',
+                'type'         => 'date'
+            ],
+            [
+                'key'          => 'date_premiere_conso',
+                'label'        => 'Date min OR encours',
+                'width'        => 55,
+                'style'        => 'font-weight: bold; text-align: center;',
+                'header_style' => 'font-weight: bold; text-align: center;',
+                'cell_style'   => 'text-align: center;',
+                'footer_style' => 'font-weight: bold; text-align: right;',
+                'type'         => 'date'
+            ],
+        ];
     }
 
     private function footerRecapitulationOR(array $montantPdf): array
