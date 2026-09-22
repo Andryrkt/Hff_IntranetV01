@@ -164,8 +164,8 @@ class DomModel extends Model
                 FROM demande_de_conge ddc
                 CROSS JOIN $tableParams p
                 WHERE ddc.Matricule = p.Matricule
-                    AND ddc.Statut_Demande NOT LIKE '%Refusé%'
-                    AND ddc.Statut_Demande NOT LIKE '%Annulé%'
+                    AND ddc.Statut_Demande NOT LIKE '%Refus%'
+                    AND ddc.Statut_Demande NOT LIKE '%Annul%'
                     AND (
                         ddc.Date_Debut <= p.DateFin
                         AND ddc.Date_Fin >= p.DateDebut
