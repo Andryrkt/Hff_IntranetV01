@@ -41,7 +41,7 @@ class DaTimelineService
         $isDaViaOR = $daTypeId === DemandeAppro::TYPE_DA_AVEC_DIT;
         [$numeroOr, $timelineOR] = $isDaViaOR ? $this->buildTimelineOR($allDatas, $lastDataDA) : ["", []];
         $lastDataOR = empty($timelineOR) ? $lastDataDA : end($timelineOR);
-        $timelineBc = $this->buildTimelineBC($numeroDa, $lastDataOR);
+        $timelineBc = $this->buildTimelineBC($numeroDa, $lastDataOR, $daTypeId);
 
         if (empty($timelineBc)) {
             if ($isDaViaOR && !empty($timelineOR)) $timelineOR = $this->cloturerAvecAujourdhui($timelineOR);
@@ -142,13 +142,14 @@ class DaTimelineService
     /**
      * @param string $numeroDa
      * @param array{statut:string,dotClass:string,date:string,nbrJours:string} $pointDepart Dernier jalon connu avant le BC (DA ou OR selon le contexte)
+     * @param int $daTypeId type de la DA
      *
      * @return array<string,array{statut:string,dotClass:string,date:string,nbrJours:string}>
      */
-    private function buildTimelineBC(string $numeroDa, array $pointDepart): array
+    private function buildTimelineBC(string $numeroDa, array $pointDepart, int $daTypeId): array
     {
         $tabTemp = [];
-        $donneesBc = $this->daAfficherModel->getBcLifecycleSteps($numeroDa);
+        $donneesBc = $this->daAfficherModel->getBcLifecycleSteps($numeroDa, $daTypeId);
         $dateValidationDA = \DateTime::createFromFormat('d/m/Y', $pointDepart['date'])->setTime(0, 0, 0);
 
         foreach ($donneesBc as $numBC => $dates) {

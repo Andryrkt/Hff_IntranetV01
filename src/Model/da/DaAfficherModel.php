@@ -113,13 +113,9 @@ class DaAfficherModel extends Model
      * Récupère, pour chaque numéro de BC de la dernière version d'une DA, les étapes clés
      * du cycle de vie du BC (génération IPS, validation DW, envoi fournisseur Intranet, réception, livraison) en une seule requête groupée.
      *
-     * TODO: dateCreationBc, dateReceptionArticle et dateLivraisonArticle sont actuellement
-     * non renseignées (null) faute de source de données identifiée ; à implémenter une fois
-     * les colonnes/tables correspondantes déterminées.
-     *
      * @return array<string,array{dateCreationBc:?\DateTimeInterface,dateValidationBc:?\DateTimeInterface,dateEnvoiFournisseur:?\DateTimeInterface,dateReceptionArticle:?\DateTimeInterface,dateLivraisonArticle:?\DateTimeInterface}>
      */
-    public function getBcLifecycleSteps(string $numDa): array
+    public function getBcLifecycleSteps(string $numDa, int $daTypeId): array
     {
         $sql = "--sql
         WITH max_version_daf AS (
@@ -156,15 +152,73 @@ class DaAfficherModel extends Model
 
         $result = $this->connexion->query($sql);
 
+        $bcLifecycleIPS = $this->getBcLifecycleIPS($numDa, $daTypeId);
+
         $donnees = [];
 
         while ($row = odbc_fetch_array($result)) {
-            $donnees[$row['numero_cde']] = [
-                'dateCreationBc'       => null,
+            $numCde = $row['numero_cde'];
+            $bcInfo = $bcLifecycleIPS[$numCde] ?? null;
+
+            $donnees[$numCde] = [
+                'dateCreationBc'       => $bcInfo['date_creation_bc_ips'] ?? null,
                 'dateValidationBc'     => $row['date_validation_bc']     ? new \DateTime($row['date_validation_bc'])     : null,
                 'dateEnvoiFournisseur' => $row['date_envoi_fournisseur'] ? new \DateTime($row['date_envoi_fournisseur']) : null,
-                'dateReceptionArticle' => null,
-                'dateLivraisonArticle' => null,
+                'dateReceptionArticle' => $bcInfo['premiere_reception'] ?? null,
+                'dateLivraisonArticle' => $bcInfo['derniere_reception'] ?? null,
+            ];
+        }
+
+        return $donnees;
+    }
+
+    /**
+     * Récupère, pour chaque numéro de BC de la dernière version d'une DA, les étapes clés
+     * du cycle de vie du BC dans IPS.
+     *
+     * @return array<string,array{date_creation_bc_ips:?\DateTimeInterface,premiere_reception:?\DateTimeInterface,derniere_reception:?\DateTimeInterface}>
+     */
+    private function getBcLifecycleIPS(string $numDa, int $daTypeId): array
+    {
+        $statement = "--sql
+        WITH cde_ips AS (
+            SELECT
+            fcde_numcde AS num_bc,
+            fcde_date AS date_creation_bc_ips
+            FROM {$this->dbIps}:Informix.frn_cde
+            WHERE fcde_cdeext = '$numDa'
+        ),
+        livraisons AS (
+            SELECT
+            fllf_numcde AS num_bc,
+            MIN(fliv_datel) AS premiere_reception,
+            -- MAX(fliv_datel) AS derniere_reception
+            MAX(fliv_dateclot) AS derniere_reception
+            FROM {$this->dbIps}:Informix.frn_llf
+            INNER JOIN {$this->dbIps}:Informix.frn_liv
+            ON  fliv_numliv = fllf_numliv
+            AND fliv_soc = fllf_soc
+            AND fliv_succ = fllf_succ
+            GROUP BY fllf_numcde
+        )
+        SELECT
+            c.num_bc,
+            c.date_creation_bc_ips,
+            l.premiere_reception,
+            l.derniere_reception
+        FROM cde_ips c
+        LEFT JOIN livraisons l ON c.num_bc = l.num_bc";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+
+        $donnees = [];
+
+        foreach ($data as $row) {
+            $donnees[$row['num_bc']] = [
+                'date_creation_bc_ips' => $row['date_creation_bc_ips'] ? new \DateTime($row['date_creation_bc_ips']) : null,
+                'premiere_reception'   => $row['premiere_reception'] ? new \DateTime($row['premiere_reception'])   : null,
+                'derniere_reception'   => $row['derniere_reception'] ? new \DateTime($row['derniere_reception'])   : null,
             ];
         }
 
