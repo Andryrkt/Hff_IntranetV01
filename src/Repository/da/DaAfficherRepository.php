@@ -761,60 +761,6 @@ class DaAfficherRepository extends EntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    /**
-     * Récupère, pour chaque numéro de BC de la dernière version d'une DA, les dates clés
-     * du cycle de vie du BC (génération, validation, envoi fournisseur, réception, livraison) en une seule requête groupée.
-     *
-     * @return array<string,array{dateCreationBc:?\DateTimeInterface,dateValidationBc:?\DateTimeInterface,dateEnvoiFournisseur:?\DateTimeInterface,dateReceptionArticle:?\DateTimeInterface,dateLivraisonArticle:?\DateTimeInterface}>
-     */
-    public function getDonneesBcParNumCde(string $numDa): array
-    {
-        $numeroVersionMax = $this->createQueryBuilder('d')
-            ->select('MAX(d.numeroVersion)')
-            ->where('d.numeroDemandeAppro = :numDa')
-            ->setParameter('numDa', $numDa)
-            ->getQuery()
-            ->getSingleScalarResult();
-
-        if (!$numeroVersionMax) return [];
-
-        $rows = $this->createQueryBuilder('d')
-            ->select(
-                'd.numeroCde AS numeroCde',
-                'MIN(d.dateCreationBc) AS dateCreationBc',
-                'MIN(d.dateValidationBc) AS dateValidationBc',
-                'MIN(d.dateEnvoiFournisseur) AS dateEnvoiFournisseur',
-                'MIN(d.dateReceptionArticle) AS dateReceptionArticle',
-                'MIN(d.dateLivraisonArticle) AS dateLivraisonArticle'
-            )
-            ->where('d.numeroDemandeAppro = :numDa')
-            ->andWhere('d.numeroVersion = :numeroVersion')
-            ->andWhere('d.numeroCde IS NOT NULL')
-            ->andWhere('d.numeroCde != :vide')
-            ->groupBy('d.numeroCde')
-            ->orderBy('d.numeroCde', 'ASC')
-            ->setParameters([
-                'vide'          => '',
-                'numDa'         => $numDa,
-                'numeroVersion' => $numeroVersionMax
-            ])
-            ->getQuery()
-            ->getResult();
-
-        $donnees = [];
-        foreach ($rows as $row) {
-            $donnees[$row['numeroCde']] = [
-                'dateCreationBc'       => $row['dateCreationBc']       ? new \DateTime($row['dateCreationBc'])       : null,
-                'dateValidationBc'     => $row['dateValidationBc']     ? new \DateTime($row['dateValidationBc'])     : null,
-                'dateEnvoiFournisseur' => $row['dateEnvoiFournisseur'] ? new \DateTime($row['dateEnvoiFournisseur']) : null,
-                'dateReceptionArticle' => $row['dateReceptionArticle'] ? new \DateTime($row['dateReceptionArticle']) : null,
-                'dateLivraisonArticle' => $row['dateLivraisonArticle'] ? new \DateTime($row['dateLivraisonArticle']) : null,
-            ];
-        }
-
-        return $donnees;
-    }
-
     public function getTypeDaSelonNumDa(string $numDa)
     {
         $result = $this->createQueryBuilder('d')
