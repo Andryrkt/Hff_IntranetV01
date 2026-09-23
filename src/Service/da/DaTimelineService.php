@@ -2,27 +2,22 @@
 
 namespace App\Service\da;
 
-use App\Entity\da\DaAfficher;
 use App\Entity\da\DemandeAppro;
 use App\Model\da\DaAfficherModel;
 use App\Traits\JoursOuvrablesTrait;
 use App\Constants\da\StatutDaConstant;
 use App\Constants\da\StatutOrConstant;
 use App\Constants\da\StatutBcConstant;
-use Doctrine\ORM\EntityManagerInterface;
 use App\Constants\da\StatutActionConstant;
-use App\Repository\da\DaAfficherRepository;
 
 class DaTimelineService
 {
     use JoursOuvrablesTrait;
     private DaAfficherModel $daAfficherModel;
-    private DaAfficherRepository $daAfficherRepository;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(DaAfficherModel $daAfficherModel)
     {
-        $this->daAfficherModel      = new DaAfficherModel();
-        $this->daAfficherRepository = $em->getRepository(DaAfficher::class);
+        $this->daAfficherModel = $daAfficherModel;
     }
 
     /** 
