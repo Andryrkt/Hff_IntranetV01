@@ -22,7 +22,8 @@ trait PrixFournisseurTrait
             $ref   = $dal->getArtRefp();
             $desi  = $dal->getArtDesi();
             $qte   = $dal->getQteDem();
-            $keyId = implode('_', array_map('trim', [$cst, $ref, $desi, $qte]));
+            $ligne = $dal->getNumeroLigne();
+            $keyId = implode('_', array_map('trim', [$cst, $ref, $desi, $qte, $ligne]));
             /** @var iterable<DemandeApproLR> $dalrs la liste des DALR dans DAL */
             $dalrs       = $dal->getDemandeApproLR();
             if ($dalrs->isEmpty()) {

@@ -35,12 +35,19 @@ function adjustStickyTableHeaders() {
     (stickyTitle ? getElementHeight(stickyTitle) : 0);
 
   // Positionne chaque ligne d'en-tête de manière cumulative
-  let currentOffset = baseOffset - 6; // éviter les décalages
+  let decalage = stickyTitle
+    ? parseInt(stickyTitle.dataset.decalage) || -6
+    : -6;
+
+  let currentOffset = baseOffset + decalage; // éviter les décalages
   headerRows.forEach((row) => {
     row.style.top = `${currentOffset}px`;
     currentOffset += getElementHeight(row);
   });
 
   // Ajouter une marge au tableau pour libérer la place du header sticky
-  table.style.marginTop = "50px";
+  let tableMt = stickyTitle
+    ? parseFloat(stickyTitle.dataset.tableMt) || 50
+    : 50;
+  table.style.marginTop = `${tableMt}px`;
 }
