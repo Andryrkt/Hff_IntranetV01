@@ -88,7 +88,7 @@ class DdpController extends Controller
             // TODO: MOdification des données dans des base de données
 
             /** HISTORISATION */
-            $this->historiqueOperation->sendNotificationSoumission('Le document a été généré avec succès', $dto->numeroDdp, 'ddp_liste', true);
+            $this->historiqueOperation->sendNotificationSoumission('Le document a été généré avec succès', $dto->numeroDdp, 'da_bon_a_payer', true);
         }
     }
 

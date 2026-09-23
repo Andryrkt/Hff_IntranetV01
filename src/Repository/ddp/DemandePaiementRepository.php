@@ -241,7 +241,7 @@ class DemandePaiementRepository extends EntityRepository
             ->leftJoin('d.commandeLivraisons', 'cl')
             ->addSelect('cl')
             ->where('d.appro = :appro')
-            ->setParameter('appro', true);
+            ->setParameter('appro', false);
 
         if (!empty($criteria->numDa)) {
             $qb->andWhere('d.numeroDemandeAppro = :numeroDa')

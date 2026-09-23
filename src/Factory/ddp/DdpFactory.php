@@ -114,7 +114,7 @@ class DdpFactory
         $dto->demandeur = $this->securityService->getUserName();
 
         // info utile -----------------------
-        $dto->statut = StatutConstants::SOUMIS_A_VALIDATION;
+        $dto->statut = $dto->typeDdp->getId() === 1 ? StatutConstants::DDPA_A_TRANSMETTRE : StatutConstants::DDPL_A_TRANSMETTRE;
         $dto->numeroVersion = 1;
         $dto->numeroDossierDouane = array_column(
             $this->ddpModel->getNumDossierGcot($dto->numeroFournisseur, $dto->getNumeroCommandeString(), $dto->getNumeroFactureString()),

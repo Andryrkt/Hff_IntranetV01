@@ -53,9 +53,13 @@
 						</td>
 						<td class="text-center">{{ row.numeroCla}}</td>
 						<td class="text-center">
-							<a href="{{ path('da_dossier_da', {numDa: row.numeroDemandeAppro}) }}" target="_blank">
-								{{ row.numeroDemandeAppro }}
-							</a>
+							{% if row.numeroDemandeAppro %}
+								<a href="{{ path('da_dossier_da', {numDa: row.numeroDemandeAppro}) }}" target="_blank">
+									{{ row.numeroDemandeAppro }}
+								</a>
+							{% else %}
+								-
+							{% endif %}
 						</td>
 						<td class="text-center">
 							{% if row.fileExists %}
