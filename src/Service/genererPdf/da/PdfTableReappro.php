@@ -6,9 +6,13 @@ use App\Entity\da\DemandeApproL;
 
 class PdfTableReappro
 {
+
+    private float $montantTotal;
+
     public function generateTableArticleDemandeReappro(iterable $dals, bool $isPonctuel)
     {
         $html = '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; font-size: 9px;">';
+        $html .= $this->generateHeaderMontantTotal($dals);
         $html .= $this->generateHeaderArticleDemandeReappro($isPonctuel);
         $html .= $this->generateBodyArticleDemandeReappro($dals, $isPonctuel);
         $html .= '</table>';
@@ -44,23 +48,17 @@ class PdfTableReappro
     private function generateBodyArticleDemandeReappro(iterable $dals, bool $isPonctuel): string
     {
         $rows = [];
-
         if (empty($dals)) {
             return '<tbody><tr><td colspan="' . ($isPonctuel ? 6 : 7) . '" align="center">Aucun article demandé</td></tr></tbody>';
         }
 
-        $total = 0;
         /** @var DemandeApproL $dal */
         foreach ($dals as $dal) {
             $rows[] = $this->createArticleRow($dal, $isPonctuel);
-            $total += $dal->getMontantTwig();
         }
 
         $html = '<tbody>' . implode('', $rows) . '</tbody>';
         $html .= '<tfoot>';
-        $html .= '<tr style="font-weight:bold;"><td colspan="' . ($isPonctuel ? 5 : 6) . '" align="right"> MONTANT TOTAL </td>';
-        $html .= '<td align="center">' . number_format($total, 2, ',', '.') . '</td>';
-        $html .= '</tr>';
         $html .= '</tfoot>';
 
         return $html;
@@ -163,5 +161,29 @@ class PdfTableReappro
         $html .= '<td></td></tr>';
         $html .= '</tfoot>';
         return $html;
+    }
+
+
+    private function generateHeaderMontantTotal(iterable $dals): string
+    {
+        $this->calculMontantTotal($dals);
+
+        $columns = [
+            $this->createTableCell('center', '25%', 'Motant Total :'),
+            $this->createTableCell('right', '75%', number_format($this->montantTotal, 2, ',', '.')),
+        ];
+        return sprintf(
+            '<thead><tr style=" font-weight: bold;">%s</tr></thead>',
+            implode('', $columns)
+        );
+    }
+    // Helper pour calcul montant total 
+    private function calculMontantTotal($dals)
+    {
+        $this->montantTotal = 0;
+        /** @var DemandeApproL $dal */
+        foreach ($dals as $dal) {
+            $this->montantTotal += $dal->getMontantTwig();
+        }
     }
 }
