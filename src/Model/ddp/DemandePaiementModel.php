@@ -4,6 +4,7 @@ namespace App\Model\ddp;
 
 use App\Model\Model;
 use App\Model\Traits\ConversionModel;
+use App\Service\TableauEnStringService;
 
 class DemandePaiementModel extends Model
 {
@@ -475,9 +476,17 @@ class DemandePaiementModel extends Model
 
     public function getNumeroFactureIps(string $numeroCommande): ?string
     {
-        $statement = "  SELECT FIRST 1 fllf_numfac 
+        $numeroCommandes = array_filter(explode(';', $numeroCommande), fn ($valeur) => $valeur !== '');
+
+        if (empty($numeroCommandes)) {
+            return null;
+        }
+
+        $numeroCommandesString = TableauEnStringService::TableauEnString(',', $numeroCommandes);
+
+        $statement = "  SELECT FIRST 1 fllf_numfac
                         from informix.frn_llf
-                        where fllf_numcde ='$numeroCommande'
+                        where fllf_numcde in ($numeroCommandesString)
         ";
 
         $result = $this->connect->executeQuery($statement);

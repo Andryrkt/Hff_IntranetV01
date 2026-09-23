@@ -108,19 +108,21 @@ class DdpDto
 
 
     /**
-     * Transformation du numero commande en chaine de caractère séparer par une point virgule
+     * Transformation du numero commande en chaine de caractère quotée, séparée par une virgule
+     * (pour une clause SQL IN (...))
      */
     public function getNumeroCommandeString(): string
     {
-        return is_array($this->numeroCommande) ? TableauEnStringService::TableauEnString(';', $this->numeroCommande) : $this->numeroCommande;
+        return is_array($this->numeroCommande) ? TableauEnStringService::TableauEnString(',', $this->numeroCommande) : $this->numeroCommande;
     }
 
     /**
-     * Transformation du numero facture en chaine de caractère séparer par une point virgule
+     * Transformation du numero facture en chaine de caractère quotée, séparée par une virgule
+     * (pour une clause SQL IN (...))
      */
     public function getNumeroFactureString(): string
     {
-        return is_array($this->numeroFacture) ? TableauEnStringService::TableauEnString(';', $this->numeroFacture) : $this->numeroFacture;
+        return is_array($this->numeroFacture) ? TableauEnStringService::TableauEnString(',', $this->numeroFacture) : $this->numeroFacture;
     }
 
     /**

@@ -235,13 +235,13 @@ class DemandePaiementRepository extends EntityRepository
         return $queryBuilder ? $queryBuilder['statut'] : null;
     }
 
-    public function findByConsultationFactureCriteria(BapSearchDto $criteria)
+    public function findByConsultationFactureCriteria(BapSearchDto $criteria, bool $appro)
     {
         $qb = $this->createQueryBuilder('d')
             ->leftJoin('d.commandeLivraisons', 'cl')
             ->addSelect('cl')
             ->where('d.appro = :appro')
-            ->setParameter('appro', false);
+            ->setParameter('appro', $appro);
 
         if (!empty($criteria->numDa)) {
             $qb->andWhere('d.numeroDemandeAppro = :numeroDa')

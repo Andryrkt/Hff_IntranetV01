@@ -278,6 +278,12 @@ class MenuGroupe
                 'label'    => 'Liste des cmds non placées',
                 'icon'     => 'exclamation-circle',
             ],
+            [
+                'route' => 'da_bon_a_payer',
+                'label' => 'Consultation facture',
+                'icon'  => 'list-ul',
+                'params' => ['appro' => 0],
+            ],
         ];
     }
 
@@ -303,6 +309,7 @@ class MenuGroupe
                 'route' => 'da_bon_a_payer',
                 'label' => 'Consultation facture',
                 'icon'  => 'list-ul',
+                'params' => ['appro' => 1],
             ],
             [
                 'route' => 'da_reporting_ips',
