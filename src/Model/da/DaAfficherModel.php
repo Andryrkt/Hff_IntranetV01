@@ -76,6 +76,38 @@ class DaAfficherModel extends Model
     }
 
     /**
+     * Récupère les dates clés du cycle de vie d'une DA.
+     *
+     * @return array<int,array{statutDal:?string,dateCreation:?\DateTimeInterface,dateDemande:?\DateTimeInterface,numeroOr:?string,statutOr:?string,dateMajStatutOr:?\DateTimeInterface,statutCde:?string}>
+     */
+    public function getTimelineDa(string $numDa): array
+    {
+        $sql = "SELECT DISTINCT da.statut_dal, da.date_creation, da.date_demande, da.numero_or, da.statut_or, da.date_maj_statut_or, da.statut_cde
+                FROM da_afficher da
+                WHERE da.numero_demande_appro='$numDa'
+                ORDER BY da.date_creation";
+
+        $stmt = $this->connexion->query($sql);
+
+        $results = [];
+        while ($row = odbc_fetch_array($stmt)) {
+            $row = $this->convertDataSqlServerToUTF8($row);
+
+            $results[] = [
+                'statutDal'       => $row['statut_dal'],
+                'dateCreation'    => $row['date_creation'] ? new \DateTime($row['date_creation']) : null,
+                'dateDemande'     => $row['date_demande'] ? new \DateTime($row['date_demande']) : null,
+                'numeroOr'        => $row['numero_or'],
+                'statutOr'        => $row['statut_or'],
+                'dateMajStatutOr' => $row['date_maj_statut_or'] ? new \DateTime($row['date_maj_statut_or']) : null,
+                'statutCde'       => $row['statut_cde']
+            ];
+        }
+
+        return $results;
+    }
+
+    /**
      * Récupère, pour chaque numéro de BC de la dernière version d'une DA, les dates clés
      * du cycle de vie du BC (génération, validation, envoi fournisseur, réception, livraison) en une seule requête groupée.
      *

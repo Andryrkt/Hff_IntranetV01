@@ -38,7 +38,7 @@ class DaTimelineService
         $demandeur             = $demandeAppro->getDemandeur();
         $agenceServiceEmetteur = $demandeAppro->getAgenceServiceEmetteur();
 
-        $allDatas = $this->daAfficherRepository->getTimelineData($numeroDa);
+        $allDatas = $this->daAfficherModel->getTimelineDa($numeroDa);
         if (empty($allDatas)) return ['DA' => [], 'OR' => [], 'BC' => []];
 
         $timelineDa = $this->buildTimelineDA($allDatas, $daTypeId, $demandeur, $agenceServiceEmetteur);
