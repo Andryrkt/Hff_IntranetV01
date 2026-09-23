@@ -130,6 +130,7 @@ class UserController extends Controller
                     'matricule'  => $user->getMatricule(),
                     'email'      => $user->getMail(),
                     'codeSage'   => $entity->getCodeSage(),
+                    'agServ'     => "{$entity->getCodeAgence()} {$entity->getCodeService()}",
                     'profils'    => $profils,
                     'url_show'   => $urlGenerator->generate('utilisateur_show', ['id' => $id]),
                     'url_edit'   => $urlGenerator->generate('utilisateur_update', ['id' => $id]),

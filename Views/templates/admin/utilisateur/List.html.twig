@@ -12,17 +12,21 @@
 {% block breadCrumb %}{% endblock %}
 
 {% block content %}
-	<div class="container my-4">
-		<div class="card">
-			<div class="card-body">
-				<h3 class="perso-titre">
-					Liste des utilisateurs
-				</h3>
-				{% include "admin/utilisateur/shared/_formulaireRecherche.html.twig" %}
-				<a href="{{ path("utilisateur_new")}}" class="btn btn-success fw-bold my-3">
-					Ajouter nouvel utilisateur
-				</a>
-				<table class="table align-middle">
+	<div class="container card">
+		<div class="card-body">
+			<div class="sticky-header-titre" style="top:5rem;background-color: #fff;" data-decalage="4" data-table-mt="0.1">
+				<div class="container">
+					<h3 class="perso-titre">
+						Liste des utilisateurs
+					</h3>
+					{% include "admin/utilisateur/shared/_formulaireRecherche.html.twig" %}
+					<a href="{{ path("utilisateur_new") }}" class="btn btn-success fw-bold my-3">
+						Ajouter nouvel utilisateur
+					</a>
+				</div>
+			</div>
+			<div class="container">
+				<table class="table align-middle table-sticky">
 					<thead class="table-dark">
 						<tr>
 							<th></th>
@@ -30,6 +34,7 @@
 							<th class="text-center">Matricule</th>
 							<th class="text-start">Email</th>
 							<th class="text-center">Code Sage</th>
+							<th class="text-center">Agence-Service</th>
 							<th class="text-start ps-4">Profil</th>
 						</tr>
 					</thead>
@@ -55,6 +60,7 @@
 								<td class="text-center" data-label="matricule">{{ row.matricule }}</td>
 								<td class="text-start" data-label="mail">{{ row.email }}</td>
 								<td class="text-center" data-label="code-sage">{{ row.codeSage }}</td>
+								<td class="text-center" data-label="ag-serv">{{ row.agServ }}</td>
 								<td class="text-start p-0" data-label="profil">
 									{% if row.profils.isEmpty() %}
 										-
@@ -77,4 +83,5 @@
 
 {% block javascript %}
 	<script src="{{ App.base_path }}/Views/js/utils/list/searchList.js?v={{ App.browserHash }}" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v={{ App.browserHash }}"></script>
 {% endblock %}
