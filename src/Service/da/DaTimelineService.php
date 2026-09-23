@@ -4,6 +4,7 @@ namespace App\Service\da;
 
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DemandeAppro;
+use App\Model\da\DaAfficherModel;
 use App\Traits\JoursOuvrablesTrait;
 use App\Constants\da\StatutDaConstant;
 use App\Constants\da\StatutOrConstant;
@@ -15,10 +16,12 @@ use App\Repository\da\DaAfficherRepository;
 class DaTimelineService
 {
     use JoursOuvrablesTrait;
+    private DaAfficherModel $daAfficherModel;
     private DaAfficherRepository $daAfficherRepository;
 
     public function __construct(EntityManagerInterface $em)
     {
+        $this->daAfficherModel      = new DaAfficherModel();
         $this->daAfficherRepository = $em->getRepository(DaAfficher::class);
     }
 
@@ -150,7 +153,7 @@ class DaTimelineService
     private function buildTimelineBC(string $numeroDa, array $pointDepart): array
     {
         $tabTemp = [];
-        $donneesBc = $this->daAfficherRepository->getDonneesBcParNumCde($numeroDa);
+        $donneesBc = $this->daAfficherModel->getDonneesBcParNumCde($numeroDa);
         $dateValidationDA = \DateTime::createFromFormat('d/m/Y', $pointDepart['date'])->setTime(0, 0, 0);
 
         foreach ($donneesBc as $numBC => $dates) {

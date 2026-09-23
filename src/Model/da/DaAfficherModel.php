@@ -74,4 +74,62 @@ class DaAfficherModel extends Model
             'classStatutDa' => StatutDaConstant::getCssClassDa($statutDa),
         ];
     }
+
+    /**
+     * Récupère, pour chaque numéro de BC de la dernière version d'une DA, les dates clés
+     * du cycle de vie du BC (génération, validation, envoi fournisseur, réception, livraison) en une seule requête groupée.
+     *
+     * @return array<string,array{dateCreationBc:?\DateTimeInterface,dateValidationBc:?\DateTimeInterface,dateEnvoiFournisseur:?\DateTimeInterface,dateReceptionArticle:?\DateTimeInterface,dateLivraisonArticle:?\DateTimeInterface}>
+     */
+    public function getDonneesBcParNumCde(string $numDa): array
+    {
+        $sql = "--sql
+        WITH max_version_daf AS (
+            SELECT numero_demande_appro, MAX(numero_version) AS max_version
+            FROM da_afficher
+            WHERE numero_demande_appro = '$numDa'
+            GROUP BY numero_demande_appro
+        ),
+        max_version_cde AS (
+            SELECT numero_bca, MAX(numero_version) AS max_version
+            FROM DW_BC_Appro
+            WHERE numero_da = '$numDa'
+            GROUP BY numero_bca
+        )
+        SELECT
+            da.numero_cde             AS numero_cde,
+            dba.date_validation       AS date_validation_bc,
+            da.date_envoi_fournisseur AS date_envoi_fournisseur
+        FROM da_afficher da
+        JOIN max_version_daf mdaf
+            ON da.numero_demande_appro = mdaf.numero_demande_appro
+        AND da.numero_version = mdaf.max_version
+        LEFT JOIN max_version_cde mcde
+            ON da.numero_cde = mcde.numero_bca
+        LEFT JOIN DW_BC_Appro dba
+            ON dba.numero_da = '$numDa'
+        AND dba.numero_bca = mcde.numero_bca
+        AND dba.numero_version = mcde.max_version
+        WHERE da.numero_demande_appro = '$numDa'
+            AND da.numero_cde IS NOT NULL
+            AND da.numero_cde != ''
+            AND da.deleted = 0
+        ORDER BY da.numero_cde ASC";
+
+        $result = $this->connexion->query($sql);
+
+        $donnees = [];
+
+        while ($row = odbc_fetch_array($result)) {
+            $donnees[$row['numero_cde']] = [
+                'dateCreationBc'       => null,
+                'dateValidationBc'     => $row['date_validation_bc']     ? new \DateTime($row['date_validation_bc'])     : null,
+                'dateEnvoiFournisseur' => $row['date_envoi_fournisseur'] ? new \DateTime($row['date_envoi_fournisseur']) : null,
+                'dateReceptionArticle' => null,
+                'dateLivraisonArticle' => null,
+            ];
+        }
+
+        return $donnees;
+    }
 }
