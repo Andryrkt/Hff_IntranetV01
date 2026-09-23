@@ -23,6 +23,11 @@ export class DemandePaiementManager {
     this.isUpdatingCommande = false;
     this.isUpdatingFacture = false;
     this.typeId = null;
+    this.commandesAvecPdfIntrouvable = new Set();
+    // Cache des appels à "api/num-cde-frn/..." (requête coûteuse, identique
+    // pour un couple fournisseur/type donné) : évite de la relancer à chaque
+    // sélection de facture/commande alors que plusieurs écrans en dépendent.
+    this.commandesParFournisseurCache = new Map();
 
     this.initElements();
     if (this.elements.numFactureInput) {
@@ -108,6 +113,10 @@ export class DemandePaiementManager {
       });
     }
 
+    $(this.elements.numCommandeInput).on("change", () => {
+      this.chargerFichiersCommandeValidee();
+    });
+
     if (this.elements.agenceDebiteurInput) {
       this.elements.agenceDebiteurInput.addEventListener("change", () =>
         this.selectAgence(),
@@ -177,12 +186,26 @@ export class DemandePaiementManager {
     }
   }
 
-  async listeCommande(numFournisseur, id_type) {
-    try {
+  /**
+   * Récupère (et met en cache par fournisseur/type) le résultat de
+   * "api/num-cde-frn/...", requête coûteuse et identique pour un couple
+   * fournisseur/type donné, réutilisée par plusieurs écrans (factures,
+   * commandes, tableau, changement de facture).
+   */
+  getCommandesFournisseur(numFournisseur, typeId) {
+    const cle = `${numFournisseur}:${typeId}`;
+    if (!this.commandesParFournisseurCache.has(cle)) {
       const url = this.config.urls.commandes
         .replace(":numFournisseur", numFournisseur)
-        .replace(":typeId", id_type);
-      const commandes = await this.fetchManager.get(url);
+        .replace(":typeId", typeId);
+      this.commandesParFournisseurCache.set(cle, this.fetchManager.get(url));
+    }
+    return this.commandesParFournisseurCache.get(cle);
+  }
+
+  async listeCommande(numFournisseur, id_type) {
+    try {
+      const commandes = await this.getCommandesFournisseur(numFournisseur, id_type);
       this.ajoutDesOptions(this.elements.numCommandeInput, commandes.numCdes);
     } catch (error) {
       console.error("Erreur lors de la récupération des commandes :", error);
@@ -191,10 +214,7 @@ export class DemandePaiementManager {
 
   async listeCommande2(numFournisseur, id_type) {
     try {
-      const url = this.config.urls.commandes
-        .replace(":numFournisseur", numFournisseur)
-        .replace(":typeId", id_type);
-      const commandes = await this.fetchManager.get(url);
+      const commandes = await this.getCommandesFournisseur(numFournisseur, id_type);
       const listeCommande = this.transformTab(commandes.listeGcot, "Numero_PO");
       this.ajoutDesOptions(this.elements.numCommandeInput, listeCommande);
     } catch (error) {
@@ -222,6 +242,12 @@ export class DemandePaiementManager {
       let option = new Option(item.label, item.value);
       inputElement.appendChild(option);
     });
+
+    // Select2 ne rafraîchit son affichage qu'après un événement "change"
+    // explicite sur le <select> sous-jacent : sans ce trigger, les nouvelles
+    // options restent invisibles dans le widget tant qu'aucun autre événement
+    // "change" ne survient (ex: sélection d'une facture).
+    $(inputElement).trigger("change");
   }
 
   async listeFacture(numFournisseur, typeId) {
@@ -230,10 +256,7 @@ export class DemandePaiementManager {
       this.elements.numCommandeInput.innerHTML = "";
       this.elements.montantInput.value = 0;
 
-      const url = this.config.urls.commandes
-        .replace(":numFournisseur", numFournisseur)
-        .replace(":typeId", typeId);
-      const commandes = await this.fetchManager.get(url);
+      const commandes = await this.getCommandesFournisseur(numFournisseur, typeId);
       const listeFacture = this.transformTab(
         commandes.listeGcot,
         "Numero_Facture",
@@ -250,10 +273,7 @@ export class DemandePaiementManager {
 
     const numFacs = $(this.elements.numFactureInput).val();
     try {
-      const url = this.config.urls.commandes
-        .replace(":numFournisseur", numFournisseur)
-        .replace(":typeId", typeId);
-      const commandes = await this.fetchManager.get(url);
+      const commandes = await this.getCommandesFournisseur(numFournisseur, typeId);
       const facturesCorrespondantes = commandes.listeGcot.filter((f) =>
         numFacs.includes(f.Numero_Facture),
       );
@@ -295,20 +315,25 @@ export class DemandePaiementManager {
     const numerosDossier = [
       ...new Set(cdeFacCorrespondantes.map((f) => f.Numero_Dossier_Douane)),
     ];
-    let dossiers = [];
 
-    for (const numero of numerosDossier) {
-      try {
-        const url = this.config.urls.listeDoc.replace(":numero", numero);
-        const docs = await this.fetchManager.get(url);
-        dossiers.push(...docs);
-      } catch (error) {
-        console.error(
-          `Erreur lors de la récupération des fichiers pour le dossier ${numero} :`,
-          error,
-        );
-      }
-    }
+    // Récupération en parallèle (au lieu d'un enchaînement séquentiel) :
+    // avec plusieurs dossiers, attendre chaque appel l'un après l'autre
+    // multipliait le temps d'attente par le nombre de dossiers.
+    const resultats = await Promise.all(
+      numerosDossier.map(async (numero) => {
+        try {
+          const url = this.config.urls.listeDoc.replace(":numero", numero);
+          return await this.fetchManager.get(url);
+        } catch (error) {
+          console.error(
+            `Erreur lors de la récupération des fichiers pour le dossier ${numero} :`,
+            error,
+          );
+          return [];
+        }
+      }),
+    );
+    const dossiers = resultats.flat();
 
     const liste = this.elements.fileList;
     liste.innerHTML = "";
@@ -323,67 +348,9 @@ export class DemandePaiementManager {
       a.textContent = `Ouvrir ${nom}`;
       a.target = "_blank";
 
-      a.onclick = async (e) => {
+      a.onclick = (e) => {
         e.preventDefault();
-        const newWindow = window.open("", "_blank");
-        newWindow.document.write(
-          `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Chargement...</title>
-                <style>
-                    .loader {
-                        border: 5px solid #f3f3f3;
-                        border-top: 5px solid #3498db;
-                        border-radius: 50%;
-                        width: 50px;
-                        height: 50px;
-                        animation: spin 2s linear infinite;
-                        margin: 20% auto;
-                    }
-                    @keyframes spin {
-                        0% { transform: rotate(0deg); }
-                        100% { transform: rotate(360deg); }
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="loader"></div>
-                <p style="text-align: center">Chargement du document...</p>
-            </body>
-            </html>
-        `,
-        );
-
-        try {
-          const response = await fetch(a.href);
-          if (!response.ok) throw new Error(await response.text());
-          const contentType = response.headers.get("content-type");
-          const blob = await response.blob();
-          const blobUrl = URL.createObjectURL(blob);
-
-          if (contentType.includes("pdf")) {
-            newWindow.location.href = blobUrl;
-          } else if (contentType.startsWith("image/")) {
-            newWindow.document.body.innerHTML = `<img src="${blobUrl}" style="max-width: 100%; max-height: 100vh">`;
-          } else {
-            const iframe = document.createElement("iframe");
-            iframe.src = blobUrl;
-            iframe.style = "width:100%; height:100vh; border:none";
-            newWindow.document.body.innerHTML = "";
-            newWindow.document.body.appendChild(iframe);
-          }
-
-          newWindow.onunload = () => URL.revokeObjectURL(blobUrl);
-        } catch (error) {
-          console.error("Erreur:", error);
-          newWindow.document.body.innerHTML = `
-                <h1 style="color: red">Erreur</h1>
-                <p>${error.message}</p>
-                <button onclick="window.close()">Fermer</button>
-            `;
-        }
+        this.ouvrirFichierDansNouvelOnglet(a.href);
       };
 
       li.appendChild(a);
@@ -391,11 +358,278 @@ export class DemandePaiementManager {
     });
   }
 
+  /**
+   * Ouvre le fichier pointé par `href` dans un nouvel onglet, avec un loader
+   * pendant le chargement, puis affiche le PDF/image/iframe selon le content-type.
+   */
+  ouvrirFichierDansNouvelOnglet(href) {
+    const newWindow = window.open("", "_blank");
+    newWindow.document.write(
+      `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Chargement...</title>
+            <style>
+                .loader {
+                    border: 5px solid #f3f3f3;
+                    border-top: 5px solid #3498db;
+                    border-radius: 50%;
+                    width: 50px;
+                    height: 50px;
+                    animation: spin 2s linear infinite;
+                    margin: 20% auto;
+                }
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="loader"></div>
+            <p style="text-align: center">Chargement du document...</p>
+        </body>
+        </html>
+    `,
+    );
+
+    (async () => {
+      try {
+        const response = await fetch(href);
+        if (!response.ok) throw new Error(await response.text());
+        const contentType = response.headers.get("content-type");
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+
+        if (contentType.includes("pdf")) {
+          newWindow.location.href = blobUrl;
+        } else if (contentType.startsWith("image/")) {
+          newWindow.document.body.innerHTML = `<img src="${blobUrl}" style="max-width: 100%; max-height: 100vh">`;
+        } else {
+          const iframe = document.createElement("iframe");
+          iframe.src = blobUrl;
+          iframe.style = "width:100%; height:100vh; border:none";
+          newWindow.document.body.innerHTML = "";
+          newWindow.document.body.appendChild(iframe);
+        }
+
+        newWindow.onunload = () => URL.revokeObjectURL(blobUrl);
+      } catch (error) {
+        console.error("Erreur:", error);
+        newWindow.document.body.innerHTML = `
+              <h1 style="color: red">Erreur</h1>
+              <p>${error.message}</p>
+              <button onclick="window.close()">Fermer</button>
+          `;
+      }
+    })();
+  }
+
+  /**
+   * Affiche, dans l'onglet "commande fournisseur validée", un sous-onglet par
+   * commande fournisseur sélectionnée (toujours présent, même sans PDF trouvé).
+   */
+  async chargerFichiersCommandeValidee() {
+    const subTabsNav = this.elements.commandeValideeSubTabs;
+    const subTabsContent = this.elements.commandeValideeSubTabContent;
+    if (!subTabsNav || !subTabsContent) return;
+
+    subTabsNav.innerHTML = "";
+    subTabsContent.innerHTML = "";
+    subTabsNav.classList.add("d-none");
+
+    this.commandesAvecPdfIntrouvable.clear();
+    this.mettreAJourEtatSoumission();
+
+    const numCdes = $(this.elements.numCommandeInput).val() || [];
+    if (numCdes.length === 0) return;
+
+    subTabsNav.classList.toggle("d-none", numCdes.length <= 1);
+
+    const panesParCommande = new Map();
+    numCdes.forEach((numCde, index) => {
+      const pane = this.ajouterSousOngletCommande(
+        subTabsNav,
+        subTabsContent,
+        numCde,
+        index,
+      );
+      pane.appendChild(this.creerSpinner("Recherche du fichier..."));
+      panesParCommande.set(numCde, pane);
+    });
+
+    try {
+      const url = this.config.urls.fichiersCommandeFournisseur.replace(
+        ":numeroCommande",
+        numCdes.join(","),
+      );
+      const fichiers = await this.fetchManager.get(url);
+
+      numCdes.forEach((numCde) => {
+        const pane = panesParCommande.get(numCde);
+        pane.innerHTML = "";
+
+        const fichiersDeCommande = fichiers.filter(
+          (fichier) => fichier.numeroCde === numCde,
+        );
+
+        if (fichiersDeCommande.length === 0) {
+          this.afficherPdfIntrouvable(pane, numCde);
+          return;
+        }
+
+        fichiersDeCommande.forEach((fichier) =>
+          this.afficherPdfCommandeValidee(pane, fichier),
+        );
+      });
+    } catch (error) {
+      console.error(
+        "Erreur lors de la récupération des fichiers de commande :",
+        error,
+      );
+      numCdes.forEach((numCde) => {
+        const pane = panesParCommande.get(numCde);
+        pane.innerHTML = `<p class="text-danger mb-0">Erreur lors de la récupération des fichiers.</p>`;
+      });
+    }
+  }
+
+  /**
+   * Ajoute un sous-onglet (bouton + panneau vide) pour une commande fournisseur
+   * sélectionnée, et retourne le panneau à remplir.
+   */
+  ajouterSousOngletCommande(subTabsNav, subTabsContent, numCde, index) {
+    const tabId = `commande-validee-${numCde}`;
+    const estActif = index === 0;
+
+    const navItem = document.createElement("li");
+    navItem.className = "nav-item";
+    navItem.setAttribute("role", "presentation");
+
+    const navButton = document.createElement("button");
+    navButton.className = `nav-link${estActif ? " active" : ""}`;
+    navButton.id = `${tabId}-tab`;
+    navButton.type = "button";
+    navButton.dataset.bsToggle = "pill";
+    navButton.dataset.bsTarget = `#${tabId}`;
+    navButton.setAttribute("role", "tab");
+    navButton.textContent = `Commande ${numCde}`;
+    navItem.appendChild(navButton);
+    subTabsNav.appendChild(navItem);
+
+    const pane = document.createElement("div");
+    pane.className = `tab-pane fade${estActif ? " show active" : ""}`;
+    pane.id = tabId;
+    pane.setAttribute("role", "tabpanel");
+    pane.setAttribute("aria-labelledby", `${tabId}-tab`);
+    subTabsContent.appendChild(pane);
+
+    return pane;
+  }
+
+  /**
+   * Affiche le message "Introuvable" pour une commande sans fichier, et
+   * bloque la soumission tant qu'elle reste sélectionnée.
+   */
+  afficherPdfIntrouvable(pane, numCde) {
+    const p = document.createElement("p");
+    p.className = "text-danger mb-0";
+    p.textContent = `Commande ${numCde} - Introuvable`;
+    pane.appendChild(p);
+
+    this.commandesAvecPdfIntrouvable.add(numCde);
+    this.mettreAJourEtatSoumission();
+  }
+
+  /**
+   * Télécharge (en blob) puis affiche un PDF de commande validée, avec un
+   * spinner pendant le chargement effectif du fichier.
+   */
+  async afficherPdfCommandeValidee(container, fichier) {
+    const legende = document.createElement("p");
+    legende.className = "mb-2 fw-bold";
+    legende.textContent = fichier.nomFichier;
+    container.appendChild(legende);
+
+    const spinner = this.creerSpinner("Chargement du PDF...", "80vh");
+    container.appendChild(spinner);
+
+    try {
+      const baseUrl = window.location.origin;
+      const encodedPath = encodeURIComponent(fichier.path);
+      const fileUrl = `${baseUrl}${this.config.urls.telechargerFichierCommandeDw}?path=${encodedPath}`;
+
+      const response = await fetch(fileUrl);
+      if (!response.ok) throw new Error(await response.text());
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
+      const embed = document.createElement("embed");
+      embed.src = blobUrl;
+      embed.type = "application/pdf";
+      embed.width = "100%";
+      embed.style.height = "80vh";
+
+      spinner.replaceWith(embed);
+    } catch (error) {
+      console.error("Erreur lors du chargement du PDF :", error);
+      spinner.innerHTML = `<p class="text-danger mb-0">Introuvable</p>`;
+
+      this.commandesAvecPdfIntrouvable.add(fichier.numeroCde);
+      this.mettreAJourEtatSoumission();
+    }
+  }
+
+  /**
+   * Bloque (ou débloque) la soumission du formulaire selon que la sélection
+   * actuelle de commandes contient ou non une commande dont le PDF est introuvable.
+   */
+  mettreAJourEtatSoumission() {
+    const numCdesSelectionnees = $(this.elements.numCommandeInput).val() || [];
+    const commandesProblematiques = numCdesSelectionnees.filter((numCde) =>
+      this.commandesAvecPdfIntrouvable.has(numCde),
+    );
+    const bloque = commandesProblematiques.length > 0;
+
+    if (this.elements.submitButton) {
+      this.elements.submitButton.disabled = bloque;
+    }
+
+    if (this.elements.pdfIntrouvableWarning) {
+      if (bloque) {
+        this.elements.pdfIntrouvableWarning.textContent =
+          `PDF introuvable pour la/les commande(s) ${commandesProblematiques.join(", ")}. ` +
+          `Désélectionnez-la/les pour pouvoir soumettre le formulaire.`;
+        this.elements.pdfIntrouvableWarning.classList.remove("d-none");
+      } else {
+        this.elements.pdfIntrouvableWarning.textContent = "";
+        this.elements.pdfIntrouvableWarning.classList.add("d-none");
+      }
+    }
+  }
+
+  /**
+   * Crée un bloc spinner Bootstrap réutilisable avec un message.
+   */
+  creerSpinner(message, height = "") {
+    const wrapper = document.createElement("div");
+    wrapper.className =
+      "d-flex flex-column justify-content-center align-items-center border rounded gap-2 p-3";
+    if (height) wrapper.style.height = height;
+
+    wrapper.innerHTML = `
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+      <span class="text-muted">${message}</span>
+    `;
+
+    return wrapper;
+  }
+
   async updateCommandesFournisseur(numFournisseur, typeId) {
-    const url = this.config.urls.commandes
-      .replace(":numFournisseur", numFournisseur)
-      .replace(":typeId", typeId);
-    const commandes = await this.fetchManager.get(url);
+    const commandes = await this.getCommandesFournisseur(numFournisseur, typeId);
 
     const $tableauContainer = this.elements.invoiceTableContainer;
     $tableauContainer.innerHTML = "";

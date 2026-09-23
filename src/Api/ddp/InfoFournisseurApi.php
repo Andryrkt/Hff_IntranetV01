@@ -10,6 +10,7 @@ error_reporting(E_ALL);
 use App\Controller\Controller;
 use App\Controller\Traits\ddp\DdpTrait;
 use App\Entity\ddp\DemandePaiement;
+use App\Entity\dw\DwCommande;
 use App\Model\ddp\DemandePaiementModel;
 use App\Service\TableauEnStringService;
 use App\Entity\cde\CdefnrSoumisAValidation;
@@ -234,5 +235,65 @@ class InfoFournisseurApi extends Controller
 
         header("Content-type:application/json");
         echo json_encode($fournisseurs);
+    }
+
+    /**
+     * Récupère les fichiers (colonne 'path' de DW_Commande) des commandes fournisseur choisies.
+     *
+     * @Route("/api/fichiers-commande-fournisseur/{numeroCommande}", name="api_fichiers_commande_fournisseur")
+     */
+    public function fichiersCommandeFournisseur(string $numeroCommande)
+    {
+        $dwCommandeRepository = $this->getEntityManager()->getRepository(DwCommande::class);
+
+        $numCdes = array_values(array_unique(array_filter(
+            array_map('trim', explode(',', $numeroCommande)),
+            fn ($numCde) => $numCde !== ''
+        )));
+
+        $fichiers = [];
+        foreach ($dwCommandeRepository->findPathsByNumeroCdes($numCdes) as $result) {
+            if (empty($result['path'])) {
+                continue;
+            }
+
+            $fichiers[] = [
+                'numeroCde'  => $result['numeroCde'],
+                'path'       => $result['path'],
+                'nomFichier' => basename(str_replace('\\', '/', $result['path'])),
+            ];
+        }
+
+        header("Content-type:application/json");
+        echo json_encode($fichiers);
+    }
+
+    /**
+     * Sert le contenu d'un fichier de commande DW_Commande (chemin relatif à BASE_PATH_FICHIER).
+     *
+     * @Route("/api/telecharger-fichier-commande-dw", name="api_telecharger_fichier_commande_dw")
+     */
+    public function telechargerFichierCommandeDw(Request $request)
+    {
+        $path = urldecode((string) $request->query->get('path', ''));
+
+        $baseReel = realpath(rtrim($_ENV['BASE_PATH_FICHIER'], '/\\'));
+        $cheminReel = $baseReel !== false
+            ? realpath($baseReel . DIRECTORY_SEPARATOR . ltrim($path, '/\\'))
+            : false;
+
+        header('Content-Type: application/json');
+
+        if ($baseReel === false || $cheminReel === false || strpos($cheminReel, $baseReel) !== 0 || !is_readable($cheminReel)) {
+            http_response_code(404);
+            echo json_encode(['success' => false, 'message' => 'Fichier introuvable']);
+            exit;
+        }
+
+        $mimeType = mime_content_type($cheminReel) ?: 'application/octet-stream';
+        header('Content-Type: ' . $mimeType);
+        header('Content-Length: ' . filesize($cheminReel));
+        readfile($cheminReel);
+        exit;
     }
 }

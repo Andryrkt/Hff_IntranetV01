@@ -44,11 +44,6 @@ class CdefnrSoumisAValidation
     private string $statut = '';
 
     /**
-     * @ORM\Column(type="string", length=255, name="nom_fichier")
-     */
-    private string $nomFichier;
-
-    /**
      * ORM\Column(type="string", length=11, name="numero_da")
      */
     private string $numeroDa;
@@ -173,25 +168,6 @@ class CdefnrSoumisAValidation
         return $this;
     }
 
-    /**
-     * Get the value of nomFichier
-     */
-    public function getNomFichier()
-    {
-        return $this->nomFichier;
-    }
-
-    /**
-     * Set the value of nomFichier
-     *
-     * @return  self
-     */
-    public function setNomFichier($nomFichier)
-    {
-        $this->nomFichier = $nomFichier;
-
-        return $this;
-    }
 
     /**
      * Get the value of numeroDa
