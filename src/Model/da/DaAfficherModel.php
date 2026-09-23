@@ -76,11 +76,13 @@ class DaAfficherModel extends Model
     }
 
     /**
-     * Récupère les dates clés du cycle de vie d'une DA.
+     * Récupère la timeline complète d'une DA par étape.
+     * Pour chaque étape il retourne le statut de la DA, sa date de création, date de demande, 
+     * numéro d'or, statut d'or, date de mise à jour du statut d'or et statut de commande.
      *
      * @return array<int,array{statutDal:?string,dateCreation:?\DateTimeInterface,dateDemande:?\DateTimeInterface,numeroOr:?string,statutOr:?string,dateMajStatutOr:?\DateTimeInterface,statutCde:?string}>
      */
-    public function getTimelineDa(string $numDa): array
+    public function getDaLifecycleSteps(string $numDa): array
     {
         $sql = "SELECT DISTINCT da.statut_dal, da.date_creation, da.date_demande, da.numero_or, da.statut_or, da.date_maj_statut_or, da.statut_cde
                 FROM da_afficher da
@@ -108,12 +110,16 @@ class DaAfficherModel extends Model
     }
 
     /**
-     * Récupère, pour chaque numéro de BC de la dernière version d'une DA, les dates clés
-     * du cycle de vie du BC (génération, validation, envoi fournisseur, réception, livraison) en une seule requête groupée.
+     * Récupère, pour chaque numéro de BC de la dernière version d'une DA, les étapes clés
+     * du cycle de vie du BC (génération IPS, validation DW, envoi fournisseur Intranet, réception, livraison) en une seule requête groupée.
+     *
+     * TODO: dateCreationBc, dateReceptionArticle et dateLivraisonArticle sont actuellement
+     * non renseignées (null) faute de source de données identifiée ; à implémenter une fois
+     * les colonnes/tables correspondantes déterminées.
      *
      * @return array<string,array{dateCreationBc:?\DateTimeInterface,dateValidationBc:?\DateTimeInterface,dateEnvoiFournisseur:?\DateTimeInterface,dateReceptionArticle:?\DateTimeInterface,dateLivraisonArticle:?\DateTimeInterface}>
      */
-    public function getDonneesBcParNumCde(string $numDa): array
+    public function getBcLifecycleSteps(string $numDa): array
     {
         $sql = "--sql
         WITH max_version_daf AS (

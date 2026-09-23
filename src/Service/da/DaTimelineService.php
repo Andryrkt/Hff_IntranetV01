@@ -33,7 +33,7 @@ class DaTimelineService
         $demandeur             = $demandeAppro->getDemandeur();
         $agenceServiceEmetteur = $demandeAppro->getAgenceServiceEmetteur();
 
-        $allDatas = $this->daAfficherModel->getTimelineDa($numeroDa);
+        $allDatas = $this->daAfficherModel->getDaLifecycleSteps($numeroDa);
         if (empty($allDatas)) return ['DA' => [], 'OR' => [], 'BC' => []];
 
         $timelineDa = $this->buildTimelineDA($allDatas, $daTypeId, $demandeur, $agenceServiceEmetteur);
@@ -148,7 +148,7 @@ class DaTimelineService
     private function buildTimelineBC(string $numeroDa, array $pointDepart): array
     {
         $tabTemp = [];
-        $donneesBc = $this->daAfficherModel->getDonneesBcParNumCde($numeroDa);
+        $donneesBc = $this->daAfficherModel->getBcLifecycleSteps($numeroDa);
         $dateValidationDA = \DateTime::createFromFormat('d/m/Y', $pointDepart['date'])->setTime(0, 0, 0);
 
         foreach ($donneesBc as $numBC => $dates) {
