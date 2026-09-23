@@ -53,7 +53,8 @@ class DdpFactory
         // initialisation formulaire
         $dto->choiceModePaiement = $this->modePaiement();
         $dto->choiceDevise = $this->devise();
-        $dto->numeroCommande = $this->numeroCmd($idTypeDdp);
+        // $dto->numeroCommande = $this->numeroCmd($idTypeDdp);
+        $dto->numeroCommande = [];
         $dto->numeroFacture = [];
 
         // Agence et Service par défaut
@@ -62,12 +63,15 @@ class DdpFactory
             'service' => $this->em->getRepository(Service::class)->find(1)
         ];
 
+        $dto->dateDemande = new \DateTime();
+
         return $dto;
     }
 
     public function apresSoumission(FormInterface $form, DdpDto $dto): DdpDto
     {
         $dto->numeroDdp = $this->numeroGenerateur->genererNumeroDdp();
+        $dto->dateDemande = new \DateTime();
         [$nomEtCheminFichiersEnregistrer, $nomFichierTelecharger,  $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $dto);
 
 
@@ -112,7 +116,10 @@ class DdpFactory
         // info utile -----------------------
         $dto->statut = StatutConstants::SOUMIS_A_VALIDATION;
         $dto->numeroVersion = 1;
-        $dto->numeroDossierDouane = $this->ddpModel->getNumDossierGcot($dto->numeroFournisseur, $dto->getNumeroCommandeString(), $dto->getNumeroFactureString());
+        $dto->numeroDossierDouane = array_column(
+            $this->ddpModel->getNumDossierGcot($dto->numeroFournisseur, $dto->getNumeroCommandeString(), $dto->getNumeroFactureString()),
+            'Numero_Dossier_Douane'
+        );
 
         return $dto;
     }
@@ -208,7 +215,7 @@ class DdpFactory
 
         $cheminDeFichiers = [];
         foreach ($numDossiers as $value) {
-            $dossiers = $this->ddpModel->findListeDoc($value);
+            $dossiers = $this->ddpModel->findListeDoc($value['Numero_Dossier_Douane']);
 
             foreach ($dossiers as  $dossier) {
                 $cheminDeFichiers[] = $dossier['Nom_Fichier'];
@@ -245,7 +252,7 @@ class DdpFactory
     {
         $nomDufichierCde = [];
         foreach ($pathAndCdes as  $pathAndCde) {
-            if ($pathAndCde[0]['path'] != null) {
+            if (!empty($pathAndCde[0]['path'])) {
                 $cheminDufichierInitial = $_ENV['BASE_PATH_FICHIER'] . "/" . $pathAndCde[0]['path'];
 
                 if (!file_exists($cheminDufichierInitial)) {

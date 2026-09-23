@@ -125,22 +125,21 @@ class DdpType extends AbstractType
         )
             ->addEventListener(
                 FormEvents::PRE_SUBMIT,
-                function (FormEvent $event) use ($options) {
+                function (FormEvent $event) {
                     $form = $event->getForm();
                     $data = $event->getData();
 
-                    if ($options['data']->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE) {
-                        $form->add(
-                            'numeroCommande',
-                            ChoiceType::class,
-                            [
-                                'label'     => 'N° Commande *',
-                                'choices'   => $data['numeroCommande'],
-                                'multiple'  => true,
-                                'expanded'  => false,
-                            ]
-                        );
-                    }
+                    $form->add(
+                        'numeroCommande',
+                        ChoiceType::class,
+                        [
+                            'label'     => 'N° Commande *',
+                            'choices'   => $data['numeroCommande'] ?? [],
+                            'multiple'  => true,
+                            'expanded'  => false,
+                            'required'  => false
+                        ]
+                    );
                 }
             );
     }
@@ -197,26 +196,26 @@ class DdpType extends AbstractType
 
     public function addFile(FormBuilderInterface $builder)
     {
-        $builder->add('pieceJoint01', FileUploadType::class, [
+        $builder->add('pieceJoint01', FileUploadType::class, [ // contrôle livraison
 
             'label' => 'Pièce Jointe 01 (PDF)',
             'allowed_mime_types' => ['application/pdf'],
             'attr' => ['accept' => 'application/pdf'],
             'max_size' => '5M'
         ])
-            ->add('pieceJoint02', FileUploadType::class, [
+            ->add('pieceJoint02', FileUploadType::class, [ // rib fournisseur
                 'label' => 'Pièce Jointe 02 (PDF)',
                 'allowed_mime_types' => ['application/pdf'],
                 'attr' => ['accept' => 'application/pdf'],
                 'max_size' => '5M'
             ])
-            ->add('pieceJoint03', FileUploadType::class, [
+            ->add('pieceJoint03', FileUploadType::class, [ // BC client externe / BC client magasin
                 'label' => 'Pièce Jointe 03 (PDF)',
                 'allowed_mime_types' => ['application/pdf'],
                 'attr' => ['accept' => 'application/pdf'],
                 'max_size' => '5M'
             ])
-            ->add('pieceJoint04', FileUploadType::class, [
+            ->add('pieceJoint04', FileUploadType::class, [ // Autres documents
                 'label' => 'Pièce Jointe 04 (PDF)',
                 'allowed_mime_types' => ['application/pdf'],
                 'attr' => ['accept' => 'application/pdf'],

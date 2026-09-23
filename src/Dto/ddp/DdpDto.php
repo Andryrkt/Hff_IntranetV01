@@ -56,6 +56,7 @@ class DdpDto
     public array $nomDesFichiersDwCommande = [];
     // pour les nom des fichiers distant dans 192.168.0.15
     public array $nomDesFichiersDistant = [];
+    public array $lesFichiers = [];
 
 
     // info sur l'utilisateur --------------------
@@ -71,16 +72,11 @@ class DdpDto
     public ?string $codeSociete = 'HF';
 
 
-    // Demande Appro -------------------------------
-    public ?string $numeroSoumissionDdpDa = null;
-    public ?string $numeroDemandeAppro = null;
-    public ?string $numeroVersionBc = null;
-    public bool $estAppro = false;
-    public ?string $typeDa = null;
-    // utile seulement pour le demande de paiement à l'avance d'une DA avec soumission BC
-    public bool $ddpSoumissioncde = false;
+    public ?\DateTime $dateDemande = null;
 
 
+    public bool $isFrnNonImmatricule = false;
+    public bool $appro = false;
 
     /**
      * Transformation du montant à payer en float
@@ -125,5 +121,33 @@ class DdpDto
     public function getNumeroFactureString(): string
     {
         return is_array($this->numeroFacture) ? TableauEnStringService::TableauEnString(';', $this->numeroFacture) : $this->numeroFacture;
+    }
+
+    /**
+     * Transformation du numero commande en chaine de caractère séparée par un point virgule,
+     * sans guillemets (pour stockage en base, contrairement à getNumeroCommandeString() qui est destiné aux clauses SQL)
+     */
+    public function numeroCommandeSansGuillemet(): string
+    {
+        return is_array($this->numeroCommande) ? implode(';', $this->numeroCommande) : $this->numeroCommande;
+    }
+
+    /**
+     * Transformation du numero facture en chaine de caractère séparée par un point virgule,
+     * sans guillemets (pour stockage en base, contrairement à getNumeroFactureString() qui est destiné aux clauses SQL)
+     */
+    public function numeroFactureSansGuillemet(): string
+    {
+        return is_array($this->numeroFacture) ? implode(';', $this->numeroFacture) : $this->numeroFacture;
+    }
+
+    /**
+     * Formatage de date de demande de paiement
+     *
+     * @return void
+     */
+    public function dateDemandeFormater()
+    {
+        return $this->dateDemande->format('d/m/Y');
     }
 }

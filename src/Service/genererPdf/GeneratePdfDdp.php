@@ -2,6 +2,7 @@
 
 namespace App\Service\genererPdf;
 
+use App\Dto\ddp\DdpDto;
 use App\Entity\ddp\DemandePaiement;
 use App\Traits\ChaineCaractereTrait;
 use TCPDF;
@@ -186,7 +187,7 @@ class GeneratePdfDdp extends GeneratePdf
     /**
      * Genere le PDF DEMANDE DE PAIEMENT (DDP)
      */
-    public function genererPdfDto($dto, string $cheminDeFichier)
+    public function genererPdfDto(DdpDto $dto, string $cheminDeFichier)
     {
         $pdf = new TCPDF();
 
@@ -217,7 +218,7 @@ class GeneratePdfDdp extends GeneratePdf
         $pdf->Cell($pdf->GetStringWidth('TYPE DE DEMANDE : '), 10, 'TYPE DE DEMANDE : ', 0, 0);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell(0, 10, $dto->typeDemande->getLibelle(), 0, 0);  // TO DO: valeur de "TYPE DE DEMANDE" (changer 'DEMANDE DE PAIEMENT A L’AVANCE')
+        $pdf->Cell(0, 10, $dto->typeDdp->getLibelle(), 0, 0);  // TO DO: valeur de "TYPE DE DEMANDE" (changer 'DEMANDE DE PAIEMENT A L’AVANCE')
 
         $pdf->Line($pdf->GetX() + 1, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('TYPE DE DEMANDE') + 1, $pdf->GetY() - 2.5);
 
@@ -236,7 +237,7 @@ class GeneratePdfDdp extends GeneratePdf
         $pdf->Cell($pdf->GetStringWidth('DATE : '), 10, 'DATE : ', 0, 0);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell(0, 10, $dto->dateCreation->format('d/m/Y'), 0, 1); // TO DO: valeur de "DATE" (changer '12/02/2024')
+        $pdf->Cell(0, 10, $dto->dateDemandeFormater(), 0, 1); // TO DO: valeur de "DATE" (changer '12/02/2024')
 
         $pdf->Line($pdf->GetX() + 1, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('DATE') + 1, $pdf->GetY() - 2.5);
 
@@ -302,13 +303,13 @@ class GeneratePdfDdp extends GeneratePdf
         $pdf->Cell(50, 10, 'Agence à débiter ', 1, 0);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell($usable_width - 50, 10, $dto->debiteur['agence']->getCodeAgence(), 1, 1); // TO DO: valeur de "Agence à débiter" (remplacer '' par sa valeur)
+        $pdf->Cell($usable_width - 50, 10, '01', 1, 1); // TO DO: valeur de "Agence à débiter" (remplacer '' par sa valeur)
 
         $pdf->SetFont('helvetica', 'B', 12);
         $pdf->Cell(50, 10, 'Service à débiter ', 1, 0);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell($usable_width - 50, 10, $dto->debiteur['service']->getCodeService(), 1, 1); // TO DO: valeur de "Service à débiter" (remplacer '' par sa valeur)
+        $pdf->Cell($usable_width - 50, 10, 'NEG', 1, 1); // TO DO: valeur de "Service à débiter" (remplacer '' par sa valeur)
 
         $pdf->SetFont('helvetica', 'B', 12);
         $pdf->Cell(50, 10, 'RIB ', 1, 0);
