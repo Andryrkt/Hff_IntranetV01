@@ -21,7 +21,7 @@ class PdfTableMatriceGenerator
     private const LARGEUR_MAX_FOURNISSEUR = 15.0;
 
     /**
-     * @var array{cst: float, ref: float, desi: float, qte: float, fournisseur: float}|null
+     * @var array{cst:float,ref:float,desi:float,qte:float,fournisseur:float}|null
      */
     private ?array $largeursColonnes = null;
 
@@ -82,7 +82,6 @@ class PdfTableMatriceGenerator
         $fournisseurs = $this->gererPrixFournisseurs($dals);
         // Récupérer tous les noms de fournisseurs
         $listeFournisseurs = array_keys($fournisseurs);
-        $w = $this->calculerLargeursColonnes($listeFournisseurs);
 
         $this->totalGlobal = $this->calculerTotalGlobal($dals, $listeFournisseurs, $fournisseurs);
 
@@ -270,7 +269,8 @@ class PdfTableMatriceGenerator
             $ref   = $dal->getArtRefp();
             $desi  = $dal->getArtDesi();
             $qte   = $dal->getQteDem();
-            $keyId = implode('_', array_map('trim', [$cst, $ref, $desi, $qte]));
+            $ligne = $dal->getNumeroLigne();
+            $keyId = implode('_', array_map('trim', [$cst, $ref, $desi, $qte, $ligne]));
 
             foreach ($listeFournisseurs as $frn) {
                 $choix   = $fournisseurs[$frn][$keyId]['choix']   ?? false;
