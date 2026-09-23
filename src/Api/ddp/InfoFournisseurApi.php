@@ -70,7 +70,14 @@ class InfoFournisseurApi extends Controller
         //     $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId, $excludedCommands);
 
         // $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
-        $numCdes = $this->demandePaiementModel->getCommandeReceptionnee($numeroFournisseur);
+
+        // Code Société de l'utilisateur
+            $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+            $cdeFrnRepository = $this->getEntityManager()->getRepository(CdefnrSoumisAValidation::class);
+            $numCdeValides = $cdeFrnRepository->findValideesDerniereVersion($numeroFournisseur);
+            $numCdeValides = array_map(fn($el) => "'".$el->getNumCdeFournisseur()."'", $numCdeValides);
+            $numCdeValides = implode(',', $numCdeValides);
+        $numCdes = $this->demandePaiementModel->getCommandeReceptionnee($numeroFournisseur, $codeSociete, $typeId, $numCdeValides);
 
 
         $numCde = array_map(fn($el) => ['label' => $el, 'value' => $el], $numCdes);

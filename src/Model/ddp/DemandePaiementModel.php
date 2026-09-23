@@ -275,16 +275,20 @@ class DemandePaiementModel extends Model
         return array_column($this->convertirEnUtf8($data), 'facture_non_lettree');
     }
 
-    public function getCommandeReceptionnee(string $numeroFournisseur): array
+    public function getCommandeReceptionnee(string $numeroFournisseur, string $codeSociete = 'HF', int $typeId = 5, string $numCdeValide = ''): array
     {
         $statement = " SELECT distinct fllf_numcde as commande_receptionnee from frn_llf
                 inner join frn_liv 
                     on fliv_numliv = fllf_numliv 
                     and fliv_soc = fllf_soc 
                     and fliv_succ = fllf_succ 
-                    and fliv_soc = 'HF'
+                    and fliv_soc = '$codeSociete'
                 where fliv_numfou = '{$numeroFournisseur}'
         ";
+
+        if ($typeId === 1) {
+            $statement .= " And fllf_numcde in ({$numCdeValide})";
+        }
 
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
@@ -476,7 +480,7 @@ class DemandePaiementModel extends Model
 
     public function getNumeroFactureIps(string $numeroCommande): ?string
     {
-        $numeroCommandes = array_filter(explode(';', $numeroCommande), fn ($valeur) => $valeur !== '');
+        $numeroCommandes = array_filter(explode(';', $numeroCommande), fn($valeur) => $valeur !== '');
 
         if (empty($numeroCommandes)) {
             return null;

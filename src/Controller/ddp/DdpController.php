@@ -6,6 +6,7 @@ use App\Constants\ddp\TypeDemandePaiementConstants;
 use App\Controller\Controller;
 use App\Controller\Traits\PdfConversionTrait;
 use App\Dto\ddp\DdpDto;
+use App\Entity\cde\CdefnrSoumisAValidation;
 use App\Factory\ddp\DdpFactory;
 use App\Form\ddp\DdpType;
 use App\Model\ddp\DemandePaiementModel;
@@ -96,9 +97,16 @@ class DdpController extends Controller
     {
         $numCdes = [];
         $numeroCommandes = '';
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
         if (!empty($dto->numeroFournisseur) && $dto->numeroFournisseur !== '-') {
-            $numCdes = $this->demandePaiementModel->getCommandeReceptionnee($dto->numeroFournisseur);
+            // recupère les commandes valides pour le fournisseur et le type de DDP à l'avance
+            $cdeFrnRepository = $this->getEntityManager()->getRepository(CdefnrSoumisAValidation::class);
+            $numCdeValides = $cdeFrnRepository->findValideesDerniereVersion($dto->numeroFournisseur);
+            $numCdeValides = array_map(fn($el) => "'" . $el->getNumCdeFournisseur() . "'", $numCdeValides);
+            $numCdeValides = implode(',', $numCdeValides);
+            $numCdes = $this->demandePaiementModel->getCommandeReceptionnee($dto->numeroFournisseur, $codeSociete, $dto->typeDdp->getId(), $numCdeValides);
             $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
             $numFacString =  TableauEnStringService::TableauEnString(',', $dto->numeroFacture);
             $numeroCommandes = $this->demandePaiementModel->getNumCommande($dto->numeroFournisseur, $numCdesString, $numFacString);

@@ -71,6 +71,30 @@ class CdefnrSoumisAValidationRepository extends EntityRepository
         return $qb->getQuery()->getSingleColumnResult();
     }
 
+    /**
+     * Récupère les commandes fournisseur validées, en ne gardant que
+     * la dernière version de chaque numero_commande_fournisseur.
+     *
+     * @return CdefnrSoumisAValidation[]
+     */
+    public function findValideesDerniereVersion(string $numeroFournisseur): array
+    {
+        $subQuery = $this->createQueryBuilder('sub')
+            ->select('MAX(sub.numVersion)')
+            ->where('sub.numCdeFournisseur = cfr.numCdeFournisseur')
+            ->andWhere('sub.codeFournisseur = :numFrn')
+            ->getDQL();
+
+        return $this->createQueryBuilder('cfr')
+            ->where('cfr.codeFournisseur = :numFrn')
+            ->andWhere('cfr.numVersion = (' . $subQuery . ')')
+            ->andWhere('cfr.statut = :statut')
+            ->setParameter('numFrn', $numeroFournisseur)
+            ->setParameter('statut', 'Validée')
+            ->getQuery()
+            ->getResult();
+    }
+
     public function bcExists(?string $numCde): bool
     {
         $qb = $this->createQueryBuilder('cfr');
