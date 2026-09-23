@@ -113,7 +113,7 @@ class DaAfficherModel extends Model
      * Récupère, pour chaque numéro de BC de la dernière version d'une DA, les étapes clés
      * du cycle de vie du BC (génération IPS, validation DW, envoi fournisseur Intranet, réception, livraison) en une seule requête groupée.
      *
-     * @return array<string,array{dateCreationBc:?\DateTimeInterface,dateValidationBc:?\DateTimeInterface,dateEnvoiFournisseur:?\DateTimeInterface,dateReceptionArticle:?\DateTimeInterface,dateLivraisonArticle:?\DateTimeInterface}>
+     * @return array<string,array{dateCreationBc:?\DateTimeInterface,dateValidationBc:?\DateTimeInterface,dateEnvoiFournisseur:?\DateTimeInterface,dateReceptionArticle:?\DateTimeInterface,dateDerniereReception:?\DateTimeInterface}>
      */
     public function getBcLifecycleSteps(string $numDa, int $daTypeId): array
     {
@@ -161,11 +161,11 @@ class DaAfficherModel extends Model
             $bcInfo = $bcLifecycleIPS[$numCde] ?? null;
 
             $donnees[$numCde] = [
-                'dateCreationBc'       => $bcInfo['date_creation_bc_ips'] ?? null,
-                'dateValidationBc'     => $row['date_validation_bc']     ? new \DateTime($row['date_validation_bc'])     : null,
-                'dateEnvoiFournisseur' => $row['date_envoi_fournisseur'] ? new \DateTime($row['date_envoi_fournisseur']) : null,
-                'dateReceptionArticle' => $bcInfo['premiere_reception'] ?? null,
-                'dateLivraisonArticle' => $bcInfo['derniere_reception'] ?? null,
+                'dateCreationBc'        => $bcInfo['date_creation_bc_ips'] ?? null,
+                'dateValidationBc'      => $row['date_validation_bc']     ? new \DateTime($row['date_validation_bc'])     : null,
+                'dateEnvoiFournisseur'  => $row['date_envoi_fournisseur'] ? new \DateTime($row['date_envoi_fournisseur']) : null,
+                'dateReceptionArticle'  => $bcInfo['premiere_reception'] ?? null,
+                'dateDerniereReception' => $bcInfo['derniere_reception'] ?? null,
             ];
         }
 

@@ -160,7 +160,7 @@ class DaTimelineService
                 $this->creerEtapeBc('Validation BC', StatutBcConstant::STATUT_VALIDE, $dates['dateValidationBc']),
                 $this->creerEtapeBc('BC envoyé au fournisseur', StatutBcConstant::STATUT_BC_ENVOYE_AU_FOURNISSEUR, $dates['dateEnvoiFournisseur']),
                 $this->creerEtapeBc('Réception des articles', StatutBcConstant::STATUT_PARTIELLEMENT_LIVRE, $dates['dateReceptionArticle']),
-                $this->creerEtapeBc('Livraison des articles', StatutBcConstant::STATUT_TOUS_LIVRES, $dates['dateLivraisonArticle']),
+                $this->creerEtapeBc('Livraison des articles', StatutBcConstant::STATUT_TOUS_LIVRES, $dates['dateDerniereReception']),
             ];
 
             // Filtrer les étapes qui ont une date
@@ -170,7 +170,7 @@ class DaTimelineService
             if (empty($etapesValides)) continue;
 
             // Construire le tableau avec tri, calcul automatique des durées
-            $tabTemp[$numBC] = $this->construireEtapesAvecDurees($etapesValides, (bool) $dates['dateLivraisonArticle']);
+            $tabTemp[$numBC] = $this->construireEtapesAvecDurees($etapesValides, (bool) $dates['dateDerniereReception']);
         }
 
         return $tabTemp;
