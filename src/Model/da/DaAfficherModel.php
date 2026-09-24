@@ -193,8 +193,8 @@ class DaAfficherModel extends Model
 
             $donnees[$numCde] = [
                 'dateCreationBc'        => $bcInfo['date_creation_bc_ips'] ?? null,
-                'dateValidationBc'      => $row['date_validation_bc']     ? new \DateTime($row['date_validation_bc'])     : null,
-                'dateEnvoiFournisseur'  => $row['date_envoi_fournisseur'] ? new \DateTime($row['date_envoi_fournisseur']) : null,
+                'dateValidationBc'      => $row['date_validation_bc'] ? new \DateTime($row['date_validation_bc']) : null,
+                'dateEnvoiFournisseur'  => $row['date_envoi_fournisseur'] ? (new \DateTime($row['date_envoi_fournisseur']))->modify('today') : null,
                 'dateReceptionArticle'  => $bcInfo['premiere_reception'] ?? null,
                 'dateDerniereReception' => $dateDerniereReception && $row['situation_cde'] ? $dateDerniereReception : null,
                 'situationCde'          => $dateDerniereReception && $row['situation_cde'] ? $row['situation_cde'] : "",
@@ -226,7 +226,7 @@ class DaAfficherModel extends Model
             SELECT
             fllf_numcde AS num_bc,
             MIN(fliv_datel) AS premiere_reception,
-            MAX(fliv_dateclot) AS derniere_reception
+            MAX(fliv_datel) AS derniere_reception
             FROM {$this->dbIps}:Informix.frn_llf
             INNER JOIN {$this->dbIps}:Informix.frn_liv
             ON  fliv_numliv = fllf_numliv
