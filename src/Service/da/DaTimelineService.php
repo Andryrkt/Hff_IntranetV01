@@ -152,15 +152,15 @@ class DaTimelineService
         $donneesBc = $this->daAfficherModel->getBcLifecycleSteps($numeroDa, $daTypeId);
         $dateValidationDA = \DateTime::createFromFormat('d/m/Y', $pointDepart['date'])->setTime(0, 0, 0);
 
-        foreach ($donneesBc as $numBC => $dates) {
+        foreach ($donneesBc as $numBC => $dataBc) {
             // Définition de toutes les étapes possibles
             $etapes = [
                 $this->creerEtapeBc($pointDepart['statut'], $pointDepart['dotClass'], $dateValidationDA, false),
-                $this->creerEtapeBc('Génération BC', StatutBcConstant::STATUT_A_GENERER, $dates['dateCreationBc']),
-                $this->creerEtapeBc('Validation BC', StatutBcConstant::STATUT_VALIDE, $dates['dateValidationBc']),
-                $this->creerEtapeBc('BC envoyé au fournisseur', StatutBcConstant::STATUT_BC_ENVOYE_AU_FOURNISSEUR, $dates['dateEnvoiFournisseur']),
-                $this->creerEtapeBc('Réception des articles', StatutBcConstant::STATUT_PARTIELLEMENT_LIVRE, $dates['dateReceptionArticle']),
-                $this->creerEtapeBc('Livraison des articles', StatutBcConstant::STATUT_TOUS_LIVRES, $dates['dateDerniereReception']),
+                $this->creerEtapeBc('Génération BC', StatutBcConstant::STATUT_A_GENERER, $dataBc['dateCreationBc']),
+                $this->creerEtapeBc('Validation BC', StatutBcConstant::STATUT_VALIDE, $dataBc['dateValidationBc']),
+                $this->creerEtapeBc('BC envoyé au fournisseur', StatutBcConstant::STATUT_BC_ENVOYE_AU_FOURNISSEUR, $dataBc['dateEnvoiFournisseur']),
+                $this->creerEtapeBc('Réception des articles', StatutBcConstant::STATUT_PARTIELLEMENT_LIVRE, $dataBc['dateReceptionArticle']),
+                $this->creerEtapeBc($dataBc['situationCde'], $dataBc['situationCde'], $dataBc['dateDerniereReception']),
             ];
 
             // Filtrer les étapes qui ont une date
@@ -170,7 +170,7 @@ class DaTimelineService
             if (empty($etapesValides)) continue;
 
             // Construire le tableau avec tri, calcul automatique des durées
-            $tabTemp[$numBC] = $this->construireEtapesAvecDurees($etapesValides, (bool) $dates['dateDerniereReception']);
+            $tabTemp[$numBC] = $this->construireEtapesAvecDurees($etapesValides, $dataBc['situationCde'] === StatutBcConstant::STATUT_TOUS_LIVRES);
         }
 
         return $tabTemp;

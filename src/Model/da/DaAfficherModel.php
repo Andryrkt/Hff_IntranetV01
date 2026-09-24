@@ -189,14 +189,15 @@ class DaAfficherModel extends Model
         while ($row = odbc_fetch_array($result)) {
             $numCde = $row['numero_cde'];
             $bcInfo = $bcLifecycleIPS[$numCde] ?? null;
+            $dateDerniereReception = $bcInfo['derniere_reception'] ?? null;
 
             $donnees[$numCde] = [
                 'dateCreationBc'        => $bcInfo['date_creation_bc_ips'] ?? null,
                 'dateValidationBc'      => $row['date_validation_bc']     ? new \DateTime($row['date_validation_bc'])     : null,
                 'dateEnvoiFournisseur'  => $row['date_envoi_fournisseur'] ? new \DateTime($row['date_envoi_fournisseur']) : null,
                 'dateReceptionArticle'  => $bcInfo['premiere_reception'] ?? null,
-                'dateDerniereReception' => $bcInfo['derniere_reception'] ?? null,
-                'situationCde'          => $bcInfo['derniere_reception'] && $row['situation_cde'] ? $row['situation_cde'] : "",
+                'dateDerniereReception' => $dateDerniereReception,
+                'situationCde'          => $dateDerniereReception && $row['situation_cde'] ? $row['situation_cde'] : "",
             ];
         }
 
