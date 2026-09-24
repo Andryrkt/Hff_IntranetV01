@@ -196,7 +196,7 @@ class DaAfficherModel extends Model
                 'dateValidationBc'      => $row['date_validation_bc']     ? new \DateTime($row['date_validation_bc'])     : null,
                 'dateEnvoiFournisseur'  => $row['date_envoi_fournisseur'] ? new \DateTime($row['date_envoi_fournisseur']) : null,
                 'dateReceptionArticle'  => $bcInfo['premiere_reception'] ?? null,
-                'dateDerniereReception' => $dateDerniereReception,
+                'dateDerniereReception' => $dateDerniereReception && $row['situation_cde'] ? $dateDerniereReception : null,
                 'situationCde'          => $dateDerniereReception && $row['situation_cde'] ? $row['situation_cde'] : "",
             ];
         }
@@ -212,6 +212,8 @@ class DaAfficherModel extends Model
      */
     private function getBcLifecycleIPS(string $numDa, int $daTypeId): array
     {
+        if (in_array($daTypeId, [DemandeAppro::TYPE_DA_REAPPRO_MENSUEL, DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL])) return [];
+
         $statement = "--sql
         WITH cde_ips AS (
             SELECT
