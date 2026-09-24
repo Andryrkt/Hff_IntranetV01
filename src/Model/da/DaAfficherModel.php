@@ -226,7 +226,6 @@ class DaAfficherModel extends Model
             SELECT
             fllf_numcde AS num_bc,
             MIN(fliv_datel) AS premiere_reception,
-            -- MAX(fliv_datel) AS derniere_reception
             MAX(fliv_dateclot) AS derniere_reception
             FROM {$this->dbIps}:Informix.frn_llf
             INNER JOIN {$this->dbIps}:Informix.frn_liv
