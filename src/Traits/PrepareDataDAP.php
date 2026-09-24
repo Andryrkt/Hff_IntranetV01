@@ -25,8 +25,9 @@ trait PrepareDataDAP
             $ref  = $dal->getArtRefp();
             $desi = $dal->getArtDesi();
             $qte  = $dal->getQteDem();
+            $ligne = $dal->getNumeroLigne();
             $datasPrepared[] = [
-                'keyId'  => implode('_', array_map('trim', [$cst, $ref, $desi, $qte])),
+                'keyId'  => implode('_', array_map('trim', [$cst, $ref, $desi, $qte, $ligne])),
                 'cst'    => $cst,
                 'ref'    => $ref,
                 'desi'   => $desi,
