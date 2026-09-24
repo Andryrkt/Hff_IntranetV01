@@ -155,13 +155,19 @@ export class DemandePaiementManager {
     this.elements.numFrnInput.value = item.num_fournisseur;
     this.elements.beneficiaireInput.value = item.nom_fournisseur;
     this.elements.deviseInput.value = item.devise;
+    // Champ vide (pas "-") quand le RIB est inconnu : le champ est
+    // "required: false", mais RibType valide sa valeur par une regex qui
+    // exige un chiffre au début ; "-" échouait cette validation et
+    // bloquait silencieusement toute la soumission du formulaire.
     this.elements.ribFrnInput.value =
       item.rib && item.rib != 0 && item.rib.trim() !== "XXXXXXXXXXX"
         ? item.rib
-        : "-";
+        : "";
 
     // Déclencher l'événement input pour formater et valider le RIB
-    this.elements.ribFrnInput.dispatchEvent(new Event("input", { bubbles: true }));
+    this.elements.ribFrnInput.dispatchEvent(
+      new Event("input", { bubbles: true }),
+    );
 
     if (this.typeId == 2) {
       this.listeFacture(item.num_fournisseur, this.typeId);
@@ -195,7 +201,10 @@ export class DemandePaiementManager {
 
   async listeCommande(numFournisseur, id_type) {
     try {
-      const commandes = await this.getCommandesFournisseur(numFournisseur, id_type);
+      const commandes = await this.getCommandesFournisseur(
+        numFournisseur,
+        id_type,
+      );
       this.ajoutDesOptions(this.elements.numCommandeInput, commandes.numCdes);
     } catch (error) {
       console.error("Erreur lors de la récupération des commandes :", error);
@@ -204,7 +213,10 @@ export class DemandePaiementManager {
 
   async listeCommande2(numFournisseur, id_type) {
     try {
-      const commandes = await this.getCommandesFournisseur(numFournisseur, id_type);
+      const commandes = await this.getCommandesFournisseur(
+        numFournisseur,
+        id_type,
+      );
       const listeCommande = this.transformTab(commandes.listeGcot, "Numero_PO");
       this.ajoutDesOptions(this.elements.numCommandeInput, listeCommande);
     } catch (error) {
@@ -248,7 +260,10 @@ export class DemandePaiementManager {
       this.montantAttendu = null;
       this.verifierMontant();
 
-      const commandes = await this.getCommandesFournisseur(numFournisseur, typeId);
+      const commandes = await this.getCommandesFournisseur(
+        numFournisseur,
+        typeId,
+      );
       const listeFacture = this.transformTab(
         commandes.listeGcot,
         "Numero_Facture",
@@ -265,7 +280,10 @@ export class DemandePaiementManager {
 
     const numFacs = $(this.elements.numFactureInput).val();
     try {
-      const commandes = await this.getCommandesFournisseur(numFournisseur, typeId);
+      const commandes = await this.getCommandesFournisseur(
+        numFournisseur,
+        typeId,
+      );
       const facturesCorrespondantes = commandes.listeGcot.filter((f) =>
         numFacs.includes(f.Numero_Facture),
       );
@@ -654,7 +672,10 @@ export class DemandePaiementManager {
   }
 
   async updateCommandesFournisseur(numFournisseur, typeId) {
-    const commandes = await this.getCommandesFournisseur(numFournisseur, typeId);
+    const commandes = await this.getCommandesFournisseur(
+      numFournisseur,
+      typeId,
+    );
 
     const $tableauContainer = this.elements.invoiceTableContainer;
     $tableauContainer.innerHTML = "";
