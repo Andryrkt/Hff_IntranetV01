@@ -19,6 +19,7 @@ use App\Service\fichier\TraitementDeFichier;
 use App\Service\genererPdf\GeneratePdfDdp;
 use App\Service\historiqueOperation\HistoriqueOperationDDPService;
 use App\Service\TableauEnStringService;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -79,6 +80,13 @@ class DdpController extends Controller
             /** @var DdpDto $dto */
             $dto = $form->getData();
 
+            if (!$this->montantEstCorrect($dto)) {
+                $form->get('montantAPayer')->addError(new FormError(
+                    'Le montant saisi ne correspond pas au montant calculé pour la/les commande(s)/facture(s) sélectionnée(s).'
+                ));
+                return;
+            }
+
             $dto = $this->ddpFactory->apresSoumission($form, $dto);
 
             // Enregistrement dans BD
@@ -91,6 +99,43 @@ class DdpController extends Controller
             /** HISTORISATION */
             $this->historiqueOperation->sendNotificationSoumission('Le document a été généré avec succès', $dto->numeroDdp, 'da_bon_a_payer', true);
         }
+    }
+
+    /**
+     * Vérifie que le montant saisi par l'utilisateur correspond au montant
+     * calculé (commande ou facture sélectionnée), miroir de la vérification
+     * déjà faite côté front (DemandePaiementManager.js::verifierMontant).
+     */
+    private function montantEstCorrect(DdpDto $dto): bool
+    {
+        $montantAttendu = $this->montantAttendu($dto);
+
+        if ($montantAttendu === null) {
+            return true;
+        }
+
+        return abs($dto->montantAPayer() - $montantAttendu) < 0.01;
+    }
+
+    private function montantAttendu(DdpDto $dto): ?float
+    {
+        // Pas de vérification pour les demandes de paiement à l'avance
+        if ($dto->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE) {
+            return null;
+        }
+
+        if ($dto->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE) {
+            if (empty($dto->numeroFacture)) {
+                return null;
+            }
+
+            $numFacString = TableauEnStringService::TableauEnString(',', $dto->numeroFacture);
+            $montants = $this->demandePaiementModel->getMontantFacGcot($dto->numeroFournisseur, '', $numFacString);
+
+            return isset($montants[0]) ? (float) $montants[0] : 0.0;
+        }
+
+        return null;
     }
 
     private function traitementDeFichier(DdpDto $dto): string

@@ -12,7 +12,7 @@ import {
   registerLocale,
   setLocale,
   formatNumberSpecial,
-  formaterNombre,
+  parseMontant,
 } from "../utils/formatNumberUtils.js";
 
 export class DemandePaiementManager {
@@ -28,6 +28,10 @@ export class DemandePaiementManager {
     // pour un couple fournisseur/type donné) : évite de la relancer à chaque
     // sélection de facture/commande alors que plusieurs écrans en dépendent.
     this.commandesParFournisseurCache = new Map();
+    // Montant calculé côté serveur (commande/facture sélectionnée), utilisé
+    // uniquement pour comparaison : l'utilisateur saisit lui-même le montant.
+    this.montantAttendu = null;
+    this.montantIncorrect = false;
 
     this.initElements();
     if (this.elements.numFactureInput) {
@@ -94,24 +98,9 @@ export class DemandePaiementManager {
   }
 
   initEventListeners() {
-    if (this.typeId != 2) {
-      $(this.elements.numCommandeInput).on("change", async () => {
-        const numCdes = $(this.elements.numCommandeInput).val();
-        let numCde = numCdes.length == 0 ? 0 : numCdes.join(",");
-
-        try {
-          const url = this.config.urls.montantCommande.replace(
-            ":numCde",
-            numCde,
-          );
-          const montants = await this.fetchManager.get(url);
-          this.elements.montantInput.value =
-            numCdes.length != 0 ? montants[0].montantcde : "";
-        } catch (err) {
-          console.error("Erreur lors de la récupération des montants :", err);
-        }
-      });
-    }
+    // Pas de vérification du montant pour les demandes de paiement à
+    // l'avance (typeId 1) : seul le type "après arrivage" (typeId 2) est
+    // contrôlé, via changeCommandeSelonFacture().
 
     $(this.elements.numCommandeInput).on("change", () => {
       this.chargerFichiersCommandeValidee();
@@ -150,6 +139,7 @@ export class DemandePaiementManager {
       this.elements.montantInput.value = formatNumberSpecial(
         this.elements.montantInput.value,
       );
+      this.verifierMontant();
     });
   }
 
@@ -254,7 +244,9 @@ export class DemandePaiementManager {
     try {
       this.elements.numFactureInput.innerHTML = "";
       this.elements.numCommandeInput.innerHTML = "";
-      this.elements.montantInput.value = 0;
+      this.elements.montantInput.value = "";
+      this.montantAttendu = null;
+      this.verifierMontant();
 
       const commandes = await this.getCommandesFournisseur(numFournisseur, typeId);
       const listeFacture = this.transformTab(
@@ -290,7 +282,8 @@ export class DemandePaiementManager {
       if (facturesString === "") {
         // Aucune facture sélectionnée : pas de montant à récupérer
         // (l'URL contiendrait un segment vide et donnerait un 404)
-        this.elements.montantInput.value = 0;
+        this.montantAttendu = null;
+        this.verifierMontant();
         return;
       }
 
@@ -300,7 +293,8 @@ export class DemandePaiementManager {
         .replace(":typeId", typeId);
       const montantFacture = await this.fetchManager.get(montantUrl);
 
-      this.elements.montantInput.value = formaterNombre(montantFacture[0], " ");
+      this.montantAttendu = parseMontant(montantFacture[0]);
+      this.verifierMontant();
     } catch (error) {
       console.error(
         "Erreur lors de la récupération du montant facture :",
@@ -582,22 +576,42 @@ export class DemandePaiementManager {
   }
 
   /**
-   * Bloque (ou débloque) la soumission du formulaire selon que la sélection
-   * actuelle de commandes contient ou non une commande dont le PDF est introuvable.
+   * Compare le montant saisi par l'utilisateur au montant calculé
+   * (commande ou facture sélectionnée) et met à jour l'état de blocage.
+   */
+  verifierMontant() {
+    if (this.montantAttendu === null || isNaN(this.montantAttendu)) {
+      this.montantIncorrect = false;
+      this.mettreAJourEtatSoumission();
+      return;
+    }
+
+    const montantSaisi = parseMontant(this.elements.montantInput.value);
+    this.montantIncorrect =
+      isNaN(montantSaisi) ||
+      Math.abs(montantSaisi - this.montantAttendu) > 0.01;
+
+    this.mettreAJourEtatSoumission();
+  }
+
+  /**
+   * Bloque (ou débloque) la soumission du formulaire si la sélection actuelle
+   * de commandes contient une commande dont le PDF est introuvable, ou si le
+   * montant saisi ne correspond pas au montant calculé.
    */
   mettreAJourEtatSoumission() {
     const numCdesSelectionnees = $(this.elements.numCommandeInput).val() || [];
     const commandesProblematiques = numCdesSelectionnees.filter((numCde) =>
       this.commandesAvecPdfIntrouvable.has(numCde),
     );
-    const bloque = commandesProblematiques.length > 0;
+    const pdfBloque = commandesProblematiques.length > 0;
 
     if (this.elements.submitButton) {
-      this.elements.submitButton.disabled = bloque;
+      this.elements.submitButton.disabled = pdfBloque || this.montantIncorrect;
     }
 
     if (this.elements.pdfIntrouvableWarning) {
-      if (bloque) {
+      if (pdfBloque) {
         this.elements.pdfIntrouvableWarning.textContent =
           `PDF introuvable pour la/les commande(s) ${commandesProblematiques.join(", ")}. ` +
           `Désélectionnez-la/les pour pouvoir soumettre le formulaire.`;
@@ -605,6 +619,17 @@ export class DemandePaiementManager {
       } else {
         this.elements.pdfIntrouvableWarning.textContent = "";
         this.elements.pdfIntrouvableWarning.classList.add("d-none");
+      }
+    }
+
+    if (this.elements.montantIncorrectWarning) {
+      if (this.montantIncorrect) {
+        this.elements.montantIncorrectWarning.textContent =
+          "Le montant saisi ne correspond pas au montant de la/les commande(s)/facture(s) sélectionnée(s).";
+        this.elements.montantIncorrectWarning.classList.remove("d-none");
+      } else {
+        this.elements.montantIncorrectWarning.textContent = "";
+        this.elements.montantIncorrectWarning.classList.add("d-none");
       }
     }
   }

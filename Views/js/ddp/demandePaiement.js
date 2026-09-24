@@ -19,6 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
       commandeValideeSubTabContent: "#commandeValideeSubTabContent",
       submitButton: "#submitDdpButton",
       pdfIntrouvableWarning: "#pdfCommandeIntrouvableWarning",
+      montantIncorrectWarning: "#montantIncorrectWarning",
       invoiceTableContainer: "#tableau_facture",
       documentTableContainer: "#tableau_dossier",
       fileInput1: "#demande_paiement_pieceJoint01",
@@ -34,7 +35,6 @@ document.addEventListener("DOMContentLoaded", function () {
     urls: {
       fournisseurs: "api/info-fournisseur-ddp",
       commandes: "api/num-cde-frn/:numFournisseur/:typeId",
-      montantCommande: "api/montant-commande/:numCde",
       montantFacture:
         "api/montant-facture/:numFournisseur/:facturesString/:typeId",
       listeDoc: "api/liste-doc/:numero",

@@ -77,6 +77,19 @@ export function formatCurrency(value, symbol = true) {
   return numeral(value).format(`0,0.00 ${symbol ? " $ " : ""}`);
 }
 
+/**
+ * Convertit une chaîne saisie au format "12 696,03" (espace = milliers,
+ * virgule = décimale) en nombre JS exploitable pour une comparaison.
+ */
+export function parseMontant(valeur) {
+  if (typeof valeur === "number") return valeur;
+  if (!valeur) return NaN;
+
+  const nettoye = String(valeur).replace(/\s/g, "").replace(",", ".");
+
+  return parseFloat(nettoye);
+}
+
 export function formatNumberSpecial(value) {
   // Remplace les virgules par des points pour uniformiser le stockage interne
   value = value.replace(",", ".");
