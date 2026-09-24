@@ -532,31 +532,39 @@ class DitOrSoumisAValidationModel extends Model
     {
 
         $statement = "SELECT
-                TRIM(case when 
-                    A.nombre_jour >= 365 then 'a afficher'
-                    else 'ne pas afficher'
-                end) as retour
-                , A.ffac_datef as date_derniere_cde
-                , (select distinct slor_pmp from sav_lor where slor_numor = '$numOr' and slor_constp = '$constructeur' and slor_refp = '$reference') as pmp
-                FROM
-                (select first 1  
-                ffac_datef
-                , TODAY - ffac_datef as nombre_jour
-                , fllf_numfac,*
-                from informix.frn_llf 
-                inner join informix.frn_fac on ffac_soc = fllf_soc and ffac_succ = fllf_succ and ffac_numfac = fllf_numfac
-                inner join informix.frn_cde on fcde_soc = fllf_soc and fcde_succ = fllf_succ and fcde_numcde = fllf_numcde
-                --inner join art_hpm on ahpm_soc = fllf_soc and ahpm_succfac = fllf_succ and ahpm_numfac = fllf_numfac and ahpm_constp = fllf_constp and ahpm_refp = fllf_refp
-                where fllf_constp = '$constructeur'
-                and fllf_refp = '$reference'
-                and fllf_succ = '01'
-                and ffac_serv = 'NEG'
-                and fllf_soc = '$codeSociete'
-                and fcde_numfou not in (select asuc_num from informix.agr_succ where asuc_numsoc = '$codeSociete')
-                and fllf_qtefac > 0
-                and fllf_constp in (" . GlobalVariablesService::get('pieces_magasin') . ")
-                order by ffac_numfac desc) as A
-        ";
+                TRIM(CASE
+                        WHEN A.nombre_jour IS NULL THEN 'a afficher'      -- aucune commande trouvée
+                        WHEN A.nombre_jour >= 365 THEN 'a afficher'
+                        ELSE 'ne pas afficher'
+                    END) AS retour
+                , A.ffac_datef AS date_derniere_cde
+                , (SELECT DISTINCT slor_pmp
+                    FROM sav_lor
+                    WHERE slor_numor = '$numOr'
+                    AND slor_constp = '$constructeur'
+                    AND slor_refp = '$reference') AS pmp
+            FROM
+                (SELECT FIRST 1 tabid FROM informix.systables WHERE tabid = 1) AS d
+            LEFT JOIN
+                (SELECT FIRST 1
+                        ffac_datef
+                    , TODAY - ffac_datef AS nombre_jour
+                    , fllf_numfac
+                FROM informix.frn_llf
+                INNER JOIN informix.frn_fac
+                        ON ffac_soc = fllf_soc AND ffac_succ = fllf_succ AND ffac_numfac = fllf_numfac
+                INNER JOIN informix.frn_cde
+                        ON fcde_soc = fllf_soc AND fcde_succ = fllf_succ AND fcde_numcde = fllf_numcde
+                WHERE fllf_constp = '$constructeur'
+                    AND fllf_refp = '$reference'
+                    AND fllf_succ = '01'
+                    AND ffac_serv = 'NEG'
+                    AND fllf_soc = '$codeSociete'
+                    AND fcde_numfou NOT IN (SELECT asuc_num FROM informix.agr_succ WHERE asuc_numsoc = '$codeSociete')
+                    AND fllf_qtefac > 0
+                    AND fllf_constp IN (" . GlobalVariablesService::get('pieces_magasin') . ")
+                ORDER BY ffac_numfac DESC) AS A
+                ON 1 = 1";
 
         $result = $this->connect->executeQuery($statement);
 
