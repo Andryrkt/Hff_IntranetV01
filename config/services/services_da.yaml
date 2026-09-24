@@ -24,7 +24,7 @@ services:
 
   App\Service\da\DaTimelineService:
     arguments:
-      $em: "@doctrine.orm.default_entity_manager"
+      $daAfficherModel: '@App\Model\da\DaAfficherModel'
     public: true
 
   App\Service\da\DocRattacheService:
