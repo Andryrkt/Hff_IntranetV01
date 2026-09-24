@@ -91,9 +91,8 @@ class DdpController extends Controller
 
             // Enregistrement dans BD
             $this->enregistrementSurBd($dto);
-            // Enregistrement des fichiers, generation du PDF et fusion des fichiers
+            // Enregistrement des fichiers, generation du PDF, fusion des fichiers et envoi dans DOCUWARE
             $this->traitementDeFichier($dto);
-            // TODO: envoie dans DOCUWARE
             // TODO: MOdification des données dans des base de données
 
             /** HISTORISATION */
@@ -182,9 +181,11 @@ class DdpController extends Controller
         }
         $dto->lesFichiers = $dto->getToutesLesNomFichiers();
         // generation de la page de garde DDP
-        $this->pageDeGarde($dto, $nomAvecCheminFichier);
+        $generatePdfDdp = $this->pageDeGarde($dto, $nomAvecCheminFichier);
         // fusion des PDF (page de garde DDP+ autres documents)
         $this->fusionDesPdf($nomEtCheminFichiersEnregistrer, [], $nomAvecCheminFichier);
+        // envoi du PDF final dans DOCUWARE
+        $generatePdfDdp->copyToDwDdp($nomFichier, $dto->numeroDdp);
 
         return $nomFichier;
     }
