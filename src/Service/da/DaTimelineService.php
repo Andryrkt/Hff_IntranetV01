@@ -2,27 +2,22 @@
 
 namespace App\Service\da;
 
-use App\Entity\da\DaAfficher;
 use App\Entity\da\DemandeAppro;
 use App\Model\da\DaAfficherModel;
 use App\Traits\JoursOuvrablesTrait;
 use App\Constants\da\StatutDaConstant;
 use App\Constants\da\StatutOrConstant;
 use App\Constants\da\StatutBcConstant;
-use Doctrine\ORM\EntityManagerInterface;
 use App\Constants\da\StatutActionConstant;
-use App\Repository\da\DaAfficherRepository;
 
 class DaTimelineService
 {
     use JoursOuvrablesTrait;
     private DaAfficherModel $daAfficherModel;
-    private DaAfficherRepository $daAfficherRepository;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(DaAfficherModel $daAfficherModel)
     {
-        $this->daAfficherModel      = new DaAfficherModel();
-        $this->daAfficherRepository = $em->getRepository(DaAfficher::class);
+        $this->daAfficherModel = $daAfficherModel;
     }
 
     /** 
@@ -38,7 +33,7 @@ class DaTimelineService
         $demandeur             = $demandeAppro->getDemandeur();
         $agenceServiceEmetteur = $demandeAppro->getAgenceServiceEmetteur();
 
-        $allDatas = $this->daAfficherRepository->getTimelineData($numeroDa);
+        $allDatas = $this->daAfficherModel->getDaLifecycleSteps($numeroDa);
         if (empty($allDatas)) return ['DA' => [], 'OR' => [], 'BC' => []];
 
         $timelineDa = $this->buildTimelineDA($allDatas, $daTypeId, $demandeur, $agenceServiceEmetteur);
@@ -46,7 +41,7 @@ class DaTimelineService
         $isDaViaOR = $daTypeId === DemandeAppro::TYPE_DA_AVEC_DIT;
         [$numeroOr, $timelineOR] = $isDaViaOR ? $this->buildTimelineOR($allDatas, $lastDataDA) : ["", []];
         $lastDataOR = empty($timelineOR) ? $lastDataDA : end($timelineOR);
-        $timelineBc = $this->buildTimelineBC($numeroDa, $lastDataOR);
+        $timelineBc = $this->buildTimelineBC($numeroDa, $lastDataOR, $daTypeId);
 
         if (empty($timelineBc)) {
             if ($isDaViaOR && !empty($timelineOR)) $timelineOR = $this->cloturerAvecAujourdhui($timelineOR);
@@ -147,24 +142,25 @@ class DaTimelineService
     /**
      * @param string $numeroDa
      * @param array{statut:string,dotClass:string,date:string,nbrJours:string} $pointDepart Dernier jalon connu avant le BC (DA ou OR selon le contexte)
+     * @param int $daTypeId type de la DA
      *
      * @return array<string,array{statut:string,dotClass:string,date:string,nbrJours:string}>
      */
-    private function buildTimelineBC(string $numeroDa, array $pointDepart): array
+    private function buildTimelineBC(string $numeroDa, array $pointDepart, int $daTypeId): array
     {
         $tabTemp = [];
-        $donneesBc = $this->daAfficherModel->getDonneesBcParNumCde($numeroDa);
+        $donneesBc = $this->daAfficherModel->getBcLifecycleSteps($numeroDa, $daTypeId);
         $dateValidationDA = \DateTime::createFromFormat('d/m/Y', $pointDepart['date'])->setTime(0, 0, 0);
 
-        foreach ($donneesBc as $numBC => $dates) {
+        foreach ($donneesBc as $numBC => $dataBc) {
             // Définition de toutes les étapes possibles
             $etapes = [
                 $this->creerEtapeBc($pointDepart['statut'], $pointDepart['dotClass'], $dateValidationDA, false),
-                $this->creerEtapeBc('Génération BC', StatutBcConstant::STATUT_A_GENERER, $dates['dateCreationBc']),
-                $this->creerEtapeBc('Validation BC', StatutBcConstant::STATUT_VALIDE, $dates['dateValidationBc']),
-                $this->creerEtapeBc('BC envoyé au fournisseur', StatutBcConstant::STATUT_BC_ENVOYE_AU_FOURNISSEUR, $dates['dateEnvoiFournisseur']),
-                $this->creerEtapeBc('Réception des articles', StatutBcConstant::STATUT_PARTIELLEMENT_LIVRE, $dates['dateReceptionArticle']),
-                $this->creerEtapeBc('Livraison des articles', StatutBcConstant::STATUT_TOUS_LIVRES, $dates['dateLivraisonArticle']),
+                $this->creerEtapeBc('Génération BC', StatutBcConstant::STATUT_A_GENERER, $dataBc['dateCreationBc']),
+                $this->creerEtapeBc('Validation BC', StatutBcConstant::STATUT_VALIDE, $dataBc['dateValidationBc']),
+                $this->creerEtapeBc('BC envoyé au fournisseur', StatutBcConstant::STATUT_BC_ENVOYE_AU_FOURNISSEUR, $dataBc['dateEnvoiFournisseur']),
+                $this->creerEtapeBc('Réception des articles', StatutBcConstant::STATUT_PARTIELLEMENT_LIVRE, $dataBc['dateReceptionArticle']),
+                $this->creerEtapeBc($dataBc['situationCde'], $dataBc['situationCde'], $dataBc['dateDerniereReception']),
             ];
 
             // Filtrer les étapes qui ont une date
@@ -174,7 +170,7 @@ class DaTimelineService
             if (empty($etapesValides)) continue;
 
             // Construire le tableau avec tri, calcul automatique des durées
-            $tabTemp[$numBC] = $this->construireEtapesAvecDurees($etapesValides, (bool) $dates['dateLivraisonArticle']);
+            $tabTemp[$numBC] = $this->construireEtapesAvecDurees($etapesValides, $dataBc['situationCde'] === StatutBcConstant::STATUT_TOUS_LIVRES);
         }
 
         return $tabTemp;

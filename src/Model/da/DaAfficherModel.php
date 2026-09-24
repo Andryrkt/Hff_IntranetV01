@@ -76,57 +76,181 @@ class DaAfficherModel extends Model
     }
 
     /**
-     * Récupère, pour chaque numéro de BC de la dernière version d'une DA, les dates clés
-     * du cycle de vie du BC (génération, validation, envoi fournisseur, réception, livraison) en une seule requête groupée.
+     * Récupère la timeline complète d'une DA par étape.
+     * Pour chaque étape il retourne le statut de la DA, sa date de création, date de demande, 
+     * numéro d'or, statut d'or, date de mise à jour du statut d'or et statut de commande.
      *
-     * @return array<string,array{dateCreationBc:?\DateTimeInterface,dateValidationBc:?\DateTimeInterface,dateEnvoiFournisseur:?\DateTimeInterface,dateReceptionArticle:?\DateTimeInterface,dateLivraisonArticle:?\DateTimeInterface}>
+     * @return array<int,array{statutDal:?string,dateCreation:?\DateTimeInterface,dateDemande:?\DateTimeInterface,numeroOr:?string,statutOr:?string,dateMajStatutOr:?\DateTimeInterface,statutCde:?string}>
      */
-    public function getDonneesBcParNumCde(string $numDa): array
+    public function getDaLifecycleSteps(string $numDa): array
     {
+        $sql = "SELECT DISTINCT da.statut_dal, da.date_creation, da.date_demande, da.numero_or, da.statut_or, da.date_maj_statut_or, da.statut_cde
+                FROM da_afficher da
+                WHERE da.numero_demande_appro='$numDa'
+                ORDER BY da.date_creation";
+
+        $stmt = $this->connexion->query($sql);
+
+        $results = [];
+        while ($row = odbc_fetch_array($stmt)) {
+            $row = $this->convertDataSqlServerToUTF8($row);
+
+            $results[] = [
+                'statutDal'       => $row['statut_dal'],
+                'dateCreation'    => $row['date_creation'] ? new \DateTime($row['date_creation']) : null,
+                'dateDemande'     => $row['date_demande'] ? new \DateTime($row['date_demande']) : null,
+                'numeroOr'        => $row['numero_or'],
+                'statutOr'        => $row['statut_or'],
+                'dateMajStatutOr' => $row['date_maj_statut_or'] ? new \DateTime($row['date_maj_statut_or']) : null,
+                'statutCde'       => $row['statut_cde']
+            ];
+        }
+
+        return $results;
+    }
+
+    /**
+     * Récupère, pour chaque numéro de BC de la dernière version d'une DA, les étapes clés
+     * du cycle de vie du BC (génération IPS, validation DW, envoi fournisseur Intranet, réception, livraison) en une seule requête groupée.
+     *
+     * @return array<string,array{dateCreationBc:?\DateTimeInterface,dateValidationBc:?\DateTimeInterface,dateEnvoiFournisseur:?\DateTimeInterface,dateReceptionArticle:?\DateTimeInterface,dateDerniereReception:?\DateTimeInterface,situationCde:string}>
+     */
+    public function getBcLifecycleSteps(string $numDa, int $daTypeId): array
+    {
+        $sitCdeMap = [
+            'TOUS_LIVRES'         => StatutBcConstant::STATUT_TOUS_LIVRES,
+            'PARTIELLEMENT_LIVRE' => StatutBcConstant::STATUT_PARTIELLEMENT_LIVRE,
+            'PARTIELLEMENT_DISPO' => StatutBcConstant::STATUT_PARTIELLEMENT_DISPO,
+            'COMPLET_NON_LIVRE'   => StatutBcConstant::STATUT_COMPLET_NON_LIVRE
+        ];
+
         $sql = "--sql
-        WITH max_version_daf AS (
-            SELECT numero_demande_appro, MAX(numero_version) AS max_version
+        WITH da_derniere_version AS (
+            SELECT MAX(numero_version) AS max_version
             FROM da_afficher
             WHERE numero_demande_appro = '$numDa'
-            GROUP BY numero_demande_appro
         ),
-        max_version_cde AS (
-            SELECT numero_bca, MAX(numero_version) AS max_version
-            FROM DW_BC_Appro
-            WHERE numero_da = '$numDa'
-            GROUP BY numero_bca
+        bc_derniere_version AS (
+            SELECT
+                b.numero_bca,
+                b.date_validation
+            FROM DW_BC_Appro b
+            INNER JOIN (
+                SELECT numero_bca, MAX(numero_version) AS max_version
+                FROM DW_BC_Appro
+                WHERE numero_da = '$numDa'
+                GROUP BY numero_bca
+            ) m
+                ON  m.numero_bca = b.numero_bca
+                AND m.max_version = b.numero_version
+            WHERE b.numero_da = '$numDa'
+        ),
+        cde_agregee AS (
+            SELECT
+                d.numero_cde,
+                MIN(d.date_envoi_fournisseur) AS date_envoi_fournisseur,
+                SUM(d.qte_dem)                AS sum_qte_dem,
+                SUM(d.qte_dispo)              AS sum_qte_dispo,
+                SUM(d.qte_livrer)             AS sum_qte_livrer
+            FROM da_afficher d
+            INNER JOIN da_derniere_version v
+                ON d.numero_version = v.max_version
+            WHERE   d.numero_demande_appro = '$numDa'
+                AND d.numero_cde <> ''
+                AND d.deleted = 0
+            GROUP BY d.numero_cde
         )
         SELECT
-            da.numero_cde             AS numero_cde,
-            dba.date_validation       AS date_validation_bc,
-            da.date_envoi_fournisseur AS date_envoi_fournisseur
-        FROM da_afficher da
-        JOIN max_version_daf mdaf
-            ON da.numero_demande_appro = mdaf.numero_demande_appro
-        AND da.numero_version = mdaf.max_version
-        LEFT JOIN max_version_cde mcde
-            ON da.numero_cde = mcde.numero_bca
-        LEFT JOIN DW_BC_Appro dba
-            ON dba.numero_da = '$numDa'
-        AND dba.numero_bca = mcde.numero_bca
-        AND dba.numero_version = mcde.max_version
-        WHERE da.numero_demande_appro = '$numDa'
-            AND da.numero_cde IS NOT NULL
-            AND da.numero_cde != ''
-            AND da.deleted = 0
-        ORDER BY da.numero_cde ASC";
+            c.numero_cde             AS numero_cde,
+            bc.date_validation       AS date_validation_bc,
+            c.date_envoi_fournisseur AS date_envoi_fournisseur,
+            CASE
+                WHEN c.sum_qte_livrer = c.sum_qte_dem
+                    THEN '{$sitCdeMap['TOUS_LIVRES']}'
+                WHEN c.sum_qte_livrer > 0 AND c.sum_qte_livrer < c.sum_qte_dem
+                    THEN '{$sitCdeMap['PARTIELLEMENT_LIVRE']}'
+                WHEN c.sum_qte_livrer = 0 AND c.sum_qte_dispo > 0 AND c.sum_qte_dispo < c.sum_qte_dem
+                    THEN '{$sitCdeMap['PARTIELLEMENT_DISPO']}'
+                WHEN c.sum_qte_dispo = c.sum_qte_dem
+                    THEN '{$sitCdeMap['COMPLET_NON_LIVRE']}'
+                ELSE ''
+            END AS situation_cde
+        FROM cde_agregee c
+        LEFT JOIN bc_derniere_version bc
+            ON bc.numero_bca = c.numero_cde
+        ORDER BY c.numero_cde ASC";
 
         $result = $this->connexion->query($sql);
+
+        $bcLifecycleIPS = $this->getBcLifecycleIPS($numDa, $daTypeId);
 
         $donnees = [];
 
         while ($row = odbc_fetch_array($result)) {
-            $donnees[$row['numero_cde']] = [
-                'dateCreationBc'       => null,
-                'dateValidationBc'     => $row['date_validation_bc']     ? new \DateTime($row['date_validation_bc'])     : null,
-                'dateEnvoiFournisseur' => $row['date_envoi_fournisseur'] ? new \DateTime($row['date_envoi_fournisseur']) : null,
-                'dateReceptionArticle' => null,
-                'dateLivraisonArticle' => null,
+            $numCde = $row['numero_cde'];
+            $bcInfo = $bcLifecycleIPS[$numCde] ?? null;
+            $dateDerniereReception = $bcInfo['derniere_reception'] ?? null;
+
+            $donnees[$numCde] = [
+                'dateCreationBc'        => $bcInfo['date_creation_bc_ips'] ?? null,
+                'dateValidationBc'      => $row['date_validation_bc']     ? new \DateTime($row['date_validation_bc'])     : null,
+                'dateEnvoiFournisseur'  => $row['date_envoi_fournisseur'] ? new \DateTime($row['date_envoi_fournisseur']) : null,
+                'dateReceptionArticle'  => $bcInfo['premiere_reception'] ?? null,
+                'dateDerniereReception' => $dateDerniereReception,
+                'situationCde'          => $dateDerniereReception && $row['situation_cde'] ? $row['situation_cde'] : "",
+            ];
+        }
+
+        return $donnees;
+    }
+
+    /**
+     * Récupère, pour chaque numéro de BC de la dernière version d'une DA, les étapes clés
+     * du cycle de vie du BC dans IPS.
+     *
+     * @return array<string,array{date_creation_bc_ips:?\DateTimeInterface,premiere_reception:?\DateTimeInterface,derniere_reception:?\DateTimeInterface}>
+     */
+    private function getBcLifecycleIPS(string $numDa, int $daTypeId): array
+    {
+        $statement = "--sql
+        WITH cde_ips AS (
+            SELECT
+            fcde_numcde AS num_bc,
+            fcde_date AS date_creation_bc_ips
+            FROM {$this->dbIps}:Informix.frn_cde
+            WHERE fcde_cdeext = '$numDa'
+        ),
+        livraisons AS (
+            SELECT
+            fllf_numcde AS num_bc,
+            MIN(fliv_datel) AS premiere_reception,
+            -- MAX(fliv_datel) AS derniere_reception
+            MAX(fliv_dateclot) AS derniere_reception
+            FROM {$this->dbIps}:Informix.frn_llf
+            INNER JOIN {$this->dbIps}:Informix.frn_liv
+            ON  fliv_numliv = fllf_numliv
+            AND fliv_soc = fllf_soc
+            AND fliv_succ = fllf_succ
+            GROUP BY fllf_numcde
+        )
+        SELECT
+            c.num_bc,
+            c.date_creation_bc_ips,
+            l.premiere_reception,
+            l.derniere_reception
+        FROM cde_ips c
+        LEFT JOIN livraisons l ON c.num_bc = l.num_bc";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+
+        $donnees = [];
+
+        foreach ($data as $row) {
+            $donnees[$row['num_bc']] = [
+                'date_creation_bc_ips' => $row['date_creation_bc_ips'] ? new \DateTime($row['date_creation_bc_ips']) : null,
+                'premiere_reception'   => $row['premiere_reception'] ? new \DateTime($row['premiere_reception'])   : null,
+                'derniere_reception'   => $row['derniere_reception'] ? new \DateTime($row['derniere_reception'])   : null,
             ];
         }
 
