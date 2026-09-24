@@ -85,8 +85,8 @@ class MenuGroupe
                 'label'    => 'Demande de paiement',
                 'icon'     => 'file-invoice-dollar',
                 'subitems' => [
-                    ['label' => 'Nouvelle demande de paiement à l’avance', 'icon' => 'plus-circle', 'route' => 'new_demande_paiement', 'params' => ['id' => 1]],
-                    ['label' => 'Nouvelle demande de paiement après arrivage', 'icon' => 'plus-circle', 'route' => 'new_demande_paiement', 'params' => ['id' => 2]],
+                    ['label' => 'Nouvelle demande de paiement à l’avance', 'icon' => 'plus-circle', 'route' => 'new_ddp', 'params' => ['typeDdp' => 1]],
+                    ['label' => 'Nouvelle demande de paiement après arrivage', 'icon' => 'plus-circle', 'route' => 'new_ddp', 'params' => ['typeDdp' => 2]],
                     ['label' => 'Consultation',     'icon' => 'search',      'route' => 'ddp_liste'],
                 ],
             ],

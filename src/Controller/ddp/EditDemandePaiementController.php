@@ -193,7 +193,7 @@ class EditDemandePaiementController extends Controller
             $docDemandePaiement = new DocDemandePaiement();
             $donners[] = $docDemandePaiement
                 ->setNumeroDdp($numDdp)
-                ->setTypeDocumentId($data->getTypeDemandeId())
+                ->setTypeDocumentId($data->getTypeDemandeId() !== null ? $data->getTypeDemandeId()->getId() : null)
                 ->setNomFichier($nomFichier)
                 ->setNumeroVersion($numeroversion);
         }

@@ -20,7 +20,7 @@ class DocDemandePaiementMapper
             $doc = new DocDemandePaiement();
             $doc
                 ->setNumeroDdp($dto->numeroDdp)
-                ->setTypeDocumentId($dto->typeDemande)
+                ->setTypeDocumentId($dto->typeDemande !== null ? $dto->typeDemande->getId() : null)
                 ->setNomFichier($nomFichier)
                 ->setNumeroVersion('1')
             ;

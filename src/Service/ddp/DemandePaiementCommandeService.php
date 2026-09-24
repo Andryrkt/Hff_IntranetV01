@@ -24,9 +24,10 @@ class DemandePaiementCommandeService
      */
     public function createDdpCommande($dto, DemandePaiement $ddp): void
     {
-        $ddpCommande = DemandePaiementCommandeMapper::map($dto, $ddp);
+        foreach (DemandePaiementCommandeMapper::map($dto, $ddp) as $ddpCommande) {
+            $this->em->persist($ddpCommande);
+        }
 
-        $this->em->persist($ddpCommande);
         $this->em->flush();
     }
 }
