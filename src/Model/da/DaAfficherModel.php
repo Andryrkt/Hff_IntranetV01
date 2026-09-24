@@ -117,62 +117,68 @@ class DaAfficherModel extends Model
      */
     public function getBcLifecycleSteps(string $numDa, int $daTypeId): array
     {
+        $sitCdeMap = [
+            'TOUS_LIVRES'         => StatutBcConstant::STATUT_TOUS_LIVRES,
+            'PARTIELLEMENT_LIVRE' => StatutBcConstant::STATUT_PARTIELLEMENT_LIVRE,
+            'PARTIELLEMENT_DISPO' => StatutBcConstant::STATUT_PARTIELLEMENT_DISPO,
+            'COMPLET_NON_LIVRE'   => StatutBcConstant::STATUT_COMPLET_NON_LIVRE
+        ];
+
         $sql = "--sql
-        WITH max_version_daf AS (
-            SELECT numero_demande_appro, MAX(numero_version) AS max_version
+        WITH da_derniere_version AS (
+            SELECT MAX(numero_version) AS max_version
             FROM da_afficher
             WHERE numero_demande_appro = '$numDa'
-            GROUP BY numero_demande_appro
         ),
-        max_version_cde AS (
-            SELECT numero_bca, MAX(numero_version) AS max_version
-            FROM DW_BC_Appro
-            WHERE numero_da = '$numDa'
-            GROUP BY numero_bca
+        bc_derniere_version AS (
+            SELECT
+                b.numero_bca,
+                b.date_validation
+            FROM DW_BC_Appro b
+            INNER JOIN (
+                SELECT numero_bca, MAX(numero_version) AS max_version
+                FROM DW_BC_Appro
+                WHERE numero_da = '$numDa'
+                GROUP BY numero_bca
+            ) m
+                ON  m.numero_bca = b.numero_bca
+                AND m.max_version = b.numero_version
+            WHERE b.numero_da = '$numDa'
         ),
-        sum_qte_cde AS (
-            SELECT 
-                d.numero_demande_appro, 
+        cde_agregee AS (
+            SELECT
                 d.numero_cde,
-                SUM(d.qte_dem) AS sum_qte_dem,
-                SUM(d.qte_dispo) AS sum_qte_dispo,
-                SUM(d.qte_livrer) AS sum_qte_livrer
+                MIN(d.date_envoi_fournisseur) AS date_envoi_fournisseur,
+                SUM(d.qte_dem)                AS sum_qte_dem,
+                SUM(d.qte_dispo)              AS sum_qte_dispo,
+                SUM(d.qte_livrer)             AS sum_qte_livrer
             FROM da_afficher d
-            JOIN max_version_daf md
-                ON d.numero_demande_appro = md.numero_demande_appro
-            AND d.numero_version = md.max_version
-            WHERE d.numero_cde <> '' AND d.deleted=0
-            GROUP BY d.numero_demande_appro, d.numero_cde
+            INNER JOIN da_derniere_version v
+                ON d.numero_version = v.max_version
+            WHERE   d.numero_demande_appro = '$numDa'
+                AND d.numero_cde <> ''
+                AND d.deleted = 0
+            GROUP BY d.numero_cde
         )
         SELECT
-            da.numero_cde             AS numero_cde,
-            dba.date_validation       AS date_validation_bc,
-            da.date_envoi_fournisseur AS date_envoi_fournisseur,
+            c.numero_cde             AS numero_cde,
+            bc.date_validation       AS date_validation_bc,
+            c.date_envoi_fournisseur AS date_envoi_fournisseur,
             CASE
-                WHEN s.sum_qte_livrer = s.sum_qte_dem                                                 THEN '" . StatutBcConstant::STATUT_TOUS_LIVRES . "'
-                WHEN s.sum_qte_livrer < s.sum_qte_dem AND s.sum_qte_livrer > 0                        THEN '" . StatutBcConstant::STATUT_PARTIELLEMENT_LIVRE . "'
-                WHEN s.sum_qte_dispo < s.sum_qte_dem AND s.sum_qte_livrer = 0 AND s.sum_qte_dispo > 0 THEN '" . StatutBcConstant::STATUT_PARTIELLEMENT_DISPO . "'
-                WHEN s.sum_qte_dispo = s.sum_qte_dem                                                  THEN '" . StatutBcConstant::STATUT_COMPLET_NON_LIVRE . "'
+                WHEN c.sum_qte_livrer = c.sum_qte_dem
+                    THEN '{$sitCdeMap['TOUS_LIVRES']}'
+                WHEN c.sum_qte_livrer > 0 AND c.sum_qte_livrer < c.sum_qte_dem
+                    THEN '{$sitCdeMap['PARTIELLEMENT_LIVRE']}'
+                WHEN c.sum_qte_livrer = 0 AND c.sum_qte_dispo > 0 AND c.sum_qte_dispo < c.sum_qte_dem
+                    THEN '{$sitCdeMap['PARTIELLEMENT_DISPO']}'
+                WHEN c.sum_qte_dispo = c.sum_qte_dem
+                    THEN '{$sitCdeMap['COMPLET_NON_LIVRE']}'
                 ELSE ''
             END AS situation_cde
-        FROM da_afficher da
-        JOIN max_version_daf mdaf
-            ON da.numero_demande_appro = mdaf.numero_demande_appro
-            AND da.numero_version = mdaf.max_version
-        JOIN sum_qte_cde s
-            ON s.numero_demande_appro = da.numero_demande_appro
-            AND s.numero_cde = da.numero_cde
-        LEFT JOIN max_version_cde mcde
-            ON da.numero_cde = mcde.numero_bca
-        LEFT JOIN DW_BC_Appro dba
-            ON dba.numero_da = '$numDa'
-        AND dba.numero_bca = mcde.numero_bca
-        AND dba.numero_version = mcde.max_version
-        WHERE da.numero_demande_appro = '$numDa'
-            AND da.numero_cde IS NOT NULL
-            AND da.numero_cde <> ''
-            AND da.deleted = 0
-        ORDER BY da.numero_cde ASC";
+        FROM cde_agregee c
+        LEFT JOIN bc_derniere_version bc
+            ON bc.numero_bca = c.numero_cde
+        ORDER BY c.numero_cde ASC";
 
         $result = $this->connexion->query($sql);
 
@@ -190,7 +196,7 @@ class DaAfficherModel extends Model
                 'dateEnvoiFournisseur'  => $row['date_envoi_fournisseur'] ? new \DateTime($row['date_envoi_fournisseur']) : null,
                 'dateReceptionArticle'  => $bcInfo['premiere_reception'] ?? null,
                 'dateDerniereReception' => $bcInfo['derniere_reception'] ?? null,
-                'situationCde'          => $row['situation_cde'] ?? "",
+                'situationCde'          => $bcInfo['derniere_reception'] && $row['situation_cde'] ? $row['situation_cde'] : "",
             ];
         }
 
