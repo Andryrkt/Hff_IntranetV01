@@ -117,12 +117,12 @@ class UrlIdCipher
     /** 
      * Résout le slug pour les liens des listes de la vignette APPRO 
      * 
-     * @param string $slug 
+     * @param ?string $slug 
      * @param UrlGeneratorInterface $urlGenerator 
      * 
      * @return array{"url":string,"title":string}
      **/
-    public function resolveSlugDemandeAppro(string $slug, UrlGeneratorInterface $urlGenerator): array
+    public function resolveSlugDemandeAppro(?string $slug, UrlGeneratorInterface $urlGenerator): array
     {
         $config = $this->slugMap[$slug] ?? $this->slugMap[RouteConstant::SLUG_LISTE_DA];
 
