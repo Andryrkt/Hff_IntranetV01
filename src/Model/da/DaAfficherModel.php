@@ -113,7 +113,7 @@ class DaAfficherModel extends Model
      * Récupère, pour chaque numéro de BC de la dernière version d'une DA, les étapes clés
      * du cycle de vie du BC (génération IPS, validation DW, envoi fournisseur Intranet, réception, livraison) en une seule requête groupée.
      *
-     * @return array<string,array{dateCreationBc:?\DateTimeInterface,dateValidationBc:?\DateTimeInterface,dateEnvoiFournisseur:?\DateTimeInterface,dateReceptionArticle:?\DateTimeInterface,dateDerniereReception:?\DateTimeInterface}>
+     * @return array<string,array{dateCreationBc:?\DateTimeInterface,dateValidationBc:?\DateTimeInterface,dateEnvoiFournisseur:?\DateTimeInterface,dateReceptionArticle:?\DateTimeInterface,dateDerniereReception:?\DateTimeInterface,situationCde:string}>
      */
     public function getBcLifecycleSteps(string $numDa, int $daTypeId): array
     {
@@ -129,15 +129,39 @@ class DaAfficherModel extends Model
             FROM DW_BC_Appro
             WHERE numero_da = '$numDa'
             GROUP BY numero_bca
+        ),
+        sum_qte_cde AS (
+            SELECT 
+                d.numero_demande_appro, 
+                d.numero_cde,
+                SUM(d.qte_dem) AS sum_qte_dem,
+                SUM(d.qte_dispo) AS sum_qte_dispo,
+                SUM(d.qte_livrer) AS sum_qte_livrer
+            FROM da_afficher d
+            JOIN max_version_daf md
+                ON d.numero_demande_appro = md.numero_demande_appro
+            AND d.numero_version = md.max_version
+            WHERE d.numero_cde <> '' AND d.deleted=0
+            GROUP BY d.numero_demande_appro, d.numero_cde
         )
         SELECT
             da.numero_cde             AS numero_cde,
             dba.date_validation       AS date_validation_bc,
-            da.date_envoi_fournisseur AS date_envoi_fournisseur
+            da.date_envoi_fournisseur AS date_envoi_fournisseur,
+            CASE
+                WHEN s.sum_qte_livrer = s.sum_qte_dem                                                 THEN '" . StatutBcConstant::STATUT_TOUS_LIVRES . "'
+                WHEN s.sum_qte_livrer < s.sum_qte_dem AND s.sum_qte_livrer > 0                        THEN '" . StatutBcConstant::STATUT_PARTIELLEMENT_LIVRE . "'
+                WHEN s.sum_qte_dispo < s.sum_qte_dem AND s.sum_qte_livrer = 0 AND s.sum_qte_dispo > 0 THEN '" . StatutBcConstant::STATUT_PARTIELLEMENT_DISPO . "'
+                WHEN s.sum_qte_dispo = s.sum_qte_dem                                                  THEN '" . StatutBcConstant::STATUT_COMPLET_NON_LIVRE . "'
+                ELSE ''
+            END AS situation_cde
         FROM da_afficher da
         JOIN max_version_daf mdaf
             ON da.numero_demande_appro = mdaf.numero_demande_appro
-        AND da.numero_version = mdaf.max_version
+            AND da.numero_version = mdaf.max_version
+        JOIN sum_qte_cde s
+            ON s.numero_demande_appro = da.numero_demande_appro
+            AND s.numero_cde = da.numero_cde
         LEFT JOIN max_version_cde mcde
             ON da.numero_cde = mcde.numero_bca
         LEFT JOIN DW_BC_Appro dba
@@ -146,7 +170,7 @@ class DaAfficherModel extends Model
         AND dba.numero_version = mcde.max_version
         WHERE da.numero_demande_appro = '$numDa'
             AND da.numero_cde IS NOT NULL
-            AND da.numero_cde != ''
+            AND da.numero_cde <> ''
             AND da.deleted = 0
         ORDER BY da.numero_cde ASC";
 
@@ -166,6 +190,7 @@ class DaAfficherModel extends Model
                 'dateEnvoiFournisseur'  => $row['date_envoi_fournisseur'] ? new \DateTime($row['date_envoi_fournisseur']) : null,
                 'dateReceptionArticle'  => $bcInfo['premiere_reception'] ?? null,
                 'dateDerniereReception' => $bcInfo['derniere_reception'] ?? null,
+                'situationCde'          => $row['situation_cde'] ?? "",
             ];
         }
 
