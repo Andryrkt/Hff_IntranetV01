@@ -750,17 +750,6 @@ class DaAfficherRepository extends EntityRepository
         ;
     }
 
-    public function getTimelineData(string $numDa)
-    {
-        $qb = $this->createQueryBuilder('d')
-            ->select('DISTINCT d.statutDal', 'd.dateCreation', 'd.dateDemande', 'd.numeroOr', 'd.statutOr', 'd.dateMajStatutOr', 'd.statutCde')
-            ->where('d.numeroDemandeAppro = :numDa')
-            ->setParameter('numDa', $numDa)
-            ->orderBy('d.dateCreation', 'ASC');
-
-        return $qb->getQuery()->getResult();
-    }
-
     public function getTypeDaSelonNumDa(string $numDa)
     {
         $result = $this->createQueryBuilder('d')

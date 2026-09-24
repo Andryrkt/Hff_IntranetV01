@@ -10,37 +10,67 @@ use Symfony\Component\Routing\Annotation\Route;
 class UrlCipherApi extends Controller
 {
     /**
-     * @Route("/api/admin/decrypt-token/{token}", name="api_admin_decrypt_token", methods={"GET"})
-     *
-     * @return void
+     * @Route("/api/admin/encrypt-id/{id}", name="api_admin_encrypt_id", methods={"GET"})
      */
-    public function decryptToken(string $token)
+    public function encryptId(string $id): JsonResponse
     {
-        try {
-            if (!$this->estAdmin()) {
-                return new JsonResponse([
-                    'error'   => true,
-                    'message' => 'Vous n\'avez pas les droits pour effectuer cette action.',
-                ], JsonResponse::HTTP_FORBIDDEN);
-            }
+        if (!$this->estAdmin()) {
+            return new JsonResponse([
+                'error'   => true,
+                'message' => 'Vous n\'avez pas les droits pour effectuer cette action.',
+            ], JsonResponse::HTTP_FORBIDDEN);
+        }
 
+        try {
+            $encrypted = (new UrlIdCipher())->encrypt($id);
+
+            return new JsonResponse([
+                'error'   => false,
+                'message' => 'Token crypté avec succès',
+                'data'    => $encrypted,
+            ], JsonResponse::HTTP_OK);
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'error'   => true,
+                'message' => 'Erreur lors du cryptage.',
+                'data'    => "",
+            ], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * @Route("/api/admin/decrypt-token/{token}", name="api_admin_decrypt_token", methods={"GET"})
+     */
+    public function decryptToken(string $token): JsonResponse
+    {
+        if (!$this->estAdmin()) {
+            return new JsonResponse([
+                'error'   => true,
+                'message' => 'Vous n\'avez pas les droits pour effectuer cette action.',
+            ], JsonResponse::HTTP_FORBIDDEN);
+        }
+
+        try {
             $decrypted = (new UrlIdCipher())->decrypt($token);
 
             if (empty($decrypted) && $decrypted !== 0) {
                 return new JsonResponse([
                     'error'   => true,
                     'message' => 'Token invalide.',
+                    'data'    => "",
                 ], JsonResponse::HTTP_NOT_FOUND);
             }
 
             return new JsonResponse([
+                'error'   => false,
                 'message' => 'Token décrypté avec succès',
                 'data'    => $decrypted
             ], JsonResponse::HTTP_OK);
         } catch (\Exception $e) {
             return new JsonResponse([
-                'message' => 'Erreur lors du décryptage du token: ' . $e->getMessage(),
-                'data'    => []
+                'error'   => true,
+                'message' => 'Erreur lors du décryptage du token.',
+                'data'    => ""
             ], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
