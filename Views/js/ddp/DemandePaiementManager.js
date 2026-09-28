@@ -172,13 +172,20 @@ export class DemandePaiementManager {
     );
 
     if (this.typeId == 2) {
+      // Pas de chargement de toutes les commandes du fournisseur dans le select
+      // (des milliers pour certains) : le champ est désactivé et n'est rempli
+      // qu'avec les commandes des factures choisies (changeCommandeSelonFacture).
       this.listeFacture(item.num_fournisseur, this.typeId);
-      this.listeCommande2(item.num_fournisseur, this.typeId);
       this.updateCommandesFournisseur(item.num_fournisseur, this.typeId);
 
-      $(this.elements.numFactureInput).on("change", () => {
-        this.changeCommandeSelonFacture(item.num_fournisseur, this.typeId);
-      });
+      // .off() avant .on() : sans cela, chaque sélection de fournisseur
+      // empilait un handler de plus, et un changement de facture relançait
+      // N fois tous les appels (montant, documents, PDF de commande).
+      $(this.elements.numFactureInput)
+        .off("change.ddpFacture")
+        .on("change.ddpFacture", () => {
+          this.changeCommandeSelonFacture(item.num_fournisseur, this.typeId);
+        });
     } else if (this.typeId == 1 && !this.typeDa) {
       this.listeCommande(item.num_fournisseur, this.typeId);
     }
@@ -209,22 +216,6 @@ export class DemandePaiementManager {
         id_type,
       );
       this.ajoutDesOptions(this.elements.numCommandeInput, commandes.numCdes);
-    } catch (error) {
-      console.error("Erreur lors de la récupération des commandes :", error);
-    } finally {
-      this.toggleChargementSelect(this.elements.numCommandeInput, false);
-    }
-  }
-
-  async listeCommande2(numFournisseur, id_type) {
-    this.toggleChargementSelect(this.elements.numCommandeInput, true);
-    try {
-      const commandes = await this.getCommandesFournisseur(
-        numFournisseur,
-        id_type,
-      );
-      const listeCommande = this.transformTab(commandes.listeGcot, "Numero_PO");
-      this.ajoutDesOptions(this.elements.numCommandeInput, listeCommande);
     } catch (error) {
       console.error("Erreur lors de la récupération des commandes :", error);
     } finally {
@@ -326,7 +317,7 @@ export class DemandePaiementManager {
     if (this.isUpdatingFacture) return;
     this.isUpdatingCommande = true;
 
-    const numFacs = $(this.elements.numFactureInput).val();
+    const numFacs = $(this.elements.numFactureInput).val() || [];
     try {
       const commandes = await this.getCommandesFournisseur(
         numFournisseur,
@@ -340,7 +331,15 @@ export class DemandePaiementManager {
       ];
 
       this.recupFichier(facturesCorrespondantes);
-      $(this.elements.numCommandeInput).val(numerosPO).trigger("change");
+
+      // Le select ne contient que les commandes des factures choisies, toutes
+      // sélectionnées ; un seul "change" déclenche le chargement des PDF.
+      const selectCommande = this.elements.numCommandeInput;
+      selectCommande.innerHTML = "";
+      numerosPO.forEach((po) =>
+        selectCommande.appendChild(new Option(po, po, true, true)),
+      );
+      $(selectCommande).trigger("change");
 
       const facturesString = facturesCorrespondantes
         .map((f) => f.Numero_Facture)

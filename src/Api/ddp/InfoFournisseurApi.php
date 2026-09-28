@@ -74,6 +74,15 @@ class InfoFournisseurApi extends Controller
 
         // Code Société de l'utilisateur
         $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
+        // Libère le verrou de session PHP : la suite (requêtes IPS/GCOT) peut
+        // durer plusieurs dizaines de secondes pour un gros fournisseur, et
+        // bloquerait toutes les autres requêtes de l'utilisateur (PDF de
+        // commande, documents, montant...) jusqu'à la fin.
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+
         $cdeFrnRepository = $this->getEntityManager()->getRepository(CdefnrSoumisAValidation::class);
         $numCdeValides = $cdeFrnRepository->findValideesDerniereVersion($numeroFournisseur);
         $numCdeValides = array_map(fn($el) => "'" . $el->getNumCdeFournisseur() . "'", $numCdeValides);
