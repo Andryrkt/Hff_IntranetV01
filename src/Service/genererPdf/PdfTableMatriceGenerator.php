@@ -116,8 +116,8 @@ class PdfTableMatriceGenerator
 
         // Ligne montant total principale
         $html .= "<tr >";
-        $html .= "<th colspan=\"2\" align=\"center\" style=\"width:{$largeurMontantTotal}%;\"><strong>Montant total pré-validé:</strong></th>";
-        $html .= "<th colspan=\"3\" align=\"right\" style=\"width:{$largeurTotalGlobal}%;\"><strong>{$this->formatPrix(($this->totalGlobal))}</strong></th>";
+        $html .= "<th colspan=\"2\" align=\"center\" style=\"width:{$largeurMontantTotal}%;background-color: #fbbb01;\"><strong>Montant total pré-validé:</strong></th>";
+        $html .= "<th colspan=\"3\" align=\"right\" style=\"width:{$largeurTotalGlobal}%;background-color: #fbbb01;\"><strong>{$this->formatPrix(($this->totalGlobal))}</strong></th>";
         $html .= '</tr></thead>';
 
         return  $html;
