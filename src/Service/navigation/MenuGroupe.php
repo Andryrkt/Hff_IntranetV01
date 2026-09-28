@@ -262,9 +262,12 @@ class MenuGroupe
                 ],
             ],
             [
-                'route'    => 'cde_fournisseur',
-                'label'    => 'Soumission commandes fournisseur',
-                'icon'     => 'list-alt',
+                'label'    => 'COMMANDE FOURNISSEUR',
+                'icon'     => 'cloud-arrow-up',
+                'subitems' => [
+                    ['label' => 'Soumission commandes fournisseur', 'icon' => 'plus-circle', 'route' => 'generer_commande_fournisseur']
+
+                ],
             ],
             [
                 'route'    => 'liste_Cde_Frn_Non_Placer',
