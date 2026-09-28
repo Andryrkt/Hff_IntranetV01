@@ -5,13 +5,13 @@ namespace App\Api\magasin\cdeFrn;
 use App\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use App\Service\genererPdf\magasin\GeneratePdfCdeMagasin;
-use App\Model\magasin\CommANDe\Soumission\CdeSoumissionModel;
+use App\Model\magasin\cdeFrn\soumission\CdeSoumissionModel;
+use App\Service\genererPdf\magasin\cdeFrn\GeneratePdfCdeMagasin;
 
 class GenerateCommandeFournisseurApi extends Controller
 {
     /**
-     * @Route("/api/cmde-fournisseur/{numCde}/generate-pdf", name="api_generate_cmde_fournisseur", methods={"GET"})
+     * @Route("/api/cde-frn/{numCde}/generate-pdf", name="api_generate_cde_frn", methods={"GET"})
      */
     public function generatePdfCmdeFournisseur(string $numCde): JsonResponse
     {
