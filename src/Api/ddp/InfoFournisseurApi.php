@@ -7,6 +7,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 
+use App\Constants\ddp\TypeDemandePaiementConstants;
 use App\Controller\Controller;
 use App\Controller\Traits\ddp\DdpTrait;
 use App\Entity\ddp\DemandePaiement;
@@ -106,20 +107,42 @@ class InfoFournisseurApi extends Controller
         // commande, documents, montant...) jusqu'à la fin.
         $this->libererSession();
 
-        $cdeFrnRepository = $this->getEntityManager()->getRepository(CdefnrSoumisAValidation::class);
-        $numCdeValides = $cdeFrnRepository->findValideesDerniereVersion($numeroFournisseur);
-        $numCdeValides = array_map(fn($el) => "'" . $el->getNumCdeFournisseur() . "'", $numCdeValides);
-        $numCdeValides = implode(',', $numCdeValides);
-        $numCdes = $this->demandePaiementModel()->getCommandeReceptionnee($numeroFournisseur, $codeSociete, $typeId, $numCdeValides);
+        // {typeId} arrive de l'URL en chaîne ("1", "2") : conversion pour les comparaisons strictes
+        $typeId = (int) $typeId;
 
+        // Commandes fournisseur validées (dernière version, statut "Validée")
+        $cdeFrnRepository = $this->getEntityManager()->getRepository(CdefnrSoumisAValidation::class);
+        $numCdeValidesListe = array_values(array_unique(array_map(
+            fn($el) => trim((string) $el->getNumCdeFournisseur()),
+            $cdeFrnRepository->findValideesDerniereVersion($numeroFournisseur)
+        )));
+        $numCdeValides = implode(',', array_map(fn($el) => "'" . $el . "'", $numCdeValidesListe));
+
+        // Commandes réceptionnées dans IPS (type 1 : limitées aux commandes validées)
+        $numCdesAvecLivraison = $this->demandePaiementModel()->getCommandeReceptionnee($numeroFournisseur, $codeSociete, $typeId, $numCdeValides);
+
+        if ($typeId === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE) {
+            // Après arrivage : commandes réceptionnées
+            $numCdes = $numCdesAvecLivraison;
+        } else {
+            // À l'avance : commandes validées qui ne sont PAS encore réceptionnées
+            $numCdes = array_values(array_diff(
+                $numCdeValidesListe,
+                array_map(fn($el) => trim((string) $el), $numCdesAvecLivraison)
+            ));
+        }
 
         $numCde = array_map(fn($el) => ['label' => $el, 'value' => $el], $numCdes);
-        $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
 
-        $numFacs = $this->demandePaiementModel()->getFactureNonReglee($numeroFournisseur);
-        $numFacString = TableauEnStringService::TableauEnString(',', $numFacs);
-
-        $listeGcot = $this->demandePaiementModel()->findListeGcot($numeroFournisseur, $numCdesString, $numFacString);
+        // Liste GCOT (factures/dossiers de douane) : utile uniquement pour l'après
+        // arrivage ; la requête peut durer plusieurs dizaines de secondes.
+        $listeGcot = [];
+        if ($typeId === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE) {
+            $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
+            $numFacs = $this->demandePaiementModel()->getFactureNonReglee($numeroFournisseur);
+            $numFacString = TableauEnStringService::TableauEnString(',', $numFacs);
+            $listeGcot = $this->demandePaiementModel()->findListeGcot($numeroFournisseur, $numCdesString, $numFacString);
+        }
 
         $data = [
             'numCdes' => $numCde,

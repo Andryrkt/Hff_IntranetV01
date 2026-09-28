@@ -285,14 +285,14 @@ class DemandePaiementModel extends Model
                 where fliv_numfou = '{$numeroFournisseur}'
         ";
 
-        if ($typeId === 1) {
-            if (trim($numCdeValide) === '') {
-                // Aucune commande validée pour ce fournisseur : aucun résultat
-                // possible (et "IN ()" est une erreur de syntaxe SQL/Informix).
-                return [];
-            }
-            $statement .= " And fllf_numcde in ({$numCdeValide})";
-        }
+        // if ($typeId === 1) {
+        //     if (trim($numCdeValide) === '') {
+        //         // Aucune commande validée pour ce fournisseur : aucun résultat
+        //         // possible (et "IN ()" est une erreur de syntaxe SQL/Informix).
+        //         return [];
+        //     }
+        //     $statement .= " And fllf_numcde in ({$numCdeValide})";
+        // }
 
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
