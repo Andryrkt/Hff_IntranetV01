@@ -322,7 +322,8 @@ class CdeSoumissionModel extends Model
      */
     private function filterOrdresReparationValides(array $numerosOR): array
     {
-        if (empty($numerosOR)) return [];
+        $data = [];
+        if (empty($numerosOR)) return $data;
 
         $sql = "WITH derniere_version AS (
                 SELECT numeroOR, MAX(numeroVersion) AS max_version 
@@ -336,6 +337,12 @@ class CdeSoumissionModel extends Model
                 AND osav.numeroVersion = dv.max_version
             WHERE osav.statut = 'Validé' {$this->selectCond->in('osav.numeroOR',$numerosOR)}";
 
-        return $this->retournerResult28($sql);
+        $statement = $this->connexion->query($sql);
+
+        while ($row = odbc_fetch_array($statement)) {
+            $data[] = $row["numeroOR"];
+        }
+
+        return $data;
     }
 }
