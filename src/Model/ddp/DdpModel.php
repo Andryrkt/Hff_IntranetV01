@@ -42,6 +42,25 @@ class DdpModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
+    /**
+     * Récupération des RIB connus (fou_bqe) d'un fournisseur
+     * dans la base de donnée Informix ip_hhfprod
+     *
+     * @return string[] RIB au format "code guichet compte clé"
+     */
+    public function getRibsFournisseur(string $numeroFournisseur): array
+    {
+        $statement = " SELECT DISTINCT
+                            TRIM(fbqe_bqcode) ||' '|| TRIM(fbqe_bqguich) ||' '|| TRIM(fbqe_bqcpte) ||' '|| TRIM(fbqe_bqrib) AS rib
+                        FROM informix.fou_bqe
+                        WHERE fbqe_numfou = '{$numeroFournisseur}'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        return array_column($this->convertirEnUtf8($data), 'rib');
+    }
+
     public function cdeFacOuNonFac(string  $numCde)
     {
         $statement = "SELECT ffac_facext  

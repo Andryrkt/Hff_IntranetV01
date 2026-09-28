@@ -21,6 +21,8 @@ class DdpDto
     public ?string $numeroFournisseur = null;
     public ?string $beneficiaire = null; // * nom du fournisseur 
     public ?string $ribFournisseur = null;
+    // RIB connus du fournisseur dans IPS (pour détecter un RIB mis à jour)
+    public array $ribsFournisseurAncien = [];
     // Mode paiement
     public ?string $modePaiement = null;
     public array $choiceModePaiement = [];
@@ -93,6 +95,22 @@ class DdpDto
             }
         }
         return (float) $montant;
+    }
+
+    /**
+     * Le RIB saisi diffère-t-il de ceux connus pour le fournisseur ?
+     * (comparaison sans les espaces)
+     */
+    public function ribFournisseurChanger(): bool
+    {
+        $nouveau = str_replace(' ', '', (string) $this->ribFournisseur);
+        if ($nouveau === '') {
+            return false;
+        }
+
+        $anciens = array_map(fn($rib) => str_replace(' ', '', (string) $rib), $this->ribsFournisseurAncien);
+
+        return !in_array($nouveau, $anciens, true);
     }
 
     /**
