@@ -1,4 +1,5 @@
 import { DemandePaiementManager } from "./DemandePaiementManager.js";
+import { baseUrl } from "../utils/config.js";
 
 document.addEventListener("DOMContentLoaded", function () {
   const config = {
@@ -38,9 +39,9 @@ document.addEventListener("DOMContentLoaded", function () {
       montantFacture:
         "api/montant-facture/:numFournisseur/:facturesString/:typeId",
       listeDoc: "api/liste-doc/:numero",
-      recupererFichier: "/Hffintranet/api/recuperer-fichier",
+      recupererFichier: `${baseUrl}/api/recuperer-fichier`,
       fichiersCommandeFournisseur: "api/fichiers-commande-fournisseur/:numeroCommande",
-      telechargerFichierCommandeDw: "/Hffintranet/api/telecharger-fichier-commande-dw",
+      telechargerFichierCommandeDw: `${baseUrl}/api/telecharger-fichier-commande-dw`,
       agenceFetch: "agence-fetch/:agenceDebiteur",
     },
   };

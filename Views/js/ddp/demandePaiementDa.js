@@ -1,6 +1,7 @@
 import { DemandePaiementManager } from "./DemandePaiementManager.js";
 import { formaterNombre } from "../utils/formatNumberUtils.js";
 import { setupConfirmationButtons } from "../utils/ui/boutonConfirmUtils.js";
+import { baseUrl } from "../utils/config.js";
 
 document.addEventListener("DOMContentLoaded", function () {
   const config = {
@@ -41,7 +42,7 @@ document.addEventListener("DOMContentLoaded", function () {
       montantFacture:
         "api/montant-facture/:numFournisseur/:facturesString/:typeId",
       listeDoc: "api/liste-doc/:numero",
-      recupererFichier: "/Hffintranet/api/recuperer-fichier",
+      recupererFichier: `${baseUrl}/api/recuperer-fichier`,
       agenceFetch: "agence-fetch/:agenceDebiteur",
     },
   };
