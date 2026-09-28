@@ -69,7 +69,35 @@ class DemandePaiementModel extends Model
 
     public function findListeGcot(string $numeroFournisseur, string  $numCdesString, string $numFacString): array
     {
-        $sql = " SELECT  
+        // Un "IN (...)" avec des milliers de valeurs fait échouer SQL Server
+        // ("The query processor ran out of internal resources") : on découpe la liste en lots.
+        $numCdes = array_filter(array_map('trim', explode(',', $numCdesString)), fn($el) => $el !== '' && $el !== "''");
+        if (empty($numCdes)) {
+            return [];
+        }
+
+        $data = [];
+        foreach (array_chunk($numCdes, 500) as $lot) {
+            $data = array_merge($data, $this->findListeGcotParLot($numeroFournisseur, implode(',', $lot)));
+        }
+
+        $colonnesTri = ['Code_Fournisseur', 'Libelle_Fournisseur', 'Numero_Dossier_Douane', 'Numero_LTA', 'Numero_HAWB', 'Numero_Facture', 'Numero_PO'];
+        usort($data, function ($a, $b) use ($colonnesTri) {
+            foreach ($colonnesTri as $col) {
+                $cmp = strcmp((string) $a[$col], (string) $b[$col]);
+                if ($cmp !== 0) {
+                    return $cmp;
+                }
+            }
+            return 0;
+        });
+
+        return $data;
+    }
+
+    private function findListeGcotParLot(string $numeroFournisseur, string $numCdesString): array
+    {
+        $sql = " SELECT
             TRZT_Dossier_Douane.Code_Fournisseur, 
             TRZT_Dossier_Douane.Libelle_Fournisseur,
             TRZT_Dossier_Douane.Numero_Dossier_Douane, 
@@ -82,7 +110,6 @@ class DemandePaiementModel extends Model
             INNER JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
             INNER JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
             where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%'
-            --and TRZT_Facture.Numero_Facture not in ({$numFacString})
             and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
             and GCOT_Facture_Ligne.Numero_PO in ({$numCdesString})
             group by TRZT_Dossier_Douane.Code_Fournisseur, TRZT_Dossier_Douane.Libelle_Fournisseur,TRZT_Dossier_Douane.Numero_Dossier_Douane, TRZT_Dossier_Douane.Numero_LTA, TRZT_Dossier_Douane.Numero_HAWB,TRZT_Facture.Numero_Facture, GCOT_Facture_Ligne.Numero_PO
