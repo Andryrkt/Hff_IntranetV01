@@ -307,34 +307,4 @@ class CdeSoumissionModel extends Model
         return $grouped;
     }
 
-    /** 
-     * Enregistrer du Bc soumis Magasin dans BD
-     * 
-     * @param BcSoumisMagasinDTO $bcSoumisMagasinDto
-     * 
-     * @return void
-     */
-    public function enregistrerBcSoumisMagasin(BcSoumisMagasinDTO $bcSoumisMagasinDto): void
-    {
-        // S'assurer que la connexion est ouverte
-        $this->connect->connect();
-        try {
-            // Construire la requête d'insertion et l'exécuter
-            $builder = new InsertQueryBuilder("{$this->dbIrium}.bc_soumis_magasin");
-            $builder->setData([
-                'numero_cde'                  => $bcSoumisMagasinDto->numeroCommande,
-                'statut'                    => $bcSoumisMagasinDto->statut,
-                'operateur'                 => $bcSoumisMagasinDto->operateur,
-                'date_heure_soumission'       => $bcSoumisMagasinDto->dateHeureSoumission,
-                'deposer_dw'                 => $bcSoumisMagasinDto->deposerDw,
-            ]);
-
-            $result = $builder->build();
-
-            $this->connect->executeQuery($result['sql'], $result['params']);
-        } finally {
-            // ne fermez ici que si vous êtes sûr que c'est la dernière opération
-            $this->connect->close();
-        }
-    }
 }
