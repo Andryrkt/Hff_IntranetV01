@@ -69,35 +69,7 @@ class DemandePaiementModel extends Model
 
     public function findListeGcot(string $numeroFournisseur, string  $numCdesString, string $numFacString): array
     {
-        // Un "IN (...)" avec des milliers de valeurs fait échouer SQL Server
-        // ("The query processor ran out of internal resources") : on découpe la liste en lots.
-        $numCdes = array_filter(array_map('trim', explode(',', $numCdesString)), fn($el) => $el !== '' && $el !== "''");
-        if (empty($numCdes)) {
-            return [];
-        }
-
-        $data = [];
-        foreach (array_chunk($numCdes, 500) as $lot) {
-            $data = array_merge($data, $this->findListeGcotParLot($numeroFournisseur, implode(',', $lot)));
-        }
-
-        $colonnesTri = ['Code_Fournisseur', 'Libelle_Fournisseur', 'Numero_Dossier_Douane', 'Numero_LTA', 'Numero_HAWB', 'Numero_Facture', 'Numero_PO'];
-        usort($data, function ($a, $b) use ($colonnesTri) {
-            foreach ($colonnesTri as $col) {
-                $cmp = strcmp((string) $a[$col], (string) $b[$col]);
-                if ($cmp !== 0) {
-                    return $cmp;
-                }
-            }
-            return 0;
-        });
-
-        return $data;
-    }
-
-    private function findListeGcotParLot(string $numeroFournisseur, string $numCdesString): array
-    {
-        $sql = " SELECT
+        $sqlBuilder = fn(string $lotIn) => " SELECT
             TRZT_Dossier_Douane.Code_Fournisseur, 
             TRZT_Dossier_Douane.Libelle_Fournisseur,
             TRZT_Dossier_Douane.Numero_Dossier_Douane, 
@@ -111,13 +83,16 @@ class DemandePaiementModel extends Model
             INNER JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
             where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%'
             and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
-            and GCOT_Facture_Ligne.Numero_PO in ({$numCdesString})
+            and GCOT_Facture_Ligne.Numero_PO in ({$lotIn})
             group by TRZT_Dossier_Douane.Code_Fournisseur, TRZT_Dossier_Douane.Libelle_Fournisseur,TRZT_Dossier_Douane.Numero_Dossier_Douane, TRZT_Dossier_Douane.Numero_LTA, TRZT_Dossier_Douane.Numero_HAWB,TRZT_Facture.Numero_Facture, GCOT_Facture_Ligne.Numero_PO
             order by TRZT_Dossier_Douane.Code_Fournisseur, TRZT_Dossier_Douane.Libelle_Fournisseur,TRZT_Dossier_Douane.Numero_Dossier_Douane, TRZT_Dossier_Douane.Numero_LTA, TRZT_Dossier_Douane.Numero_HAWB,TRZT_Facture.Numero_Facture, GCOT_Facture_Ligne.Numero_PO
             OPTION (RECOMPILE)
             ";
 
-        return $this->retournerResultGcot04($sql);
+        return $this->trierLignesParColonnes(
+            $this->retournerResultGcot04ParLots($numCdesString, $sqlBuilder),
+            ['Code_Fournisseur', 'Libelle_Fournisseur', 'Numero_Dossier_Douane', 'Numero_LTA', 'Numero_HAWB', 'Numero_Facture', 'Numero_PO']
+        );
     }
 
     public function getMontantFacGcot(string $numeroFournisseur, string  $numCdesString, string $numfacture): array
@@ -131,7 +106,7 @@ class DemandePaiementModel extends Model
 
     public function finListFacGcot(string $numeroFournisseur, string  $numCdesString): array
     {
-        $sql = " SELECT  
+        $sqlBuilder = fn(string $lotIn) => " SELECT  
           distinct 
             TRZT_Facture.Numero_Facture
             from TRZT_Dossier_Douane
@@ -141,10 +116,10 @@ class DemandePaiementModel extends Model
             where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%'
             and TRZT_Facture.Numero_Facture like 'PDV_%'
             and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
-            and GCOT_Facture_Ligne.Numero_PO in ({$numCdesString})
+            and GCOT_Facture_Ligne.Numero_PO in ({$lotIn})
         ";
 
-        return array_column($this->retournerResultGcot04($sql), 'Numero_Facture');
+        return array_column($this->retournerResultGcot04ParLots($numCdesString, $sqlBuilder), 'Numero_Facture');
     }
 
     public function getNumDossierGcot(string $numeroFournisseur, string  $numCdesString, ?string $numFactString): array
@@ -154,7 +129,7 @@ class DemandePaiementModel extends Model
         } else {
             $numFac = '';
         }
-        $sql = " SELECT  DISTINCT
+        $sqlBuilder = fn(string $lotIn) => " SELECT  DISTINCT
             TRZT_Dossier_Douane.Numero_Dossier_Douane
             from TRZT_Dossier_Douane
             LEFT JOIN TRZT_Facture on TRZT_Dossier_Douane.Numero_Dossier_Douane = TRZT_Facture.Numero_Dossier_Douane
@@ -163,9 +138,9 @@ class DemandePaiementModel extends Model
             where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%'
             $numFac
             and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
-            and GCOT_Facture_Ligne.Numero_PO in ({$numCdesString})
+            and GCOT_Facture_Ligne.Numero_PO in ({$lotIn})
             ";
-        return $this->retournerResultGcot04($sql);
+        return $this->retournerResultGcot04ParLots($numCdesString, $sqlBuilder);
     }
 
     public function getNumCommande(string $numeroFournisseur, string $numCdesString, ?string $numFactString): string
@@ -176,7 +151,7 @@ class DemandePaiementModel extends Model
             $numFac = '';
         }
 
-        $sql = " SELECT DISTINCT
+        $sqlBuilder = fn(string $lotIn) => " SELECT DISTINCT
         GCOT_Facture_Ligne.Numero_PO as numerocde
         from TRZT_Dossier_Douane
         LEFT JOIN TRZT_Facture on TRZT_Dossier_Douane.Numero_Dossier_Douane = TRZT_Facture.Numero_Dossier_Douane
@@ -185,10 +160,10 @@ class DemandePaiementModel extends Model
         where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%'
         $numFac
         and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
-        and GCOT_Facture_Ligne.Numero_PO in ({$numCdesString})
+        and GCOT_Facture_Ligne.Numero_PO in ({$lotIn})
         ";
 
-        $result = array_column($this->retournerResultGcot04($sql), 'numerocde');
+        $result = array_column($this->retournerResultGcot04ParLots($numCdesString, $sqlBuilder), 'numerocde');
 
         // Retourner la première valeur ou une chaîne vide
         return !empty($result) ? (string) $result[0] : '';
@@ -276,7 +251,7 @@ class DemandePaiementModel extends Model
      */
     public function getNumDossierDouane(string $numeroFournisseur, string  $numCdesString, string $numFacture): array
     {
-        $sql = " SELECT  DISTINCT
+        $sqlBuilder = fn(string $lotIn) => " SELECT  DISTINCT
 
                 TRZT_Dossier_Douane.Numero_Dossier_Douane 
 
@@ -287,9 +262,9 @@ class DemandePaiementModel extends Model
                 where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%' 
                 and TRZT_Facture.Numero_Facture in ({$numFacture})
                 and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
-                and GCOT_Facture_Ligne.Numero_PO in ({$numCdesString})
+                and GCOT_Facture_Ligne.Numero_PO in ({$lotIn})
             ";
-        return $this->retournerResultGcot04($sql);
+        return $this->retournerResultGcot04ParLots($numCdesString, $sqlBuilder);
     }
 
     public function getFactureNonReglee(string $numeroFournisseur)

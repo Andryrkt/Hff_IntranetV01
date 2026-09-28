@@ -184,6 +184,54 @@ class Model
         return $data;
     }
 
+    /**
+     * Exécute une requête GCOT (SQL Server) contenant un "IN (...)" potentiellement
+     * très long en la découpant en lots : au-delà de quelques milliers de valeurs,
+     * SQL Server échoue avec "The query processor ran out of internal resources".
+     *
+     * @param string   $listeIn    valeurs déjà quotées et séparées par des virgules ("'a','b'")
+     * @param callable $sqlBuilder fn(string $lotIn): string, construit la requête pour un lot
+     * @return array lignes fusionnées de tous les lots, sans doublon
+     */
+    protected function retournerResultGcot04ParLots(string $listeIn, callable $sqlBuilder, int $tailleLot = 500): array
+    {
+        $valeurs = array_filter(
+            array_map('trim', explode(',', $listeIn)),
+            fn($el) => $el !== '' && $el !== "''"
+        );
+        if (empty($valeurs)) {
+            return [];
+        }
+
+        $data = [];
+        foreach (array_chunk(array_values(array_unique($valeurs)), $tailleLot) as $lot) {
+            foreach ($this->retournerResultGcot04($sqlBuilder(implode(',', $lot))) as $ligne) {
+                $data[serialize($ligne)] = $ligne;
+            }
+        }
+
+        return array_values($data);
+    }
+
+    /**
+     * Trie des lignes (tableaux associatifs) sur plusieurs colonnes, dans l'ordre donné.
+     * Utile après retournerResultGcot04ParLots(), chaque lot n'étant trié que séparément.
+     */
+    protected function trierLignesParColonnes(array $data, array $colonnes): array
+    {
+        usort($data, function ($a, $b) use ($colonnes) {
+            foreach ($colonnes as $col) {
+                $cmp = strcmp((string) ($a[$col] ?? ''), (string) ($b[$col] ?? ''));
+                if ($cmp !== 0) {
+                    return $cmp;
+                }
+            }
+            return 0;
+        });
+
+        return $data;
+    }
+
     public function retournerResult04($sql)
     {
         $statement = $this->connexion04->query($sql);
