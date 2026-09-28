@@ -30,14 +30,14 @@ class CommandeSoumissionLigneDTO
     {
         if ($this->prixUnitaire === null) return "";
 
-        return number_format($this->prixUnitaire, 2, ',', ' ') . " Ar";
+        return number_format($this->prixUnitaire, 2, ',', ' ');
     }
 
     public function getPrixTotal(): string
     {
         if ($this->prixTotal === null) return "";
 
-        return number_format($this->prixTotal, 2, ',', ' ') . " Ar";
+        return number_format($this->prixTotal, 2, ',', ' ');
     }
 
     public function getPoids(): string
