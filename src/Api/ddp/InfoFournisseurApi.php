@@ -28,9 +28,34 @@ class InfoFournisseurApi extends Controller
 
     public function __construct()
     {
-        $this->demandePaiementModel = new DemandePaiementModel();
         $this->cdeFnrRepository = $this->getEntityManager()->getRepository(CdefnrSoumisAValidation::class);
         $this->demandePaiementRepository  = $this->getEntityManager()->getRepository(DemandePaiement::class);
+    }
+
+    /**
+     * Model créé à la première utilisation : son constructeur ouvre 4 connexions
+     * (intranet, Informix, SQL Server 04, GCOT), inutiles pour les endpoints
+     * qui ne servent qu'un fichier (ex: PDF de commande).
+     */
+    private function demandePaiementModel(): DemandePaiementModel
+    {
+        if ($this->demandePaiementModel === null) {
+            $this->demandePaiementModel = new DemandePaiementModel();
+        }
+        return $this->demandePaiementModel;
+    }
+
+    /**
+     * Libère le verrou de session PHP pour les endpoints en lecture seule :
+     * sinon les requêtes AJAX d'un même utilisateur (documents, montant, PDF de
+     * commande...) s'exécutent l'une après l'autre au lieu d'en parallèle.
+     * $_SESSION reste lisible après l'appel.
+     */
+    private function libererSession(): void
+    {
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
     }
 
     /**
@@ -40,7 +65,7 @@ class InfoFournisseurApi extends Controller
     {
         $results = [];
 
-        $infoFournisseur = $this->demandePaiementModel->recupInfoFournissseur();
+        $infoFournisseur = $this->demandePaiementModel()->recupInfoFournissseur();
 
         $results = array_map(function ($fournisseur) {
             return [
@@ -79,24 +104,22 @@ class InfoFournisseurApi extends Controller
         // durer plusieurs dizaines de secondes pour un gros fournisseur, et
         // bloquerait toutes les autres requêtes de l'utilisateur (PDF de
         // commande, documents, montant...) jusqu'à la fin.
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_write_close();
-        }
+        $this->libererSession();
 
         $cdeFrnRepository = $this->getEntityManager()->getRepository(CdefnrSoumisAValidation::class);
         $numCdeValides = $cdeFrnRepository->findValideesDerniereVersion($numeroFournisseur);
         $numCdeValides = array_map(fn($el) => "'" . $el->getNumCdeFournisseur() . "'", $numCdeValides);
         $numCdeValides = implode(',', $numCdeValides);
-        $numCdes = $this->demandePaiementModel->getCommandeReceptionnee($numeroFournisseur, $codeSociete, $typeId, $numCdeValides);
+        $numCdes = $this->demandePaiementModel()->getCommandeReceptionnee($numeroFournisseur, $codeSociete, $typeId, $numCdeValides);
 
 
         $numCde = array_map(fn($el) => ['label' => $el, 'value' => $el], $numCdes);
         $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
 
-        $numFacs = $this->demandePaiementModel->getFactureNonReglee($numeroFournisseur);
+        $numFacs = $this->demandePaiementModel()->getFactureNonReglee($numeroFournisseur);
         $numFacString = TableauEnStringService::TableauEnString(',', $numFacs);
 
-        $listeGcot = $this->demandePaiementModel->findListeGcot($numeroFournisseur, $numCdesString, $numFacString);
+        $listeGcot = $this->demandePaiementModel()->findListeGcot($numeroFournisseur, $numCdesString, $numFacString);
 
         $data = [
             'numCdes' => $numCde,
@@ -120,16 +143,15 @@ class InfoFournisseurApi extends Controller
      */
     public function montantFacture(string $numeroFournisseur, string $numFacture, int $typeId)
     {
-        $factureArray = explode(',', $numFacture);
-        // $numComandes = $this->demandePaiementRepository->getnumCde();
-        //     $excludedCommands = $this->changeStringToArray($numComandes);
-        //     $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId, $excludedCommands);
-        $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
+        $this->libererSession();
 
-        $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
+        $factureArray = explode(',', $numFacture);
         $numFacString = TableauEnStringService::TableauEnString(',', $factureArray);
 
-        $montants = $this->demandePaiementModel->getMontantFacGcot($numeroFournisseur, $numCdesString, $numFacString);
+        // getMontantFacGcot() ne filtre que sur les factures : on ne calcule plus
+        // la liste des commandes (recuperationCdeFacEtNonFac), qui faisait une
+        // requête Informix par commande DW (~4 500) soit ~40 s, pour rien.
+        $montants = $this->demandePaiementModel()->getMontantFacGcot($numeroFournisseur, '', $numFacString);
 
         if ($montants[0] == null) {
             $montants[0] = 0.00;
@@ -147,7 +169,7 @@ class InfoFournisseurApi extends Controller
 
         $numcdeArray = explode(',', $numCde);
         $numCdesString = TableauEnStringService::TableauEnString(',', $numcdeArray);
-        $montantCde = $this->demandePaiementModel->getMontantCdeAvance($numCdesString);
+        $montantCde = $this->demandePaiementModel()->getMontantCdeAvance($numCdesString);
 
         if ($montantCde[0]['montantcde'] == null) {
             $montantCde[0]['montantcde'] = 0.00;
@@ -180,7 +202,9 @@ class InfoFournisseurApi extends Controller
      */
     public function listeDoc(string $numeroDossier)
     {
-        $dossiers = $this->demandePaiementModel->findListeDoc($numeroDossier);
+        $this->libererSession();
+
+        $dossiers = $this->demandePaiementModel()->findListeDoc($numeroDossier);
 
         $response = new JsonResponse($dossiers);
         $response->send();
@@ -192,6 +216,8 @@ class InfoFournisseurApi extends Controller
      */
     public function recupererFichier(Request $request)
     {
+        $this->libererSession();
+
         ini_set('display_errors', 1);
         error_reporting(E_ALL);
 
@@ -240,7 +266,7 @@ class InfoFournisseurApi extends Controller
      */
     public function fournisseur()
     {
-        $fournisseurs = $this->demandePaiementModel->getFournisseur();
+        $fournisseurs = $this->demandePaiementModel()->getFournisseur();
 
         header("Content-type:application/json");
         echo json_encode($fournisseurs);
@@ -253,6 +279,8 @@ class InfoFournisseurApi extends Controller
      */
     public function fichiersCommandeFournisseur(string $numeroCommande)
     {
+        $this->libererSession();
+
         $dwCommandeRepository = $this->getEntityManager()->getRepository(DwCommande::class);
 
         $fichiers = [];
@@ -286,6 +314,8 @@ class InfoFournisseurApi extends Controller
      */
     public function telechargerFichierCommandeDw(Request $request)
     {
+        $this->libererSession();
+
         $path = urldecode((string) $request->query->get('path', ''));
 
         $baseReel = realpath(rtrim($_ENV['BASE_PATH_FICHIER'], '/\\'));
