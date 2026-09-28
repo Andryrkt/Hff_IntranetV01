@@ -10,6 +10,7 @@ class CommandeSoumissionDTO
     public ?int       $delaiExpedition = null;
     public ?string    $numFrn          = null;
     public ?string    $nomFrn          = null;
+    public ?string    $devise          = null;
     public ?string    $responsable     = null;
     public ?string    $libelleAgence   = null;
     public ?string    $libelleService  = null;

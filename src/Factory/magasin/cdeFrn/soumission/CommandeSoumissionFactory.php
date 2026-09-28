@@ -31,6 +31,7 @@ class CommandeSoumissionFactory
         $dto->delaiExpedition = 0; // TODO: à spécifier plus tard
         $dto->numFrn          = $headerInfo['num_frn'];
         $dto->nomFrn          = $headerInfo['nom_frn'];
+        $dto->devise          = $headerInfo['devise'];
         $dto->responsable     = $email;
         $dto->libelleAgence   = $headerInfo['agence_lib'];
         $dto->libelleService  = $headerInfo['service_lib'];
@@ -58,6 +59,7 @@ class CommandeSoumissionFactory
             'type_cde'     => 'Type de commande',
             'num_frn'      => 'Numéro du fournisseur',
             'nom_frn'      => 'Nom du fournisseur',
+            'devise'       => 'Devise',
             'agence_lib'   => 'Agence',
             'service_lib'  => 'Service',
         ];
