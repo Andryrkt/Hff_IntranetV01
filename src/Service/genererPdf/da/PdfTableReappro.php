@@ -170,8 +170,8 @@ class PdfTableReappro
         $this->calculMontantTotal($dals);
 
         $columns = [
-            $this->createTableCell('center', '25%', 'Montant Total :'),
-            $this->createTableCell('right', '75%', number_format($this->montantTotal, 2, ',', '.')),
+            $this->createTableCell('center', '25%', 'Montant Total :', 'background-color: #fbbb01;'),
+            $this->createTableCell('right', '75%', number_format($this->montantTotal, 2, ',', '.'), 'background-color: #fbbb01;'),
         ];
 
 
