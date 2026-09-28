@@ -147,7 +147,10 @@
 					id="file-viewer"
 					class="mt-3"
 				>
-					<!-- Onglets -->
+					<!-- Onglets
+						 Les numéros 1 à 4 correspondent aux zones de dépôt pieceJoint01 à pieceJoint04 :
+						 file_upload_Utils.js cible "#tab{N}-tab" et "#file-list-{N}" avec ce numéro.
+						 0 = commande fournisseur validée, 5 = OR validé, 6 = facture fournisseur validée. -->
 					<ul class="nav nav-tabs" id="pdfTabs" role="tablist">
 						<li class="nav-item" role="presentation">
 							<button class="nav-link active" id="tab0-tab" data-bs-toggle="tab" data-bs-target="#tab0" type="button" role="tab">
@@ -155,18 +158,32 @@
 							</button>
 						</li>
 						<li class="nav-item" role="presentation">
+							<button class="nav-link" id="tab3-tab" data-bs-toggle="tab" data-bs-target="#tab3" type="button" role="tab">
+								BC client externe / BC client magasin
+							</button>
+						</li>
+						<li class="nav-item" role="presentation">
+							<button class="nav-link" id="tab5-tab" data-bs-toggle="tab" data-bs-target="#tab5" type="button" role="tab">
+								OR validé
+							</button>
+						</li>
+						<li class="nav-item" role="presentation">
+							<button class="nav-link" id="tab6-tab" data-bs-toggle="tab" data-bs-target="#tab6" type="button" role="tab">
+								Facture fournisseur validée
+							</button>
+						</li>
+						<li class="nav-item" role="presentation">
 							<button class="nav-link" id="tab1-tab" data-bs-toggle="tab" data-bs-target="#tab1" type="button" role="tab">
-								Contrôle livraison
+								{% if id_type == 1 %}
+									Proforma facture fournisseur
+								{% else %}
+									Contrôle livraison
+								{% endif %}
 							</button>
 						</li>
 						<li class="nav-item" role="presentation">
 							<button class="nav-link" id="tab2-tab" data-bs-toggle="tab" data-bs-target="#tab2" type="button" role="tab">
 								RIB fournisseur
-							</button>
-						</li>
-						<li class="nav-item" role="presentation">
-							<button class="nav-link" id="tab3-tab" data-bs-toggle="tab" data-bs-target="#tab3" type="button" role="tab">
-								BC client externe / BC client magasin
 							</button>
 						</li>
 						<li class="nav-item" role="presentation">
@@ -181,7 +198,7 @@
 						class="tab-content border border-top-0 p-3"
 						id="pdfTabContent"
 					>
-						<!-- Tab 0 -->
+						<!-- Tab 0 : commande fournisseur validée -->
 						<div class="tab-pane fade show active" id="tab0" role="tabpanel" aria-labelledby="tab0-tab">
 							<div id="file-list-0" class="mt-3">
 								<ul class="nav nav-pills mb-2 d-none" id="commandeValideeSubTabs" role="tablist"></ul>
@@ -189,22 +206,32 @@
 							</div>
 						</div>
 
-						<!-- Tab 1 -->
-						<div class="tab-pane fade" id="tab1" role="tabpanel" aria-labelledby="tab1-tab">
-							<div id="file-list-1" class="mt-3"></div>
-						</div>
-
-						<!-- Tab 2 -->
-						<div class="tab-pane fade" id="tab2" role="tabpanel" aria-labelledby="tab2-tab">
-							<div id="file-list-2" class="mt-3"></div>
-						</div>
-
-						<!-- Tab 3 -->
+						<!-- Tab 3 : BC client externe / BC client magasin (pieceJoint03) -->
 						<div class="tab-pane fade" id="tab3" role="tabpanel" aria-labelledby="tab3-tab">
 							<div id="file-list-3" class="mt-3"></div>
 						</div>
 
-						<!-- Tab 4 -->
+						<!-- Tab 5 : OR validé -->
+						<div class="tab-pane fade" id="tab5" role="tabpanel" aria-labelledby="tab5-tab">
+							<div id="file-list-5" class="mt-3"></div>
+						</div>
+
+						<!-- Tab 6 : facture fournisseur validée -->
+						<div class="tab-pane fade" id="tab6" role="tabpanel" aria-labelledby="tab6-tab">
+							<div id="file-list-6" class="mt-3"></div>
+						</div>
+
+						<!-- Tab 1 : proforma facture fournisseur / contrôle livraison (pieceJoint01) -->
+						<div class="tab-pane fade" id="tab1" role="tabpanel" aria-labelledby="tab1-tab">
+							<div id="file-list-1" class="mt-3"></div>
+						</div>
+
+						<!-- Tab 2 : RIB fournisseur (pieceJoint02) -->
+						<div class="tab-pane fade" id="tab2" role="tabpanel" aria-labelledby="tab2-tab">
+							<div id="file-list-2" class="mt-3"></div>
+						</div>
+
+						<!-- Tab 4 : autres documents (pieceJoint04) -->
 						<div class="tab-pane fade" id="tab4" role="tabpanel" aria-labelledby="tab4-tab">
 							<div id="file-list-4" class="mt-3"></div>
 						</div>
