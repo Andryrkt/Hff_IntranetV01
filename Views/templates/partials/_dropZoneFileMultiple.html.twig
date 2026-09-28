@@ -1,10 +1,11 @@
-<div id="dropzone-{{ id }}" style="border: 2px dashed #ccc; padding: 50px; text-align: center; cursor: pointer;">
+{% set estDesactive = form[fieldName].vars.disabled|default(false) %}
+<div id="dropzone-{{ id }}" style="border: 2px dashed #ccc; padding: 50px; text-align: center; cursor: {{ estDesactive ? 'not-allowed' : 'pointer' }};{{ estDesactive ? ' opacity: 0.5; background-color: #f5f5f5;' : '' }}">
 	<i class="fa fa-cloud-upload text-warning fs-1 mb-3"></i>
 	<br>
 	Glissez et déposez vos fichiers PDF ici, ou cliquez pour sélectionner un ou plusieurs fichiers PDF.
 	<br>
 	<br>
-	<button type="button" id="upload-btn-{{ id }}" class="btn btn-primary mt-2">Sélectionner des fichiers</button>
+	<button type="button" id="upload-btn-{{ id }}" class="btn btn-primary mt-2" {{ estDesactive ? 'disabled' : '' }}>Sélectionner des fichiers</button>
 </div>
 
 {{ form_widget(form[fieldName], {'attr': {'style': 'position: absolute; left: -9999px; opacity: 0;'}}) }}

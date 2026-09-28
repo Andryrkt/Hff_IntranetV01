@@ -211,6 +211,7 @@ class DdpType extends AbstractType
             ])
             ->add('pieceJoint03', FileUploadType::class, [ // BC client externe / BC client magasin
                 'label' => 'Pièce Jointe 03 (PDF)',
+                'disabled' => true, // champ désactivé : toute valeur soumise est ignorée
                 'allowed_mime_types' => ['application/pdf'],
                 'attr' => ['accept' => 'application/pdf'],
                 'max_size' => '5M'
