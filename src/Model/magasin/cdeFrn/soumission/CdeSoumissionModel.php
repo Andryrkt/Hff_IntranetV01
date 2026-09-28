@@ -2,12 +2,12 @@
 
 namespace App\Model\magasin\cdeFrn\soumission;
 
-use App\Dto\Magasin\Commande\Soumission\BcSoumisMagasinDTO;
-use App\Model\Informix\InsertQueryBuilder;
 use App\Model\Model;
-use App\Dto\Magasin\Commande\Soumission\CommandeSoumissionDTO;
-use App\Factory\magasin\Commande\Soumission\CommandeSoumissionFactory;
+use App\Model\Informix\InsertQueryBuilder;
 use App\Model\Informix\SelectWhereCondition;
+use App\Dto\Magasin\cdeFrn\CommandeSoumissionDTO;
+use App\Dto\Magasin\Commande\Soumission\BcSoumisMagasinDTO;
+use App\Factory\magasin\cdeFrn\soumission\CommandeSoumissionFactory;
 
 class CdeSoumissionModel extends Model
 {
