@@ -83,13 +83,8 @@ class CdeSoumissionModel extends Model
                 WHERE atab_code = fcde_typcde AND atab_nom  = 'TOP'
             ) AS type_cde,
             fcde_numfou AS num_frn,
-            (
-                SELECT TRIM(fbse_nomfou)
-                FROM {$this->ipsFrnBse}, {$this->ipsFrnFou}
-                WHERE  fbse_numfou = fcde_numfou
-                AND    fbse_numfou = ffou_numfou
-                AND    ffou_soc    = fcde_soc
-            ) AS nom_frn,
+            TRIM(fbse_nomfou) AS nom_frn,
+            TRIM(fbse_devise) AS devise,
             (
                 SELECT TRIM(asuc_lib)
                 FROM {$this->ipsAgrSucc}
@@ -179,14 +174,17 @@ class CdeSoumissionModel extends Model
             fcdl_pxach * (1 - (fcdl_txrem / 100)) AS prix_unit,
             fcdl_qte * fcdl_pxach * (1 - (fcdl_txrem / 100)) AS montant,
             fcdl_qte * abse_poids AS poids_total
-        FROM {$this->ipsFrnCdl}, {$this->ipsFrnCde}, {$this->ipsArtBse}
-        WHERE fcdl_numcde = fcde_numcde
-            AND fcde_numcde = '$numCde'
-            AND fcdl_constp = abse_constp
-            AND fcdl_refp   = abse_refp
+        FROM {$this->ipsFrnCde}, {$this->ipsFrnCdl}, {$this->ipsArtBse}, {$this->ipsFrnBse}, {$this->ipsFrnFou}
+        WHERE   fcde_numcde = '$numCde'
+            AND fcde_soc    = '$codeSociete'
+            AND fcde_numcde = fcdl_numcde
             AND fcde_soc    = fcdl_soc
             AND fcde_succ   = fcdl_succ
-            AND fcde_soc    = '$codeSociete'
+            AND fcdl_constp = abse_constp
+            AND fcdl_refp   = abse_refp
+            AND fcde_numfou = fbse_numfou
+            AND fbse_numfou = ffou_numfou
+            AND fcde_soc    = ffou_soc
         ORDER BY fcdl_ref";
 
         $result = $this->connect->executeQuery($statement);
@@ -306,5 +304,4 @@ class CdeSoumissionModel extends Model
 
         return $grouped;
     }
-
 }
