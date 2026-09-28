@@ -42,6 +42,7 @@ class BonApayerController extends Controller
         $dtos = DemandePaiementMapper::mapInverse($ddp);
 
         return $this->render('da/ddp/bon_a_payer.html.twig', [
+            'appro' => $appro,
             'dtos' => $dtos,
             'form' => $form->createView()
         ]);

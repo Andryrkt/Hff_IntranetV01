@@ -39,6 +39,12 @@ class SecurityService
      */
     private ?string $routeCourrante = null;
 
+    /**
+     * Paramètres de la route courante (ex: ['typeDdp' => '2']), sans les
+     * attributs internes (_route, _controller...).
+     */
+    private array $routeParamsCourants = [];
+
     private ?bool $estAdmin = null;
     private ?bool $estAtelier = null;
     private ?bool $estCreateurDaDirecte = null;
@@ -55,6 +61,11 @@ class SecurityService
     public function getRouteCourrante(): ?string
     {
         return $this->routeCourrante;
+    }
+
+    public function getRouteParamsCourants(): array
+    {
+        return $this->routeParamsCourants;
     }
 
     /**
@@ -81,6 +92,11 @@ class SecurityService
 
         // Mémoriser la route pour les appels depuis les contrôleurs
         $this->routeCourrante = $nomRoute;
+        $this->routeParamsCourants = array_filter(
+            $request->attributes->all(),
+            fn($valeur, $cle) => strpos((string) $cle, '_') !== 0 && is_scalar($valeur),
+            ARRAY_FILTER_USE_BOTH
+        );
 
         // Route publique ou Route Export → laisse passer sans aucun contrôle
         if ($this->estRoutePublique($nomRoute) || $this->estRouteExport($nomRoute)) {

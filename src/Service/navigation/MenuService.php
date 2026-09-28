@@ -389,32 +389,65 @@ class MenuService
     //  NAVIGATION — recherche du chemin vers une route (breadcrumb)
     // =========================================================================
 
-    public function findChemin(string $nomRoute): array
+    /**
+     * Cherche le chemin (module > item > sous-item) de la route dans le menu.
+     *
+     * Plusieurs entrées peuvent partager la même route avec des paramètres
+     * différents (ex: new_ddp avec typeDdp=1 "à l'avance" / typeDdp=2 "après
+     * arrivage") : on retient en priorité l'entrée dont les routeParams
+     * correspondent à $routeParams, sinon la première entrée de la route.
+     */
+    public function findChemin(string $nomRoute, array $routeParams = []): array
     {
+        $premierCheminTrouve = [];
+
         foreach ($this->getMenuStructure() as $module) {
             foreach ($module['items'] as $item) {
                 if (($item['link'] ?? null) === $nomRoute) {
-                    return [
+                    $chemin = [
                         ['title' => $module['title'], 'icon' => $module['icon']],
                         ['title' => $item['title'],   'icon' => $item['icon'], 'route' => $nomRoute],
                     ];
+                    if ($this->routeParamsCorrespondent($item['routeParams'] ?? [], $routeParams)) {
+                        return $chemin;
+                    }
+                    $premierCheminTrouve = $premierCheminTrouve ?: $chemin;
                 }
 
                 if (!empty($item['subitems'])) {
                     foreach ($item['subitems'] as $subitem) {
                         if (($subitem['link'] ?? null) === $nomRoute) {
-                            return [
+                            $chemin = [
                                 ['title' => $module['title'], 'icon' => $module['icon']],
                                 ['title' => $item['title'],   'icon' => $item['icon']],
                                 ['title' => $subitem['title'], 'icon' => $subitem['icon'], 'route' => $nomRoute],
                             ];
+                            if ($this->routeParamsCorrespondent($subitem['routeParams'] ?? [], $routeParams)) {
+                                return $chemin;
+                            }
+                            $premierCheminTrouve = $premierCheminTrouve ?: $chemin;
                         }
                     }
                 }
             }
         }
 
-        return [];
+        return $premierCheminTrouve;
+    }
+
+    /**
+     * Vrai si chaque paramètre défini sur l'entrée de menu a la même valeur
+     * dans les paramètres de la route courante (comparaison en chaîne : les
+     * paramètres d'URL arrivent en string, ceux du menu en int).
+     */
+    private function routeParamsCorrespondent(array $paramsMenu, array $paramsCourants): bool
+    {
+        foreach ($paramsMenu as $cle => $valeur) {
+            if (!array_key_exists($cle, $paramsCourants) || (string) $paramsCourants[$cle] !== (string) $valeur) {
+                return false;
+            }
+        }
+        return true;
     }
 
     // =========================================================================

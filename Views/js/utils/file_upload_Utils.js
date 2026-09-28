@@ -106,6 +106,7 @@ let fileStore = [];
 
 export function initializeFileHandlersMultiple(idSuffix, fileInput) {
   if (!fileInput) return; // Si l'input n'existe pas, on ne fait rien
+  if (fileInput.disabled) return; // Champ désactivé : ni clic ni glisser-déposer
 
   const fileList = document.querySelector(`#file-list-${idSuffix}`);
   const uploadBtn = document.getElementById(`upload-btn-${idSuffix}`);
