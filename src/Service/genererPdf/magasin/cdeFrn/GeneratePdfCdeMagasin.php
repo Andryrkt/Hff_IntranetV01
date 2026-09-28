@@ -4,9 +4,9 @@ namespace App\Service\genererPdf\magasin\cdeFrn;
 
 use TCPDF;
 use App\Service\genererPdf\GeneratePdf;
-use App\Dto\Magasin\Commande\Soumission\CommandeSoumissionDTO;
-use App\Dto\Magasin\Commande\Soumission\CommandeSoumissionLigneDTO;
-use App\Dto\Magasin\Commande\Soumission\CommandeSoumissionDetailDTO;
+use App\Dto\Magasin\cdeFrn\CommandeSoumissionDTO;
+use App\Dto\Magasin\cdeFrn\CommandeSoumissionLigneDTO;
+use App\Dto\Magasin\cdeFrn\CommandeSoumissionDetailDTO;
 
 class GeneratePdfCdeMagasin extends GeneratePdf
 {
