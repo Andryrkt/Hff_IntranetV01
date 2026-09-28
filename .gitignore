@@ -23,3 +23,5 @@ var
 Views/js/utils/config.js
 *.code-workspace
 .idea/
+
+.htaccess
