@@ -72,6 +72,10 @@ class DdpFactory
     {
         $dto->numeroDdp = $this->numeroGenerateur->genererNumeroDdp();
         $dto->dateDemande = new \DateTime();
+        // RIB connus du fournisseur, pour signaler un RIB mis à jour sur le PDF
+        if (!empty($dto->numeroFournisseur)) {
+            $dto->ribsFournisseurAncien = $this->ddpModel->getRibsFournisseur($dto->numeroFournisseur);
+        }
         [$nomEtCheminFichiersEnregistrer, $nomFichierTelecharger,  $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $dto);
 
 

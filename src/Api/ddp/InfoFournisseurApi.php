@@ -73,11 +73,11 @@ class InfoFournisseurApi extends Controller
         // $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
 
         // Code Société de l'utilisateur
-            $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
-            $cdeFrnRepository = $this->getEntityManager()->getRepository(CdefnrSoumisAValidation::class);
-            $numCdeValides = $cdeFrnRepository->findValideesDerniereVersion($numeroFournisseur);
-            $numCdeValides = array_map(fn($el) => "'".$el->getNumCdeFournisseur()."'", $numCdeValides);
-            $numCdeValides = implode(',', $numCdeValides);
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+        $cdeFrnRepository = $this->getEntityManager()->getRepository(CdefnrSoumisAValidation::class);
+        $numCdeValides = $cdeFrnRepository->findValideesDerniereVersion($numeroFournisseur);
+        $numCdeValides = array_map(fn($el) => "'" . $el->getNumCdeFournisseur() . "'", $numCdeValides);
+        $numCdeValides = implode(',', $numCdeValides);
         $numCdes = $this->demandePaiementModel->getCommandeReceptionnee($numeroFournisseur, $codeSociete, $typeId, $numCdeValides);
 
 
@@ -246,22 +246,24 @@ class InfoFournisseurApi extends Controller
     {
         $dwCommandeRepository = $this->getEntityManager()->getRepository(DwCommande::class);
 
-        $numCdes = array_values(array_unique(array_filter(
-            array_map('trim', explode(',', $numeroCommande)),
-            fn ($numCde) => $numCde !== ''
-        )));
-
         $fichiers = [];
-        foreach ($dwCommandeRepository->findPathsByNumeroCdes($numCdes) as $result) {
-            if (empty($result['path'])) {
+        foreach (explode(',', $numeroCommande) as $numCde) {
+            $numCde = trim($numCde);
+            if ($numCde === '') {
                 continue;
             }
 
-            $fichiers[] = [
-                'numeroCde'  => $result['numeroCde'],
-                'path'       => $result['path'],
-                'nomFichier' => basename(str_replace('\\', '/', $result['path'])),
-            ];
+            foreach ($dwCommandeRepository->findPathByNumeroCde($numCde) as $result) {
+                if (empty($result['path'])) {
+                    continue;
+                }
+
+                $fichiers[] = [
+                    'numeroCde'  => $result['numeroCde'],
+                    'path'       => $result['path'],
+                    'nomFichier' => basename(str_replace('\\', '/', $result['path'])),
+                ];
+            }
         }
 
         header("Content-type:application/json");

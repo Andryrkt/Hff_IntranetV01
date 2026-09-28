@@ -28,6 +28,8 @@ export class DemandePaiementManager {
     // pour un couple fournisseur/type donné) : évite de la relancer à chaque
     // sélection de facture/commande alors que plusieurs écrans en dépendent.
     this.commandesParFournisseurCache = new Map();
+    // Spinners affichés sous les selects (factures/commandes) pendant le chargement.
+    this.spinnersSelect = new Map();
     // Montant calculé côté serveur (commande/facture sélectionnée), utilisé
     // uniquement pour comparaison : l'utilisateur saisit lui-même le montant.
     this.montantAttendu = null;
@@ -155,13 +157,19 @@ export class DemandePaiementManager {
     this.elements.numFrnInput.value = item.num_fournisseur;
     this.elements.beneficiaireInput.value = item.nom_fournisseur;
     this.elements.deviseInput.value = item.devise;
+    // Champ vide (pas "-") quand le RIB est inconnu : le champ est
+    // "required: false", mais RibType valide sa valeur par une regex qui
+    // exige un chiffre au début ; "-" échouait cette validation et
+    // bloquait silencieusement toute la soumission du formulaire.
     this.elements.ribFrnInput.value =
       item.rib && item.rib != 0 && item.rib.trim() !== "XXXXXXXXXXX"
         ? item.rib
-        : "-";
+        : "";
 
     // Déclencher l'événement input pour formater et valider le RIB
-    this.elements.ribFrnInput.dispatchEvent(new Event("input", { bubbles: true }));
+    this.elements.ribFrnInput.dispatchEvent(
+      new Event("input", { bubbles: true }),
+    );
 
     if (this.typeId == 2) {
       this.listeFacture(item.num_fournisseur, this.typeId);
@@ -194,21 +202,70 @@ export class DemandePaiementManager {
   }
 
   async listeCommande(numFournisseur, id_type) {
+    this.toggleChargementSelect(this.elements.numCommandeInput, true);
     try {
-      const commandes = await this.getCommandesFournisseur(numFournisseur, id_type);
+      const commandes = await this.getCommandesFournisseur(
+        numFournisseur,
+        id_type,
+      );
       this.ajoutDesOptions(this.elements.numCommandeInput, commandes.numCdes);
     } catch (error) {
       console.error("Erreur lors de la récupération des commandes :", error);
+    } finally {
+      this.toggleChargementSelect(this.elements.numCommandeInput, false);
     }
   }
 
   async listeCommande2(numFournisseur, id_type) {
+    this.toggleChargementSelect(this.elements.numCommandeInput, true);
     try {
-      const commandes = await this.getCommandesFournisseur(numFournisseur, id_type);
+      const commandes = await this.getCommandesFournisseur(
+        numFournisseur,
+        id_type,
+      );
       const listeCommande = this.transformTab(commandes.listeGcot, "Numero_PO");
       this.ajoutDesOptions(this.elements.numCommandeInput, listeCommande);
     } catch (error) {
       console.error("Erreur lors de la récupération des commandes :", error);
+    } finally {
+      this.toggleChargementSelect(this.elements.numCommandeInput, false);
+    }
+  }
+
+  /**
+   * Affiche (ou retire) un spinner sous un select2 et le désactive pendant
+   * le chargement de ses options.
+   */
+  toggleChargementSelect(selectElement, enChargement) {
+    if (!selectElement) return;
+
+    const spinnerExistant = this.spinnersSelect.get(selectElement);
+    if (enChargement && !spinnerExistant) {
+      // Mémorise l'état "disabled" d'origine (ex: n° commande désactivé
+      // côté formulaire pour le type 2) pour le restaurer après chargement.
+      selectElement.dataset.disabledInitial = selectElement.disabled
+        ? "1"
+        : "0";
+      const spinner = document.createElement("div");
+      spinner.className =
+        "d-flex align-items-center gap-2 text-muted small mt-1";
+      spinner.innerHTML = `
+        <div class="spinner-border spinner-border-sm text-primary" role="status">
+          <span class="visually-hidden">Chargement...</span>
+        </div>
+        <span>Chargement des données...</span>
+      `;
+      const conteneurSelect2 = $(selectElement).next(".select2-container")[0];
+      (conteneurSelect2 || selectElement).after(spinner);
+      this.spinnersSelect.set(selectElement, spinner);
+      $(selectElement).prop("disabled", true);
+    } else if (!enChargement && spinnerExistant) {
+      spinnerExistant.remove();
+      this.spinnersSelect.delete(selectElement);
+      $(selectElement).prop(
+        "disabled",
+        selectElement.dataset.disabledInitial === "1",
+      );
     }
   }
 
@@ -241,6 +298,7 @@ export class DemandePaiementManager {
   }
 
   async listeFacture(numFournisseur, typeId) {
+    this.toggleChargementSelect(this.elements.numFactureInput, true);
     try {
       this.elements.numFactureInput.innerHTML = "";
       this.elements.numCommandeInput.innerHTML = "";
@@ -248,7 +306,10 @@ export class DemandePaiementManager {
       this.montantAttendu = null;
       this.verifierMontant();
 
-      const commandes = await this.getCommandesFournisseur(numFournisseur, typeId);
+      const commandes = await this.getCommandesFournisseur(
+        numFournisseur,
+        typeId,
+      );
       const listeFacture = this.transformTab(
         commandes.listeGcot,
         "Numero_Facture",
@@ -256,6 +317,8 @@ export class DemandePaiementManager {
       this.ajoutDesOptions(this.elements.numFactureInput, listeFacture);
     } catch (error) {
       console.error("Erreur lors de la récupération des factures :", error);
+    } finally {
+      this.toggleChargementSelect(this.elements.numFactureInput, false);
     }
   }
 
@@ -265,7 +328,10 @@ export class DemandePaiementManager {
 
     const numFacs = $(this.elements.numFactureInput).val();
     try {
-      const commandes = await this.getCommandesFournisseur(numFournisseur, typeId);
+      const commandes = await this.getCommandesFournisseur(
+        numFournisseur,
+        typeId,
+      );
       const facturesCorrespondantes = commandes.listeGcot.filter((f) =>
         numFacs.includes(f.Numero_Facture),
       );
@@ -654,7 +720,10 @@ export class DemandePaiementManager {
   }
 
   async updateCommandesFournisseur(numFournisseur, typeId) {
-    const commandes = await this.getCommandesFournisseur(numFournisseur, typeId);
+    const commandes = await this.getCommandesFournisseur(
+      numFournisseur,
+      typeId,
+    );
 
     const $tableauContainer = this.elements.invoiceTableContainer;
     $tableauContainer.innerHTML = "";

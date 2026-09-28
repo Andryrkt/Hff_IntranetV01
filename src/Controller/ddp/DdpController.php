@@ -6,7 +6,6 @@ use App\Constants\ddp\TypeDemandePaiementConstants;
 use App\Controller\Controller;
 use App\Controller\Traits\PdfConversionTrait;
 use App\Dto\ddp\DdpDto;
-use App\Entity\cde\CdefnrSoumisAValidation;
 use App\Factory\ddp\DdpFactory;
 use App\Form\ddp\DdpType;
 use App\Model\ddp\DemandePaiementModel;
@@ -93,10 +92,17 @@ class DdpController extends Controller
             $this->enregistrementSurBd($dto);
             // Enregistrement des fichiers, generation du PDF, fusion des fichiers et envoi dans DOCUWARE
             $this->traitementDeFichier($dto);
-            // TODO: MOdification des données dans des base de données
 
             /** HISTORISATION */
-            $this->historiqueOperation->sendNotificationSoumission('Le document a été généré avec succès', $dto->numeroDdp, 'da_bon_a_payer', true);
+            $this->historiqueOperation->sendNotificationSoumission(
+                'Le document a été généré avec succès',
+                $dto->numeroDdp,
+                'da_bon_a_payer',
+                true,
+                null,
+                'devis_magasin_search',
+                ['appro' => 0]
+            );
         }
     }
 
@@ -139,22 +145,8 @@ class DdpController extends Controller
 
     private function traitementDeFichier(DdpDto $dto): string
     {
-        $numCdes = [];
-        $numeroCommandes = '';
-        // Code Société de l'utilisateur
-        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
-
-        if (!empty($dto->numeroFournisseur) && $dto->numeroFournisseur !== '-') {
-            // recupère les commandes valides pour le fournisseur et le type de DDP à l'avance
-            $cdeFrnRepository = $this->getEntityManager()->getRepository(CdefnrSoumisAValidation::class);
-            $numCdeValides = $cdeFrnRepository->findValideesDerniereVersion($dto->numeroFournisseur);
-            $numCdeValides = array_map(fn($el) => "'" . $el->getNumCdeFournisseur() . "'", $numCdeValides);
-            $numCdeValides = implode(',', $numCdeValides);
-            $numCdes = $this->demandePaiementModel->getCommandeReceptionnee($dto->numeroFournisseur, $codeSociete, $dto->typeDdp->getId(), $numCdeValides);
-            $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
-            $numFacString =  TableauEnStringService::TableauEnString(',', $dto->numeroFacture);
-            $numeroCommandes = $this->demandePaiementModel->getNumCommande($dto->numeroFournisseur, $numCdesString, $numFacString);
-        }
+        // NB : pour le type "après arrivage", $dto->numeroCommande est déjà
+        // renseigné (à partir des factures) par DdpFactory::apresSoumission().
 
         /** TRAITEMENT FICHIER  AUTRE DOCUMENT ET BC client externe / BC client magasin*/
         if ($dto->pieceJoint04 !== null) {
@@ -175,10 +167,6 @@ class DdpController extends Controller
         $nomEtCheminFichiersEnregistrer = $dto->nomEtCheminFichiersEnregistrer;
         $nomAvecCheminFichier = $dto->nomAvecCheminFichier;
         $nomFichier = $dto->nomFichier;
-        if ($dto->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE) {
-            $numeroCommandes = [];
-            $dto->numeroCommande = $numeroCommandes;
-        }
         $dto->lesFichiers = $dto->getToutesLesNomFichiers();
         // generation de la page de garde DDP
         $generatePdfDdp = $this->pageDeGarde($dto, $nomAvecCheminFichier);
