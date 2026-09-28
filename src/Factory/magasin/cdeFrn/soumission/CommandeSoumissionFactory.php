@@ -35,7 +35,7 @@ class CommandeSoumissionFactory
         $dto->responsable     = $email;
         $dto->libelleAgence   = $headerInfo['agence_lib'];
         $dto->libelleService  = $headerInfo['service_lib'];
-        $dto->lignes          = $this->hydrateLignes($data, $detailsData);
+        $this->hydrateLignes($dto, $data, $detailsData);
 
         return $dto;
     }
@@ -86,11 +86,13 @@ class CommandeSoumissionFactory
      * @param array<int,array{num_cde:string,date_cde:string,type_cde:string,num_frn:string,nom_frn:string,agence_lib:string,service_lib:string,cst:string,refp:string,desi:string,qte_cde:string,package_qty:string,prix_unit:string,montant:string,poids_total:string,av_bt:string,fms:string,vte_der_mois:string,nbr_vente:string,stock_dispo:string,stock_min:string,stock_max:string,npr:string}> $data
      * @param array<string,array{cst:string,refp:string,lib:string,num_doc:string,num_cli:string,nom_cli:string,rmq:string,datepla:string}> $detailsData
      * 
-     * @return list<CommandeSoumissionLigneDTO>
+     * @return void
      */
-    public function hydrateLignes(array $data, array $detailsData): array
+    public function hydrateLignes(CommandeSoumissionDTO $commandeSoumissionDTO, array $data, array $detailsData): void
     {
-        $lignes = [];
+        $lignes       = [];
+        $poidsTotal   = 0.00;
+        $montantTotal = 0.00;
 
         foreach ($data as $key => $ligne) {
             $dtoLigne = new CommandeSoumissionLigneDTO;
@@ -119,10 +121,14 @@ class CommandeSoumissionFactory
 
             $dtoLigne->details        = $this->hydrateDetails($detailsData["$cst|$refp"] ?? []);
 
-            $lignes[] = $dtoLigne;
+            $lignes[]       = $dtoLigne;
+            $poidsTotal    += $dtoLigne->poids;
+            $montantTotal  += $dtoLigne->prixTotal;
         }
 
-        return $lignes;
+        $commandeSoumissionDTO->lignes       = $lignes;
+        $commandeSoumissionDTO->poidsTotal   = $poidsTotal;
+        $commandeSoumissionDTO->montantTotal = $montantTotal;
     }
 
     /**

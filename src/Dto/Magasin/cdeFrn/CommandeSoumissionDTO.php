@@ -14,6 +14,8 @@ class CommandeSoumissionDTO
     public ?string    $responsable     = null;
     public ?string    $libelleAgence   = null;
     public ?string    $libelleService  = null;
+    public float      $poidsTotal      = 0.00;
+    public float      $montantTotal    = 0.00;
 
     /** @var list<CommandeSoumissionLigneDTO> */
     public array      $lignes          = [];
