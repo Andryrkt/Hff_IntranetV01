@@ -17,7 +17,7 @@ class RentalRolloutController extends Controller
     public function rentalRollout()
     {
         return $this->render("iframe/iframe.html.twig", [
-            'url'       => IframeConstant::LINK["rental-rollout"],
+            'url'       => IframeConstant::getLinkIframe("rental-rollout", $this->getUserName()),
             'pageTitle' => "RENTAL Rollout",
         ]);
     }
@@ -28,7 +28,7 @@ class RentalRolloutController extends Controller
     public function geRollout()
     {
         return $this->render("iframe/iframe.html.twig", [
-            'url'       => IframeConstant::LINK["ge-rollout"],
+            'url'       => IframeConstant::getLinkIframe("ge-rollout", $this->getUserName()),
             'pageTitle' => "GE Rollout",
         ]);
     }
