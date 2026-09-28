@@ -25,7 +25,7 @@ class GenerateCommandeFournisseurApi extends Controller
 
         try {
             // 2. Récupération des données du document
-            $commandeSoumissionDto = (new CdeSoumissionModel())->findInfoCommande($numCde, $this->getUserMail(), $_ENV["SUC_NEG"], $this->getSecurityService()->getCodeSocieteUser());
+            $commandeSoumissionDto = (new CdeSoumissionModel())->findInfoCommande($numCde, $this->getUserMail(), $this->getSecurityService()->getCodeSocieteUser());
 
             if ($commandeSoumissionDto === null) {
                 return new JsonResponse([
