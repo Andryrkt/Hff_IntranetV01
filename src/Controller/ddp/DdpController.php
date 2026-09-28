@@ -92,7 +92,6 @@ class DdpController extends Controller
             $this->enregistrementSurBd($dto);
             // Enregistrement des fichiers, generation du PDF, fusion des fichiers et envoi dans DOCUWARE
             $this->traitementDeFichier($dto);
-            // TODO: MOdification des données dans des base de données
 
             /** HISTORISATION */
             $this->historiqueOperation->sendNotificationSoumission(
