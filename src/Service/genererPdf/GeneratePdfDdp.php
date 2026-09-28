@@ -354,7 +354,7 @@ class GeneratePdfDdp extends GeneratePdf
         $pdf->Line($pdf->GetX() + 1, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('Liste des pièces jointes') + 1, $pdf->GetY() - 2.5);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->MultiCell(0, 10, implode(";", $this->removePdfExtension($dto->lesFichiers)), 0, 'L', 0, 1); // TO DO: valeur de "Liste des pièces jointes" (remplacer 'PJ1, PJ2, ...' par sa valeur)
+        $pdf->MultiCell(0, 10, implode(";", $this->nomsFichiersSansExtension($dto->lesFichiers)), 0, 'L', 0, 1); // valeur de "Liste des pièces jointes"
 
         $pdf->Ln(5);
 
@@ -371,5 +371,24 @@ class GeneratePdfDdp extends GeneratePdf
             mkdir($directory, 0777, true);
         }
         $pdf->Output($cheminDeFichier, 'F');
+    }
+
+    /**
+     * Noms des pièces jointes à afficher sur la page de garde : uniquement le nom
+     * du fichier (sans dossier, ex: "PDV\xxx.pdf" → "xxx") et sans extension,
+     * quelle qu'elle soit (.pdf, .PDF, .jpg...). Doublons et vides retirés.
+     */
+    private function nomsFichiersSansExtension(array $fichiers): array
+    {
+        $noms = [];
+        foreach ($fichiers as $fichier) {
+            $nom = basename(str_replace('\\', '/', (string) $fichier));
+            $nom = pathinfo($nom, PATHINFO_FILENAME);
+            if ($nom !== '') {
+                $noms[] = $nom;
+            }
+        }
+
+        return array_values(array_unique($noms));
     }
 }

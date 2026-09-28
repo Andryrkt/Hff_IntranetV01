@@ -164,18 +164,42 @@ class DdpController extends Controller
         }
 
         /** ENREGISTREMENT DU FICHIER */
-        $nomEtCheminFichiersEnregistrer = $dto->nomEtCheminFichiersEnregistrer;
         $nomAvecCheminFichier = $dto->nomAvecCheminFichier;
         $nomFichier = $dto->nomFichier;
+        // fichiers distants copiés (192.168.0.15) + fichiers téléversés + fichiers de commande DW
         $dto->lesFichiers = $dto->getToutesLesNomFichiers();
         // generation de la page de garde DDP
         $generatePdfDdp = $this->pageDeGarde($dto, $nomAvecCheminFichier);
-        // fusion des PDF (page de garde DDP+ autres documents)
-        $this->fusionDesPdf($nomEtCheminFichiersEnregistrer, [], $nomAvecCheminFichier);
+        // fusion des PDF : page de garde DDP + TOUS les fichiers du dossier DDP
+        $this->fusionDesPdf($this->cheminsFichiersAFusionner($dto), [], $nomAvecCheminFichier);
         // envoi du PDF final dans DOCUWARE
         $generatePdfDdp->copyToDwDdp($nomFichier, $dto->numeroDdp);
 
         return $nomFichier;
+    }
+
+    /**
+     * Chemins complets des fichiers à fusionner derrière la page de garde, dans
+     * l'ordre de $dto->lesFichiers (fichiers distants copiés, fichiers
+     * téléversés, fichiers de commande DW), tous situés dans le dossier du DDP.
+     * Un fichier absent (ex: copie distante échouée) est ignoré pour ne pas
+     * faire échouer toute la fusion.
+     */
+    private function cheminsFichiersAFusionner(DdpDto $dto): array
+    {
+        $dossierDdp = rtrim($_ENV['BASE_PATH_FICHIER'], '/\\') . '/ddp/' . $dto->numeroDdp . '/';
+
+        $chemins = [];
+        foreach ($dto->lesFichiers as $nomFichier) {
+            $chemin = $dossierDdp . $nomFichier;
+            if (is_file($chemin)) {
+                $chemins[] = $chemin;
+            } else {
+                error_log("DDP {$dto->numeroDdp} : fichier absent, non fusionné : {$chemin}");
+            }
+        }
+
+        return array_values(array_unique($chemins));
     }
 
     private function fusionDesPdf(array $nomEtCheminFichiersEnregistrer, array $fichierChoisiAvecChemins, string $nomAvecCheminFichier): void
