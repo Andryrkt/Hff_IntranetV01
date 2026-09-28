@@ -15,6 +15,8 @@ class CommandeSoumissionDetailDTO
     {
         $text = $this->refClient;
 
+        if (!$text) return "-";
+
         return mb_strlen($text, 'UTF-8') > $max
             ? mb_substr($text, 0, $max - 3, 'UTF-8') . '...'
             : $text;
@@ -22,7 +24,10 @@ class CommandeSoumissionDetailDTO
 
     public function getClient(): string
     {
-        return "{$this->numClient} - {$this->nomClient}";
+        $numClient = $this->numClient ?? "";
+        $nomClient = $this->nomClient ?? "";
+
+        return "{$numClient} - {$nomClient}";
     }
 
     public function getDatePlanningFormatted(): string
