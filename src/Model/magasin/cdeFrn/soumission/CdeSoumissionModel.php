@@ -192,7 +192,6 @@ class CdeSoumissionModel extends Model
 
         if (empty($data)) return null;
 
-        // --- Extraction des couples (cst, refp) distincts ---
         $pairs = [];
         foreach ($data as $row) {
             $cst  = trim($row['cst']);
@@ -200,41 +199,42 @@ class CdeSoumissionModel extends Model
             $pairs["$cst|$refp"] = ['cst' => $cst, 'refp' => $refp];
         }
 
-        // --- Requête 2 en une seule fois (batch) ---
-        $detailsData = $this->findDetailsForPairs($numCde, $pairs);
+        $detailsParPiece = $this->findLignesSavEtVenteNegoceParPieces($numCde, $pairs);
 
-        return (new CommandeSoumissionFactory)->hydrate($data, $detailsData, $userMail);
+        return (new CommandeSoumissionFactory)->hydrate($data, $detailsParPiece["lignesParPiece"], $detailsParPiece["ordresReparationValides"], $userMail);
     }
 
-    /** 
-     * Méthode pour retourner en une seule requête tous les détails (SAV + VTE NEG) pour l'ensemble des couples (cst, refp) trouvés dans la requête de `findInfoCommande`.
-     * 
-     * @param string $numCde
-     * @param array<string,array{cst:string,refp:string}> $pairs
-     * 
-     * @return array<string,array>
+    /**
+     * Retourne, en une seule requête, toutes les lignes liées à une commande fournisseur
+     * (ordres de réparation SAV + ventes négoce) pour un ensemble de pièces.
+     *
+     * Une pièce est identifiée par le couple (constructeur, référence).
+     *
+     * @param string $numCde  Numéro de la commande fournisseur
+     * @param array<string,array{cst:string,refp:string}> $piecesRecherchees Couples (cst, refp) issus de `findInfoCommande`
+     *
+     * @return array{ordresReparationValides:list<string>,lignesParPiece:array<string,list<array>>}
      */
-    private function findDetailsForPairs(string $numCde, array $pairs): array
+    private function findLignesSavEtVenteNegoceParPieces(string $numCde, array $piecesRecherchees): array
     {
-        if (empty($pairs)) return [];
+        if (empty($piecesRecherchees)) return ['ordresReparationValides' => [], 'lignesParPiece' => []];
 
-        // Regroupement des refp par cst (plus sargable qu'une concaténation)
-        $byCst = [];
-        foreach ($pairs as ['cst' => $cst, 'refp' => $refp]) {
-            $byCst[$cst][] = $refp;
+        $refsParConstructeur = [];
+        foreach ($piecesRecherchees as ['cst' => $cst, 'refp' => $refp]) {
+            $refsParConstructeur[$cst][] = $refp;
         }
 
-        $conditionsOR = []; // conditions pour l'OR
-        foreach ($byCst as $cst => $refps) {
-            $conditionsOR[] = "(slor_constp = '$cst' {$this->selectCond->in('slor_refp',$refps)})";
+        $conditionsSav = [];
+        foreach ($refsParConstructeur as $cst => $refps) {
+            $conditionsSav[] = "(slor_constp = '$cst' {$this->selectCond->in('slor_refp',$refps)})";
         }
-        $whereOr = implode(' OR ', $conditionsOR);
+        $whereSav = implode(' OR ', $conditionsSav);
 
-        $conditionsNeg = []; // conditiosn pour la vente NEG
-        foreach ($byCst as $cst => $refps) {
-            $conditionsNeg[] = "(nlig_constp = '$cst' {$this->selectCond->in('nlig_refp',$refps)})";
+        $conditionsNegoce = [];
+        foreach ($refsParConstructeur as $cst => $refps) {
+            $conditionsNegoce[] = "(nlig_constp = '$cst' {$this->selectCond->in('nlig_refp',$refps)})";
         }
-        $whereOrNeg = implode(' OR ', $conditionsNeg);
+        $whereNegoce = implode(' OR ', $conditionsNegoce);
 
         $statement = "SELECT 
             TRIM(slor_constp) AS cst, 
@@ -269,7 +269,7 @@ class CdeSoumissionModel extends Model
         WHERE   slor_numcf  = '$numCde'
             AND slor_natcm  = 'C'
             AND seor_serv   = 'SAV'
-            AND ({$whereOr})
+            AND ({$whereSav})
 
         UNION
 
@@ -290,18 +290,52 @@ class CdeSoumissionModel extends Model
         JOIN {$this->ipsNegLig}
             ON nent_numcde = nlig_numcde
         WHERE nlig_numcf  = '$numCde'
-            AND ({$whereOrNeg})";
+            AND ({$whereNegoce})";
 
         $result = $this->connect->executeQuery($statement);
         $rows   = $this->connect->fetchResults($result);
 
-        $grouped = [];
+        $lignesParPiece = [];
+        $numerosOR      = [];
+
         foreach ($rows as $row) {
             $cst  = trim($row['cst']);
             $refp = trim($row['refp']);
-            $grouped["$cst|$refp"][] = $row;
+            $lignesParPiece["$cst|$refp"][] = $row;
+
+            if (trim($row['rmq']) === 'OR') $numerosOR[] = $row['num_doc'];
         }
 
-        return $grouped;
+        return [
+            'ordresReparationValides' => $this->filterOrdresReparationValides($numerosOR),
+            'lignesParPiece'          => $lignesParPiece,
+        ];
+    }
+
+    /**
+     * Filtre une liste de numéros d'OR pour ne conserver que ceux dont la
+     * DERNIÈRE version soumise à validation a le statut « Validé ».
+     *
+     * @param list<string> $numerosOR Numéros d'ordres de réparation à contrôler
+     *
+     * @return list<string> ORs validés (liste vide si aucun)
+     */
+    private function filterOrdresReparationValides(array $numerosOR): array
+    {
+        if (empty($numerosOR)) return [];
+
+        $sql = "WITH derniere_version AS (
+                SELECT numeroOR, MAX(numeroVersion) AS max_version 
+                FROM ors_soumis_a_validation
+                GROUP BY numeroOR
+            )
+            SELECT osav.numeroOR 
+            FROM ors_soumis_a_validation osav
+            INNER JOIN derniere_version dv 
+                ON osav.numeroOR = dv.numeroOR
+                AND osav.numeroVersion = dv.max_version
+            WHERE osav.statut = 'Validé' {$this->selectCond->in('osav.numeroOR',$numerosOR)}";
+
+        return $this->retournerResult28($sql);
     }
 }
