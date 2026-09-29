@@ -17,6 +17,7 @@ class CdeSoumissionModel extends Model
      * Noms de tables utilisées 
      ***********************************************/
     private string $ipsAgrTab;
+    private string $ipsAgrDev;
     private string $ipsFrnBse;
     private string $ipsFrnFou;
     private string $ipsAgrSucc;
@@ -41,6 +42,7 @@ class CdeSoumissionModel extends Model
         $this->selectCond = new SelectWhereCondition();
 
         $this->ipsAgrTab  = "{$this->dbIps}:Informix.agr_tab";
+        $this->ipsAgrDev  = "{$this->dbIps}:Informix.agr_dev";
         $this->ipsFrnBse  = "{$this->dbIps}:Informix.frn_bse";
         $this->ipsFrnFou  = "{$this->dbIps}:Informix.frn_fou";
         $this->ipsAgrSucc = "{$this->dbIps}:Informix.agr_succ";
@@ -84,7 +86,12 @@ class CdeSoumissionModel extends Model
             ) AS type_cde,
             fcde_numfou AS num_frn,
             TRIM(fbse_nomfou) AS nom_frn,
-            TRIM(fbse_devise) AS devise,
+            fbse_devise AS devise_code,
+            (
+                SELECT TRIM(adev_lib)
+                FROM {$this->ipsAgrDev}
+                WHERE adev_code = fbse_devise
+            ) AS devise_libelle,
             (
                 SELECT TRIM(asuc_lib)
                 FROM {$this->ipsAgrSucc}

@@ -9,7 +9,7 @@ use App\Dto\Magasin\cdeFrn\CommandeSoumissionDetailDTO;
 class CommandeSoumissionFactory
 {
     /**
-     * @param array<int,array{num_cde:string,date_cde:string,type_cde:string,num_frn:string,nom_frn:string,devise:string,agence_lib:string,service_lib:string,cst:string,refp:string,desi:string,qte_cde:string,package_qty:string,prix_unit:string,montant:string,poids_total:string,av_bt:string,fms:string,vte_der_mois:string,nbr_vente:string,stock_dispo:string,stock_min:string,stock_max:string,npr:string}> $data
+     * @param array<int,array{num_cde:string,date_cde:string,type_cde:string,num_frn:string,nom_frn:string,devise_code:string,devise_libelle:string,agence_lib:string,service_lib:string,cst:string,refp:string,desi:string,qte_cde:string,package_qty:string,prix_unit:string,montant:string,poids_total:string,av_bt:string,fms:string,vte_der_mois:string,nbr_vente:string,stock_dispo:string,stock_min:string,stock_max:string,npr:string}> $data
      * @param array<string,array{cst:string,refp:string,lib:string,num_doc:string,num_cli:string,nom_cli:string,rmq:string,datepla:string}> $detailsData
      * @param list<string> $allValidatedOR
      * @param string $email
@@ -32,7 +32,7 @@ class CommandeSoumissionFactory
         $dto->delaiExpedition = 0; // TODO: à spécifier plus tard
         $dto->numFrn          = $headerInfo['num_frn'];
         $dto->nomFrn          = $headerInfo['nom_frn'];
-        $dto->devise          = $headerInfo['devise'];
+        $dto->devise          = "{$headerInfo['devise_libelle']} ({$headerInfo['devise_code']})";
         $dto->responsable     = $email;
         $dto->libelleAgence   = $headerInfo['agence_lib'];
         $dto->libelleService  = $headerInfo['service_lib'];
@@ -49,21 +49,22 @@ class CommandeSoumissionFactory
      *
      * @param array<int,array<string,string>> $data
      * 
-     * @return array
+     * @return array{num_cde:string,date_cde:string,type_cde:string,num_frn:string,nom_frn:string,devise_code:string,devise_libelle:string,agence_lib:string,service_lib:string}
      *
      * @throws \RuntimeException si une incohérence est détectée
      */
     private function assertHeaderConsistency(array $data): array
     {
         $headerFields = [
-            'num_cde'      => 'Numéro de commande',
-            'date_cde'     => 'Date de commande',
-            'type_cde'     => 'Type de commande',
-            'num_frn'      => 'Numéro du fournisseur',
-            'nom_frn'      => 'Nom du fournisseur',
-            'devise'       => 'Devise',
-            'agence_lib'   => 'Agence',
-            'service_lib'  => 'Service',
+            'num_cde'        => 'Numéro de commande',
+            'date_cde'       => 'Date de commande',
+            'type_cde'       => 'Type de commande',
+            'num_frn'        => 'Numéro du fournisseur',
+            'nom_frn'        => 'Nom du fournisseur',
+            'devise_code'    => 'Code de devise',
+            'devise_libelle' => 'Libellé de devise',
+            'agence_lib'     => 'Agence',
+            'service_lib'    => 'Service',
         ];
 
         $reference = $data[0];
