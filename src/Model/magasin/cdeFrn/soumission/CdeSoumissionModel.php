@@ -335,7 +335,7 @@ class CdeSoumissionModel extends Model
             INNER JOIN derniere_version dv 
                 ON osav.numeroOR = dv.numeroOR
                 AND osav.numeroVersion = dv.max_version
-            WHERE osav.statut = 'Validé' {$this->selectCond->in('osav.numeroOR',$numerosOR)}";
+            WHERE osav.statut LIKE 'Valid%' {$this->selectCond->in('osav.numeroOR',$numerosOR)}";
 
         $statement = $this->connexion->query($sql);
 
