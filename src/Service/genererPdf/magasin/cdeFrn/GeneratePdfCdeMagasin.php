@@ -79,7 +79,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
 
         $this->renderFooter($dto);
 
-        $this->pdf->Output($filePath, 'I');
+        $this->pdf->Output($filePath, 'F');
     }
 
     private function initPDF(): TCPDF
