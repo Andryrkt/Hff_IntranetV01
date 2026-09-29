@@ -17,6 +17,7 @@ class CommandeSoumissionDTO
     public float      $poidsTotal      = 0.00;
     public float      $montantTotal    = 0.00;
     public array      $allValidatedOR  = [];
+    public array      $allValidatedPO  = [];
 
     /** @var list<CommandeSoumissionLigneDTO> */
     public array      $lignes          = [];
@@ -66,5 +67,18 @@ class CommandeSoumissionDTO
         if ($this->montantTotal === null) return "";
 
         return number_format($this->montantTotal, 2, ',', ' ');
+    }
+
+    public function getAllValidatedOR(): string
+    {
+        if (empty($this->allValidatedOR)) return "";
+
+        return implode("; ", $this->allValidatedOR);
+    }
+
+    public function getAllValidatedPO(): string
+    {
+        if (empty($this->allValidatedPO)) return "";
+        return implode("; ", $this->allValidatedPO);
     }
 }
