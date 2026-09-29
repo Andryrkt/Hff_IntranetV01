@@ -343,12 +343,13 @@ class CdeSoumissionModel extends Model
                 FROM ors_soumis_a_validation
                 GROUP BY numeroOR
             )
-            SELECT osav.numeroOR 
+            SELECT DISTINCT TOP 50 osav.numeroOR 
             FROM ors_soumis_a_validation osav
             INNER JOIN derniere_version dv 
                 ON osav.numeroOR = dv.numeroOR
                 AND osav.numeroVersion = dv.max_version
-            WHERE osav.statut LIKE 'Valid%' {$this->selectCond->in('osav.numeroOR',$numerosOR)}";
+            WHERE osav.statut LIKE 'Valid%' {$this->selectCond->in('osav.numeroOR',$numerosOR)}
+            ORDER BY osav.numeroOR DESC";
 
         $statement = $this->connexion->query($sql);
 
@@ -404,12 +405,13 @@ class CdeSoumissionModel extends Model
                 ON b.numero_devis = CAST(d.nent_numcde AS VARCHAR(11))
             GROUP BY b.numero_devis
         )
-        SELECT t.numero_bc
+        SELECT FIRST 50 DISTINCT t.numero_bc
         FROM {$this->iriumBcClientSoumisNeg} t
         INNER JOIN derniere_version v
             ON  t.numero_devis   = v.numero_devis
             AND t.numero_version = v.max_version
-        WHERE t.statut_bc like 'Valid%'";
+        WHERE t.statut_bc like 'Valid%'
+        ORDER BY t.numero_bc DESC";
 
         $result = $this->connect->executeQuery($statement);
         $rows   = $this->connect->fetchResults($result);
