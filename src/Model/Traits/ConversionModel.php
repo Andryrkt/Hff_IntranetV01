@@ -97,4 +97,19 @@ trait ConversionModel
         }
         return $array;
     }
+
+    /**
+     * Convertit un element en UTF-8
+     */
+    public function convertDataSqlServerToUTF8($element)
+    {
+        if (is_array($element)) {
+            foreach ($element as $key => $value) {
+                $element[$key] = $this->convertDataSqlServerToUTF8($value);
+            }
+        } elseif (is_string($element)) {
+            return @mb_convert_encoding($element, 'UTF-8', 'Windows-1252');
+        }
+        return $element;
+    }
 }

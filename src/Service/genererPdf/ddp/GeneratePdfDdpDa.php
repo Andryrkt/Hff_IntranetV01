@@ -144,11 +144,41 @@ class GeneratePdfDdpDa extends GeneratePdf
 
         $pdf->Ln(5);
 
-        $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell(50, 10, 'Bénéficiaire', 1, 0);
+        if ($dto->isFrnNonImmatricule) {
+            $tagText = '(Non Immatriculé)';
+            $w       = 50;   // largeur cellule
+            $h       = 10;   // hauteur totale cellule
+            $padY    = 1;    // padding vertical (bas)
+
+            // Position de départ
+            $x = $pdf->GetX();
+            $y = $pdf->GetY();
+
+            // 1) Bordure extérieure de la cellule
+            $pdf->Rect($x, $y, $w, $h);
+
+            // 2) "Bénéficiaire" en HAUT (avec padding gauche aussi)
+            $pdf->SetXY($x, $y + $padY);
+            $pdf->SetFont('helvetica', 'B', 12);
+            $pdf->SetTextColor(0, 0, 0);
+            $pdf->MultiCell($w, 5, 'Bénéficiaire', 0, 'L');
+
+            // 3) Tag rouge en BAS (avec padding gauche + bas)
+            $pdf->SetXY($x, $y + $h - 4 - $padY);
+            $pdf->SetFont('helvetica', 'B', 9);
+            $pdf->SetTextColor(255, 0, 0);
+            $pdf->MultiCell($w, 4, $tagText, 0, 'L');
+            $pdf->SetTextColor(0, 0, 0);
+
+            // 4) Replacer le curseur APRÈS la cellule
+            $pdf->SetXY($x + $w, $y);
+        } else {
+            $pdf->SetFont('helvetica', 'B', 12);
+            $pdf->Cell(50, 10, 'Bénéficiaire', 1, 0);
+        }
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell($usable_width - 50, 10, $dto->beneficiaire, 1, 1); // valeur de "Bénéficiaire" (nom du fournisseur)
+        $pdf->Cell($usable_width - 50, 10, $dto->beneficiaire, 1, 1, 'L');
 
         $pdf->SetFont('helvetica', 'B', 12);
         $pdf->Cell(50, 10, 'Motif ', 1, 0);
@@ -375,27 +405,27 @@ class GeneratePdfDdpDa extends GeneratePdf
 
     private function renderRecapOR(TCPDF $pdf, array $dataRecapOR, $dto)
     {
-        $numOR = $dto->numeroOR;
-        $numDIT = $dto->numeroDemandeDit;
-        $numDIT = $numDIT ? "- $numDIT" : "";
-        $this->renderInfoSection($pdf, "RECAPITULATIF DE L’OR $numOR $numDIT", '', function () use ($pdf, $dataRecapOR) {
-            $this->addInfoLine($pdf, 'Utilisateur Créateur', $dataRecapOR["createur_or"] ?? "-", 120, 30);
-            $pdf->Ln(2);
-            $tableGenerator = new PdfTableGeneratorFlexible();
-            $tableGenerator->setOptions([
-                'table_attributes' => 'border="0" cellpadding="0" cellspacing="0" align="center" style="font-size: 8px;"',
-                'header_row_style' => 'background-color: #D3D3D3;',
-                'footer_row_style' => 'background-color: #D3D3D3;'
-            ]);
+        // $numOR = $dto->numeroOR;
+        // $numDIT = $dto->numeroDemandeDit;
+        // $numDIT = $numDIT ? "- $numDIT" : "";
+        // $this->renderInfoSection($pdf, "RECAPITULATIF DE L’OR $numOR $numDIT", '', function () use ($pdf, $dataRecapOR) {
+        //     $this->addInfoLine($pdf, 'Utilisateur Créateur', $dataRecapOR["createur_or"] ?? "-", 120, 30);
+        //     $pdf->Ln(2);
+        //     $tableGenerator = new PdfTableGeneratorFlexible();
+        //     $tableGenerator->setOptions([
+        //         'table_attributes' => 'border="0" cellpadding="0" cellspacing="0" align="center" style="font-size: 8px;"',
+        //         'header_row_style' => 'background-color: #D3D3D3;',
+        //         'footer_row_style' => 'background-color: #D3D3D3;'
+        //     ]);
 
-            $pdf->writeHTML(
-                $tableGenerator->generateTable(
-                    $dataRecapOR["header"],
-                    $dataRecapOR["body"],
-                    $dataRecapOR["footer"]
-                )
-            );
-        });
+        //     $pdf->writeHTML(
+        //         $tableGenerator->generateTable(
+        //             $dataRecapOR["header"],
+        //             $dataRecapOR["body"],
+        //             $dataRecapOR["footer"]
+        //         )
+        //     );
+        // });
     }
 
     private function renderRecapDA(TCPDF $pdf, int $w100, DemandeAppro $demandeAppro)

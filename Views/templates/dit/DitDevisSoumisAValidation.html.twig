@@ -5,8 +5,8 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link href="{{ App.base_path }}/Views/css/new.css?v=2026.07.03.14.50" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/dit/ditInsertionOr.css?v=2026.07.03.14.50" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/new.css?v={{ App.browserHash }}" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/dit/ditInsertionOr.css?v={{ App.browserHash }}" rel="stylesheet"/>
 {% endblock %}
 
 
@@ -85,7 +85,7 @@
 	</div>
 {% endblock %}
 {% block javascript %}
-	<script type="module" src="{{ App.base_path }}/Views/js/dit/ditDevisSoumisAValidation.js?v=2026.07.03.14.50"></script>
+	<script type="module" src="{{ App.base_path }}/Views/js/dit/ditDevisSoumisAValidation.js?v={{ App.browserHash }}"></script>
 
 	<script>
 		{% if App.session.get('devis_version_valide') == 'OK' %}

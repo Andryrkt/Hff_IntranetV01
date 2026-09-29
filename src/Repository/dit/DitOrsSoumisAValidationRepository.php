@@ -12,8 +12,6 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         $qb = $this->createQueryBuilder('osv');
         $qb->select('1')
             ->where('osv.numeroOR = :numOr')
-            ->andWhere('osv.numeroDit = :numDit')
-            ->setParameter('numDit', $numDit)
             ->setParameter('numOr', $numOr)
             ->setMaxResults(1);
 
@@ -23,6 +21,18 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         } catch (\Exception $e) {
             return false;
         }
+    }
+
+    public function findNumDit(?string $numOr)
+    {
+        $query = $this->createQueryBuilder('osv')
+            ->select("DISTINCT osv.numeroDit AS numeroDit")
+            ->where('osv.numeroOR = :numOr')
+            ->setParameter('numOr', $numOr)
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        return $query;
     }
 
 
@@ -108,7 +118,7 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
 
         // Étape 2 : Utiliser le numeroVersionMax pour récupérer le statut
         $statut = $this->createQueryBuilder('osv')
-            ->select('osv.statut')
+            ->select('DISTINCT osv.statut')
             ->where('osv.numeroVersion = :numeroVersionMax')
             ->andWhere('osv.numeroOR = :numOr')
             ->andWhere('osv.numeroItv = :numItv')
@@ -276,16 +286,14 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
     /**
      * recupère tous les numéros OR Distincts
      *
-     * @return void
+     * @return array
      */
     public function findNumOrAll()
     {
-        $query = $this->createQueryBuilder('osv')
+        return $this->createQueryBuilder('osv')
             ->select("DISTINCT osv.numeroOR")
             ->getQuery()
             ->getSingleColumnResult();
-
-        return $query;
     }
 
     /**
@@ -318,13 +326,11 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         $count = $qb
             ->select('COUNT(o.id)')
             ->where('o.numeroOR = :numOr')
-            ->andWhere('o.numeroDit = :numDit')
             ->andWhere('o.codeSociete = :codeSociete')
             ->setParameter('codeSociete', $codeSociete)
             ->setParameters([
                 'codeSociete' => $codeSociete,
-                'numOr' => $numOr,
-                'numDit' => $numDit
+                'numOr' => $numOr
             ])
             ->getQuery()
             ->getSingleScalarResult();

@@ -22,6 +22,19 @@ window.addEventListener("load", () => {
 
 document.addEventListener("DOMContentLoaded", function () {
   // ===================================================
+  // AFFICHAGE DE L'ERREUR DE VALIDATION DES FICHIERS JOINTS
+  // ===================================================
+  const fileErrors = document.getElementById("da-observation-file-errors");
+  if (fileErrors && fileErrors.textContent.trim()) {
+    Swal.fire({
+      icon: "error",
+      title: "Fichier(s) joint(s) refusé(s)",
+      html: fileErrors.textContent.trim().replace(/\n/g, "<br>"),
+      confirmButtonText: "OK",
+    });
+  }
+
+  // ===================================================
   // GESTION DU TEXTAREA AUTO-RESIZE ET ENVOI FORMULAIRE
   // ===================================================
   const messageInput = document.getElementById("da_observation_observation");

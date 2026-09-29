@@ -67,6 +67,9 @@ trait DaAfficherTrait
             if ($newDaAfficher instanceof DemandeApproL) $daAfficher->duplicateDal($newDaAfficher); // enregistrement pour DAL
             else if ($newDaAfficher instanceof DemandeApproLR) $daAfficher->duplicateDalr($newDaAfficher); // enregistrement pour DALR
 
+            // Gestion caractères spéciaux
+            $daAfficher->setArtDesi($this->normalizeTypographicChars($daAfficher->getArtDesi()));
+
             if ($validationDA) $daAfficher->setDateValidation($dateValidation);  // Si validation DA
             if ($statut)       $daAfficher->setStatutOr($statut);                // Si le statut OR ou DW est défini
             if ($dateDemande)  $daAfficher->setDateDemande($dateDemande);        // Si la date Demande est défini, écraser celui défini dans `$daAfficher->duplicateDa($demandeAppro);`

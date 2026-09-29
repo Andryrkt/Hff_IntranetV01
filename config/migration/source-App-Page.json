@@ -443,7 +443,7 @@
         "peut_exporter": false
       },
       {
-        "nom_route": "dit_validationDit",
+        "nom_route": "dit_fiche_detail",
         "peut_voir": true,
         "peut_voir_liste_avec_debiteur": false,
         "peut_multi_succursale": false,

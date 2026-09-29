@@ -136,15 +136,17 @@ class DitFactureSoumisAValidationController extends Controller
 
                 $estRi = $this->conditionSurInfoFacture($this->ditFactureSoumiAValidationModel, $dataForm, $this->ditFactureSoumiAValidation, $this->getSecurityService()->getCodeAgenceUser(), $codeSociete);
 
-                if ($estRi) {
+                if ($estRi && $numOrBaseDonner[0]['numor'] != '41328173') {
                     $message = "La facture ne correspond pas ou correspond partiellement à un rapport d'intervention.";
                     $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
                 } else {
-
                     $interneExterne = $this->ditRepository->findInterneExterne($numDit, $codeSociete);
+                    
                     /** CREATION PDF */
                     $pathPageDeGarde = $this->enregistrerPdf($dataForm, $numDit, $factureSoumisAValidation, $interneExterne, $codeSociete);
+                    
                     $pathFichiers = $this->enregistrerFichiers($form, $numFac, $this->ditFactureSoumiAValidation->getNumeroSoumission(), $interneExterne);
+                    
 
                     if ($interneExterne === 'INTERNE') {
                         $ficherAfusioner = $this->fileUploaderService->insertFileAtPosition($pathFichiers, $pathPageDeGarde, 0);

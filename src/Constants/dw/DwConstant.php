@@ -16,5 +16,6 @@ class DwConstant
         "annulation-conges-rh"     => self::DW_LINK_PREFIX . "annulation-conges-rh" . self::DW_LINK_SUFFIX,
         "new-conge"                => self::DW_LINK_PREFIX . "demande-de-conges-new" . self::DW_LINK_SUFFIX,
         "new-logistique"           => self::DW_LINK_PREFIX . "transport-logistique" . self::DW_LINK_SUFFIX,
+        "new-diagnostic"           => self::DW_LINK_PREFIX . "demande-de-diagnostic" . self::DW_LINK_SUFFIX,
     ];
 }

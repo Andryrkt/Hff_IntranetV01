@@ -2,37 +2,43 @@
 
 namespace App\Service\da;
 
+use App\Constants\da\RouteConstant;
 use App\Controller\Traits\da\PrixFournisseurTrait;
 use App\Controller\Traits\lienGenerique;
 use App\Entity\admin\utilisateur\User;
-use App\Entity\da\DaAfficher;
+use App\Service\Admin\UrlIdCipher;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproParent;
 use App\Service\EmailService;
 use App\Traits\PrepareDataDAP;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class EmailDaService
 {
     use lienGenerique;
     use PrepareDataDAP;
     use PrixFournisseurTrait;
-    private $twig;
-    private $mailAppro;
-    private $emailTemplate;
+    private \Twig\Environment $twig;
+    private UrlGeneratorInterface $urlGenerator;
+    private string $mailAppro;
+    private string $emailTemplate;
+    private UrlIdCipher $urlIdCipher;
 
-    public function __construct(\Twig\Environment $twig)
+    public function __construct(\Twig\Environment $twig, UrlGeneratorInterface $urlGenerator)
     {
-        $this->twig = $twig;
-        $this->mailAppro = ($_ENV['MAIL_TO_APPRO'] ?? '');
+        $this->twig          = $twig;
+        $this->mailAppro     = ($_ENV['MAIL_TO_APPRO'] ?? '');
         $this->emailTemplate = "da/email/emailDa.html.twig";
+        $this->urlIdCipher   = new UrlIdCipher();
+        $this->urlGenerator  = $urlGenerator;
     }
 
     /** 
-     * Fonction pour obtenir l'url de l'INTRANET
+     * Fonction pour obtenir l'url de laccueil de l'INTRANET
      */
-    private function getUrlIntranet()
+    private function getUrlHomeIntranet()
     {
-        return $this->urlGenerique($_ENV['BASE_PATH_COURT']);
+        return $this->urlGenerique($this->urlGenerator->generate('profil_acceuil'));
     }
 
     /** 
@@ -42,12 +48,13 @@ class EmailDaService
      */
     private function getUrlDetail(string $id, int $daTypeId)
     {
-        $template = [
-            DemandeAppro::TYPE_DA_AVEC_DIT  => 'demande-appro/detail-avec-dit',
-            DemandeAppro::TYPE_DA_DIRECT    => 'demande-appro/detail-direct',
-            DemandeAppro::TYPE_DA_REAPPRO_MENSUEL   => 'demande-appro/detail-reappro',
-        ];
-        return $this->urlGenerique("{$_ENV['BASE_PATH_COURT']}/{$template[$daTypeId]}/$id");
+        $urlDetail = RouteConstant::DETAIL[$daTypeId] ?? null;
+
+        if (!$urlDetail) return $this->getUrlHomeIntranet();
+
+        $token = $this->urlIdCipher->encrypt($id);
+
+        return $this->urlGenerique($this->urlGenerator->generate($urlDetail, ['token' => $token]));
     }
 
     /** 
@@ -74,7 +81,7 @@ class EmailDaService
             'daLabel'      => $daLabel,
             'observation'  => $demandeAppro->getObservation() ?? '-',
             'service'      => strtoupper($service),
-            'urlIntranet'  => $this->getUrlIntranet(),
+            'urlIntranet'  => $this->getUrlHomeIntranet(),
             'urlDetail'    => $demandeAppro instanceof DemandeAppro ? $this->getUrlDetail($demandeAppro->getId(), $demandeAppro->getDaTypeId()) : "",
             'dateYear'     => date('Y'),
         ];

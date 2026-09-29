@@ -96,7 +96,7 @@ class DaSoumissionBcController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var DaSoumissionBcDto $dto */
             $dto = $form->getData();
-
+$dto->demandePaiementAvance = false;
             $numCde = $dto->numeroCde;
             $numDa = $dto->numeroDemandeAppro;
             $typeDa = $dto->typeDa;

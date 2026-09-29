@@ -2,3 +2,14 @@
   transform: scale(1.5); /* Ajuste la valeur selon la taille désirée */
   margin: 5px;
 }
+/* Badge "catalogué / non catalogué" */
+.catalogue-badge {
+  position: absolute;
+  top: 60px;
+  right: 40px;
+  font-size: 1.25rem;
+  border-radius: 10px;
+  font-weight: bold;
+  text-transform: uppercase;
+  padding-bottom: 0.125em;
+}

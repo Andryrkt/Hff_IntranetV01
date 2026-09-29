@@ -7,9 +7,7 @@ use App\Service\fichier\JsonFileService;
 // Exemple d'utilisation de la classe
 
 try {
-
-    $chemin = 'E:/Upload/variable_global/liste_constructeur.json';
-    $jsonService = new JsonFileService($chemin);
+    $jsonService = new JsonFileService();
 
     /**===================
      * CONSTRUCTEUR PIECES

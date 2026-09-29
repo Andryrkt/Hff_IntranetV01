@@ -23,11 +23,11 @@ class DdpFinancialService
     {
         $totalMontantCommande = $dto->totalMontantCommande;
         $dto->montantDejaPaye = $dto->montantDejaPaye;
-        $dto->montantRestantApayer = $totalMontantCommande - $dto->montantDejaPaye;
-        $dto->montantAPayer = $dto->montantRestantApayer;
+        $dto->montantAPayer = $dto->isFrnNonImmatricule ? $totalMontantCommande * 0.95 - $dto->montantDejaPaye : $totalMontantCommande - $dto->montantDejaPaye;
+        $dto->montantRestantApayer = $dto->isFrnNonImmatricule ? $totalMontantCommande * 0.95 - ($dto->montantDejaPaye + $dto->montantAPayer) : $totalMontantCommande - ($dto->montantDejaPaye + $dto->montantAPayer);
 
         if ($totalMontantCommande > 0) {
-            $pourcentageAvance = (($dto->montantDejaPaye + $dto->montantAPayer) / $totalMontantCommande) * 100 . ' %';
+            $pourcentageAvance =  $dto->isFrnNonImmatricule ? (($dto->montantDejaPaye + $dto->montantAPayer) / ($totalMontantCommande * 0.95)) * 100 . ' %' : (($dto->montantDejaPaye + $dto->montantAPayer) / $totalMontantCommande) * 100 . ' %';
             $pourcentageAPayer = (int)(($dto->montantAPayer / $totalMontantCommande) * 100);
         } else {
             $pourcentageAvance = '0 %';
@@ -66,8 +66,10 @@ class DdpFinancialService
      * 
      * @throws \Exception
      */
-    public function recuperationMontantTotalCommande(string $numeroCommande, string $codeSociete)
-    {
+    public function recuperationMontantTotalCommande(
+        string $numeroCommande,
+        string $codeSociete
+    ): array {
         $demandePaiementModel = new DemandePaiementModel();
         $montantTotalCommande = $demandePaiementModel->getMontantCde($numeroCommande, $codeSociete);
         if ($montantTotalCommande['montant_total_cde_ht'] <= 0) throw new \Exception("Le montant total de la commande est nul");
@@ -88,7 +90,7 @@ class DdpFinancialService
     }
 
     /**
-     * Calcul du montant à régulariser par rapport au montant total de la commande.
+     * Calcul du montant à régulariser par rapport au montant total TTC de la commande.
      * -----------------------------------------------------------------------------
      * Le montant à régulariser correspond à la différence entre le montant total de la commande et le montant déjà payé.
      * 
@@ -101,7 +103,7 @@ class DdpFinancialService
         $totalMontantCommande = $dto->totalMontantCommande;
         $montantDejaPaye = $this->montantTotalDejaPaye($dto);
 
-        return $totalMontantCommande - $montantDejaPaye;
+        return $dto->isFrnNonImmatricule ? ($totalMontantCommande * 0.95) - $montantDejaPaye : $totalMontantCommande - $montantDejaPaye;;
     }
 
     /**

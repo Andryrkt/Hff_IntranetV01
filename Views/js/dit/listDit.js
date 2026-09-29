@@ -19,6 +19,7 @@ import {
 } from "../utils/ui/uiSpinnerUtils.js";
 import { FetchManager } from "../api/FetchManager.js";
 import { filterServiceByAgence } from "../utils/agenceService/filterServiceByAgence.js";
+import { API_ENDPOINTS } from "../api/apiEndpoints.js";
 
 // Instanciation de FetchManager avec la base URL
 const fetchManager = new FetchManager();
@@ -118,7 +119,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
     // Fetch request to get the data
     fetchManager
-      .get(`api/command-modal/${id}`)
+      .get(API_ENDPOINTS.commandModal(id))
       .then((data) => {
         const tableBody = document.getElementById("commandesTableBody");
         tableBody.innerHTML = ""; // Clear previous data

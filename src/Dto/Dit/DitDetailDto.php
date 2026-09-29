@@ -1,0 +1,149 @@
+<?php
+
+namespace App\Dto\Dit;
+
+use App\Model\dit\DitModel;
+use App\Entity\dit\DemandeIntervention;
+
+class DitDetailDto
+{
+    private const MOTS_A_SUPPRIMER_SECTION = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'];
+
+    public ?string $numDit = null;
+    public ?string $dateDemande = null;
+    public ?string $statutDit = null;
+    public ?string $statutCssClass = null;
+    public ?string $objetDemande = null;
+    public ?string $detailDemande = null;
+    public ?string $typeDocument = null;
+    public ?string $avisRecouvrement = null;
+    public ?string $demandeDevis = null;
+    public ?string $categorieDemandeLibelle = null;
+    public ?string $livraisonPartiel = null;
+    public ?string $internetExterne = null;
+    public ?string $numeroOr = null;
+    public ?string $statutOr = null;
+    public ?string $sectionAffectee = null;
+    public ?string $agenceServiceDebiteur = null;
+    public ?string $agenceServiceEmetteur = null;
+    public ?string $nomClient = null;
+    public ?string $numeroTel = null;
+    public ?string $clientSousContrat = null;
+    public ?string $niveauUrgence = null;
+    public ?string $datePrevueTravauxFormatee = null;
+    public ?string $chiffreAffaireFormate = null;
+    public ?string $chargeEntretientFormate = null;
+    public ?string $chargeLocativeFormate = null;
+    public ?string $resultatExploitationFormate = null;
+    public ?string $coutAcquisitionFormate = null;
+    public ?string $amortissementFormate = null;
+    public ?string $valeurNetComptableFormatee = null;
+    public ?string $idMateriel = null;
+    public ?string $numSerie = null;
+    public ?string $numParc = null;
+    public ?string $constructeur = null;
+    public ?string $designation = null;
+    public $km = null;
+    public ?string $modele = null;
+    public ?string $casier = null;
+    public ?string $heure = null;
+    public ?string $typeReparation = null;
+    public ?string $reparationRealise = null;
+    public $pieceJoint01 = null;
+    public $pieceJoint02 = null;
+    public $pieceJoint03 = null;
+    /** @var DitCommandeDto[] */
+    public array $commandes = [];
+
+    public static function fromEntity(DemandeIntervention $dit): self
+    {
+        $dto = new self();
+        $ditModel = new DitModel();
+
+        $dto->numDit                      = $dit->getNumeroDemandeIntervention();
+        $dto->dateDemande                 = $dit->getDateDemande() ? $dit->getDateDemande()->format('d/m/Y') : null;
+        $dto->statutDit                   = $dit->getIdStatutDemande() ? $dit->getIdStatutDemande()->getDescription() : "-";
+        $dto->statutCssClass              = str_replace(" ", "_", strtolower($dto->statutDit));
+        $dto->objetDemande                = $dit->getObjetDemande();
+        $dto->detailDemande               = $dit->getDetailDemande();
+        $dto->typeDocument                = $dit->getTypeDocument();
+        $dto->avisRecouvrement            = $dit->getAvisRecouvrement();
+        $dto->demandeDevis                = $dit->getDemandeDevis();
+        $dto->categorieDemandeLibelle     = $dit->getCategorieDemande() ? $dit->getCategorieDemande()->getLibelleCategorieAteApp() : "-";
+        $dto->livraisonPartiel            = $dit->getLivraisonPartiel();
+        $dto->internetExterne             = $dto->libelleInterneExterne($dit->getInternetExterne());
+        $dto->numeroOr                    = $dit->getNumeroOR();
+        $dto->statutOr                    = $dit->getStatutOr();
+        $dto->sectionAffectee             = self::supprimerMots($dit->getSectionAffectee(), self::MOTS_A_SUPPRIMER_SECTION);
+        $dto->agenceServiceDebiteur       = $dit->getAgenceServiceDebiteur();
+        $dto->agenceServiceEmetteur       = $dit->getAgenceServiceEmetteur();
+        $dto->nomClient                   = $dit->getNomClient();
+        $dto->numeroTel                   = $dit->getNumeroTel();
+        $dto->clientSousContrat           = $dit->getClientSousContrat();
+        $dto->niveauUrgence               = $dit->getIdNiveauUrgence() ? $dit->getIdNiveauUrgence()->getDescription() : "-";
+        $dto->datePrevueTravauxFormatee   = $dit->getDatePrevueTravaux() ? $dit->getDatePrevueTravaux()->format('d/m/Y') : null;
+        $dto->typeReparation              = $dit->getTypeReparation();
+        $dto->reparationRealise           = $dit->getReparationRealise();
+        $dto->pieceJoint01                = $dit->getPieceJoint01();
+        $dto->pieceJoint02                = $dit->getPieceJoint02();
+        $dto->pieceJoint03                = $dit->getPieceJoint03();
+
+        $dto->hydraterLigneMateriel($ditModel->findAll($dit->getIdMateriel(), $dit->getNumParc(), $dit->getNumSerie())[0] ?? []);
+
+        $dto->commandes = array_map([DitCommandeDto::class, 'fromRow'], $ditModel->RecupereCommandeOr($dit->getNumeroOR()));
+
+        return $dto;
+    }
+
+    /**
+     * Hydrate les champs matériel/bilan financier du DTO à partir d'une ligne Informix (résultat de DitModel::findAll).
+     *
+     * @param array{num_matricule:?string,num_parc:?string,num_serie:?string,constructeur:?string,modele:?string,designation:?string,casier_emetteur:?string,km:?string,heure:?string,prix_achat:?string,amortissement:?string,chiffreaffaires:?string,chargeentretien:?string,chargelocative:?string} $row
+     */
+    private function hydraterLigneMateriel(array $row): void
+    {
+        $this->idMateriel   = $row['num_matricule'] ?? null;
+        $this->numParc      = $row['num_parc'] ?? null;
+        $this->numSerie     = $row['num_serie'] ?? null;
+        $this->constructeur = $row['constructeur'] ?? null;
+        $this->modele       = $row['modele'] ?? null;
+        $this->designation  = $row['designation'] ?? null;
+        $this->casier       = $row['casier_emetteur'] ?? null;
+        $this->km           = $row['km'] ?? null;
+        $this->heure        = $row['heure'] ?? null;
+        $this->coutAcquisitionFormate      = self::formaterMontant($row['prix_achat'] ?? null);
+        $this->amortissementFormate        = self::formaterMontant($row['amortissement'] ?? null);
+        $this->chiffreAffaireFormate       = self::formaterMontant($row['chiffreaffaires'] ?? null);
+        $this->chargeEntretientFormate     = self::formaterMontant($row['chargeentretien'] ?? null);
+        $this->chargeLocativeFormate       = self::formaterMontant($row['chargelocative'] ?? null);
+        $this->resultatExploitationFormate = self::formaterMontant(($row['chiffreaffaires'] ?? 0) - (($row['chargeentretien'] ?? 0) + ($row['chargelocative'] ?? 0)));
+        $this->valeurNetComptableFormatee  = self::formaterMontant(($row['prix_achat'] ?? 0) - ($row['amortissement'] ?? 0));
+    }
+
+    /**
+     * Traduit le code Informix ('I'/'E') en libellé affichable.
+     */
+    private function libelleInterneExterne(?string $internetExterne): ?string
+    {
+        if ($internetExterne === "I") return "INTERNE";
+        if ($internetExterne === "E") return "EXTERNE";
+        return $internetExterne;
+    }
+
+    private static function formaterMontant(?float $montant): string
+    {
+        return number_format($montant ?? 0, 2, ',', '.');
+    }
+
+    private static function supprimerMots(?string $texte, array $mots): string
+    {
+        if ($texte === null) {
+            return '';
+        }
+        foreach ($mots as $mot) {
+            $texte = preg_replace('/\b' . preg_quote($mot, '/') . '[sS]?\b/u', '', $texte);
+        }
+
+        return trim(preg_replace('/\s+/', ' ', $texte));
+    }
+}

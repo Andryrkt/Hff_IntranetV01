@@ -80,7 +80,7 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
             ->setIdTypeOperation($this->typeOperationRepository->find($typeOperationId))
             ->setIdTypeDocument($this->typeDocumentRepository->find($this->typeDocumentId))
             ->setStatutOperation($statutOperation ? 'Succès' : 'Echec')
-            ->setLibelleOperation($libelleOperation)
+            ->setLibelleOperation(strip_tags($libelleOperation))
         ;
 
         // Sauvegarder dans la base de données

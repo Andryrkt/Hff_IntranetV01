@@ -17,6 +17,7 @@ use App\Entity\admin\dom\SousTypeDocument;
 use App\Entity\Traits\AgenceServiceEmetteurTrait;
 use App\Entity\Traits\DateTrait;
 use App\Repository\da\DemandeApproLRRepository;
+use App\Service\TextNormalizer;
 use Symfony\Component\Validator\Constraints as Assert;
 
 
@@ -347,7 +348,7 @@ class DemandeApproLR
      */
     public function setArtDesi(string $artDesi): self
     {
-        $this->artDesi = $artDesi;
+        $this->artDesi = TextNormalizer::normalize($artDesi);
         return $this;
     }
 

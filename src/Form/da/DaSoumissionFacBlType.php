@@ -25,14 +25,18 @@ class DaSoumissionFacBlType extends AbstractType
         $builder
             ->add('typeDdp', ChoiceType::class, [
                 'choices' => [
-                    // 'Ne pas générer une demande de paiement' => 'aucun', // ! enlever ce choix selon Hoby le 29/05/2026 
-                    'BAP (Bon a Payer)' => 'bap',
+                    // ? réinsérer le choix "ne pas générer" selon Hoby le 22/07/2026
+                    'Ne pas générer une demande de paiement'     => 'aucun', // ! enlever ce choix selon Hoby le 29/05/2026
+                    'BAP (Bon a Payer)'                          => 'bap',
                     'DDPL (Demande De Paiement après Livraison)' => 'ddpl',
-                    'Régularisation' => 'regul'
+                    'Régularisation'                             => 'regul'
                 ],
                 'choice_attr' => function ($choice, $key, $value) use ($options) {
                     $attr = [];
                     if (in_array($choice, ['bap', 'ddpl']) && $options['data']->estRegule) {
+                        $attr['disabled'] = 'disabled';
+                    }
+                    if ($choice === 'regul' && !$options['data']->estRegule) {
                         $attr['disabled'] = 'disabled';
                     }
                     $attr['data-field-name'] = 'Type de traitement de paiement';
@@ -44,6 +48,7 @@ class DaSoumissionFacBlType extends AbstractType
                 'expanded' => true,
                 'multiple' => false,
                 'required' => true,
+                'data' => $options['data']->estRegule ? 'regul' : 'ddpl',
             ])
             ->add('numeroCde', TextType::class, [
                 'label' => 'Numéro Commande',

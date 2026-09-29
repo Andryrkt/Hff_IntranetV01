@@ -32,9 +32,11 @@ class DaSoumissionBcType extends AbstractType
                 'expanded'      => true,
                 'multiple'      => false,
                 'label'         => 'Demande paiement à l\'avance *',
+                'data' => false,
                 'attr' => [
-                    'required' => true
-                ]
+                    'required' => false
+                ],
+                'disabled' => true,
             ])
             ->add(
                 'pieceJoint1',

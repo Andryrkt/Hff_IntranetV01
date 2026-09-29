@@ -81,7 +81,7 @@ class DitModel extends Model
     $estPneumatique = in_array($reparationRealise, ['ATE POL TANA']);
     $estPiece = in_array($reparationRealise, ['ATE TANA', 'ATE STAR', 'ATE MAS']);
     $constructeurPneumatique = GlobalVariablesService::get('pneumatique') . ",'PNE'";
-    $constructeurPiece = GlobalVariablesService::get('pieces_magasin') . "," . GlobalVariablesService::get('lub') . "," . GlobalVariablesService::get('achat_locaux') . ",'SHE'";
+    $constructeurPiece = GlobalVariablesService::get('pieces_magasin') . "," . GlobalVariablesService::get('pneumatique') . "," . GlobalVariablesService::get('achat_locaux') . ",'SHE'";
     $conditionConstructeur = "";
 
     if ($estPneumatique) {
@@ -566,7 +566,8 @@ class DitModel extends Model
     $statement = "SELECT 
         TRIM(mmat_desi) AS designation, 
         TRIM(mmat_numserie) AS numserie,
-        mmat_nummat AS identite
+        mmat_nummat AS identite,
+        trim(mmat_numparc) As casier
       FROM sav_eor
       INNER JOIN mat_mat on mmat_nummat = seor_nummat and seor_soc = '$codeSociete'
       WHERE seor_numor = '$numOr'";

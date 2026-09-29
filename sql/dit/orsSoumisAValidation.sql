@@ -249,3 +249,9 @@ ADD observation VARCHAR(3000) NULL;
 
 ALTER TABLE ors_soumis_a_validation
 ADD piece_faible_activite_achat BIT DEFAULT 0
+
+ALTER TABLE ors_soumis_a_validation 
+ADD date_deposer_dw bit DEFAULT 0
+
+ALTER TABLE ors_soumis_a_validation 
+ADD date_depot_pdf_dw DATETIME2

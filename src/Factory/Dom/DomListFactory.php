@@ -26,8 +26,6 @@ class DomListFactory
         $domListItemDTO->lieuIntervention         = $row['lieuIntervention'];
         $domListItemDTO->totalGeneralPayer        = $row['totalGeneralPayer'];
         $domListItemDTO->devis                    = $row['devis'];
-        $domListItemDTO->classeStatut             = DomListItemDTO::$classeStatutArray[$statut] ?? "";
-        $domListItemDTO->styleStatut              = DomListItemDTO::$styleStatutArray[$statut] ?? "";
         $domListItemDTO->showTropPercuAction      = $row['_statutTropPercuOk'] && $isTropPercu;
 
         return $domListItemDTO;

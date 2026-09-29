@@ -82,6 +82,7 @@ class DemandePaiementDto
     public int $numeroVersionBc = 0;
     public string $nomPdfFusionnerBc = '';
     public array $daDdpa = [];
+    public ?string $statutBcAppro = null;
     public string $titreDaDdpa = "historique des demandes de paiement à l'avance déjà effectuées dans le formulaire.";
 
 
@@ -101,6 +102,7 @@ class DemandePaiementDto
     public float $sommeMontantDdpaValider = 0.0;
     public float $sommeMontantFactureDejaPayer = 0.0;
     public float $soldeAvance = 0.0; // montant de l'avance qui n'a pas encore été régularisé
+    public  bool $isFrnNonImmatricule = false;
 
     public function montantAPayer(): float
     {

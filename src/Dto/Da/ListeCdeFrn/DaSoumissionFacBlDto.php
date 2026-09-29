@@ -41,6 +41,7 @@ class DaSoumissionFacBlDto
     public ?string $numeroFournisseur = null;
     public ?string $nomFournisseur = null;
     public ?string $numeroFactureFournisseur = null;
+    public ?bool $isFrnNonImmatricule = false;
     public array $infoBc = [];
 
     // Reappro =====================

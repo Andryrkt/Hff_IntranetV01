@@ -16,6 +16,7 @@ use App\Mapper\Da\ListCdeFrn\DaSoumissionFacBlMapper;
 use App\Mapper\ddp\DdpRecapMapper;
 use App\Mapper\ddp\DemandePaiementMapper;
 use App\Model\da\DaSoumissionFacBlModel;
+use App\Model\ddp\DemandePaiementModel;
 use App\Service\autres\AutoIncDecService;
 use App\Service\da\DaSoumissionCalculService;
 use App\Service\da\DaSoumissionDataService;
@@ -37,6 +38,7 @@ class DaSoumissionFacBlFactory
     private DaSoumissionCalculService $calculService;
     private DaSoumissionDataService $dataService;
     private SecurityService $securityService;
+    private DemandePaiementModel $ddpModel;
 
     public function __construct(
         EntityManagerInterface $em,
@@ -44,7 +46,8 @@ class DaSoumissionFacBlFactory
         NumeroGenerateurService $numeroGenerateurService,
         DaSoumissionCalculService $calculService,
         DaSoumissionDataService $dataService,
-        SecurityService $securityService
+        SecurityService $securityService,
+        DemandePaiementModel $ddpModel
     ) {
         $this->em = $em;
         $this->daSoumissionFacBlModel = $daSoumissionFacBlModel;
@@ -52,6 +55,7 @@ class DaSoumissionFacBlFactory
         $this->calculService = $calculService;
         $this->dataService = $dataService;
         $this->securityService = $securityService;
+        $this->ddpModel = $ddpModel;
     }
 
     public function initialisation(
@@ -81,6 +85,7 @@ class DaSoumissionFacBlFactory
         $dto->infoBc = $this->dataService->getInfoBc($dto->numeroCde, $dto->codeSociete);
         $dto->numeroFournisseur = $dto->infoBc['num_fournisseur'];
         $dto->nomFournisseur = $dto->infoBc['nom_fournisseur'];
+        $dto->isFrnNonImmatricule =  $this->ddpModel->isFrnNonImmatricule($dto->numeroFournisseur);
 
         // DDPL ==========================
         $dto->statutFacBl = self::STATUT_SOUMISSION;
@@ -102,7 +107,7 @@ class DaSoumissionFacBlFactory
         //
         $dto->totalMontantDdpValid = $this->em->getRepository(DemandePaiement::class)->getSommeMontantValide($dto->numeroCde, $dto->codeSociete) ?? 0.0;
 
-        $dto->estRegule = $dto->totalMontantCommandeTTC == $dto->totalMontantDdpValid && !in_array($dto->dernierStatutDdp, StatutConstants::REFUSES_DDP);
+        $dto->estRegule = $dto->isFrnNonImmatricule ? ($dto->totalMontantCommandeTTC * 0.95) == $dto->totalMontantDdpValid && !in_array($dto->dernierStatutDdp, StatutConstants::REFUSES_DDP) : $dto->totalMontantCommandeTTC  == $dto->totalMontantDdpValid && !in_array($dto->dernierStatutDdp, StatutConstants::REFUSES_DDP);
 
         $dto->posl = $this->daSoumissionFacBlModel->getPosl($dto->numeroCde, $dto->codeSociete);
         $dto->devise = $this->daSoumissionFacBlModel->getDevise($dto->numeroCde, $dto->codeSociete);

@@ -35,4 +35,11 @@ class RouteConstant
         DemandeAppro::TYPE_DA_PARENT          => 'da_affectation_achat',
         DemandeAppro::TYPE_DA_REAPPRO_MENSUEL => 'da_validate_reappro_mensuel',
     ];
+
+    // constantes pour les routes de listes
+    public const SLUG_LISTE_DA      = 'liste-des-demandes-d-achats';
+    public const SLUG_LISTE_CDE_FRN = 'liste-des-commandes-fournisseurs';
+
+    public const PATH_NAME_LISTE_DA      = 'list_da';
+    public const PATH_NAME_LISTE_CDE_FRN = 'da_list_cde_frn';
 }

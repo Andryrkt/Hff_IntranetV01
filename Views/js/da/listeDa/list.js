@@ -5,13 +5,31 @@ import { handleAgenceChange } from "../../dit/fonctionUtils/fonctionListDit.js";
 import { allowOnlyNumbers } from "../../magasin/utils/inputUtils.js";
 import { initCentraleCodeDesiInputs } from "../newReappro/event.js";
 import { FetchManager } from "../../api/FetchManager.js";
-const fetchManager = new FetchManager();
 
+// Optimisation : Délégation des tooltips pour ne pas surcharger le chargement initial
+document.addEventListener("mouseover", function (e) {
+  const target = e.target.closest('[data-bs-toggle="tooltip"]');
+  if (target && !bootstrap.Tooltip.getInstance(target)) {
+    const tooltip = new bootstrap.Tooltip(target);
+    tooltip.show();
+
+    // Correction : On force la fermeture quand on quitte l'élément
+    target.addEventListener(
+      "mouseleave",
+      () => {
+        tooltip.hide();
+      },
+      { once: true }
+    );
+  }
+});
+
+const fetchManager = new FetchManager();
 
 document.addEventListener("DOMContentLoaded", function () {
   initCentraleCodeDesiInputs(
     "da_search_codeCentrale",
-    "da_search_desiCentrale",
+    "da_search_desiCentrale"
   );
   const designations = document.querySelectorAll(".designation-btn");
   designations.forEach((designation) => {
@@ -46,7 +64,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const idMaterielInput = document.querySelector("#da_search_idMateriel");
   idMaterielInput.addEventListener("input", () =>
-    allowOnlyNumbers(idMaterielInput),
+    allowOnlyNumbers(idMaterielInput)
   );
 
   /**
@@ -179,7 +197,9 @@ document.addEventListener("DOMContentLoaded", function () {
   /**
    * Evenement sur "Afficher les DA à traiter" pour filtrer les statuts
    **/
-  const checkboxAfficherTraiter = document.getElementById("da_search_afficherDaTraiter");
+  const checkboxAfficherTraiter = document.getElementById(
+    "da_search_afficherDaTraiter"
+  );
   const selectStatutDA = document.getElementById("da_search_statutDA");
   const selectStatutBC = document.getElementById("da_search_statutBC");
 
@@ -219,7 +239,10 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         // Si l'option actuellement sélectionnée est maintenant cachée, on reset le select
-        if (select.selectedOptions[0] && select.selectedOptions[0].style.display === "none") {
+        if (
+          select.selectedOptions[0] &&
+          select.selectedOptions[0].style.display === "none"
+        ) {
           select.value = "";
         }
       });
@@ -256,7 +279,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Pré-rempli le champ de date dans le formulaire du modal
         const dateInput = modalDateLivraison.querySelector(
-          "#da_modal_date_livraison_dateLivraisonPrevue",
+          "#da_modal_date_livraison_dateLivraisonPrevue"
         );
         if (dateInput) {
           dateInput.value = formatted;
@@ -272,7 +295,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // remplir le champ cacher avec le numero commande
       const numeroCdeInput = modalDateLivraison.querySelector(
-        "#da_modal_date_livraison_numeroCde",
+        "#da_modal_date_livraison_numeroCde"
       );
       if (numeroCdeInput) {
         numeroCdeInput.value = numeroCde;
@@ -280,7 +303,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 });
-
 
 /** ===================================================
  * MODAL de clôture de DDP
@@ -317,25 +339,23 @@ document.addEventListener("DOMContentLoaded", function () {
         .get(`api/statut-compta/${numeroDa}/${numeroCde}`)
         .then((data) => {
           modalBody.innerHTML = data
-            .map(
-              (item) => {
-                let styleStatut = "statut-" + transformerPhrase(item.statut);
-                return `
+            .map((item) => {
+              let styleStatut = "statut-" + transformerPhrase(item.statut);
+              return `
                         <tr>
                             <td>${item.date_soumission}</td>
                             <td>${item.numero}</td>
                             <td>${item.type}</td>
-                            <td>${item.motif || '-'}</td>
+                            <td>${item.motif || "-"}</td>
                             <td>${item.ratio_deja_paye}%</td>
                             <td class="text-end">${item.montant_ht}</td>
                             <td class="${styleStatut}">${item.statut}</td>
                         </tr>
                     `;
-              }
-            )
+            })
             .join("");
         })
-        .catch(error => {
+        .catch((error) => {
           console.error("Erreur:", error);
           modalBody.innerHTML = `<tr><td colspan="6" class="text-center">Erreur de chargement</td></tr>`;
         });
@@ -343,14 +363,19 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 function transformerPhrase(phrase) {
-  if (!phrase || typeof phrase !== 'string') {
-    return '';
+  if (!phrase || typeof phrase !== "string") {
+    return "";
   }
 
   // 1. Enlever les accents
-  const sansAccents = phrase.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const sansAccents = phrase.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
   // 2. Mettre en minuscules et remplacer les espaces par des tirets
-  return sansAccents.toLowerCase().trim().replace(/\s+/g, '-');
-
+  return sansAccents.toLowerCase().trim().replace(/\s+/g, "-");
 }
+
+const label = document.querySelector(
+  'label[for="da_search_afficherDaTraiter"]'
+);
+
+label.classList.add("text-danger");

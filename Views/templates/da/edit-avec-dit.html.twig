@@ -5,9 +5,9 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link href="{{ App.base_path }}/Views/css/new.css?v=2026.07.03.14.50" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/da/style.css?v=2026.07.03.14.50" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/dit/news.css?v=2026.07.03.14.50" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/new.css?v={{ App.browserHash }}" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/style.css?v={{ App.browserHash }}" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/dit/news.css?v={{ App.browserHash }}" rel="stylesheet"/>
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
@@ -240,5 +240,5 @@
 	</div>
 {% endblock %}
 {% block javascript %}
-	<script type="module" src="{{ App.base_path }}/Views/js/da/editAvecDit/edit.js?v=2026.07.03.14.50" type="module"></script>
+	<script type="module" src="{{ App.base_path }}/Views/js/da/editAvecDit/edit.js?v={{ App.browserHash }}" type="module"></script>
 {% endblock %}

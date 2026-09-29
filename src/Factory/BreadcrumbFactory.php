@@ -2,6 +2,7 @@
 
 namespace App\Factory;
 
+use App\Service\Admin\UrlIdCipher;
 use App\Service\navigation\MenuService;
 
 class BreadcrumbFactory
@@ -103,7 +104,10 @@ class BreadcrumbFactory
 
         // 3. Filtrer les segments non numériques
         $segments = array_values(array_filter($segments, function ($segment) {
-            return !is_numeric($segment) && !preg_match('/\d$/', $segment);
+            if (is_numeric($segment)) return false;
+            if (UrlIdCipher::isValid($segment)) return false;
+
+            return true;
         }));
 
         $breadcrumbs = [$accueil];
@@ -155,6 +159,7 @@ class BreadcrumbFactory
             'detail-direct'                         => 'Fiche détail DA directe',
             'da-list'                               => 'Liste des demandes d\'achat',
             'da-list-cde-frn'                       => 'Liste des commandes fournisseurs',
+            'new-da-achat'                          => "Nouvelle demande d'achat directe",
             'soumission-bc'                         => 'Soumission Bon de Commande',
             'soumission-facbl'                      => 'Soumission Facture / Bon de Livraison',
             'cde-fournisseur'                       => 'Soumission Commande Fournisseur',
@@ -184,7 +189,8 @@ class BreadcrumbFactory
             'planningAtelier'                       => 'Planning Interne de l\'Atelier',
             'planningAte'                           => 'Planning',
             'demande-de-conge'                      => 'Demande de congé',
-            'conge-liste'                           => ' Liste des demandes de congés'
+            'conge-liste'                           => 'Liste des demandes de congés',
+            'fiche-detail-dit'                      => 'Fiche détail d\'un DIT'
         ];
 
         $cleanSegment = str_replace(['-', '_'], ' ', $segment);

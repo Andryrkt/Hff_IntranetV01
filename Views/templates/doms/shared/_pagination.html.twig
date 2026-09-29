@@ -5,40 +5,42 @@
 			Excel
 		</a>
 
-		<a href="{{ path("dom_list_annuler")}}" class="btn btn-sm bg-danger text-white my-3 fw-bold">Listes Annulés</a>
-		<a href="{{ path("doms_liste")}}" class="btn btn-sm bg-warning text-white my-3 fw-bold">Listes</a>
+		<a href="{{ path("dom_list_annuler")}}" class="btn btn-sm bg-danger text-white my-3 ms-2 fw-bold {{ pageLink ==  'dom_list_annuler' ? 'disabled' : '' }}">Listes Annulés</a>
+		<a href="{{ path("doms_liste")}}" class="btn btn-sm bg-warning text-white my-3 ms-2 fw-bold {{ pageLink ==  'doms_liste' ? 'disabled' : '' }}">Listes</a>
 	</div>
 	<div>
 		<p class="fw-bold my-3" id="nombreResultat">{{resultat}}
-			Résultats</p>
+			Résultats
+		</p>
 	</div>
 	<div>
 		<p class="fw-bold my-3" id="nombreResultat">{{currentPage ~' / '~ (lastPage)}}
-			pages</p>
+			pages
+		</p>
 	</div>
 	<div class="navigation">
 		{% set queryParams = criteria  %}
 
 		{% if currentPage > 1 %}
-			<a class="btn btn-dark my-3" href="{{ path(page, queryParams|merge({'page': 1})) }}" data-bs-toggle="tooltip" title="Première page">
+			<a class="btn btn-dark my-3" href="{{ path(pageLink, queryParams|merge({'page': 1})) }}" data-bs-toggle="tooltip" title="Première page">
 				<i class="fas fa-angle-double-left text-warning"></i>
 			</a>
 		{% endif %}
 
 		{% if currentPage > 1 %}
-			<a class="btn btn-dark my-3" href="{{ path(page, queryParams|merge({'page': currentPage - 1})) }}" data-bs-toggle="tooltip" title="Page précédente">
+			<a class="btn btn-dark my-3" href="{{ path(pageLink, queryParams|merge({'page': currentPage - 1})) }}" data-bs-toggle="tooltip" title="Page précédente">
 				<i class="fas fa-angle-left text-warning"></i>
 			</a>
 		{% endif %}
 
 		{% if currentPage < lastPage %}
-			<a class="btn btn-dark" href="{{ path(page, queryParams|merge({'page': currentPage + 1})) }}" data-bs-toggle="tooltip" title="Page suivante">
+			<a class="btn btn-dark" href="{{ path(pageLink, queryParams|merge({'page': currentPage + 1})) }}" data-bs-toggle="tooltip" title="Page suivante">
 				<i class="fas fa-angle-right text-warning"></i>
 			</a>
 		{% endif %}
 
 		{% if currentPage < lastPage %}
-			<a class="btn btn-dark my-3" href="{{ path(page, queryParams|merge({'page': lastPage})) }}" data-bs-toggle="tooltip" title="Dernière page">
+			<a class="btn btn-dark my-3" href="{{ path(pageLink, queryParams|merge({'page': lastPage})) }}" data-bs-toggle="tooltip" title="Dernière page">
 				<i class="fas fa-angle-double-right text-warning"></i>
 			</a>
 		{% endif %}

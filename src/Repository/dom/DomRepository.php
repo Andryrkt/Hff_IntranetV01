@@ -33,10 +33,8 @@ class DomRepository extends EntityRepository
             )
             ->leftJoin('d.sousTypeDocument', 'td')
             ->leftJoin('d.idStatutDemande', 's')
-            ->andWhere($listAnnuler ? $queryBuilder->expr()->in('s.id', ':excludedStatuses') : $queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
             ->andWhere('d.codeSociete = :codeSociete')
             ->setParameter('codeSociete', $codeSociete)
-            ->setParameter('excludedStatuses', $excludedStatuses)
         ;
 
         // Filtre pour le statut        
@@ -55,6 +53,10 @@ class DomRepository extends EntityRepository
         if (!empty($domSearch->getNumDom())) {
             $queryBuilder->andWhere('d.numeroOrdreMission = :numDom')
                 ->setParameter('numDom', $domSearch->getNumDom());
+        } else {
+            $queryBuilder
+                ->andWhere($listAnnuler ? $queryBuilder->expr()->in('s.id', ':excludedStatuses') : $queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
+                ->setParameter('excludedStatuses', $excludedStatuses);
         }
 
         // Filtre pour le numero matricule

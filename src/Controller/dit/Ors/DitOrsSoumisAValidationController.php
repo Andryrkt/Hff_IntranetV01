@@ -13,6 +13,7 @@ use App\Controller\Traits\FormatageTrait;
 use App\Entity\admin\StatutDemande;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DemandeAppro;
+use App\Entity\ddd\DemandeDiagnosticPneu;
 use App\Entity\dit\BcSoumis;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitOrsSoumisAValidation;
@@ -181,6 +182,10 @@ class DitOrsSoumisAValidationController extends Controller
                 /** modifier la colonne numero_or dans la table demande_intervention */
                 $this->modificationDuNumeroOrDansDit($numDit, $ditInsertionOrSoumis, $codeSociete);
 
+                /** modifier la colonne numero_or dans la table demande_diagnostic_pneu */
+
+                $this->modificationDuNumeroOrDansDDD($numDit,  $ditInsertionOrSoumis);
+
                 /** modification da_valider */
                 $this->modificationDaAfficher($numDit, $ditInsertionOrSoumis->getNumeroOR(), $daAfficherRepository);
 
@@ -219,6 +224,12 @@ class DitOrsSoumisAValidationController extends Controller
         return $infoPieceFaibleAchat;
     }
 
+    private function ctrlDesConsommationsDePieces(string $numOr, string $codeSociete): array
+    {
+        $consommationDesPieces = $this->ditOrsoumisAValidationModel->getConsommationsDesPieces($numOr, $codeSociete);
+        return $consommationDesPieces;
+    }
+
     private function traitementDeFichier(FormInterface $form, DitOrsSoumisAValidation $ditInsertionOrSoumis, $codeSociete, $orSoumisValidataion, string $numOr): void
     {
         $suffix = $this->ditOrsoumisAValidationModel->constructeurPieceMagasin($numOr)[0]['retour'];
@@ -250,7 +261,22 @@ class DitOrsSoumisAValidationController extends Controller
         // $this->fusionPdfDaAvecORfusionner($numDit, $mainPdf, $daAfficherRepository);
 
         // 6.  envoyer le pdf fusionner dans DW
-        $genererPdfOrSoumisAValidation->copyToDw($nomFichier, $ditInsertionOrSoumis->getNumeroDit());
+        $reponse = $genererPdfOrSoumisAValidation->copyToDw($nomFichier, $ditInsertionOrSoumis->getNumeroDit());
+        // 9. modification de la colonne pdf_deposer_dw et date_depot_pdf_dw
+        $this->modificationBdPourHitorisationDw($ditInsertionOrSoumis, $reponse);
+    }
+
+    private function modificationBdPourHitorisationDw(DitOrsSoumisAValidation $ditInsertionOrSoumis, bool $reponse): void
+    {
+        $em = $this->getEntityManager();
+        $ors = $em->getRepository(DitOrsSoumisAValidation::class)->findBy(['numeroOR' => $ditInsertionOrSoumis->getNumeroOR(), 'numeroDit' => $ditInsertionOrSoumis->getNumeroDit(), 'codeSociete' => $ditInsertionOrSoumis->getCodeSociete()]);
+        foreach ($ors as $value) {
+            $value->setPdfDeposerDw($reponse)
+                ->setDateDepotPdfDw(new \DateTime());
+            $em->persist($value);
+        }
+
+        $em->flush();
     }
 
     private function enregistrementFichier(FormInterface $form, DitOrsSoumisAValidation $ditInsertionOrSoumis, string $suffix): array
@@ -377,6 +403,8 @@ class DitOrsSoumisAValidationController extends Controller
         $bcSoumisRepository = $this->getEntityManager()->getRepository(BcSoumis::class);
         $statutBc = $bcSoumisRepository->getStatut($numDit, $numeroDevis, $codeSociete);
 
+        /** verification si meme devise */
+        $estMemeDevise = $internetExterne === 'Externe' && !$this->ditOrsoumisAValidationModel->estMemeDevise($ditInsertionOrSoumis->getNumeroOR(), $codeSociete);
         return [
             'nomFichier'            => strpos($originalName, 'Ordre de réparation') !== 0,
             'numeroOrDifferent'     => $numOr !== $ditInsertionOrSoumis->getNumeroOR(),
@@ -391,6 +419,7 @@ class DitOrsSoumisAValidationController extends Controller
             'numcliExiste'          => $nbrNumcli[0] != 'existe_bdd',
             'premierSoumissionDatePlanningInferieurDateDuJour' => $this->premierSoumissionDatePlanningInferieurDateDuJour($numOr, $codeSociete),
             'statutBcNonValide'           => $statutBc !== 'Validé atelier' && $internetExterne === 'Externe',
+            'estMemeDevise'         => $estMemeDevise,
         ];
     }
 
@@ -467,6 +496,10 @@ class DitOrsSoumisAValidationController extends Controller
             $message = "Echec de la soumission de l'OR . . . le bon de commande n'est pas validé";
             $okey = false;
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+        } elseif ($conditionBloquage['estMemeDevise']) {
+            $message = "La soumission de l'OR est bloquée car la devise sur l'OR est différente de celle du client.";
+            $okey = false;
+            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
         } else {
             $okey = true;
         }
@@ -487,8 +520,10 @@ class DitOrsSoumisAValidationController extends Controller
 
         // information sur les pièces à faible achat
         $pieceFaibleAchat = $this->preparationDesPiecesFaibleAchat($numOr, $codeSociete);
+        // information sur les consommations de pièces
+        $ctrlDesConsommationsDePieces = $this->ctrlDesConsommationsDePieces($numOr, $codeSociete);
 
-        $genererPdfOrSoumisAValidation->GenererPdf($ditInsertionOrSoumis, $montantPdf, $quelqueaffichage, $this->nomUtilisateur()['mailUtilisateur'], $suffix, $pieceFaibleAchat, $nomAvecCheminFichier);
+        $genererPdfOrSoumisAValidation->GenererPdf($ditInsertionOrSoumis, $montantPdf, $quelqueaffichage, $this->nomUtilisateur()['mailUtilisateur'], $suffix, $pieceFaibleAchat, $ctrlDesConsommationsDePieces, $nomAvecCheminFichier);
     }
 
     private function modificationStatutOr($numDit, $codeSociete)
@@ -575,5 +610,14 @@ class DitOrsSoumisAValidationController extends Controller
         }
 
         return true;
+    }
+
+    private function modificationDuNumeroOrDansDDD($numDit, $ditInsertionOrSoumis)
+    {
+        $demandeDiagnosticPneu = $this->getEntityManager()->getRepository(DemandeDiagnosticPneu::class)->findOneBy(['numeroDit' => $numDit]);
+        if ($demandeDiagnosticPneu !== null) {
+            $demandeDiagnosticPneu->setNumeroOR($ditInsertionOrSoumis->getNumeroOR());
+            $this->getEntityManager()->flush();
+        }
     }
 }

@@ -18,6 +18,8 @@ use App\Repository\admin\AgenceRepository;
 use App\Repository\admin\ServiceRepository;
 use App\Constants\admin\ApplicationConstant;
 use App\Controller\Traits\da\DaListeDitTrait;
+use App\Dto\Dit\DitListItemDto;
+use App\Dto\Dit\DitStatusCountDto;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -25,6 +27,7 @@ use App\Repository\admin\StatutDemandeRepository;
 use App\Repository\admin\dit\CategorieAteAppRepository;
 use App\Repository\admin\dit\WorTypeDocumentRepository;
 use App\Repository\admin\dit\WorNiveauUrgenceRepository;
+use App\Service\Admin\UrlIdCipher;
 use App\Service\security\SecurityService;
 
 class DaListeDitController extends Controller
@@ -103,12 +106,12 @@ class DaListeDitController extends Controller
         $paginationData = $this->data($request, $ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $peutVoirListeAvecDebiteur, $codeSociete, $multisuccursale);
 
         return $this->render('da/list-dit.html.twig', [
-            'data'            => $paginationData['data'] ?? null,
+            'data'            => array_map(fn($item) => DitListItemDto::fromEntity($item, $this->getUrlGenerator(), new UrlIdCipher), $paginationData['data'] ?? null),
             'currentPage'     => $paginationData['currentPage'] ?? 0,
             'totalPages'      => $paginationData['lastPage'] ?? 0,
             'criteria'        => $criteriaTab,
             'resultat'        => $paginationData['totalItems'] ?? 0,
-            'statusCounts'    => $paginationData['statusCounts'] ?? 0,
+            'statusCounts'    => array_map([DitStatusCountDto::class, 'fromRow'], $paginationData['statusCounts'] ?? 0),
             'form'            => $form->createView(),
             'formIsSubmitted' => $form->isSubmitted(),
         ]);

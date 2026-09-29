@@ -87,7 +87,7 @@ class DaSoumissionFacBlController extends Controller
 
 
     /**
-     * permet de faire le rtraitement du formulaire
+     * permet de faire le traitement du formulaire
      */
     private function traitementFormulaire(
         Request $request,

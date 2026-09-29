@@ -87,7 +87,7 @@ class dossierInterventionAtelierModel extends Model
             ) dd ON dit.numero_dit = dd.numero_dit
             JOIN demande_intervention di ON dit.numero_dit = di.numero_demande_dit
             WHERE 1=1
-            $reparationRealise
+            --$reparationRealise
             $typeIntervention
             $numeroDev
             $numeroDit

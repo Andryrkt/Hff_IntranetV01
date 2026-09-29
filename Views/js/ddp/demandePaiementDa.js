@@ -64,11 +64,16 @@ document.addEventListener("DOMContentLoaded", function () {
   const poucentageAvance = document.querySelector(
     "#demande_paiement_da_pourcentageAvance",
   );
+  const container = document.getElementById("fournisseur-container");
+  const isFrnNonImmatricule = container.dataset.isNonImmatricule === "true";
+
   let lastValidPourcentageAPayer = 0; // Pour stocker la dernière valeur valide
 
   const poucentageAPayer = document.querySelector(
     "#demande_paiement_da_pourcentageAPayer",
   );
+
+  const submitButton = document.querySelector('button[type="submit"]');
 
   poucentageAPayer.addEventListener("input", changeMontant);
 
@@ -103,6 +108,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let montantAPayerValue = stringEnNumber(montantAPayer.value, " ");
     let montantTotalCdeValue = stringEnNumber(montantTotalCde.value, ".");
     let montantDejaPayerValue = stringEnNumber(montantDejaPayer.value, ".");
+
     // let montantRestantApayerValue = montantRestantApayer.value;
     console.log(
       montantTotalCde.value,
@@ -120,7 +126,11 @@ document.addEventListener("DOMContentLoaded", function () {
       montantDejaPayerValue,
       poucentageAPayerValue,
     );
-
+    if (isFrnNonImmatricule && e.target.value > 95) {
+      submitButton.disabled = true;
+    } else {
+      submitButton.disabled = false;
+    }
     // changement de pourcentage des avances
     pourcentageAvenceCalc(
       poucentageAPayerValue,
@@ -141,11 +151,19 @@ document.addEventListener("DOMContentLoaded", function () {
     montantDejaPayerValue,
     pourcentageAPayerValue,
   ) {
-    montantRestantApayer.value = formaterNombre(
-      montantTotalCdeValue -
-      montantDejaPayerValue -
-      montantAPayerCalc(pourcentageAPayerValue, montantTotalCdeValue),
-    );
+    if (isFrnNonImmatricule) {
+      montantRestantApayer.value = formaterNombre(
+        montantTotalCdeValue * 0.95 -
+          montantDejaPayerValue -
+          montantAPayerCalc(pourcentageAPayerValue, montantTotalCdeValue),
+      );
+    } else {
+      montantRestantApayer.value = formaterNombre(
+        montantTotalCdeValue -
+          montantDejaPayerValue -
+          montantAPayerCalc(pourcentageAPayerValue, montantTotalCdeValue),
+      );
+    }
   }
 
   function stringEnNumber(value, separateurMilier) {
@@ -167,15 +185,43 @@ document.addEventListener("DOMContentLoaded", function () {
     montantTotalCdeValue,
     montantDejaPayerValue,
   ) {
-    poucentageAvance.value =
-      (
-        ((montantDejaPayerValue +
-          montantAPayerCalc(pourcentageAPayerValue, montantTotalCdeValue)) /
-          montantTotalCdeValue) *
-        100
-      ).toFixed(2) +
-      " " +
-      "%";
+    if (!montantTotalCdeValue || montantTotalCdeValue <= 0) return;
+
+    // 1. Calcul du montant de la demande actuelle
+    let montantAPayer = montantAPayerCalc(
+      pourcentageAPayerValue,
+      montantTotalCdeValue,
+    );
+
+    let totalAvancePourcentage =
+      ((montantDejaPayerValue + montantAPayer) / montantTotalCdeValue) * 100;
+
+    if (isFrnNonImmatricule) {
+      totalAvancePourcentage =
+        ((montantDejaPayerValue + montantAPayer) /
+          (montantTotalCdeValue * 0.95)) *
+        100;
+      if (totalAvancePourcentage > 100) {
+        const error = document.querySelector("#pourcentageAPayerError");
+
+        error.textContent =
+          "Le total des pourcentages ne peut pas dépasser 95 %.";
+        error.classList.add("d-block");
+
+        poucentageAPayer.classList.add("is-invalid");
+      } else {
+        const error = document.querySelector("#pourcentageAPayerError");
+
+        error.textContent = "";
+        error.classList.remove("d-block");
+
+        poucentageAPayer.classList.remove("is-invalid");
+      }
+    } else {
+    }
+
+    //  Mise à jour de la valeur affichée dans poucentageAvance
+    poucentageAvance.value = totalAvancePourcentage.toFixed(2) + " %";
   }
 
   // File viewer logic
@@ -368,6 +414,6 @@ document.addEventListener("DOMContentLoaded", function () {
 /**==================================================
  * sweetalert pour le bouton Enregistrer
  *==================================================*/
-console.log("Bouton");
+// console.log("Bouton");
 
 setupConfirmationButtons();

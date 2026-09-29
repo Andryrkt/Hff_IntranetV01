@@ -39,7 +39,7 @@ trait DaTrait
         if ($this->daTraitInitialise) return;
 
         $em = $this->getEntityManager();
-        $this->emailDaService           = new EmailDaService($this->getTwig()); // Injection du service Twig depuis Controller
+        $this->emailDaService           = new EmailDaService($this->getTwig(), $this->getUrlGenerator()); // Injection du service Twig depuis Controller
         $this->daFileUploader           = new FileUploaderForDAService();
         $this->daAfficherRepository     = $em->getRepository(DaAfficher::class);
         $this->demandeApproRepository   = $em->getRepository(DemandeAppro::class);
@@ -207,5 +207,28 @@ trait DaTrait
         $em->persist($demandeAppro);
 
         if ($withFlush) $em->flush();
+    }
+
+    /**
+     * Normalise les caractères typographiques
+     * 
+     * @param  string $var Texte à normaliser
+     * @return string Texte normalisé
+     */
+    private function normalizeTypographicChars(?string $var): string
+    {
+        if (empty($var)) return '';
+
+        $map = [
+            "\u{2013}" => '-',   // – demi-cadratin
+            "\u{2014}" => '-',   // — cadratin
+            "\u{2018}" => "'",   // ' apostrophe ouvrante
+            "\u{2019}" => "'",   // ' apostrophe fermante
+            "\u{201C}" => '"',   // " guillemet ouvrant
+            "\u{201D}" => '"',   // " guillemet fermant
+            "\u{2026}" => '...', // … points de suspension
+        ];
+
+        return strtr($var, $map);
     }
 }

@@ -56,7 +56,7 @@ class DomsListeController extends Controller
         $criteria = $domSearch->toArray();
 
         $page = max(1, $request->query->getInt('page', 1));
-        $limit = 10;
+        $limit = 30;
 
         // Agence et service par défaut
         $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
@@ -103,7 +103,7 @@ class DomsListeController extends Controller
             [
                 'form'        => $form->createView(),
                 'data'        => $items,
-                'page'        => 'doms_liste',
+                'pageLink'    => 'doms_liste',
                 'currentPage' => $paginationData['currentPage'],
                 'lastPage'    => $paginationData['lastPage'],
                 'resultat'    => $paginationData['totalItems'],
@@ -131,7 +131,7 @@ class DomsListeController extends Controller
         $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DOM);
 
         // Vérifier la permission de voir tous les données
-        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE, "doms_liste");
 
         // Vérifier le permission de voir liste avec débiteur sur la page 'doms_liste'
         $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2, "doms_liste");
@@ -260,7 +260,7 @@ class DomsListeController extends Controller
             [
                 'form'        => $form->createView(),
                 'data'        => $items,
-                'page'        => 'dom_list_annuler',
+                'pageLink'    => 'dom_list_annuler',
                 'currentPage' => $paginationData['currentPage'],
                 'lastPage'    => $paginationData['lastPage'],
                 'resultat'    => $paginationData['totalItems'],

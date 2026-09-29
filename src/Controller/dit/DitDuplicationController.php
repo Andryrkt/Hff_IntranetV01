@@ -37,9 +37,9 @@ class DitDuplicationController extends Controller
     use FormatageTrait;
     use PdfConversionTrait;
 
-    private $historiqueOperation;
-    private $demandeInterventionFactory;
     private DitModel $ditModel;
+    private HistoriqueOperationDITService $historiqueOperation;
+    private DemandeInterventionFactory $demandeInterventionFactory;
 
     public function __construct()
     {
@@ -191,7 +191,7 @@ class DitDuplicationController extends Controller
             $dto->mailDemandeur = $user->getMail();
 
             /**   @var array $demandeInterventions 3. Utiliser la factory pour créer l'entité complète*/
-            $demandeInterventions = $this->createDemandeInterventionFromDto($dto);
+            $demandeInterventions = $this->createDemandeInterventionFromDto($dto, $this->demandeInterventionFactory);
 
 
             foreach ($demandeInterventions as $demandeIntervention) {

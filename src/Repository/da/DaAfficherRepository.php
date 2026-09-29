@@ -2,11 +2,13 @@
 
 namespace App\Repository\da;
 
+use App\Entity\da\DaAfficher;
+use App\Entity\da\DemandeAppro;
+use Doctrine\ORM\EntityRepository;
 use App\Constants\da\StatutBcConstant;
 use App\Constants\da\StatutDaConstant;
 use App\Constants\da\StatutOrConstant;
-use App\Entity\da\DaAfficher;
-use Doctrine\ORM\EntityRepository;
+use App\Constants\da\StatutActionConstant;
 
 class DaAfficherRepository extends EntityRepository
 {
@@ -402,17 +404,6 @@ class DaAfficherRepository extends EntityRepository
      */
     public function findValidatedDas(array $criteria = [], string $codeSociete): array
     {
-        // -------------------------------------
-        // 1. Sous-requête : versions maximales par DA
-        // -------------------------------------
-        $subQb = $this->_em->createQueryBuilder();
-        $subQb->select(
-            'd.numeroDemandeAppro',
-            'MAX(d.numeroVersion) as maxVersion'
-        )
-            ->from(DaAfficher::class, 'd')
-            ->groupBy('d.numeroDemandeAppro');
-
         $statutOrs = [
             StatutOrConstant::STATUT_VALIDE,
             StatutDaConstant::STATUT_DW_VALIDEE
@@ -427,30 +418,24 @@ class DaAfficherRepository extends EntityRepository
             StatutDaConstant::STATUT_VALIDE
         ];
 
-        $subQb->andWhere(
-            $subQb->expr()->orX(
-                $subQb->expr()->in('d.statutOr', ':statutOrs'),
-                $subQb->expr()->in('d.numeroDemandeAppro', ':exceptions')
+        // -------------------------------------
+        // 1. Sous-requête corrélée : version maximale par DA
+        // (remplace l'ancienne boucle PHP qui dépassait la limite de
+        // 2100 paramètres de SQL Server pour les gros volumes de DA)
+        // -------------------------------------
+        $subQb = $this->_em->createQueryBuilder();
+        $subQb->select('MAX(sub.numeroVersion)')
+            ->from(DaAfficher::class, 'sub')
+            ->where('sub.numeroDemandeAppro = d.numeroDemandeAppro')
+            ->andWhere(
+                $subQb->expr()->orX(
+                    $subQb->expr()->in('sub.statutOr', ':statutOrs'),
+                    $subQb->expr()->in('sub.numeroDemandeAppro', ':exceptions')
+                )
             )
-        );
+            ->andWhere('sub.statutDal IN (:statutDal)');
 
-        $subQb->andWhere('d.statutDal IN (:statutDal)');
-
-        $subQb->setParameter('statutOrs', $statutOrs)
-            ->setParameter('exceptions', $exceptions)
-            ->setParameter('statutDal', $statutDas);
-
-        $latestVersions = $subQb->getQuery()->getArrayResult();
-
-        if (empty($latestVersions)) {
-            return [];
-        }
-
-        // Mapping numéro DA -> version max
-        $latestVersionsMap = [];
-        foreach ($latestVersions as $version) {
-            $latestVersionsMap[$version['numeroDemandeAppro']] = $version['maxVersion'];
-        }
+        $subDql = $subQb->getDQL();
 
         // -------------------------------------
         // 2. Requête principale
@@ -473,24 +458,7 @@ class DaAfficherRepository extends EntityRepository
         $filterService->applyDateFilters($qb, "d", $criteria, true);
 
         // garder uniquement les dernières versions
-        $orX = $qb->expr()->orX();
-        $paramIndex = 0;
-
-        foreach ($latestVersionsMap as $numeroDemandeAppro => $maxVersion) {
-            $orX->add(
-                $qb->expr()->andX(
-                    $qb->expr()->eq('d.numeroDemandeAppro', ':numDa' . $paramIndex),
-                    $qb->expr()->eq('d.numeroVersion', ':maxVer' . $paramIndex)
-                )
-            );
-
-            $qb->setParameter('numDa' . $paramIndex, $numeroDemandeAppro);
-            $qb->setParameter('maxVer' . $paramIndex, $maxVersion);
-
-            $paramIndex++;
-        }
-
-        $qb->andWhere($orX);
+        $qb->andWhere('d.numeroVersion = (' . $subDql . ')');
 
         // statuts
         $qb->andWhere('d.statutDal IN (:statutDal)')
@@ -505,6 +473,7 @@ class DaAfficherRepository extends EntityRepository
             ->andWhere('d.codeSociete = :codeSociete')
             ->setParameter('codeSociete', $codeSociete)
             ->setParameter('statutOrsValide', $statutOrs)
+            ->setParameter('statutOrs', $statutOrs)
             ->setParameter('exceptions', $exceptions);
 
         // tri
@@ -700,7 +669,6 @@ class DaAfficherRepository extends EntityRepository
             ->getSingleColumnResult();
     }
 
-
     public function findDerniereVersionDesDA(
         array $criteria,
         string $codeSociete
@@ -780,139 +748,6 @@ class DaAfficherRepository extends EntityRepository
             ->getQuery()
             ->getOneOrNullResult()
         ;
-    }
-
-    public function getTimelineData(string $numDa)
-    {
-        $qb = $this->createQueryBuilder('d')
-            ->select('DISTINCT d.statutDal', 'd.statutOr', 'd.dateCreation', 'd.dateDemande')
-            ->where('d.numeroDemandeAppro = :numDa')
-            ->setParameter('numDa', $numDa)
-            ->orderBy('d.dateCreation', 'ASC');
-
-        return $qb->getQuery()->getResult();
-    }
-
-    public function getAllNumCdeAndVmax(string $numDa)
-    {
-        $numeroVersionMax = $this->createQueryBuilder('d')
-            ->select('MAX(d.numeroVersion)')
-            ->where('d.numeroDemandeAppro = :numDa')
-            ->setParameter('numDa', $numDa)
-            ->getQuery()
-            ->getSingleScalarResult();
-
-        if (!$numeroVersionMax) return [];
-
-        $qb = $this->createQueryBuilder('d')
-            ->select('DISTINCT d.numeroCde', 'd.numeroVersion')
-            ->where('d.numeroDemandeAppro = :numDa')
-            ->andWhere('d.numeroVersion = :numeroVersionMax')
-            ->andWhere('d.numeroCde IS NOT NULL')
-            ->andWhere('d.numeroCde != :vide')
-            ->setParameters([
-                'vide' => '',
-                'numDa' => $numDa,
-                'numeroVersionMax' => $numeroVersionMax
-            ])
-            ->orderBy('d.numeroCde', 'ASC');
-
-        return $qb->getQuery()->getResult();
-    }
-
-    public function getDateCreationBc(string $numDa, int $numeroVersion, string $numeroCde): ?\DateTimeInterface
-    {
-        $result = $this->createQueryBuilder('d')
-            ->select('MIN(d.dateCreationBc)')
-            ->where('d.numeroDemandeAppro = :numDa')
-            ->andWhere('d.numeroVersion = :numeroVersion')
-            ->andWhere('d.numeroCde = :numeroCde')
-            ->andWhere('d.dateCreationBc IS NOT NULL')
-            ->setParameters([
-                'numDa' => $numDa,
-                'numeroVersion' => $numeroVersion,
-                'numeroCde' => $numeroCde
-            ])
-            ->getQuery()
-            ->getSingleScalarResult();
-
-        return $result ? new \DateTime($result) : null;
-    }
-
-    public function getDateValidationBc(string $numDa, int $numeroVersion, string $numeroCde): ?\DateTimeInterface
-    {
-        $result = $this->createQueryBuilder('d')
-            ->select('MIN(d.dateValidationBc)')
-            ->where('d.numeroDemandeAppro = :numDa')
-            ->andWhere('d.numeroVersion = :numeroVersion')
-            ->andWhere('d.numeroCde = :numeroCde')
-            ->andWhere('d.dateValidationBc IS NOT NULL')
-            ->setParameters([
-                'numDa' => $numDa,
-                'numeroVersion' => $numeroVersion,
-                'numeroCde' => $numeroCde
-            ])
-            ->getQuery()
-            ->getSingleScalarResult();
-
-        return $result ? new \DateTime($result) : null;
-    }
-
-    public function getDateEnvoiFournisseur(string $numDa, int $numeroVersion, string $numeroCde): ?\DateTimeInterface
-    {
-        $result = $this->createQueryBuilder('d')
-            ->select('MIN(d.dateEnvoiFournisseur)')
-            ->where('d.numeroDemandeAppro = :numDa')
-            ->andWhere('d.numeroVersion = :numeroVersion')
-            ->andWhere('d.numeroCde = :numeroCde')
-            ->andWhere('d.dateEnvoiFournisseur IS NOT NULL')
-            ->setParameters([
-                'numDa' => $numDa,
-                'numeroVersion' => $numeroVersion,
-                'numeroCde' => $numeroCde
-            ])
-            ->getQuery()
-            ->getSingleScalarResult();
-
-        return $result ? new \DateTime($result) : null;
-    }
-
-    public function getDateReceptionArticle(string $numDa, int $numeroVersion, string $numeroCde): ?\DateTimeInterface
-    {
-        $result = $this->createQueryBuilder('d')
-            ->select('MIN(d.dateReceptionArticle)')
-            ->where('d.numeroDemandeAppro = :numDa')
-            ->andWhere('d.numeroVersion = :numeroVersion')
-            ->andWhere('d.numeroCde = :numeroCde')
-            ->andWhere('d.dateReceptionArticle IS NOT NULL')
-            ->setParameters([
-                'numDa' => $numDa,
-                'numeroVersion' => $numeroVersion,
-                'numeroCde' => $numeroCde
-            ])
-            ->getQuery()
-            ->getSingleScalarResult();
-
-        return $result ? new \DateTime($result) : null;
-    }
-
-    public function getDateLivraisonArticle(string $numDa, int $numeroVersion, string $numeroCde): ?\DateTimeInterface
-    {
-        $result = $this->createQueryBuilder('d')
-            ->select('MIN(d.dateLivraisonArticle)')
-            ->where('d.numeroDemandeAppro = :numDa')
-            ->andWhere('d.numeroVersion = :numeroVersion')
-            ->andWhere('d.numeroCde = :numeroCde')
-            ->andWhere('d.dateLivraisonArticle IS NOT NULL')
-            ->setParameters([
-                'numDa' => $numDa,
-                'numeroVersion' => $numeroVersion,
-                'numeroCde' => $numeroCde
-            ])
-            ->getQuery()
-            ->getSingleScalarResult();
-
-        return $result ? new \DateTime($result) : null;
     }
 
     public function getTypeDaSelonNumDa(string $numDa)

@@ -10,6 +10,8 @@ use App\Entity\dit\DitOrsSoumisAValidation;
 
 trait PlanningTraits
 {
+    use Transformation;
+
     private function orEnString($criteria): string
     {
         $numOrValide = $this->transformEnSeulTableau($criteria);

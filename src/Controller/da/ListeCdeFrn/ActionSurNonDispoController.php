@@ -39,7 +39,7 @@ class ActionSurNonDispoController extends Controller
         $this->daAfficherRepository     = $this->em->getRepository(DaAfficher::class);
         $this->demandeApproLRepository  = $this->em->getRepository(DemandeApproL::class);
         $this->demandeApproLRRepository = $this->em->getRepository(DemandeApproLR::class);
-        $this->emailDaService           = new EmailDaService($this->getTwig());
+        $this->emailDaService           = new EmailDaService($this->getTwig(), $this->getUrlGenerator());
     }
 
     /**

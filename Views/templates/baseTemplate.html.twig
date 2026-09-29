@@ -8,10 +8,10 @@
 			<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
 			<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-theme@0.1.0-beta.10/dist/select2-bootstrap.min.css" rel="stylesheet">
 
-			<link href="{{ App.base_path }}/Views/css/styles.css?v=2026.07.03.14.50" rel="stylesheet"/>
-			<link href="{{ App.base_path }}/Views/css/style.css?v=2026.07.03.14.50" rel="stylesheet">
-			<link href="{{ App.base_path }}/Views/css/styleBreadCrumb.css?v=2026.07.03.14.50" rel="stylesheet">
-			<link href="{{ App.base_path }}/Views/css/documentation.css?v=2026.07.03.14.50" rel="stylesheet">
+			<link href="{{ App.base_path }}/Views/css/styles.css?v={{ App.browserHash }}" rel="stylesheet"/>
+			<link href="{{ App.base_path }}/Views/css/style.css?v={{ App.browserHash }}" rel="stylesheet">
+			<link href="{{ App.base_path }}/Views/css/styleBreadCrumb.css?v={{ App.browserHash }}" rel="stylesheet">
+			<link href="{{ App.base_path }}/Views/css/documentation.css?v={{ App.browserHash }}" rel="stylesheet">
 			<link href="{{ App.base_path }}/Views/assets/favicon.jpg" type="image/x-icon" rel="shortcut icon">
 			{% block stylesheets %}{% endblock %}
 			<title>
@@ -68,7 +68,7 @@
 		<!-- autocomplete -->
 		<script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/autoComplete.min.js"></script>
 
-		<script src="{{ App.base_path }}/Views/js/scripts.js?v=2026.03.17.09.21" type="module"></script>
+		<script src="{{ App.base_path }}/Views/js/scripts.js?v={{ App.browserHash }}" type="module"></script>
 		<script>
 			// Afficher le spinner lors du déchargement de la page (navigation)
 			window.addEventListener('beforeunload', function() {

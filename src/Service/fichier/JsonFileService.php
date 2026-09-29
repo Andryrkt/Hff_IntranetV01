@@ -4,15 +4,15 @@ namespace App\Service\fichier;
 
 class JsonFileService
 {
-    private $filePath;
-    private $data = [];
+    private string $filePath;
+    private array $data = [];
 
     /**
      * Constructeur, prend en paramètre le chemin vers le fichier JSON.
      */
-    public function __construct($filePath)
+    public function __construct(?string $filePath = null)
     {
-        $this->filePath = $filePath;
+        $this->filePath = $filePath ?? rtrim($_ENV['BASE_PATH_FICHIER'], "/\\") . "/variable_global/liste_constructeur.json";
         $this->load();
     }
 
@@ -62,7 +62,7 @@ class JsonFileService
      * Récupère les éléments d'une section (clé) donnée.
      * Retourne null si la clé n'existe pas.
      */
-    public function getSection($key)
+    public function getSection(string $key)
     {
         return $this->data[$key] ?? null;
     }
@@ -71,7 +71,7 @@ class JsonFileService
      * Ajoute ou met à jour une section complète.
      * $value doit être un tableau, par exemple ["AGR", "ATC", "AUS"].
      */
-    public function setSection($key, array $value)
+    public function setSection(string $key, array $value)
     {
         $this->data[$key] = $value;
     }
@@ -79,7 +79,7 @@ class JsonFileService
     /**
      * Ajoute un élément à une section si celle-ci existe et que l'élément n'est pas déjà présent.
      */
-    public function addElementToSection($section, $element)
+    public function addElementToSection(string $section, mixed $element)
     {
         if (!isset($this->data[$section])) {
             $this->data[$section] = [];
@@ -93,7 +93,7 @@ class JsonFileService
     /**
      * Supprime un élément d'une section donnée.
      */
-    public function removeElementFromSection($section, $element)
+    public function removeElementFromSection(string $section, mixed $element)
     {
         if (isset($this->data[$section])) {
             $this->data[$section] = array_filter($this->data[$section], function ($e) use ($element) {
@@ -101,5 +101,4 @@ class JsonFileService
             });
         }
     }
-
 }

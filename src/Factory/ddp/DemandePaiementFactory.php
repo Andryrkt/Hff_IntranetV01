@@ -80,7 +80,6 @@ class DemandePaiementFactory
         $this->ddpRecap($dto);
 
 
-
         return $dto;
     }
 
@@ -112,8 +111,9 @@ class DemandePaiementFactory
         $dto->numeroFacture = null;
         $dto->numeroFactureIps = null;
         $dto->numeroCommande = $numCdeDa;
-        $dto->debiteur = $this->getDebiteur($typeDa, $infoDa);
         $dto->codeSociete = $this->securityService->getCodeSocieteUser();
+        $dto->statutBcAppro = $this->em->getRepository(DaSoumissionBc::class)->getStatut($numCdeDa, $dto->codeSociete);
+        $dto->debiteur = $this->getDebiteur($typeDa, $infoDa);
         $dto->numeroOr = $numOr;
         $dto->infoBc = $this->dataService->getInfoBc($dto->numeroCommande, $dto->codeSociete);
 
@@ -172,6 +172,7 @@ class DemandePaiementFactory
             $dto->beneficiaire = $data['nom_fournisseur'];
             $dto->modePaiement = $data['mode_paiement'];
             $dto->devise = $data['devise'];
+            $dto->isFrnNonImmatricule = $this->ddpModel->isFrnNonImmatricule($dto->numeroFournisseur);
         }
     }
 
@@ -181,11 +182,12 @@ class DemandePaiementFactory
         $dto->totalMontantCommande = $montantCommande['montant_total_cde_ttc'];
 
         [$montantDejaPaye, $ratioMontantDejaPaye, $montantAregulariser, $ratioMontantARegul] = $this->financialService->calculatePaymentRatios($dto);
+
         $dto->montantDejaPaye = $montantDejaPaye;
         $dto->ratioMontantDejaPaye = $ratioMontantDejaPaye;
         $dto->montantAregulariser = $montantAregulariser;
         $dto->ratioMontantARegul = $ratioMontantARegul;
-
+        $dto->isFrnNonImmatricule = $this->ddpModel->isFrnNonImmatricule($dto->numeroFournisseur);
         [$pourcentageAvance, $pourcentageAPayer] = $this->financialService->calculateGlobalFinancials($dto);
         $dto->pourcentageAvance = $pourcentageAvance;
         $dto->pourcentageAPayer = $pourcentageAPayer;

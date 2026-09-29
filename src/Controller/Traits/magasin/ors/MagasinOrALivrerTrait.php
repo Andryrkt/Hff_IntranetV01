@@ -10,7 +10,7 @@ use App\Model\magasin\MagasinListeOrATraiterModel;
 
 trait MagasinOrALIvrerTrait
 {
-    private function recupData($criteria)
+    private function recupData(array $criteria)
     {
         $magasinListOrLivrerModel = new MagasinListeOrLivrerModel();
 

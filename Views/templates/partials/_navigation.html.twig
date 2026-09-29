@@ -29,9 +29,9 @@
 				<!-- Menu utilisateur -->
 				<ul class="navbar-nav ms-lg-auto">
 					<li class="me-3">
-						<a class="app-version" href="{{ App.base_path_fichier }}/version/Versions Intranet 2026 05 29.pdf" target="_blank" role="button">
+						<a class="app-version" href="{{ App.base_path_fichier }}/version/Versions Intranet 2026 07 17.pdf" target="_blank" role="button">
 							<i class="fas fas fa-tag"></i>
-							Version: V20260529.8.0.0
+							Version: V20260717.8.1.0
 						</a>
 					</li>
 					<li class="me-3">
@@ -52,9 +52,9 @@
 					{% endif %}
 
 					<li class="nav-item dropdown">
-						<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" id="userName" data-user-full-name="{{ App.userConnecter.fullname }}" aria-expanded="false" style="color: #fbbb01;">
+						<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" id="userName" data-user-full-name="{{ App.connectedUser.fullname }}" aria-expanded="false" style="color: #fbbb01;">
 							<i class="fas fa-user pe-1"></i>
-							{{ App.userConnecter.lastname ~ '.' ~ App.userConnecter.firstname }}
+							{{ App.connectedUser.lastname ~ '.' ~ App.connectedUser.firstname }}
 						</a>
 						<ul
 							class="dropdown-menu dropdown-menu-end">

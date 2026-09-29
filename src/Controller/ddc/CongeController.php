@@ -422,10 +422,10 @@ class CongeController extends Controller
         $serviceCodeUser = $this->getSecurityService()->getCodeServiceUser();
 
         // Vérifier la permission de voir tous les données
-        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE, "conge_liste");
 
         // Agences Services autorisés sur le Demande de congé
-        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DDC);
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_DDC, "conge_liste");
 
         // Récupérer toutes les demandes de congé pour les afficher dans le calendrier
         // On peut filtrer selon les critères enregistrés dans la session
@@ -1160,6 +1160,6 @@ class CongeController extends Controller
     private function hasAccessGroupeDirection(): bool
     {
         /** est Administrateur ou RH ou "Zoary" */
-        return $this->estAdmin() || $this->estRH() || in_array($this->getUserName() ,["zoary", "mahery"]);
+        return $this->estAdmin() || $this->estRH() || in_array($this->getUserName(), ["zoary", "mahery"]);
     }
 }

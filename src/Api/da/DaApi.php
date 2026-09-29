@@ -49,7 +49,7 @@ class DaApi extends Controller
     }
 
     /**
-     * @Route("/api/demande-appro/autocomplete/all-designation-da-via-or/{famille}/{sousfamille}", name="api_autocomplete_all_designation_da_via_or")
+     * @Route("/api/demande-appro/autocomplete/all-designation-da-via-or/{codeFamille}/{codeSousfamille}", name="api_autocomplete_all_designation_da_via_or")
      *
      * @return void
      */

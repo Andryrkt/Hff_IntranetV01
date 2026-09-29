@@ -23,11 +23,7 @@
 					<div class="col-12 col-md-2">
 						{{form_row(form.numOr)}}
 						{{form_row(form.orBackOrder)}}
-						{% if App.userConnecter.isAdmin %}
-							{{form_row(form.orNonValiderDw)}}
-						{% else %}
-							{{form_row(form.orNonValiderDw, {'row_attr': {'class': 'd-none'}})}}
-						{% endif %}
+						{{form_row(form.orNonValiderDw)}}
 					</div>
 					<div class="col-12 col-md-2">
 						{{form_row(form.numeroDevis)}}

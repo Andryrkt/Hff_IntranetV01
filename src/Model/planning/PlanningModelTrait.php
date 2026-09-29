@@ -70,7 +70,7 @@ trait PlanningModelTrait
         $vtypeligne = " AND slor_constp in ( $constructeurAchatLocaux )";
         break;
       case "LUBRIFIANTS":
-        $constructeurLub = GlobalVariablesService::get('lub');
+        $constructeurLub = GlobalVariablesService::get('pneumatique');
         $vtypeligne = " AND slor_constp in ( $constructeurLub )  AND slor_typlig = 'P'";
         break;
       case "PNEUMATIQUES":
