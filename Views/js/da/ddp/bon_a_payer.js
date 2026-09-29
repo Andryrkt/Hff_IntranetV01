@@ -50,7 +50,12 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         return;
       }
-      const selectedBAPs = checkedBoxes.map((cb) => cb.name);
+      const selectedBAPs = checkedBoxes.map((cb) => {
+        return {
+          numeroDdp: cb.dataset.numeroDdp,
+          numeroCde: cb.dataset.numeroCde,
+        };
+      });
       console.log(selectedBAPs);
 
       const confirmation = await Swal.fire({
@@ -71,7 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const response = await fetchManager.post(
             `api/transmettre-bap-compta`,
             {
-              bapNumbers: selectedBAPs,
+              selectedDDP: selectedBAPs,
             }
           );
           displayOverlay(false);
@@ -91,7 +96,8 @@ document.addEventListener("DOMContentLoaded", () => {
               icon: "error",
               title: "Erreur lors de la transmission",
               text:
-                response.error || response.message ||
+                response.error ||
+                response.message ||
                 "Une erreur est survenue lors de la transmission des demandes DDP/BAP.",
             });
           }

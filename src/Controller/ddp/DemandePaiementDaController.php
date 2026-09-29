@@ -151,8 +151,8 @@ class DemandePaiementDaController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             $dto = $form->getdata();
 
-            $nomFichier = $this->traitementDeFichier($dto, $form);
-            $this->enregistrementSurBd($dto, $nomFichier);
+            $this->traitementDeFichier($dto, $form);
+            $this->enregistrementSurBd($dto);
 
             // si on crée le demande de paiement avance avec la soumission BC
             if ($dto->ddpaDa) {
@@ -211,7 +211,7 @@ class DemandePaiementDaController extends Controller
         }
     }
 
-    private function enregistrementSurBd(DemandePaiementDto $dto, string $nomFichier): void
+    private function enregistrementSurBd(DemandePaiementDto $dto): void
     {
         // enregistrement dans la table deamnde_paiement
         $ddp = $this->demandePaiementService->createDdp($dto);
@@ -226,7 +226,7 @@ class DemandePaiementDaController extends Controller
         $demandePaiementCommandeService->createDdpCommande($dto, $ddp);
     }
 
-    private function traitementDeFichier(DemandePaiementDto $dto, FormInterface $form): string
+    private function traitementDeFichier(DemandePaiementDto $dto, FormInterface $form): void
     {
         $numCdes = [];
         $numeroCommandes = '';
@@ -260,14 +260,7 @@ class DemandePaiementDaController extends Controller
             $dto->numeroCommande = $numeroCommandes;
         }
         $dto->lesFichiers = $this->docDemandePaiementService->fusionDesFichiersDansUnTableau($dto, $nomFichiersTelecharger);
-        // generation de la page de garde DDP
-        $this->pageDeGarde($dto, $nomAvecCheminFichier);
-        $fichierChoisiAvecChemins = $this->docDemandePaiementService->fichierChoisiAvecChemin($dto);
         $this->docDemandePaiementService->copieFichierChoisi($dto);
-        // fusion des PDF (page de garde DDP+ autres documents)
-        $this->fusionDesPdf($nomEtCheminFichiersEnregistrer, $fichierChoisiAvecChemins, $nomAvecCheminFichier);
-
-        return $nomFichier;
     }
 
 
@@ -309,14 +302,5 @@ class DemandePaiementDaController extends Controller
         $nomAvecCheminFichier = $path . '/' . $nomFichier;
 
         return [$nomEtCheminFichiersEnregistrer, $nomFichierTelecharger,  $nomAvecCheminFichier, $nomFichier];
-    }
-
-    private function fusionDesPdf(array $nomEtCheminFichiersEnregistrer, array $fichierChoisiAvecChemins, string $nomAvecCheminFichier): void
-    {
-        $traitementDeFichier = new TraitementDeFichier();
-        $nomEtCheminFichiersEnregistrer = array_merge($nomEtCheminFichiersEnregistrer, $fichierChoisiAvecChemins);
-        $fichierConvertir = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
-        $tousLesFichersAvecChemin = $traitementDeFichier->insertFileAtPosition($fichierConvertir, $nomAvecCheminFichier, 0);
-        $traitementDeFichier->fusionFichers($tousLesFichersAvecChemin, $nomAvecCheminFichier);
     }
 }
