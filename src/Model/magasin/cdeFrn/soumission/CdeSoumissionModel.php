@@ -409,7 +409,7 @@ class CdeSoumissionModel extends Model
         INNER JOIN derniere_version v
             ON  t.numero_devis   = v.numero_devis
             AND t.numero_version = v.max_version
-        WHERE t.statut_bc='Validé'";
+        WHERE t.statut_bc like 'Valid%'";
 
         $result = $this->connect->executeQuery($statement);
         $rows   = $this->connect->fetchResults($result);
