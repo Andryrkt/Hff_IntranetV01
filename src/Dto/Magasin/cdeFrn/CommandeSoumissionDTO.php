@@ -60,4 +60,11 @@ class CommandeSoumissionDTO
 
         return number_format($this->poidsTotal, 2, ',', ' ');
     }
+
+    public function getMontantTotal(): string
+    {
+        if ($this->montantTotal === null) return "";
+
+        return number_format($this->montantTotal, 2, ',', ' ');
+    }
 }
