@@ -214,7 +214,7 @@ class CdeSoumissionModel extends Model
         $detailsParPiece = $this->findLignesSavEtVenteNegoceParPieces($numCde, $pairs);
         $allValidatedPO  = $this->findAllValidatedPO($numCde, $codeSociete);
 
-        return (new CommandeSoumissionFactory)->hydrate($data, $detailsParPiece["lignesParPiece"], $detailsParPiece["ordresReparationValides"], $userMail);
+        return (new CommandeSoumissionFactory)->hydrate($data, $detailsParPiece["lignesParPiece"], $detailsParPiece["ordresReparationValides"], $allValidatedPO, $userMail);
     }
 
     /**
