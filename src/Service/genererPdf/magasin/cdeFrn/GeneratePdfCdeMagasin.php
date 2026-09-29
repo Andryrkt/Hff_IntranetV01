@@ -299,8 +299,11 @@ class GeneratePdfCdeMagasin extends GeneratePdf
 
         $this->drawFooterSeparator($this->pdf->GetX(), $this->pdf->GetY() + 1.5, $this->pdf->GetPageWidth() - self::MARGIN_LEFT);
 
-        $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, 'Documents OR rattachés (OR validé) :', 0, 1);
-        $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, 'Documents PO rattachés (PO validé) :', 0, 1);
+        $this->pdf->MultiCell(0, 0, "Documents OR rattachés (OR validé) :\n{$dto->getAllValidatedOR()}", 0, "L");
+
+        $this->pdf->Ln(3);
+
+        $this->pdf->MultiCell(0, 0, "Documents PO rattachés (PO validé) :\n{$dto->getAllValidatedPO()}", 0, "L");
     }
 
     private function getUsableWidth(): float
