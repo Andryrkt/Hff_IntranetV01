@@ -53,4 +53,11 @@ class CommandeSoumissionDTO
     {
         return "{$this->libelleAgence} - {$this->libelleService}";
     }
+
+    public function getPoidsTotal(): string
+    {
+        if ($this->poidsTotal === null) return "";
+
+        return number_format($this->poidsTotal, 2, ',', ' ');
+    }
 }
