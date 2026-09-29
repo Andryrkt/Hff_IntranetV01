@@ -35,12 +35,14 @@ class CdeSoumissionModel extends Model
     private string $ipsSkw;
     private string $ipsNegEnt;
     private string $ipsNegLig;
+    private string $iriumBcClientSoumisNeg;
 
     public function __construct()
     {
         parent::__construct();
         $this->selectCond = new SelectWhereCondition();
 
+        // IPS
         $this->ipsAgrTab  = "{$this->dbIps}:Informix.agr_tab";
         $this->ipsAgrDev  = "{$this->dbIps}:Informix.agr_dev";
         $this->ipsFrnBse  = "{$this->dbIps}:Informix.frn_bse";
@@ -60,6 +62,9 @@ class CdeSoumissionModel extends Model
         $this->ipsSkw     = "{$this->dbIps}:Informix.skw";
         $this->ipsNegEnt  = "{$this->dbIps}:Informix.neg_ent";
         $this->ipsNegLig  = "{$this->dbIps}:Informix.neg_lig";
+
+        // IRIUM
+        $this->iriumBcClientSoumisNeg = "{$this->dbIrium}:Informix.bc_client_soumis_neg";
     }
 
     /** 
@@ -207,6 +212,7 @@ class CdeSoumissionModel extends Model
         }
 
         $detailsParPiece = $this->findLignesSavEtVenteNegoceParPieces($numCde, $pairs);
+        $allValidatedPO  = $this->findAllValidatedPO($numCde, $codeSociete);
 
         return (new CommandeSoumissionFactory)->hydrate($data, $detailsParPiece["lignesParPiece"], $detailsParPiece["ordresReparationValides"], $userMail);
     }
@@ -348,6 +354,69 @@ class CdeSoumissionModel extends Model
 
         while ($row = odbc_fetch_array($statement)) {
             $data[] = $row["numeroOR"];
+        }
+
+        return $data;
+    }
+
+    /**
+     * Retourne les numéros de PO ou BC client validés associés à un numéro de commande fournisseur.
+     *
+     * Chaîne de recherche :
+     *  1. PO (nlig_numcf) -> commandes directes liées (neg_lig / neg_ent)
+     *  2. Commandes -> devis en position 'TR' dont le libellé (nent_libcde)
+     *     référence le numéro de commande
+     *  3. Devis -> dernière version soumise (bc_client_soumis_neg)
+     *  4. Filtre sur les BC dont le statut est 'Validé'
+     *
+     * @param string $numCde      Numéro de PO recherché (comparé à nlig_numcf)
+     * @param string $codeSociete Code société (ex. 'HF')
+     *
+     * @return string[] Liste des numero_bc validés (vide si aucun résultat)
+     */
+    private function findAllValidatedPO(string $numCde, string $codeSociete): array
+    {
+        $statement = "--sql
+        WITH commandes_liees AS (
+            SELECT DISTINCT l.nlig_numcde
+            FROM {$this->ipsNegLig} l
+            INNER JOIN {$this->ipsNegEnt} e
+                ON  l.nlig_soc    = e.nent_soc
+                AND l.nlig_succ   = e.nent_succ
+                AND l.nlig_numcde = e.nent_numcde
+            WHERE   l.nlig_numcf = '$numCde'
+                AND l.nlig_soc   = '$codeSociete'
+                AND l.nlig_natcm = 'C'
+                AND l.nlig_natop = 'DIR'
+        ),
+        devis AS (
+            SELECT DISTINCT e.nent_numcde
+            FROM {$this->ipsNegEnt} e
+            INNER JOIN commandes_liees c
+                ON e.nent_libcde LIKE '%' || CAST(c.nlig_numcde AS VARCHAR(11)) || '%'
+            WHERE   e.nent_posl  = 'TR'
+                AND e.nent_natop = 'DEV'
+        ),
+        derniere_version AS (
+            SELECT b.numero_devis, MAX(b.numero_version) AS max_version
+            FROM {$this->iriumBcClientSoumisNeg} b
+            INNER JOIN devis d
+                ON b.numero_devis = CAST(d.nent_numcde AS VARCHAR(11))
+            GROUP BY b.numero_devis
+        )
+        SELECT t.numero_bc
+        FROM {$this->iriumBcClientSoumisNeg} t
+        INNER JOIN derniere_version v
+            ON  t.numero_devis   = v.numero_devis
+            AND t.numero_version = v.max_version
+        WHERE t.statut_bc='Validé'";
+
+        $result = $this->connect->executeQuery($statement);
+        $rows   = $this->connect->fetchResults($result);
+
+        $data = [];
+        foreach ($rows as $row) {
+            $data[] = $row["numero_bc"];
         }
 
         return $data;
