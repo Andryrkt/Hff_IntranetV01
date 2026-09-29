@@ -39,7 +39,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
     /** @var array{empty:int|float,refClientLabel:int|float,rmqClient:int|float,numDoc:int|float,ref:int|float,client:int|float,datePlanning:int|float} $subRowWidths */
     private array $subRowWidths = [];
 
-    /** @var array{empty:int|float,mttTotalLabel:int|float,mttTotal:int|float} $footerWidths */
+    /** @var array{empty1:int|float,signature:int|float,empty2:int|float,mttTotalLabel:int|float,mttTotal:int|float} $footerWidths */
     private array $footerWidths = [];
 
     private const COL_LABELS = [
@@ -280,19 +280,27 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, 'Total Poids [Kg]', 0, 1, 'R');
         $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, $dto->getPoidsTotal(), 0, 1, 'R');
 
-        $this->pdf->Cell($this->footerWidths["empty"]);
+        $this->pdf->Cell($this->footerWidths["empty1"]);
+        $this->cellUnderline($this->footerWidths["signature"], self::MAIN_TEXT_HEIGHT, "X", 0, 0, '', false, true);
+
+        $this->pdf->Cell($this->footerWidths["empty2"]);
+
         $this->pdf->SetFont(self::FONT, 'I', self::MAIN_TEXT_SIZE);
         $this->pdf->Cell($this->footerWidths["mttTotalLabel"], self::MAIN_TEXT_HEIGHT, "Total commande HT : ", 0, 0);
         $this->pdf->SetFont(self::FONT, 'B', self::MAIN_TEXT_SIZE);
         $this->pdf->Cell($this->footerWidths["mttTotal"], self::MAIN_TEXT_HEIGHT, $dto->getMontantTotal(), 0, 1, 'R');
 
-        $this->pdf->Cell($this->footerWidths["empty"]);
+        $this->pdf->Cell($this->footerWidths["empty1"]);
         $this->pdf->SetFont(self::FONT, '', self::MAIN_TEXT_SIZE);
+        $this->pdf->Cell($this->footerWidths["signature"], self::MAIN_TEXT_HEIGHT, "Signature");
+
+        $this->pdf->Cell($this->footerWidths["empty2"]);
         $this->pdf->Cell($this->footerWidths["mttTotalLabel"] + $this->footerWidths["mttTotal"], self::MAIN_TEXT_HEIGHT, "Montant en {$dto->devise}", 0, 1, 'C');
 
-        $this->drawFooterSeparator($this->pdf->GetX(), $this->pdf->GetY(), $this->pdf->GetPageWidth() - self::MARGIN_LEFT);
+        $this->drawFooterSeparator($this->pdf->GetX(), $this->pdf->GetY() + 1.5, $this->pdf->GetPageWidth() - self::MARGIN_LEFT);
 
-        $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, 'Documents OR rattachés :', 0, 1);
+        $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, 'Documents OR rattachés (OR validé) :', 0, 1);
+        $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, 'Documents PO rattachés (PO validé) :', 0, 1);
     }
 
     private function getUsableWidth(): float
@@ -398,11 +406,9 @@ class GeneratePdfCdeMagasin extends GeneratePdf
     {
         $w100 = $this->getUsableWidth();
 
-        $this->footerWidths = [
-            "empty"         => $w100 * 0.71,
-            "mttTotalLabel" => 25,
-            "mttTotal"      => 23,
-        ];
+        $this->footerWidths["empty1"] = $this->footerWidths["signature"] = 40;
+        $this->footerWidths["empty2"] = $w100 * 0.71 - ($this->footerWidths["empty1"] + $this->footerWidths["signature"]);
+        $this->footerWidths["mttTotalLabel"] = $this->footerWidths["mttTotal"] = 25;
     }
 
     /**
@@ -437,7 +443,6 @@ class GeneratePdfCdeMagasin extends GeneratePdf
             'color' => self::TEXT_COLOR,
         ]);
 
-        $this->pdf->Ln(3);
         $this->pdf->Line($xStart, $y, $xEnd, $y);
         $this->pdf->Ln(3);
 
@@ -453,7 +458,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
      * Affiche une Cell classique et dessine un trait fin en dessous du texte,
      * pour simuler un soulignement (non supporté nativement par TCPDF sur Cell()).
      */
-    private function cellUnderline(float $w, float $h, string $txt, $border = 0, int $ln = 0, string $align = '', bool $fill = false): void
+    private function cellUnderline(float $w, float $h, string $txt, $border = 0, int $ln = 0, string $align = '', bool $fill = false, bool $hasLongUnderline = false): void
     {
         $x = $this->pdf->GetX() + 1; // + décalage
         $y = $this->pdf->GetY();
@@ -461,9 +466,9 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         $this->pdf->Cell($w, $h, $txt, $border, 0, $align, $fill);
 
         // Largeur réelle du texte pour ne souligner que le texte, pas toute la cellule
-        $textWidth = $this->pdf->GetStringWidth($txt);
+        $textWidth = $hasLongUnderline ? $w : $this->pdf->GetStringWidth($txt);
 
-        $lineY = $y + $h - 1.35; // légèrement au-dessus du bas de la cellule
+        $lineY = $y + $h - ($hasLongUnderline ? 1 : 1.35); // légèrement au-dessus du bas de la cellule
         $lineXStart = $x;
         $lineXEnd = $x + $textWidth;
 
