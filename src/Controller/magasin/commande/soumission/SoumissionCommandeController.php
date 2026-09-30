@@ -4,11 +4,9 @@ namespace App\Controller\magasin\commande\soumission;
 
 use App\Controller\Controller;
 use App\Entity\cde\CdefnrSoumisAValidation;
-use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Service\genererPdf\magasin\cdeFrn\GeneratePdfCdeMagasin;
-use App\Service\historiqueOperation\HistoriqueOperationCDEFNRService;
+use App\Service\magasin\cdeFrn\CdeFrnSoumissionService;
 use App\Form\magasin\Commande\SoumissionCommande\SoumissionCommandeType;
 
 /**
@@ -16,14 +14,11 @@ use App\Form\magasin\Commande\SoumissionCommande\SoumissionCommandeType;
  */
 class SoumissionCommandeController extends Controller
 {
-    private GeneratePdfCdeMagasin $generatePdfCdeMagasin;
-    private HistoriqueOperationCDEFNRService $historiqueOperation;
+    private CdeFrnSoumissionService $cdeFrnSoumissionService;
 
-    public function __construct()
+    public function __construct(CdeFrnSoumissionService $cdeFrnSoumissionService)
     {
-        parent::__construct();
-        $this->generatePdfCdeMagasin = new GeneratePdfCdeMagasin();
-        $this->historiqueOperation = new HistoriqueOperationCDEFNRService($this->getEntityManager());
+        $this->cdeFrnSoumissionService = $cdeFrnSoumissionService;
     }
 
     /**
@@ -37,47 +32,16 @@ class SoumissionCommandeController extends Controller
 
         $form->handleRequest($request);
 
-        $this->logUserVisit('generer_commande_fournisseur');
-
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->soumettreAValider($form);
+            $formData = $form->getData();
+
+            $this->cdeFrnSoumissionService->soumettre($this->getUserMail(), $formData["numCmde"], $formData["generationToken"]);
         }
+
+        $this->logUserVisit('generer_commande_fournisseur');
 
         return $this->render('magasin/commande/soumission/soumissionCommandeFournisseur.html.twig', [
             'form' => $form->createView()
         ]);
-    }
-
-    private function soumettreAValider(FormInterface $form)
-    {
-        try {
-            $numCommande = $form->get('numCmdeAValider')->getData();
-            $generatedFilePath = $form->get('generatedFilePath')->getData();
-
-            $numVersion = $this->getEntityManager()->getRepository(CdefnrSoumisAValidation::class)->findNumeroVersionMax($numCommande) ?? 0;
-
-            $cdeSoumis = new CdefnrSoumisAValidation();
-            $cdeSoumis
-                ->setNumCdeFournisseur($numCommande)
-                ->setNumVersion($numVersion + 1)
-                ->setDateHeureSoumission(new \DateTime('now', new \DateTimeZone('Indian/Antananarivo')))
-                ->setStatut('Soumis à validation')
-            ;
-
-            $cheminDuFichier = $_ENV["BASE_PATH_FICHIER"] . str_replace('/Upload', '', $generatedFilePath);
-
-            if (!file_exists($cheminDuFichier)) throw new \Exception("Le fichier PDF n'existe pas : " . $generatedFilePath);
-
-            $isCopiedToDWFilePath = $this->generatePdfCdeMagasin->copyToDOCUWARE($cheminDuFichier, $numCommande);
-
-            // if ($isCopiedToDWFilePath) $bcSoumisMagasinDto->deposerDw = true;
-
-            $this->getEntityManager()->persist($cdeSoumis);
-            $this->getEntityManager()->flush();
-
-            $this->historiqueOperation->sendNotificationSoumission('Votre demande a été enregistrée', $numCommande, 'profil_acceuil', true);
-        } catch (\Throwable $th) {
-            $this->historiqueOperation->sendNotificationSoumission('Echec lors de la soumission:' . $th->getMessage(), $numCommande, 'profil_acceuil');
-        }
     }
 }

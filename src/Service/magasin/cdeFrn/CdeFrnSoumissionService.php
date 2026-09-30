@@ -9,6 +9,7 @@ use App\Dto\Magasin\cdeFrn\CdeFrnSoumisAValidationDTO;
 use App\Factory\magasin\cdeFrn\soumission\CdeFrnSoumisAValidationFactory;
 use App\Model\magasin\cdeFrn\soumission\CdeSoumissionModel;
 use App\Service\genererPdf\magasin\cdeFrn\GeneratePdfCdeMagasin;
+use App\Service\historiqueOperation\HistoriqueOperationCDEFNRService;
 
 final class CdeFrnSoumissionService
 {
@@ -18,15 +19,17 @@ final class CdeFrnSoumissionService
     private CdeFrnSoumisAValidationFactory $factory;
     private CdeSoumissionModel $cdeSoumissionModel;
     private GeneratePdfCdeMagasin $pdfGenerator;
+    private HistoriqueOperationCDEFNRService $historiqueOperation;
 
     public function __construct(EntityManagerInterface $em, CdeFrnSoumissionStore $store, CdeFrnSoumissionMapper $mapper, CdeFrnSoumisAValidationFactory $factory)
     {
-        $this->em                 = $em;
-        $this->store              = $store;
-        $this->mapper             = $mapper;
-        $this->factory            = $factory;
-        $this->cdeSoumissionModel = new CdeSoumissionModel();
-        $this->pdfGenerator       = new GeneratePdfCdeMagasin();
+        $this->em                  = $em;
+        $this->store               = $store;
+        $this->mapper              = $mapper;
+        $this->factory             = $factory;
+        $this->cdeSoumissionModel  = new CdeSoumissionModel();
+        $this->pdfGenerator        = new GeneratePdfCdeMagasin();
+        $this->historiqueOperation = new HistoriqueOperationCDEFNRService($em);
     }
 
     /**
@@ -57,35 +60,43 @@ final class CdeFrnSoumissionService
         return $cdeFrnSoumisAValidationDTO;
     }
 
-    public function soumettre(string $userMail, ?string $token, ?string $numCdeSaisi): CdefnrSoumisAValidation
+    public function soumettre(string $userMail, ?string $numCdeSaisi, ?string $token)
     {
         $numCdeSaisi = trim((string) $numCdeSaisi);
-        $dto = $token ? $this->store->get($userMail, $token) : null;
+        try {
+            // 1. Obtenir données stockés en cache (données du DTO envoyé depuis l'API)
+            $dto = $token ? $this->store->get($userMail, $token) : null;
 
-        if ($dto === null) {
-            throw new \DomainException('La génération du PDF a expiré ou est introuvable. Veuillez régénérer le PDF.');
-        }
+            if ($dto === null) throw new \Exception('La génération du PDF a expiré ou est introuvable. Veuillez régénérer le PDF.');
 
-        // Cohérence : le n° saisi doit être celui du PDF généré
-        if ($dto->numCde !== $numCdeSaisi) {
-            throw new \DomainException('Le numéro de commande a changé depuis la génération. Veuillez régénérer le PDF.');
-        }
+            if ($dto->numCde !== $numCdeSaisi) throw new \Exception('Le numéro de commande a changé depuis la génération. Veuillez régénérer le PDF.');
 
-        $entity = $this->em->wrapInTransaction(function () use ($dto) {
-            // Fraîcheur : la version a pu évoluer pendant le délai écoulé
-            $versionCourante = $this->repository->findNextVersion($dto->numCde);
-            if ($versionCourante !== $dto->numVersion) {
-                throw new \DomainException('La commande a évolué depuis la génération. Veuillez régénérer le PDF.');
+            if (!file_exists($dto->urlPDFLong)) throw new \Exception("Le fichier PDF n’a pas été trouvé. Veuillez régénérer le PDF.");
+
+            // 2. Copier le fichier PDF dans DocuWare (dépôt de fichier dans DocuWare)
+            $isCopiedToDWFilePath = $this->pdfGenerator->copyToDOCUWARE($dto->urlPDFLong, $dto->numCde);
+
+            // if ($isCopiedToDWFilePath) $dto->deposerDw = true;
+
+            // 3. Sauvegarde des données dans la base de données
+            $cdeFrnSoumisAValidation = $this->mapper->toEntityCdeFrnSoumission($dto);
+            $cdeFrnSoumisAValidationLignes = $this->mapper->toEntityCdeFrnLignesSoumission($dto);
+
+            foreach ($cdeFrnSoumisAValidationLignes as $cdeFrnSoumisAValidationLigne) {
+                $this->em->persist($cdeFrnSoumisAValidationLigne);
             }
 
-            $entity = $this->mapper->toEntity($dto); // DTO + lignes → entité(s)
-            $this->em->persist($entity);
+            $this->em->persist($cdeFrnSoumisAValidation);
+            $this->em->flush();
 
-            return $entity;
-        });
+            // 4. Suppression des données stockées en cache
+            $this->store->discard($userMail, $token);
 
-        $this->store->discard($userMail, $token);
-
-        return $entity;
+            // 5. Enregistrement de l'opération + Notification
+            $this->historiqueOperation->sendNotificationSoumission('Votre demande a été enregistrée', $numCdeSaisi, 'profil_acceuil', true);
+        } catch (\Throwable $th) {
+            // 6. Enregistrement de l'opération en cas d'erreur
+            $this->historiqueOperation->sendNotificationSoumission('Echec lors de la soumission:' . $th->getMessage(), $numCdeSaisi, 'profil_acceuil');
+        }
     }
 }
