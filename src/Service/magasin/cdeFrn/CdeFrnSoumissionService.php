@@ -104,7 +104,7 @@ final class CdeFrnSoumissionService
             $this->historiqueOperation->sendNotificationSoumission('Votre demande a été enregistrée', $numCdeSaisi, 'profil_acceuil', true);
         } catch (\Throwable $th) {
             // 6. Enregistrement de l'opération en cas d'erreur
-            $this->historiqueOperation->sendNotificationSoumission('Echec lors de la soumission:' . $th->getMessage(), $numCdeSaisi, 'profil_acceuil');
+            $this->historiqueOperation->sendNotificationSoumission('Echec lors de la soumission : ' . $th->getMessage(), $numCdeSaisi, 'generer_commande_fournisseur');
         }
     }
 }
