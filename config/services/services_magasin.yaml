@@ -23,7 +23,9 @@ services:
   App\Api\magasin\cdeFrn\GenerateCommandeFournisseurApi:
     arguments:
       $cdeFrnSoumissionService: '@App\Service\magasin\cdeFrn\CdeFrnSoumissionService'
+    public: true
 
   App\Controller\magasin\commande\soumission\SoumissionCommandeController:
     arguments:
       $cdeFrnSoumissionService: '@App\Service\magasin\cdeFrn\CdeFrnSoumissionService'
+    public: true
