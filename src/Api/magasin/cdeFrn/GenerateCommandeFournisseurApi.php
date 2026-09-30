@@ -41,7 +41,6 @@ class GenerateCommandeFournisseurApi extends Controller
 
             return new JsonResponse([
                 'data'    => [
-                    'numCde'          => $cdeFrnSoumisAValidationDTO->numCde,
                     'urlPDFCourt'     => $cdeFrnSoumisAValidationDTO->urlPDFCourt,
                     'generationToken' => $cdeFrnSoumisAValidationDTO->token,
                 ],

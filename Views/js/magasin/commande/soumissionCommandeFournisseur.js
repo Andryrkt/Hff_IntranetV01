@@ -12,11 +12,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const iframe = document.getElementById("pdf-iframe");
   const viewerContainer = document.getElementById("viewer-container");
   const numCdeInput = document.getElementById("soumission_commande_numCmde");
-  const hiddenNumCdeAValiderInput = document.getElementById(
-    "soumission_commande_numCmdeAValider"
-  );
-  const hiddenGeneratedFilePath = document.getElementById(
-    "soumission_commande_generatedFilePath"
+  const hiddenGenerationToken = document.getElementById(
+    "soumission_commande_generationToken"
   );
 
   numCdeInput.addEventListener("keydown", function (e) {
@@ -59,10 +56,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (!pdfUrl) throw new Error("Aucune URL de PDF reçue");
 
-      hiddenNumCdeAValiderInput.value = dto.numCde;
-      hiddenGeneratedFilePath.value = pdfUrl;
-
-      console.log(hiddenGeneratedFilePath, hiddenNumCdeAValiderInput);
+      hiddenGenerationToken.value = dto.generationToken;
 
       iframe.src = `${pdfUrl}#zoom=${getOptimalZoom()}`;
       displayOverlay(false);
@@ -81,6 +75,7 @@ document.addEventListener("DOMContentLoaded", function () {
         title: "Erreur",
         html: "Impossible de générer le PDF : <br>" + error.message,
       });
+      hiddenGenerationToken.value = "";
       btnGenererPdf.innerHTML =
         '<i class="fa-solid fa-triangle-exclamation"></i> Erreur';
       setTimeout(() => {
@@ -137,11 +132,11 @@ document.addEventListener("DOMContentLoaded", function () {
           true,
           "Veuillez patienter pendant la soumission de la commande s'il vous plaît!"
         );
-        const hidden = document.createElement("input");
-        hidden.type = "hidden";
-        hidden.name = "action";
-        hidden.value = "validate";
-        form.appendChild(hidden);
+        const hiddenValidateBtn = document.createElement("input");
+        hiddenValidateBtn.type = "hidden";
+        hiddenValidateBtn.name = "action";
+        hiddenValidateBtn.value = "validate";
+        form.appendChild(hiddenValidateBtn);
         form.submit();
       } else {
         Swal.fire({
