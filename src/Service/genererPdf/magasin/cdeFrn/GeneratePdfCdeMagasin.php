@@ -39,7 +39,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
     /** @var array{empty:int|float,refClientLabel:int|float,rmqClient:int|float,numDoc:int|float,ref:int|float,client:int|float,datePlanning:int|float} $subRowWidths */
     private array $subRowWidths = [];
 
-    /** @var array{empty1:int|float,signature:int|float,empty2:int|float,mttTotalLabel:int|float,mttTotal:int|float} $footerWidths */
+    /** @var array{empty1:int|float,signature:int|float,empty2:int|float,mttTotalLabel:int|float,mttTotal:int|float,docRattacheesLabel:int|float} $footerWidths */
     private array $footerWidths = [];
 
     private const COL_LABELS = [
@@ -299,11 +299,19 @@ class GeneratePdfCdeMagasin extends GeneratePdf
 
         $this->drawFooterSeparator($this->pdf->GetX(), $this->pdf->GetY() + 1.5, $this->pdf->GetPageWidth() - self::MARGIN_LEFT);
 
-        $this->pdf->MultiCell(0, 0, "Documents OR rattachés (OR validé) :\n{$dto->getAllValidatedOR()}", 0, "L");
+        $this->pdf->SetFont(self::FONT, 'B', self::MAIN_TEXT_SIZE);
+        $this->cellUnderline($this->footerWidths["docRattacheesLabel"], self::MAIN_TEXT_HEIGHT, "Documents OR rattachés (OR validé) :", 0, 1, '', false, true);
+
+        $this->pdf->SetFont(self::FONT, '', self::MAIN_TEXT_SIZE);
+        $this->pdf->MultiCell(0, 0, $dto->getAllValidatedOR(), 0, "L");
 
         $this->pdf->Ln(3);
 
-        $this->pdf->MultiCell(0, 0, "Documents PO rattachés (PO validé) :\n{$dto->getAllValidatedPO()}", 0, "L");
+        $this->pdf->SetFont(self::FONT, 'B', self::MAIN_TEXT_SIZE);
+        $this->cellUnderline($this->footerWidths["docRattacheesLabel"], self::MAIN_TEXT_HEIGHT, "Documents PO rattachés (PO validé) :", 0, 1, '', false, true);
+
+        $this->pdf->SetFont(self::FONT, '', self::MAIN_TEXT_SIZE);
+        $this->pdf->MultiCell(0, 0, $dto->getAllValidatedPO(), 0, "L");
     }
 
     private function getUsableWidth(): float
@@ -412,6 +420,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         $this->footerWidths["empty1"] = $this->footerWidths["signature"] = 40;
         $this->footerWidths["empty2"] = $w100 * 0.71 - ($this->footerWidths["empty1"] + $this->footerWidths["signature"]);
         $this->footerWidths["mttTotalLabel"] = $this->footerWidths["mttTotal"] = 25;
+        $this->footerWidths["docRattacheesLabel"] = $w100 * 0.157;
     }
 
     /**
