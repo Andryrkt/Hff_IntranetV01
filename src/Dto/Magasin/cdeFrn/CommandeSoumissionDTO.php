@@ -10,9 +10,14 @@ class CommandeSoumissionDTO
     public ?int       $delaiExpedition = null;
     public ?string    $numFrn          = null;
     public ?string    $nomFrn          = null;
+    public ?string    $devise          = null;
     public ?string    $responsable     = null;
     public ?string    $libelleAgence   = null;
     public ?string    $libelleService  = null;
+    public float      $poidsTotal      = 0.00;
+    public float      $montantTotal    = 0.00;
+    public array      $allValidatedOR  = [];
+    public array      $allValidatedPO  = [];
 
     /** @var list<CommandeSoumissionLigneDTO> */
     public array      $lignes          = [];
@@ -48,5 +53,32 @@ class CommandeSoumissionDTO
     public function getAgenceService(): string
     {
         return "{$this->libelleAgence} - {$this->libelleService}";
+    }
+
+    public function getPoidsTotal(): string
+    {
+        if ($this->poidsTotal === null) return "";
+
+        return number_format($this->poidsTotal, 2, ',', ' ');
+    }
+
+    public function getMontantTotal(): string
+    {
+        if ($this->montantTotal === null) return "";
+
+        return number_format($this->montantTotal, 2, ',', ' ');
+    }
+
+    public function getAllValidatedOR(): string
+    {
+        if (empty($this->allValidatedOR)) return "";
+
+        return implode("; ", $this->allValidatedOR);
+    }
+
+    public function getAllValidatedPO(): string
+    {
+        if (empty($this->allValidatedPO)) return "";
+        return implode("; ", $this->allValidatedPO);
     }
 }

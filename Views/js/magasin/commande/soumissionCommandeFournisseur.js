@@ -52,11 +52,14 @@ document.addEventListener("DOMContentLoaded", function () {
       const response = await apiManager.get(
         API_ENDPOINTS.generatePdfCdeFrnMag(numCde)
       );
-      const pdfUrl = response.url || response;
+      const dto = response.data;
+      if (!dto) throw new Error("Aucune information de commande reçue");
+
+      let pdfUrl = dto.urlPDFCourt;
 
       if (!pdfUrl) throw new Error("Aucune URL de PDF reçue");
 
-      hiddenNumCdeAValiderInput.value = numCde;
+      hiddenNumCdeAValiderInput.value = dto.numCde;
       hiddenGeneratedFilePath.value = pdfUrl;
 
       console.log(hiddenGeneratedFilePath, hiddenNumCdeAValiderInput);

@@ -11,7 +11,6 @@ use App\Entity\admin\Application;
 use App\Entity\admin\ddp\DocDemandePaiement;
 use App\Entity\admin\ddp\TypeDemande;
 use App\Entity\admin\Service;
-use App\Entity\cde\CdefnrSoumisAValidation;
 use App\Entity\ddp\CommandeLivraison;
 use App\Entity\ddp\DemandePaiement;
 use App\Entity\ddp\DemandePaiementCommande;
@@ -20,7 +19,6 @@ use App\Entity\ddp\HistoriqueStatutDdp;
 use App\Form\ddp\DemandePaiementType;
 use App\Model\ddp\DemandePaiementModel;
 use App\Repository\admin\ddp\TypeDemandeRepository;
-use App\Repository\cde\CdefnrSoumisAValidationRepository;
 use App\Repository\ddp\DemandePaiementRepository;
 use App\Service\fichier\TraitementDeFichier;
 use App\Service\genererPdf\GeneratePdfDdp;
@@ -42,7 +40,6 @@ class DemandePaiementController extends Controller
 
     private TypeDemandeRepository $typeDemandeRepository;
     private DemandePaiementModel $demandePaiementModel;
-    private CdefnrSoumisAValidationRepository $cdeFnrRepository;
     private DemandePaiementRepository $demandePaiementRepository;
     private DemandePaiementLigne $demandePaiementLigne;
     private HistoriqueOperationDDPService $historiqueOperation;
@@ -59,7 +56,6 @@ class DemandePaiementController extends Controller
 
         $this->typeDemandeRepository = $this->getEntityManager()->getRepository(TypeDemande::class);
         $this->demandePaiementModel = new DemandePaiementModel();
-        $this->cdeFnrRepository = $this->getEntityManager()->getRepository(CdefnrSoumisAValidation::class);
         $this->demandePaiementRepository  = $this->getEntityManager()->getRepository(DemandePaiement::class);
         $this->demandePaiementLigne = new DemandePaiementLigne();
         $this->historiqueOperation = new HistoriqueOperationDDPService($this->getEntityManager());

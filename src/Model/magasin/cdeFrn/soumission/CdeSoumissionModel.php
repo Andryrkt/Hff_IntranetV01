@@ -17,6 +17,7 @@ class CdeSoumissionModel extends Model
      * Noms de tables utilisées 
      ***********************************************/
     private string $ipsAgrTab;
+    private string $ipsAgrDev;
     private string $ipsFrnBse;
     private string $ipsFrnFou;
     private string $ipsAgrSucc;
@@ -34,13 +35,16 @@ class CdeSoumissionModel extends Model
     private string $ipsSkw;
     private string $ipsNegEnt;
     private string $ipsNegLig;
+    private string $iriumBcClientSoumisNeg;
 
     public function __construct()
     {
         parent::__construct();
         $this->selectCond = new SelectWhereCondition();
 
+        // IPS
         $this->ipsAgrTab  = "{$this->dbIps}:Informix.agr_tab";
+        $this->ipsAgrDev  = "{$this->dbIps}:Informix.agr_dev";
         $this->ipsFrnBse  = "{$this->dbIps}:Informix.frn_bse";
         $this->ipsFrnFou  = "{$this->dbIps}:Informix.frn_fou";
         $this->ipsAgrSucc = "{$this->dbIps}:Informix.agr_succ";
@@ -58,6 +62,9 @@ class CdeSoumissionModel extends Model
         $this->ipsSkw     = "{$this->dbIps}:Informix.skw";
         $this->ipsNegEnt  = "{$this->dbIps}:Informix.neg_ent";
         $this->ipsNegLig  = "{$this->dbIps}:Informix.neg_lig";
+
+        // IRIUM
+        $this->iriumBcClientSoumisNeg = "{$this->dbIrium}:Informix.bc_client_soumis_neg";
     }
 
     /** 
@@ -83,13 +90,13 @@ class CdeSoumissionModel extends Model
                 WHERE atab_code = fcde_typcde AND atab_nom  = 'TOP'
             ) AS type_cde,
             fcde_numfou AS num_frn,
+            TRIM(fbse_nomfou) AS nom_frn,
+            fbse_devise AS devise_code,
             (
-                SELECT TRIM(fbse_nomfou)
-                FROM {$this->ipsFrnBse}, {$this->ipsFrnFou}
-                WHERE  fbse_numfou = fcde_numfou
-                AND    fbse_numfou = ffou_numfou
-                AND    ffou_soc    = fcde_soc
-            ) AS nom_frn,
+                SELECT TRIM(adev_lib)
+                FROM {$this->ipsAgrDev}
+                WHERE adev_code = fbse_devise
+            ) AS devise_libelle,
             (
                 SELECT TRIM(asuc_lib)
                 FROM {$this->ipsAgrSucc}
@@ -179,14 +186,17 @@ class CdeSoumissionModel extends Model
             fcdl_pxach * (1 - (fcdl_txrem / 100)) AS prix_unit,
             fcdl_qte * fcdl_pxach * (1 - (fcdl_txrem / 100)) AS montant,
             fcdl_qte * abse_poids AS poids_total
-        FROM {$this->ipsFrnCdl}, {$this->ipsFrnCde}, {$this->ipsArtBse}
-        WHERE fcdl_numcde = fcde_numcde
-            AND fcde_numcde = '$numCde'
-            AND fcdl_constp = abse_constp
-            AND fcdl_refp   = abse_refp
+        FROM {$this->ipsFrnCde}, {$this->ipsFrnCdl}, {$this->ipsArtBse}, {$this->ipsFrnBse}, {$this->ipsFrnFou}
+        WHERE   fcde_numcde = '$numCde'
+            AND fcde_soc    = '$codeSociete'
+            AND fcde_numcde = fcdl_numcde
             AND fcde_soc    = fcdl_soc
             AND fcde_succ   = fcdl_succ
-            AND fcde_soc    = '$codeSociete'
+            AND fcdl_constp = abse_constp
+            AND fcdl_refp   = abse_refp
+            AND fcde_numfou = fbse_numfou
+            AND fbse_numfou = ffou_numfou
+            AND fcde_soc    = ffou_soc
         ORDER BY fcdl_ref";
 
         $result = $this->connect->executeQuery($statement);
@@ -194,7 +204,6 @@ class CdeSoumissionModel extends Model
 
         if (empty($data)) return null;
 
-        // --- Extraction des couples (cst, refp) distincts ---
         $pairs = [];
         foreach ($data as $row) {
             $cst  = trim($row['cst']);
@@ -202,41 +211,43 @@ class CdeSoumissionModel extends Model
             $pairs["$cst|$refp"] = ['cst' => $cst, 'refp' => $refp];
         }
 
-        // --- Requête 2 en une seule fois (batch) ---
-        $detailsData = $this->findDetailsForPairs($numCde, $pairs);
+        $detailsParPiece = $this->findLignesSavEtVenteNegoceParPieces($numCde, $pairs);
+        $allValidatedPO  = $this->findAllValidatedPO($numCde, $codeSociete);
 
-        return (new CommandeSoumissionFactory)->hydrate($data, $detailsData, $userMail);
+        return (new CommandeSoumissionFactory)->hydrate($data, $detailsParPiece["lignesParPiece"], $detailsParPiece["ordresReparationValides"], $allValidatedPO, $userMail);
     }
 
-    /** 
-     * Méthode pour retourner en une seule requête tous les détails (SAV + VTE NEG) pour l'ensemble des couples (cst, refp) trouvés dans la requête de `findInfoCommande`.
-     * 
-     * @param string $numCde
-     * @param array<string,array{cst:string,refp:string}> $pairs
-     * 
-     * @return array<string,array>
+    /**
+     * Retourne, en une seule requête, toutes les lignes liées à une commande fournisseur
+     * (ordres de réparation SAV + ventes négoce) pour un ensemble de pièces.
+     *
+     * Une pièce est identifiée par le couple (constructeur, référence).
+     *
+     * @param string $numCde  Numéro de la commande fournisseur
+     * @param array<string,array{cst:string,refp:string}> $piecesRecherchees Couples (cst, refp) issus de `findInfoCommande`
+     *
+     * @return array{ordresReparationValides:list<string>,lignesParPiece:array<string,list<array>>}
      */
-    private function findDetailsForPairs(string $numCde, array $pairs): array
+    private function findLignesSavEtVenteNegoceParPieces(string $numCde, array $piecesRecherchees): array
     {
-        if (empty($pairs)) return [];
+        if (empty($piecesRecherchees)) return ['ordresReparationValides' => [], 'lignesParPiece' => []];
 
-        // Regroupement des refp par cst (plus sargable qu'une concaténation)
-        $byCst = [];
-        foreach ($pairs as ['cst' => $cst, 'refp' => $refp]) {
-            $byCst[$cst][] = $refp;
+        $refsParConstructeur = [];
+        foreach ($piecesRecherchees as ['cst' => $cst, 'refp' => $refp]) {
+            $refsParConstructeur[$cst][] = $refp;
         }
 
-        $conditionsOR = []; // conditions pour l'OR
-        foreach ($byCst as $cst => $refps) {
-            $conditionsOR[] = "(slor_constp = '$cst' {$this->selectCond->in('slor_refp',$refps)})";
+        $conditionsSav = [];
+        foreach ($refsParConstructeur as $cst => $refps) {
+            $conditionsSav[] = "(slor_constp = '$cst' {$this->selectCond->in('slor_refp',$refps)})";
         }
-        $whereOr = implode(' OR ', $conditionsOR);
+        $whereSav = implode(' OR ', $conditionsSav);
 
-        $conditionsNeg = []; // conditiosn pour la vente NEG
-        foreach ($byCst as $cst => $refps) {
-            $conditionsNeg[] = "(nlig_constp = '$cst' {$this->selectCond->in('nlig_refp',$refps)})";
+        $conditionsNegoce = [];
+        foreach ($refsParConstructeur as $cst => $refps) {
+            $conditionsNegoce[] = "(nlig_constp = '$cst' {$this->selectCond->in('nlig_refp',$refps)})";
         }
-        $whereOrNeg = implode(' OR ', $conditionsNeg);
+        $whereNegoce = implode(' OR ', $conditionsNegoce);
 
         $statement = "SELECT 
             TRIM(slor_constp) AS cst, 
@@ -271,7 +282,7 @@ class CdeSoumissionModel extends Model
         WHERE   slor_numcf  = '$numCde'
             AND slor_natcm  = 'C'
             AND seor_serv   = 'SAV'
-            AND ({$whereOr})
+            AND ({$whereSav})
 
         UNION
 
@@ -292,19 +303,124 @@ class CdeSoumissionModel extends Model
         JOIN {$this->ipsNegLig}
             ON nent_numcde = nlig_numcde
         WHERE nlig_numcf  = '$numCde'
-            AND ({$whereOrNeg})";
+            AND ({$whereNegoce})";
 
         $result = $this->connect->executeQuery($statement);
         $rows   = $this->connect->fetchResults($result);
 
-        $grouped = [];
+        $lignesParPiece = [];
+        $numerosOR      = [];
+
         foreach ($rows as $row) {
             $cst  = trim($row['cst']);
             $refp = trim($row['refp']);
-            $grouped["$cst|$refp"][] = $row;
+            $lignesParPiece["$cst|$refp"][] = $row;
+
+            if (trim($row['rmq']) === 'OR') $numerosOR[] = $row['num_doc'];
         }
 
-        return $grouped;
+        return [
+            'ordresReparationValides' => $this->filterOrdresReparationValides($numerosOR),
+            'lignesParPiece'          => $lignesParPiece,
+        ];
     }
 
+    /**
+     * Filtre une liste de numéros d'OR pour ne conserver que ceux dont la
+     * DERNIÈRE version soumise à validation a le statut « Validé ».
+     *
+     * @param list<string> $numerosOR Numéros d'ordres de réparation à contrôler
+     *
+     * @return list<string> ORs validés (liste vide si aucun)
+     */
+    private function filterOrdresReparationValides(array $numerosOR): array
+    {
+        $data = [];
+        if (empty($numerosOR)) return $data;
+
+        $sql = "WITH derniere_version AS (
+                SELECT numeroOR, MAX(numeroVersion) AS max_version 
+                FROM ors_soumis_a_validation
+                GROUP BY numeroOR
+            )
+            SELECT DISTINCT TOP 50 osav.numeroOR 
+            FROM ors_soumis_a_validation osav
+            INNER JOIN derniere_version dv 
+                ON osav.numeroOR = dv.numeroOR
+                AND osav.numeroVersion = dv.max_version
+            WHERE osav.statut LIKE 'Valid%' {$this->selectCond->in('osav.numeroOR',$numerosOR)}
+            ORDER BY osav.numeroOR DESC";
+
+        $statement = $this->connexion->query($sql);
+
+        while ($row = odbc_fetch_array($statement)) {
+            $data[] = $row["numeroOR"];
+        }
+
+        return $data;
+    }
+
+    /**
+     * Retourne les numéros de PO ou BC client validés associés à un numéro de commande fournisseur.
+     *
+     * Chaîne de recherche :
+     *  1. PO (nlig_numcf) -> commandes directes liées (neg_lig / neg_ent)
+     *  2. Commandes -> devis en position 'TR' dont le libellé (nent_libcde)
+     *     référence le numéro de commande
+     *  3. Devis -> dernière version soumise (bc_client_soumis_neg)
+     *  4. Filtre sur les BC dont le statut est 'Validé'
+     *
+     * @param string $numCde      Numéro de PO recherché (comparé à nlig_numcf)
+     * @param string $codeSociete Code société (ex. 'HF')
+     *
+     * @return string[] Liste des numero_bc validés (vide si aucun résultat)
+     */
+    private function findAllValidatedPO(string $numCde, string $codeSociete): array
+    {
+        $statement = "--sql
+        WITH commandes_liees AS (
+            SELECT DISTINCT l.nlig_numcde
+            FROM {$this->ipsNegLig} l
+            INNER JOIN {$this->ipsNegEnt} e
+                ON  l.nlig_soc    = e.nent_soc
+                AND l.nlig_succ   = e.nent_succ
+                AND l.nlig_numcde = e.nent_numcde
+            WHERE   l.nlig_numcf = '$numCde'
+                AND l.nlig_soc   = '$codeSociete'
+                AND l.nlig_natcm = 'C'
+                AND l.nlig_natop = 'DIR'
+        ),
+        devis AS (
+            SELECT DISTINCT e.nent_numcde
+            FROM {$this->ipsNegEnt} e
+            INNER JOIN commandes_liees c
+                ON e.nent_libcde LIKE '%' || CAST(c.nlig_numcde AS VARCHAR(11)) || '%'
+            WHERE   e.nent_posl  = 'TR'
+                AND e.nent_natop = 'DEV'
+        ),
+        derniere_version AS (
+            SELECT b.numero_devis, MAX(b.numero_version) AS max_version
+            FROM {$this->iriumBcClientSoumisNeg} b
+            INNER JOIN devis d
+                ON b.numero_devis = CAST(d.nent_numcde AS VARCHAR(11))
+            GROUP BY b.numero_devis
+        )
+        SELECT FIRST 50 DISTINCT t.numero_bc
+        FROM {$this->iriumBcClientSoumisNeg} t
+        INNER JOIN derniere_version v
+            ON  t.numero_devis   = v.numero_devis
+            AND t.numero_version = v.max_version
+        WHERE t.statut_bc like 'Valid%'
+        ORDER BY t.numero_bc DESC";
+
+        $result = $this->connect->executeQuery($statement);
+        $rows   = $this->connect->fetchResults($result);
+
+        $data = [];
+        foreach ($rows as $row) {
+            $data[] = $row["numero_bc"];
+        }
+
+        return $data;
+    }
 }
