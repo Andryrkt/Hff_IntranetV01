@@ -20,15 +20,6 @@ services:
     class: Symfony\Component\Security\Core\Authorization\Strategy\AffirmativeStrategy
 
   # Services de session et requête
-  session:
-    class: Symfony\Component\HttpFoundation\Session\Session
-    arguments:
-      - "@session.storage.native"
-    public: true
-
-  session.storage.native:
-    class: Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage
-
   request_stack:
     class: Symfony\Component\HttpFoundation\RequestStack
     public: true
@@ -122,13 +113,12 @@ services:
 
   # Alias pour l'autowiring par type
   Doctrine\ORM\EntityManagerInterface: "@doctrine.orm.default_entity_manager"
-  Twig\Environment: '@twig'
-  Symfony\Component\HttpFoundation\Session\SessionInterface: '@session'
-  Symfony\Component\HttpFoundation\RequestStack: '@request_stack'
-  Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface: '@security.token_storage'
-  Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface: '@security.authorization_checker'
-  Symfony\Component\Form\FormFactoryInterface: '@form.factory'
-  Symfony\Component\Routing\Generator\UrlGeneratorInterface: '@router'
-  App\Service\security\SecurityService: '@security.service'
-  App\Service\navigation\MenuService: '@menu.service'
-  App\Service\UserData\UserDataService: '@userData.service'
+  Twig\Environment: "@twig"
+  Symfony\Component\HttpFoundation\Session\SessionInterface: "@session"
+  Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface: "@security.token_storage"
+  Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface: "@security.authorization_checker"
+  Symfony\Component\Form\FormFactoryInterface: "@form.factory"
+  Symfony\Component\Routing\Generator\UrlGeneratorInterface: "@router"
+  App\Service\security\SecurityService: "@security.service"
+  App\Service\navigation\MenuService: "@menu.service"
+  App\Service\UserData\UserDataService: "@userData.service"

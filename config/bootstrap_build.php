@@ -63,14 +63,6 @@ $registryDef->setPublic(true);
 $container->setDefinition('doctrine', $registryDef);
 
 // =============================
-// RequestStack
-// =============================
-$requestStackDef = new Definition(RequestStack::class);
-$requestStackDef->setPublic(true);
-
-$container->setDefinition('request_stack', $requestStackDef);
-
-// =============================
 // 🔥 SESSION (déclaré comme service)
 // =============================
 $container->register('session.storage', NativeSessionStorage::class);
