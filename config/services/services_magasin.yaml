@@ -2,3 +2,14 @@ services:
   App\Service\magasin\cdeFrn\CdeFrnSoumissionStore:
     arguments:
       $cache: "@cache.cde_frn_soumission"
+    public: true
+
+  App\Mapper\Magasin\CdeFrn\CdeFrnSoumissionMapper:
+    public: true
+
+  App\Service\magasin\cdeFrn\CdeFrnSoumissionService:
+    arguments:
+      $em: "@doctrine.orm.default_entity_manager"
+      $store: '@App\Service\magasin\cdeFrn\CdeFrnSoumissionStore'
+      $mapper: '@App\Mapper\Magasin\CdeFrn\CdeFrnSoumissionMapper'
+    public: true

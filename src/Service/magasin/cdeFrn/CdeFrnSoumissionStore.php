@@ -5,7 +5,7 @@ namespace App\Service\magasin\cdeFrn;
 use App\Dto\Magasin\cdeFrn\CdeFrnSoumisAValidationDTO;
 use Psr\Cache\CacheItemPoolInterface;
 
-final class CdeFrnGenerationStore
+final class CdeFrnSoumissionStore
 {
     private const TTL = 7200;
     private CacheItemPoolInterface $cache;
