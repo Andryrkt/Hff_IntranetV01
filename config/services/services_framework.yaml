@@ -128,10 +128,10 @@ services:
       $directory: "%kernel.cache_dir%/pools"
     public: true
 
-  cache.cde_frn_generation:
+  cache.cde_frn_soumission:
     class: Symfony\Component\Cache\Adapter\FilesystemAdapter
     arguments:
-      $namespace: "cde_frn_gen"
+      $namespace: "cde_frn_soumission"
       $defaultLifetime: 7200
       $directory: "%kernel.cache_dir%/pools"
 

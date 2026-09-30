@@ -1,0 +1,4 @@
+services:
+  App\Service\magasin\cdeFrn\CdeFrnSoumissionStore:
+    arguments:
+      $cache: "@cache.cde_frn_soumission"
