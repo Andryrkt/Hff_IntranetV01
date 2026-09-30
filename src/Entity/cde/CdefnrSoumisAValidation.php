@@ -48,6 +48,16 @@ class CdefnrSoumisAValidation
      */
     private string $statut = '';
 
+    /**
+     * @ORM\Column(type="boolean", name="pdf_deposer_dw", nullable=true)
+     */
+    private ?bool $pdfDeposerDw = null;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_depot_dw", nullable=true)
+     */
+    private ?\DateTime $dateDepotDw = null;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -164,6 +174,42 @@ class CdefnrSoumisAValidation
     public function setStatut(string $statut): self
     {
         $this->statut = $statut;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pdfDeposerDw
+     */
+    public function isPdfDeposerDw(): ?bool
+    {
+        return $this->pdfDeposerDw;
+    }
+
+    /**
+     * Set the value of pdfDeposerDw
+     */
+    public function setPdfDeposerDw(?bool $pdfDeposerDw): self
+    {
+        $this->pdfDeposerDw = $pdfDeposerDw;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateDepotDw
+     */
+    public function getDateDepotDw(): ?\DateTime
+    {
+        return $this->dateDepotDw;
+    }
+
+    /**
+     * Set the value of dateDepotDw
+     */
+    public function setDateDepotDw(?\DateTime $dateDepotDw): self
+    {
+        $this->dateDepotDw = $dateDepotDw;
 
         return $this;
     }

@@ -6,10 +6,11 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\cde\CdefnrSoumisAValidation;
 use App\Mapper\Magasin\CdeFrn\CdeFrnSoumissionMapper;
 use App\Dto\Magasin\cdeFrn\CdeFrnSoumisAValidationDTO;
-use App\Factory\magasin\cdeFrn\soumission\CdeFrnSoumisAValidationFactory;
+use App\Repository\cde\CdefnrSoumisAValidationRepository;
 use App\Model\magasin\cdeFrn\soumission\CdeSoumissionModel;
 use App\Service\genererPdf\magasin\cdeFrn\GeneratePdfCdeMagasin;
 use App\Service\historiqueOperation\HistoriqueOperationCDEFNRService;
+use App\Factory\magasin\cdeFrn\soumission\CdeFrnSoumisAValidationFactory;
 
 final class CdeFrnSoumissionService
 {
@@ -20,6 +21,7 @@ final class CdeFrnSoumissionService
     private CdeSoumissionModel $cdeSoumissionModel;
     private GeneratePdfCdeMagasin $pdfGenerator;
     private HistoriqueOperationCDEFNRService $historiqueOperation;
+    private CdefnrSoumisAValidationRepository $repo;
 
     public function __construct(EntityManagerInterface $em, CdeFrnSoumissionStore $store, CdeFrnSoumissionMapper $mapper, CdeFrnSoumisAValidationFactory $factory)
     {
@@ -30,6 +32,7 @@ final class CdeFrnSoumissionService
         $this->cdeSoumissionModel  = new CdeSoumissionModel();
         $this->pdfGenerator        = new GeneratePdfCdeMagasin();
         $this->historiqueOperation = new HistoriqueOperationCDEFNRService($em);
+        $this->repo                = $em->getRepository(CdefnrSoumisAValidation::class);
     }
 
     /**
@@ -73,10 +76,15 @@ final class CdeFrnSoumissionService
 
             if (!file_exists($dto->urlPDFLong)) throw new \Exception("Le fichier PDF n’a pas été trouvé. Veuillez régénérer le PDF.");
 
-            // 2. Copier le fichier PDF dans DocuWare (dépôt de fichier dans DocuWare)
-            $isCopiedToDWFilePath = $this->pdfGenerator->copyToDOCUWARE($dto->urlPDFLong, $dto->numCde);
+            // 1,5. Vérifier si une soumission existe déjà
+            $lastVersion = $this->repo->findNumeroVersionMax($numCdeSaisi);
+            if ($lastVersion && $lastVersion === $dto->numVersion) throw new \Exception("Ce document a déjà été soumis. Veuillez régénérer le PDF si vous voulez quand même le soumettre.");
 
-            // if ($isCopiedToDWFilePath) $dto->deposerDw = true;
+            // 2. Copier le fichier PDF dans DocuWare (dépôt de fichier dans DocuWare)
+            if ($this->pdfGenerator->copyToDOCUWARE($dto->urlPDFLong, $dto->numCde)) {
+                $dto->pdfDeposerDw = true;
+                $dto->dateDepotDw  = new \DateTime("now", new \DateTimeZone("Indian/Antananarivo"));
+            }
 
             // 3. Sauvegarde des données dans la base de données
             $cdeFrnSoumisAValidation = $this->mapper->toEntityCdeFrnSoumission($dto);

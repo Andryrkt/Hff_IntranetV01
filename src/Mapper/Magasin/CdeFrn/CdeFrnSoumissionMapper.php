@@ -25,6 +25,8 @@ final class CdeFrnSoumissionMapper
             ->setLibelleFournisseur($dto->libelleFrn)
             ->setNumVersion($dto->numVersion)
             ->setStatut($dto->statut)
+            ->setPdfDeposerDw($dto->pdfDeposerDw)
+            ->setDateDepotDw($dto->dateDepotDw)
             ->setDateHeureSoumission(new \DateTime("now", new \DateTimeZone("Indian/Antananarivo")));
 
         return $entity;

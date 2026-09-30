@@ -12,6 +12,8 @@ class CdeFrnSoumisAValidationDTO
     public ?string    $urlPDFCourt         = null;
     public ?string    $urlPDFLong          = null;
     public ?string    $token               = null;
+    public bool       $pdfDeposerDw        = false;
+    public ?\DateTime $dateDepotDw         = null;
 
     /** @var list<CdeFrnSoumisAValidationLigneDTO> */
     public array      $lignes              = [];
