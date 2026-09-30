@@ -111,6 +111,51 @@ services:
     synthetic: true
     public: true
 
+  # Services pour les caches
+  cache.security:
+    class: Symfony\Component\Cache\Adapter\FilesystemTagAwareAdapter
+    arguments:
+      $namespace: "security"
+      $defaultLifetime: 0
+      $directory: "%kernel.cache_dir%/pools"
+    public: true
+
+  cache.menu:
+    class: Symfony\Component\Cache\Adapter\FilesystemTagAwareAdapter
+    arguments:
+      $namespace: "menu"
+      $defaultLifetime: 0
+      $directory: "%kernel.cache_dir%/pools"
+    public: true
+
+  cache.cde_frn_generation:
+    class: Symfony\Component\Cache\Adapter\FilesystemAdapter
+    arguments:
+      $namespace: "cde_frn_gen"
+      $defaultLifetime: 7200
+      $directory: "%kernel.cache_dir%/pools"
+
+  userData.service:
+    class: App\Service\UserData\UserDataService
+    arguments:
+      - "@doctrine.orm.default_entity_manager"
+      - "@cache.security"
+      - "@session"
+    public: true
+
+  security.service:
+    class: App\Service\security\SecurityService
+    arguments:
+      - "@userData.service"
+    public: true
+
+  menu.service:
+    class: App\Service\navigation\MenuService
+    arguments:
+      - "@userData.service"
+      - "@cache.menu"
+    public: true
+
   # Alias pour l'autowiring par type
   Doctrine\ORM\EntityManagerInterface: "@doctrine.orm.default_entity_manager"
   Twig\Environment: "@twig"
@@ -119,6 +164,3 @@ services:
   Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface: "@security.authorization_checker"
   Symfony\Component\Form\FormFactoryInterface: "@form.factory"
   Symfony\Component\Routing\Generator\UrlGeneratorInterface: "@router"
-  App\Service\security\SecurityService: "@security.service"
-  App\Service\navigation\MenuService: "@menu.service"
-  App\Service\UserData\UserDataService: "@userData.service"
