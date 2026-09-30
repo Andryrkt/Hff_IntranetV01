@@ -21,13 +21,23 @@ final class CdeFrnSoumissionService
 
     public function __construct(EntityManagerInterface $em, CdeFrnSoumissionStore $store, CdeFrnSoumissionMapper $mapper, CdeFrnSoumisAValidationFactory $factory)
     {
-        $this->em      = $em;
-        $this->store   = $store;
-        $this->mapper  = $mapper;
-        $this->factory = $factory;
+        $this->em                 = $em;
+        $this->store              = $store;
+        $this->mapper             = $mapper;
+        $this->factory            = $factory;
         $this->cdeSoumissionModel = new CdeSoumissionModel();
+        $this->pdfGenerator       = new GeneratePdfCdeMagasin();
     }
 
+    /**
+     * Générer un PDF pour un numéro de commande donné et retourne un DTO contenant les informations de la commande.
+     *
+     * @param string $numCde      Le numéro de commande.
+     * @param string $userMail    L'email de l'utilisateur.
+     * @param string $codeSociete Le code de la société.
+     *
+     * @return CdeFrnSoumisAValidationDTO|null Le DTO contenant les informations de la commande.
+     */
     public function generatePdfForSubmission(string $numCde, string $userMail, string $codeSociete): ?CdeFrnSoumisAValidationDTO
     {
         // 1. Récupération des données du document
@@ -41,7 +51,9 @@ final class CdeFrnSoumissionService
         // 3. Génération du PDF
         $this->pdfGenerator->generate($commandeSoumissionDto, $cdeFrnSoumisAValidationDTO->urlPDFLong);
 
-        // 4. Retourner le DTO pour la soumission
+        // 4. Sauvegarder token
+        $cdeFrnSoumisAValidationDTO->token = $this->store->save($userMail, $cdeFrnSoumisAValidationDTO);
+
         return $cdeFrnSoumisAValidationDTO;
     }
 

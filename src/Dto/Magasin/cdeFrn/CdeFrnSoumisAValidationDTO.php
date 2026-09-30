@@ -11,6 +11,7 @@ class CdeFrnSoumisAValidationDTO
     public ?string    $statut              = null;
     public ?string    $urlPDFCourt         = null;
     public ?string    $urlPDFLong          = null;
+    public ?string    $token               = null;
 
     /** @var list<CdeFrnSoumisAValidationLigneDTO> */
     public array      $lignes              = [];
