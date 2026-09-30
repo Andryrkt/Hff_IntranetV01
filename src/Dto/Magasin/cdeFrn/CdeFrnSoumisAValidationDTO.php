@@ -10,7 +10,8 @@ class CdeFrnSoumisAValidationDTO
     public ?int       $numVersion          = null;
     public ?\DateTime $dateHeureSoumission = null;
     public ?string    $statut              = null;
-    public ?string    $urlPDF              = null;
+    public ?string    $urlPDFCourt         = null;
+    public ?string    $urlPDFLong          = null;
 
     /** @var list<CdeFrnSoumisAValidationLigneDTO> */
     public array      $lignes              = [];

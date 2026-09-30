@@ -6,7 +6,7 @@ use Doctrine\ORM\EntityRepository;
 
 class CdefnrSoumisAValidationRepository extends EntityRepository
 {
-    public function findNumeroVersionMax(string $numCde)
+    public function findNumeroVersionMax(string $numCde): int
     {
         $numeroVersionMax = $this->createQueryBuilder('cde')
             ->select('MAX(cde.numVersion)')
@@ -15,7 +15,7 @@ class CdefnrSoumisAValidationRepository extends EntityRepository
             ->getQuery()
             ->getSingleScalarResult();
 
-        return $numeroVersionMax;
+        return $numeroVersionMax ?? 0;
     }
 
     public function findStatut(string $numCde): ?string

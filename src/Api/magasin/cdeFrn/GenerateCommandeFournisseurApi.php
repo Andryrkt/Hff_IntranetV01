@@ -3,6 +3,8 @@
 namespace App\Api\magasin\cdeFrn;
 
 use App\Controller\Controller;
+use App\Entity\cde\CdefnrSoumisAValidation;
+use App\Factory\magasin\cdeFrn\soumission\CdeFrnSoumisAValidationFactory;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Model\magasin\cdeFrn\soumission\CdeSoumissionModel;
@@ -36,20 +38,14 @@ class GenerateCommandeFournisseurApi extends Controller
                 ], JsonResponse::HTTP_NOT_FOUND);
             }
 
-            $basePath = rtrim($_ENV['BASE_PATH_FICHIER'], '/\\');
-            $filePath = "magasin/commandes fournisseurs/$numCde/$numCde.pdf";
-            $dirPath  = dirname("$basePath/$filePath");
-
-            if (!is_dir($dirPath)) mkdir($dirPath, 0777, true);
-
-            // 3. Suppression du fichier PDF s'il existe déjà: Forcer la regéneration
-            if (file_exists($filePath)) unlink($filePath);
+            // 3. Création de DTO pour la soumission de cde frn à validation 
+            $cdeFrnSoumisAValidationDTO = (new CdeFrnSoumisAValidationFactory())->hydrate($commandeSoumissionDto, $this->getEntityManager()->getRepository(CdefnrSoumisAValidation::class));
 
             // 4. Génération du PDF
-            (new GeneratePdfCdeMagasin())->generate($commandeSoumissionDto, "$basePath/$filePath");
+            (new GeneratePdfCdeMagasin())->generate($commandeSoumissionDto, $cdeFrnSoumisAValidationDTO->urlPDFLong);
 
             return new JsonResponse([
-                'data'    => rtrim($_ENV['BASE_PATH_FICHIER_COURT'], '/\\') . "/$filePath",
+                'data'    => $cdeFrnSoumisAValidationDTO,
                 'message' => "PDF généré avec succès."
             ]);
         } catch (\Throwable $e) {
