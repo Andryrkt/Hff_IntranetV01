@@ -2,24 +2,47 @@
 
 namespace App\Service\magasin\cdeFrn;
 
+use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\cde\CdefnrSoumisAValidation;
 use App\Mapper\Magasin\CdeFrn\CdeFrnSoumissionMapper;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Dto\Magasin\cdeFrn\CdeFrnSoumisAValidationDTO;
+use App\Factory\magasin\cdeFrn\soumission\CdeFrnSoumisAValidationFactory;
+use App\Model\magasin\cdeFrn\soumission\CdeSoumissionModel;
+use App\Service\genererPdf\magasin\cdeFrn\GeneratePdfCdeMagasin;
 
 final class CdeFrnSoumissionService
 {
     private EntityManagerInterface $em;
     private CdeFrnSoumissionStore $store;
     private CdeFrnSoumissionMapper $mapper;
+    private CdeFrnSoumisAValidationFactory $factory;
+    private CdeSoumissionModel $cdeSoumissionModel;
+    private GeneratePdfCdeMagasin $pdfGenerator;
 
-    public function __construct(
-        EntityManagerInterface $em,
-        CdeFrnSoumissionStore $store,
-        CdeFrnSoumissionMapper $mapper
-    ) {
-        $this->em     = $em;
-        $this->store  = $store;
-        $this->mapper = $mapper;
+    public function __construct(EntityManagerInterface $em, CdeFrnSoumissionStore $store, CdeFrnSoumissionMapper $mapper, CdeFrnSoumisAValidationFactory $factory)
+    {
+        $this->em      = $em;
+        $this->store   = $store;
+        $this->mapper  = $mapper;
+        $this->factory = $factory;
+        $this->cdeSoumissionModel = new CdeSoumissionModel();
+    }
+
+    public function generatePdfForSubmission(string $numCde, string $userMail, string $codeSociete): ?CdeFrnSoumisAValidationDTO
+    {
+        // 1. Récupération des données du document
+        $commandeSoumissionDto = $this->cdeSoumissionModel->findInfoCommande($numCde, $userMail, $codeSociete);
+
+        if ($commandeSoumissionDto === null) return null;
+
+        // 2. Création du DTO pour la soumission à validation
+        $cdeFrnSoumisAValidationDTO = $this->factory->hydrate($commandeSoumissionDto);
+
+        // 3. Génération du PDF
+        $this->pdfGenerator->generate($commandeSoumissionDto, $cdeFrnSoumisAValidationDTO->urlPDFLong);
+
+        // 4. Retourner le DTO pour la soumission
+        return $cdeFrnSoumisAValidationDTO;
     }
 
     public function soumettre(string $userMail, ?string $token, ?string $numCdeSaisi): CdefnrSoumisAValidation

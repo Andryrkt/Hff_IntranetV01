@@ -1,10 +1,15 @@
 services:
+  App\Mapper\Magasin\CdeFrn\CdeFrnSoumissionMapper:
+    public: true
+
   App\Service\magasin\cdeFrn\CdeFrnSoumissionStore:
     arguments:
       $cache: "@cache.cde_frn_soumission"
     public: true
 
-  App\Mapper\Magasin\CdeFrn\CdeFrnSoumissionMapper:
+  App\Factory\magasin\cdeFrn\soumission\CdeFrnSoumisAValidationFactory:
+    arguments:
+      $em: "@doctrine.orm.default_entity_manager"
     public: true
 
   App\Service\magasin\cdeFrn\CdeFrnSoumissionService:
@@ -12,9 +17,10 @@ services:
       $em: "@doctrine.orm.default_entity_manager"
       $store: '@App\Service\magasin\cdeFrn\CdeFrnSoumissionStore'
       $mapper: '@App\Mapper\Magasin\CdeFrn\CdeFrnSoumissionMapper'
+      $factory: '@App\Factory\magasin\cdeFrn\soumission\CdeFrnSoumisAValidationFactory'
     public: true
 
-  App\Factory\magasin\cdeFrn\soumission\CdeFrnSoumisAValidationFactory:
+  App\Api\magasin\cdeFrn\GenerateCommandeFournisseurApi:
     arguments:
-      $em: "@doctrine.orm.default_entity_manager"
+      $cdeFrnSoumissionService: '@App\Service\magasin\cdeFrn\CdeFrnSoumissionService'
     public: true
