@@ -13,3 +13,8 @@ services:
       $store: '@App\Service\magasin\cdeFrn\CdeFrnSoumissionStore'
       $mapper: '@App\Mapper\Magasin\CdeFrn\CdeFrnSoumissionMapper'
     public: true
+
+  App\Factory\magasin\cdeFrn\soumission\CdeFrnSoumisAValidationFactory:
+    arguments:
+      $em: "@doctrine.orm.default_entity_manager"
+    public: true
