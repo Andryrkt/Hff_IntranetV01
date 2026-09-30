@@ -29,9 +29,9 @@ class CdefnrSoumisAValidation
     private string $codeFournisseur = '';
 
     /**
-     * @ORM\Column(type="string", length=200, name="libelle_fournisseur")
+     * @ORM\Column(type="string", length=200, name="libelle_fournisseur", nullable=true)
      */
-    private string $libelleFournisseur = '';
+    private ?string $libelleFournisseur = null;
 
     /**
      * @ORM\Column(type="integer", name="numeroVersion")
@@ -101,13 +101,13 @@ class CdefnrSoumisAValidation
      */
     public function getLibelleFournisseur(): string
     {
-        return $this->libelleFournisseur;
+        return $this->libelleFournisseur ?? '';
     }
 
     /**
      * Set the value of libelleFournisseur
      */
-    public function setLibelleFournisseur(string $libelleFournisseur): self
+    public function setLibelleFournisseur(?string $libelleFournisseur): self
     {
         $this->libelleFournisseur = $libelleFournisseur;
 
