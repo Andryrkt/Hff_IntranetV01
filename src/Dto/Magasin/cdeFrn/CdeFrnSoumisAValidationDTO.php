@@ -10,6 +10,10 @@ class CdeFrnSoumisAValidationDTO
     public ?int       $numVersion          = null;
     public ?\DateTime $dateHeureSoumission = null;
     public ?string    $statut              = null;
+    public ?string    $urlPDF              = null;
+
+    /** @var list<CdeFrnSoumisAValidationLigneDTO> */
+    public array      $lignes              = [];
 
     public function __construct()
     {

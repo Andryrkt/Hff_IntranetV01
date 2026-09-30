@@ -15,11 +15,13 @@ class GenerateCommandeFournisseurApi extends Controller
      */
     public function generatePdfCmdeFournisseur(string $numCde): JsonResponse
     {
+        $cdeFrnSoumisAValidationDTO = null;
+
         // 1. Validation basique de l'input
         if (empty($numCde) || !preg_match('/^\d{7,8}$/', $numCde)) {
             return new JsonResponse([
-                'success' => false,
-                'error'   => 'Numéro de document invalide.'
+                'data'    => $cdeFrnSoumisAValidationDTO,
+                'message' => 'Numéro de document invalide.'
             ], JsonResponse::HTTP_BAD_REQUEST);
         }
 
@@ -29,7 +31,7 @@ class GenerateCommandeFournisseurApi extends Controller
 
             if ($commandeSoumissionDto === null) {
                 return new JsonResponse([
-                    'url'     => null,
+                    'data'    => $cdeFrnSoumisAValidationDTO,
                     'message' => "<span class='text-danger'>Aucune information trouvée pour la commande \"<span class='text-decoration-underline fw-bold'>$numCde</span>\".</span>"
                 ], JsonResponse::HTTP_NOT_FOUND);
             }
@@ -47,12 +49,12 @@ class GenerateCommandeFournisseurApi extends Controller
             (new GeneratePdfCdeMagasin())->generate($commandeSoumissionDto, "$basePath/$filePath");
 
             return new JsonResponse([
-                'url'     => rtrim($_ENV['BASE_PATH_FICHIER_COURT'], '/\\') . "/$filePath",
+                'data'    => rtrim($_ENV['BASE_PATH_FICHIER_COURT'], '/\\') . "/$filePath",
                 'message' => "PDF généré avec succès."
             ]);
         } catch (\Throwable $e) {
             return new JsonResponse([
-                'url'     => null,
+                'data'    => $cdeFrnSoumisAValidationDTO,
                 'message' => $e->getMessage()
             ], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
