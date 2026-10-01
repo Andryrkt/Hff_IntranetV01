@@ -65,7 +65,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
 
     public function copyToDOCUWARE(string $cheminDuFichier, string $numCmde): bool
     {
-        $cheminDW = rtrim($this->baseCheminDocuware, '/\\') . "/CDE FRN MAGASIN/$numCmde.pdf";
+        $cheminDW = "{$this->basePathDocuWare}/CDE FRN MAGASIN/$numCmde.pdf";
         return $this->copyFile($cheminDuFichier, $cheminDW);
     }
 
@@ -79,7 +79,8 @@ class GeneratePdfCdeMagasin extends GeneratePdf
 
         $this->renderFooter($dto);
 
-        $this->pdf->Output($filePath, 'F');
+        $this->pdf->Output($filePath, 'I');
+        die;
     }
 
     private function initPDF(): TCPDF
@@ -97,6 +98,10 @@ class GeneratePdfCdeMagasin extends GeneratePdf
 
     private function renderHeader(CommandeSoumissionDTO $dto): void
     {
+        $logoPath = $this->basePathLong . '/Views/assets/logoHff.jpg';
+
+        $this->pdf->Image($logoPath, '', '', 45, 12);
+
         $this->pdf->SetFont(self::FONT, "B", self::TITLE_SIZE);
         $this->pdf->Cell(0, self::TITLE_HEIGHT, "Cde Fournisseur", 0, 1);
 

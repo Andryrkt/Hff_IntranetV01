@@ -6,13 +6,13 @@ use TCPDF;
 
 class GeneratePdf
 {
-    protected string $baseCheminDuFichier;
-    protected string $baseCheminDocuware;
+    protected string $basePathFile;
+    protected string $basePathDocuWare;
 
     public function __construct()
     {
-        $this->baseCheminDuFichier = rtrim($_ENV['BASE_PATH_FICHIER'], '/\\');
-        $this->baseCheminDocuware = rtrim($_ENV['BASE_PATH_DOCUWARE'], '/\\');
+        $this->basePathFile = rtrim($_ENV['BASE_PATH_FICHIER'], '/\\');
+        $this->basePathDocuWare = rtrim($_ENV['BASE_PATH_DOCUWARE'], '/\\');
     }
 
     protected function copyFile(string $sourcePath, string $destinationPath): bool
@@ -61,8 +61,8 @@ class GeneratePdf
     public function copyInterneToDOCUWARE(string $numDoc, string $codeAgServ)
     {
         $dir = strtolower(substr($numDoc, 0, 3));
-        $cheminFichierDistant = "{$this->baseCheminDocuware}/ORDRE_DE_MISSION/{$numDoc}_{$codeAgServ}.pdf";
-        $cheminDestinationLocal = "{$this->baseCheminDuFichier}/{$dir}/{$numDoc}_{$codeAgServ}.pdf";
+        $cheminFichierDistant = "{$this->basePathDocuWare}/ORDRE_DE_MISSION/{$numDoc}_{$codeAgServ}.pdf";
+        $cheminDestinationLocal = "{$this->basePathFile}/{$dir}/{$numDoc}_{$codeAgServ}.pdf";
         copy($cheminDestinationLocal, $cheminFichierDistant);
     }
 
@@ -70,16 +70,16 @@ class GeneratePdf
     // Facture OR
     public function copyToDwFactureSoumis($numeroVersion, $numeroOR)
     {
-        $cheminFichierDistant = "{$this->baseCheminDocuware}/ORDRE_DE_MISSION/factureValidation_{$numeroOR}_{$numeroVersion}.pdf";
-        $cheminDestinationLocal = "{$this->baseCheminDuFichier}/vfac/factureValidation_{$numeroOR}_{$numeroVersion}.pdf";
+        $cheminFichierDistant = "{$this->basePathDocuWare}/ORDRE_DE_MISSION/factureValidation_{$numeroOR}_{$numeroVersion}.pdf";
+        $cheminDestinationLocal = "{$this->basePathFile}/vfac/factureValidation_{$numeroOR}_{$numeroVersion}.pdf";
         copy($cheminDestinationLocal, $cheminFichierDistant);
     }
 
 
     public function copyToDwFacture($numeroVersion, $numeroDoc)
     {
-        $cheminFichierDistant = "{$this->baseCheminDocuware}/ORDRE_DE_MISSION/validation_facture_client_{$numeroDoc}_{$numeroVersion}.pdf";
-        $cheminDestinationLocal = "{$this->baseCheminDuFichier}/vfac/validation_facture_client_{$numeroDoc}_{$numeroVersion}.pdf";
+        $cheminFichierDistant = "{$this->basePathDocuWare}/ORDRE_DE_MISSION/validation_facture_client_{$numeroDoc}_{$numeroVersion}.pdf";
+        $cheminDestinationLocal = "{$this->basePathFile}/vfac/validation_facture_client_{$numeroDoc}_{$numeroVersion}.pdf";
         copy($cheminDestinationLocal, $cheminFichierDistant);
     }
 
@@ -87,7 +87,7 @@ class GeneratePdf
     public function copyToDwFactureFichier($numeroVersion, $numeroDoc, array $pathFichiers)
     {
         for ($i = 0; $i < count($pathFichiers); $i++) {
-            $cheminFichierDistant = "{$this->baseCheminDocuware}/ORDRE_DE_MISSION/facture_client_{$numeroDoc}_{$numeroVersion}_{$i}.pdf";
+            $cheminFichierDistant = "{$this->basePathDocuWare}/ORDRE_DE_MISSION/facture_client_{$numeroDoc}_{$numeroVersion}_{$i}.pdf";
             $cheminDestinationLocal = $pathFichiers[$i];
             $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
         }
@@ -96,15 +96,15 @@ class GeneratePdf
     //Rapport d'intervention
     public function copyToDwRiSoumis($numeroVersion, $numeroOR)
     {
-        $cheminFichierDistant = "{$this->baseCheminDocuware}/RAPPORT_INTERVENTION/RI_{$numeroOR}-{$numeroVersion}.pdf";
-        $cheminDestinationLocal = "{$this->baseCheminDuFichier}/vri/RI_{$numeroOR}-{$numeroVersion}.pdf"; // avec tiret 6
+        $cheminFichierDistant = "{$this->basePathDocuWare}/RAPPORT_INTERVENTION/RI_{$numeroOR}-{$numeroVersion}.pdf";
+        $cheminDestinationLocal = "{$this->basePathFile}/vri/RI_{$numeroOR}-{$numeroVersion}.pdf"; // avec tiret 6
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
     public function copyToDWCdeSoumis($fileName)
     {
-        $cheminFichierDistant = "{$this->baseCheminDocuware}/ORDRE_DE_MISSION/{$fileName}";
-        $cheminDestinationLocal = "{$this->baseCheminDuFichier}/cde/{$fileName}";
+        $cheminFichierDistant = "{$this->basePathDocuWare}/ORDRE_DE_MISSION/{$fileName}";
+        $cheminDestinationLocal = "{$this->basePathFile}/cde/{$fileName}";
         if (copy($cheminDestinationLocal, $cheminFichierDistant)) {
             echo "okey";
         } else {
@@ -115,38 +115,38 @@ class GeneratePdf
     // devis DIT (atelier) - page de garde (fiche de controle)
     public function copyToDWDevisSoumis($fileName)
     {
-        $cheminFichierDistant = "{$this->baseCheminDocuware}/ORDRE_DE_MISSION/{$fileName}";
-        $cheminDestinationLocal = "{$this->baseCheminDuFichier}/dit/dev/{$fileName}";
+        $cheminFichierDistant = "{$this->basePathDocuWare}/ORDRE_DE_MISSION/{$fileName}";
+        $cheminDestinationLocal = "{$this->basePathFile}/dit/dev/{$fileName}";
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
     public function copyToDWFichierDevisSoumis($fileName)
     {
-        $cheminFichierDistant = "{$this->baseCheminDocuware}/DEVIS ATELIER/{$fileName}";
-        $cheminDestinationLocal = "{$this->baseCheminDuFichier}/dit/dev/fichiers/{$fileName}";
+        $cheminFichierDistant = "{$this->basePathDocuWare}/DEVIS ATELIER/{$fileName}";
+        $cheminDestinationLocal = "{$this->basePathFile}/dit/dev/fichiers/{$fileName}";
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
     public function copyToDWFichierDevisSoumisVp($fileName)
     {
-        $cheminFichierDistant = "{$this->baseCheminDocuware}/VERIFICATION_PRIX/{$fileName}";
-        $cheminDestinationLocal = "{$this->baseCheminDuFichier}/dit/dev/fichiers/{$fileName}";
+        $cheminFichierDistant = "{$this->basePathDocuWare}/VERIFICATION_PRIX/{$fileName}";
+        $cheminDestinationLocal = "{$this->basePathFile}/dit/dev/fichiers/{$fileName}";
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
     //bon de commande DIT (atelier)
     public function copyToDWAcSoumis($fileName)
     {
-        $cheminFichierDistant = "{$this->baseCheminDocuware}/BC ATELIER/{$fileName}";
-        $cheminDestinationLocal = "{$this->baseCheminDuFichier}/dit/ac_bc/{$fileName}";
+        $cheminFichierDistant = "{$this->basePathDocuWare}/BC ATELIER/{$fileName}";
+        $cheminDestinationLocal = "{$this->basePathFile}/dit/ac_bc/{$fileName}";
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
     //commande fournisseur
     public function copyToDWCdeFnrSoumis($fileName)
     {
-        $cheminFichierDistant = "{$this->baseCheminDocuware}/ORDRE_DE_MISSION/{$fileName}";
-        $cheminDestinationLocal = "{$this->baseCheminDuFichier}/cde_fournisseur/{$fileName}";
+        $cheminFichierDistant = "{$this->basePathDocuWare}/ORDRE_DE_MISSION/{$fileName}";
+        $cheminDestinationLocal = "{$this->basePathFile}/cde_fournisseur/{$fileName}";
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
@@ -154,40 +154,40 @@ class GeneratePdf
     /** DEMANDE DE PAIEMENT */
     public function copyToDwDdp(string $fileName, $numDdp)
     {
-        $cheminDestinationLocal = "{$this->baseCheminDuFichier}/ddp/{$numDdp}/{$fileName}";
-        $cheminFichierDistant = "{$this->baseCheminDocuware}/DEMANDE_DE_PAIEMENT/{$fileName}";
+        $cheminDestinationLocal = "{$this->basePathFile}/ddp/{$numDdp}/{$fileName}";
+        $cheminFichierDistant = "{$this->basePathDocuWare}/DEMANDE_DE_PAIEMENT/{$fileName}";
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
     // demande appro DIRECT à valider
     public function copyToDWDaAValiderDirect($numDa, string $suffix = "#_a_valider")
     {
-        $cheminFichierDistant = "{$this->baseCheminDocuware}/DA DIRECTE/$numDa#_a_valider.pdf";
-        $cheminDestinationLocal = "{$this->baseCheminDuFichier}/da/$numDa/$numDa$suffix.pdf";
+        $cheminFichierDistant = "{$this->basePathDocuWare}/DA DIRECTE/$numDa#_a_valider.pdf";
+        $cheminDestinationLocal = "{$this->basePathFile}/da/$numDa/$numDa$suffix.pdf";
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
     // demande appro reappro mensuel à valider
     public function copyToDWDaAValiderReapproMensuel($numDa, string $suffix = "#_a_valider")
     {
-        $cheminFichierDistant = "{$this->baseCheminDocuware}/DA REAPPRO/$numDa#_a_valider.pdf";
-        $cheminDestinationLocal = "{$this->baseCheminDuFichier}/da/$numDa/$numDa$suffix.pdf";
+        $cheminFichierDistant = "{$this->basePathDocuWare}/DA REAPPRO/$numDa#_a_valider.pdf";
+        $cheminDestinationLocal = "{$this->basePathFile}/da/$numDa/$numDa$suffix.pdf";
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
     // demande appro reappro ponctuel à valider
     public function copyToDWDaAValiderReapproPonctuel($numDa, string $suffix = "#_a_valider")
     {
-        $cheminFichierDistant = "{$this->baseCheminDocuware}/DA REAPPRO PONCTUEL/$numDa#_a_valider.pdf";
-        $cheminDestinationLocal = "{$this->baseCheminDuFichier}/da/$numDa/$numDa$suffix.pdf";
+        $cheminFichierDistant = "{$this->basePathDocuWare}/DA REAPPRO PONCTUEL/$numDa#_a_valider.pdf";
+        $cheminDestinationLocal = "{$this->basePathFile}/da/$numDa/$numDa$suffix.pdf";
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
     //bon de commande de demande appro
     public function copyToDWBcDa($fileName, $numDa)
     {
-        $cheminFichierDistant = "{$this->baseCheminDocuware}/BC APPRO/{$fileName}";
-        $cheminDestinationLocal = "{$this->baseCheminDuFichier}/da/{$numDa}/{$fileName}";
+        $cheminFichierDistant = "{$this->basePathDocuWare}/BC APPRO/{$fileName}";
+        $cheminDestinationLocal = "{$this->basePathFile}/da/{$numDa}/{$fileName}";
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
@@ -195,8 +195,8 @@ class GeneratePdf
     //facture et bl de demande appro
     public function copyToDWFacBlDa($fileName, $numDa)
     {
-        $cheminFichierDistant = "{$this->baseCheminDocuware}/Facture_BL frns apppro/{$fileName}";
-        $cheminDestinationLocal = "{$this->baseCheminDuFichier}/da/{$numDa}/{$fileName}";
+        $cheminFichierDistant = "{$this->basePathDocuWare}/Facture_BL frns apppro/{$fileName}";
+        $cheminDestinationLocal = "{$this->basePathFile}/da/{$numDa}/{$fileName}";
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
@@ -208,7 +208,7 @@ class GeneratePdf
             'DPR' => "DEMANDE_DE_REGULARISATION"
         ];
         $dir = $dirTabs[$typeDemande] ?? "DEMANDE_DE_PAIEMENT";
-        $cheminFichierDistant = "{$this->baseCheminDocuware}/{$dir}/{$fileNameForDw}";
+        $cheminFichierDistant = "{$this->basePathDocuWare}/{$dir}/{$fileNameForDw}";
         $cheminDestinationLocal = $fileNamePathBap;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
@@ -216,32 +216,32 @@ class GeneratePdf
     //bl reappro de demande appro
     public function copyToDWBLReappro($fileName, $numDa)
     {
-        $cheminFichierDistant = "{$this->baseCheminDocuware}/ORDRE_DE_MISSION/{$fileName}";
-        $cheminDestinationLocal = "{$this->baseCheminDuFichier}/da/{$numDa}/{$fileName}";
+        $cheminFichierDistant = "{$this->basePathDocuWare}/ORDRE_DE_MISSION/{$fileName}";
+        $cheminDestinationLocal = "{$this->basePathFile}/da/{$numDa}/{$fileName}";
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
     // devis Magasin
     public function copyToDWDevisMagasin($fileName, $numeroDevis)
     {
-        $cheminFichierDistant = "{$this->baseCheminDocuware}/DEVIS MAGASIN/{$fileName}";
-        $cheminDestinationLocal = "{$this->baseCheminDuFichier}/magasin/devis/{$numeroDevis}/{$fileName}";
+        $cheminFichierDistant = "{$this->basePathDocuWare}/DEVIS MAGASIN/{$fileName}";
+        $cheminDestinationLocal = "{$this->basePathFile}/magasin/devis/{$numeroDevis}/{$fileName}";
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
     // BL - INTERNE FTU
     public function copyToDWBlFutInterne($fileName)
     {
-        $cheminFichierDistant = "{$this->baseCheminDocuware}/BON DE SORTIE FTU/{$fileName}";
-        $cheminDestinationLocal = "{$this->baseCheminDuFichier}/bl/{$fileName}";
+        $cheminFichierDistant = "{$this->basePathDocuWare}/BON DE SORTIE FTU/{$fileName}";
+        $cheminDestinationLocal = "{$this->basePathFile}/bl/{$fileName}";
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
     //FACTURE -BL (clients) FTU
     public function copyToDWBlFutFactureClient($fileName)
     {
-        $cheminFichierDistant = "{$this->baseCheminDocuware}/BONLIV EXTERNE MAGFTU/{$fileName}";
-        $cheminDestinationLocal = "{$this->baseCheminDuFichier}/bl/{$fileName}";
+        $cheminFichierDistant = "{$this->basePathDocuWare}/BONLIV EXTERNE MAGFTU/{$fileName}";
+        $cheminDestinationLocal = "{$this->basePathFile}/bl/{$fileName}";
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 

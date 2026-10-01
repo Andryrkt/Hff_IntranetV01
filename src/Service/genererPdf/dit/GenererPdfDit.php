@@ -15,8 +15,8 @@ class GenererPdfDit extends GeneratePdf
     {
         $dossier = $ditPneumatique ? "DIT_POL" : "DIT";
 
-        $cheminFichierDistant = "{$this->baseCheminDocuware}/{$dossier}/{$fileName}";
-        $cheminDestinationLocal = "{$this->baseCheminDuFichier}/dit/$numDit/$fileName";
+        $cheminFichierDistant = "{$this->basePathDocuWare}/{$dossier}/{$fileName}";
+        $cheminDestinationLocal = "{$this->basePathFile}/dit/$numDit/$fileName";
         return $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 

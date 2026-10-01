@@ -17,7 +17,7 @@ class GeneratePdfDdpDa extends GeneratePdf
     public function copyToDw(string $nomAvecCheminFichier, string $nomFichier): void
     {
         $cheminDestinationLocal = $nomAvecCheminFichier;
-        $cheminFichierDistant = "{$this->baseCheminDocuware}/DEMANDE_DE_PAIEMENT/{$nomFichier}";
+        $cheminFichierDistant = "{$this->basePathDocuWare}/DEMANDE_DE_PAIEMENT/{$nomFichier}";
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
