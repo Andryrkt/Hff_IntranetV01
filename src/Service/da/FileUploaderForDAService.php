@@ -49,7 +49,7 @@ class FileUploaderForDAService
         $extension = strtolower($file->guessExtension() ?? $file->getClientOriginalExtension());
 
         do {
-            $fileName = sprintf('%s_%s.%s', $fileType, bin2hex(random_bytes(8)), $extension);
+            $fileName = sprintf('%s_%s.%s', $fileType, bin2hex(random_bytes(16)), $extension);
         } while (file_exists($destination . $fileName));
 
         $this->moveFile($file, $fileName, $destination);
