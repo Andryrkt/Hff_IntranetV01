@@ -2,6 +2,7 @@
 
 namespace App\Service\magasin\cdeFrn;
 
+use App\Service\genererPdf\GeneratePdf;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\cde\CdefnrSoumisAValidation;
 use App\Mapper\Magasin\CdeFrn\CdeFrnSoumissionMapper;
@@ -19,7 +20,6 @@ final class CdeFrnSoumissionService
     private CdeFrnSoumissionMapper $mapper;
     private CdeFrnSoumisAValidationFactory $factory;
     private CdeSoumissionModel $cdeSoumissionModel;
-    private GeneratePdfCdeMagasin $pdfGenerator;
     private HistoriqueOperationCDEFNRService $historiqueOperation;
     private CdefnrSoumisAValidationRepository $repo;
 
@@ -30,7 +30,6 @@ final class CdeFrnSoumissionService
         $this->mapper              = $mapper;
         $this->factory             = $factory;
         $this->cdeSoumissionModel  = new CdeSoumissionModel();
-        $this->pdfGenerator        = new GeneratePdfCdeMagasin();
         $this->historiqueOperation = new HistoriqueOperationCDEFNRService($em);
         $this->repo                = $em->getRepository(CdefnrSoumisAValidation::class);
     }
@@ -55,7 +54,7 @@ final class CdeFrnSoumissionService
         $cdeFrnSoumisAValidationDTO = $this->factory->hydrate($commandeSoumissionDto);
 
         // 3. Génération du PDF
-        $this->pdfGenerator->generate($commandeSoumissionDto, $cdeFrnSoumisAValidationDTO->urlPDFLong);
+        (new GeneratePdfCdeMagasin($commandeSoumissionDto))->generate($cdeFrnSoumisAValidationDTO->urlPDFLong);
 
         // 4. Sauvegarder token
         $cdeFrnSoumisAValidationDTO->token = $this->store->save($userMail, $cdeFrnSoumisAValidationDTO);
@@ -81,7 +80,7 @@ final class CdeFrnSoumissionService
             if ($lastVersion && $lastVersion === $dto->numVersion) throw new \Exception("Ce document a déjà été soumis. Veuillez régénérer le PDF si vous voulez quand même le soumettre.");
 
             // 2. Copier le fichier PDF dans DocuWare (dépôt de fichier dans DocuWare)
-            if ($this->pdfGenerator->copyToDWCdeFnrSoumis($dto->urlPDFLong, $dto->numCde)) {
+            if (GeneratePdf::copyToDWCdeFnrSoumis($dto->urlPDFLong, $dto->numCde)) {
                 $dto->pdfDeposerDw = true;
                 $dto->dateDepotDw  = new \DateTime("now", new \DateTimeZone("Indian/Antananarivo"));
             }

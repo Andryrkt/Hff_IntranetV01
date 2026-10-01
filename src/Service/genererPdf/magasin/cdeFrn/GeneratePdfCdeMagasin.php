@@ -70,22 +70,26 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         'poids'        => "Poids\n[kg]",
     ];
 
-    public function generate(CommandeSoumissionDTO $dto, string $filePath): void
+    public function __construct(CommandeSoumissionDTO $dto)
     {
+        parent::__construct();
+
+        $this->dto = $dto;
         $this->pdf = $this->initPDF();
 
-        // Les largeurs sont définies une seule fois, puis réutilisées sur chaque page
         $this->defineHeaderConfig();
         $this->defineMainRowWidths();
         $this->defineSubRowWidths();
         $this->defineFooterWidths();
+    }
 
-        $this->dto = $dto;
-        $this->renderHeader($dto);
+    public function generate(string $filePath): void
+    {
+        $this->renderHeader();
 
-        $this->renderTable($dto->lignes);
+        $this->renderTable();
 
-        $this->renderFooter($dto);
+        $this->renderFooter();
 
         $this->pdf->Output($filePath, 'I');
         die;
@@ -104,7 +108,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         return $pdf;
     }
 
-    private function renderHeader(CommandeSoumissionDTO $dto): void
+    private function renderHeader(): void
     {
         $this->pdf->Image("{$this->basePathAssets}/info_HFF_1.png", $this->imgConfig['img1X'], $this->imgConfig['img1Y'], $this->imgConfig['img1W'], $this->imgConfig['img1H'], "PNG");
         $this->pdf->Image("{$this->basePathAssets}/info_HFF_2.png", $this->imgConfig['img2X'], $this->imgConfig['img2Y'], $this->imgConfig['img2W'], $this->imgConfig['img2H'], "PNG");
@@ -116,46 +120,44 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         $this->cellUnderline($this->headerWidth['numCdeLbl'], self::MAIN_TEXT_HEIGHT, "No Commande:", 0, 0);
 
         $this->pdf->setFont(self::FONT, "B", self::MAIN_TEXT_SIZE);
-        $this->pdf->Cell($this->headerWidth['numCde'], self::MAIN_TEXT_HEIGHT, $dto->numeroCommande, 0, 0);
-        $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, $dto->getDateCdeFormatted(), 0, 1);
+        $this->pdf->Cell($this->headerWidth['numCde'], self::MAIN_TEXT_HEIGHT, $this->dto->numeroCommande, 0, 0);
+        $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, $this->dto->getDateCdeFormatted(), 0, 1);
 
         $this->pdf->setFont(self::FONT, "I", self::MAIN_TEXT_SIZE);
         $this->cellUnderline($this->headerWidth['typeCdeLbl'], self::MAIN_TEXT_HEIGHT, "Type Commande:", 0, 0);
 
         $this->pdf->setFont(self::FONT, "", self::MAIN_TEXT_SIZE);
-        $this->pdf->Cell($this->headerWidth['typeCde'], self::MAIN_TEXT_HEIGHT, $dto->typeCde, 0, 0);
+        $this->pdf->Cell($this->headerWidth['typeCde'], self::MAIN_TEXT_HEIGHT, $this->dto->typeCde, 0, 0);
 
         $this->pdf->setFont(self::FONT, "I", self::MAIN_TEXT_SIZE);
         $this->cellUnderline($this->headerWidth['delaiExpLbl'], self::MAIN_TEXT_HEIGHT, "Délai d'expédition:", 0, 0);
 
         $this->pdf->setFont(self::FONT, "", self::MAIN_TEXT_SIZE);
-        $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, $dto->getDelaiExpedition(), 0, 1);
+        $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, $this->dto->getDelaiExpedition(), 0, 1);
 
         $this->pdf->setFont(self::FONT, "I", self::MAIN_TEXT_SIZE);
         $this->cellUnderline($this->headerWidth['frnLbl'], self::MAIN_TEXT_HEIGHT, "Fournisseur:", 0, 0);
 
         $this->pdf->setFont(self::FONT, "B", self::MAIN_TEXT_SIZE);
-        $this->pdf->Cell($this->headerWidth['numFrn'], self::MAIN_TEXT_HEIGHT, $dto->numFrn, 0, 0);
-        $this->pdf->MultiCell($this->headerWidth['nomFrn'], self::MAIN_TEXT_HEIGHT, $dto->nomFrn, 0, 'L');
+        $this->pdf->Cell($this->headerWidth['numFrn'], self::MAIN_TEXT_HEIGHT, $this->dto->numFrn, 0, 0);
+        $this->pdf->MultiCell($this->headerWidth['nomFrn'], self::MAIN_TEXT_HEIGHT, $this->dto->nomFrn, 0, 'L');
 
         $this->pdf->setFont(self::FONT, "I", self::MAIN_TEXT_SIZE);
         $this->cellUnderline($this->headerWidth['responsableLbl'], self::MAIN_TEXT_HEIGHT, "Responsable:", 0, 0);
 
         $this->pdf->setFont(self::FONT, "", self::MAIN_TEXT_SIZE);
-        $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, $dto->responsable, 0, 0);
+        $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, $this->dto->responsable, 0, 0);
 
         $this->pdf->setFont(self::FONT, "B", self::MAIN_TEXT_SIZE);
-        $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, $dto->getAgenceService(), 0, 1, 'R');
+        $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, $this->dto->getAgenceService(), 0, 1, 'R');
     }
 
     /** 
      * Méthode pour construire le tableau de lignes de commande
      * 
-     * @param list<CommandeSoumissionLigneDTO> $lignesDto 
-     * 
      * @return void
      */
-    private function renderTable(array $lignesDto): void
+    private function renderTable(): void
     {
         $this->pdf->Ln(3);
 
@@ -163,7 +165,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
 
         $rowIndex = 0;
 
-        foreach ($lignesDto as $ligneDto) {
+        foreach ($this->dto->lignes as $ligneDto) {
             // 1. Calculer la hauteur totale du bloc (ligne + sous-lignes)
             $blockHeight = $this->calculateBlockHeight($ligneDto);
 
@@ -276,16 +278,16 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         $this->pdf->Cell($this->subRowWidths['datePlanning'], self::SUB_ROW_HEIGHT, $detailDto->getDatePlanningFormatted(), 0, 1, 'L', $fill);
     }
 
-    private function renderFooter(CommandeSoumissionDTO $dto): void
+    private function renderFooter(): void
     {
         // Le pied de page doit tenir sur une seule page
-        if ($this->exceedsPage($this->calculateFooterHeight($dto))) $this->newPage();
+        if ($this->exceedsPage($this->calculateFooterHeight())) $this->newPage();
 
         $this->pdf->Ln(3);
 
         $this->pdf->SetFont(self::FONT, 'B', self::MAIN_TEXT_SIZE);
         $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, 'Total Poids [Kg]', 0, 1, 'R');
-        $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, $dto->getPoidsTotal(), 0, 1, 'R');
+        $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, $this->dto->getPoidsTotal(), 0, 1, 'R');
 
         $this->pdf->Cell($this->footerWidths["empty1"]);
         $this->cellUnderline($this->footerWidths["signature"], self::MAIN_TEXT_HEIGHT, "X", 0, 0, '', false, true);
@@ -295,14 +297,14 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         $this->pdf->SetFont(self::FONT, 'I', self::MAIN_TEXT_SIZE);
         $this->pdf->Cell($this->footerWidths["mttTotalLabel"], self::MAIN_TEXT_HEIGHT, "Total commande HT : ", 0, 0);
         $this->pdf->SetFont(self::FONT, 'B', self::MAIN_TEXT_SIZE);
-        $this->pdf->Cell($this->footerWidths["mttTotal"], self::MAIN_TEXT_HEIGHT, $dto->getMontantTotal(), 0, 1, 'R');
+        $this->pdf->Cell($this->footerWidths["mttTotal"], self::MAIN_TEXT_HEIGHT, $this->dto->getMontantTotal(), 0, 1, 'R');
 
         $this->pdf->Cell($this->footerWidths["empty1"]);
         $this->pdf->SetFont(self::FONT, '', self::MAIN_TEXT_SIZE);
         $this->pdf->Cell($this->footerWidths["signature"], self::MAIN_TEXT_HEIGHT, "Signature");
 
         $this->pdf->Cell($this->footerWidths["empty2"]);
-        $this->pdf->Cell($this->footerWidths["mttTotalLabel"] + $this->footerWidths["mttTotal"], self::MAIN_TEXT_HEIGHT, "Montant en {$dto->devise}", 0, 1, 'C');
+        $this->pdf->Cell($this->footerWidths["mttTotalLabel"] + $this->footerWidths["mttTotal"], self::MAIN_TEXT_HEIGHT, "Montant en {$this->dto->devise}", 0, 1, 'C');
 
         $this->drawFooterSeparator($this->pdf->GetX(), $this->pdf->GetY() + 1.5, $this->pdf->GetPageWidth() - self::MARGIN_LEFT);
 
@@ -310,7 +312,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         $this->cellUnderline($this->footerWidths["docRattacheesLabel"], self::MAIN_TEXT_HEIGHT, "Documents OR rattachés (OR validé) :", 0, 1, '', false, true);
 
         $this->pdf->SetFont(self::FONT, '', self::MAIN_TEXT_SIZE);
-        $this->pdf->MultiCell(0, 0, $dto->getAllValidatedOR(), 0, "L");
+        $this->pdf->MultiCell(0, 0, $this->dto->getAllValidatedOR(), 0, "L");
 
         $this->pdf->Ln(3);
 
@@ -318,7 +320,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         $this->cellUnderline($this->footerWidths["docRattacheesLabel"], self::MAIN_TEXT_HEIGHT, "Documents PO rattachés (PO validé) :", 0, 1, '', false, true);
 
         $this->pdf->SetFont(self::FONT, '', self::MAIN_TEXT_SIZE);
-        $this->pdf->MultiCell(0, 0, $dto->getAllValidatedPO(), 0, "L");
+        $this->pdf->MultiCell(0, 0, $this->dto->getAllValidatedPO(), 0, "L");
     }
 
     private function getUsableWidth(): float
@@ -334,7 +336,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         return $height;
     }
 
-    private function calculateFooterHeight(CommandeSoumissionDTO $dto): float
+    private function calculateFooterHeight(): float
     {
         $this->pdf->SetFont(self::FONT, '', self::MAIN_TEXT_SIZE);
         $w100 = $this->getUsableWidth();
@@ -343,8 +345,8 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         return 3 + 3 + 3
             + 4 * self::MAIN_TEXT_HEIGHT
             + 2 * self::MAIN_TEXT_HEIGHT
-            + $this->pdf->getStringHeight($w100, $dto->getAllValidatedOR())
-            + $this->pdf->getStringHeight($w100, $dto->getAllValidatedPO());
+            + $this->pdf->getStringHeight($w100, $this->dto->getAllValidatedOR())
+            + $this->pdf->getStringHeight($w100, $this->dto->getAllValidatedPO());
     }
 
     private function calculateHeaderHeight(): float

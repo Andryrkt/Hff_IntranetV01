@@ -145,10 +145,11 @@ class GeneratePdf
     }
 
     // commande fournisseur magasin
-    public function copyToDWCdeFnrSoumis(string $cheminDuFichier, string $numCmde): bool
+    public static function copyToDWCdeFnrSoumis(string $cheminDuFichier, string $numCmde): bool
     {
-        $cheminDW = "{$this->basePathDocuWare}/CDE FRN MAGASIN/$numCmde.pdf";
-        return $this->copyFile($cheminDuFichier, $cheminDW);
+        $self = new self();
+        $cheminDW = "{$self->basePathDocuWare}/CDE FRN MAGASIN/$numCmde.pdf";
+        return $self->copyFile($cheminDuFichier, $cheminDW);
     }
 
 
