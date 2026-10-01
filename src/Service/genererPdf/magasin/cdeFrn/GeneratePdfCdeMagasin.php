@@ -92,9 +92,8 @@ class GeneratePdfCdeMagasin extends GeneratePdf
 
     private function renderHeader(CommandeSoumissionDTO $dto): void
     {
-        $logoPath = $this->basePathLong . '/Views/assets/logoHff.jpg';
-
-        $this->pdf->Image($logoPath, '', '', 45, 12);
+        $this->pdf->Image("{$this->basePathAssets}/info_HFF_1.png", 0, 0, 45, 12, "PNG"); // 1039 * 434
+        $this->pdf->Image("{$this->basePathAssets}/info_HFF_2.png", 45, 0, 45, 12, "PNG"); // 460 * 223
 
         $this->pdf->SetFont(self::FONT, "B", self::TITLE_SIZE);
         $this->pdf->Cell(0, self::TITLE_HEIGHT, "Cde Fournisseur", 0, 1);
