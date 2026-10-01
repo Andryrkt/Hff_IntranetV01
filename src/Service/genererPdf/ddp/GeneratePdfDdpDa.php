@@ -40,8 +40,6 @@ class GeneratePdfDdpDa extends GeneratePdf
         $pdf = new TCPDF();
         $isRegul = $dto->typeDemande->getCode() === "DPR";
 
-        $logoPath = $_ENV['BASE_PATH_LONG'] . '/Views/assets/henriFraise.jpg'; // chemin du logo
-
         $w_total = $pdf->GetPageWidth();  // Largeur totale du PDF
         $margins = $pdf->GetMargins();    // Tableau des marges (left, top, right)
         $usable_width = $w_total - $margins['left'] - $margins['right']; // largeur totale utilisable
@@ -51,7 +49,7 @@ class GeneratePdfDdpDa extends GeneratePdf
         $pdf->AddPage();
 
         // tête de page : Logo | N° DDP | Emetteur sur la même ligne
-        $pdf->Image($logoPath, 5, 1, 40, 0, 'jpg'); // logo absolu X=5, Y=1, W=40
+        $pdf->Image("{$this->basePathAssets}/henriFraise.jpg", 5, 1, 40, 0, 'jpg'); // logo absolu X=5, Y=1, W=40
 
         // Positionner le curseur texte juste après le logo, à la même hauteur
         $pdf->SetXY(45, 5);

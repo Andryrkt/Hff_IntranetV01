@@ -8,11 +8,13 @@ class GeneratePdf
 {
     protected string $basePathFile;
     protected string $basePathDocuWare;
+    protected string $basePathAssets;
 
     public function __construct()
     {
         $this->basePathFile = rtrim($_ENV['BASE_PATH_FICHIER'], '/\\');
         $this->basePathDocuWare = rtrim($_ENV['BASE_PATH_DOCUWARE'], '/\\');
+        $this->basePathAssets = rtrim($_ENV['BASE_PATH_LONG'], '/\\') . "/Views/assets";
     }
 
     protected function copyFile(string $sourcePath, string $destinationPath): bool

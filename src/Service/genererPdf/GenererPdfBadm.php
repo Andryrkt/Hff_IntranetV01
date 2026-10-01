@@ -24,8 +24,7 @@ class GenererPdfBadm extends GeneratePdf
 
         $pdf->setFont('helvetica', 'B', 14);
         $pdf->setAbsY(11);
-        $logoPath = $_ENV['BASE_PATH_LONG'] . '/Views/assets/henrifraise.jpg';
-        $pdf->Image($logoPath, '', '', 45, 12);
+        $pdf->Image("{$this->basePathAssets}/henrifraise.jpg", '', '', 45, 12);
         $pdf->setAbsX(55);
         //$pdf->Cell(45, 12, 'LOGO', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Cell(110, 6, 'BORDEREAU DE MOUVEMENT DE MATERIEL', 0, 0, '', false, '', 0, false, 'T', 'M');

@@ -34,8 +34,7 @@ class GenererPdfAcSoumis extends GeneratePdf
         // Ajouter une page
         $pdf->AddPage();
 
-        $logoPath = $_ENV['BASE_PATH_LONG'] . '/Public/build/images/logoHFF.jpg';
-        $pdf->Image($logoPath, 27, 10, 40, '', 'jpg');
+        $pdf->Image("{$this->basePathAssets}/logoHFF.jpg", 27, 10, 40, '', 'jpg');
 
         // Définir la police pour l'email
         $pdf->SetFont('helvetica', '', 10);

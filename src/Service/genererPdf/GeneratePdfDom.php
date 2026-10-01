@@ -31,8 +31,7 @@ class GeneratePdfDom extends GeneratePdf
                 $pdf->Cell($w50, 8, $tab['MailUser'], 0, 1, 'R');
 
                 // Logo HFF
-                $logoPath = $_ENV['BASE_PATH_LONG'] . '/Views/assets/logoHff.jpg';
-                $pdf->Image($logoPath, 10, 10, 60, 0, 'jpg');
+                $pdf->Image("{$this->basePathAssets}/logoHff.jpg", 10, 10, 60, 0, 'jpg');
 
                 // Grand titre du pdf
                 $pdf->SetFont($font, 'B', 16);
