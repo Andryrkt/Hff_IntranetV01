@@ -33,6 +33,12 @@ class GeneratePdfCdeMagasin extends GeneratePdf
     private const ROW_COLOR         = [200, 200, 200];
     private const DOTTED_LINE_COLOR = [50, 50, 50];
 
+    /** @var array{numCdeLbl:int|float,numCde:int|float,typeCdeLbl:int|float,typeCde:int|float,delaiExpLbl:int|float,frnLbl:int|float,numFrn:int|float,nomFrn:int|float,responsableLbl:int|float} $headerWidth */
+    private array $headerWidth = [];
+
+    /** @var array{img1X:int|float,img1Y:int|float,img1W:int|float,img1H:int|float,img2X:int|float,img2Y:int|float,img2W:int|float,img2H:int|float} $imgConfig */
+    private array $imgConfig = [];
+
     /** @var array{noLigne:int|float,cst:int|float,avBat:int|float,ref:int|float,packQty:int|float,designation:int|float,npr:int|float,fms:int|float,ret:int|float,qteCdee:int|float,qteDispo:int|float,qteDispoMin:int|float,qteDispoMax:int|float,qteVte6M:int|float,nbrVte6M:int|float,coutUnit:int|float,coutTotal:int|float,poids:int|float} $mainRowWidths */
     private array $mainRowWidths = [];
 
@@ -92,40 +98,43 @@ class GeneratePdfCdeMagasin extends GeneratePdf
 
     private function renderHeader(CommandeSoumissionDTO $dto): void
     {
-        $this->pdf->Image("{$this->basePathAssets}/info_HFF_1.png", 0, 0, 45, 12, "PNG"); // 1039 * 434
-        $this->pdf->Image("{$this->basePathAssets}/info_HFF_2.png", 45, 0, 45, 12, "PNG"); // 460 * 223
+        // Définir les largeurs de colonne pour l'entête avant utilisation
+        $this->defineHeaderConfig();
+
+        $this->pdf->Image("{$this->basePathAssets}/info_HFF_1.png", $this->imgConfig['img1X'], $this->imgConfig['img1Y'], $this->imgConfig['img1W'], $this->imgConfig['img1H'], "PNG");
+        $this->pdf->Image("{$this->basePathAssets}/info_HFF_2.png", $this->imgConfig['img2X'], $this->imgConfig['img2Y'], $this->imgConfig['img2W'], $this->imgConfig['img2H'], "PNG");
 
         $this->pdf->SetFont(self::FONT, "B", self::TITLE_SIZE);
         $this->pdf->Cell(0, self::TITLE_HEIGHT, "Cde Fournisseur", 0, 1);
 
-        $wLbl = 23;
         $this->pdf->setFont(self::FONT, "I", self::MAIN_TEXT_SIZE);
-        $this->cellUnderline($wLbl, self::MAIN_TEXT_HEIGHT, "No Commande:", 0, 0);
+        $this->cellUnderline($this->headerWidth['numCdeLbl'], self::MAIN_TEXT_HEIGHT, "No Commande:", 0, 0);
 
         $this->pdf->setFont(self::FONT, "B", self::MAIN_TEXT_SIZE);
-        $this->pdf->Cell($wLbl, self::MAIN_TEXT_HEIGHT, $dto->numeroCommande, 0, 0);
+        $this->pdf->Cell($this->headerWidth['numCde'], self::MAIN_TEXT_HEIGHT, $dto->numeroCommande, 0, 0);
         $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, $dto->getDateCdeFormatted(), 0, 1);
 
         $this->pdf->setFont(self::FONT, "I", self::MAIN_TEXT_SIZE);
-        $this->cellUnderline($wLbl, self::MAIN_TEXT_HEIGHT, "Type Commande:", 0, 0);
+        $this->cellUnderline($this->headerWidth['typeCdeLbl'], self::MAIN_TEXT_HEIGHT, "Type Commande:", 0, 0);
 
         $this->pdf->setFont(self::FONT, "", self::MAIN_TEXT_SIZE);
-        $this->pdf->Cell($wLbl, self::MAIN_TEXT_HEIGHT, $dto->typeCde, 0, 0);
+        $this->pdf->Cell($this->headerWidth['typeCde'], self::MAIN_TEXT_HEIGHT, $dto->typeCde, 0, 0);
 
         $this->pdf->setFont(self::FONT, "I", self::MAIN_TEXT_SIZE);
-        $this->cellUnderline($wLbl, self::MAIN_TEXT_HEIGHT, "Délai d'expédition:", 0, 0);
+        $this->cellUnderline($this->headerWidth['delaiExpLbl'], self::MAIN_TEXT_HEIGHT, "Délai d'expédition:", 0, 0);
 
         $this->pdf->setFont(self::FONT, "", self::MAIN_TEXT_SIZE);
         $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, $dto->getDelaiExpedition(), 0, 1);
 
         $this->pdf->setFont(self::FONT, "I", self::MAIN_TEXT_SIZE);
-        $this->cellUnderline($wLbl, self::MAIN_TEXT_HEIGHT, "Fournisseur:", 0, 0);
+        $this->cellUnderline($this->headerWidth['frnLbl'], self::MAIN_TEXT_HEIGHT, "Fournisseur:", 0, 0);
 
         $this->pdf->setFont(self::FONT, "B", self::MAIN_TEXT_SIZE);
-        $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, $dto->getFournisseur(), 0, 1);
+        $this->pdf->Cell($this->headerWidth['numFrn'], self::MAIN_TEXT_HEIGHT, $dto->numFrn, 0, 0);
+        $this->pdf->MultiCell($this->headerWidth['nomFrn'], self::MAIN_TEXT_HEIGHT, $dto->nomFrn, 0, 'L');
 
         $this->pdf->setFont(self::FONT, "I", self::MAIN_TEXT_SIZE);
-        $this->cellUnderline($wLbl, self::MAIN_TEXT_HEIGHT, "Responsable:", 0, 0);
+        $this->cellUnderline($this->headerWidth['responsableLbl'], self::MAIN_TEXT_HEIGHT, "Responsable:", 0, 0);
 
         $this->pdf->setFont(self::FONT, "", self::MAIN_TEXT_SIZE);
         $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, $dto->responsable, 0, 0);
@@ -345,6 +354,36 @@ class GeneratePdfCdeMagasin extends GeneratePdf
             $this->pdf->AddPage();
             $this->renderTableHeader(); // réafficher les en-têtes de colonnes
         }
+    }
+
+    /** 
+     * Définir les largeurs des colonnes sur l'entête de la page
+     *
+     * @return void
+     */
+    private function defineHeaderConfig(): void
+    {
+        $w100 = $this->getUsableWidth();
+
+        $this->headerWidth['numCdeLbl']          =
+            $this->headerWidth['typeCdeLbl']     =
+            $this->headerWidth['typeCde']        =
+            $this->headerWidth['delaiExpLbl']    =
+            $this->headerWidth['frnLbl']         =
+            $this->headerWidth['responsableLbl'] = 24;
+
+        $this->headerWidth['numCde'] = $this->headerWidth['numFrn'] = 15;
+        $this->headerWidth['nomFrn'] = 45;
+
+        $this->imgConfig['img1W'] = 44.852;
+        $this->imgConfig['img1H'] = $this->imgConfig['img1W'] * 434 / 1039;
+        $this->imgConfig['img1X'] = $w100 / 2;
+
+        $this->imgConfig['img2W'] = 25.588;
+        $this->imgConfig['img2H'] = $this->imgConfig['img2W'] * 223 / 460;
+        $this->imgConfig['img2X'] = $w100 - $this->imgConfig['img2W'] + 5;
+
+        $this->imgConfig['img1Y'] = $this->imgConfig['img2Y'] = self::MARGIN_TOP + 7;
     }
 
     /** 

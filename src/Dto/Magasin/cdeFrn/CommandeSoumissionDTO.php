@@ -38,15 +38,8 @@ class CommandeSoumissionDTO
         return "du {$dateFormatter->format($this->dateCde)}";
     }
 
-    public function getFournisseur(): string
-    {
-        return "{$this->numFrn} - {$this->nomFrn}";
-    }
-
     public function getDelaiExpedition(): string
     {
-        if (!$this->delaiExpedition) return "";
-
         return "{$this->delaiExpedition} jour" . ($this->delaiExpedition > 1 ? "s" : "");
     }
 
