@@ -46,8 +46,9 @@ document.addEventListener("DOMContentLoaded", function () {
         "Veuillez patienter pendant la génération de PDF s'il vous plaît!"
       );
 
-      const response = await apiManager.get(
-        API_ENDPOINTS.generatePdfCdeFrnMag(numCde)
+      const response = await apiManager.post(
+        API_ENDPOINTS.generatePdfCdeFrnMag,
+        { numCde }
       );
       const dto = response.data;
       if (!dto) throw new Error("Aucune information de commande reçue");

@@ -9,5 +9,5 @@ export const API_ENDPOINTS = {
   commandModal: (numOr) => `api/command-modal/${numOr}`,
 
   /** Commande Fournissuer Magasin */
-  generatePdfCdeFrnMag: (numCde) => `api/cde-frn/${numCde}/generate-pdf`,
+  generatePdfCdeFrnMag: "api/cde-frn/generate-pdf",
 };

@@ -3,6 +3,7 @@
 namespace App\Api\magasin\cdeFrn;
 
 use App\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Service\magasin\cdeFrn\CdeFrnSoumissionService;
@@ -17,10 +18,12 @@ class GenerateCommandeFournisseurApi extends Controller
     }
 
     /**
-     * @Route("/api/cde-frn/{numCde}/generate-pdf", name="api_generate_cde_frn", methods={"GET"})
+     * @Route("/api/cde-frn/generate-pdf", name="api_generate_cde_frn", methods={"POST"})
      */
-    public function generatePdfCmdeFournisseur(string $numCde): JsonResponse
+    public function generatePdfCmdeFournisseur(Request $request): JsonResponse
     {
+        $numCde = (string) (json_decode($request->getContent(), true)['numCde'] ?? '');
+
         // 1. Validation basique de l'input
         if (empty($numCde) || !preg_match('/^\d{7,8}$/', $numCde)) {
             return new JsonResponse([
