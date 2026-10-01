@@ -40,20 +40,17 @@ class FileUploaderForDAService
      * @param UploadedFile $file               fichier à uploader
      * @param string       $numeroDemandeAppro numéro de la Demande Appro
      * @param string       $fileType           type du fichier joint (devis, fiche technique, PJ observation)
-     * @param int          $i                  incrémentation pour les fichiers multiples
      * 
      * @return string le nom du fichier final
      */
-    public function uploadDaFile(UploadedFile $file, string $numeroDemandeAppro, string $fileType, int $i = 0): string
+    public function uploadDaFile(UploadedFile $file, string $numeroDemandeAppro, string $fileType): string
     {
-        $fileName = sprintf(
-            '%s_%s.%s',
-            $fileType,
-            md5(date("Y|m|d|H|i|s") . $i),
-            strtolower($file->guessExtension() ?? $file->getClientOriginalExtension())
-        );
-
         $destination = "{$this->basePath}/da/$numeroDemandeAppro/";
+        $extension = strtolower($file->guessExtension() ?? $file->getClientOriginalExtension());
+
+        do {
+            $fileName = sprintf('%s_%s.%s', $fileType, bin2hex(random_bytes(8)), $extension);
+        } while (file_exists($destination . $fileName));
 
         $this->moveFile($file, $fileName, $destination);
 
@@ -73,14 +70,12 @@ class FileUploaderForDAService
     {
         $fileNames = [];
         if ($files !== null) {
-            $i = 1; // Compteur pour le nom du fichier
             foreach ($files as $file) {
                 if ($file instanceof UploadedFile) {
-                    $fileName = $this->uploadDaFile($file, $numeroDemandeAppro, $fileType, $i); // Appel de la méthode pour uploader le fichier
+                    $fileName = $this->uploadDaFile($file, $numeroDemandeAppro, $fileType); // Appel de la méthode pour uploader le fichier
                 } else {
                     throw new \InvalidArgumentException('Le fichier doit être une instance de UploadedFile.');
                 }
-                $i++; // Incrémenter le compteur pour le prochain fichier
                 $fileNames[] = $fileName; // Ajouter le nom du fichier dans le tableau
             }
         }
