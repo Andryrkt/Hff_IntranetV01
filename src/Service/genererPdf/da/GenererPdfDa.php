@@ -375,7 +375,7 @@ abstract class GenererPdfDa extends GeneratePdf
     protected function saveBonAchatValide(TCPDF $pdf, string $numDa, string $dest = "F"): void
     {
         // Obtention du chemin absolu du répertoire de travail
-        $Dossier = $_ENV['BASE_PATH_FICHIER'] . "/da/$numDa";
+        $Dossier = "{$this->basePathFile}/da/$numDa";
 
         // Vérification si le répertoire existe, sinon le créer
         if (!is_dir($Dossier)) {

@@ -8,7 +8,7 @@ use App\Service\GlobalVariablesService;
 class GenererPdfCasier extends GeneratePdf
 {
 
-/**
+    /**
      * generer pdf changement de Casier
      */
 
@@ -122,11 +122,6 @@ class GenererPdfCasier extends GeneratePdf
         $pdf->SetXY(118, 2);
         $pdf->Cell(35, 6, 'Email émetteur : ' . $tab['Email_Emetteur'], 0, 0, 'L');
 
-
-
-
-        $Dossier = $_ENV['BASE_PATH_FICHIER'].'/cas/';
-        $pdf->Output($Dossier . $tab['Num_CAS'] . '_' . $tab['Agence_Service_Emetteur_Non_separer'] . '.pdf', 'F');
+        $pdf->Output("{$this->basePathFile}/cas/{$tab['Num_CAS']}_{$tab['Agence_Service_Emetteur_Non_separer']}.pdf", 'F');
     }
-
 }

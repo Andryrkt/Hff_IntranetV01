@@ -240,7 +240,7 @@ class GenererPdfBonAPayer extends GeneratePdf
     private function savePDF(TCPDF $pdf, string $numDa, ?string $numCde = null, string $dest = "F"): string
     {
         // Obtention du chemin absolu du répertoire de travail
-        $Dossier = $_ENV['BASE_PATH_FICHIER'] . "/da/$numDa";
+        $Dossier = "{$this->basePathFile}/da/$numDa";
 
         // Vérification si le répertoire existe, sinon le créer
         if (!is_dir($Dossier)) {

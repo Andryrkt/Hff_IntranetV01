@@ -210,7 +210,6 @@ class GeneratePdfMutation extends GeneratePdf
         $pdf->Line(0, $pdf->GetY(), $w_total, $pdf->GetY());
 
         // génération de fichier
-        $Dossier = $_ENV['BASE_PATH_FICHIER'] . '/mut/';
-        $pdf->Output($Dossier . $tab['NumMut'] . '_' . $tab['codeAg_serv'] . '.pdf', 'F');
+        $pdf->Output("{$this->basePathFile}/mut/{$tab['NumMut']}_{$tab['codeAg_serv']}.pdf", 'F');
     }
 }
