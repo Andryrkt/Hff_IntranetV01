@@ -11,6 +11,7 @@ use App\Dto\Magasin\cdeFrn\CommandeSoumissionDetailDTO;
 class GeneratePdfCdeMagasin extends GeneratePdf
 {
     private TCPDF  $pdf;
+    private CommandeSoumissionDTO $dto;
     private const FONT             = 'helvetica';
 
     private const MARGIN_RIGHT     = 7.5;
@@ -73,6 +74,13 @@ class GeneratePdfCdeMagasin extends GeneratePdf
     {
         $this->pdf = $this->initPDF();
 
+        // Les largeurs sont définies une seule fois, puis réutilisées sur chaque page
+        $this->defineHeaderConfig();
+        $this->defineMainRowWidths();
+        $this->defineSubRowWidths();
+        $this->defineFooterWidths();
+
+        $this->dto = $dto;
         $this->renderHeader($dto);
 
         $this->renderTable($dto->lignes);
@@ -98,9 +106,6 @@ class GeneratePdfCdeMagasin extends GeneratePdf
 
     private function renderHeader(CommandeSoumissionDTO $dto): void
     {
-        // Définir les largeurs de colonne pour l'entête avant utilisation
-        $this->defineHeaderConfig();
-
         $this->pdf->Image("{$this->basePathAssets}/info_HFF_1.png", $this->imgConfig['img1X'], $this->imgConfig['img1Y'], $this->imgConfig['img1W'], $this->imgConfig['img1H'], "PNG");
         $this->pdf->Image("{$this->basePathAssets}/info_HFF_2.png", $this->imgConfig['img2X'], $this->imgConfig['img2Y'], $this->imgConfig['img2W'], $this->imgConfig['img2H'], "PNG");
 
@@ -154,12 +159,6 @@ class GeneratePdfCdeMagasin extends GeneratePdf
     {
         $this->pdf->Ln(3);
 
-        // Définir la largeur du colonne principale avant utilisation
-        $this->defineMainRowWidths();
-
-        // Définir la largeur du colonne sous-ligne avant utilisation
-        $this->defineSubRowWidths();
-
         $this->renderTableHeader();
 
         $rowIndex = 0;
@@ -169,7 +168,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
             $blockHeight = $this->calculateBlockHeight($ligneDto);
 
             // 2. Vérifier s'il faut un saut de page AVANT de dessiner le bloc
-            $this->checkPageBreak($blockHeight);
+            if ($this->exceedsPage($blockHeight)) $this->newPage();
 
             // 3. Couleur de fond alternée
             $fill = ($rowIndex % 2 == 1);
@@ -279,9 +278,10 @@ class GeneratePdfCdeMagasin extends GeneratePdf
 
     private function renderFooter(CommandeSoumissionDTO $dto): void
     {
-        $this->pdf->Ln(3);
+        // Le pied de page doit tenir sur une seule page
+        if ($this->exceedsPage($this->calculateFooterHeight($dto))) $this->newPage();
 
-        $this->defineFooterWidths();
+        $this->pdf->Ln(3);
 
         $this->pdf->SetFont(self::FONT, 'B', self::MAIN_TEXT_SIZE);
         $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, 'Total Poids [Kg]', 0, 1, 'R');
@@ -330,8 +330,21 @@ class GeneratePdfCdeMagasin extends GeneratePdf
     private function calculateBlockHeight(CommandeSoumissionLigneDTO $ligneDto): float
     {
         $height = self::MAIN_ROW_HEIGHT; // hauteur ligne principale
-        $height += count($ligneDto->details) * self::MAIN_ROW_HEIGHT;
+        $height += count($ligneDto->details) * self::SUB_ROW_HEIGHT;
         return $height;
+    }
+
+    private function calculateFooterHeight(CommandeSoumissionDTO $dto): float
+    {
+        $this->pdf->SetFont(self::FONT, '', self::MAIN_TEXT_SIZE);
+        $w100 = $this->getUsableWidth();
+
+        // Ln(3) x3 + 2 lignes poids + 2 lignes signature + séparateur (Ln 3 inclus) + 2 titres OR/PO
+        return 3 + 3 + 3
+            + 4 * self::MAIN_TEXT_HEIGHT
+            + 2 * self::MAIN_TEXT_HEIGHT
+            + $this->pdf->getStringHeight($w100, $dto->getAllValidatedOR())
+            + $this->pdf->getStringHeight($w100, $dto->getAllValidatedPO());
     }
 
     private function calculateHeaderHeight(): float
@@ -347,13 +360,19 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         return $maxLines * (self::MAIN_ROW_HEIGHT - 1); // maxLines = 3
     }
 
-    private function checkPageBreak(float $neededHeight): void
+    private function exceedsPage(float $neededHeight): bool
     {
         $pageBreakTrigger = $this->pdf->getPageHeight() - $this->pdf->getBreakMargin();
-        if ($this->pdf->GetY() + $neededHeight > $pageBreakTrigger) {
-            $this->pdf->AddPage();
-            $this->renderTableHeader(); // réafficher les en-têtes de colonnes
-        }
+        return $this->pdf->GetY() + $neededHeight > $pageBreakTrigger;
+    }
+
+    /** Nouvelle page avec l'entête de la commande et l'entête des colonnes du tableau */
+    private function newPage(): void
+    {
+        $this->pdf->AddPage();
+        $this->renderHeader($this->dto);
+        $this->pdf->Ln(3);
+        $this->renderTableHeader();
     }
 
     /** 
