@@ -19,9 +19,9 @@ class GeneratePdfCdeMagasin extends GeneratePdf
     private const MARGIN_TOP       = 7.5;
     private const MARGIN_BOTTOM    = 7.5;
 
-    private const TITLE_SIZE       = 10.0;
-    private const MAIN_TEXT_SIZE   = 7.2;
-    private const SUB_TEXT_SIZE    = 6.7;
+    private const TITLE_SIZE         = 10.0;
+    private const MAIN_TEXT_SIZE     = 7.2;
+    private const SUB_TEXT_SIZE      = 6.7;
 
     private const MAIN_TEXT_HEIGHT = 5.3;
     private const MAIN_ROW_HEIGHT  = 6.5;
@@ -91,8 +91,9 @@ class GeneratePdfCdeMagasin extends GeneratePdf
 
         $this->renderFooter();
 
-        $this->pdf->Output($filePath, 'I');
-        die;
+        $this->renderPageFooters();
+
+        $this->pdf->Output($filePath, 'F');
     }
 
     private function initPDF(): TCPDF
@@ -102,6 +103,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         $pdf->setPrintFooter(false);
 
         $pdf->setMargins(self::MARGIN_LEFT, self::MARGIN_TOP, self::MARGIN_RIGHT, true);
+        $pdf->SetAutoPageBreak(true, self::MARGIN_BOTTOM);
 
         $pdf->AddPage();
 
@@ -321,6 +323,30 @@ class GeneratePdfCdeMagasin extends GeneratePdf
 
         $this->pdf->SetFont(self::FONT, '', self::MAIN_TEXT_SIZE);
         $this->pdf->MultiCell(0, 0, $this->dto->getAllValidatedPO(), 0, "L");
+    }
+
+    /** Footer de chaque page : date de génération à gauche, "Page X / Y" au centre */
+    private function renderPageFooters(): void
+    {
+        $date  = (new \DateTime("now", new \DateTimeZone("Indian/Antananarivo")))->format('d/m/Y H:i:s');
+        $total = $this->pdf->getNumPages();
+        $y     = $this->pdf->getPageHeight() - self::MARGIN_BOTTOM;
+
+        for ($i = 1; $i <= $total; $i++) {
+            $this->pdf->setPage($i);
+            $this->pdf->SetAutoPageBreak(false);
+            $this->pdf->SetFont(self::FONT, "", self::SUB_TEXT_SIZE);
+            $this->pdf->SetTextColor(...self::TEXT_COLOR);
+            $this->pdf->SetLineStyle(['width' => 0.1, 'dash' => 0, 'color' => self::TEXT_COLOR]);
+
+            $this->pdf->Line(self::MARGIN_LEFT / 2, $y, $this->pdf->getPageWidth() - self::MARGIN_RIGHT / 2, $y);
+
+            $this->pdf->SetXY(self::MARGIN_LEFT, $y);
+            $this->pdf->Cell(0, self::SUB_ROW_HEIGHT, $date, 0, 0, 'L');
+
+            $this->pdf->SetXY(self::MARGIN_LEFT, $y);
+            $this->pdf->Cell(0, self::SUB_ROW_HEIGHT, "Page $i / $total", 0, 0, 'C');
+        }
     }
 
     private function getUsableWidth(): float
