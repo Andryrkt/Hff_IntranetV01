@@ -81,7 +81,7 @@ final class CdeFrnSoumissionService
             if ($lastVersion && $lastVersion === $dto->numVersion) throw new \Exception("Ce document a déjà été soumis. Veuillez régénérer le PDF si vous voulez quand même le soumettre.");
 
             // 2. Copier le fichier PDF dans DocuWare (dépôt de fichier dans DocuWare)
-            if ($this->pdfGenerator->copyToDOCUWARE($dto->urlPDFLong, $dto->numCde)) {
+            if ($this->pdfGenerator->copyToDWCdeFnrSoumis($dto->urlPDFLong, $dto->numCde)) {
                 $dto->pdfDeposerDw = true;
                 $dto->dateDepotDw  = new \DateTime("now", new \DateTimeZone("Indian/Antananarivo"));
             }

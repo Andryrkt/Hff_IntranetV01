@@ -63,12 +63,6 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         'poids'        => "Poids\n[kg]",
     ];
 
-    public function copyToDOCUWARE(string $cheminDuFichier, string $numCmde): bool
-    {
-        $cheminDW = "{$this->basePathDocuWare}/CDE FRN MAGASIN/$numCmde.pdf";
-        return $this->copyFile($cheminDuFichier, $cheminDW);
-    }
-
     public function generate(CommandeSoumissionDTO $dto, string $filePath): void
     {
         $this->pdf = $this->initPDF();

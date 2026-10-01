@@ -144,12 +144,11 @@ class GeneratePdf
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
-    //commande fournisseur
-    public function copyToDWCdeFnrSoumis($fileName)
+    // commande fournisseur magasin
+    public function copyToDWCdeFnrSoumis(string $cheminDuFichier, string $numCmde): bool
     {
-        $cheminFichierDistant = "{$this->basePathDocuWare}/ORDRE_DE_MISSION/{$fileName}";
-        $cheminDestinationLocal = "{$this->basePathFile}/cde_fournisseur/{$fileName}";
-        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+        $cheminDW = "{$this->basePathDocuWare}/CDE FRN MAGASIN/$numCmde.pdf";
+        return $this->copyFile($cheminDuFichier, $cheminDW);
     }
 
 
