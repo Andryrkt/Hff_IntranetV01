@@ -83,6 +83,45 @@
 .soumission-page .nav-tabs .nav-link {
   width: 100%;
   text-align: center;
+  color: #495057;
+  opacity: 0.8;
+  transition:
+    color 160ms var(--ease-out),
+    background-color 160ms var(--ease-out),
+    opacity 160ms var(--ease-out),
+    transform 160ms var(--ease-out);
+}
+/* Trait jaune de l'onglet actif */
+.soumission-page .nav-tabs .nav-link::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: #fbbb01;
+  transform: scaleX(0);
+  transition: transform 180ms var(--ease-out);
+}
+.soumission-page .nav-tabs .nav-link.active {
+  color: #000;
+  font-weight: 700;
+  opacity: 1;
+}
+.soumission-page .nav-tabs .nav-link.active::before {
+  transform: scaleX(1);
+}
+@media (hover: hover) and (pointer: fine) {
+  .soumission-page .nav-tabs .nav-link:not(.active):hover {
+    color: #212529;
+    background-color: #fff8e1;
+    opacity: 1;
+  }
+}
+.soumission-page .nav-tabs .nav-link:active {
+  transform: scale(0.97);
+}
+.soumission-page .nav-tabs .nav-link:focus-visible {
+  outline: 2px solid #0d6efd;
+  outline-offset: -2px;
 }
 .tab-badge {
   position: absolute;
@@ -126,6 +165,8 @@
   .tab-badge.is-pop {
     animation: none;
   }
+  .soumission-page .nav-tabs .nav-link,
+  .soumission-page .nav-tabs .nav-link::before,
   .pj-dropzone,
   .soumission-page .btn,
   .soumission-page .bouton-principal {

@@ -123,7 +123,9 @@ export function createMultiPdfDropzone({
     previewBtn.type = "button";
     previewBtn.className = "btn btn-sm btn-outline-secondary";
     previewBtn.innerHTML = '<i class="fa-solid fa-eye"></i> Aperçu';
-    previewBtn.addEventListener("click", () => togglePreview(el, previewBtn, url));
+    previewBtn.addEventListener("click", () =>
+      togglePreview(el, previewBtn, url)
+    );
     head.append(name, size, previewBtn, btn);
 
     el.append(head);
@@ -139,7 +141,7 @@ export function createMultiPdfDropzone({
     embed.src = url;
     embed.type = "application/pdf";
     embed.className = "w-100 mt-2 border rounded";
-    embed.style.height = "500px";
+    embed.style.height = "750px";
     el.append(embed);
     previewBtn.innerHTML = '<i class="fa-solid fa-eye-slash"></i> Masquer';
   }
