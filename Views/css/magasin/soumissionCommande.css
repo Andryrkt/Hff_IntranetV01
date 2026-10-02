@@ -1,0 +1,125 @@
+.soumission-page {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* ── Dropzone compacte ── */
+.pj-dropzone {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 1.25rem;
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+  transition:
+    border-color 160ms var(--ease-out),
+    background-color 160ms var(--ease-out),
+    transform 160ms var(--ease-out);
+}
+.pj-dropzone__icon {
+  font-size: 1.8rem;
+  color: #ffc107;
+}
+.pj-dropzone__text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+.pj-dropzone__text strong {
+  color: #212529;
+  font-size: 0.95rem;
+}
+.pj-dropzone:focus-visible {
+  outline: 2px solid #0d6efd;
+  outline-offset: 2px;
+}
+.pj-dropzone.is-dragover {
+  border-color: #ffc107;
+  background: #fff8e1;
+  transform: scale(1.01);
+}
+@media (hover: hover) and (pointer: fine) {
+  .pj-dropzone:hover {
+    border-color: #ffc107;
+    background: #fffdf5;
+  }
+}
+
+/* ── Apparition (viewer + pièces jointes) ── */
+.pj-reveal {
+  animation: pj-in 220ms var(--ease-out) both;
+}
+@keyframes pj-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* ── Cartes de fichiers ── */
+.pj-card {
+  animation: pj-in 200ms var(--ease-out) both;
+}
+#file-list-2:empty::before {
+  content: "Aucune pièce jointe sélectionnée.";
+  color: #6c757d;
+}
+
+/* ── Badges d'onglets ── */
+.soumission-page .nav-link {
+  position: relative;
+}
+.tab-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  translate: 50% -40%;
+  min-width: 1.35rem;
+  height: 1.35rem;
+  padding: 0 0.35rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1;
+}
+.tab-badge.is-pop {
+  animation: badge-pop 180ms var(--ease-out);
+}
+@keyframes badge-pop {
+  from {
+    scale: 0.6;
+    opacity: 0;
+  }
+}
+
+/* ── Retour au clic ── */
+.soumission-page .btn,
+.soumission-page .bouton-principal {
+  transition: transform 160ms var(--ease-out);
+}
+.soumission-page .btn:active,
+.soumission-page .bouton-principal:active {
+  transform: scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pj-reveal,
+  .pj-card,
+  .tab-badge.is-pop {
+    animation: none;
+  }
+  .pj-dropzone,
+  .soumission-page .btn,
+  .soumission-page .bouton-principal {
+    transition: none;
+  }
+  .pj-dropzone.is-dragover {
+    transform: none;
+  }
+}
