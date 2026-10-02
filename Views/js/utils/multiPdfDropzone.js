@@ -20,6 +20,7 @@ export function createMultiPdfDropzone({
   let files = [];
   const cards = new Map(); // File -> { el, url }
   input.multiple = true;
+  input.accept = "application/pdf,.pdf";
 
   function validate(file, total) {
     if (!/\.pdf$/i.test(file.name) || file.type !== "application/pdf")

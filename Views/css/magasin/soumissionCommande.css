@@ -72,19 +72,31 @@
 .soumission-page .nav-link {
   position: relative;
 }
+/* Onglets de même largeur, texte centré */
+.soumission-page .nav-tabs {
+  flex-wrap: nowrap;
+}
+.soumission-page .nav-tabs .nav-item {
+  flex: 0 1 400px;
+  margin-right: 20px;
+}
+.soumission-page .nav-tabs .nav-link {
+  width: 100%;
+  text-align: center;
+}
 .tab-badge {
   position: absolute;
-  top: 2px;
-  right: 2px;
-  translate: 50% -40%;
-  min-width: 1.35rem;
-  height: 1.35rem;
-  padding: 0 0.35rem;
+  top: 0px;
+  right: 0px;
+  translate: 40% -40%;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding: 0.3rem 0.25rem 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 999px;
-  font-size: 0.72rem;
+  border-radius: 50%;
+  font-size: 0.72rem !important;
   font-weight: 600;
   line-height: 1;
 }
