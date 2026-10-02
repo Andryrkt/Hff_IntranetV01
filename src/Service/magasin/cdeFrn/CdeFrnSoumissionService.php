@@ -5,6 +5,7 @@ namespace App\Service\magasin\cdeFrn;
 use App\Service\genererPdf\GeneratePdf;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\cde\CdefnrSoumisAValidation;
+use App\Service\fichier\TraitementDeFichier;
 use App\Mapper\Magasin\CdeFrn\CdeFrnSoumissionMapper;
 use App\Dto\Magasin\cdeFrn\CdeFrnSoumisAValidationDTO;
 use App\Repository\cde\CdefnrSoumisAValidationRepository;
@@ -62,7 +63,10 @@ final class CdeFrnSoumissionService
         return $cdeFrnSoumisAValidationDTO;
     }
 
-    public function soumettre(string $userMail, ?string $numCdeSaisi, ?string $token)
+    /**
+     * @param \Symfony\Component\HttpFoundation\File\UploadedFile[] $piecesJointes PDF à fusionner après le PDF généré
+     */
+    public function soumettre(string $userMail, ?string $numCdeSaisi, ?string $token, array $piecesJointes = [])
     {
         $numCdeSaisi = trim((string) $numCdeSaisi);
         try {
@@ -75,12 +79,15 @@ final class CdeFrnSoumissionService
 
             if (!file_exists($dto->urlPDFLong)) throw new \Exception("Le fichier PDF n’a pas été trouvé. Veuillez régénérer le PDF.");
 
-            // 1,5. Vérifier si une soumission existe déjà
+            // Vérifier si une soumission existe déjà
             $lastVersion = $this->repo->findNumeroVersionMax($numCdeSaisi);
             if ($lastVersion && $lastVersion === $dto->numVersion) throw new \Exception("Ce document a déjà été soumis. Veuillez régénérer le PDF si vous voulez quand même le soumettre.");
 
+            // Fusionner les pièces jointes après le PDF généré
+            $pdfADeposerDW = $this->fusionnerPiecesJointes($dto->urlPDFLong, $piecesJointes);
+
             // 2. Copier le fichier PDF dans DocuWare (dépôt de fichier dans DocuWare)
-            if (GeneratePdf::copyToDWCdeFnrSoumis($dto->urlPDFLong, $dto->numCde)) {
+            if (GeneratePdf::copyToDWCdeFnrSoumis($pdfADeposerDW, $dto->numCde)) {
                 $dto->pdfDeposerDw = true;
                 $dto->dateDepotDw  = new \DateTime("now", new \DateTimeZone("Indian/Antananarivo"));
             }
@@ -105,5 +112,34 @@ final class CdeFrnSoumissionService
             // 6. Enregistrement de l'opération en cas d'erreur
             $this->historiqueOperation->sendNotificationSoumission('Echec lors de la soumission : ' . $th->getMessage(), $numCdeSaisi, 'generer_commande_fournisseur');
         }
+    }
+
+    /**
+     * Enregistre les pièces jointes (noms uniques) à côté du PDF généré puis crée le PDF fusionné.
+     *
+     * @return string chemin du PDF à déposer (l'original si aucune pièce jointe)
+     */
+    private function fusionnerPiecesJointes(string $pdfGenere, array $piecesJointes): string
+    {
+        if (!$piecesJointes) return $pdfGenere;
+
+        $dossier    = dirname($pdfGenere);
+        $fichiers   = [$pdfGenere];
+        $traitement = new TraitementDeFichier();
+
+        foreach ($piecesJointes as $piece) {
+            $nom = pathinfo($piece->getClientOriginalName(), PATHINFO_FILENAME) . '_' . uniqid() . '.pdf';
+            $traitement->upload($piece, $dossier, $nom);
+            $fichiers[] = "$dossier/$nom";
+        }
+
+        $pdfFusionne = $dossier . '/' . pathinfo($pdfGenere, PATHINFO_FILENAME) . '_fusionne.pdf';
+        try {
+            $traitement->fusionFichers($fichiers, $pdfFusionne);
+        } catch (\Throwable $th) {
+            throw new \Exception("Impossible de fusionner les pièces jointes : " . $th->getMessage());
+        }
+
+        return $pdfFusionne;
     }
 }

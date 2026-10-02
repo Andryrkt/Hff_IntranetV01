@@ -3,7 +3,6 @@
 namespace App\Controller\magasin\commande\soumission;
 
 use App\Controller\Controller;
-use App\Entity\cde\CdefnrSoumisAValidation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\magasin\cdeFrn\CdeFrnSoumissionService;
@@ -35,7 +34,7 @@ class SoumissionCommandeController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             $formData = $form->getData();
 
-            $this->cdeFrnSoumissionService->soumettre($this->getUserMail(), $formData["numCmde"], $formData["generationToken"]);
+            $this->cdeFrnSoumissionService->soumettre($this->getUserMail(), $formData["numCmde"], $formData["generationToken"], $formData["piecesJointesPdf"] ?? []);
         }
 
         $this->logUserVisit('generer_commande_fournisseur');
