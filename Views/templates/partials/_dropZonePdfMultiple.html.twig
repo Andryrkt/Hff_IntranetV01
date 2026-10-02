@@ -1,0 +1,13 @@
+<div id="dropzone-{{ id }}" class="pj-dropzone" role="button" tabindex="0" aria-label="Ajouter des pièces jointes PDF">
+	<i class="fa-solid fa-cloud-arrow-up pj-dropzone__icon" aria-hidden="true"></i>
+	<div class="pj-dropzone__text">
+		<strong>Pièces jointes (PDF)</strong>
+		<span>à fusionner après la commande · glissez-déposez ou cliquez · 5 Mo max / fichier · 10 fichiers max</span>
+	</div>
+	<button type="button" id="upload-btn-{{ id }}" class="btn {{ classBtn ?? 'btn-primary' }}">Sélectionner</button>
+</div>
+
+{{ form_widget(form[fieldName], {'attr': {'class': 'd-none', 'tabindex': '-1'}}) }}
+{{ form_errors(form[fieldName]) }}
+
+<button type="button" id="file-summary-{{ id }}" class="btn btn-link p-0 mt-1" hidden></button>
