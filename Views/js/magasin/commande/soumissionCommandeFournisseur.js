@@ -1,10 +1,15 @@
 import { API_ENDPOINTS } from "../../api/apiEndpoints";
 import { ApiRequestManager } from "../../api/ApiRequestManager";
 import { displayOverlay } from "../../utils/ui/overlay";
+import { initializeFileHandlersMultiple } from "../../utils/file_upload_Utils.js";
 
 const apiManager = new ApiRequestManager();
 
 document.addEventListener("DOMContentLoaded", function () {
+  initializeFileHandlersMultiple(
+    "2",
+    document.querySelector("#soumission_commande_piecesJointesPdf")
+  );
   const form = document.getElementById("myForm");
   const btnGenererPdf = document.getElementById("genererPdf");
   const contenuOriginal = btnGenererPdf.innerHTML;
