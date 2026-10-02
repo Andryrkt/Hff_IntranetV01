@@ -118,16 +118,36 @@ export function createMultiPdfDropzone({
     btn.setAttribute("aria-label", `Supprimer ${file.name}`);
     btn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
     btn.addEventListener("click", () => remove(file));
-    head.append(name, size, btn);
+    const previewBtn = document.createElement("button");
+    previewBtn.type = "button";
+    previewBtn.className = "btn btn-sm btn-outline-secondary";
+    previewBtn.innerHTML = '<i class="fa-solid fa-eye"></i> Aperçu';
+    previewBtn.addEventListener("click", () => togglePreview(el, previewBtn, url));
+    head.append(name, size, previewBtn, btn);
 
+    el.append(head);
+    return el;
+  }
+
+  // L'aperçu (visionneur PDF lourd) n'est créé qu'à la demande, un seul à la fois.
+  function togglePreview(el, previewBtn, url) {
+    const open = el.querySelector("embed");
+    closePreviews();
+    if (open) return;
     const embed = document.createElement("embed");
     embed.src = url;
     embed.type = "application/pdf";
     embed.className = "w-100 mt-2 border rounded";
     embed.style.height = "500px";
+    el.append(embed);
+    previewBtn.innerHTML = '<i class="fa-solid fa-eye-slash"></i> Masquer';
+  }
 
-    el.append(head, embed);
-    return el;
+  function closePreviews() {
+    list.querySelectorAll("embed").forEach((e) => e.remove());
+    list
+      .querySelectorAll(".btn-outline-secondary")
+      .forEach((b) => (b.innerHTML = '<i class="fa-solid fa-eye"></i> Aperçu'));
   }
 
   uploadBtn.addEventListener("click", (e) => {
