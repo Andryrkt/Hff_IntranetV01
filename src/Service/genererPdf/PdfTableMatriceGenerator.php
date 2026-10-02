@@ -21,9 +21,18 @@ class PdfTableMatriceGenerator
     private const LARGEUR_MAX_FOURNISSEUR = 15.0;
 
     /**
-     * @var array{cst: float, ref: float, desi: float, qte: float, fournisseur: float}|null
+     * @var array{cst:float,ref:float,desi:float,qte:float,fournisseur:float}|null
      */
     private ?array $largeursColonnes = null;
+
+    /**
+     * Total global cumulé sur toutes les lignes (uniquement pour les lignes "choix").
+     */
+    private float $totalGlobal = 0.0;
+    /**
+     * Total montant par fournisseur (uniquement pour les lignes "choix").
+     */
+    private array $montantTotalFournisseurs = [];
 
     /**
      * Calcule les largeurs de colonnes : fixes + réparties dynamiquement entre "désignation" et les colonnes fournisseurs.
@@ -66,29 +75,53 @@ class PdfTableMatriceGenerator
      */
     public function genererEtEcrire(iterable $dals, TCPDF $pdf): void
     {
+        if (!is_array($dals)) {
+            $dals = iterator_to_array($dals);
+        }
+
         $fournisseurs = $this->gererPrixFournisseurs($dals);
         // Récupérer tous les noms de fournisseurs
         $listeFournisseurs = array_keys($fournisseurs);
-        $w = $this->calculerLargeursColonnes($listeFournisseurs);
+
+        $this->totalGlobal = $this->calculerTotalGlobal($dals, $listeFournisseurs, $fournisseurs);
 
         $tableOpen  = '<table border="1" cellpadding="4" cellspacing="0" style="border-collapse: collapse; font-size: 8px;">';
         $tableClose = '</table>';
         $enteteHtml = $tableOpen . $this->genererEntete($listeFournisseurs) . $tableClose;
-
+        $tableauMontantTotal = $tableOpen . $this->genererMontantTotalGlobal($listeFournisseurs) . $tableClose;
+        $pdf->writeHTML($tableauMontantTotal, false, false, true);
         // Première impression de l'entête
         $pdf->writeHTML($enteteHtml, false, false, true, false, '');
 
-        $totalGlobal = 0.0;
-
         foreach ($dals as $dal) {
-            $ligneHtml = $tableOpen . $this->genererLigne($dal, $listeFournisseurs, $fournisseurs, $totalGlobal) . $tableClose;
+            $ligneHtml = $tableOpen . $this->genererLigne($dal, $listeFournisseurs, $fournisseurs, $this->totalGlobal) . $tableClose;
             $this->ecrireLigneProtegee($pdf, $ligneHtml, $enteteHtml);
         }
 
-        $totalHtml = $tableOpen . $this->genererLigneTotal($listeFournisseurs, $totalGlobal) . $tableClose;
+        $totalHtml = $tableOpen . $this->genererLigneMontantTotalParFrn($listeFournisseurs, $this->totalGlobal) . $tableClose;
         $this->ecrireLigneProtegee($pdf, $totalHtml, $enteteHtml);
     }
+    /**
+     * Générer tableu montant total global pre-validé
+     */
+    private function genererMontantTotalGlobal(array $listeFournisseurs): string
+    {
+        $w = $this->calculerLargeursColonnes($listeFournisseurs);
+        $largeurTotaleFournisseurs = $w['fournisseur'] * count($listeFournisseurs);
 
+        $largeurMontantTotal = $w['cst'] + $w['ref'];
+        $largeurTotalGlobal  = $w['desi'] + $w['qte'] + $largeurTotaleFournisseurs;
+
+        $html = '<thead>';
+
+        // Ligne montant total principale
+        $html .= "<tr >";
+        $html .= "<th colspan=\"2\" align=\"center\" style=\"width:{$largeurMontantTotal}%;background-color: #fbbb01;\"><strong>Montant total pré-validé:</strong></th>";
+        $html .= "<th colspan=\"3\" align=\"right\" style=\"width:{$largeurTotalGlobal}%;background-color: #fbbb01;\"><strong>{$this->formatPrix(($this->totalGlobal))}</strong></th>";
+        $html .= '</tr></thead>';
+
+        return  $html;
+    }
     /**
      * Générer l'entête du tableau
      */
@@ -96,9 +129,7 @@ class PdfTableMatriceGenerator
     {
         $w = $this->calculerLargeursColonnes($listeFournisseurs);
         $largeurTotaleFournisseurs = $w['fournisseur'] * count($listeFournisseurs);
-
         $html = '<thead>';
-
         // Ligne titre principale
         $html .= "<tr style=\"background-color: #dcdcdc;\">";
         $html .= "<th rowspan=\"2\" align=\"center\" style=\"width:{$w['cst']}%;\">CST</th>";
@@ -143,6 +174,27 @@ class PdfTableMatriceGenerator
 
     private function genererLigne(DemandeApproL $dal, array $listeFournisseurs, array $fournisseurs, float &$totalGlobal): string
     {
+
+        // Calcul et recup des sommes total de montant prevalidé
+        foreach ($listeFournisseurs as $frn) {
+            $total = 0;
+            $choix = false;
+
+            foreach ($fournisseurs[$frn] as $keyId => $details) {
+                if (!empty($details['choix']) && $details['choix'] == "true") {
+                    $total += (float) ($details['montant'] ?? 0);
+                    $choix  = $details['choix'];
+                } else {
+                    $total = (float) 0;
+                }
+            }
+
+            $this->montantTotalFournisseurs[$frn] = [
+                'total' => $total,
+                'choix' => $choix,
+            ];
+        }
+
         $cst   = $dal->getArtConstp();
         $ref   = $dal->getArtRefp();
         $desi  = $dal->getArtDesi();
@@ -161,6 +213,7 @@ class PdfTableMatriceGenerator
         $html .= "<td style=\"width:{$w['desi']}%;\">" . htmlspecialchars($desi) . "</td>";
         $html .= "<td align=\"center\" style=\"width:{$w['qte']}%;\">{$qte}</td>";
 
+
         foreach ($listeFournisseurs as $frn) {
             $prix    = $fournisseurs[$frn][$keyId]['prix'] ?? '';
             $choix   = $fournisseurs[$frn][$keyId]['choix'] ?? false;
@@ -170,7 +223,6 @@ class PdfTableMatriceGenerator
             if ($prix === '' || $prix === null || $prix == 0) {
                 $contenu = "";
             } else {
-                if ($choix) $totalGlobal += $montant;
                 $contenu = "PU: $prix <br>MTT: {$this->formatPrix($montant)}";
             }
 
@@ -180,15 +232,48 @@ class PdfTableMatriceGenerator
         return $html . '</tr></tbody>';
     }
 
-    private function genererLigneTotal(array $listeFournisseurs, float $totalGlobal): string
+    public function genererLigneMontantTotalParFrn(array $listeFournisseurs, float $totalGlobal): string
     {
         $w = $this->calculerLargeursColonnes($listeFournisseurs);
         $nbColonnes = 4 + count($listeFournisseurs) - 1;
-        $largeurLibelleTotal = $w['cst'] + $w['ref'] + $w['desi'] + $w['qte'] + $w['fournisseur'] * (count($listeFournisseurs) - 1);
+        $largeurLibelleTotal = $w['cst'] + $w['ref'] + $w['desi'] + $w['qte'];
 
         $html = '<tfoot><tr>';
-        $html .= "<td colspan=\"{$nbColonnes}\" align=\"right\" style=\"width:{$largeurLibelleTotal}%;\"><strong>Montant Total pré-validé</strong></td>";
-        $html .= "<td align=\"right\" style=\"width:{$w['fournisseur']}%; background-color: #fbbb01;\"><strong>{$this->formatPrix($totalGlobal)}</strong></td>";
+        $html .= "<td colspan=\"{$nbColonnes}\" align=\"right\" style=\"width:{$largeurLibelleTotal}%;\"><strong>Montant total par fournisseur</strong></td>";
+        foreach ($listeFournisseurs as $frn) {
+            $montantTotal = $this->montantTotalFournisseurs[$frn]['total'] ?? 0;
+            $choix   = $this->montantTotalFournisseurs[$frn]['choix']   ?? false;
+
+            $style = "width:{$w['fournisseur']}%;" . ($choix ? ' background-color: #fbbb01;' : '');
+
+            $html .= "<td align=\"right\" style=\"{$style}\">" . "<strong>" . $this->formatPrix($montantTotal) . "</strong></td>";
+        }
         return $html . '</tr></tfoot>';
+    }
+
+    // Utilitaire pour calculer Montant Total pre-validé
+    private function calculerTotalGlobal(array $dals, array $listeFournisseurs, array $fournisseurs): float
+    {
+        $total = 0.0;
+
+        foreach ($dals as $dal) {
+            $cst   = $dal->getArtConstp();
+            $ref   = $dal->getArtRefp();
+            $desi  = $dal->getArtDesi();
+            $qte   = $dal->getQteDem();
+            $ligne = $dal->getNumeroLigne();
+            $keyId = implode('_', array_map('trim', [$cst, $ref, $desi, $qte, $ligne]));
+
+            foreach ($listeFournisseurs as $frn) {
+                $choix   = $fournisseurs[$frn][$keyId]['choix']   ?? false;
+                $montant = $fournisseurs[$frn][$keyId]['montant'] ?? 0;
+
+                if ($choix) {
+                    $total += $montant;
+                }
+            }
+        }
+
+        return $total;
     }
 }
