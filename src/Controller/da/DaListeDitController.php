@@ -106,12 +106,12 @@ class DaListeDitController extends Controller
         $paginationData = $this->data($request, $ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $peutVoirListeAvecDebiteur, $codeSociete, $multisuccursale);
 
         return $this->render('da/list-dit.html.twig', [
-            'data'            => array_map(fn($item) => DitListItemDto::fromEntity($item, $this->getUrlGenerator(), new UrlIdCipher), $paginationData['data'] ?? null),
+            'data'            => array_map(fn($item) => DitListItemDto::fromEntity($item, $this->getUrlGenerator(), new UrlIdCipher), $paginationData['data'] ?? []),
             'currentPage'     => $paginationData['currentPage'] ?? 0,
             'totalPages'      => $paginationData['lastPage'] ?? 0,
             'criteria'        => $criteriaTab,
             'resultat'        => $paginationData['totalItems'] ?? 0,
-            'statusCounts'    => array_map([DitStatusCountDto::class, 'fromRow'], $paginationData['statusCounts'] ?? 0),
+            'statusCounts'    => array_map([DitStatusCountDto::class, 'fromRow'], $paginationData['statusCounts'] ?? []),
             'form'            => $form->createView(),
             'formIsSubmitted' => $form->isSubmitted(),
         ]);

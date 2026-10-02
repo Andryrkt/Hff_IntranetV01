@@ -159,23 +159,23 @@ class DitDevisSoumisAValidationController extends Controller
         } else { // validation atelier
             // si avec pièce magasin ET premier soumission
             if ($nbSotrieMagasin[0]['nbr_sortie_magasin'] !== "0" && $estCepremierSoumission) {
-                $message = " Merci de passer le devis à validation au magasin ";
+                $message = " Merci de passer le devis en validation au magasin, car le devis contient des pièces gérées par le magasin.";
                 $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
             }
 
             // SI (devis est prix refusé ou prix a confirmer ou Demande refusée par le PM)     ET    nouvelle reference ajoutée
             else if ((in_array("Prix à confirmer", $devisStatut) || in_array('Prix refusé magasin', $devisStatut) || in_array('Demande refusée par le PM', $devisStatut)) && (int)$nbrPieceInformix > (int)$nbrPieceSqlServ) {
-                $message = " Merci de repasser la soumission du devis au magasin pour vérification ";
+                $message = " Merci de repasser la soumission du devis au magasin pour vérification, car de nouvelles références ont été ajoutées au devis. ";
                 $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
             }
-            // SI le devis est statué "PRix à confirmer"
+            // SI le devis est statué "Prix à confirmer"
             elseif ($condition['conditionStatutDevisVp']) {
-                $message = "Erreur lors de la soumission, Impossible de soumettre le devis  . . . le devis est encore en cours de vérification";
+                $message = "Impossible de soumettre le devis, car les prix sont actuellement en cours de vérification par le magasin.";
                 $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
             }
             // SI le devis est statué "à valider atelier"
             elseif ($condition['conditionStatutDevisVa']) {
-                $message = "Erreur lors de la soumission, Impossible de soumettre le devis  . . . un devis est déjà en cours de validation";
+                $message = "Impossible de soumettre le devis, car le devis est actuellement en cours de validation à l’atelier.";
                 $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
             }
             // statut devi prix est réfuseé magasin, pas de nouvelle ligne et les montants a été changer

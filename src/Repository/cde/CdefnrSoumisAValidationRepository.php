@@ -15,7 +15,7 @@ class CdefnrSoumisAValidationRepository extends EntityRepository
             ->getQuery()
             ->getSingleScalarResult();
 
-        return $numeroVersionMax ?? 0;
+        return (int) ($numeroVersionMax ?? 0);
     }
 
     public function findStatut(string $numCde): ?string
