@@ -18,8 +18,6 @@ class GeneratePdfDdp extends GeneratePdf
     {
         $pdf = new TCPDF();
 
-        $logoPath = $_ENV['BASE_PATH_LONG'] . '/Views/assets/henriFraise.jpg'; // chemin du logo
-
         $w_total = $pdf->GetPageWidth();  // Largeur totale du PDF
         $margins = $pdf->GetMargins();    // Tableau des marges (left, top, right)
         $usable_width = $w_total - $margins['left'] - $margins['right']; // largeur totale utilisable
@@ -33,7 +31,7 @@ class GeneratePdfDdp extends GeneratePdf
         $pdf->SetFont('helvetica', '', 12);
         $pdf->Cell(0, 8, 'Emetteur : ' . $data->getAdresseMailDemandeur(), 0, 1, 'R'); // TO DO: valeur de "Emetteur" (changer 'emetteur@hff.mg')
 
-        $pdf->Image($logoPath, 5, 1, 40, 0, 'jpg');
+        $pdf->Image("{$this->basePathAssets}/henriFraise.jpg", 5, 1, 40, 0, 'jpg');
 
         // Grand titre du pdf
         $pdf->SetFont('helvetica', 'B', 12);
@@ -191,8 +189,6 @@ class GeneratePdfDdp extends GeneratePdf
     {
         $pdf = new TCPDF();
 
-        $logoPath = $_ENV['BASE_PATH_LONG'] . '/Views/assets/henriFraise.jpg'; // chemin du logo
-
         $w_total = $pdf->GetPageWidth();  // Largeur totale du PDF
         $margins = $pdf->GetMargins();    // Tableau des marges (left, top, right)
         $usable_width = $w_total - $margins['left'] - $margins['right']; // largeur totale utilisable
@@ -206,7 +202,7 @@ class GeneratePdfDdp extends GeneratePdf
         $pdf->SetFont('helvetica', '', 12);
         $pdf->Cell(0, 8, 'Emetteur : ' . $dto->adresseMailDemandeur, 0, 1, 'R'); // TO DO: valeur de "Emetteur" (changer 'emetteur@hff.mg')
 
-        $pdf->Image($logoPath, 5, 1, 40, 0, 'jpg');
+        $pdf->Image("{$this->basePathAssets}/henriFraise.jpg", 5, 1, 40, 0, 'jpg');
 
         // Grand titre du pdf
         $pdf->SetFont('helvetica', 'B', 12);

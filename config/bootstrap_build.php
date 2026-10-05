@@ -63,14 +63,6 @@ $registryDef->setPublic(true);
 $container->setDefinition('doctrine', $registryDef);
 
 // =============================
-// RequestStack
-// =============================
-$requestStackDef = new Definition(RequestStack::class);
-$requestStackDef->setPublic(true);
-
-$container->setDefinition('request_stack', $requestStackDef);
-
-// =============================
 // 🔥 SESSION (déclaré comme service)
 // =============================
 $container->register('session.storage', NativeSessionStorage::class);
@@ -80,61 +72,6 @@ $container->register('session', Session::class)
         new Reference('session.storage')
     ])
     ->setPublic(true);
-
-// =============================
-// 🔥 Cache SECURITY (déclaré comme service)
-// =============================
-$container->register('cache.security', FilesystemTagAwareAdapter::class)
-    ->setArguments([
-        'security',
-        0,
-        dirname(__DIR__) . '/var/cache/pools'
-    ])
-    ->setPublic(true);
-
-// =============================
-// 🔥 Cache MENU (déclaré comme service)
-// =============================
-$container->register('cache.menu', FilesystemTagAwareAdapter::class)
-    ->setArguments([
-        'menu',
-        0,
-        dirname(__DIR__) . '/var/cache/pools'
-    ])
-    ->setPublic(true);
-
-// =============================
-// 🔥 UserDataService
-// =============================
-$dataServiceDef = new Definition(UserDataService::class, [
-    new Reference('doctrine.orm.default_entity_manager'),
-    new Reference('cache.security'),
-    new Reference('session')
-]);
-$dataServiceDef->setPublic(true);
-
-$container->setDefinition('userData.service', $dataServiceDef);
-
-// =============================
-// 🔥 SecurityService
-// =============================
-$securityServiceDef = new Definition(SecurityService::class, [
-    new Reference('userData.service')
-]);
-$securityServiceDef->setPublic(true);
-
-$container->setDefinition('security.service', $securityServiceDef);
-
-// =============================
-// 🔥 MenuService
-// =============================
-$menuServiceDef = new Definition(MenuService::class, [
-    new Reference('userData.service'),
-    new Reference('cache.menu')
-]);
-$menuServiceDef->setPublic(true);
-
-$container->setDefinition('menu.service', $menuServiceDef);
 
 // =============================
 // Charger YAML

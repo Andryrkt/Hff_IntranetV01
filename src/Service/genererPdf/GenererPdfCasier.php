@@ -8,7 +8,7 @@ use App\Service\GlobalVariablesService;
 class GenererPdfCasier extends GeneratePdf
 {
 
-/**
+    /**
      * generer pdf changement de Casier
      */
 
@@ -22,8 +22,7 @@ class GenererPdfCasier extends GeneratePdf
 
         $pdf->setFont('helvetica', 'B', 14);
         $pdf->setAbsY(11);
-        $logoPath = $_ENV['BASE_PATH_LONG'] . '/Views/assets/henrifraise.jpg';
-        $pdf->Image($logoPath, '', '', 45, 12);
+        $pdf->Image("{$this->basePathAssets}/henrifraise.jpg", '', '', 45, 12);
         $pdf->setAbsX(55);
         //$pdf->Cell(45, 12, 'LOGO', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Cell(110, 12, 'CREATION DE CASIER', 0, 0, 'C', false, '', 0, false, 'T', 'M');
@@ -122,11 +121,6 @@ class GenererPdfCasier extends GeneratePdf
         $pdf->SetXY(118, 2);
         $pdf->Cell(35, 6, 'Email émetteur : ' . $tab['Email_Emetteur'], 0, 0, 'L');
 
-
-
-
-        $Dossier = $_ENV['BASE_PATH_FICHIER'].'/cas/';
-        $pdf->Output($Dossier . $tab['Num_CAS'] . '_' . $tab['Agence_Service_Emetteur_Non_separer'] . '.pdf', 'F');
+        $pdf->Output("{$this->basePathFile}/cas/{$tab['Num_CAS']}_{$tab['Agence_Service_Emetteur_Non_separer']}.pdf", 'F');
     }
-
 }
