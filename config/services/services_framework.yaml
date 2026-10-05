@@ -157,6 +157,9 @@ services:
     public: true
 
   # Alias pour l'autowiring par type
+  App\Service\security\SecurityService: "@security.service"
+  App\Service\UserData\UserDataService: "@userData.service"
+  App\Service\navigation\MenuService: "@menu.service"
   Doctrine\ORM\EntityManagerInterface: "@doctrine.orm.default_entity_manager"
   Twig\Environment: "@twig"
   Symfony\Component\HttpFoundation\Session\SessionInterface: "@session"
