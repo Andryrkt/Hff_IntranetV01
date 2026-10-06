@@ -28,18 +28,18 @@ class DwCommande
     /**
      * @ORM\Column(type="integer", name="id_cde")
      */
-    private $idCde;
+    private int $idCde;
 
     /**
-     * @ORM\Column(type="string", length=8, name="id_tiroir")
+     * @ORM\Column(type="string", length=8, name="numero_cde")
      */
-    private $numeroCde;
+    private ?string $numeroCde = null;
 
 
     /**
      * @ORM\Column(type="string", length=8, name="numero_or")
      */
-    private $numeroOR;
+    private ?string $numeroOR = null;
 
     /**
      * @ORM\Column(type="date", name="date_creation")
@@ -82,10 +82,10 @@ class DwCommande
     private $path;
 
     /**
- * @ORM\ManyToOne(targetEntity=DwTiroir::class, inversedBy="commande")
- * @ORM\JoinColumn(name="id_tiroir", referencedColumnName="id_tiroir", nullable=true)
- */
-private $tiroir;
+     * @ORM\ManyToOne(targetEntity=DwTiroir::class, inversedBy="commande")
+     * @ORM\JoinColumn(name="id_tiroir", referencedColumnName="id_tiroir", nullable=true)
+     */
+    private $tiroir;
 
     /**
      * @ORM\ManyToMany(targetEntity=DwOrdreDeReparation::class, inversedBy="commandes")
@@ -94,10 +94,10 @@ private $tiroir;
     private $ordresDeReparation;
 
     /** ===========================================================================
- * getteur and setteur
- *
- * ================================================================================
- */
+     * getteur and setteur
+     *
+     * ================================================================================
+     */
 
     public function __construct()
     {
@@ -107,7 +107,7 @@ private $tiroir;
 
     /**
      * Get the value of id
-     */ 
+     */
     public function getId()
     {
         return $this->id;
@@ -116,7 +116,7 @@ private $tiroir;
 
     /**
      * Get the value of idCde
-     */ 
+     */
     public function getIdCde()
     {
         return $this->idCde;
@@ -126,17 +126,17 @@ private $tiroir;
      * Set the value of idCde
      *
      * @return  self
-     */ 
+     */
     public function setIdCde($idCde)
     {
         $this->idCde = $idCde;
 
         return $this;
     }
-    
+
     /**
      * Get the value of numeroCde
-     */ 
+     */
     public function getNumeroCde()
     {
         return $this->numeroCde;
@@ -146,7 +146,7 @@ private $tiroir;
      * Set the value of numeroCde
      *
      * @return  self
-     */ 
+     */
     public function setNumeroCde($numeroCde)
     {
         $this->numeroCde = $numeroCde;
@@ -157,7 +157,7 @@ private $tiroir;
 
     /**
      * Get the value of numeroOR
-     */ 
+     */
     public function getNumeroOR()
     {
         return $this->numeroOR;
@@ -167,7 +167,7 @@ private $tiroir;
      * Set the value of numeroOR
      *
      * @return  self
-     */ 
+     */
     public function setNumeroOR($numeroOR)
     {
         $this->numeroOR = $numeroOR;
@@ -177,7 +177,7 @@ private $tiroir;
 
     /**
      * Get the value of dateCreation
-     */ 
+     */
     public function getDateCreation()
     {
         return $this->dateCreation;
@@ -187,7 +187,7 @@ private $tiroir;
      * Set the value of dateCreation
      *
      * @return  self
-     */ 
+     */
     public function setDateCreation($dateCreation)
     {
         $this->dateCreation = $dateCreation;
@@ -197,7 +197,7 @@ private $tiroir;
 
     /**
      * Get the value of heureCreation
-     */ 
+     */
     public function getHeureCreation()
     {
         return $this->heureCreation;
@@ -207,7 +207,7 @@ private $tiroir;
      * Set the value of heureCreation
      *
      * @return  self
-     */ 
+     */
     public function setHeureCreation($heureCreation)
     {
         $this->heureCreation = $heureCreation;
@@ -217,7 +217,7 @@ private $tiroir;
 
     /**
      * Get the value of dateDerniereModification
-     */ 
+     */
     public function getDateDerniereModification()
     {
         return $this->dateDerniereModification;
@@ -227,7 +227,7 @@ private $tiroir;
      * Set the value of dateDerniereModification
      *
      * @return  self
-     */ 
+     */
     public function setDateDerniereModification($dateDerniereModification)
     {
         $this->dateDerniereModification = $dateDerniereModification;
@@ -237,7 +237,7 @@ private $tiroir;
 
     /**
      * Get the value of heureDerniereModification
-     */ 
+     */
     public function getHeureDerniereModification()
     {
         return $this->heureDerniereModification;
@@ -247,7 +247,7 @@ private $tiroir;
      * Set the value of heureDerniereModification
      *
      * @return  self
-     */ 
+     */
     public function setHeureDerniereModification($heureDerniereModification)
     {
         $this->heureDerniereModification = $heureDerniereModification;
@@ -257,7 +257,7 @@ private $tiroir;
 
     /**
      * Get the value of totalPage
-     */ 
+     */
     public function getTotalPage()
     {
         return $this->totalPage;
@@ -267,7 +267,7 @@ private $tiroir;
      * Set the value of totalPage
      *
      * @return  self
-     */ 
+     */
     public function setTotalPage($totalPage)
     {
         $this->totalPage = $totalPage;
@@ -277,7 +277,7 @@ private $tiroir;
 
     /**
      * Get the value of extensionFichier
-     */ 
+     */
     public function getExtensionFichier()
     {
         return $this->extensionFichier;
@@ -287,7 +287,7 @@ private $tiroir;
      * Set the value of extensionFichier
      *
      * @return  self
-     */ 
+     */
     public function setExtensionFichier($extensionFichier)
     {
         $this->extensionFichier = $extensionFichier;
@@ -297,7 +297,7 @@ private $tiroir;
 
     /**
      * Get the value of tailleFichier
-     */ 
+     */
     public function getTailleFichier()
     {
         return $this->tailleFichier;
@@ -307,7 +307,7 @@ private $tiroir;
      * Set the value of tailleFichier
      *
      * @return  self
-     */ 
+     */
     public function setTailleFichier($tailleFichier)
     {
         $this->tailleFichier = $tailleFichier;
@@ -317,7 +317,7 @@ private $tiroir;
 
     /**
      * Get the value of path
-     */ 
+     */
     public function getPath()
     {
         return $this->path;
@@ -327,7 +327,7 @@ private $tiroir;
      * Set the value of path
      *
      * @return  self
-     */ 
+     */
     public function setPath($path)
     {
         $this->path = $path;
@@ -370,6 +370,4 @@ private $tiroir;
 
         return $this;
     }
-
-    
 }

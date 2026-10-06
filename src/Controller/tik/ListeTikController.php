@@ -3,19 +3,22 @@
 namespace App\Controller\tik;
 
 use App\Entity\tik\TikSearch;
+use InvalidArgumentException;
 use App\Controller\Controller;
-use App\Entity\admin\dit\WorNiveauUrgence;
-use App\Entity\admin\StatutDemande;
-use App\Entity\admin\tik\TkiAutresCategorie;
-use App\Entity\admin\tik\TkiCategorie;
-use App\Entity\admin\tik\TkiSousCategorie;
 use App\Form\tik\TikSearchType;
+use App\Entity\admin\StatutDemande;
+use App\Entity\admin\tik\TkiCategorie;
 use App\Entity\admin\utilisateur\User;
+use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Entity\admin\tik\TkiSousCategorie;
+use App\Entity\admin\tik\TkiAutresCategorie;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\tik\DemandeSupportInformatique;
-use InvalidArgumentException;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @Route("/it")
+ */
 class ListeTikController extends Controller
 {
     /**
@@ -23,13 +26,9 @@ class ListeTikController extends Controller
      */
     public function index(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $tikSearch = new TikSearch();
 
-        $userId = $this->sessionService->get('user_id');
-        $user = self::$em->getRepository(User::class)->find($userId);
+        $user = $this->getUser();
 
         /** CREATION D'AUTORISATION */
         $autoriser = $this->autorisationRole($user);
@@ -45,7 +44,7 @@ class ListeTikController extends Controller
         $this->initialisationFormRecherche($autorisation, $agenceServiceIps, $tikSearch, $user);
 
         //création et initialisation du formulaire de la recherche
-        $form = self::$validator->createBuilder(TikSearchType::class, $tikSearch, [
+        $form = $this->getFormFactory()->createBuilder(TikSearchType::class, $tikSearch, [
             'method' => 'GET',
         ])->getForm();
 
@@ -59,7 +58,7 @@ class ListeTikController extends Controller
         // transformer l'objet tikSearch en tableau
         $criteria = $tikSearch->toArray();
         //recupères les données du criteria dans une session nommé tik_search_criteria
-        $this->sessionService->set('tik_search_criteria', $criteria);
+        $this->getSessionService()->set('tik_search_criteria', $criteria);
 
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
@@ -73,20 +72,20 @@ class ListeTikController extends Controller
             'idService'    => $tikSearch->getServiceEmetteur() === null ? null : $tikSearch->getServiceEmetteur()->getId()
         ];
 
-        $paginationData = self::$em->getRepository(DemandeSupportInformatique::class)->findPaginatedAndFiltered($page, $limit, $tikSearch, $option);
+        $paginationData = $this->getEntityManager()->getRepository(DemandeSupportInformatique::class)->findPaginatedAndFiltered($page, $limit, $tikSearch, $option);
 
         $ticketsWithEditPermission = [];
         $ticketsWithCloturePermission = [];
         $ticketsWithReouverturePermission = [];
         foreach ($paginationData['data'] as $ticket) {
             $ticketsWithEditPermission[$ticket->getId()] = $this->canEdit($ticket->getNumeroTicket()); // Appel à la méthode canEdit
-            $ticketsWithCloturePermission[$ticket->getId()] = $this->conditionCloturerTicket($ticket); // Appel à la méthode conditionCloturerTicket
+            $ticketsWithCloturePermission[$ticket->getId()] = $this->conditionCloturerTicket($user, $ticket); // Appel à la méthode conditionCloturerTicket
             $ticketsWithReouverturePermission[$ticket->getId()] = $this->conditionReouvrirTicket($ticket); // Appel à la méthode conditionReouvrirTicket
         }
 
         $this->logUserVisit('liste_tik_index'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display('tik/demandeSupportInformatique/list.html.twig', [
+        return $this->render('tik/demandeSupportInformatique/list.html.twig', [
             'autorisation'    => $autorisation,
             'data'            => $paginationData['data'],
             'ticketsEdit'     => $ticketsWithEditPermission,
@@ -103,14 +102,14 @@ class ListeTikController extends Controller
     private function initialisationFormRecherche(array $autorisation, array $agenceServiceIps, TikSearch $tikSearch, User $user)
     {
         // Initialisation des critères depuis la session
-        $criteria = $this->sessionService->get('tik_search_criteria', []) ?? [];
+        $criteria = $this->getSessionService()->get('tik_search_criteria', []);
 
         // Définition des valeurs par défaut en fonction des autorisations
         $agenceIpsEmetteur  = $autorisation['autoriser'] ? null : $agenceServiceIps['agenceIps'];
         $serviceIpsEmetteur = $autorisation['autoriser'] ? null : $agenceServiceIps['serviceIps'];
 
         $entities['nomIntervenant'] = ($autorisation['autoriserIntervenant'] && empty($criteria)) ? $user : null; // pour intervenant: filtre sur intervenant utilisateur connecté
-        $entities['statut']         = ($autorisation['autoriserValidateur'] && empty($criteria)) ? self::$em->getRepository(StatutDemande::class)->find('79') : null; // pour validateur: filtre sur statut ouvert
+        $entities['statut']         = ($autorisation['autoriserValidateur'] && empty($criteria)) ? $this->getEntityManager()->getRepository(StatutDemande::class)->find('79') : null; // pour validateur: filtre sur statut ouvert
 
         // Si des critères existent, les utiliser pour définir les entités associées
         if (!empty(array_filter($criteria))) {
@@ -126,7 +125,7 @@ class ListeTikController extends Controller
             $entities = [];
             foreach ($repositories as $key => $entityClass) {
                 $entities[$key] = isset($criteria[$key])
-                    ? self::$em->getRepository($entityClass)->find($criteria[$key])
+                    ? $this->getEntityManager()->getRepository($entityClass)->find($criteria[$key])
                     : null;
             }
 
@@ -177,7 +176,7 @@ class ListeTikController extends Controller
      */
     private function hasRole(User $user, int $roleId): bool
     {
-        $roleIds = $user->getRoleIds();
+        $roleIds = []; // TODO : changer ceci plus tard : les roles de l'utilisateur
 
         // S'assurer que $roleIds est un tableau avant de continuer.
         if (!is_array($roleIds)) {
@@ -192,17 +191,13 @@ class ListeTikController extends Controller
      */
     private function canEdit(string $numTik): array
     {
-        $ticket = self::$em->getRepository(DemandeSupportInformatique::class)->findOneBy(['numeroTicket' => $numTik]);
+        $ticket = $this->getEntityManager()->getRepository(DemandeSupportInformatique::class)->findOneBy(['numeroTicket' => $numTik]);
         $result = [
             'monTicket' => 0,
             'ouvert'    => in_array($ticket->getIdStatutDemande()->getId(), [58, 65]) ? 1 : 0, // le statut du ticket est ouvert ou en attente
         ];
 
-        $this->verifierSessionUtilisateur();
-
-        $idUtilisateur  = $this->sessionService->get('user_id');
-
-        $utilisateur    = $idUtilisateur !== '-' ? self::$em->getRepository(User::class)->find($idUtilisateur) : null;
+        $utilisateur    = $this->getUser();
 
         if (is_null($utilisateur)) {
             $this->SessionDestroy();
@@ -225,20 +220,14 @@ class ListeTikController extends Controller
     /** 
      * Méthode pour les conditions de cloture d'un ticket
      * 
+     * @param User $utilisateur l'utilisateur connecté
      * @param DemandeSupportInformatique $ticket le ticket à cloturer
      * 
      * @return array
      */
-    private function conditionCloturerTicket(DemandeSupportInformatique $ticket): array
+    private function conditionCloturerTicket(User $utilisateur, DemandeSupportInformatique $ticket): array
     {
         $result = [];
-
-        $idUtilisateur  = $this->sessionService->get('user_id');
-
-        /** 
-         * @var User $utilisateur l'utilisateur connecté
-         */
-        $utilisateur    = self::$em->getRepository(User::class)->find($idUtilisateur);
 
         if (in_array("VALIDATEUR", $utilisateur->getRoleNames())) {
             $result['profil'] = 2;
@@ -266,14 +255,10 @@ class ListeTikController extends Controller
     {
         $result = [];
 
-        $idUtilisateur  = $this->sessionService->get('user_id');
+        $userInfo = $this->getSessionService()->get('user_info');
+        $id = $userInfo['id'] ?? null;
 
-        /** 
-         * @var User $utilisateur l'utilisateur connecté
-         */
-        $utilisateur    = self::$em->getRepository(User::class)->find($idUtilisateur);
-
-        $result['profil'] = ($ticket->getUserId()->getId() === $utilisateur->getId()) ? 1 : 0;
+        $result['profil'] = ($ticket->getUserId()->getId() === $id) ? 1 : 0;
         $result['statut'] = $ticket->getIdStatutDemande()->getId();
 
         return $result;

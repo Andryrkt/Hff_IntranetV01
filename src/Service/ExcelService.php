@@ -4,55 +4,52 @@ namespace App\Service;
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ExcelService
 {
-    public function createSpreadsheet(array $data)
+    private function buildSpreadsheet(array $data): Spreadsheet
     {
+        ini_set('memory_limit', '512M');
+
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
-        // Ajouter des données
-        foreach ($data as $rowIndex => $row) {
-            foreach ($row as $colIndex => $value) {
-                $sheet->setCellValueByColumnAndRow($colIndex + 1, $rowIndex + 1, $value);
-            }
+        $rowIndex = 1;
+        foreach ($data as $row) {
+            $sheet->fromArray($row, null, "A$rowIndex");
+            $rowIndex++;
         }
 
-        // $response = new StreamedResponse(function() use ($spreadsheet) {
-        //     $writer = new Xlsx($spreadsheet);
-        //     $writer->save('php://output');
-        // });
-
-        // $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        // $response->headers->set('Content-Disposition', 'attachment;filename="export.xlsx"');
-        // $response->headers->set('Cache-Control', 'max-age=0');
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment; filename="donnees.xlsx"');
-        $writer = new Xlsx($spreadsheet);
-            $writer->save('php://output');
+        return $spreadsheet;
     }
 
-    public function createSpreadsheetMode(array $data, $startCell = 'A1')
+    public function createSpreadsheet(array $data, string $filename = "donnees"): void
     {
-        $spreadsheet = new Spreadsheet();
-        $sheet = $spreadsheet->getActiveSheet();
-
-        // Initialiser l'index de ligne et de colonne
-        [$startColumn, $startRow] = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::coordinateFromString($startCell);
-        $startColumnIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($startColumn);
-        
-        // Ajouter des données en partant de la cellule spécifique
-        foreach ($data as $rowIndex => $row) {
-            foreach ($row as $colIndex => $value) {
-                $sheet->setCellValueByColumnAndRow($startColumnIndex + $colIndex, $startRow + $rowIndex, $value);
-            }
-        }
+        $spreadsheet = $this->buildSpreadsheet($data);
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment; filename="donnees.xlsx"');
+        header("Content-Disposition: attachment; filename=\"$filename.xlsx\"");
+        setcookie('fileDownload', 'true', 0, '/');
+
         $writer = new Xlsx($spreadsheet);
         $writer->save('php://output');
+
+        $spreadsheet->disconnectWorksheets();
+        unset($spreadsheet);
+    }
+
+    public function createSpreadsheetEnregistrer(array $data, string $filePath): string
+    {
+        $spreadsheet = $this->buildSpreadsheet($data);
+
+        $dir = dirname($filePath);
+        if (!is_dir($dir)) mkdir($dir, 0775, true);
+
+        $writer = new Xlsx($spreadsheet);
+        $writer->save($filePath);
+
+        $spreadsheet->disconnectWorksheets();
+
+        return $filePath;
     }
 }

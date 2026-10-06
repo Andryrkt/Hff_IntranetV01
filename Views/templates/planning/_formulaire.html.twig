@@ -1,5 +1,3 @@
-{% set role_ids = App.user.roleIds %}
-
 <div class="accordion" id="formAccordion">
 	<div class="accordion-item">
 		<h2 class="accordion-header">
@@ -7,7 +5,7 @@
 				Formulaire de recherche
 			</button>
 		</h2>
-		<div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+		<div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#formAccordion">
 			<div class="accordion-body">
 				{{ form_start(form, { 'attr': { 'id': 'planning_search_form' } }) }}
 
@@ -33,11 +31,7 @@
 						{{form_row(form.numOr)}}
 						{{form_row(form.typeDocument)}}
 						{{form_row(form.orBackOrder)}}
-						{% if 1 in role_ids %}
-						{{form_row(form.orNonValiderDw)}}
-						{% else %}
-						{{form_row(form.orNonValiderDw, {'row_attr': {'class': 'd-none'}})}}
-						{% endif %}					
+						{{form_row(form.orNonValiderDw)}}				
 					</div>
 					<div class="col-12 col-md-2">
 						{{form_row(form.plan)}}
@@ -52,13 +46,14 @@
 						{{form_row(form.dateFin)}}
 					</div>
 				</div>
-			</class>
-			<div class="d-flex justify-content-end mb-2">
-				<button class="btn btn-warning fw-bold"  id = "btn_search" type="submit">
-					<i class="fab fa-searchengin"></i>
-					Recherche</button>
+				<div class="d-flex justify-content-end mb-2">
+					<button class="btn btn-warning fw-bold"  id = "btn_search" type="submit">
+						<i class="fab fa-searchengin"></i>
+						Recherche
+					</button>
+				</div>
 			</div>
 			{{ form_end(form)}}
 		</div>
 	</div>
-</div></div>
+</div>

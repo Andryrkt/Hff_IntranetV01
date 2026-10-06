@@ -18,7 +18,7 @@ export function fetchDevis(
   selectContainer,
   selecteInput
 ) {
-  const url = `constraint-soumission/${numDit}`;
+  const url = `api/constraint-soumission/${numDit}`;
   toggleSpinner(spinnerSelect, selectContainer, true);
   fetchManager
     .get(url)
@@ -65,9 +65,9 @@ function valeurDocASoumettre(docDansDw) {
   docASoumettre = [
     { value: "DEVIS-VP", text: "DEVIS - Vérification de prix" },
     { value: "DEVIS-VA", text: "DEVIS - Validation atelier" },
-    { value: "BC", text: "BC" },
-    { value: "OR", text: "OR" },
-    { value: "RI", text: "RI" },
+    { value: "BC", text: "BC - BON COMMANDE" },
+    { value: "OR", text: "OR - ORDRE DE REPARATION" },
+    { value: "RI", text: "RI - RAPPORT D'INTERVENTION" },
     { value: "FACTURE", text: "FACTURE" },
   ];
 

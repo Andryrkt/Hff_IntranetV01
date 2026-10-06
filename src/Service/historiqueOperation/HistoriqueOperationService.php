@@ -2,7 +2,8 @@
 
 namespace App\Service\historiqueOperation;
 
-use App\Controller\Controller;
+use DateTime;
+use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\admin\utilisateur\User;
 use App\Service\SessionManagerService;
 use App\Entity\admin\historisation\documentOperation\TypeDocument;
@@ -11,6 +12,12 @@ use App\Entity\admin\historisation\documentOperation\HistoriqueOperationDocument
 
 class HistoriqueOperationService implements HistoriqueOperationInterface
 {
+    private const FILTER_NULL = 1;
+    private const FILTER_EMPTY_STRING = 2;
+    private const FILTER_FALSE = 4;
+    private const FILTER_ZERO = 8;
+    private const FILTER_ALL = self::FILTER_NULL | self::FILTER_EMPTY_STRING | self::FILTER_FALSE;
+
     private $em;
     private $userRepository;
     private $typeOperationRepository;
@@ -37,12 +44,12 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
      *  - 13 : AC - Accusé de réception
      *  - 16 : MUT - Demande de mutation
      */
-    public function __construct(int $typeDocumentId)
+    public function __construct(EntityManagerInterface $em, int $typeDocumentId)
     {
-        $this->em                      = Controller::getEntity();
-        $this->userRepository          = $this->em->getRepository(User::class);
-        $this->typeOperationRepository = $this->em->getRepository(TypeOperation::class);
-        $this->typeDocumentRepository  = $this->em->getRepository(TypeDocument::class);
+        $this->em                      = $em;
+        $this->userRepository          = $em->getRepository(User::class);
+        $this->typeOperationRepository = $em->getRepository(TypeOperation::class);
+        $this->typeDocumentRepository  = $em->getRepository(TypeDocument::class);
         $this->sessionService = new SessionManagerService();
         $this->typeDocumentId = $typeDocumentId;
     }
@@ -65,15 +72,15 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
      */
     public function enregistrer(string $numeroDocument, int $typeOperationId, bool $statutOperation, ?string $libelleOperation = null): void
     {
-        $historique    = new HistoriqueOperationDocument();
-        $utilisateurId = $this->sessionService->get('user_id');
+        $historique = new HistoriqueOperationDocument();
+        $userInfo   = $this->sessionService->get('user_info');
         $historique
             ->setNumeroDocument($numeroDocument)
-            ->setUtilisateur($this->userRepository->find($utilisateurId)->getNomUtilisateur())
+            ->setUtilisateur($userInfo["username"] ?? "-")
             ->setIdTypeOperation($this->typeOperationRepository->find($typeOperationId))
             ->setIdTypeDocument($this->typeDocumentRepository->find($this->typeDocumentId))
             ->setStatutOperation($statutOperation ? 'Succès' : 'Echec')
-            ->setLibelleOperation($libelleOperation)
+            ->setLibelleOperation(strip_tags($libelleOperation))
         ;
 
         // Sauvegarder dans la base de données
@@ -88,7 +95,8 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
      * @param boolean $success
      * @return void
      */
-    protected function enregistrerDansSession(string $message,  bool $success = false) {
+    protected function enregistrerDansSession(string $message,  bool $success = false)
+    {
         $this->sessionService->set('notification', [
             'type'    => $success ? 'success' : 'danger',
             'message' => $message,
@@ -118,15 +126,157 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
      *  - 5 : CREATION
      *  - 6 : CLOTURE
      */
-    protected function sendNotification(string $message, string $numeroDocument, string $routeName, int $typeOperationId, bool $success = false)
-    {
-        $this->enregistrerDansSession($message, $success);
+    protected function sendNotification(
+        string $message,
+        string $numeroDocument,
+        string $routeName,
+        int $typeOperationId,
+        bool $success = false,
+        ?array $structuredParams = null,
+        string $paramPrefix = 'devis_magasin_search',
+        array $routeParams = [],
+        ?array $queryParams = null,
+        int $filterFlags = self::FILTER_NULL, // Flags pour le filtrage
+        bool $newTab = false
+    ) {
+        // Empêcher la boucle infinie via une variable de session temporaire
+        if ($newTab && $this->sessionService->get('new_tab_redirected')) {
+            $this->sessionService->remove('new_tab_redirected');
+            return;
+        }
 
+        $this->enregistrerDansSession($message, $success);
         $this->sendNotificationCore($message, $numeroDocument, $typeOperationId, $success);
 
-        header("Location: " . Controller::getGenerator()->generate($routeName));
-        exit();
+        global $container;
+
+        // Si structuredParams est fourni, le convertir
+        if ($structuredParams !== null) {
+            $queryParameters = $this->convertStructuredToQueryParams($structuredParams, $paramPrefix, $filterFlags);
+        } else {
+            // Sinon utiliser queryParams ou $_GET
+            $queryParameters = $queryParams ?? $_GET;
+        }
+
+        // Filtrer les paramètres selon les flags
+        $queryParameters = $this->filterParamsByFlags($queryParameters, $filterFlags);
+
+        if ($container && $container->has('router')) {
+            $urlGenerator = $container->get('router');
+            $url = $urlGenerator->generate($routeName, $routeParams);
+
+            if (!empty($queryParameters)) {
+                $url .= (strpos($url, '?') === false ? '?' : '&') . http_build_query($queryParameters);
+            }
+        } else {
+            $url = '/' . $routeName;
+            if (!empty($queryParameters)) {
+                $url .= '?' . http_build_query($queryParameters);
+            }
+        }
+
+        if ($newTab) {
+            $this->sessionService->set('new_tab_redirected', true);
+            // Solution 1: Générer un formulaire auto-soumis (évite le pop-up bloqué)
+            echo '<!DOCTYPE html>
+        <html>
+        <head>
+            <title>Redirection...</title>
+        </head>
+        <body>
+            <form id="redirectForm" action="' . htmlspecialchars($url) . '" method="POST" target="_blank">
+                <noscript>
+                    <p>JavaScript est désactivé. <a href="' . htmlspecialchars($url) . '" target="_blank">Cliquez ici</a> pour ouvrir la page.</p>
+                </noscript>
+            </form>
+            <script>
+                // On soumet le formulaire pour ouvrir le nouvel onglet
+                document.getElementById("redirectForm").submit();
+                
+                // On recharge la page actuelle. La garde en session empêchera la boucle.
+                // Le timeout permet de s\'assurer que le submit a bien été initié
+                setTimeout(function() {
+                    window.location.href = window.location.href;
+                }, 300);
+            </script>
+        </body>
+        </html>';
+            exit();
+        } else {
+            header("Location: " . $url);
+            exit();
+        }
     }
+
+    /**
+     * Transforme un tableau structuré en paramètres GET compatibles
+     * Exemple: ['numeroDevis' => '19407835', 'emetteur' => ['agence' => null, 'service' => null]]
+     * Devient: ['devis_magasin_search[numeroDevis]' => '19407835', ...]
+     */
+    private function convertStructuredToQueryParams(
+        array $structured,
+        string $prefix,
+        int $filterFlags = self::FILTER_NULL
+    ): array {
+        $params = [];
+
+        foreach ($structured as $key => $value) {
+            if (is_array($value)) {
+                foreach ($value as $subKey => $subValue) {
+                    $paramName = $prefix . '[' . $key . '][' . $subKey . ']';
+                    // Vérifier si on doit inclure cette valeur
+                    if ($this->shouldIncludeValue($subValue, $filterFlags)) {
+                        $params[$paramName] = $subValue;
+                    }
+                }
+            } else {
+                $paramName = $prefix . '[' . $key . ']';
+                if ($this->shouldIncludeValue($value, $filterFlags)) {
+                    $params[$paramName] = $value;
+                }
+            }
+        }
+
+        return $params;
+    }
+
+    private function filterParamsByFlags(array $params, int $filterFlags): array
+    {
+        return array_filter($params, function ($value) use ($filterFlags) {
+            return $this->shouldIncludeValue($value, $filterFlags);
+        });
+    }
+
+    private function shouldIncludeValue($value, int $filterFlags): bool
+    {
+        // Filtrer null
+        if (($filterFlags & self::FILTER_NULL) && $value === null) {
+            return false;
+        }
+
+        // Filtrer chaîne vide
+        if (($filterFlags & self::FILTER_EMPTY_STRING) && $value === '') {
+            return false;
+        }
+
+        // Filtrer false
+        if (($filterFlags & self::FILTER_FALSE) && $value === false) {
+            return false;
+        }
+
+        // Filtrer 0 (optionnel)
+        if (($filterFlags & self::FILTER_ZERO) && $value === 0) {
+            return false;
+        }
+
+        // Filtrer tableaux vides
+        if (is_array($value) && empty($value)) {
+            return false;
+        }
+
+        return true;
+    }
+
 
     /** 
      * Méthode pour envoyer une notification et enregistrer l'historique de la SOUMISSION dU document
@@ -138,9 +288,19 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
      *  - true : Succès de la soumission
      *  - false : Echec de la soumission (valeur par défaut)
      */
-    public function sendNotificationSoumission(string $message, string $numeroDocument, string $routeName, bool $success = false)
-    {
-        $this->sendNotification($message, $numeroDocument, $routeName, 1, $success);
+    public function sendNotificationSoumission(
+        string $message,
+        string $numeroDocument,
+        string $routeName,
+        bool $success = false,
+        ?array $structuredParams = null, // tableau structuré des paramètres de recherche (session)
+        string $paramPrefix = 'devis_magasin_search', // name de l'input de recherche
+        array $routeParams = [],
+        ?array $queryParams = null,
+        bool $newTab = false,
+        int $filterFlags = self::FILTER_NULL
+    ) {
+        $this->sendNotification($message, $numeroDocument, $routeName, 1, $success, $structuredParams, $paramPrefix, $routeParams, $queryParams, $filterFlags, $newTab);
     }
 
     /** 

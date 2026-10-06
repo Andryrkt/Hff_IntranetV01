@@ -4,13 +4,18 @@ namespace App\Controller\badm;
 
 use App\Entity\cas\Casier;
 use App\Controller\Controller;
+use App\Entity\admin\Application;
 use App\Entity\cas\CasierValider;
 use App\Form\cas\CasierSearchType;
 use App\Entity\admin\StatutDemande;
 use App\Controller\Traits\Transformation;
+use App\Repository\cas\CasierRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @Route("/materiel/casier")
+ */
 class CasierListTemporaireController extends Controller
 {
     use Transformation;
@@ -20,10 +25,10 @@ class CasierListTemporaireController extends Controller
      */
     public function AffichageListeCasier(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
-        $form = self::$validator->createBuilder(CasierSearchType::class, null, [
+        $form = $this->getFormFactory()->createBuilder(CasierSearchType::class, null, [
             'method' => 'GET'
         ])->getForm();
 
@@ -38,8 +43,9 @@ class CasierListTemporaireController extends Controller
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
 
-        $paginationData = self::$em->getRepository(Casier::class)->findPaginatedAndFilteredTemporaire($page, $limit, $criteria);
-
+        /** @var CasierRepository $repository */
+        $repository = $this->getEntityManager()->getRepository(Casier::class);
+        $paginationData = $repository->findPaginatedAndFilteredTemporaire($page, $limit, $criteria, $codeSociete);
 
         if (empty($paginationData['data'])) {
             $empty = true;
@@ -47,7 +53,7 @@ class CasierListTemporaireController extends Controller
 
         $this->logUserVisit('listeTemporaire_affichageListeCasier'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display(
+        return $this->render(
             'badm/casier/listTemporaireCasier.html.twig',
             [
                 'casier' => $paginationData['data'],
@@ -68,17 +74,13 @@ class CasierListTemporaireController extends Controller
      */
     public function tratitementBtnValide($id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $casierValide = new CasierValider();
-        //$CasierSeul = $this->caiserListTemporaire->recuperSeulCasier($id);
 
-        $CasierSeul = self::$em->getRepository(Casier::class)->find($id);
-        $CasierSeul->setIdStatutDemande(self::$em->getRepository(StatutDemande::class)->find(56));
+        $CasierSeul = $this->getEntityManager()->getRepository(Casier::class)->find($id);
+        $CasierSeul->setIdStatutDemande($this->getEntityManager()->getRepository(StatutDemande::class)->find(56));
 
-        self::$em->persist($CasierSeul);
-        self::$em->flush();
+        $this->getEntityManager()->persist($CasierSeul);
+        $this->getEntityManager()->flush();
 
         $casierValide
             ->setCasier($CasierSeul->getCasier())
@@ -87,10 +89,11 @@ class CasierListTemporaireController extends Controller
             ->setNomSessionUtilisateur($CasierSeul->getNomSessionUtilisateur())
             ->setAgenceRattacher($CasierSeul->getAgenceRattacher())
             ->setIdStatutDemande($CasierSeul->getIdStatutDemande())
+            ->setCodeSociete($CasierSeul->getCodeSociete())
         ;
 
-        self::$em->persist($casierValide);
-        self::$em->flush();
+        $this->getEntityManager()->persist($casierValide);
+        $this->getEntityManager()->flush();
 
 
         $this->redirectToRoute("liste_affichageListeCasier");

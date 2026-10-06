@@ -3,45 +3,45 @@
 namespace App\Controller\mutation;
 
 use App\Controller\Controller;
-use App\Controller\Traits\MutationTrait;
-use App\Entity\admin\utilisateur\User;
+use App\Entity\admin\Application;
 use App\Entity\mutation\Mutation;
+use App\Model\mutation\MutationModel;
+use App\Entity\admin\utilisateur\User;
 use App\Entity\mutation\MutationSearch;
 use App\Form\mutation\MutationFormType;
+use App\Controller\Traits\MutationTrait;
 use App\Form\mutation\MutationSearchType;
-use App\Model\mutation\MutationModel;
-use App\Service\genererPdf\GeneratePdfMutation;
-use App\Service\historiqueOperation\HistoriqueOperationMUTService;
 use Symfony\Component\HttpFoundation\Request;
+use App\Service\genererPdf\GeneratePdfMutation;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Service\historiqueOperation\HistoriqueOperationMUTService;
+use App\Service\FusionPdf;
 
+/**
+ * @Route("/rh/mutation")
+ */
 class MutationController extends Controller
 {
     use MutationTrait;
     private $historiqueOperation;
+    private $fusionPdf;
 
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationMUTService;
+        $this->historiqueOperation = new HistoriqueOperationMUTService($this->getEntityManager());
+        $this->fusionPdf = new FusionPdf();
     }
 
     /**
-     * @Route("/mutation/new", name="mutation_nouvelle_demande")
+     * @Route("/new", name="mutation_nouvelle_demande")
      */
     public function nouveau(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        //recuperation de l'utilisateur connecter
-        $userId = $this->sessionService->get('user_id');
-        $user = self::$em->getRepository(User::class)->find($userId);
-
         $mutation = new Mutation;
-        $this->initialisationMutation($mutation, self::$em);
+        $this->initialisationMutation($mutation, $this->getEntityManager());
 
-        $form = self::$validator->createBuilder(MutationFormType::class, $mutation)->getForm();
+        $form = $this->getFormFactory()->createBuilder(MutationFormType::class, $mutation)->getForm();
 
         $form->handleRequest($request);
 
@@ -59,31 +59,28 @@ class MutationController extends Controller
             } else if ((int) $mutationModel->getNombreDM($dateDebut, $dateFin, $matricule) > 0) {
                 $this->historiqueOperation->sendNotificationCreation("La demande de mutation a échoué car le matricule '$matricule' est déjà rattaché à une demande de mutation entre les plages de dates.", '-', 'mutation_liste', false);
             } else {
-                $mutation = $this->enregistrementValeurDansMutation($form, self::$em, $user);
+                $mutation = $this->enregistrementValeurDansMutation($form, $this->getEntityManager());
                 $generatePdf = new GeneratePdfMutation;
-                $generatePdf->genererPDF($this->donneePourPdf($form, $user));
+                $generatePdf->genererPDF($this->donneePourPdf($form));
                 $this->envoyerPieceJointes($form, $this->fusionPdf);
                 $generatePdf->copyInterneToDOCUWARE($mutation->getNumeroMutation(), $mutation->getAgenceEmetteur()->getCodeAgence() . $mutation->getServiceEmetteur()->getCodeService());
                 $this->historiqueOperation->sendNotificationCreation('La demande de mutation a été enregistrée avec succès', $mutation->getNumeroMutation(), 'mutation_liste', true);
             }
         }
 
-        self::$twig->display('mutation/new.html.twig', [
+        return $this->render('mutation/new.html.twig', [
             'form' => $form->createView(),
         ]);
     }
 
     /**
-     * @Route("/mutation/list", name="mutation_liste")
+     * @Route("/liste", name="mutation_liste")
      */
     public function listeMutation(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $mutationSearch = new MutationSearch();
 
-        $form = self::$validator->createBuilder(MutationSearchType::class, $mutationSearch, [
+        $form = $this->getFormFactory()->createBuilder(MutationSearchType::class, $mutationSearch, [
             'method' => 'GET'
         ])->getForm();
 
@@ -100,13 +97,13 @@ class MutationController extends Controller
         $page = $request->query->getInt('page', 1);
         $limit = 10;
 
-        $repository = self::$em->getRepository(Mutation::class);
+        $repository = $this->getEntityManager()->getRepository(Mutation::class);
         $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $mutationSearch);
 
         //enregistre le critère dans la session
-        $this->sessionService->set('mutation_search_criteria', $criteria);
+        $this->getSessionService()->set('mutation_search_criteria', $criteria);
 
-        self::$twig->display(
+        return $this->render(
             'mutation/list.html.twig',
             [
                 'form'        => $form->createView(),
@@ -120,17 +117,14 @@ class MutationController extends Controller
     }
 
     /**
-     * @Route("/mutation/detail/{id}", name="mutation_detail")
+     * @Route("/detail/{id}", name="mutation_detail")
      */
     public function detailMutation($id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         /** 
          * @var Mutation entité correspondant à l'id $id
          */
-        $mutation = self::$em->getRepository(Mutation::class)->find($id);
+        $mutation = $this->getEntityManager()->getRepository(Mutation::class)->find($id);
 
         $avanceSurIndemnite = !($mutation->getNombreJourAvance() === null);
         $tabModePaiement = explode(':', $mutation->getModePaiement());
@@ -171,7 +165,7 @@ class MutationController extends Controller
             'pieceJoint01'                  => $mutation->getPieceJoint01(),
             'pieceJoint02'                  => $mutation->getPieceJoint02(),
         ];
-        self::$twig->display(
+        return $this->render(
             'mutation/detail.html.twig',
             [
                 'mutation' => $mutation

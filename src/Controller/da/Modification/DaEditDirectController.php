@@ -1,0 +1,134 @@
+<?php
+
+namespace App\Controller\da\Modification;
+
+use App\Constants\da\StatutDaConstant;
+use App\Controller\Controller;
+use App\Entity\da\DemandeAppro;
+use App\Entity\da\DemandeApproL;
+use App\Entity\da\DemandeApproLR;
+use App\Form\da\DemandeApproDirectFormType;
+use App\Controller\Traits\da\DaAfficherTrait;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
+use App\Controller\Traits\da\modification\DaEditDirectTrait;
+use App\Service\Admin\UrlIdCipher;
+
+/**
+ * @Route("/demande-appro")
+ */
+class DaEditDirectController extends Controller
+{
+    use DaAfficherTrait;
+    use DaEditDirectTrait;
+    private UrlIdCipher $urlIdCipher;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->initDaEditDirectTrait();
+        $this->urlIdCipher = new UrlIdCipher;
+    }
+
+    /**
+     * @Route("/edit-direct/{token}", name="da_edit_direct")
+     */
+    public function edit(string $token, Request $request)
+    {
+        $id = $this->urlIdCipher->decryptInt($token);
+
+        if (empty($id) && $id !== 0) throw new ResourceNotFoundException();
+
+        /** @var DemandeAppro $demandeAppro la demande appro correspondant à l'id $id */
+        $demandeAppro = $this->demandeApproRepository->find($id); // recupération de la DA
+        $numDa = $demandeAppro->getNumeroDemandeAppro();
+
+        $estCreateurDeDADirecte = $this->estCreateurDaDirecte();
+        $ancienDals = $this->getAncienDAL($demandeAppro);
+
+        $form = $this->getFormFactory()->createBuilder(DemandeApproDirectFormType::class, $demandeAppro)->getForm();
+
+        $this->traitementForm($form, $request, $ancienDals);
+
+        $observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()], ['dateCreation' => 'DESC']);
+
+        return $this->render('da/edit-da-direct.html.twig', [
+            'form'              => $form->createView(),
+            'observations'      => $observations,
+            'peutModifier'      => $this->peutModifier($demandeAppro->getStatutDal(), $estCreateurDeDADirecte),
+            'numDa'             => $numDa,
+        ]);
+    }
+
+    /** 
+     * @Route("/delete-line-direct/{numDa}/{ligne}",name="da_delete_line_direct")
+     */
+    public function deleteLineDa(string $numDa, string $ligne)
+    {
+        $demandeApproLs = $this->getEntityManager()->getRepository(DemandeApproL::class)->findBy([
+            'numeroDemandeAppro' => $numDa,
+            'numeroLigne'        => $ligne
+        ]);
+
+        if ($demandeApproLs) {
+            $demandeApproLRs = $this->getEntityManager()->getRepository(DemandeApproLR::class)->findBy([
+                'numeroDemandeAppro' => $numDa,
+                'numeroLigne'        => $ligne
+            ]);
+
+            foreach ($demandeApproLs as $demandeApproL) {
+                $this->getEntityManager()->remove($demandeApproL);
+            }
+
+            foreach ($demandeApproLRs as $demandeApproLR) {
+                $this->getEntityManager()->remove($demandeApproLR);
+            }
+
+            $this->getEntityManager()->flush(); // enregistrer le modifications avant l'appel à la méthode "ajouterDansTableAffichageParNumDa"
+            $this->ajouterDansTableAffichageParNumDa($numDa); // ajout dans la table DaAfficher si le statut a changé
+
+            $notifType = "success";
+            $notifMessage = "Réussite de l'opération: la ligne de DA a été supprimée avec succès.";
+        } else {
+            $notifType = "danger";
+            $notifMessage = "Echec de la suppression de la ligne: la ligne de DA n'existe pas.";
+        }
+        $this->getSessionService()->set('notification', ['type' => $notifType, 'message' => $notifMessage]);
+        $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
+    }
+
+    private function traitementForm($form, Request $request, iterable $ancienDals): void
+    {
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $demandeAppro = $form->getData();
+            $numDa = $demandeAppro->getNumeroDemandeAppro();
+            $this->gererAgenceServiceDebiteur($demandeAppro);
+
+            $this->modificationDa($demandeAppro, $form->get('DAL'), StatutDaConstant::STATUT_SOUMIS_APPRO);
+            if ($demandeAppro->getObservation() !== null) {
+                $this->insertionObservation($numDa, $demandeAppro->getObservation());
+            }
+
+            // ajout des données dans la table DaAfficher
+            $this->ajouterDansTableAffichageParNumDa($numDa);
+
+            $this->emailDaService->envoyerMailModificationDa($demandeAppro, $this->getUser(), $ancienDals);
+
+            //notification
+            $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre modification a été enregistrée']);
+            $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
+        }
+    }
+
+    private function gererAgenceServiceDebiteur(DemandeAppro $demandeAppro)
+    {
+        $demandeAppro
+            ->setAgenceDebiteur($demandeAppro->getDebiteur()['agence'])
+            ->setServiceDebiteur($demandeAppro->getDebiteur()['service'])
+            ->setAgenceServiceDebiteur($demandeAppro->getAgenceDebiteur()->getCodeAgence() . '-' . $demandeAppro->getServiceDebiteur()->getCodeService());
+    }
+}

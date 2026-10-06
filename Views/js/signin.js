@@ -1,20 +1,17 @@
-const toggleContainer = document.getElementById('toggleIconContainer');
+document.addEventListener("DOMContentLoaded", function () {
+  const toggleContainer = document.getElementById("toggleIconContainer");
 
-toggleContainer.addEventListener('click', function () {
-  const passwordInput = document.getElementById('password');
-  const toggleIcon = document.getElementById('toggleIcon');
+  toggleContainer.addEventListener("click", function () {
+    const passwordInput = document.getElementById("password");
+    const toggleIcon = document.getElementById("toggleIcon");
+    const isPasswordHidden = passwordInput.type === "password";
+    passwordInput.type = isPasswordHidden ? "text" : "password";
+    toggleContainer.dataset.bsOriginalTitle = isPasswordHidden
+      ? "Masquer le mot de passe"
+      : "Afficher le mot de passe";
+    toggleIcon.classList.toggle("fa-eye");
+    toggleIcon.classList.toggle("fa-eye-slash");
+  });
 
-  if (passwordInput.type === 'password') {
-    passwordInput.type = 'text';
-    toggleIcon.classList.remove('fa-eye');
-    toggleIcon.classList.add('fa-eye-slash');
-    toggleContainer.title = 'Masquer le mot de passe';
-  } else {
-    passwordInput.type = 'password';
-    toggleIcon.classList.remove('fa-eye-slash');
-    toggleIcon.classList.add('fa-eye');
-    toggleContainer.title = 'Afficher le mot de passe';
-  }
+  localStorage.clear(); // Vider le localStorage
 });
-
-localStorage.clear(); // Vider le localStorage

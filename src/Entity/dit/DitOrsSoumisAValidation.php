@@ -3,6 +3,7 @@
 namespace App\Entity\dit;
 
 use DateTime;
+use App\Entity\admin\Societte;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -15,6 +16,20 @@ use App\Repository\dit\DitOrsSoumisAValidationRepository;
  */
 class DitOrsSoumisAValidation
 {
+
+    public const STATUT_VIDE                       = '';
+    public const STATUT_A_RESOUMETTRE_A_VALIDATION = 'A resoumettre à validation';
+    public const STATUT_A_VALIDER_CA               = 'A valider chef atelier';
+    public const STATUT_A_VALIDER_CLIENT           = 'A valider client interne';
+    public const STATUT_A_VALIDER_DT               = 'A valider directeur technique';
+    public const STATUT_MODIF_DEMANDE_PAR_CA       = 'Modification demandée par CA';
+    public const STATUT_MODIF_DEMANDE_PAR_CLIENT   = 'Modification demandée par client';
+    public const STATUT_REFUSE_CA                  = 'Refusé chef atelier';
+    public const STATUT_REFUSE_CLIENT              = 'Refusé client interne';
+    public const STATUT_REFUSE_DT                  = 'Refusé DT';
+    public const STATUT_SOUMIS_A_VALIDATION        = 'Soumis à validation';
+    public const STATUT_VALIDE                     = 'Validé';
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -22,13 +37,15 @@ class DitOrsSoumisAValidation
      */
     private $id;
 
-
+    /**
+     * @ORM\Column(type="string", length=11, name="numeroDIT")
+     */
     private ?string $numeroDit = null;
 
     /**
      * @ORM\Column(type="string", length=8)
      */
-    private ?string $numeroOR;
+    private ?string $numeroOR = '';
 
     /**
      * @ORM\Column(type="integer")
@@ -91,6 +108,11 @@ class DitOrsSoumisAValidation
      */
     private ?string $libellelItv = '';
 
+    /**
+     * @ORM\Column(type="string", length=3000, nullable=true)
+     */
+    private ?string $observation = '';
+
 
 
     private $pieceJoint01;
@@ -110,6 +132,26 @@ class DitOrsSoumisAValidation
      * @ORM\Column(type="integer")
      */
     private $migration;
+
+    /**
+     * @ORM\Column(type="boolean", name="piece_faible_activite_achat")
+     */
+    private $pieceFaibleActiviteAchat;
+
+    /** 
+     * @ORM\Column(type="string", length=2, name="code_societe", nullable=true)
+     */
+    private $codeSociete;
+
+    /**
+     * @ORM\Column(type="boolean", name="pdf_deposer_dw", nullable=true)
+     */
+    private $pdfDeposerDw;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_depot_pdf_dw", nullable=true)
+     */
+    private $dateDepotPdfDw;
     //==========================================================================================
 
 
@@ -519,7 +561,7 @@ class DitOrsSoumisAValidation
 
     /**
      * Get the value of migration
-     */ 
+     */
     public function getMigration()
     {
         return $this->migration;
@@ -529,7 +571,7 @@ class DitOrsSoumisAValidation
      * Set the value of migration
      *
      * @return  self
-     */ 
+     */
     public function setMigration($migration)
     {
         $this->migration = $migration;
@@ -541,5 +583,97 @@ class DitOrsSoumisAValidation
     public function estEgalParNumero(DitOrsSoumisAValidation $autre)
     {
         return $this->numeroItv === $autre->numeroItv;
+    }
+
+    /**
+     * Get the value of observation
+     */
+    public function getObservation()
+    {
+        return $this->observation;
+    }
+
+    /**
+     * Set the value of observation
+     *
+     * @return  self
+     */
+    public function setObservation($observation)
+    {
+        $this->observation = $observation;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pieceFaibleActiviteAchat
+     */
+    public function getPieceFaibleActiviteAchat()
+    {
+        return $this->pieceFaibleActiviteAchat;
+    }
+
+    /**
+     * Set the value of pieceFaibleActiviteAchat
+     */
+    public function setPieceFaibleActiviteAchat($pieceFaibleActiviteAchat): self
+    {
+        $this->pieceFaibleActiviteAchat = $pieceFaibleActiviteAchat;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of codeSociete
+     */
+    public function getCodeSociete()
+    {
+        return $this->codeSociete;
+    }
+
+    /**
+     * Set the value of codeSociete
+     */
+    public function setCodeSociete($codeSociete): self
+    {
+        $this->codeSociete = $codeSociete;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pdfDeposerDw
+     */
+    public function getPdfDeposerDw()
+    {
+        return $this->pdfDeposerDw;
+    }
+
+    /**
+     * Set the value of pdfDeposerDw
+     */
+    public function setPdfDeposerDw($pdfDeposerDw): self
+    {
+        $this->pdfDeposerDw = $pdfDeposerDw;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateDepotPdfDw
+     */
+    public function getDateDepotPdfDw()
+    {
+        return $this->dateDepotPdfDw;
+    }
+
+    /**
+     * Set the value of dateDepotPdfDw
+     */
+    public function setDateDepotPdfDw($dateDepotPdfDw): self
+    {
+        $this->dateDepotPdfDw = $dateDepotPdfDw;
+
+        return $this;
     }
 }

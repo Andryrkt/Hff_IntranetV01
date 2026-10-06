@@ -1,0 +1,244 @@
+<?php
+
+namespace App\Api\da;
+
+use App\Model\da\DaModel;
+use App\Controller\Controller;
+use App\Controller\Traits\FormatageTrait;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
+
+class DaApi extends Controller
+{
+    use FormatageTrait;
+
+    /**
+     * @Route("/api/demande-appro/sous-famille/{code}", name="api_fetch_sous_famille", methods={"GET"})
+     *
+     * @return void
+     */
+    public function fetchSousFamille(string $code)
+    {
+        try {
+            $daModel = new DaModel;
+            $data = $daModel->getTheSousFamille($code);
+
+            $result = [];
+            foreach ($data as $sfm) {
+                $result[] = [
+                    'value' => $sfm['code'],
+                    'text' => $sfm['libelle'],
+                ];
+            }
+
+            // Nettoyer les données avant l'encodage JSON
+            $cleanedData = $this->cleanDataForJson($result);
+
+            header("Content-type:application/json; charset=utf-8");
+            echo json_encode($cleanedData, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE);
+        } catch (\Exception $e) {
+            // En cas d'erreur, retourner un tableau vide avec un message d'erreur
+            header("Content-type:application/json; charset=utf-8");
+            http_response_code(500);
+            echo json_encode([
+                'error' => true,
+                'message' => 'Erreur lors du chargement des données: ' . $e->getMessage(),
+                'data' => []
+            ], JSON_UNESCAPED_UNICODE);
+        }
+    }
+
+    /**
+     * @Route("/api/demande-appro/autocomplete/all-designation-da-via-or/{codeFamille}/{codeSousfamille}", name="api_autocomplete_all_designation_da_via_or")
+     *
+     * @return void
+     */
+    public function autocompleteAllDesignationViaOr(string $codeFamille, string $codeSousfamille)
+    {
+        try {
+            // Code Société de l'utilisateur
+            $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+            $data = (new DaModel)->getAllDesignationDaViaOR($codeFamille, $codeSousfamille, $codeSociete);
+
+            // Vérifier que les données sont valides
+            if (!is_array($data)) {
+                throw new \Exception("Les données retournées ne sont pas un tableau valide");
+            }
+
+            // Nettoyer les données avant l'encodage JSON
+            $cleanedData = $this->cleanDataForJson($data);
+
+            header("Content-type:application/json; charset=utf-8");
+            echo json_encode($cleanedData, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE);
+        } catch (\Exception $e) {
+            // En cas d'erreur, retourner un tableau vide avec un message d'erreur
+            header("Content-type:application/json; charset=utf-8");
+            http_response_code(500);
+            echo json_encode([
+                'error' => true,
+                'message' => 'Erreur lors du chargement des données: ' . $e->getMessage(),
+                'data' => []
+            ], JSON_UNESCAPED_UNICODE);
+        }
+    }
+
+    /**
+     * @Route("/api/demande-appro/autocomplete/all-designation-da-direct", name="api_autocomplete_all_designation_da_direct")
+     *
+     * @return void
+     */
+    public function autocompleteAllDesignationDaDirect()
+    {
+        try {
+            // Code Société de l'utilisateur
+            $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+            $data = (new DaModel)->fetchDesignationDaDirect($codeSociete);
+
+            // Vérifier que les données sont valides
+            if (!is_array($data)) {
+                throw new \Exception("Les données retournées ne sont pas un tableau valide");
+            }
+
+            // Nettoyer les données avant l'encodage JSON
+            $cleanedData = $this->cleanDataForJson($data);
+
+            header("Content-type:application/json; charset=utf-8");
+            echo json_encode($cleanedData, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE);
+        } catch (\Exception $e) {
+            // En cas d'erreur, retourner un tableau vide avec un message d'erreur
+            header("Content-type:application/json; charset=utf-8");
+            http_response_code(500);
+            echo json_encode([
+                'error' => true,
+                'message' => 'Erreur lors du chargement des données: ' . $e->getMessage(),
+                'data' => []
+            ], JSON_UNESCAPED_UNICODE);
+        }
+    }
+
+    /**
+     * @Route("/api/demande-appro/autocomplete/all-article-stocke", name="api_autocomplete_all_article_stocke")
+     *
+     * @return void
+     */
+    public function autocompleteAllArticleStocke()
+    {
+        try {
+            // Code Société de l'utilisateur
+            $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
+            $daModel = new DaModel;
+            $data = $daModel->getAllArticleStocke($codeSociete);
+
+            // Vérifier que les données sont valides
+            if (!is_array($data)) {
+                throw new \Exception("Les données retournées ne sont pas un tableau valide");
+            }
+
+            // Nettoyer les données avant l'encodage JSON
+            $cleanedData = $this->cleanDataForJson($data);
+
+            header("Content-type:application/json; charset=utf-8");
+            echo json_encode($cleanedData, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE);
+        } catch (\Exception $e) {
+            // En cas d'erreur, retourner un tableau vide avec un message d'erreur
+            header("Content-type:application/json; charset=utf-8");
+            http_response_code(500);
+            echo json_encode([
+                'error' => true,
+                'message' => 'Erreur lors du chargement des données: ' . $e->getMessage(),
+                'data' => []
+            ], JSON_UNESCAPED_UNICODE);
+        }
+    }
+
+    /**
+     * @Route("/api/demande-appro/autocomplete/all-fournisseur", name="api_autocomplete_all_fournisseur")
+     *
+     * @return void
+     */
+    public function autocompleteAllFournisseur()
+    {
+        try {
+            // Code Société de l'utilisateur
+            $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
+            $daModel = new DaModel;
+            $data = $daModel->getAllFournisseur($codeSociete);
+
+            // Vérifier que les données sont valides
+            if (!is_array($data)) {
+                throw new \Exception("Les données retournées ne sont pas un tableau valide");
+            }
+
+            // Nettoyer les données avant l'encodage JSON
+            $cleanedData = $this->cleanDataForJson($data);
+
+            header("Content-type:application/json; charset=utf-8");
+            echo json_encode($cleanedData, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE);
+        } catch (\Exception $e) {
+            // En cas d'erreur, retourner un tableau vide avec un message d'erreur
+            header("Content-type:application/json; charset=utf-8");
+            http_response_code(500);
+            echo json_encode([
+                'error' => true,
+                'message' => 'Erreur lors du chargement des données: ' . $e->getMessage(),
+                'data' => []
+            ], JSON_UNESCAPED_UNICODE);
+        }
+    }
+
+    /**
+     * @Route("/api/recup-all-code-centrale", name="api_recup_all_code_centrale")
+     *
+     * @return void
+     */
+    public function recupAllCodeCentrale()
+    {
+        try {
+            $daModel = new DaModel;
+            $data = $daModel->getAllCodeCentrale();
+
+            // Vérifier que les données sont valides
+            if (!is_array($data)) {
+                throw new \Exception("Les données retournées ne sont pas un tableau valide");
+            }
+
+            // Nettoyer les données avant l'encodage JSON
+            $cleanedData = $this->cleanDataForJson($data);
+
+            header("Content-type:application/json; charset=utf-8");
+            echo json_encode($cleanedData, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE);
+        } catch (\Exception $e) {
+            // En cas d'erreur, retourner un tableau vide avec un message d'erreur
+            header("Content-type:application/json; charset=utf-8");
+            http_response_code(500);
+            echo json_encode([
+                'error' => true,
+                'message' => 'Erreur lors du chargement des données: ' . $e->getMessage(),
+                'data' => []
+            ], JSON_UNESCAPED_UNICODE);
+        }
+    }
+
+    /**
+     * Nettoie les données pour l'encodage JSON
+     */
+    private function cleanDataForJson($data)
+    {
+        if (is_array($data)) {
+            $cleaned = [];
+            foreach ($data as $key => $value) {
+                $cleaned[$key] = $this->cleanDataForJson($value);
+            }
+            return $cleaned;
+        } elseif (is_string($data)) {
+            // Nettoyer la chaîne pour éviter les problèmes d'encodage
+            $cleaned = mb_convert_encoding($data, 'UTF-8', 'auto');
+            // Supprimer les caractères de contrôle non imprimables
+            $cleaned = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $cleaned);
+            return $cleaned;
+        }
+        return $data;
+    }
+}

@@ -16,7 +16,7 @@ class MigrationDataDitService
     public function migrationDataDit($output)
     {
         $ancienDits = $this->migrationDataModel->getDitMigrer();
-        dd($ancienDits);
+        //dd($ancienDits);
         if (empty($ancienDits)) {
             return "Aucune donnée à insérer.";
         }

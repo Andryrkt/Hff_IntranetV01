@@ -1,0 +1,23 @@
+<div class="modal fade" id="dateLivraison" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered ">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title fw-bold">
+					Changement de date Livraison
+				</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">X</button>
+			</div>
+			<div class="modal-body">
+				{{form_start(formDateLivraison)}}
+				<div class="row">
+					<div class="col-12 col-md-4">{{form_row(formDateLivraison.dateLivraisonPrevue)}}</div>
+					<div class="col-12 col-md-4 mt-4">
+						<button class="btn btn-warning fw-bold" type="submit">
+							Modifier</button>
+					</div>
+				</div>
+				{{form_end(formDateLivraison)}}
+			</div>
+		</div>
+	</div>
+</div>

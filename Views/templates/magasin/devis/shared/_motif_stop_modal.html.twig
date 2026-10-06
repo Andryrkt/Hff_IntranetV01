@@ -1,0 +1,10 @@
+{% form_theme form 'bootstrap_4_layout.html.twig' %}
+
+<div class="p-3">
+    {{ form_start(form, {'attr': {'id': 'form-motif-stop-relance'}}) }}
+        <div class="form-group text-start">
+            {{ form_label(form.choixMotif) }}
+            {{ form_widget(form.choixMotif) }}
+        </div>
+    {{ form_end(form) }}
+</div>

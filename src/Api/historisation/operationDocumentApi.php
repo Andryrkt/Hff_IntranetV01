@@ -9,7 +9,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class operationDocumentApi extends Controller
 {
     /**
-     * @Route("/api/operation-document-fetch-all", name="operation_document_fetch_all")
+     * @Route("/api/operation-document-fetch-all", name="api_operation_document_fetch_all")
      *
      * @return void
      */
@@ -18,7 +18,7 @@ class operationDocumentApi extends Controller
         /** 
          * @var HistoriqueOperationDocument[] $operationDocuments tableau d'entité 
          */
-        $operationDocuments = self::$em->getRepository(HistoriqueOperationDocument::class)->findBy([], ['id' => 'DESC']);
+        $operationDocuments = $this->getEntityManager()->getRepository(HistoriqueOperationDocument::class)->findBy([], ['id' => 'DESC']);
 
         $results = [];
         foreach ($operationDocuments as $operationDocument) {

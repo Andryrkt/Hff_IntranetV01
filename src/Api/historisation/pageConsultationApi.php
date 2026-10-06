@@ -9,7 +9,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class pageConsultationApi extends Controller
 {
     /**
-     * @Route("/api/consultation-page-fetch-all", name="consultation_page_fetch_all")
+     * @Route("/api/consultation-page-fetch-all", name="api_consultation_page_fetch_all")
      *
      * @return void
      */
@@ -18,7 +18,7 @@ class pageConsultationApi extends Controller
         /** 
          * @var UserLogger[] $historiques tableau d'entité
          */
-        $historiques = self::$em->getRepository(UserLogger::class)->findBy([], ['id' => 'DESC']);
+        $historiques = $this->getEntityManager()->getRepository(UserLogger::class)->findBy([], ['id' => 'DESC']);
 
         $results = [];
         foreach ($historiques as $historique) {

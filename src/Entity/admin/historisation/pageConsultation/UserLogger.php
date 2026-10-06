@@ -44,7 +44,7 @@ class UserLogger
     private $dateConsultation;
 
     /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="userLoggers")
+     * @ORM\ManyToOne(targetEntity=User::class)
      * @ORM\JoinColumn(name="id_utilisateur", referencedColumnName="id")
      * 
      */

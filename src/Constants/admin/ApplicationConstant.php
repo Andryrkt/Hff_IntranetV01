@@ -1,0 +1,20 @@
+<?php
+
+namespace App\Constants\admin;
+
+class ApplicationConstant
+{
+    public const CODE_DOM = 'DOM';
+    public const CODE_BADM = 'BDM';
+    public const CODE_ADMIN = 'ADMIN';
+    public const CODE_DIT = 'DIT';
+    public const CODE_MAGASIN = 'MAG';
+    public const CODE_POL = 'POL';
+    public const CODE_DDP = 'DDP';
+    public const CODE_DAP = 'DAP';
+    public const CODE_INVENTAIRE = 'INV';
+    public const CODE_DVM = 'DVM';
+    public const CODE_DDC = 'DDC';
+    public const CODE_BON_DE_CAISSE = 'BCS';
+    public const CODE_CONTRAT = 'CONTRAT';
+}

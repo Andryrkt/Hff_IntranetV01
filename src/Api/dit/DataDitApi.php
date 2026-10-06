@@ -10,11 +10,11 @@ use Symfony\Component\Serializer\SerializerInterface;
 class DataDitApi extends Controller
 {
     /**
-     * @Route("/api/data-dit", name="data_dit")
+     * @Route("/api/data-dit", name="api_data_dit")
      */
     public function dataDit()
     {
-        $paginationData = self::$em->getRepository(DemandeIntervention::class)->findAll();
+        $paginationData = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findAll();
 
         // dd($paginationData);
 

@@ -3,36 +3,65 @@
 namespace App\Controller\ddp;
 
 use App\Controller\Controller;
+use App\Dto\ddp\DdpSearchDto;
 use App\Entity\ddp\DemandePaiement;
-use App\Entity\ddp\DemandePaiementLigne;
-use Symfony\Component\Routing\Annotation\Route;
+use App\Form\ddp\DdpSearchType;
+use App\Mapper\ddp\DemandePaiementMapper;
 use App\Repository\ddp\DemandePaiementRepository;
-use App\Repository\ddp\DemandePaiementLigneRepository;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @Route("/compta/demande-de-paiement")
+ */
 class DdpListeController extends Controller
 {
     private DemandePaiementRepository $demandePaiementRepository;
-
     public function __construct()
     {
         parent::__construct();
-
-        $this->demandePaiementRepository = self::$em->getRepository(DemandePaiement::class);
+        $this->demandePaiementRepository = $this->getEntityManager()->getRepository(DemandePaiement::class);
     }
 
     /**
-     * @Route("/ddp/liste-ddp", name="ddp_liste")
+     * @Route("/liste", name="ddp_liste")
      *
      * @return void
      */
-    public function ddpListe()
+    public function ddpListe(Request $request)
     {
+        // creation et traitment de formulaire de recherche
+        $form = $this->getFormFactory()->createBuilder(DdpSearchType::class, new DdpSearchDto(), [
+            'method' => 'GET'
+        ])->getForm();
+        $criteria = $this->traitementFormulaire($form, $request);
 
-        $data = $this->demandePaiementRepository->findBy([], ['numeroDdp' => 'ASC']);
+        // recupération des données dans la table demande_paiement
+        $ddps = $this->demandePaiementRepository->findDemandePaiement($criteria, $this->getSecurityService()->estFinance());
 
+        // transforme en DTO
+        $dto = DemandePaiementMapper::mapInverse($ddps);
 
-        self::$twig->display('ddp/demandePaiementList.html.twig', [
-            'data' => $data
+        /** suppression de ssession page_loadede  */
+        if ($this->getSessionService()->has('page_loaded')) {
+            $this->getSessionService()->remove('page_loaded');
+        }
+
+        return $this->render('ddp/demandePaiementList.html.twig', [
+            'dto' => $dto,
+            'form' => $form->createView()
         ]);
+    }
+
+    public function traitementFormulaire(FormInterface $form, Request $request): DdpSearchDto
+    {
+        $form->handleRequest($request);
+        $criteria = new DdpSearchDto();
+        if ($form->isSubmitted() && $form->isValid()) {
+            $criteria =  $form->getdata();
+        }
+
+        return $criteria;
     }
 }

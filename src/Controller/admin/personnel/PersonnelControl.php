@@ -1,10 +1,9 @@
 <?php
 
+
 namespace App\Controller\admin\personnel;
 
 use App\Controller\Controller;
-
-
 use App\Controller\Traits\Transformation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -14,8 +13,6 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-
-
 
 class PersonnelControl extends Controller
 {
@@ -27,53 +24,47 @@ class PersonnelControl extends Controller
      */
     public function index(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        $form = self::$validator->createBuilder()
-        ->add('firstName', TextType::class, array(
-            'constraints' => array(
-                new NotBlank(),
-                new Length(array('min' => 4)),
-            ),
-        ))
-        ->add('lastName', TextType::class, array(
-            'constraints' => array(
-                new NotBlank(),
-                new Length(array('min' => 4)),
-            ),
-        ))
-        ->add('gender', ChoiceType::class, array(
-            'choices' => array('m' => 'Male', 'f' => 'Female'),
-        ))
-        ->add('newsletter', CheckboxType::class, array(
-            'required' => false,
-        ))
-        ->add('submit', SubmitType::class, [
-            'label' => 'Submit'
-        ])
-        ->getForm();
+        $form = $this->getFormFactory()->createBuilder()
+            ->add('firstName', TextType::class, array(
+                'constraints' => array(
+                    new NotBlank(),
+                    new Length(array('min' => 4)),
+                ),
+            ))
+            ->add('lastName', TextType::class, array(
+                'constraints' => array(
+                    new NotBlank(),
+                    new Length(array('min' => 4)),
+                ),
+            ))
+            ->add('gender', ChoiceType::class, array(
+                'choices' => array('m' => 'Male', 'f' => 'Female'),
+            ))
+            ->add('newsletter', CheckboxType::class, array(
+                'required' => false,
+            ))
+            ->add('submit', SubmitType::class, [
+                'label' => 'Submit'
+            ])
+            ->getForm();
 
         $form->handleRequest($request);
 
-         // Vérifier si le formulaire est soumis et valide
-         if ($form->isSubmitted() && $form->isValid()) {
+        // Vérifier si le formulaire est soumis et valide
+        if ($form->isSubmitted() && $form->isValid()) {
             // Traitement des données du formulaire
-           dd( $form->getData());
-          
+            //dd( $form->getData());
+
         }
 
-        self::$twig->display('test.html.twig', [
+        return $this->render('test.html.twig', [
             'form' => $form->createView()
         ]);
-}
+    }
 
 
     public function showPersonnelForm()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo 'okey';
         } else {
@@ -82,7 +73,7 @@ class PersonnelControl extends Controller
             $serviceIrium = $this->transformEnSeulTableau($this->Person->recupServiceIrium());
 
 
-            self::$twig->display(
+            return $this->render(
                 'admin/personnel/addPersonnel.html.twig',
                 [
                     'codeSage' => $codeSage,
@@ -95,9 +86,6 @@ class PersonnelControl extends Controller
 
     public function showListePersonnel()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $infoPersonnel = $this->Person->recupInfoPersonnel();
 
         // var_dump($infoPersonnel);
@@ -105,7 +93,7 @@ class PersonnelControl extends Controller
 
 
 
-        self::$twig->display(
+        return $this->render(
             'admin/personnel/listPersonnel.html.twig',
             [
                 'infoPersonnel' => $infoPersonnel
@@ -115,15 +103,12 @@ class PersonnelControl extends Controller
 
     public function updatePersonnel()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-        
         $codeSage = $this->transformEnSeulTableau($this->Person->recupAgenceServiceSage());
         $codeIrium = $this->transformEnSeulTableau($this->Person->recupAgenceServiceIrium());
 
 
         $infoPersonnelId = $this->Person->recupInfoPersonnelMatricule($_GET['matricule']);
-        self::$twig->display(
+        return $this->render(
             'admin/personnel/addPersonnel.html.twig',
             [
                 'codeSage' => $codeSage,

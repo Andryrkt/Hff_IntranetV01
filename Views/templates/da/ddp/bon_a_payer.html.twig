@@ -1,0 +1,107 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Consultation des factures
+{% endblock %}
+
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v={{ App.browserHash }}">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/list.css?v={{ App.browserHash }}">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/ddp/list.css?v={{ App.browserHash }}">
+{% endblock %}
+
+{% block overlay %}
+	{% include "/shared/_overlay.html.twig" %}
+{% endblock %}
+
+{% block content %}
+	<div class="sticky-header-titre">
+		<div class="container">
+			{% include "/partials/_notification.html.twig" %}
+			{% include "/da/ddp/_formulaire_recherche.html.twig" %}
+			<div class="my-2 d-flex justify-content-end">
+				<button type="button" class="btn btn-warning" id="transmettreBAP">Transmettre les DDP/BAP à validation.</button>
+			</div>
+		</div>
+	</div>
+
+	<div class="container-fluid mb-4">
+		<table class="table table-sticky">
+			<thead class="table-dark align-middle">
+				<tr>
+					<th class="text-center">-</th>
+					{# checkbox #}
+					<th class="text-center">Numéro CLA</th>
+					<th class="text-center">Numéro DA</th>
+					<th class="text-center">Numéro DDP/BAP</th>
+					<th class="text-center">Type DDP</th>
+					<th class="text-center">Fournisseur</th>
+					<th class="text-center">Numéro cde</th>
+					<th class="text-center">Numéro livraison</th>
+					<th class="text-center">Facture BL</th>
+					<th class="text-center">Statut</th>
+					<th class="text-center">Transmise le</th>
+					<th class="text-center">
+						Montant DDP</th>
+				</tr>
+			</thead>
+			<tbody id="tableBody" class="align-middle">
+				{% for row in dtos %}
+					<tr>
+						<td class="text-center">
+							<input type="checkbox" name="{{ row.numeroDdp }}" class="bap-checkbox" {{ row.estStatutATransmettre() ? '' : 'disabled' }}>
+						</td>
+						<td class="text-center">{{ row.numeroCla}}</td>
+						<td class="text-center">
+							<a href="{{ path('da_dossier_da', {numDa: row.numeroDemandeAppro}) }}" target="_blank">
+								{{ row.numeroDemandeAppro }}
+							</a>
+						</td>
+						<td class="text-center">
+							{% if row.fileExists %}
+								<a href="#" class="show-pdf-modal" data-pdf-url="{{ path('bap_pdf_viewer', { numeroDdp: row.numeroDdp, code: row.typeDemande.code }) }}">
+									{{ row.numeroDdp }}
+									<i class="fas fa-file-pdf ml-1" style="color: red;"></i>
+								</a>
+							{% else %}
+								{{ row.numeroDdp }}
+							{% endif %}
+						</td>
+						<td class="text-start">{{ row.typeDemande.libelle }}</td>
+						<td class="text-start">{{ row.numeroFournisseur ~ '-' ~ row.beneficiaire }}</td>
+						<td class="text-center">{{ row.numeroCommande}}</td>
+						<td class="text-center">{{ row.numeroLivraison }}</td>
+						<td class="text-center">{{ row.numeroFacture }}</td>
+						<td class="text-center fw-bold {{ row.styleStatut }}">{{ row.statut }}</td>
+						<td class="text-center">{{ row.dateSoumissionCompta ? row.dateSoumissionCompta | date('d/m/Y'):null }}</td>
+						<td class="text-end">
+							{{ row.montantAPayer|number_format(2,',', '.') }}</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+	<!-- PDF Modal -->
+	<div class="modal fade" id="pdfModal" tabindex="-1" aria-labelledby="pdfModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-xl">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="pdfModalLabel">DDP/BAP - PDF</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="pdf-spinner" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none;">
+						<div class="spinner-border text-primary" role="status">
+							<span class="visually-hidden">Loading...</span>
+						</div>
+					</div>
+					<iframe src="" style="width:100%; height:75vh;" frameborder="0"></iframe>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v={{ App.browserHash }}"></script>
+	<script src="{{ App.base_path }}/Views/js/da/ddp/bon_a_payer.js?v={{ App.browserHash }}" type="module"></script>
+{% endblock %}

@@ -1,49 +1,52 @@
 {% extends "baseTemplate.html.twig" %}
 
-{% block stylesheets%}
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/ddp/liste.css">
+{% block title %}
+	Consultation des demandes de paiement
+{% endblock %}
+
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v={{ App.browserHash }}">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/ddp/liste.css?v={{ App.browserHash }}">
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
 
 {% block content %}
-	{# {% include "/partials/_loader.html.twig" %} #}
-	{% set role_ids = App.user.roleIds %}
-	{% set user_connecter = App.user.nom_utilisateur %}
-
-	<div class="container">
-		<h3 class="perso-titre">
-			Liste des demandes de paiement
-		</h3>
-		{% include "/partials/_notification.html.twig" %}
-
+	<div class="sticky-header-titre">
+		<div class="container">
+			{% include "/partials/_notification.html.twig" %}
+			{% include "/ddp/shared/_formulaireRecherche.html.twig"%}
+		</div>
 	</div>
-
-	<div
-		class="container-fluid">
-		<!-- DEBUT tableau -->
-		<table class="table rounded table-plein-ecran">
-			<thead class="table-dark">
+	<div class="container-fluid">
+		<table class="table table-sticky">
+			<thead class="table-dark align-middle">
 				<tr>
 					<th>
 						<i class="fas fa-ellipsis-vertical"></i>
 					</th>
-					<th>N° demande</th>
-					<th>Type</th>
-					<th>Date</th>
-					<th>Motif</th>
-					<th>N° Commande</th>
-					<th>N° facture</th>
-					<th>Bénéficiaire</th>
-					<th>Agence débité</th>
-					<th>Service débité</th>
-					<th>Contact</th>
-					<th>Mode de paiement</th>
+					<th class="text-center">Agence débité</th>
+					<th class="text-center">Service débité</th>
+					<th class="text-center">N° CLA</th>
+					<th class="text-center">N° demande</th>
+					<th class="text-center">Date DDP</th>
+					<th class="text-center">Type</th>
+					<th class="text-center">Statut DDP</th>
+					<th class="text-center">Statut dossier de régul</th>
+					<th class="text-center">Motif</th>
+					<th class="text-center">N° facture IPS</th>
+					<th class="text-center">N° facture</th>
+					<th class="text-center">N° Commande</th>
+					<th class="text-center">N° Dossier</th>
+					<th class="text-center">Bénéficiaire</th>
+					<th class="text-center">Montant HT</th>
+					<th class="text-center">Devise</th>
+					<th class="text-center">Mode de paiement</th>
+					<th class="text-center">Utilisateur</th>
 				</tr>
 			</thead>
 			<tbody>
-				{% for item in data %}
+				{% for item in dto %}
 					<tr>
 						{# Début Action #}
 						<td class="align-middle" style="padding: 0px">
@@ -51,43 +54,99 @@
 								<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
 									<i class="fas fa-ellipsis-vertical"></i>
 								</button>
+								<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+									{% if item.typeDemande.id == 1 and item.statut == 'Payé' %}
+										<li>
+											<a class="dropdown-item fw-bold" href="#">Dossier</a>
+										</li>
+									{% endif %}
+									{% if item.typeDemande.id == 1 %}
+										<li>
+											<a class="dropdown-item fw-bold" href="{{path("demande_regulation",{numDdp:item.numeroDdp,numVersion:item.numeroVersion})}}">Dossier régularisation
+											</a>
+										</li>
+									{% endif %}
+									{% if item.statut matches '/Refusé/i' %}
+										<li>
+											<a class="dropdown-item fw-bold" href="{{path("edit_demande_paiement",{numDdp:item.numeroDdp,numVersion:item.numeroVersion})}}">Modifier
+											</a>
+										</li>
+									{% endif %}
+									{% if item.typeDemande.id == 2 and item.appro %}
+										<li>
+											<a class="dropdown-item fw-bold" href="{{path("da_bon_a_payer")}}">Consultation Facture
+											</a>
+										</li>
+									{% endif %}
+									{% if item.statut == 'A confirmer' %}
+										<li>
+											<a class="dropdown-item fw-bold" href="{{path("demande_paiement_da", {typeDdp: item.typeDemandeId.id, numCdeDa: item.numeroCommande.0, typeDa: item.typeDa, numDdp: item.numeroDdp})}}">Confirmation Demande paiement</a>
+										</li>
+									{% endif %}
+								</ul>
+
 							</div>
 						</td>
 						{# Fin Actions #}
-
-						<td>{{ item.numeroDdp }}</td>
-						<td>{{ item.typeDemandeId.libelle}}</td>
-						<td>
-							{{ item.dateCreation|date('d/m/Y')}}
+						<td class="text-center">{{ item.codeAgence}}</td>
+						<td class="text-center">{{ item.codeService}}</td>
+						<td class="text-center">{{ item.numeroCla}}</td>
+						<td class="text-center">
+							<a href="{{path("ddp_detail", {numeroDdp:item.numeroDdp})}}">
+								{{ item.numeroDdp }}
+							</a>
 						</td>
+						<td class="text-center">{{ item.dateDemande|date('d/m/Y')}}</td>
+						<td class="text-start">{{ item.typeDemande.libelle}}</td>
+						<td class="text-center {{ item.styleStatut}}">{{ item.statut }}</td>
+						<td class="text-center">{{ item.statutDossierRegul }}</td>
 						<td>{{item.motif}}</td>
+						<td>{{item.numeroFactureIps}}</td>
+						<td>{{item.numeroFacture}}</td>
+						<td>{{item.numeroCommande}}</td>
 						<td>
 							<ul>
-								{% for numCde in item.numeroCommande %}
+								{% for numCde in item.numeroDossierDouane %}
 									<li>{{numCde}}</li>
 								{% endfor %}
 							</ul>
 						</td>
-						<td>
-							<ul>
-								{% for numFac in item.numeroFacture %}
-									<li>{{numFac}}</li>
-								{% endfor %}
-							</ul>
-						</td>
-						<td>{{ item.beneficiaire}}</td>
-						<td>{{ item.agencedebiter}}</td>
-						<td>{{ item.servicedebiter}}</td>
-						<td>{{ item.contact}}</td>
-						<td>{{ item.modePaiement}}</td>
+						<td class="text-start">{{ item.beneficiaire}}</td>
+						<td class="text-end">{{ item.montantAPayer |number_format(2, ',' ,'.') }}</td>
+						<td class="text-center">{{ item.devise}}</td>
+						<td class="text-center">{{ item.modePaiement}}</td>
+						<td class="text-center">{{ item.demandeur }}</td>
 					</tr>
 				{% endfor %}
 			</tbody>
 		</table>
 	</div>
-
 	<!-- FIN tableau -->
+	<!-- PDF Modal -->
+	<div class="modal fade" id="pdfModal" tabindex="-1" aria-labelledby="pdfModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-xl">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="pdfModalLabel">DDP/BAP - PDF</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="pdf-spinner" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none;">
+						<div class="spinner-border text-primary" role="status">
+							<span class="visually-hidden">Loading...</span>
+						</div>
+					</div>
+					<iframe src="" style="width:100%; height:75vh;" frameborder="0"></iframe>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	{% include "/ddp/shared/_modal_statut.html.twig"  %}
 {% endblock %}
+
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/ddp/listDdp.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v={{ App.browserHash }}"></script>
+	<script src="{{ App.base_path }}/Views/js/ddp/ddpModalStatut.js?v={{ App.browserHash }}" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/ddp/ddpListe.js?v={{ App.browserHash }}" type="module"></script>
 {% endblock %}

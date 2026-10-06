@@ -42,7 +42,7 @@ export function afficherFichier(cheminFichier) {
   console.log(cheminFichier);
   const fileUrl = `http://192.168.0.28/Upload/${cheminFichier}`;
 
-  console.log(fileUrl);
+  // console.log(fileUrl);
 
   const fileViewer = document.getElementById("file-viewer");
   fileViewer.innerHTML = `<iframe src="${fileUrl}#toolbar=0" width="100%" height="800px" frameborder="0"></iframe>`;

@@ -3,6 +3,7 @@
 namespace App\Entity\admin;
 
 use App\Entity\admin\Personnel;
+use App\Entity\ddc\DemandeConge;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\utilisateur\User;
 use Doctrine\Common\Collections\Collection;
@@ -103,12 +104,24 @@ class AgenceServiceIrium
      */
     private $personnelId;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Personnel::class, inversedBy="agServIriumChefService")
+     * @ORM\JoinColumn(name="chef_service_id", referencedColumnName="id")
+     */
+    private $chefServiceId;
+
+   /**
+     * @ORM\OneToMany(targetEntity=DemandeConge::class, mappedBy="agenceServiceirium")
+     */
+    private $demandeDeConge;
+
     //=============================================================================================
 
     public function __construct()
     {
         $this->userAgenceService = new ArrayCollection();
         $this->personnelId = new ArrayCollection();
+        $this->demandeDeConge = new ArrayCollection();
     }
 
 
@@ -146,7 +159,7 @@ class AgenceServiceIrium
         return $this->nom_agence_i100;
     }
 
-    
+
     public function setNomagencei100(?string $nom_agence_i100): self
     {
         $this->nom_agence_i100 = $nom_agence_i100;
@@ -170,7 +183,7 @@ class AgenceServiceIrium
     {
         return $this->nom_service_i100;
     }
- 
+
     public function setNomservicei100(?string $nom_service_i100): self
     {
         $this->nom_service_i100 = $nom_service_i100;
@@ -183,7 +196,7 @@ class AgenceServiceIrium
         return $this->agence_ips;
     }
 
- 
+
     public function setAgenceips(?string $agence_ips): self
     {
         $this->agence_ips = $agence_ips;
@@ -209,7 +222,7 @@ class AgenceServiceIrium
         return $this->libelle_service_ips;
     }
 
- 
+
     public function setLibelleserviceips(?string $libelle_service_ips): self
     {
         $this->libelle_service_ips = $libelle_service_ips;
@@ -235,7 +248,7 @@ class AgenceServiceIrium
         return $this->service_sage_paie;
     }
 
-  
+
     public function setService_sage_paie(?string $service_sage_paie): self
     {
         $this->service_sage_paie = $service_sage_paie;
@@ -243,9 +256,9 @@ class AgenceServiceIrium
         return $this;
     }
 
-      /**
+    /**
      * Get the value of demandeInterventions
-     */ 
+     */
     public function getUserAgenceService()
     {
         return $this->userAgenceService;
@@ -269,7 +282,7 @@ class AgenceServiceIrium
                 $userAgenceService->setAgenceServiceIrium(null);
             }
         }
-        
+
         return $this;
     }
 
@@ -304,7 +317,7 @@ class AgenceServiceIrium
                 $personnelId->setAgenceServiceIriumId(null);
             }
         }
-        
+
         return $this;
     }
 
@@ -314,4 +327,51 @@ class AgenceServiceIrium
 
         return $this;
     }
+
+
+    /**
+     * Get the value of chefServiceId
+     */
+    public function getChefServiceId()
+    {
+        return $this->chefServiceId;
+    }
+
+    /**
+     * Set the value of chefServiceId
+     *
+     * @return  self
+     */
+    public function setChefServiceId($chefServiceId)
+    {
+        $this->chefServiceId = $chefServiceId;
+
+        return $this;
+    }
+
+    public function getDemandeDeConge()
+    {
+        return $this->demandeDeConge;
+    }
+
+    public function addDemandeDeConge(DemandeConge $demandeDeConge): self
+    {
+        if (!$this->demandeDeConge->contains($demandeDeConge)) {
+            $this->demandeDeConge[] = $demandeDeConge;
+            $demandeDeConge->setAgenceServiceIrium($this);
+        }
+        return $this;
+    }
+
+    public function removeDemandeDeConge(DemandeConge $demandeDeConge): self
+    {
+        if ($this->demandeDeConge->contains($demandeDeConge)) {
+            $this->demandeDeConge->removeElement($demandeDeConge);
+            if ($demandeDeConge->getAgenceServiceIrium() === $this) {
+                $demandeDeConge->setAgenceServiceIrium(null);
+            }
+        }
+        return $this;
+    }
+
 }

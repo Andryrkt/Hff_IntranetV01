@@ -1,0 +1,19 @@
+{% macro statut_badge(statut) %}
+    {% if statut == 'a traiter atelier' %}
+        <span class="badge badge-status status-pending">
+            <i class="fas fa-clock me-1"></i> À traiter atelier
+        </span>
+    {% elseif statut == 'traitee atelier' %}
+        <span class="badge badge-status status-processing">
+            <i class="fas fa-spinner fa-pulse me-1"></i> Traitée atelier
+        </span>
+    {% elseif statut == 'cloturee' %}
+        <span class="badge badge-status status-closed">
+            <i class="fas fa-check-circle me-1"></i> Clôturée
+        </span>
+    {% else %}
+        <span class="badge badge-status status-unknown">
+            <i class="fas fa-question-circle me-1"></i> {{ statut|capitalize }}
+        </span>
+    {% endif %}
+{% endmacro %}

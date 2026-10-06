@@ -1,8 +1,7 @@
 <?php
 
+
 namespace App\Controller\admin;
-
-
 
 use App\Entity\admin\Service;
 use App\Controller\Controller;
@@ -19,75 +18,66 @@ class ServiceController extends Controller
      */
     public function index()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
+        $data = $this->getEntityManager()->getRepository(Service::class)->findAll();
 
-        $data = self::$em->getRepository(Service::class)->findBy([], ['id'=>'DESC']);
-
-
-        self::$twig->display('admin/service/list.html.twig', 
-        [
-            'data' => $data
-        ]);
+        return $this->render(
+            'admin/service/list.html.twig',
+            [
+                'data' => $data
+            ]
+        );
     }
 
     /**
-         * @Route("/admin/service/new", name="service_new")
-         */
-        public function new(Request $request)
-        {    
-            //verification si user connecter
-        $this->verifierSessionUtilisateur();
+     * @Route("/admin/service/new", name="service_new")
+     */
+    public function new(Request $request)
+    {
+        $form = $this->getFormFactory()->createBuilder(ServiceType::class)->getForm();
 
-            $form = self::$validator->createBuilder(ServiceType::class)->getForm();
-    
-            $form->handleRequest($request);
-    
-            if($form->isSubmitted() && $form->isValid())
-            {
-                $service= $form->getData();
-                    
-                self::$em->persist($service);
-                self::$em->flush();
-                $this->redirectToRoute("service_index");
-            }
-    
-            self::$twig->display('admin/service/new.html.twig', 
-            [
-                'form' => $form->createView()
-            ]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $service = $form->getData();
+
+            $this->getEntityManager()->persist($service);
+            $this->getEntityManager()->flush();
+            $this->redirectToRoute("service_index");
         }
 
-                   /**
+        return $this->render(
+            'admin/service/new.html.twig',
+            [
+                'form' => $form->createView()
+            ]
+        );
+    }
+
+    /**
      * @Route("/admin/service/edit/{id}", name="service_update")
      *
      * @return void
      */
     public function edit(Request $request, $id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-        
-        $permission = self::$em->getRepository(Service::class)->find($id);
-        
-        $form = self::$validator->createBuilder(ServiceType::class, $permission)->getForm();
+        $permission = $this->getEntityManager()->getRepository(Service::class)->find($id);
+
+        $form = $this->getFormFactory()->createBuilder(ServiceType::class, $permission)->getForm();
 
         $form->handleRequest($request);
 
         // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
 
-            self::$em->flush();
+            $this->getEntityManager()->flush();
             $this->redirectToRoute("service_index");
-            
         }
 
-        self::$twig->display('admin/service/edit.html.twig', 
-        [
-            'form' => $form->createView(),
-        ]);
-
+        return $this->render(
+            'admin/service/edit.html.twig',
+            [
+                'form' => $form->createView(),
+            ]
+        );
     }
-
-  
 }

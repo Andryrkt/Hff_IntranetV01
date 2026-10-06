@@ -2,9 +2,13 @@
 
 namespace App\Controller\Traits\dit;
 
+use DateTime;
+use Exception;
 use App\Entity\admin\utilisateur\User;
 use Symfony\Component\Form\FormInterface;
 use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Model\dit\DitOrSoumisAValidationModel;
+use App\Repository\dit\DitOrsSoumisAValidationRepository;
 
 trait DitOrSoumisAValidationTrait
 {
@@ -48,7 +52,7 @@ trait DitOrSoumisAValidationTrait
         );
 
         // Définir le répertoire de destination
-        $destination = $_ENV['BASE_PATH_FICHIER'].'/vor/fichier/';
+        $destination = $_ENV['BASE_PATH_FICHIER'] . '/vor/fichier/';
 
         // Assurer que le répertoire existe
         if (!is_dir($destination) && !mkdir($destination, 0755, true) && !is_dir($destination)) {
@@ -75,18 +79,10 @@ trait DitOrSoumisAValidationTrait
         FormInterface $form,
         $ditfacture,
         $fusionPdf,
-        $suffix
+        $suffix,
+        $mainPdf
     ): void {
         $pdfFiles = [];
-
-        // Ajouter le fichier PDF principal en tête du tableau
-        $mainPdf = sprintf(
-            '%s/vor/oRValidation_%s-%s#%s.pdf',
-            $_ENV['BASE_PATH_FICHIER'],
-            $ditfacture->getNumeroOR(),
-            $ditfacture->getNumeroVersion(),
-            $suffix
-        );
 
 
         // Vérifier que le fichier principal existe avant de l'ajouter
@@ -94,6 +90,7 @@ trait DitOrSoumisAValidationTrait
             throw new \RuntimeException('Le fichier PDF principal n\'existe pas.');
         }
 
+        // Ajouter le fichier PDF principal en tête du tableau
         array_unshift($pdfFiles, $mainPdf);
 
         // Récupérer tous les champs de fichiers du formulaire
@@ -121,8 +118,53 @@ trait DitOrSoumisAValidationTrait
 
         // Appeler la fonction pour fusionner les fichiers PDF
         if (!empty($pdfFiles)) {
+            $this->ConvertirLesPdf($pdfFiles);
             $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
         }
+    }
+
+    private function ConvertirLesPdf(array $tousLesFichersAvecChemin)
+    {
+        $tousLesFichiers = [];
+        foreach ($tousLesFichersAvecChemin as $filePath) {
+            $tousLesFichiers[] = $this->convertPdfWithGhostscript($filePath);
+        }
+
+
+        return $tousLesFichiers;
+    }
+
+    private function convertPdfWithGhostscript($filePath)
+    {
+        $gsPath = 'C:\Program Files\gs\gs10.05.0\bin\gswin64c.exe'; // Modifier selon l'OS
+        $tempFile = $filePath . "_temp.pdf";
+
+        // Vérifier si le fichier existe et est accessible
+        if (!file_exists($filePath)) {
+            throw new Exception("Fichier introuvable : $filePath");
+        }
+
+        if (!is_readable($filePath)) {
+            throw new Exception("Le fichier PDF ne peut pas être lu : $filePath");
+        }
+
+        // Commande Ghostscript
+        $command = "\"$gsPath\" -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -o \"$tempFile\" \"$filePath\"";
+        // echo "Commande exécutée : $command<br>";
+
+        exec($command, $output, $returnVar);
+
+        if ($returnVar !== 0) {
+            echo "Sortie Ghostscript : " . implode("\n", $output);
+            throw new Exception("Erreur lors de la conversion du PDF avec Ghostscript");
+        }
+
+        // Remplacement du fichier
+        if (!rename($tempFile, $filePath)) {
+            throw new Exception("Impossible de remplacer l'ancien fichier PDF.");
+        }
+
+        return $filePath;
     }
 
     private function autoIncrement($num)
@@ -157,7 +199,7 @@ trait DitOrSoumisAValidationTrait
         return $totalRecapOr;
     }
 
-    private function recuperationAvantApres($OrSoumisAvantMax, $OrSoumisAvant)
+    private function recuperationAvantApres($OrSoumisAvantMax, $OrSoumisAvant, $codeSociete)
     {
 
         if (!empty($OrSoumisAvantMax)) {
@@ -189,7 +231,7 @@ trait DitOrSoumisAValidationTrait
             $recapAvantApres[] = [
                 'itv' => $itv,
                 'libelleItv' => $libelleItv,
-                'datePlanning' => $this->datePlanning($OrSoumisAvant[$i]->getNumeroOR()),
+                'datePlanning' => $this->datePlanning($OrSoumisAvant[$i]->getNumeroOR(), $itv, $codeSociete),
                 'nbLigAv' => $nbLigAv,
                 'nbLigAp' => $nbLigAp,
                 'mttTotalAv' => $mttTotalAv,
@@ -277,9 +319,9 @@ trait DitOrSoumisAValidationTrait
     }
 
 
-    private function montantpdf($orSoumisValidataion, $OrSoumisAvant, $OrSoumisAvantMax)
+    private function montantpdf($orSoumisValidataion, $OrSoumisAvant, $OrSoumisAvantMax, $codeSociete)
     {
-        $recapAvantApres = $this->recuperationAvantApres($OrSoumisAvantMax, $OrSoumisAvant);
+        $recapAvantApres = $this->recuperationAvantApres($OrSoumisAvantMax, $OrSoumisAvant, $codeSociete);
         return [
             'avantApres' => $this->affectationStatut($recapAvantApres)['recapAvantApres'],
             'totalAvantApres' => $this->calculeSommeAvantApres($recapAvantApres),
@@ -289,8 +331,13 @@ trait DitOrSoumisAValidationTrait
         ];
     }
 
-    private function orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis)
+    private function orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, DitOrsSoumisAValidation $ditInsertionOrSoumis, $numDit)
     {
+        $codeSociete = $ditInsertionOrSoumis->getCodeSociete();
+
+        /** @var array */
+        $pieceFaibleAchat = $this->preparationDesPiecesFaibleAchat($ditInsertionOrSoumis->getNumeroOR(), $codeSociete);
+
         $orSoumisValidataion = []; // Tableau pour stocker les objets
 
         foreach ($orSoumisValidationModel as $orSoumis) {
@@ -312,6 +359,9 @@ trait DitOrSoumisAValidationTrait
                 ->setMontantLubrifiants($orSoumis['montant_lubrifiants'])
                 ->setLibellelItv($orSoumis['libelle_itv'])
                 ->setStatut('Soumis à validation')
+                ->setNumeroDit($numDit)
+                ->setPieceFaibleActiviteAchat(empty($pieceFaibleAchat) ? false : true)
+                ->setCodeSociete($codeSociete)
             ;
 
             $orSoumisValidataion[] = $ditInsertionOr; // Ajouter l'objet dans le tableau
@@ -334,8 +384,10 @@ trait DitOrSoumisAValidationTrait
             }
             if (!$trouve) {
                 $numeroItvExist = $objetB->getNumeroItv() === 0 ? $objetA->getNumeroItv() : $objetB->getNumeroItv();
+                $numeroOrExist = $objetB->getNumeroOR() === "" ? $objetA->getNumeroOR() : $objetB->getNumeroOR();
                 // Créer un nouvel objet avec uniquement le numero et les autres propriétés à null ou 0
                 $nouvelObjet = new DitOrsSoumisAValidation();
+                $nouvelObjet->setNumeroOR($numeroOrExist);
                 $nouvelObjet->setNumeroItv($numeroItvExist);
                 $manquants[] = $nouvelObjet;
             }
@@ -351,10 +403,13 @@ trait DitOrSoumisAValidationTrait
         });
     }
 
-    private function verificationDatePlanning($ditInsertionOrSoumis, $ditOrsoumisAValidationModel): bool
+    private function verificationDatePlanning(DitOrsSoumisAValidation $ditInsertionOrSoumis, DitOrSoumisAValidationModel $ditOrsoumisAValidationModel): bool
     {
-        $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($ditInsertionOrSoumis->getNumeroOR());
-        $datePlannig2 = $ditOrsoumisAValidationModel->recupNbDatePlanningVide($ditInsertionOrSoumis->getNumeroOR());
+        $numOr = $ditInsertionOrSoumis->getNumeroOR();
+        $codeSociete = $ditInsertionOrSoumis->getCodeSociete();
+
+        $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($numOr, $codeSociete);
+        $datePlannig2 = $ditOrsoumisAValidationModel->recupNbDatePlanningVide($numOr, $codeSociete);
 
         $aBlocker = false;
         if (empty($datePlannig1)) {
@@ -366,20 +421,67 @@ trait DitOrSoumisAValidationTrait
         return $aBlocker;
     }
 
-    private function datePlanning($numOr)
-    { 
-        $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($numOr);
-        $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanning2($numOr);
-    
+    private function datePlanningInferieurDateDuJour($numOr): bool
+    {
+        $orRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
+        $nbrOrSoumis = $orRepository->getNbrOrSoumis($numOr); //première soumission
+        $estBloquer = $this->ditOrsoumisAValidationModel->getTypeLigne($numOr); //return bloquer si type piece ou pas bloquer  si non
+
+        if ((int)$nbrOrSoumis <= 0 && in_array('bloquer', $estBloquer)) { // si pas encore soumis et c'est une type piece
+            $numItvs = $this->ditOrsoumisAValidationModel->getNumItv($numOr);
+            $dateDuJour = new DateTime('now');
+            foreach ($numItvs as $numItv) {
+                $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanningOR1($numOr, $numItv);
+                $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanningOR2($numOr, $numItv);
+                $datePlanning = empty($datePlannig1) ? new DateTime($datePlannig2[0]['dateplanning2']) : new DateTime($datePlannig1[0]['dateplanning1']);
+                if ($datePlanning->format('Y-m-d') < $dateDuJour->format('Y-m-d')) {
+                    return true;
+                }
+            }
+            return false;
+        } else {
+            return false;
+        }
+    }
+    private function premierSoumissionDatePlanningInferieurDateDuJour($numOr, string $codeSociete): bool
+    {
+        /** @var DitOrsSoumisAValidationRepository $orRepository */
+        $orRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
+        $nbrOrSoumis = $orRepository->getNbrOrSoumis($numOr, $codeSociete); //première soumission
+        $nbrPieceMagasin = $this->ditOrsoumisAValidationModel->recupNbPieceMagasin($numOr, $codeSociete); //nombre de piece magasin
+
+        if ((int)$nbrOrSoumis <= 0 && (int)$nbrPieceMagasin <= 0) { // si pas encore soumis et pas de piece magasin
+            $numItvs = $this->ditOrsoumisAValidationModel->getNumItv($numOr, $codeSociete);
+            $dateDuJour = new DateTime('now');
+            foreach ($numItvs as $numItv) {
+                $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanningOR1($numOr, $numItv, $codeSociete);
+                $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanningOR2($numOr, $numItv, $codeSociete);
+                $datePlanning = empty($datePlannig1) ? new DateTime($datePlannig2[0]['dateplanning2']) : new DateTime($datePlannig1[0]['dateplanning1']);
+                if ($datePlanning->format('Y-m-d') < $dateDuJour->format('Y-m-d')) { // date planning est inférieure à la date du jour
+                    return true;
+                }
+            }
+            return false;
+        } else {
+            return false;
+        }
+    }
+
+
+    private function datePlanning($numOr, $numItv, $codeSociete)
+    {
+        $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanningOR1($numOr, $numItv, $codeSociete);
+        $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanningOR2($numOr, $numItv, $codeSociete);
+
         return empty($datePlannig1) ? $datePlannig2[0]['dateplanning2'] : $datePlannig1[0]['dateplanning1'];
     }
 
-    private function nomUtilisateur($em){
-        $userId = $this->sessionService->get('user_id', []);
-        $user = $em->getRepository(User::class)->find($userId);
+    private function nomUtilisateur(): array
+    {
+        $userInfo = $this->getSessionService()->get('user_info', []);
         return [
-            'nomUtilisateur' => $user->getNomUtilisateur(),
-            'mailUtilisateur' => $user->getMail()
+            'nomUtilisateur'  => $userInfo['username'],
+            'mailUtilisateur' => $userInfo['email']
         ];
     }
 }

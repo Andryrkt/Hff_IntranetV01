@@ -1,9 +1,13 @@
 {% extends "baseTemplate.html.twig" %}
 
-{% block stylesheets%}
-<link href="{{ App.base_path }}/Views/css/new.css" rel="stylesheet"/>
-<link href="{{ App.base_path }}/Views/css/dit/ditInsertionOr.css" rel="stylesheet"/>
-{% endblock%}
+{% block title %}
+	DIT - Soumission Devis
+{% endblock %}
+
+{% block stylesheets %}
+	<link href="{{ App.base_path }}/Views/css/new.css?v={{ App.browserHash }}" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/dit/ditInsertionOr.css?v={{ App.browserHash }}" rel="stylesheet"/>
+{% endblock %}
 
 
 {% block content %}
@@ -14,7 +18,7 @@
 		{% set message = 'validation atelier' %}
 	{% endif %}
 
-	<div class=" container">
+	<div class=" container mt-6 mb-4">
 		<div class="card">
 			<div class="card-body">
 
@@ -44,8 +48,11 @@
 								<div class="col-12 col-md-6">
 									{{ form_row(form.numeroDevis)}}
 									{{ form_errors(form.numeroDevis)}}
-
 								</div>
+							</div>
+							<div class="row {{type == 'VP' ? '' : 'd-none'}}">
+								{{form_row(form.tacheValidateur)}}
+								{{ form_errors(form.tacheValidateur)}}
 							</div>
 						</div>
 
@@ -64,7 +71,7 @@
 						</div>
 					</div>
 					<div class="d-flex justify-content-end">
-						<button type="submit" class="btn bouton mt-2 ajout-overlay" id="btn-enregistre-devis" data-confirmation data-form="#upload-form" data-confirmation-text="Vous êtes en train de soumettre le devis N° {{numDevis}} pour {{message}}">
+						<button type="submit" class="btn bouton mt-2" id="btn-enregistre-devis" data-confirmation data-form="#upload-form" data-confirmation-text="Vous êtes en train de soumettre le devis N° {{numDevis}} pour {{message}}">
 							<i class="fas fa-save"></i>
 							Enregistrer
 						</button>
@@ -78,24 +85,50 @@
 	</div>
 {% endblock %}
 {% block javascript %}
-	<script type="module" src="{{ App.base_path }}/Views/js/dit/ditDevisSoumisAValidation.js"></script>
+	<script type="module" src="{{ App.base_path }}/Views/js/dit/ditDevisSoumisAValidation.js?v={{ App.browserHash }}"></script>
 
 	<script>
 		{% if App.session.get('devis_version_valide') == 'OK' %}
-Swal.fire({
+Swal.fire( {
+
+
+
+
+
 title: "Attention !",
 text: "{{ App.session.get('message') }}", // Correcte en Twig
 icon: "warning",
 showCancelButton: true,
 confirmButtonText: "Continuer",
 cancelButtonText: "Quitter"
-}).then((result) => {
-if (result.isConfirmed) { // L'utilisateur veut continuer
+
+
+
+
+
+} ).then( ( result ) => {
+
+
+
+
+
+if ( result.isConfirmed ) { // L'utilisateur veut continuer
 
 window.location.href = window.location.href + "?continueDevis=1";
+
+
+
+
+
 } else { // L'utilisateur annule, redirection vers l'accueil
 window.location.href = "{{ path('dit_index') }}";
+
+
+
+
+
 }
-});{% endif %}
+
+} );{% endif %}
 	</script>
 {% endblock %}

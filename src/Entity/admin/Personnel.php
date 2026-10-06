@@ -16,7 +16,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  * @ORM\Entity(repositoryClass=PersonnelRepository::class)
  * @ORM\HasLifecycleCallbacks
  */
-class Personnel 
+class Personnel
 {
     /**
      * @ORM\Id
@@ -99,13 +99,27 @@ class Personnel
      * @ORM\ManyToOne(targetEntity=AgenceServiceIrium::class, inversedBy="personnelId")
      * @ORM\JoinColumn(name="agence_service_irium_id", referencedColumnName="id")
      */
-    private $agenceServiceIriumId;
-    
+    private ?AgenceServiceIrium $agenceServiceIriumId = null;
+
+
+    /**
+     * @ORM\OneToMany(targetEntity=AgenceServiceIrium::class, mappedBy="chefServiceId")
+     */
+    private $agServIriumChefService;
+
+
+    /**
+     * @ORM\Column(type="boolean", name="group_direction")
+     *
+     * @var boolean
+     */
+    private bool $groupeDirection;
 
     public function __construct()
     {
         $this->Date_creation = new \DateTime();
         $this->users = new ArrayCollection();
+        $this->agServIriumChefService = new ArrayCollection();
     }
 
     /**
@@ -268,9 +282,9 @@ class Personnel
     }
 
 
-     /**
+    /**
      * @return Collection|User[]
-     */ 
+     */
     public function getUsers(): Collection
     {
         return $this->users;
@@ -294,7 +308,7 @@ class Personnel
                 $user->setPersonnels(null);
             }
         }
-        
+
         return $this;
     }
 
@@ -305,14 +319,47 @@ class Personnel
         return $this;
     }
 
-  
-    public function getAgenceServiceIriumId()
+    public function getAgServIriumChefService(): Collection
+    {
+        return $this->agServIriumChefService;
+    }
+
+    public function addAgServIriumChefService(AgenceServiceIrium $agServIriumChefService): self
+    {
+        if (!$this->agServIriumChefService->contains($agServIriumChefService)) {
+            $this->agServIriumChefService[] = $agServIriumChefService;
+            $agServIriumChefService->setChefServiceId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAgServIriumChefService(AgenceServiceIrium $agServIriumChefService): self
+    {
+        if ($this->agServIriumChefService->contains($agServIriumChefService)) {
+            $this->agServIriumChefService->removeElement($agServIriumChefService);
+            if ($agServIriumChefService->getChefServiceId() === $this) {
+                $agServIriumChefService->setChefServiceId(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function setAgServIriumChefService($agServIriumChefService): self
+    {
+        $this->agServIriumChefService = $agServIriumChefService;
+
+        return $this;
+    }
+
+    public function getAgenceServiceIriumId(): ?AgenceServiceIrium
     {
         return $this->agenceServiceIriumId;
     }
 
-  
-    public function setAgenceServiceIriumId($agenceServiceIriumId): self
+
+    public function setAgenceServiceIriumId(?AgenceServiceIrium $agenceServiceIriumId): self
     {
         $this->agenceServiceIriumId = $agenceServiceIriumId;
 
@@ -322,10 +369,26 @@ class Personnel
     public function toArray(): array
     {
         return [
-            
+
             'Matricule' => $this->Matricule
         ];
     }
 
-    
+    /**
+     * Get the value of groupeDirection
+     */
+    public function isGroupeDirection(): bool
+    {
+        return $this->groupeDirection;
+    }
+
+    /**
+     * Set the value of groupeDirection
+     */
+    public function setGroupeDirection(bool $groupeDirection): self
+    {
+        $this->groupeDirection = $groupeDirection;
+
+        return $this;
+    }
 }

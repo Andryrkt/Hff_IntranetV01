@@ -4,86 +4,73 @@ namespace App\Model;
 
 class LdapModel
 {
-    private $ldapHost  = '192.168.0.1';
-    private $ldapPort = 389;
-    private $ldapconn;
-    private $Domain = "@fraise.hff.mg";
-    private $ldap_dn = "OU=HFF Users,DC=fraise,DC=hff,DC=mg";
-    private $Users;
-    private $Password;
+    private $ldap;
+    private string $ldapHost;
+    private string $ldapPort;
+    private string $domain;
+    private string $baseDn;
+    private string $username;
+    private string $password;
+    private bool   $ldapAuthEnabled;
 
     public function __construct()
     {
-        $this->ldapconn = ldap_connect("ldap://192.168.0.1:389");
+        $this->ldapHost        = $_ENV['LDAP_HOST'];
+        $this->ldapPort        = $_ENV['LDAP_PORT'];
+        $this->domain          = $_ENV['LDAP_DOMAIN'];
+        $this->baseDn          = $_ENV['LDAP_DN'];
+        $this->username        = $_ENV['LDAP_USER'];
+        $this->password        = $_ENV['LDAP_PASSWORD'];
+        $this->ldapAuthEnabled = filter_var($_ENV['LDAP_AUTH_ENABLED'] ?? true, FILTER_VALIDATE_BOOLEAN);
 
-        if (!$this->ldapconn) {
-            die("Connexion au serveur LDAP échouée.");
-        }
+        $this->ldap = ldap_connect("ldap://{$this->ldapHost}:{$this->ldapPort}");
+        if (!$this->ldap) die("Connexion au serveur LDAP échouée.");
 
-        ldap_set_option($this->ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);
-        ldap_set_option($this->ldapconn, LDAP_OPT_REFERRALS, 0);
-
-    }
-
-    public function showconnect()
-    {
-        return $this->ldapconn;
+        ldap_set_option($this->ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
+        ldap_set_option($this->ldap, LDAP_OPT_REFERRALS, 0);
     }
 
     /**
-     * @Andryrkt
-     * 
-     * récupère le non d'utilisateur et le mot de passe et comparer avec ce qui dans ldap
+     * Authentifie un utilisateur dans l'annuaire LDAP
      *
-     * @param string $user
+     * @param string $username
      * @param string $password
+     * 
      * @return boolean
      */
-    public function userConnect(string $user, string $password): bool
+    public function authenticate(string $username, string $password): bool
     {
-        $this->Users = $user;
-        $this->Password = $password;
-        ldap_set_option($this->ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);
-        $bind = @ldap_bind($this->ldapconn, $user . $this->Domain, $password);
-        return $bind;
+        if (!$this->ldapAuthEnabled) return true;
+
+        return @ldap_bind($this->ldap, "{$username}{$this->domain}", $password);
     }
 
-
-    public function infoUser($user, $password): array
+    public function infoUser(): array
     {
-        ldap_bind($this->ldapconn, $user . $this->Domain, $password);
-                // Recherche dans l'annuaire LDAP
-            $search_filter = "(objectClass=*)";
-            $search_result = ldap_search($this->ldapconn, $this->ldap_dn, $search_filter);
+        ldap_bind($this->ldap, "{$this->username}{$this->domain}", $this->password);
+        $results = ldap_search($this->ldap, $this->baseDn, "(objectClass=*)");
 
-        if (!$search_result) {
-            echo "Échec de la recherche LDAP : " . ldap_error($this->ldapconn);
+        if (!$results) {
+            echo "Échec de la recherche LDAP : " . ldap_error($this->ldap);
             return [];
         }
-    
 
-        // Récupération des entrées
-        $entries = ldap_get_entries($this->ldapconn, $search_result);
+        $entries = ldap_get_entries($this->ldap, $results);
 
-    
         $data = [];
         if ($entries["count"] > 0) {
-        
             for ($i = 0; $i < $entries["count"]; $i++) {
-                
-           // if(isset($entries[$i]["samaccountname"][0]) && isset($entries[$i]["description"][0]) && isset($entries[$i]["mail"][0]) && $entries[$i]['useraccountcontrol'][0] = '512' && $entries[$i]['accountexpires'][0] !== '0'){
-            //if(isset($entries[$i]["userprincipalname"][0]) && $entries[$i]['useraccountcontrol'][0] == '512' && $entries[$i]['accountexpires'][0] !== '0'){
-                if(isset($entries[$i]["userprincipalname"][0]) ){
-                    
+                if (isset($entries[$i]["userprincipalname"][0])) {
+
                     $data[$entries[$i]["samaccountname"][0]] = [
-                        "nom" => $entries[$i]["sn"][0] ?? '',
-                        "prenom" => $entries[$i]["givenname"][0] ?? '',
-                        "nomPrenom" => $entries[$i]["name"][0],
-                        "fonction" => $entries[$i]["description"][0] ?? '',
+                        "nom"             => $entries[$i]["sn"][0] ?? '',
+                        "prenom"          => $entries[$i]["givenname"][0] ?? '',
+                        "nomPrenom"       => $entries[$i]["name"][0],
+                        "fonction"        => $entries[$i]["description"][0] ?? '',
                         "numeroTelephone" => $entries[$i]["telephonenumber"][0] ?? '',
-                        "nomUtilisateur"=> $entries[$i]["samaccountname"][0],
-                        "email" => $entries[$i]["mail"][0] ?? '',
-                        "nameUserMain" => $entries[$i]["userprincipalname"][0]
+                        "nomUtilisateur"  => $entries[$i]["samaccountname"][0],
+                        "email"           => $entries[$i]["mail"][0] ?? '',
+                        "nameUserMain"    => $entries[$i]["userprincipalname"][0]
                     ];
                 }
             }
@@ -91,31 +78,6 @@ class LdapModel
             echo "Aucune entrée trouvée.\n";
         }
 
-        
-        // Fermer la connexion LDAP
-        // ldap_unbind($this->ldapconn);
-
         return $data;
     }
-    // public function searchLdapUser()
-    // {
-    //     // Requête LDAP pour récupérer tous les utilisateurs
-    //     $search_base = "OU=HFF Users,DC=fraise,DC=hff,DC=mg"; // Remplacez par la base de recherche appropriée
-    //     $search_result = ldap_search($this->ldapconn, $search_base, "(objectClass=person)");
-    //     $info = ldap_get_entries($this->ldapconn, $search_result);
-      
-    //     // Affichage des utilisateurs
-    //     foreach ($info as $user) {
-    //         if (isset($user['cn'][0])) {
-    //             echo "Nom complet: " . $user['cn'][0] . "<br>";
-    //         }
-    //         if (isset($user['uid'][0])) {
-    //             echo "Identifiant utilisateur: " . $user['uid'][0] . "<br>";
-    //         }
-    //         if (isset($user['mail'][0])) {
-    //             echo "Adresse e-mail: " . $user['mail'][0] . "<br>";
-    //         }
-    //         echo "<hr>";
-    //     }
-    // }
 }

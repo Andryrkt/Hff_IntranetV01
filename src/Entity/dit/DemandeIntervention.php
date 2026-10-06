@@ -7,6 +7,7 @@ use App\Entity\admin\Agence;
 use App\Entity\admin\Secteur;
 use App\Entity\admin\Service;
 use App\Entity\admin\Societte;
+use App\Entity\da\DemandeAppro;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\StatutDemande;
 use App\Repository\dit\DitRepository;
@@ -15,9 +16,11 @@ use App\Entity\admin\dit\CategorieAteApp;
 use App\Entity\admin\dit\WorTypeDocument;
 use App\Entity\Traits\AgenceServiceTrait;
 use App\Entity\admin\dit\WorNiveauUrgence;
+use Doctrine\Common\Collections\Collection;
 use App\Entity\Traits\AgenceServiceEmetteurTrait;
 use App\Entity\Traits\BilanFinancierMaterielTrait;
 use App\Entity\Traits\CaracteristiqueMaterielTrait;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -36,37 +39,40 @@ class DemandeIntervention
     use BilanFinancierMaterielTrait;
     use QuantiteDitTrait;
 
+    public const CODE_APP = 'DIT';
+    public const STATUT_A_AFFECTER = 50;
+    public const STATUT_AFFECTEE_SECTION = 51;
+    public const STATUT_CLOTUREE_ANNULEE = 52;
+    public const STATUT_CLOTUREE_VALIDER = 53;
+    public const STATUT_CLOTUREE_HORS_DELAI = 54;
+    public const STATUT_TERMINER = 57;
+    public const STATUT_A_VALIDER_CHEF_RENTAL = 78;
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups("intervention")
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=11, name="numero_demande_dit",nullable=true)
-     * @Groups("intervention")
      */
     private ?string $numeroDemandeIntervention = null;
 
     /**
      * @ORM\ManyToOne(targetEntity=WorTypeDocument::class, inversedBy="demandeInterventions")
      * @ORM\JoinColumn(name="type_document", referencedColumnName="id")
-     * @Groups("intervention")
      */
     private  $typeDocument = null; //relation avec la table wor_type_document
 
     /**
-     * @ORM\ManyToOne(targetEntity=Societte::class, inversedBy="demandeInterventions")
-     * @ORM\JoinColumn(name="code_societe", referencedColumnName="id")
-     * @Groups("intervention")
+     * @ORM\Column(type="string", length=3, name="code_societe",nullable=true)
      */
-    private  $codeSociete = null; // relation avec la table societe
+    private  $codeSociete = null;
 
     /**
      * @ORM\Column(type="string", length=30, name="type_reparation",nullable=true)
-     * @Groups("intervention")
      */
     private  $typeReparation = null;
 
@@ -507,11 +513,72 @@ class DemandeIntervention
      */
     private int $numMigration;
 
+    /**
+     * @ORM\Column(type="boolean", name="a_annuler")
+     */
+    private $aAnnuler = false;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_annulation")
+     */
+    private $dateAnnulation;
+
+    private $dateSoumissionOR;
+
+    private $montantTotalOR;
+
+    private bool $estAnnulable = false;
+
+    /**
+     * @ORM\Column(type="string", length=11, name="numero_demande_dit_avoir")
+     */
+    private ?string $numeroDemandeDitAvoit = null;
+
+    /**
+     * @ORM\Column(type="string", length=11, name="numero_demande_dit_refacturation")
+     */
+    private ?string $numeroDemandeDitRefacturation = null;
+
+    /**
+     * @ORM\Column(type="boolean", name="dit_avoir")
+     */
+    private bool $estDitAvoir = false;
+
+    /**
+     * @ORM\Column(type="boolean", name="dit_refacturation")
+     */
+    private bool $estDitRefacturation = false;
+
+    /**
+     * @ORM\Column(type="boolean", name="ate_pol_tana")
+     */
+    private bool $estAtePolTana = false;
+
+    /**
+     * @ORM\OneToMany(targetEntity=DemandeAppro::class, mappedBy="dit")
+     */
+    private Collection $demandeAppro;
+
+    /**
+     * @ORM\Column(type="boolean", name="pdf_deposer_dw", nullable=true)
+     */
+    private $pdfDeposerDw;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_depot_pdf_dw", nullable=true)
+     */
+    private $dateDepotPdfDw;
+
     /** ===================================================================================================================
      * 
      * GETTER and SETTER
      * 
      *===============================================================================================================*/
+
+    public function __construct()
+    {
+        $this->demandeAppro = new ArrayCollection();
+    }
 
     public function getId()
     {
@@ -519,7 +586,7 @@ class DemandeIntervention
     }
 
 
-    public function getNumeroDemandeIntervention(): string
+    public function getNumeroDemandeIntervention(): ?string
     {
         return $this->numeroDemandeIntervention;
     }
@@ -1575,5 +1642,266 @@ class DemandeIntervention
         $this->numMigration = $numMigration;
 
         return $this;
+    }
+
+    /**
+     * Get the value of aAnnuler
+     */
+    public function getAAnnuler()
+    {
+        return $this->aAnnuler;
+    }
+
+    /**
+     * Set the value of aAnnuler
+     *
+     * @return  self
+     */
+    public function setAAnnuler($aAnnuler)
+    {
+        $this->aAnnuler = $aAnnuler;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateAnnulation
+     */
+    public function getDateAnnulation()
+    {
+        return $this->dateAnnulation;
+    }
+
+    /**
+     * Set the value of dateAnnulation
+     *
+     * @return  self
+     */
+    public function setDateAnnulation($dateAnnulation)
+    {
+        $this->dateAnnulation = $dateAnnulation;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateSoumissionOR
+     */
+    public function getDateSoumissionOR()
+    {
+        return $this->dateSoumissionOR;
+    }
+
+    /**
+     * Set the value of dateSoumissionOR
+     *
+     * @return  self
+     */
+    public function setDateSoumissionOR($dateSoumissionOR)
+    {
+        $this->dateSoumissionOR = $dateSoumissionOR;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of montantTotalOR
+     */
+    public function getMontantTotalOR()
+    {
+        return $this->montantTotalOR;
+    }
+
+    /**
+     * Set the value of montantTotalOR
+     *
+     * @return  self
+     */
+    public function setMontantTotalOR($montantTotalOR)
+    {
+        $this->montantTotalOR = $montantTotalOR;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estAnnulable
+     */
+    public function getEstAnnulable()
+    {
+        return $this->estAnnulable;
+    }
+
+    /**
+     * Set the value of estAnnulable
+     *
+     * @return  self
+     */
+    public function setEstAnnulable($estAnnulable)
+    {
+        $this->estAnnulable = $estAnnulable;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroDemandeDitAvoit
+     */
+    public function getNumeroDemandeDitAvoit()
+    {
+        return $this->numeroDemandeDitAvoit;
+    }
+
+    /**
+     * Set the value of numeroDemandeDitAvoit
+     *
+     * @return  self
+     */
+    public function setNumeroDemandeDitAvoit($numeroDemandeDitAvoit)
+    {
+        $this->numeroDemandeDitAvoit = $numeroDemandeDitAvoit;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroDemandeDitRefacturation
+     */
+    public function getNumeroDemandeDitRefacturation()
+    {
+        return $this->numeroDemandeDitRefacturation;
+    }
+
+    /**
+     * Set the value of numeroDemandeDitRefacturation
+     *
+     * @return  self
+     */
+    public function setNumeroDemandeDitRefacturation($numeroDemandeDitRefacturation)
+    {
+        $this->numeroDemandeDitRefacturation = $numeroDemandeDitRefacturation;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estDitAvoir
+     */
+    public function getEstDitAvoir()
+    {
+        return $this->estDitAvoir;
+    }
+
+    /**
+     * Set the value of estDitAvoir
+     *
+     * @return  self
+     */
+    public function setEstDitAvoir($estDitAvoir)
+    {
+        $this->estDitAvoir = $estDitAvoir;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estDitRefacturation
+     */
+    public function getEstDitRefacturation()
+    {
+        return $this->estDitRefacturation;
+    }
+
+    /**
+     * Set the value of estDitRefacturation
+     *
+     * @return  self
+     */
+    public function setEstDitRefacturation($estDitRefacturation)
+    {
+        $this->estDitRefacturation = $estDitRefacturation;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estAtePolTana
+     */
+    public function getEstAtePolTana()
+    {
+        return $this->estAtePolTana;
+    }
+
+    /**
+     * Set the value of estAtePolTana
+     *
+     * @return  self
+     */
+    public function setEstAtePolTana($estAtePolTana)
+    {
+        $this->estAtePolTana = $estAtePolTana;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pdfDeposerDw
+     */
+    public function getPdfDeposerDw()
+    {
+        return $this->pdfDeposerDw;
+    }
+
+    /**
+     * Set the value of pdfDeposerDw
+     */
+    public function setPdfDeposerDw($pdfDeposerDw): self
+    {
+        $this->pdfDeposerDw = $pdfDeposerDw;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateDepotPdfDw
+     */
+    public function getDateDepotPdfDw()
+    {
+        return $this->dateDepotPdfDw;
+    }
+
+    /**
+     * Set the value of dateDepotPdfDw
+     */
+    public function setDateDepotPdfDw($dateDepotPdfDw): self
+    {
+        $this->dateDepotPdfDw = $dateDepotPdfDw;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of DemandeAppro
+     */
+    public function getDemandeAppro(): Collection
+    {
+        return $this->demandeAppro;
+    }
+
+    public function addDemandeAppro(DemandeAppro $demandeAppro): void
+    {
+        if (!$this->demandeAppro->contains($demandeAppro)) {
+            $this->demandeAppro[] = $demandeAppro;
+            $demandeAppro->setDit($this);
+        }
+    }
+
+    public function removeDemandeAppro(DemandeAppro $demandeAppro): void
+    {
+        if ($this->demandeAppro->removeElement($demandeAppro)) {
+            if ($demandeAppro->getDit() === $this) {
+                $demandeAppro->setDit(null);
+            }
+        }
     }
 }

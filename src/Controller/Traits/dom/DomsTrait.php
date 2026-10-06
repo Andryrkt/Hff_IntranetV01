@@ -2,7 +2,9 @@
 
 namespace App\Controller\Traits\dom;
 
+use App\Controller\Traits\FormatageTrait;
 use DateTime;
+use Exception;
 use App\Entity\dom\Dom;
 use App\Entity\admin\Agence;
 use App\Entity\admin\dom\Rmq;
@@ -13,7 +15,6 @@ use App\Entity\admin\Personnel;
 use App\Entity\admin\Application;
 use App\Entity\admin\dom\Indemnite;
 use App\Entity\admin\StatutDemande;
-use App\Repository\dom\DomRepository;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\admin\AgenceServiceIrium;
 use App\Entity\admin\dom\SousTypeDocument;
@@ -21,15 +22,18 @@ use App\Service\genererPdf\GeneratePdfDom;
 
 trait DomsTrait
 {
-    public function initialisationSecondForm($form1Data, $em, $dom)
-    {
+    use FormatageTrait;
 
+    public function initialisationSecondForm($form1Data, $em, Dom $dom)
+    {
         $agenceServiceEmetteur =  $this->agenceServiceIpsObjet();
-        $dom->setMatricule($form1Data['matricule']);
-        $dom->setSalarier($form1Data['salarier']);
-        $dom->setSousTypeDocument($form1Data['sousTypeDocument']);
-        $dom->setCategorie($form1Data['categorie']);
-        $dom->setDateDemande(new \DateTime());
+        $dom->setMatricule($form1Data['matricule'])
+            ->setSalarier($form1Data['salarier'])
+            ->setSousTypeDocument($form1Data['sousTypeDocument'])
+            ->setCategorie($form1Data['categoryId'])
+            ->setCodeSociete($form1Data['codeSociete'])
+            ->setDateDemande(new \DateTime())
+        ;
         if ($form1Data['salarier'] === "TEMPORAIRE") {
             $dom->setNom($form1Data['nom']);
             $dom->setPrenom($form1Data['prenom']);
@@ -74,14 +78,14 @@ trait DomsTrait
 
         $dom->setRmq($criteria['rmq']);
 
-        $numTel = $em->getRepository(Dom::class)->findLastNumtel($form1Data['matricule']);
-        $dom->setNumeroTel($numTel);
+        // $numTel = $em->getRepository(Dom::class)->findLastNumtel($form1Data['matricule']);
+        // $dom->setNumeroTel($numTel);
     }
 
     private function criteria($form1Data, $em)
     {
         $sousTypedocument = $form1Data['sousTypeDocument'];
-        $catg = $form1Data['categorie'];
+        $catg = $form1Data['categoryId'];
 
         $agenceServiceEmetteur =  $this->agenceServiceIpsObjet();
 
@@ -98,7 +102,7 @@ trait DomsTrait
     }
 
 
-  
+
     /**
      * Upload un fichier et retourne le chemin du fichier enregistré si c'est un PDF, sinon null.
      *
@@ -218,10 +222,54 @@ trait DomsTrait
 
         // Appeler la fonction pour fusionner les fichiers PDF
         if (!empty($pdfFiles)) {
+            $this->ConvertirLesPdf($pdfFiles);
             $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
         }
     }
 
+    private function ConvertirLesPdf(array $tousLesFichersAvecChemin)
+    {
+        $tousLesFichiers = [];
+        foreach ($tousLesFichersAvecChemin as $filePath) {
+            $tousLesFichiers[] = $this->convertPdfWithGhostscript($filePath);
+        }
+
+
+        return $tousLesFichiers;
+    }
+
+    private function convertPdfWithGhostscript($filePath)
+    {
+        $gsPath = 'C:\Program Files\gs\gs10.05.0\bin\gswin64c.exe'; // Modifier selon l'OS
+        $tempFile = $filePath . "_temp.pdf";
+
+        // Vérifier si le fichier existe et est accessible
+        if (!file_exists($filePath)) {
+            throw new Exception("Fichier introuvable : $filePath");
+        }
+
+        if (!is_readable($filePath)) {
+            throw new Exception("Le fichier PDF ne peut pas être lu : $filePath");
+        }
+
+        // Commande Ghostscript
+        $command = "\"$gsPath\" -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -o \"$tempFile\" \"$filePath\"";
+        // echo "Commande exécutée : $command<br>";
+
+        exec($command, $output, $returnVar);
+
+        if ($returnVar !== 0) {
+            echo "Sortie Ghostscript : " . implode("\n", $output);
+            throw new Exception("Erreur lors de la conversion du PDF avec Ghostscript");
+        }
+
+        // Remplacement du fichier
+        if (!rename($tempFile, $filePath)) {
+            throw new Exception("Impossible de remplacer l'ancien fichier PDF.");
+        }
+
+        return $filePath;
+    }
 
     private function enregistrementValeurdansDom($dom, $domForm, $form, $form1Data, $em, $user)
     {
@@ -260,8 +308,8 @@ trait DomsTrait
         }
 
         $sousTypeDocument = $em->getRepository(SousTypeDocument::class)->find($form1Data['sousTypeDocument']->getId());
-        if (isset($form1Data['categorie'])) {
-            $categoryId = $em->getRepository(Catg::class)->find($form1Data['categorie']->getId());
+        if (isset($form1Data['categoryId'])) {
+            $categoryId = $em->getRepository(Catg::class)->find($form1Data['categoryId']->getId());
         } else {
             $categoryId = null;
         }
@@ -322,6 +370,8 @@ trait DomsTrait
         $agenceEmetteur = $tropPercu ? $dom->getAgenceEmetteurId()->getCodeAgence() . ' ' . $dom->getAgenceEmetteurId()->getLibelleAgence() : $dom->getAgenceEmetteur();
         $serviceEmetteur = $tropPercu ? $dom->getServiceEmetteurId()->getCodeService() . ' ' . $dom->getServiceEmetteurId()->getLibelleService() : $dom->getServiceEmetteur();
 
+        $totalDepl_plus_Autre = $this->chaine_vers_nombre($dom->getTotalIndemniteForfaitaire()) + $this->chaine_vers_nombre($dom->getTotalAutresDepenses());
+
         return  [
             "MailUser"              => $email,
             "dateS"                 => $dom->getDateDemande()->format("d/m/Y"),
@@ -333,6 +383,7 @@ trait DomsTrait
             "Nom"                   => $dom->getNom(),
             "Prenoms"               => $dom->getPrenom(),
             "matr"                  => $dom->getMatricule(),
+            "pieceJustificatif"     => $dom->getPieceJustificatif(),
             "motif"                 => $dom->getMotifDeplacement(),
             "CategoriePers"         => $dom->getCategorie() === null ? '' : ($tropPercu ? $dom->getCategorie() : $dom->getCategorie()->getDescription()),
             "NbJ"                   => $dom->getNombreJour(),
@@ -349,6 +400,7 @@ trait DomsTrait
             "idemn"                 => $this->formatMontant($dom->getIndemniteForfaitaire()),
             "Bonus"                 => $this->formatMontant($dom->getDroitIndemnite()),
             "Idemn_depl"            => $this->formatMontant($dom->getIdemnityDepl()),
+            "totalDeplAutre"        => $this->formatMontant($this->formatNumber($totalDepl_plus_Autre)),
             "totalIdemn"            => $this->formatMontant($dom->getTotalIndemniteForfaitaire()),
             "motifdep01"            => $dom->getMotifAutresDepense1(),
             "motifdep02"            => $dom->getMotifAutresDepense2(),
@@ -394,36 +446,6 @@ trait DomsTrait
         $genererPdfDom->copyInterneToDOCUWARE($dom->getNumeroOrdreMission(), $dom->getAgenceEmetteurId()->getCodeAgence() . '' . $dom->getServiceEmetteurId()->getCodeService());
     }
 
-    private function verifierSiDateExistant(string $matricule,  $dateDebutInput, $dateFinInput): bool
-    {
-        $Dates = $this->DomModel->getInfoDOMMatrSelet($matricule);
-
-        if (empty($Dates)) {
-            return false; // Pas de périodes dans la base
-        }
-
-        // Convertir les dates d'entrée si elles sont en chaînes
-        $dateDebutInputObj = $dateDebutInput instanceof DateTime ? $dateDebutInput : new DateTime($dateDebutInput);
-        $dateFinInputObj = $dateFinInput instanceof DateTime ? $dateFinInput : new DateTime($dateFinInput);
-
-        foreach ($Dates as $periode) {
-            // Convertir les dates en objets DateTime pour faciliter la comparaison
-            $dateDebut = new DateTime($periode['Date_Debut']); //date dans la base de donner
-            $dateFin = new DateTime($periode['Date_Fin']); //date dans la base de donner
-            $dateDebutInputObj = $dateDebutInput; // date entrer par l'utilisateur
-            $dateFinInputObj = $dateFinInput; // date entrer par l'utilisateur
-
-            // Vérifier si la date à vérifier est comprise entre la date de début et la date de fin
-            if (($dateFinInputObj >= $dateDebut && $dateFinInputObj <= $dateFin) || ($dateDebutInputObj >= $dateDebut && $dateDebutInputObj <= $dateFin) || ($dateDebutInputObj === $dateFin)) { // Correction des noms de variables
-                $trouve = true;
-
-                return $trouve;
-            }
-        }
-
-        return false; // Pas de chevauchement
-    }
-
     /**
      * Retourne une valeur monétaire valide.
      * Si la chaîne est vide, retourne "0", sinon retourne la valeur d'origine.
@@ -436,16 +458,15 @@ trait DomsTrait
         return $montant === null ? '0' : $montant;
     }
 
-    private function initialisationFormTropPercu($em, Dom $dom, Dom $oldDom)
+    private function initialisationFormTropPercu($em, Dom $dom, Dom $oldDom, User $user)
     {
         $sousTypeDocument = $em->getRepository(SousTypeDocument::class)->find(11);
-        $userId = $this->sessionService->get('user_id');
-        $user = $em->getRepository(User::class)->find($userId);
         $statutOuvert = $em->getRepository(StatutDemande::class)->find(1);
         $dom
             ->setSousTypeDocument($sousTypeDocument)
             ->setDateDemande(new DateTime)
             ->setIdStatutDemande($statutOuvert)
+            ->setCodeSociete($oldDom->getCodeSociete())
             ->setCodeStatut($statutOuvert->getCodeStatut())
             ->setUtilisateurCreation($user->getNomUtilisateur())
             ->setNomSessionUtilisateur($user->getNomUtilisateur())
@@ -462,7 +483,19 @@ trait DomsTrait
             ->setSite($oldDom->getSite())
             ->setMatricule($oldDom->getMatricule())
             ->setNom($oldDom->getNom())
+            ->setDateDebut($oldDom->getDateDebut())
+            ->setDateFin($oldDom->getDateFin())
             ->setPrenom($oldDom->getPrenom())
+            ->setNombreJour($oldDom->getNombreJour())
+            ->setMotifAutresDepense1($oldDom->getMotifAutresDepense1())
+            ->setMotifAutresDepense2($oldDom->getMotifAutresDepense2())
+            ->setMotifAutresDepense3($oldDom->getMotifAutresDepense3())
+            ->setAutresDepense1($oldDom->getAutresDepense1() == 0 ? '' : $oldDom->getAutresDepense1())
+            ->setAutresDepense2($oldDom->getAutresDepense2() == 0 ? '' : $oldDom->getAutresDepense2())
+            ->setAutresDepense3($oldDom->getAutresDepense3() == 0 ? '' : $oldDom->getAutresDepense3())
+            ->setTotalAutresDepenses($oldDom->getTotalAutresDepenses() == 0 ? '' : $oldDom->getTotalAutresDepenses())
+            ->setTotalGeneralPayer('-' . $oldDom->getTotalGeneralPayer())
+            ->setTotalIndemniteForfaitaire($oldDom->getTotalIndemniteForfaitaire())
             ->setMotifDeplacement($oldDom->getMotifDeplacement())
             ->setClient($oldDom->getClient())
             ->setFiche($oldDom->getFiche())
@@ -477,5 +510,55 @@ trait DomsTrait
             ->setSiteId($oldDom->getSiteId())
             ->setCategoryId($oldDom->getCategoryId())
         ;
+    }
+
+    /** 
+     * Vérifier le trop perçu par statut
+     */
+    private function statutTropPercu(Dom $dom)
+    {
+        $codeSousType      = $dom->getSousTypeDocument()->getCodeSousType();
+        $statutDescription = $dom->getIdStatutDemande()->getDescription();
+
+        if (in_array($codeSousType, ['COMPLEMENT', 'MISSION', 'FRAIS EXCEPTIONNEL'])) {
+            $isPaye           = $statutDescription === 'PAYE';
+            $traiteParCompta  = $statutDescription === 'TRAITE PAR COMPTA';
+
+            if ($isPaye || $traiteParCompta) {
+                $dom->setStatutTropPercuOk(true);
+            }
+        }
+    }
+
+    private function formatConflitMessage(string $userDom, string $typeConflit, array $conflits): string
+    {
+        $LIMITE_AFFICHAGE = 2;
+
+        $libellesParType = [
+            'dom'   => ["une mission enregistrée", "des missions enregistrées"],
+            'conge' => ["un congé en cours ou validé", "des congés en cours ou validés"]
+        ];
+
+        $nombreConflits = count($conflits);
+        $conflitsAAfficher = array_slice($conflits, 0, $LIMITE_AFFICHAGE);
+
+        $conflitsFormates = array_map(function ($conflit) {
+            $dateDebut = date('d/m/Y', strtotime($conflit['date_debut']));
+            $dateFin   = date('d/m/Y', strtotime($conflit['date_fin']));
+            $periode = ($dateDebut === $dateFin) ? "le $dateDebut" : "du $dateDebut au $dateFin";
+            return "<b>{$conflit['numero']}</b> (<b>$periode</b>)";
+        }, $conflitsAAfficher);
+
+        $texteConflits = implode(', ', $conflitsFormates);
+
+        $nombreRestant = $nombreConflits - $LIMITE_AFFICHAGE;
+        if ($nombreRestant > 0) {
+            $texteConflits .= " et $nombreRestant autre" . ($nombreRestant > 1 ? 's' : '');
+        }
+
+        // Index 0 = singulier, 1 = pluriel
+        $libelle = $libellesParType[$typeConflit][(int) ($nombreConflits > 1)];
+
+        return "<b>$userDom</b> a déjà $libelle sur ces dates : $texteConflits. Vérifiez SVP !";
     }
 }

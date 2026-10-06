@@ -1,42 +1,26 @@
 {% extends "baseTemplate.html.twig" %}
 
-{% block stylesheets%}
-<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
-{% endblock%}
+{% block title %}
+	Liste BADM
+{% endblock %}
 
-{# {% import "macroForm.html.twig" as form %} #}
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v={{ App.browserHash }}">
+{% endblock %}
 
 {% block content %}
-	{# {% include "/partials/_loader.html.twig" %} #}
-
-	<div class="container">
-		<h3 class="perso-titre">
-			Liste de mouvement matériel
-		</h3>
-
-		{% include "/partials/_notification.html.twig" %}
-
-		<!-- DEBUT recherche -->
-		<div class="">
+	<div class="sticky-header-titre">
+		<div class="container">
+			{% include "/partials/_notification.html.twig" %}
 			{% include "/badm/_formulaireRecherche.html.twig" %}
-		</div>
-	</div>
-</div>
-
-<!-- DEBUT tableau -->
-<div class="container-fluid">
-	{% if empty == true %}
-		<div class="container">
-			{% include "/partials/_noResultList.html.twig" %}
-		</div>
-	{% else %}
-		<div class="container">
 			{% include "/badm/_pagination.html.twig" %}
 		</div>
-
-		<table class="table rounded table-plein-ecran">
+	</div>
+	<!-- DEBUT tableau -->
+	<div class="container-fluid">
+		<table class="table table-sticky">
 			<thead class="table-dark">
-				<tr>
+				<tr class="align-middle text-center">
 					<th>
 						<i class="fas fa-ellipsis-vertical"></i>
 					</th>
@@ -69,7 +53,6 @@
 									<li>
 										<a class="dropdown-item fw-bold" style="color: #000;" href="{{ path("badms_newForm1")}}">Ajouter</a>
 									</li>
-									{# <li><a class="dropdown-item fw-bold" href="{{ path("BadmDupli_dupliBadm", {numBadm: item.numBadm, id: item.id})}}">Dupliquer</a></li> #}
 								</ul>
 							</div>
 						</td>
@@ -119,9 +102,10 @@
 				{% endfor %}
 			</tbody>
 		</table>
-	{% endif %}
-</div>
-
-<!-- FIN tableau -->{% endblock %}{% block javascript %}
-<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-<script src="{{ App.base_path }}/Views/js/badm/listBadm.js" type="module"></script>{% endblock %}
+	</div>
+	<!-- FIN tableau -->
+{% endblock %}
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js"></script>
+	<script src="{{ App.base_path }}/Views/js/badm/listBadm.js?v={{ App.browserHash }}" type="module"></script>
+{% endblock %}

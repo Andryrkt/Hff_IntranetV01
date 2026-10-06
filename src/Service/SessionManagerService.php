@@ -1,7 +1,5 @@
 <?php
 
-// src/Service/SessionManager.php
-
 namespace App\Service;
 
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -17,9 +15,8 @@ class SessionManagerService
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
-        
+
         $this->session = new Session(new NativeSessionStorage());
-        //$this->session->start();
     }
 
     public function set($name, $value)

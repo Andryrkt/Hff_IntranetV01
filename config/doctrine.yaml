@@ -1,0 +1,82 @@
+# Configuration Doctrine ORM
+doctrine:
+    dbal:
+        # Configuration de la base de données
+        driver: 'pdo_mysql'
+        host: '%database_host%'
+        port: '%database_port%'
+        dbname: '%database_name%'
+        user: '%database_user%'
+        password: '%database_password%'
+        charset: utf8mb4
+        default_table_options:
+            charset: utf8mb4
+            collate: utf8mb4_unicode_ci
+        
+        # Options de connexion
+        options:
+            1002: "SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))"
+        
+        # Configuration du pool de connexions
+        pool_size: 10
+        pool_min: 2
+        pool_max: 20
+        
+    orm:
+        # Configuration des entités
+        auto_generate_proxy_classes: '%kernel.debug%'
+        enable_lazy_ghost_objects: true
+        report_fields_where_declared: true
+        validate_xml_mapping: true
+        naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
+        auto_mapping: true
+        
+        # Configuration des mappings
+        mappings:
+            App:
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Entity'
+                prefix: 'App\Entity'
+                alias: App
+                type: annotation
+        
+        # Configuration des filtres
+        filters:
+            softdeleteable:
+                class: Gedmo\SoftDeleteable\Filter\SoftDeleteableFilter
+                enabled: true
+        
+        # Configuration des listeners
+        listeners:
+            timestampable:
+                class: Gedmo\Timestampable\TimestampableListener
+                tags:
+                    - { name: doctrine.event_listener, event: onFlush }
+            
+            sluggable:
+                class: Gedmo\Sluggable\SluggableListener
+                tags:
+                    - { name: doctrine.event_listener, event: onFlush }
+        
+        # Configuration du cache
+        cache:
+            metadata_cache_driver:
+                type: 'array'
+                namespace: 'doctrine.system_cache_pool'
+            query_cache_driver:
+                type: 'array'
+                namespace: 'doctrine.system_cache_pool'
+            result_cache_driver:
+                type: 'array'
+                namespace: 'doctrine.result_cache_pool'
+        
+        # Configuration des migrations
+        migrations:
+            table_name: 'doctrine_migration_versions'
+            column_name: 'version'
+            column_length: 191
+            executed_at_column_name: 'executed_at'
+            execution_time_column_name: 'execution_time'
+            all_or_nothing: true
+            check_database_platform: true
+            enable_profiler: false

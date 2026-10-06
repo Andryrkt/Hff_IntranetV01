@@ -21,7 +21,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  */
 class CasierValider
 {
-    
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -67,8 +67,12 @@ class CasierValider
      */
     private $idStatutDemande = null;
 
-    
-     /**
+    /** 
+     * @ORM\Column(type="string", length=2, name="code_societe", nullable=true)
+     */
+    private $codeSociete;
+
+    /**
      * @ORM\OneToMany(targetEntity=Badm::class, mappedBy="casierDestinataire")
      */
     private $badms;
@@ -77,14 +81,14 @@ class CasierValider
     {
         $this->badms = new ArrayCollection();
     }
- 
+
 
     public function getId()
     {
         return $this->id;
     }
 
-    
+
     public function getCasier()
     {
         return $this->casier;
@@ -103,7 +107,7 @@ class CasierValider
         return $this->dateCreation;
     }
 
-    
+
     public function setDateCreation($dateCreation): self
     {
         $this->dateCreation = $dateCreation;
@@ -111,13 +115,13 @@ class CasierValider
         return $this;
     }
 
-    
+
     public function getNumeroCas()
     {
         return $this->numeroCas;
     }
 
-   
+
     public function setNumeroCas(string $numeroCas): self
     {
         $this->numeroCas = $numeroCas;
@@ -125,13 +129,13 @@ class CasierValider
         return $this;
     }
 
-   
+
     public function getNomSessionUtilisateur()
     {
         return $this->nomSessionUtilisateur;
     }
 
-   
+
     public function setNomSessionUtilisateur($nomSessionUtilisateur): self
     {
         $this->nomSessionUtilisateur = $nomSessionUtilisateur;
@@ -139,26 +143,26 @@ class CasierValider
         return $this;
     }
 
-   
+
     public function getAgenceRattacher(): ?Agence
     {
         return $this->agenceRattacher;
     }
 
-   
+
     public function setAgenceRattacher(?Agence $agence): self
     {
         $this->agenceRattacher = $agence;
 
         return $this;
     }
- 
+
     public function getIdStatutDemande()
     {
         return $this->idStatutDemande;
     }
 
-    
+
     public function setIdStatutDemande($idStatutDemande): self
     {
         $this->idStatutDemande = $idStatutDemande;
@@ -194,6 +198,24 @@ class CasierValider
     public function setBadms($badms): self
     {
         $this->badms = $badms;
+        return $this;
+    }
+
+    /**
+     * Get the value of codeSociete
+     */
+    public function getCodeSociete()
+    {
+        return $this->codeSociete;
+    }
+
+    /**
+     * Set the value of codeSociete
+     */
+    public function setCodeSociete($codeSociete): self
+    {
+        $this->codeSociete = $codeSociete;
+
         return $this;
     }
 }

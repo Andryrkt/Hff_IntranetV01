@@ -2,7 +2,7 @@
 
 namespace App\Form\tik;
 
-use App\Controller\Controller;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Component\Form\FormEvent;
 use App\Entity\admin\tik\TkiCategorie;
@@ -26,7 +26,6 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 class DetailTikType extends AbstractType
 {
-    private User $connectedUser;
     private $sousCategorieRepository;
     private $categoriesRepository;
     const DAY_PART = [
@@ -34,11 +33,8 @@ class DetailTikType extends AbstractType
         'PM (13:30 - 17:30)' => 'PM'
     ];
 
-    public function __construct()
+    public function __construct(EntityManagerInterface $em)
     {
-        $em = Controller::getEntity();
-        $sessionService = new SessionManagerService;
-        $this->connectedUser = $em->getRepository(User::class)->find($sessionService->get('user_id'));
         $this->sousCategorieRepository = $em->getRepository(TkiSousCategorie::class);
         $this->categoriesRepository = $em->getRepository(TkiCategorie::class);
     }

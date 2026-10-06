@@ -2,189 +2,353 @@
 
 namespace App\Form\ddp;
 
-use App\Controller\Controller;
+use App\Constants\ddp\TypeDemandePaiementConstants;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
+use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\ddp\DemandePaiement;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use App\Controller\Traits\ddp\DdpTrait;
+use App\Model\ddp\DemandePaiementModel;
+use App\Service\TableauEnStringService;
 use Symfony\Component\Form\AbstractType;
 use App\Repository\admin\AgenceRepository;
+use App\Entity\cde\CdefnrSoumisAValidation;
 use App\Repository\admin\ServiceRepository;
 use Symfony\Component\Form\FormBuilderInterface;
+use App\Repository\ddp\DemandePaiementRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class DemandePaiementType extends AbstractType
 {
+    use DdpTrait;
+
     private $agenceRepository;
     private $serviceRepository;
-
-    public function __construct()
+    private $cdeFnrRepository;
+    private $demandePaiementModel;
+    private $em;
+    private DemandePaiementRepository $demandePaiementRepository;
+    public function __construct(EntityManagerInterface $em)
     {
-        $this->agenceRepository = Controller::getEntity()->getRepository(Agence::class);
-        $this->serviceRepository = Controller::getEntity()->getRepository(Service::class);
+        $this->em = $em;
+        $this->agenceRepository = $em->getRepository(Agence::class);
+        $this->serviceRepository = $em->getRepository(Service::class);
+        $this->cdeFnrRepository = $em->getRepository(CdefnrSoumisAValidation::class);
+        $this->demandePaiementModel = new DemandePaiementModel();
+        $this->demandePaiementRepository = $em->getRepository(DemandePaiement::class);
     }
-    
+
+    private function numeroFac($numeroFournisseur, $typeId)
+    {
+        $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
+        $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
+
+        $listeGcot = $this->demandePaiementModel->finListFacGcot($numeroFournisseur, $numCdesString);
+        return array_combine($listeGcot, $listeGcot);
+    }
+
+    private function numeroCmd($typeId)
+    {
+        $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
+        return array_combine($numCdes, $numCdes);
+    }
+
+
+    private function changeStringToArray(array $input): array
+    {
+
+        $resultCde = [];
+
+        foreach ($input as $item) {
+            $decoded = json_decode($item, true); // transforme la string en tableau
+            if (is_array($decoded)) {
+                $resultCde = array_merge($resultCde, $decoded);
+            }
+        }
+
+        return $resultCde;
+    }
+
+    private function mode_paiement()
+    {
+        $modePaiement = $this->demandePaiementModel->getModePaiement();
+        return array_combine($modePaiement, $modePaiement);
+    }
+
+    private function devise()
+    {
+        $devisess = $this->demandePaiementModel->getDevise();
+
+        $devises = [
+            '' => '',
+        ];
+
+        foreach ($devisess as $devise) {
+            $devises[$devise['adevlib']] = $devise['adevcode'];
+        }
+
+        return $devises;
+    }
+
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-
         $builder
-            ->add('numeroFournisseur', TextType::class,
+            ->add(
+                'numeroFournisseur',
+                TextType::class,
                 [
                     'label' => 'Fournisseur *',
                     'attr' => [
                         'class' => 'autocomplete',
                         'autocomplete' => 'off',
-                    ]
-                ])
-            ->add('numeroCommande', 
-            ChoiceType::class,
-            [
-                'label'     => 'N° Commande *',
-                'choices'   => [],
-                'multiple'  => true,
-                'expanded'  => false,
-            ])
-            ->add('numeroFacture',ChoiceType::class,
+                    ],
+                ]
+            )
+            ->add(
+                'numeroCommande',
+                ChoiceType::class,
                 [
-                    'label' => 'N° Facture *',
-                    'required' => false,
-                    'choices'   => [],
+                    'label'     => 'N° Commande fournisseur *',
+                    'choices'   =>  array_key_exists('data', $options) ? $this->numeroCmd($options['id_type']) : [],
                     'multiple'  => true,
                     'expanded'  => false,
                     'attr'      => [
-                        'disabled' => $options['id_type'] == 1,
-                        'data-typeId' => $options['id_type'] 
+                        'disabled' => $options['id_type'] == 2,
                     ]
-                ])
-                ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
-                    $form = $event->getForm();
-                    $data = $event->getData();
+                ]
+            )
+            ->add(
+                'numeroFacture',
+                ChoiceType::class,
+                [
+                    'label' => 'N° Facture fournisseur *',
+                    'required' => false,
+                    'choices'   => array_key_exists('data', $options) ? $this->numeroFac($options['data']->getNumeroFournisseur(), $options['id_type']) : [],
+                    'multiple'  => true,
+                    'expanded'  => false,
+                    'attr'      => [
+                        'disabled' => $options['id_type'] == TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE,
+                        'data-typeId' => $options['id_type'],
+                        'data-typeDa' => null
+                    ]
+                ]
+            )
+            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($options) {
+                $form = $event->getForm();
+                $data = $event->getData();
 
-                    $form->add('numeroCommande', 
-                    ChoiceType::class,
-                    [
-                        'label'     => 'N° Commande *',
-                        'choices'   => $data['numeroCommande'],
-                        'multiple'  => true,
-                        'expanded'  => false,
-                    ]);
-                    $form->add('numeroFacture',ChoiceType::class,
+                if ($options['id_type'] == TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE) {
+                    $form->add(
+                        'numeroCommande',
+                        ChoiceType::class,
                         [
-                            'label' => 'N° Facture *',
-                            'choices'   => $data['numeroFacture']??[],
+                            'label'     => 'N° Commande *',
+                            'choices'   => $data['numeroCommande'],
                             'multiple'  => true,
                             'expanded'  => false,
-                            'required' => false
-                        ]);
-                })
-            ->add('beneficiaire', TextType::class,
+                        ]
+                    );
+                }
+
+                $form->add(
+                    'numeroFacture',
+                    ChoiceType::class,
+                    [
+                        'label' => 'N° Facture *',
+                        'choices'   => $data['numeroFacture'] ?? [],
+                        'multiple'  => true,
+                        'expanded'  => false,
+                        'required' => false
+                    ]
+                );
+            })
+            ->add(
+                'beneficiaire',
+                TextType::class,
                 [
                     'label' => 'Bénéficiaire *',
                     'attr' => [
                         'class' => 'autocomplete',
                         'autocomplete' => 'off',
                     ]
-                ])
-            ->add('motif', TextType::class,
+                ]
+            )
+            ->add(
+                'motif',
+                TextType::class,
                 [
                     'label' => 'Motif',
                     'required' => false
-                ])
-                
-            ->add('ribFournisseur', 
+                ]
+            )
+
+            ->add(
+                'ribFournisseur',
                 TextType::class,
                 [
                     'label' => 'RIB *',
+                    'constraints' => [
+                        new Assert\NotBlank(),
+                        new Assert\Regex([
+                            'pattern' => '/^[0-9][0-9 ]*$/',
+                            'message' => 'Le RIB doit commencer par un chiffre et ne contenir que des chiffres et des espaces.',
+                        ]),
+                        new Assert\Length([
+                            'min' => 26, // 23 chiffres + 3 espaces = 26 caractères
+                            'max' => 26,
+                            'exactMessage' => 'Le RIB doit contenir exactement 23 chiffres et 3 espaces.',
+                        ]),
+                        new Assert\Callback(function ($value, $context) {
+                            // Vérification supplémentaire pour s'assurer qu'il y a exactement 23 chiffres et 3 espaces
+                            if ($value) {
+                                $digits = preg_replace('/[^0-9]/', '', $value);
+                                $spaces = substr_count($value, ' ');
+
+                                if (strlen($digits) !== 23) {
+                                    $context->buildViolation('Le RIB doit contenir exactement 23 chiffres.')
+                                        ->addViolation();
+                                }
+
+                                if ($spaces !== 3) {
+                                    $context->buildViolation('Le RIB doit contenir exactement 3 espaces.')
+                                        ->addViolation();
+                                }
+                            }
+                        }),
+                    ],
                     'attr' => [
-                        'readOnly' => true
-                    ]
-                ])
-            ->add('contact', 
+                        'placeholder' => '00005 ***** ********* 45',
+                        'class' => 'rib-field',
+                        'maxlength' => 26,
+                        'data-format-rib' => 'true', // Pour le JavaScript
+                    ],
+                ]
+            )
+            ->add(
+                'contact',
                 TextType::class,
                 [
                     'label' => 'Contact',
                     'required' => false
-                ])
-            ->add('modePaiement', TextType::class,
-            [
-                'label' => 'Mode de paiement *',
-                'attr' => [
-                        'readOnly' => true
-                    ]
-            ])
-            ->add('devise', TextType::class,
-            [
-                'label' => 'Devise *',
-                'attr' => [
-                        'readOnly' => true
-                    ]
-            ])
-            ->add('montantAPayer', TextType::class,
-            [
-                'label' => 'Montant à payer *'
-            ])
-            ->add('pieceJoint01',
-            FileType::class,
-            [
-                'label' => 'Pièce Jointe 01 (PDF)',
-                'required' => false,
-                'constraints' => [
-                    new File([
-                        'maxSize' => '5M',
-                        'mimeTypes' => [
-                            'application/pdf',
-                            // 'image/jpeg',
-                            // 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                            // 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                        ],
-                        'mimeTypesMessage' => 'Please upload a valid PDF file.',
-                    ])
-                ],
-            ])
+                ]
+            )
+            ->add(
+                'modePaiement',
+                ChoiceType::class,
+                [
+                    'label'     => 'Mode de paiement *',
+                    'choices'   =>  $this->mode_paiement(),
+                    'multiple'  => false,
+                    'expanded'  => false,
+                    'data' => 'VIREMENT'
+                ]
+            )
+            ->add(
+                'devise',
+                ChoiceType::class,
+                [
+                    'label'     => 'Devise *',
+                    'choices'   =>  $this->devise(),
+                    'multiple'  => false,
+                    'expanded'  => false,
+                ]
+            )
+            ->add(
+                'montantAPayer',
+                TextType::class,
+                [
+                    'label' => 'Montant à payer *',
+                    // 'attr' => [
+                    //     'readOnly' => true
+                    // ]
+                ]
+            )
+            ->add(
+                'pieceJoint01',
+                FileType::class,
+                [
+                    'label' => 'Pièce Jointe 01 (PDF)',
+                    'required' => false,
+                    'constraints' => [
+                        new File([
+                            'maxSize' => '5M',
+                            'mimeTypes' => [
+                                'application/pdf',
+                                // 'image/jpeg',
+                                // 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                                // 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                            ],
+                            'mimeTypesMessage' => 'Please upload a valid PDF file.',
+                        ])
+                    ],
+                ]
+            )
 
-            ->add('pieceJoint02',
-            FileType::class,
-            [
-                'label' => 'Pièce Jointe 02 (PDF)',
-                'required' => $options['id_type'] == 2,
-                'constraints' => [
-                    new File([
-                        'maxSize' => '5M',
-                        'mimeTypes' => [
-                            'application/pdf',
-                            // 'image/jpeg',
-                            // 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                            // 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                        ],
-                        'mimeTypesMessage' => 'Please upload a valid PDF file.',
-                    ])
-                ],
-            ])
-
-            ->add('pieceJoint03',
-            FileType::class,
-            [
-                'label' => 'Pièce Jointe 03 (PDF)',
-                'required' => false,
-                'constraints' => [
-                    new File([
-                        'maxSize' => '5M',
-                        'mimeTypes' => [
-                            'application/pdf',
-                            // 'image/jpeg',
-                            // 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                            // 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                        ],
-                        'mimeTypesMessage' => 'Please upload a valid PDF file.',
-                    ])
-                ],
-            ])
+            ->add(
+                'pieceJoint02',
+                FileType::class,
+                [
+                    'label' => 'Pièce Jointe 02 (PDF)',
+                    'required' => false,
+                    'constraints' => [
+                        new File([
+                            'maxSize' => '5M',
+                            'mimeTypes' => [
+                                'application/pdf',
+                                // 'image/jpeg',
+                                // 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                                // 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                            ],
+                            'mimeTypesMessage' => 'Please upload a valid PDF file.',
+                        ])
+                    ],
+                ]
+            )
+            ->add(
+                'pieceJoint03',
+                FileType::class,
+                [
+                    'label' => 'Pièces Jointes',
+                    'required' => false,
+                    'multiple' => true,
+                    'data_class' => null,
+                    'mapped' => true, // Indique que ce champ ne doit pas être lié à l'entité
+                    'constraints' => [
+                        new Callback([$this, 'validateFiles']),
+                    ],
+                ]
+            )
+            ->add(
+                'pieceJoint04',
+                FileType::class,
+                [
+                    'label' => 'Pièce Jointe 02 (PDF)',
+                    'required' => false,
+                    'constraints' => [
+                        new File([
+                            'maxSize' => '5M',
+                            'mimeTypes' => [
+                                'application/pdf',
+                                // 'image/jpeg',
+                                // 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                                // 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                            ],
+                            'mimeTypesMessage' => 'Please upload a valid PDF file.',
+                        ])
+                    ],
+                ]
+            )
 
             ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($options) {
                 $form = $event->getForm();
@@ -194,9 +358,6 @@ class DemandePaiementType extends AbstractType
                 if ($data instanceof DemandePaiement && $data->getAgence()) {
                     $services = $data->getAgence()->getServices();
                 }
-                //$services = $data->getAgence()->getServices();
-                // $agence = $event->getData()->getAgence() ?? null;
-                // $services = $agence->getServices();
 
                 $form->add(
                     'service',
@@ -217,39 +378,10 @@ class DemandePaiementType extends AbstractType
                         'attr' => [
                             'class' => 'serviceDebiteur',
                             'disabled' => true
-                            ]
+                        ]
                     ]
                 );
             })
-            // ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
-            //     $form = $event->getForm();
-            //     $data = $event->getData();
-
-
-            //     $agenceId = $data['agence'];
-
-            //     $agence = $this->agenceRepository->find($agenceId);
-            //     if($agence === null){
-            //         $services = [];
-            //     } else {
-            //         $services = $agence->getServices();
-            //     }
-                
-
-            //     $form->add('service', EntityType::class, [
-            //         'label' => 'Service Débiteur *',
-            //         'class' => Service::class,
-            //         'choice_label' => function (Service $service): string {
-            //             return $service->getCodeService() . ' ' . $service->getLibelleService();
-            //         },
-            //         'choices' => $services,
-            //         'required' => false,
-            //         'attr' => [
-            //             'class' => 'serviceDebiteur',
-            //             'disabled' => true,
-            //         ]
-            //     ]);
-            // })
             ->add(
                 'agence',
                 EntityType::class,
@@ -266,15 +398,49 @@ class DemandePaiementType extends AbstractType
                     'query_builder' => function (AgenceRepository $agenceRepository) {
                         return $agenceRepository->createQueryBuilder('a')->orderBy('a.codeAgence', 'ASC');
                     },
-                    
+
                     'attr' => [
                         'class' => 'agenceDebiteur',
                         'disabled' => true
-                        ]
+                    ]
                 ]
             )
 
         ;
+    }
+
+    public function validateFiles($files, ExecutionContextInterface $context)
+    {
+        $maxSize = '5M';
+        $mimeTypes = [
+            'application/pdf',
+            'image/jpeg',
+            'image/png',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/vnd.ms-powerpoint',
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        ];
+
+        if ($files) {
+            foreach ($files as $file) {
+                $fileConstraint = new File([
+                    'maxSize' => $maxSize,
+                    'maxSizeMessage' => 'La taille du fichier ne doit pas dépasser 5 Mo.',
+                    'mimeTypes' => $mimeTypes,
+                    'mimeTypesMessage' => 'Veuillez télécharger un fichier valide.',
+                ]);
+
+                $violations = $context->getValidator()->validate($file, $fileConstraint);
+
+                if (count($violations) > 0) {
+                    foreach ($violations as $violation) {
+                        $context->buildViolation($violation->getMessage())
+                            ->addViolation();
+                    }
+                }
+            }
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver)
@@ -285,5 +451,6 @@ class DemandePaiementType extends AbstractType
 
         // Ajoutez l'option 'id_type' pour éviter l'erreur
         $resolver->setDefined('id_type');
+        $resolver->setDefined('numcdeDa');
     }
 }

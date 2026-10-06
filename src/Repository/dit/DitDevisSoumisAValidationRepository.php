@@ -8,29 +8,31 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
 {
 
 
-    public function findDernierStatutDevis($numDevis)
-{
-    $queryBuilder = $this->createQueryBuilder('dev');
-    
-    $dernierStatut = $queryBuilder
-        ->select('dev.statut')
-        ->where('dev.numeroDevis = :numDevis')
-        ->andWhere('dev.numeroVersion = (
+    public function findDernierStatutDevis($numDevis, string $codeSociete)
+    {
+        $queryBuilder = $this->createQueryBuilder('dev');
+
+        $dernierStatut = $queryBuilder
+            ->select('dev.statut')
+            ->where('dev.numeroDevis = :numDevis')
+            ->andWhere('dev.numeroVersion = (
             SELECT MAX(dev2.numeroVersion) 
             FROM App\Entity\dit\DitDevisSoumisAValidation dev2 
             WHERE dev2.numeroDevis = :numDevis
         )')
-        ->setParameter('numDevis', $numDevis)
-        ->setMaxResults(1) // Ajout d'une limite pour garantir un seul résultat
-        ->getQuery()
-        ->getOneOrNullResult();
+            ->andWhere('dev.codeSociete = :codeSociete')
+            ->setParameter('codeSociete', $codeSociete)
+            ->setParameter('numDevis', $numDevis)
+            ->setMaxResults(1) // Ajout d'une limite pour garantir un seul résultat
+            ->getQuery()
+            ->getOneOrNullResult();
 
-    return $dernierStatut ? $dernierStatut['statut'] : null;
-}
+        return $dernierStatut ? $dernierStatut['statut'] : null;
+    }
 
-    public function findDevisSoumiAvant($numDevis)
+    public function findDevisSoumiAvant($numDevis, string $codeSociete)
     {
-            $qb = $this->createQueryBuilder('dev');
+        $qb = $this->createQueryBuilder('dev');
 
         $subquery = $this->createQueryBuilder('dev2')
             ->select('MAX(dev2.numeroVersion)')
@@ -40,7 +42,9 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
         $orSoumisAvant = $qb
             ->where('dev.numeroDevis = :numDevis')
             ->andWhere('dev.montantItv <> :mttItv')
+            ->andWhere('dev.codeSociete = :codeSociete')
             ->setParameter('numDevis', $numDevis)
+            ->setParameter('codeSociete', $codeSociete)
             ->setParameter('mttItv', 0.00)
             ->andWhere($qb->expr()->eq('dev.numeroVersion', '(' . $subquery . ')'))
             ->getQuery()
@@ -50,7 +54,7 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
     }
 
 
-    public function findDevisSoumiAvantMax($numDevis)
+    public function findDevisSoumiAvantMax($numDevis, string $codeSociete)
     {
         // Étape 1: Récupérer la version maximale pour le numeroOR donné
         $qbMax = $this->createQueryBuilder('dev2')
@@ -70,6 +74,8 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
             ->where('dev.numeroDevis = :numDevis')
             ->andWhere('dev.montantItv <> :mttItv')
             ->andWhere('dev.numeroVersion = :previousVersion')
+            ->andWhere('dev.codeSociete = :codeSociete')
+            ->setParameter('codeSociete', $codeSociete)
             ->setParameter('mttItv', 0.00)
             ->setParameter('numDevis', $numDevis)
             ->setParameter('previousVersion', $maxVersion - 1)  // Juste avant la version max
@@ -79,7 +85,7 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
         return $qb;
     }
 
-    public function findDevisSoumiAvantForfait($numDevis)
+    public function findDevisSoumiAvantForfait($numDevis, string $codeSociete)
     {
         $qb = $this->createQueryBuilder('dev');
 
@@ -91,7 +97,9 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
         $orSoumisAvant = $qb
             ->where('dev.numeroDevis = :numDevis')
             ->andWhere('dev.montantForfait IS NOT NULL')
+            ->andWhere('dev.codeSociete = :codeSociete')
             ->setParameter('numDevis', $numDevis)
+            ->setParameter('codeSociete', $codeSociete)
             ->andWhere($qb->expr()->eq('dev.numeroVersion', '(' . $subquery . ')'))
             ->getQuery()
             ->getResult();
@@ -100,10 +108,10 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
     }
 
 
-    public function findDevisSoumiAvantMaxForfait($numDevis)
+    public function findDevisSoumiAvantMaxForfait($numDevis, string $codeSociete)
     {
-            // Étape 1: Récupérer la version maximale pour le numeroOR donné
-            $qbMax = $this->createQueryBuilder('dev2')
+        // Étape 1: Récupérer la version maximale pour le numeroOR donné
+        $qbMax = $this->createQueryBuilder('dev2')
             ->select('MAX(dev2.numeroVersion)')
             ->where('dev2.numeroDevis = :numDevis')
             ->setParameter('numDevis', $numDevis);
@@ -119,7 +127,9 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
         $qb = $this->createQueryBuilder('dev')
             ->where('dev.numeroDevis = :numDevis')
             ->andWhere('dev.montantForfait IS NOT NULL')
+            ->andWhere('dev.codeSociete = :codeSociete')
             ->andWhere('dev.numeroVersion = :previousVersion')
+            ->setParameter('codeSociete', $codeSociete)
             ->setParameter('numDevis', $numDevis)
             ->setParameter('previousVersion', $maxVersion - 1)  // Juste avant la version max
             ->getQuery()
@@ -129,28 +139,32 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
     }
 
 
-    public function findNumeroVersionMax($numDevis)
+    public function findNumeroVersionMax($numDevis, string $codeSociete)
     {
         $numeroVersionMax = $this->createQueryBuilder('dsv')
             ->select('MAX(dsv.numeroVersion)')
             ->where('dsv.numeroDevis = :numDevis')
+            ->andWhere('dsv.codeSociete = :codeSociete')
             ->andWhere('dsv.statut <> :statut')
             ->setParameter('numDevis', $numDevis)
+            ->setParameter('codeSociete', $codeSociete)
             ->setParameter('statut', 'erreur client interne')
             ->getQuery()
-            ->getSingleScalarResult(); 
-    
+            ->getSingleScalarResult();
+
         return $numeroVersionMax;
     }
 
-    public function findStatutDevis($numDit)
+    public function findStatutDevis($numDit, $codeSociete)
     {
         // Étape 1 : Récupérer le numeroVersion maximum
         try {
             $numeroVersionMax = $this->createQueryBuilder('dsv')
                 ->select('MAX(dsv.numeroVersion)')
                 ->where('dsv.numeroDit = :numDit')
+                ->andWhere('dsv.codeSociete = :codeSociete')
                 ->setParameter('numDit', $numDit)
+                ->setParameter('codeSociete', $codeSociete)
                 ->getQuery()
                 ->getSingleScalarResult();
         } catch (\Doctrine\ORM\NoResultException $e) {
@@ -167,7 +181,9 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
                 ->select('dsv.statut')
                 ->where('dsv.numeroDit = :numDit')
                 ->andWhere('dsv.numeroVersion = :numeroVersionMax')
+                ->andWhere('dsv.codeSociete = :codeSociete')
                 ->setParameters([
+                    'codeSociete' => $codeSociete,
                     'numeroVersionMax' => $numeroVersionMax,
                     'numDit' => $numDit,
                 ])
@@ -185,16 +201,20 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
      * Methode qui recupère tous les information du dernière devis soumis 
      *
      * @param string $numDit
+     * @param string $codeSociete
+     * 
      * @return void
      */
-    public function findInfoDevis(string $numDit)
+    public function findInfoDevis(string $numDit, string $codeSociete)
     {
         // Étape 1 : Récupérer le numeroVersion maximum
         try {
             $numeroVersionMax = $this->createQueryBuilder('dsv')
                 ->select('MAX(dsv.numeroVersion)')
                 ->where('dsv.numeroDit = :numDit')
+                ->andWhere('dsv.codeSociete = :codeSociete')
                 ->setParameter('numDit', $numDit)
+                ->setParameter('codeSociete', $codeSociete)
                 ->getQuery()
                 ->getSingleScalarResult();
         } catch (\Doctrine\ORM\NoResultException $e) {
@@ -210,12 +230,12 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
             $devis = $this->createQueryBuilder('dsv')
                 ->where('dsv.numeroDit = :numDit')
                 ->andWhere('dsv.numeroVersion = :numeroVersionMax')
-                ->andWhere('dsv.natureOperation = :natureOperation')
                 ->andWhere('dsv.statut = :statut')
+                ->andWhere('dsv.codeSociete = :codeSociete')
                 ->setParameters([
+                    'codeSociete' => $codeSociete,
                     'numeroVersionMax' => $numeroVersionMax,
                     'numDit' => $numDit,
-                    'natureOperation' => 'VTE',
                     'statut' => 'Validé atelier'
                 ])
                 ->getQuery()
@@ -227,27 +247,32 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
         }
     }
 
-    public function findDevisVpValide($numDevis) {
+    public function findDevisVpValide($numDevis, string $codeSociete)
+    {
         // Récupérer le numéro de version maximal pour le devis donné
         $numeroVersionMax = $this->createQueryBuilder('dsv')
             ->select('MAX(dsv.numeroVersion)')
             ->where('dsv.numeroDevis = :numDevis')
+            ->andWhere('dsv.codeSociete = :codeSociete')
             ->setParameter('numDevis', $numDevis)
+            ->setParameter('codeSociete', $codeSociete)
             ->getQuery()
             ->getSingleScalarResult();
-    
+
         // Si aucun numéro de version trouvé, retourner 0
         if ($numeroVersionMax === null) {
             return 0;
         }
-    
+
         // Compter le nombre de devis validés pour la version maximale
         return $this->createQueryBuilder('dsv')
             ->select('COUNT(dsv.id)') // Assurez-vous que 'id' est une clé unique dans votre entité
             ->Where('dsv.numeroDevis = :numDevis')
             ->andWhere('dsv.numeroVersion = :numVersion')
             ->andWhere('dsv.statut Like :statut')
+            ->andWhere('dsv.codeSociete = :codeSociete')
             ->setParameters([
+                'codeSociete' => $codeSociete,
                 'numVersion' => $numeroVersionMax,
                 'statut' => '%Validé%',
                 'numDevis' => $numDevis
@@ -255,15 +280,18 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
             ->getQuery()
             ->getSingleScalarResult();
     }
-    
-    public function findStatut($numDevis) {
+
+    public function findStatut($numDevis, string $codeSociete)
+    {
         // Récupérer le numéro de version maximal pour le devis donné
         $numeroVersionMax = $this->createQueryBuilder('dsv')
-        ->select('MAX(dsv.numeroVersion)')
-        ->where('dsv.numeroDevis = :numDevis')
-        ->setParameter('numDevis', $numDevis)
-        ->getQuery()
-        ->getSingleScalarResult();
+            ->select('MAX(dsv.numeroVersion)')
+            ->where('dsv.numeroDevis = :numDevis')
+            ->andWhere('dsv.codeSociete = :codeSociete')
+            ->setParameter('numDevis', $numDevis)
+            ->setParameter('codeSociete', $codeSociete)
+            ->getQuery()
+            ->getSingleScalarResult();
 
         // Si aucun numéro de version trouvé, retourner 0
         if ($numeroVersionMax === null) {
@@ -274,24 +302,27 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
             ->select('dsv.statut')
             ->where('dsv.numeroDevis = :numDevis')
             ->andWhere('dsv.numeroVersion = :numVersion')
+            ->andWhere('dsv.codeSociete = :codeSociete')
             ->setParameters([
+                'codeSociete' => $codeSociete,
                 'numVersion' => $numeroVersionMax,
                 'numDevis' => $numDevis
             ])
             ->getQuery()
-            ->getSingleColumnResult();
-        ;
+            ->getSingleColumnResult();;
     }
 
-    public function findNbrPieceMagasin($numDevis)
+    public function findNbrPieceMagasin($numDevis, string $codeSociete)
     {
         // Récupérer le numéro de version maximal pour le devis donné
         $numeroVersionMax = $this->createQueryBuilder('dsv')
-        ->select('MAX(dsv.numeroVersion)')
-        ->where('dsv.numeroDevis = :numDevis')
-        ->setParameter('numDevis', $numDevis)
-        ->getQuery()
-        ->getSingleScalarResult();
+            ->select('MAX(dsv.numeroVersion)')
+            ->where('dsv.numeroDevis = :numDevis')
+            ->andWhere('dsv.codeSociete = :codeSociete')
+            ->setParameter('numDevis', $numDevis)
+            ->setParameter('codeSociete', $codeSociete)
+            ->getQuery()
+            ->getSingleScalarResult();
 
         // Si aucun numéro de version trouvé, retourner 0
         if ($numeroVersionMax === null) {
@@ -302,29 +333,67 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
             ->select('DISTINCT dsv.nombreLignePiece')
             ->where('dsv.numeroDevis = :numDevis')
             ->andWhere('dsv.numeroVersion = :numVersion')
+            ->andWhere('dsv.codeSociete = :codeSociete')
             ->setParameters([
+                'codeSociete' => $codeSociete,
+                'numVersion' => $numeroVersionMax,
+                'numDevis' => $numDevis
+            ])
+            ->getQuery()
+            ->getSingleScalarResult();;
+    }
+
+    public function findVerificationPrimeSoumission($numDevis, string $codeSociete)
+    {
+        // Récupérer le numéro de version maximal pour le devis donné
+        $numeroVersionMax = $this->createQueryBuilder('dsv')
+            ->select('COUNT(dsv.numeroVersion)')
+            ->where('dsv.numeroDevis = :numDevis')
+            ->andWhere('dsv.codeSociete = :codeSociete')
+            ->setParameter('numDevis', $numDevis)
+            ->setParameter('codeSociete', $codeSociete)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        // Si aucun numéro de version trouvé, retourner 0
+        if ($numeroVersionMax === 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function findMontantItv(string $numDevis, string $codeSociete)
+    {
+        // Récupérer le numéro de version maximal pour le devis donné
+        $numeroVersionMax = $this->createQueryBuilder('dsv')
+            ->select('MAX(dsv.numeroVersion)')
+            ->where('dsv.numeroDevis = :numDevis')
+            ->andWhere('dsv.codeSociete = :codeSociete')
+            ->setParameter('numDevis', $numDevis)
+            ->setParameter('codeSociete', $codeSociete)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        // Si aucun numéro de version trouvé, retourner 0
+        if ($numeroVersionMax === null) {
+            return 0;
+        }
+
+        // Calculer la somme du montantItv pour la version maximale
+        $sommeMontantItv = $this->createQueryBuilder('dsv')
+            ->select('SUM(dsv.montantItv)')
+            ->where('dsv.numeroDevis = :numDevis')
+            ->andWhere('dsv.numeroVersion = :numVersion')
+            ->andWhere('dsv.codeSociete = :codeSociete')
+            ->setParameters([
+                'codeSociete' => $codeSociete,
                 'numVersion' => $numeroVersionMax,
                 'numDevis' => $numDevis
             ])
             ->getQuery()
             ->getSingleScalarResult();
-        ;
-    }
 
-    public function findVerificationPrimeSoumission($numDevis) {
-        // Récupérer le numéro de version maximal pour le devis donné
-        $numeroVersionMax = $this->createQueryBuilder('dsv')
-            ->select('MAX(dsv.numeroVersion)')
-            ->where('dsv.numeroDevis = :numDevis')
-            ->setParameter('numDevis', $numDevis)
-            ->getQuery()
-            ->getSingleScalarResult();
-    
-        // Si aucun numéro de version trouvé, retourner 0
-        if ($numeroVersionMax === null) {
-            return false;
-        } else {
-            return true;
-        }
+        return $sommeMontantItv ?? 0;
     }
 }

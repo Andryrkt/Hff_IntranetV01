@@ -100,6 +100,10 @@ CREATE TABLE cdefnr_soumis_a_validation (
     CONSTRAINT PK_cdefnr_soumis_a_validation PRIMARY KEY (id)
 );
 
+
+ALTER TABLE cdefnr_soumis_a_validation
+ADD est_facture bit
+
 INSERT INTO type_document(typeDocument, date_creation, date_modification, heure_creation, heure_modification, libelle_document)
 VALUES('CDEFRN', '2025-01-07', '2025-01-07', '10:32:16.6800000', '10:32:16.6800000', 'COMMANDE FOURNISSEUR')
 

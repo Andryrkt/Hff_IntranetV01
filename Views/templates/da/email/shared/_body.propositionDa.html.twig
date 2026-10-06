@@ -1,0 +1,65 @@
+<p>
+	Une nouvelle proposition a été créée par
+	<b>{{ fullNameUser }}</b>.
+</p>
+<p>
+	<b>Détails du demande :</b>
+	<ul>
+		<li>
+			<b>Numéro de la demande :</b>
+			{{ demandeAppro.numeroDemandeAppro }}
+		</li>
+		<li>
+			<b>Objet de la demande :</b>
+			{{ demandeAppro.objetDal }}
+		</li>
+		<li>
+			<b>Détail de la demande :</b>
+			<div class="espace">
+				{{ demandeAppro.detailDal|raw }}
+			</div>
+		</li>
+		<li>
+			<b>Observation:</b>
+			<div class="espace">{{ observation|raw }}</div>
+		</li>
+	</ul>
+</p>
+<hr>
+<p>Récap de la demande du service
+	{{ serviceDemandeur }}
+	avec les propositions du service APPRO (en orange).
+</p>
+
+<table>
+	<thead style="background-color:#D9E1F2;">
+		<tr>
+			<th rowspan="2" align="center" valign="middle">CST</th>
+			<th rowspan="2" align="center" valign="middle">REF</th>
+			<th rowspan="2" align="center" valign="middle">DESIGNATION</th>
+			<th rowspan="2" align="center" valign="middle">QTE</th>
+			<td colspan="{{ listeFournisseurs|length }}" align="center" style="font-weight:bold;">** FOURNISSEURS **</td>
+		</tr>
+		<tr>
+			{% for frn in listeFournisseurs %}
+				<th align="center">{{ frn }}</th>
+			{% endfor %}
+		</tr>
+	</thead>
+	<tbody>
+		{% for dal in preparedDatas %}
+			<tr>
+				<td>{{ dal.cst }}</td>
+				<td>{{ dal.ref }}</td>
+				<td>{{ dal.desi }}</td>
+				<td align="right">{{ dal.qte }}</td>
+				{% for frn in listeFournisseurs %}
+					{% set cell = fournisseurs[frn][dal.keyId]|default({}) %}
+					<td align="right" class="{{ cell.choix|default(false) ? 'choisi' : '' }}">
+						{{ cell.prix|default('') }}
+					</td>
+				{% endfor %}
+			</tr>
+		{% endfor %}
+	</tbody>
+</table><br><hr>

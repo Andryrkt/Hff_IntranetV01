@@ -1,0 +1,166 @@
+<?php
+
+namespace App\Controller\da\Creation;
+
+use App\Constants\admin\ApplicationConstant;
+use App\Constants\da\StatutDaConstant;
+use App\Controller\Controller;
+use App\Controller\Traits\da\creation\DaNewAchatTrait;
+use App\Entity\da\DemandeApproParent;
+use App\Entity\da\DemandeApproParentLine;
+use App\Form\da\DemandeApproAchatFormType;
+use App\Service\application\ApplicationService;
+use App\Service\da\FileUploaderForDAService;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
+
+/** @Route("/demande-appro") */
+class DaNewAchatController extends Controller
+{
+    use DaNewAchatTrait;
+    const STATUT_DAL = [
+        'enregistrerBrouillon' => StatutDaConstant::STATUT_EN_COURS_CREATION,
+        'soumissionAppro'      => StatutDaConstant::STATUT_SOUMIS_APPRO,
+    ];
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->initDaNewAchatTrait();
+    }
+
+    /**
+     * @Route("/new-da-achat/{id<\d+>}", name="da_new_achat")
+     */
+    public function newDaAchat(int $id, Request $request)
+    {
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
+        if ($id === 0) {
+            $demandeApproParent = $this->initialisationDemandeApproAchat($codeSociete);
+        } else {
+            $demandeApproParentRepository = $this->getEntityManager()->getRepository(DemandeApproParent::class);
+            $demandeApproParent = $demandeApproParentRepository->find($id);
+        }
+
+        $form = $this->getFormFactory()->createBuilder(DemandeApproAchatFormType::class, $demandeApproParent)->getForm();
+        $this->traitementFormAchat($form, $request);
+
+        return $this->render('da/new-da-achat.html.twig', [
+            'form'        => $form->createView(),
+            'codeCentrale' => $this->estAdmin() || $this->estEnergie(),
+        ]);
+    }
+
+    private function gererAgenceServiceDebiteur(DemandeApproParent $demandeApproParent)
+    {
+        $demandeApproParent
+            ->setAgenceDebiteur($demandeApproParent->getDebiteur()['agence'])
+            ->setServiceDebiteur($demandeApproParent->getDebiteur()['service'])
+            ->setAgenceServiceDebiteur($demandeApproParent->getAgenceDebiteur()->getCodeAgence() . '-' . $demandeApproParent->getServiceDebiteur()->getCodeService());
+    }
+
+    private function traitementFormAchat(FormInterface $form, Request $request): void
+    {
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var DemandeApproParent $demandeApproParent */
+            $demandeApproParent = $form->getData();
+
+            if ($demandeApproParent->getDateFinSouhaite() < new \DateTime()) {
+                $this->getSessionService()->set('notification', ['type' => 'error', 'message' => 'La date fin souhaitée ne peut pas être antérieure à la date du jour']);
+            } else {
+
+                $this->gererAgenceServiceDebiteur($demandeApproParent);
+
+                $firstCreation = $demandeApproParent->getNumeroDemandeAppro() === null;
+                $numDa = $firstCreation ? $this->autoDecrement(ApplicationConstant::CODE_DAP) : $demandeApproParent->getNumeroDemandeAppro();
+                $demandeApproParent->setNumeroDemandeAppro($numDa);
+                $formDemandeApproLines = $form->get('demandeApproParentLines');
+
+                $this->handleDetail($demandeApproParent);
+
+                // Récupérer le nom du bouton cliqué
+                $clickedButtonName = $this->getButtonName($request);
+                $demandeApproParent->setStatutDal(StatutDaConstant::STATUT_DAL[$clickedButtonName]);
+
+                foreach ($formDemandeApproLines as $subFormDapL) {
+                    /** @var DemandeApproParentLine $demandeApproParentLine */
+                    $demandeApproParentLine = $subFormDapL->getData();
+
+                    if ($demandeApproParentLine->isDeleted()) {
+                        $this->getEntityManager()->remove($demandeApproParentLine);
+                    } else {
+                        // Récupérer les données
+                        $filesToDelete = $subFormDapL->get('filesToDelete')->getData();
+                        $existingFileNames = $subFormDapL->get('existingFileNames')->getData();
+                        $newFiles = $subFormDapL->get('fileNames')->getData();
+
+                        // Supprimer les fichiers
+                        if ($filesToDelete) {
+                            $this->daFileUploader->deleteFiles(
+                                explode(',', $filesToDelete),
+                                $numDa
+                            );
+                        }
+
+                        // Gérer l'upload et obtenir la liste finale
+                        $allFileNames = $this->daFileUploader->handleFileUpload(
+                            $newFiles,
+                            $existingFileNames,
+                            $numDa,
+                            FileUploaderForDAService::FILE_TYPE["DEVIS"]
+                        );
+
+                        $demandeApproParentLine
+                            ->setNumeroDemandeAppro($numDa)
+                            ->setStatutDal(StatutDaConstant::STATUT_DAL[$clickedButtonName])
+                            ->setJoursDispo($this->getJoursRestants($demandeApproParentLine))
+                            ->setFileNames($allFileNames)
+                        ;
+
+                        $this->getEntityManager()->persist($demandeApproParentLine);
+                    }
+                }
+
+                // si c'est la première création, on met à jour la colonne dernière_id dans la table applications
+                if ($firstCreation) {
+                    /** Modifie la colonne dernière_id dans la table applications */
+                    $applicationService = new ApplicationService($this->getEntityManager());
+                    $applicationService->mettreAJourDerniereIdApplication('DAP', $numDa);
+                }
+
+                /** Ajout de demande appro dans la base de donnée (table: Demande_Appro) */
+                $this->getEntityManager()->persist($demandeApproParent);
+                $this->getEntityManager()->flush();
+
+                /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
+                if ($demandeApproParent->getObservation()) $this->insertionObservation($numDa, $demandeApproParent->getObservation());
+
+                // ajout des données dans la table DaAfficher
+                $this->ajouterDaDansTableAffichageParent($demandeApproParent, $firstCreation);
+
+                if ($clickedButtonName === "soumissionAppro") $this->emailDaService->envoyerMailCreationDaParent($demandeApproParent, $this->getUser());
+
+                $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
+                $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
+            }
+        }
+    }
+
+    private function handleDetail(DemandeApproParent $demandeApproParent): void
+    {
+        $detail = $demandeApproParent->getDetailDal();
+
+        // Normalise \r\n et \r isolés vers \n uniquement
+        $detail = preg_replace('/\r\n|\r/', "\n", $detail);
+
+        // réduire 3+ sauts de ligne consécutifs à seulement 2
+        $detail = preg_replace('/\n{3,}/', "\n\n", trim($detail));
+
+        $demandeApproParent->setDetailDal($detail);
+    }
+}

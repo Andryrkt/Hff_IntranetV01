@@ -125,11 +125,6 @@
 </div>
 {% endmacro %}
 
-{% macro affichage2(label, class = "", value = "", id = "") %}
-<label for="" class="mt-2">{{label}}</label>
-<div class="d-flex align-items-center {{ class }} border border-secondary border-1 rounded px-1 pt-1 bg-secondary-subtle fw-bold" style="min-height: 22px;" id="{{id}}">{{value}}</div>
-{% endmacro %}
-
 {% macro affichage3(label, class = "", value = "", id = "") %}
 <label for="" class="mt-2">{{label}}</label>
 <div class="d-flex align-items-center {{ class }} border border-secondary border-1 rounded bg-secondary-subtle fw-bold" style="min-height: 22px;" id="{{id}}">{{value}}</div>
@@ -142,6 +137,33 @@
 {% else %}
 <div class="d-flex align-items-center  border border-secondary border-1 rounded px-1 pt-1 bg-secondary-subtle fw-bold" style="min-height: 22px;" id="{{id}}"> -- </div>
 {% endif %}
+{% endmacro %}
+
+{% macro affichage2(label, value = "", class = "", style="", id = "") %}
+	<label for="" class="mt-2">{{label}}</label>
+	<div class="d-flex align-items-center {{ class }} div-disabled" id="{{id}}" style="{{style}}">
+		{{value}}
+	</div>
+{% endmacro %}
+
+{% macro affichageTextarea(label, value = "", class = "") %}
+	<label for="" class="mt-2">{{label}}</label>
+	<textarea class="d-flex align-items-center {{ class }} div-disabled w-100" style="pointer-events: auto;" rows="7" readonly>{{value}}</textarea>
+{% endmacro %}
+
+{% macro affichageSimple(value = "", class = "", attributes = {}) %}
+    <div class="{{ class }} div-disabled"
+        {% for name, val in attributes %}
+            {{ name }}="{{ val }}"
+        {% endfor %}>
+        {{ value }}
+    </div>
+{% endmacro %}
+
+{% macro affichageHTMLSimple(value = "", class = "", id = "") %}
+	<div class="d-flex align-items-center {{ class }}" id="{{id}}">
+		{{value | raw }}
+	</div>
 {% endmacro %}
 
 {% macro affichageHTML(label, value = "", id = "") %}
@@ -227,11 +249,9 @@
 {% endmacro %}
 
 {% macro agence_service_change(form_agence, form_service, spinner_service, service_container) %}
-    <div>
-	    {{ form_row(form_agence) }}
-	</div>
+    {{ form_row(form_agence) }}
     <div class="spinner-container">
-	    <label for="form_service">{{ form_label(form_service) }}</label><br>
+	    {{ form_label(form_service) }}
         <div class="spinner" id="{{spinner_service}}" style="display: none;">
             <div></div>
             <div></div>
@@ -247,7 +267,7 @@
             <div></div>
         </div>
     </div>
-    <div id="{{service_container}}">
+    <div id="{{service_container}}" class="mb-3">
 	    {{ form_widget(form_service) }}
     </div>
 {% endmacro %}

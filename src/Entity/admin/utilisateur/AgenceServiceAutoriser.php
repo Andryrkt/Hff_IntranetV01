@@ -11,7 +11,7 @@ use App\Repository\admin\utilisateur\AgenceServiceAutoriserRepository;
  * @ORM\Entity(repositoryClass=AgenceServiceAutoriserRepository::class)
  * @ORM\HasLifecycleCallbacks
  */
-class AgenceServiceAutoriser 
+class AgenceServiceAutoriser
 {
     /**
      * @ORM\Id
@@ -87,12 +87,11 @@ class AgenceServiceAutoriser
         return $this;
     }
 
-   /**
+    /**
      * @ORM\PrePersist
      */
     public function onPrePersist(): void
     {
         $this->Date_creation = new \DateTime();
     }
-
 }

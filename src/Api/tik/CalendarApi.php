@@ -6,7 +6,6 @@ use DateTime;
 use Exception;
 use App\Controller\Controller;
 use App\Entity\tik\TkiPlanning;
-use App\Entity\admin\utilisateur\User;
 use App\Entity\tik\DemandeSupportInformatique;
 use App\Entity\tik\TkiReplannification;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,18 +14,19 @@ use Symfony\Component\Routing\Annotation\Route;
 class CalendarApi extends Controller
 {
     /**
-     * @Route("/api/tik/calendar-fetch", name="calendar-fetch", methods={"GET", "POST"})
+     * @Route("/api/tik/calendar-fetch", name="api_calendar_fetch", methods={"GET", "POST"})
      */
     public function calendar(Request $request)
     {
         header("Content-type: application/json");
         // Vérifier si c'est une méthode GET
         if ($request->isMethod('GET')) {
-            $tab = $this->sessionService->get('tik_planning_search', []); // Pour le tri ou formulaire de recherche
-            $userId = $this->sessionService->get('user_id');
+            $tab = $this->getSessionService()->get('tik_planning_search', []); // Pour le tri ou formulaire de recherche
+            $userInfo = $this->getSessionService()->get('user_info');
+            $userId = $userInfo['id'];
 
             // Récupération des événements depuis la base de données
-            $events = self::$em->getRepository(TkiPlanning::class)->findByFilter($tab);
+            $events = $this->getEntityManager()->getRepository(TkiPlanning::class)->findByFilter($tab);
 
             // Transformation des données en tableau JSON
             $eventData = [];
@@ -82,19 +82,16 @@ class CalendarApi extends Controller
 
             // Validation des données
             if (isset($data['title'], $data['description'], $data['start'], $data['end'])) {
-
-                $userId = $this->sessionService->get('user_id');
-                $user = self::$em->getRepository(User::class)->find($userId);
                 // Création de l'événement
                 $event = new TkiPlanning();
                 $event->setObjetDemande($data['title']);
                 $event->setDetailDemande($data['description']);
                 $event->setDateDebutPlanning(new \DateTime($data['start']));
                 $event->setDateFinPlanning(new \DateTime($data['end']));
-                $event->setUser($user);
+                $event->setUser($this->getUser());
 
                 // Sauvegarde dans la base de données
-                $entityManager = self::$em;
+                $entityManager = $this->getEntityManager();
                 $entityManager->persist($event);
                 $entityManager->flush();
 
@@ -112,7 +109,7 @@ class CalendarApi extends Controller
     }
 
     /**  
-     * @Route("/api/tik/data/calendar/{id<\d+>}", name="planning_data")
+     * @Route("/api/tik/data/calendar/{id<\d+>}", name="api_planning_data")
      */
     public function replanifier($id, Request $request)
     {
@@ -126,7 +123,7 @@ class CalendarApi extends Controller
         /** 
          * @var TkiPlanning $planning l'entité de TkiPlanning correspondant à l'id $id
          */
-        $planning = self::$em->getRepository(TkiPlanning::class)->find($id);
+        $planning = $this->getEntityManager()->getRepository(TkiPlanning::class)->find($id);
 
         $demandeSupportInfo = $planning->getDemandeSupportInfo();
 
@@ -141,7 +138,7 @@ class CalendarApi extends Controller
             $this->saveReplannification($demandeSupportInfo, $planning, $dateDebut, $dateFin);
             $this->savePlanning($planning, $dateDebut, $dateFin);
 
-            self::$em->flush();
+            $this->getEntityManager()->flush();
 
             echo json_encode([
                 'status' => 'success',
@@ -174,7 +171,7 @@ class CalendarApi extends Controller
                 $i++;
             }
             if ($updated) {
-                self::$em->persist($supportInfo);
+                $this->getEntityManager()->persist($supportInfo);
             }
             return $i; // Retourne le nombre de modifications effectuées
         } catch (Exception $e) {
@@ -193,7 +190,7 @@ class CalendarApi extends Controller
                 ->setDateDebutPlanning($dateDebut)
                 ->setDateFinPlanning($dateFin);
 
-            self::$em->persist($planning);
+            $this->getEntityManager()->persist($planning);
         } catch (Exception $e) {
             throw new Exception("Erreur lors de la sauvegarde du planning: " . $e->getMessage());
         }
@@ -217,7 +214,7 @@ class CalendarApi extends Controller
                 ->setUser($planning->getUser())
                 ->setPlanning($planning);
 
-            self::$em->persist($replanification);
+            $this->getEntityManager()->persist($replanification);
         } catch (Exception $e) {
             throw new Exception("Erreur lors de la replanification: " . $e->getMessage());
         }

@@ -1,0 +1,27 @@
+services:
+  # Services utilitaires
+  App\Service\ExcelService:
+    public: true
+
+  App\Service\FusionPdf:
+    public: true
+
+  App\Service\SessionManagerService:
+    public: true
+
+  # Historique d'opération
+  App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService:
+    arguments:
+      - "@doctrine.orm.default_entity_manager"
+    public: true
+
+  App\Service\historiqueOperation\magasin\bc\HistoriqueOperationBcMagasinService:
+    arguments:
+      - "@doctrine.orm.default_entity_manager"
+    public: true
+
+  # Services de fichiers
+  App\Service\fichier\UploderFileService:
+    arguments:
+      $cheminDeBase: "%env(BASE_PATH_FICHIER)%/magasin/devis/"
+    public: true

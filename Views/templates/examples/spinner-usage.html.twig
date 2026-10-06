@@ -1,0 +1,233 @@
+{#
+  EXEMPLES D'UTILISATION DU COMPOSANT SPINNER RÉUTILISABLE
+  
+  Ce fichier montre différentes façons d'utiliser le composant spinner
+  dans vos templates Twig.
+#}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Exemples d'utilisation du Spinner</title>
+    <link rel="stylesheet" href="{{ asset('css/components/spinner.css') }}">
+</head>
+<body>
+
+<h1>Exemples d'utilisation du Spinner</h1>
+
+{# ========================================
+   EXEMPLE 1: Spinner basique
+   ======================================== #}
+<section>
+    <h2>1. Spinner basique</h2>
+    <p>Spinner simple avec les paramètres par défaut :</p>
+    
+    {% include 'components/spinner.html.twig' with {
+        'id': 'spinner-basic'
+    } %}
+    
+    <button onclick="SpinnerUtils.toggle('spinner-basic')">Toggle Spinner</button>
+</section>
+
+{# ========================================
+   EXEMPLE 2: Spinner avec différentes tailles
+   ======================================== #}
+<section>
+    <h2>2. Spinners avec différentes tailles</h2>
+    
+    <p>Petit :</p>
+    {% include 'components/spinner.html.twig' with {
+        'id': 'spinner-small',
+        'size': 'small',
+        'hidden': false
+    } %}
+    
+    <p>Moyen (défaut) :</p>
+    {% include 'components/spinner.html.twig' with {
+        'id': 'spinner-medium',
+        'size': 'medium',
+        'hidden': false
+    } %}
+    
+    <p>Grand :</p>
+    {% include 'components/spinner.html.twig' with {
+        'id': 'spinner-large',
+        'size': 'large',
+        'hidden': false
+    } %}
+</section>
+
+{# ========================================
+   EXEMPLE 3: Spinners avec différentes couleurs
+   ======================================== #}
+<section>
+    <h2>3. Spinners avec différentes couleurs</h2>
+    
+    <p>Couleurs disponibles :</p>
+    {% for color in ['primary', 'secondary', 'success', 'warning', 'danger', 'info'] %}
+        <p>{{ color|title }} :</p>
+        {% include 'components/spinner.html.twig' with {
+            'id': 'spinner-' ~ color,
+            'color': color,
+            'hidden': false
+        } %}
+    {% endfor %}
+</section>
+
+{# ========================================
+   EXEMPLE 4: Spinner dans un conteneur
+   ======================================== #}
+<section>
+    <h2>4. Spinner dans un conteneur</h2>
+    
+    <div class="spinner-container">
+        <div id="content-example">
+            <p>Ce contenu sera masqué quand le spinner s'affiche</p>
+            <button onclick="loadData()">Charger des données</button>
+        </div>
+        {% include 'components/spinner.html.twig' with {
+            'id': 'spinner-container',
+            'class': 'spinner-absolute'
+        } %}
+    </div>
+</section>
+
+{# ========================================
+   EXEMPLE 5: Spinner overlay plein écran
+   ======================================== #}
+<section>
+    <h2>5. Spinner overlay plein écran</h2>
+    
+    <button onclick="showOverlay()">Afficher overlay</button>
+    <button onclick="SpinnerUtils.removeOverlay('overlay-spinner')">Masquer overlay</button>
+</section>
+
+{# ========================================
+   EXEMPLE 6: Spinner avec AJAX
+   ======================================== #}
+<section>
+    <h2>6. Spinner avec requête AJAX</h2>
+    
+    <div id="ajax-content">
+        <p>Contenu initial</p>
+    </div>
+    
+    {% include 'components/spinner.html.twig' with {
+        'id': 'spinner-ajax'
+    } %}
+    
+    <button onclick="loadDataWithSpinner()">Charger avec spinner</button>
+</section>
+
+{# ========================================
+   EXEMPLE 7: Spinner dans un formulaire (comme votre cas d'usage)
+   ======================================== #}
+<section>
+    <h2>7. Spinner dans un formulaire (cas d'usage original)</h2>
+    
+    <form>
+        <div class="spinner-container">
+            <select id="agence-select" onchange="loadServices()">
+                <option value="">Sélectionner une agence</option>
+                <option value="1">Agence 1</option>
+                <option value="2">Agence 2</option>
+            </select>
+            
+            {% include 'components/spinner.html.twig' with {
+                'id': 'spinner-service-emetteur',
+                'size': 'small'
+            } %}
+        </div>
+        
+        <div id="service-container-emetteur">
+            <label for="service-select">Service :</label>
+            <select id="service-select">
+                <option value="">Sélectionner un service</option>
+            </select>
+        </div>
+    </form>
+</section>
+
+<script src="{{ asset('js/components/spinner.js') }}"></script>
+<script>
+// ========================================
+// EXEMPLES DE FONCTIONS JAVASCRIPT
+// ========================================
+
+function loadData() {
+    SpinnerUtils.show('spinner-container', {
+        hideContent: true,
+        contentSelector: '#content-example'
+    });
+    
+    // Simuler un chargement
+    setTimeout(() => {
+        SpinnerUtils.hide('spinner-container', {
+            showContent: true,
+            contentSelector: '#content-example'
+        });
+    }, 2000);
+}
+
+function showOverlay() {
+    SpinnerUtils.createOverlay('overlay-spinner', {
+        message: 'Chargement des données...',
+        color: 'primary',
+        size: 'large'
+    });
+    
+    // Masquer automatiquement après 3 secondes
+    setTimeout(() => {
+        SpinnerUtils.removeOverlay('overlay-spinner');
+    }, 3000);
+}
+
+async function loadDataWithSpinner() {
+    const ajaxFunction = async () => {
+        // Simuler une requête AJAX
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        document.getElementById('ajax-content').innerHTML = '<p>Données chargées !</p>';
+    };
+    
+    await SpinnerUtils.withSpinner('spinner-ajax', ajaxFunction, {
+        hideContent: true,
+        contentSelector: '#ajax-content',
+        showContent: true
+    });
+}
+
+function loadServices() {
+    const agenceId = document.getElementById('agence-select').value;
+    
+    if (!agenceId) {
+        document.getElementById('service-select').innerHTML = '<option value="">Sélectionner un service</option>';
+        return;
+    }
+    
+    SpinnerUtils.show('spinner-service-emetteur');
+    
+    // Simuler une requête AJAX pour charger les services
+    setTimeout(() => {
+        const services = [
+            { id: 1, name: 'Service A' },
+            { id: 2, name: 'Service B' },
+            { id: 3, name: 'Service C' }
+        ];
+        
+        const select = document.getElementById('service-select');
+        select.innerHTML = '<option value="">Sélectionner un service</option>';
+        
+        services.forEach(service => {
+            const option = document.createElement('option');
+            option.value = service.id;
+            option.textContent = service.name;
+            select.appendChild(option);
+        });
+        
+        SpinnerUtils.hide('spinner-service-emetteur');
+    }, 1500);
+}
+</script>
+
+</body>
+</html>

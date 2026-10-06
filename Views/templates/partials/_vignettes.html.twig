@@ -1,0 +1,55 @@
+{% import "partials/_menu_item.html.twig" as menu_item %}
+
+{% macro render_modal(item) %}
+	<div class="modal fade" id="{{ item.id }}" tabindex="-1" aria-labelledby="{{ item.id }}Label" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered modal-xl menu">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="{{ item.id }}Label">
+						<i class="{{ item.icon }} me-2"></i>
+						{{ item.title }}
+					</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div
+					class="modal-body">
+
+					{# Bootstrap calcule automatiquement le nombre de colonnes selon la taille #}
+					<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+						{% for subitem in item.items %}
+							<div class="col">
+								<ul class="list-group list-group-flush h-100">
+									{% if subitem.subitems is defined %}
+										{{ menu_item.render(subitem) }}
+										{% for subsubitem in subitem.subitems %}
+											{{ menu_item.render(subsubitem, true) }}
+										{% endfor %}
+									{% else %}
+										{{ menu_item.render(subitem) }}
+									{% endif %}
+								</ul>
+							</div>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endmacro %}
+
+<div class="grid-container">
+	{% for item in menuItems %}
+		<!-- Vignette -->
+		<div class="vignette" data-bs-toggle="modal" data-bs-target="#{{ item.id }}">
+			<div class="icon-container-bg">
+				<i class="{{ item.icon }}"></i>
+			</div>
+			<div class="vignette-content p-4">
+				<h4 class="vignette-title">{{ item.title }}</h4>
+			</div>
+		</div>
+
+		<!-- Modal -->
+		{{ _self.render_modal(item) }}
+	{% endfor %}
+</div>

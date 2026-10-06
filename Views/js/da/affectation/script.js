@@ -1,0 +1,254 @@
+import { AutoComplete } from "../../utils/AutoComplete";
+import { displayOverlay } from "../../utils/ui/overlay";
+import { getAllFournisseurs, getAllReferences } from "../data/fetchData";
+
+document.addEventListener("DOMContentLoaded", async function () {
+  const { data } = await getAllReferences();
+
+  setupRejectedCheckbox();
+  setupInputFormatters();
+  setupAutocompleteField(data);
+  confirmForm();
+});
+
+function setupInputFormatters() {
+  setupInputFormatter(".da-art-refp", 35);
+  setupInputFormatter(".da-art-desi", 35);
+  setupInputFormatter(".da-nom-frn", 50);
+}
+
+function setupInputFormatter(selector, maxLength) {
+  document.querySelectorAll(selector).forEach((input) => {
+    input.addEventListener("input", function () {
+      this.value = this.value.toUpperCase().slice(0, maxLength);
+    });
+  });
+}
+
+function setupRejectedCheckbox() {
+  document.querySelectorAll(".da-art-rejected").forEach((checkBox) => {
+    let fields = getRelatedFields(checkBox, true);
+    checkBox.addEventListener("change", function () {
+      fields.refp.required = !this.checked;
+    });
+  });
+}
+
+function getRelatedFields(element, checkForm = false) {
+  return {
+    refp: getInputLine(element, '[id$="_artRefp"]', checkForm),
+    articleStocke: getInputLine(element, '[id$="_articleStocke"]', checkForm),
+    desi: getInputLine(element, '[id$="_artDesi"]', checkForm),
+    constp: getInputLine(element, '[id$="_artConstp"]', checkForm),
+    prix: getInputLine(element, '[id$="_prixUnitaire"]', checkForm),
+    numFrn: getInputLine(element, '[id$="_numeroFournisseur"]', checkForm),
+    nomFrn: getInputLine(element, '[id$="_nomFournisseur"]', checkForm),
+  };
+}
+
+function getInputLine(el, selector, checkForm) {
+  if (checkForm)
+    return el.parentElement.parentElement.parentElement.querySelector(selector);
+  return el.parentElement.parentElement.querySelector(selector);
+}
+
+async function showReferenceNotFoundError() {
+  await Swal.fire({
+    icon: "error",
+    title: "Référence inexistante",
+    html: "La référence saisie n'existe pas pour la liste de constructeurs </br> (<b>'ALI', 'BOI', 'CEN', 'FBU', 'HAB', 'OUT', 'ZDI', 'CAR', 'INF', 'MIN'</b>)</br> Veuillez en saisir une dans la liste s'il vous plaît.",
+  });
+}
+
+function resetArticleFields(fields) {
+  fields.articleStocke.checked = false;
+  fields.refp.value = "";
+  fields.nomFrn.value = "";
+  fields.prix.value = "0";
+  fields.numFrn.value = "-";
+  fields.constp.value = "-";
+  fields.desi.classList.remove("non-modifiable");
+}
+
+function setupAutocompleteField(articleStockeList) {
+  document.querySelectorAll(".da-nom-frn").forEach((field) => {
+    let numeroFournisseur = getInputLine(field, '[id$="_numeroFournisseur"]');
+    let suggestionContainer = field.nextElementSibling;
+    let loaderElement = suggestionContainer.nextElementSibling;
+
+    new AutoComplete({
+      inputElement: field,
+      suggestionContainer: suggestionContainer,
+      loaderElement: loaderElement,
+      debounceDelay: 300,
+      fetchDataCallback: async () => {
+        const cache = JSON.parse(
+          localStorage.getItem("autocompleteCache") || "{}",
+        );
+
+        if (!cache.fournisseurs) {
+          const data = await getAllFournisseurs(); // fetch si cache vide
+          cache.fournisseurs = data;
+          console.log("préchargement fournisseurs OK");
+          localStorage.setItem("autocompleteCache", JSON.stringify(cache));
+          return data;
+        }
+
+        return cache.fournisseurs;
+      },
+      displayItemCallback: (item) =>
+        `N° Fournisseur: ${item.numerofournisseur} - Nom Fournisseur: ${item.nomfournisseur}`,
+      itemToStringCallback: (item) => `- ${item.nomfournisseur}`,
+      onSelectCallback: (item) => {
+        field.value = item.nomfournisseur;
+        numeroFournisseur.value = item.numerofournisseur;
+      },
+      itemToStringForBlur: (item) => item.nomfournisseur,
+      onBlurCallback: (found) => {
+        if (!found && field.value.trim() !== "") {
+          Swal.fire({
+            icon: "warning",
+            title: "Attention ! Fournisseur non trouvé !",
+            html: `Le fournisseur saisi n'existe pas, veuillez en sélectionner un dans la liste. Ou laisser vide car ce champ n'est pas obligatoire.`,
+            confirmButtonText: "OK",
+            customClass: {
+              htmlContainer: "swal-text-left",
+            },
+          }).then(() => {
+            field.focus();
+            field.value = "";
+            numeroFournisseur.value = "-";
+          });
+        }
+      },
+    });
+  });
+
+  document.querySelectorAll(".da-art-refp").forEach((refp) => {
+    let fields = getRelatedFields(refp);
+    let suggestionContainer = refp.nextElementSibling;
+    let loaderElement = suggestionContainer.nextElementSibling;
+
+    const div = document.querySelector(".text-start.div-disabled");
+    const designationInit = div.textContent;
+
+    if (fields.articleStocke.checked)
+      fields.desi.classList.add("non-modifiable");
+
+    new AutoComplete({
+      inputElement: refp,
+      suggestionContainer: suggestionContainer,
+      loaderElement: loaderElement,
+      debounceDelay: 150,
+      fetchDataCallback: async () => {
+        console.log(articleStockeList);
+
+        return articleStockeList;
+      },
+      displayItemCallback: (item) =>
+        `Référence: ${item.reference} - Fournisseur: ${item.nom_frn} <br>Désignation: ${item.desi}`,
+      itemToStringCallback: (item) => `${item.reference}`,
+      itemToStringForBlur: (item) => `${item.reference}`,
+      onBlurCallback: async (found) => {
+        if (!found && refp.value.trim() !== "") {
+          await showReferenceNotFoundError();
+          resetArticleFields({ ...fields, refp });
+          refp.focus();
+        }
+      },
+      onSelectCallback: (item) => {
+        let articleStocke = item.constp !== "ZDI" && item.constp !== "CAR";
+        refp.value = item.reference;
+        fields.articleStocke.checked = articleStocke;
+        fields.constp.value = item.constp;
+        // fields.desi.value = item.desi;
+        fields.prix.value = item.prix_unitaire;
+        if (articleStocke) {
+          fields.nomFrn.value = item.nom_frn; // changer le fournisseur si article stocké
+          fields.numFrn.value = item.num_frn; // changer le fournisseur si article stocké
+          fields.desi.classList.add("non-modifiable");
+          const prix = parseFloat(item.prix_unitaire);
+          if (!prix || prix <= 0) {
+            Swal.fire({
+              icon: "warning",
+              title: "Attention ! Prix unitaire non trouvé !",
+              html: `Merci de vérifier dans IPS car le PMP est à zéro pour cet article alors que ce dernier est géré en stock.`,
+              confirmButtonText: "OK",
+              customClass: {
+                htmlContainer: "swal-text-left",
+              },
+            });
+          }
+        } else {
+          fields.desi.classList.remove("non-modifiable");
+        }
+
+        if (item.constp === "ZDI") {
+          fields.desi.value = designationInit;
+        } else {
+          fields.desi.value = item.desi;
+        }
+      },
+    });
+  });
+}
+
+function confirmForm() {
+  const form = document.querySelector('form[name="da_affectation"]');
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    // Validation des articles stockés : bloquer si prix_unitaire est nul ou 0
+    const rows = document.querySelectorAll("tbody tr");
+    let errorMsg = "";
+
+    for (const row of rows) {
+      const articleStocke = row.querySelector('[id$="_articleStocke"]');
+      const prixUnitaire = row.querySelector('[id$="_prixUnitaire"]');
+      const refp = row.querySelector(".da-art-refp");
+
+      if (
+        articleStocke &&
+        articleStocke.checked &&
+        refp &&
+        refp.value.trim() !== ""
+      ) {
+        const prix = parseFloat(prixUnitaire.value);
+        if (!prix || prix <= 0) {
+          errorMsg = `L'article <b>${refp.value}</b> est géré en stock mais son prix unitaire (PMP) est à zéro ou non trouvé.<br><br>L'enregistrement est bloqué. Merci de vérifier dans IPS s'il vous plaît.`;
+          break;
+        }
+      }
+    }
+
+    if (errorMsg) {
+      Swal.fire({
+        icon: "warning",
+        title: "Action bloquée !",
+        html: errorMsg,
+        confirmButtonText: "OK",
+        customClass: {
+          htmlContainer: "swal-text-left",
+        },
+      });
+      return;
+    }
+
+    Swal.fire({
+      icon: "warning",
+      title: "Attention !",
+      html: `Voulez-vous vraiment enregistrer les affectations sur les lignes d'articles ?`,
+      showCancelButton: true,
+      confirmButtonText: "Oui, enregistrer",
+      cancelButtonText: "Non, annuler",
+      customClass: {
+        htmlContainer: "swal-text-left",
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        displayOverlay(true, "Enregistrement en cours ...");
+        form.submit();
+      }
+    });
+  });
+}

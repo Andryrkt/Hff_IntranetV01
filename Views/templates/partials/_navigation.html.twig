@@ -1,0 +1,104 @@
+{% set adminLinks = navigationAdmin() %}
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark navbar-dark sticky-top border-bottom" id="main-nav-bar">
+	<div
+		class="container-fluid mx-4">
+
+		<!-- Logo -->
+		<a class="navbar-brand ms-3" href="{{ path('profil_acceuil') }}">
+			<img src="{{ asset('build/images/logoHFF.jpg') }}" id="LogoHFF" alt="Logo HFF" style="height: 40px;">
+		</a>
+
+		<div class="chrono-container ms-5">
+			<div class="chrono-bar">
+				<div class="chrono-progress"></div>
+			</div>
+			<div class="chrono-text text-white" id="chrono-text">15:00</div>
+		</div>
+
+		<!-- Bouton burger -->
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+
+		<!-- Contenu -->
+		<div class="collapse navbar-collapse" id="mainNavbar">
+			<div
+				class="d-lg-flex justify-content-between w-100 align-items-center">
+
+				<!-- Menu utilisateur -->
+				<ul class="navbar-nav ms-lg-auto">
+					<li class="me-3">
+						<a class="app-version" href="{{ App.base_path_fichier }}/version/Versions Intranet 2026 07 17.pdf" target="_blank" role="button">
+							<i class="fas fas fa-tag"></i>
+							Version: V20260717.8.1.0
+						</a>
+					</li>
+					<li class="me-3">
+						<a class="guide-link" href="{{ App.base_path_fichier }}/documentation/Guide utilisateur intranet.pdf" target="_blank" role="button">
+							<i class="fas fa-info pe-2"></i>
+							Guide utilisateur intranet
+						</a>
+					</li>
+
+					{# Documentation Technique : visible uniquement si la route est accessible #}
+					{% if hasAcces('app_doc_tech_index') %}
+						<li class="me-3">
+							<a class="tech-doc-link" href="{{ path('app_doc_tech_index') }}" role="button">
+								<i class="fas fa-code pe-2"></i>
+								Documentation Technique
+							</a>
+						</li>
+					{% endif %}
+
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" id="userName" data-user-full-name="{{ App.connectedUser.fullname }}" aria-expanded="false" style="color: #fbbb01;">
+							<i class="fas fa-user pe-1"></i>
+							{{ App.connectedUser.lastname ~ '.' ~ App.connectedUser.firstname }}
+						</a>
+						<ul
+							class="dropdown-menu dropdown-menu-end">
+
+							{# Menu Administrateur : affiché uniquement si au moins un groupe est accessible #}
+							{% if adminLinks is not empty %}
+								<li class="dropstart">
+									<a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;">
+										<i class="fas fa-shield-alt pe-2"></i>
+										Administrateur
+									</a>
+									<ul class="dropdown-menu p-3" style="min-width: 720px;">
+										<div class="row g-3">
+											{% for groupe in adminLinks %}
+												<div class="col-md-4">
+													<li class="dropdown-header">
+														<i class="fa-solid {{ groupe.icon }} me-2"></i>
+														{{ groupe.header }}
+													</li>
+													{% for link in groupe.links %}
+														<li>
+															<a class="dropdown-item" href="{{ path(link.route) }}">
+																<i class="fa-solid {{ link.icon }} me-2"></i>
+																{{ link.label }}
+															</a>
+														</li>
+													{% endfor %}
+												</div>
+											{% endfor %}
+										</div>
+									</ul>
+								</li>
+							{% endif %}
+
+							<li>
+								<a class="dropdown-item text-danger" href="{{ path('auth_deconnexion') }}" id="logoutLink">
+									<i class="fas fa-power-off pe-2"></i>
+									Se déconnecter
+								</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</nav>

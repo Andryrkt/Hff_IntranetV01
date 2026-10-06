@@ -1,0 +1,137 @@
+.da-choice-menu {
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.da-choice-item {
+  display: flex;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  background: white;
+  border: 2px solid #dee2e6;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  color: #212529;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  width: 100%;
+}
+
+.da-choice-item:hover {
+  border-color: #fbbb01;
+  background: #fffbf0;
+  transform: translateX(7px);
+  box-shadow: 0 2px 8px rgba(251, 187, 1, 0.5);
+}
+
+.da-choice-parent {
+  background: #f8f9fa;
+  border-color: #bbc3cb;
+}
+
+.da-choice-parent:hover {
+  background: #fffbf0;
+  border-color: #fbbb01;
+}
+
+.da-choice-icon {
+  font-size: 2rem;
+  margin-right: 1.25rem;
+  min-width: 50px;
+  text-align: center;
+}
+
+.da-choice-icon .fa-layers.custom {
+  transform: scale(1.3);
+}
+
+.da-choice-label {
+  font-size: 1.1rem;
+  font-weight: 500;
+  flex: 1;
+  text-align: left;
+  color: #212529;
+}
+
+.da-choice-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.da-choice-submenu {
+  margin-top: 0.5rem;
+  margin-left: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.da-choice-subitem {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  background: white;
+  border: 2px solid #e9ecef;
+  border-left: 4px solid #fbbb01;
+  border-radius: 0.375rem;
+  text-decoration: none;
+  color: #212529;
+  transition: all 0.2s ease;
+}
+
+.da-choice-subitem:hover {
+  border-color: #fbbb01;
+  background: #fffbf0;
+  transform: translateX(5px);
+  box-shadow: 0 2px 6px rgba(251, 187, 1, 0.15);
+}
+
+.da-choice-subitem .da-choice-icon {
+  font-size: 1.5rem;
+  margin-right: 1rem;
+  min-width: 40px;
+}
+
+.da-choice-subitem .da-choice-label {
+  font-size: 1rem;
+}
+
+.collapse-icon {
+  font-size: 0.875rem;
+  transition: transform 0.2s ease;
+  color: #212529;
+}
+
+.da-choice-parent[aria-expanded="true"] .collapse-icon {
+  transform: rotate(180deg);
+}
+
+.da-choice-parent[aria-expanded="true"] {
+  background: #fffbf0;
+  border-color: #fbbb01;
+}
+
+/* Effet de focus pour l'accessibilité */
+.da-choice-item:focus,
+.da-choice-subitem:focus {
+  outline: 2px solid #fbbb01;
+  outline-offset: 2px;
+}
+
+/* Adaptation mobile */
+@media (max-width: 576px) {
+  .da-choice-submenu {
+    margin-left: 1rem;
+  }
+
+  .da-choice-item {
+    padding: 1rem;
+  }
+
+  .da-choice-label {
+    font-size: 1rem;
+  }
+}

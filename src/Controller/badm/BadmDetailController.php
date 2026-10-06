@@ -7,19 +7,18 @@ use App\Controller\Controller;
 use App\Model\badm\BadmDetailModel;
 use Symfony\Component\Routing\Annotation\Route;
 
-
+/**
+ * @Route("/materiel/mouvement-materiel")
+ */
 class BadmDetailController extends Controller
 {
 
     /**
-     * @Route("/detailBadm/{id}", name="BadmDetail_detailBadm")
+     * @Route("/detail/{id}", name="BadmDetail_detailBadm")
      */
     public function detailBadm($id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        $badm = self::$em->getRepository(Badm::class)->findOneBy(['id' => $id]);
+        $badm = $this->getEntityManager()->getRepository(Badm::class)->findOneBy(['id' => $id]);
 
         $badmDetailModel = new BadmDetailModel();
         $data = $badmDetailModel->findAll($badm->getIdMateriel());
@@ -28,7 +27,7 @@ class BadmDetailController extends Controller
             'id' => $id
         ]); // historisation du page visité par l'utilisateur
 
-        self::$twig->display(
+        return $this->render(
             'badm/detail.html.twig',
             [
                 'badm' => $badm,

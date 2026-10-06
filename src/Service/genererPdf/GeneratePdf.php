@@ -6,26 +6,55 @@ use TCPDF;
 
 class GeneratePdf
 {
-    private $baseCheminDuFichier;
-    private $baseCheminDocuware;
+    protected ?string $baseCheminDuFichier;
+    protected ?string $baseCheminDocuware;
 
-    public function __construct()
-    {
-        $this->baseCheminDuFichier = $_ENV['BASE_PATH_FICHIER'] . '/';
-        $this->baseCheminDocuware = $_ENV['BASE_PATH_DOCUWARE'].'/';
+    public function __construct(
+        ?string $baseCheminDuFichier = null,
+        ?string $baseCheminDocuware = null
+    ) {
+        // Injection de dépendances avec fallback sur les variables d'environnement
+        $this->baseCheminDuFichier = $baseCheminDuFichier ?? rtrim($_ENV['BASE_PATH_FICHIER'] ?? '', '/\\') . '/';
+        $this->baseCheminDocuware = $baseCheminDocuware ?? rtrim($_ENV['BASE_PATH_DOCUWARE'] ?? '', '/\\') . '/';
     }
 
-    private function copyFile(string $sourcePath, string $destinationPath): void
+    protected function copyFile(string $sourcePath, string $destinationPath): bool
     {
-        if (!file_exists($sourcePath)) {
-            throw new \Exception("Le fichier source n'existe pas : $sourcePath");
+        // Fonction interne pour tenter la copie
+        $attemptCopy = function ($attemptNumber) use ($sourcePath, $destinationPath) {
+            try {
+                $destinationDir = dirname($destinationPath);
+
+                if (!is_dir($destinationDir)) {
+                    mkdir($destinationDir, 0777, true);
+                }
+
+                if (!file_exists($sourcePath) || !copy($sourcePath, $destinationPath)) {
+                    return false;
+                }
+
+                // Vérification rapide
+                return file_exists($destinationPath) && filesize($destinationPath) > 0;
+            } catch (\Exception $e) {
+                return false;
+            }
+        };
+
+        // Première tentative
+        if ($attemptCopy(1)) {
+            echo "Fichier copié avec succès : $destinationPath\n";
+            return true;
         }
 
-        if (!copy($sourcePath, $destinationPath)) {
-            throw new \Exception("Impossible de copier le fichier : $sourcePath vers $destinationPath");
+        // Deuxième tentative après un court délai
+        usleep(50000); // 50ms
+        if ($attemptCopy(2)) {
+            echo "Fichier copié avec succès après retry : $destinationPath\n";
+            return true;
         }
 
-        echo "Fichier copié avec succès : $destinationPath\n";
+        error_log("Échec de copyFile après 2 tentatives : $sourcePath");
+        return false;
     }
 
 
@@ -43,16 +72,8 @@ class GeneratePdf
         }
     }
 
-    // ORDRE DE REPARATION (OR)
-    public function copyToDw($numeroVersion, $numeroOR, $suffix)
-    {
-        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/oRValidation_' . $numeroOR . '-' . $numeroVersion . '#'.$suffix.'.pdf';
-        $cheminDestinationLocal = $this->baseCheminDuFichier . 'vor/oRValidation_' . $numeroOR . '-' . $numeroVersion .'#'.$suffix. '.pdf';
-        copy($cheminDestinationLocal, $cheminFichierDistant);
-    }
 
-
-    // Facture
+    // Facture OR
     public function copyToDwFactureSoumis($numeroVersion, $numeroOR)
     {
         $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/factureValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
@@ -60,7 +81,7 @@ class GeneratePdf
         copy($cheminDestinationLocal, $cheminFichierDistant);
     }
 
-    
+
     public function copyToDwFacture($numeroVersion, $numeroDoc)
     {
         $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/validation_facture_client_' . $numeroDoc . '_' . $numeroVersion . '.pdf';
@@ -68,15 +89,14 @@ class GeneratePdf
         copy($cheminDestinationLocal, $cheminFichierDistant);
     }
 
-    
+
     public function copyToDwFactureFichier($numeroVersion, $numeroDoc, array $pathFichiers)
     {
-        for ($i=0; $i < count($pathFichiers); $i++) { 
-            $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/validation_facture_client_' . $numeroDoc . '_' . $numeroVersion .'_'.$i.'.pdf';
+        for ($i = 0; $i < count($pathFichiers); $i++) {
+            $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/facture_client_' . $numeroDoc . '_' . $numeroVersion . '_' . $i . '.pdf';
             $cheminDestinationLocal = $pathFichiers[$i];
-            copy($cheminDestinationLocal, $cheminFichierDistant);
+            $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
         }
-        
     }
 
     //Rapport d'intervention
@@ -84,7 +104,7 @@ class GeneratePdf
     {
         $cheminFichierDistant = $this->baseCheminDocuware . 'RAPPORT_INTERVENTION/RI_' . $numeroOR . '-' . $numeroVersion . '.pdf';
         $cheminDestinationLocal = $this->baseCheminDuFichier . 'vri/RI_' . $numeroOR . '-' . $numeroVersion . '.pdf'; // avec tiret 6
-        copy($cheminDestinationLocal, $cheminFichierDistant);
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
     public function copyToDWCdeSoumis($fileName)
@@ -98,7 +118,7 @@ class GeneratePdf
         }
     }
 
-    // devis
+    // devis DIT (atelier) - page de garde (fiche de controle)
     public function copyToDWDevisSoumis($fileName)
     {
         $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $fileName;
@@ -107,68 +127,154 @@ class GeneratePdf
     }
 
     public function copyToDWFichierDevisSoumis($fileName)
-    {   
-        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $fileName;
+    {
+        $cheminFichierDistant = $this->baseCheminDocuware . 'DEVIS ATELIER/' . $fileName;
         $cheminDestinationLocal = $this->baseCheminDuFichier . 'dit/dev/fichiers/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
     public function copyToDWFichierDevisSoumisVp($fileName)
-    {   
+    {
         $cheminFichierDistant = $this->baseCheminDocuware . 'VERIFICATION_PRIX/' . $fileName;
         $cheminDestinationLocal = $this->baseCheminDuFichier . 'dit/dev/fichiers/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
-    //bon de commande
+    //bon de commande DIT (atelier)
     public function copyToDWAcSoumis($fileName)
     {
-        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $fileName;
+        $cheminFichierDistant = $this->baseCheminDocuware . 'BC ATELIER/' . $fileName;
         $cheminDestinationLocal = $this->baseCheminDuFichier . 'dit/ac_bc/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
-    
+
     //commande fournisseur
     public function copyToDWCdeFnrSoumis($fileName)
     {
-        $cheminFichierDistant = $this->baseCheminDocuware. 'ORDRE_DE_MISSION/' . $fileName;
+        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $fileName;
         $cheminDestinationLocal = $this->baseCheminDuFichier . 'cde_fournisseur/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
 
     /** DEMANDE DE PAIEMENT */
-    public function copyToDwDdp(string $fileName)
+    public function copyToDwDdp(string $fileName, $numDdp)
     {
-        $cheminFichierDistant = $this->baseCheminDocuware. 'ORDRE_DE_MISSION/' . $fileName;
-        $cheminDestinationLocal = $this->baseCheminDuFichier . 'ddp/fichiers' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'ddp/' . $numDdp . '/' . $fileName;
+        $cheminFichierDistant = $this->baseCheminDocuware . 'DEMANDE_DE_PAIEMENT/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
-/**
- * Méthode pour ajouter un titre au PDF
- * 
- * @param TCPDF $pdf le pdf à générer
- * @param string $title le titre du pdf
- * @param string $font le style de la police pour le titre
- * @param string $style le font-weight du titre
- * @param int $size le font-size du titre
- * @param string $align l'alignement
- * @param int $lineBreak le retour à la ligne
- */
-protected function addTitle(TCPDF $pdf, string $title, string $font = 'helvetica', string $style = 'B', int $size = 10, string $align = 'L', int $lineBreak = 5)
-{
-    $pdf->setFont($font, $style, $size);
+    // demande appro DIRECT à valider
+    public function copyToDWDaAValiderDirect($numDa, string $suffix = "#_a_valider")
+    {
+        $cheminFichierDistant = $this->baseCheminDocuware . "DA DIRECTE/$numDa#_a_valider.pdf";
+        $cheminDestinationLocal = $this->baseCheminDuFichier . "da/$numDa/$numDa$suffix.pdf";
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+    }
 
-    // Calculer la largeur de la cellule en fonction de la page
-    $pageWidth = $pdf->getPageWidth() - $pdf->getMargins()['left'] - $pdf->getMargins()['right'];
+    // demande appro reappro mensuel à valider
+    public function copyToDWDaAValiderReapproMensuel($numDa, string $suffix = "#_a_valider")
+    {
+        $cheminFichierDistant = $this->baseCheminDocuware . "DA REAPPRO/$numDa#_a_valider.pdf";
+        $cheminDestinationLocal = $this->baseCheminDuFichier . "da/$numDa/$numDa$suffix.pdf";
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+    }
 
-    // Utiliser MultiCell pour gérer les titres longs
-    $pdf->MultiCell($pageWidth, 6, $title, 0, $align, false, 1, '', '', true);
+    // demande appro reappro ponctuel à valider
+    public function copyToDWDaAValiderReapproPonctuel($numDa, string $suffix = "#_a_valider")
+    {
+        $cheminFichierDistant = $this->baseCheminDocuware . "DA REAPPRO PONCTUEL/$numDa#_a_valider.pdf";
+        $cheminDestinationLocal = $this->baseCheminDuFichier . "da/$numDa/$numDa$suffix.pdf";
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+    }
 
-    // Ajouter un espace après le titre
-    $pdf->Ln($lineBreak, true);
-}
+    //bon de commande de demande appro
+    public function copyToDWBcDa($fileName, $numDa)
+    {
+        $cheminFichierDistant = $this->baseCheminDocuware . 'BC APPRO/' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'da/' . $numDa . '/' . $fileName;
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+    }
+
+
+    //facture et bl de demande appro
+    public function copyToDWFacBlDa($fileName, $numDa)
+    {
+        $cheminFichierDistant = $this->baseCheminDocuware . 'Facture_BL frns apppro/' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'da/' . $numDa . '/' . $fileName;
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+    }
+
+    //BAP de demande appro
+    public function copyToDWBapDa($fileNamePathBap, $fileNameForDw, string $typeDemande)
+    {
+        $dirTabs = [
+            'BAP' => "BON A PAYER",
+            'DPR' => "DEMANDE_DE_REGULARISATION"
+        ];
+        $dir = $dirTabs[$typeDemande] ?? "DEMANDE_DE_PAIEMENT";
+        $cheminFichierDistant = $this->baseCheminDocuware . "$dir/$fileNameForDw";
+        $cheminDestinationLocal = $fileNamePathBap;
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+    }
+
+    //bl reappro de demande appro
+    public function copyToDWBLReappro($fileName, $numDa)
+    {
+        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'da/' . $numDa . '/' . $fileName;
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+    }
+
+    // devis Magasin
+    public function copyToDWDevisMagasin($fileName, $numeroDevis)
+    {
+        $cheminFichierDistant = $this->baseCheminDocuware . 'DEVIS MAGASIN/' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'magasin/devis/' . $numeroDevis . '/' . $fileName;
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+    }
+
+    // BL - INTERNE FTU
+    public function copyToDWBlFutInterne($fileName)
+    {
+        $cheminFichierDistant = $this->baseCheminDocuware . 'BON DE SORTIE FTU/' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'bl/' . $fileName;
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+    }
+
+    //FACTURE -BL (clients) FTU
+    public function copyToDWBlFutFactureClient($fileName)
+    {
+        $cheminFichierDistant = $this->baseCheminDocuware . 'BONLIV EXTERNE MAGFTU/' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'bl/' . $fileName;
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+    }
+
+    /**
+     * Méthode pour ajouter un titre au PDF
+     * 
+     * @param TCPDF $pdf le pdf à générer
+     * @param string $title le titre du pdf
+     * @param string $font le style de la police pour le titre
+     * @param string $style le font-weight du titre
+     * @param int $size le font-size du titre
+     * @param string $align l'alignement
+     * @param int $lineBreak le retour à la ligne
+     */
+    protected function addTitle(TCPDF $pdf, string $title, string $font = 'helvetica', string $style = 'B', int $size = 10, string $align = 'L', int $lineBreak = 5)
+    {
+        $pdf->setFont($font, $style, $size);
+
+        // Calculer la largeur de la cellule en fonction de la page
+        $pageWidth = $pdf->getPageWidth() - $pdf->getMargins()['left'] - $pdf->getMargins()['right'];
+
+        // Utiliser MultiCell pour gérer les titres longs
+        $pdf->MultiCell($pageWidth, 6, $title, 0, $align, false, 1, '', '', true);
+
+        // Ajouter un espace après le titre
+        $pdf->Ln($lineBreak, true);
+    }
 
     /** 
      * Méthode pour ajouter des détails (sommaire) au PDF
@@ -252,5 +358,51 @@ protected function addTitle(TCPDF $pdf, string $title, string $font = 'helvetica
         // Afficher la ligne de séparation
         $pdf->Cell(0, 10, $line, 0, 1, 'C'); // Une cellule contenant la ligne
         //$pdf->Ln(5); // Ajouter un espacement en dessous de la ligne
+    }
+
+    protected function renderTextWithLine($pdf, $text, $totalWidth = 190, $lineOffset = 3, $font = 'helvetica', $fontStyle = 'B', $fontSize = 11, $textColor = [14, 65, 148], $lineColor = [14, 65, 148], $lineHeight = 1)
+    {
+        // Set font and text color
+        $pdf->setFont($font, $fontStyle, $fontSize);
+        $pdf->SetTextColor($textColor[0], $textColor[1], $textColor[2]);
+
+        // Calculate text width
+        $textWidth = $pdf->GetStringWidth($text);
+
+        // Add the text
+        $pdf->Cell($textWidth, 6, $text, 0, 0, 'L');
+
+        // Set fill color for the line
+        $pdf->SetFillColor($lineColor[0], $lineColor[1], $lineColor[2]);
+
+        // Calculate the remaining width for the line
+        $remainingWidth = $totalWidth - $textWidth - $lineOffset;
+
+        // Calculate the position for the line (next to the text)
+        $lineStartX = $pdf->GetX() + $lineOffset; // Add a small offset
+        $lineStartY = $pdf->GetY() + 3; // Adjust for alignment
+
+        // Draw the line
+        if ($remainingWidth > 0) { // Only draw if there is space left for the line
+            $pdf->Rect($lineStartX, $lineStartY, $remainingWidth, $lineHeight, 'F');
+        }
+
+        // Move to the next line
+        $pdf->Ln(6, true);
+    }
+
+    /**
+     * Convertit une chaîne UTF-8 en Windows-1252 pour les polices core TCPDF (Helvetica, Times, Courier).
+     * Sans cette conversion, les caractères spéciaux (°, é, à, etc.) s'affichent en "Â°", "Ã©", etc.
+     *
+     * @param string|null $text
+     * @return string
+     */
+    protected function txt(?string $text): string
+    {
+        if ($text === null || $text === '') {
+            return '';
+        }
+        return iconv('UTF-8', 'windows-1252//TRANSLIT//IGNORE', $text) ?: $text;
     }
 }

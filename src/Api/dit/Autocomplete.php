@@ -19,7 +19,7 @@ class Autocomplete extends Controller
     }
 
     /**
-     * @Route("/autocomplete/all-client", name="autocomplete_all_client")
+     * @Route("/api/autocomplete/all-client", name="api_autocomplete_all_client")
      */
     public function autocompleteAllClient()
     {

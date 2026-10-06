@@ -10,16 +10,16 @@ use Symfony\Component\Routing\Annotation\Route;
 class MutationApi extends Controller
 {
     /**
-     * @Route("/personnel-fetch-id/{personnelId}", name="fetch_personnel_id", methods={"GET"})
+     * @Route("/api/personnel-fetch-id/{personnelId}", name="api_fetch_personnel_id", methods={"GET"})
      *
      * @param [type] $personnelId
      * @return void
      */
     public function personnelFetchId($personnelId)
     {
-        $personne = self::$em->getRepository(Personnel::class)->find($personnelId);
+        $personne = $this->getEntityManager()->getRepository(Personnel::class)->find($personnelId);
         $matricule = $personne->getMatricule();
-        $numTel = self::$em->getRepository(Mutation::class)->findLastNumtel((string)$matricule);
+        $numTel = $this->getEntityManager()->getRepository(Mutation::class)->findLastNumtel((string)$matricule);
         $tab = [
             'compteBancaire' => $personne->getNumeroCompteBancaire(),
             'telephone' => $numTel

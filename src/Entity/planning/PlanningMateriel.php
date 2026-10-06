@@ -1,9 +1,12 @@
 <?php
+
 namespace App\Entity\planning;
 
 use App\Entity\admin\dit\WorNiveauUrgence;
 
-class PlanningMateriel{
+class PlanningMateriel
+{
+    private $commercial;
     private $codeSuc;
     private $libsuc;
     private $codeServ;
@@ -28,11 +31,11 @@ class PlanningMateriel{
     private $commentaire;
     private $plan;
     private $back;
-   
+
 
     /**
      * Get the value of codeSuc
-     */ 
+     */
     public function getCodeSuc()
     {
         return $this->codeSuc;
@@ -42,7 +45,7 @@ class PlanningMateriel{
      * Set the value of codeSuc
      *
      * @return  self
-     */ 
+     */
     public function setCodeSuc($codeSuc)
     {
         $this->codeSuc = $codeSuc;
@@ -52,7 +55,7 @@ class PlanningMateriel{
 
     /**
      * Get the value of libsuc
-     */ 
+     */
     public function getLibsuc()
     {
         return $this->libsuc;
@@ -62,7 +65,7 @@ class PlanningMateriel{
      * Set the value of libsuc
      *
      * @return  self
-     */ 
+     */
     public function setLibsuc($libsuc)
     {
         $this->libsuc = $libsuc;
@@ -72,7 +75,7 @@ class PlanningMateriel{
 
     /**
      * Get the value of codeServ
-     */ 
+     */
     public function getCodeServ()
     {
         return $this->codeServ;
@@ -82,7 +85,7 @@ class PlanningMateriel{
      * Set the value of codeServ
      *
      * @return  self
-     */ 
+     */
     public function setCodeServ($codeServ)
     {
         $this->codeServ = $codeServ;
@@ -92,7 +95,7 @@ class PlanningMateriel{
 
     /**
      * Get the value of libServ
-     */ 
+     */
     public function getLibServ()
     {
         return $this->libServ;
@@ -102,7 +105,7 @@ class PlanningMateriel{
      * Set the value of libServ
      *
      * @return  self
-     */ 
+     */
     public function setLibServ($libServ)
     {
         $this->libServ = $libServ;
@@ -112,7 +115,7 @@ class PlanningMateriel{
 
     /**
      * Get the value of idMat
-     */ 
+     */
     public function getIdMat()
     {
         return $this->idMat;
@@ -122,7 +125,7 @@ class PlanningMateriel{
      * Set the value of idMat
      *
      * @return  self
-     */ 
+     */
     public function setIdMat($idMat)
     {
         $this->idMat = $idMat;
@@ -132,7 +135,7 @@ class PlanningMateriel{
 
     /**
      * Get the value of marqueMat
-     */ 
+     */
     public function getMarqueMat()
     {
         return $this->marqueMat;
@@ -142,7 +145,7 @@ class PlanningMateriel{
      * Set the value of marqueMat
      *
      * @return  self
-     */ 
+     */
     public function setMarqueMat($marqueMat)
     {
         $this->marqueMat = $marqueMat;
@@ -152,7 +155,7 @@ class PlanningMateriel{
 
     /**
      * Get the value of typeMat
-     */ 
+     */
     public function getTypeMat()
     {
         return $this->typeMat;
@@ -162,7 +165,7 @@ class PlanningMateriel{
      * Set the value of typeMat
      *
      * @return  self
-     */ 
+     */
     public function setTypeMat($typeMat)
     {
         $this->typeMat = $typeMat;
@@ -172,7 +175,7 @@ class PlanningMateriel{
 
     /**
      * Get the value of numSerie
-     */ 
+     */
     public function getNumSerie()
     {
         return $this->numSerie;
@@ -182,7 +185,7 @@ class PlanningMateriel{
      * Set the value of numSerie
      *
      * @return  self
-     */ 
+     */
     public function setNumSerie($numSerie)
     {
         $this->numSerie = $numSerie;
@@ -192,7 +195,7 @@ class PlanningMateriel{
 
     /**
      * Get the value of numParc
-     */ 
+     */
     public function getNumParc()
     {
         return $this->numParc;
@@ -202,7 +205,7 @@ class PlanningMateriel{
      * Set the value of numParc
      *
      * @return  self
-     */ 
+     */
     public function setNumParc($numParc)
     {
         $this->numParc = $numParc;
@@ -212,7 +215,7 @@ class PlanningMateriel{
 
     /**
      * Get the value of casier
-     */ 
+     */
     public function getCasier()
     {
         return $this->casier;
@@ -222,7 +225,7 @@ class PlanningMateriel{
      * Set the value of casier
      *
      * @return  self
-     */ 
+     */
     public function setCasier($casier)
     {
         $this->casier = $casier;
@@ -232,7 +235,7 @@ class PlanningMateriel{
 
     /**
      * Get the value of annee
-     */ 
+     */
     public function getAnnee()
     {
         return $this->annee;
@@ -242,7 +245,7 @@ class PlanningMateriel{
      * Set the value of annee
      *
      * @return  self
-     */ 
+     */
     public function setAnnee($annee)
     {
         $this->annee = $annee;
@@ -252,7 +255,7 @@ class PlanningMateriel{
 
     /**
      * Get the value of mois
-     */ 
+     */
     public function getMois()
     {
         return $this->mois;
@@ -262,7 +265,7 @@ class PlanningMateriel{
      * Set the value of mois
      *
      * @return  self
-     */ 
+     */
     public function setMois($mois)
     {
         $this->mois = $mois;
@@ -272,7 +275,7 @@ class PlanningMateriel{
 
     /**
      * Get the value of orIntv
-     */ 
+     */
     public function getOrIntv()
     {
         return $this->orIntv;
@@ -282,7 +285,7 @@ class PlanningMateriel{
      * Set the value of orIntv
      *
      * @return  self
-     */ 
+     */
     public function setOrIntv($orIntv)
     {
         $this->orIntv = $orIntv;
@@ -292,9 +295,9 @@ class PlanningMateriel{
 
 
 
-     /**
+    /**
      * Get the value of qteCdm
-     */ 
+     */
     public function getQteCdm()
     {
         return $this->qteCdm;
@@ -304,7 +307,7 @@ class PlanningMateriel{
      * Set the value of qteCdm
      *
      * @return  self
-     */ 
+     */
     public function setQteCdm($qteCdm)
     {
         $this->qteCdm = $qteCdm;
@@ -314,7 +317,7 @@ class PlanningMateriel{
 
     /**
      * Get the value of qteliv
-     */ 
+     */
     public function getQteLiv()
     {
         return $this->qteLiv;
@@ -324,7 +327,7 @@ class PlanningMateriel{
      * Set the value of qteliv
      *
      * @return  self
-     */ 
+     */
     public function setQteLiv($qteLiv)
     {
         $this->qteLiv = $qteLiv;
@@ -332,9 +335,9 @@ class PlanningMateriel{
         return $this;
     }
 
-     /**
+    /**
      * Get the value of qteAll
-     */ 
+     */
     public function getQteAll()
     {
         return $this->qteAll;
@@ -344,15 +347,16 @@ class PlanningMateriel{
      * Set the value of qteAll
      *
      * @return  self
-     */ 
+     */
     public function setQteAll($qteAll)
     {
         $this->qteAll = $qteAll;
 
         return $this;
     }
-    
-    public function addMoisDetail($mois, $annee, $orIntv, $qteCdm, $qteLiv, $qteAll, $numDit, $migration, $commentaire, $back) {
+
+    public function addMoisDetail($mois, $annee, $orIntv, $qteCdm, $qteLiv, $qteAll, $numDit, $migration, $commentaire, $back)
+    {
         $this->moisDetails[] = [
             'mois' => $mois,
             'annee' => $annee,
@@ -366,11 +370,23 @@ class PlanningMateriel{
             'back' => $back
         ];
     }
-    
 
+    public function addMoisDetailMagasin($mois, $annee, $orIntv, $qteCdm, $qteLiv, $qteAll, $commentaire,$back)
+    {
+        $this->moisDetails[] = [
+            'mois' => $mois,
+            'annee' => $annee,
+            'orIntv' => $orIntv,
+            'qteCdm' => $qteCdm,
+            'qteLiv' => $qteLiv,
+            'qteAll' => $qteAll,
+            'commentaire' => $commentaire,
+            'back' => $back
+        ];
+    }
     /**
      * Get the value of moisDetails
-     */ 
+     */
     public function getMoisDetails()
     {
         return $this->moisDetails;
@@ -380,7 +396,7 @@ class PlanningMateriel{
      * Set the value of moisDetails
      *
      * @return  self
-     */ 
+     */
     public function setMoisDetails($moisDetails)
     {
         $this->moisDetails = $moisDetails;
@@ -390,7 +406,7 @@ class PlanningMateriel{
 
     /**
      * Get the value of numDit
-     */ 
+     */
     public function getNumDit()
     {
         return $this->numDit;
@@ -400,7 +416,7 @@ class PlanningMateriel{
      * Set the value of numDit
      *
      * @return  self
-     */ 
+     */
     public function setNumDit($numDit)
     {
         $this->numDit = $numDit;
@@ -410,7 +426,7 @@ class PlanningMateriel{
 
     /**
      * Get the value of migration
-     */ 
+     */
     public function getMigration()
     {
         return $this->migration;
@@ -420,7 +436,7 @@ class PlanningMateriel{
      * Set the value of migration
      *
      * @return  self
-     */ 
+     */
     public function setMigration($migration)
     {
         $this->migration = $migration;
@@ -430,7 +446,7 @@ class PlanningMateriel{
 
     /**
      * Get the value of pos
-     */ 
+     */
     public function getPos()
     {
         return $this->pos;
@@ -440,7 +456,7 @@ class PlanningMateriel{
      * Set the value of pos
      *
      * @return  self
-     */ 
+     */
     public function setPos($pos)
     {
         $this->pos = $pos;
@@ -450,7 +466,7 @@ class PlanningMateriel{
 
     /**
      * Get the value of numeroOr
-     */ 
+     */
     public function getNumeroOr()
     {
         return $this->numeroOr;
@@ -460,7 +476,7 @@ class PlanningMateriel{
      * Set the value of numeroOr
      *
      * @return  self
-     */ 
+     */
     public function setNumeroOr($numeroOr)
     {
         $this->numeroOr = $numeroOr;
@@ -470,7 +486,7 @@ class PlanningMateriel{
 
     /**
      * Get the value of commentaire
-     */ 
+     */
     public function getCommentaire()
     {
         return $this->commentaire;
@@ -480,7 +496,7 @@ class PlanningMateriel{
      * Set the value of commentaire
      *
      * @return  self
-     */ 
+     */
     public function setCommentaire($commentaire)
     {
         $this->commentaire = $commentaire;
@@ -490,7 +506,7 @@ class PlanningMateriel{
 
     /**
      * Get the value of plan
-     */ 
+     */
     public function getPlan()
     {
         return $this->plan;
@@ -500,7 +516,7 @@ class PlanningMateriel{
      * Set the value of plan
      *
      * @return  self
-     */ 
+     */
     public function setPlan($plan)
     {
         $this->plan = $plan;
@@ -510,7 +526,7 @@ class PlanningMateriel{
 
     /**
      * Get the value of back
-     */ 
+     */
     public function getBack()
     {
         return $this->back;
@@ -520,10 +536,28 @@ class PlanningMateriel{
      * Set the value of back
      *
      * @return  self
-     */ 
+     */
     public function setBack($back)
     {
         $this->back = $back;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of commercial
+     */
+    public function getCommercial()
+    {
+        return $this->commercial;
+    }
+
+    /**
+     * Set the value of commercial
+     */
+    public function setCommercial($commercial): self
+    {
+        $this->commercial = $commercial;
 
         return $this;
     }

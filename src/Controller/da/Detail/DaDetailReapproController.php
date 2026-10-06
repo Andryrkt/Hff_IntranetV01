@@ -1,0 +1,107 @@
+<?php
+
+namespace App\Controller\da\Detail;
+
+use App\Service\da\DaService;
+use App\Controller\Controller;
+use App\Entity\da\DaAfficher;
+use App\Entity\da\DemandeAppro;
+use App\Entity\da\DaObservation;
+use App\Repository\da\DaAfficherRepository;
+use App\Service\da\EmailDaService;
+use App\Form\da\DaObservationType;
+use App\Model\da\DaAfficherModel;
+use App\Service\da\DaTimelineService;
+use App\Service\da\DocRattacheService;
+use App\Service\Admin\UrlIdCipher;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
+
+/**
+ * @Route("/demande-appro")
+ */
+class DaDetailReapproController extends Controller
+{
+
+	private DaService $daService;
+	private DocRattacheService $docRattacheService;
+	private DaTimelineService $daTimelineService;
+	private UrlIdCipher $urlIdCipher;
+	private DaAfficherRepository $daAfficherRepository;
+
+	public function __construct(DaService $daService, DocRattacheService $docRattacheService, DaTimelineService $daTimelineService)
+	{
+		$this->daService = $daService;
+		$this->docRattacheService = $docRattacheService;
+		$this->daTimelineService = $daTimelineService;
+		$this->urlIdCipher = new UrlIdCipher;
+		$this->daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
+	}
+
+	/**
+	 * @Route("/detail-reappro/{token}", name="da_detail_reappro")
+	 */
+	public function detail(string $token, Request $request)
+	{
+		$id = $this->urlIdCipher->decryptInt($token);
+
+		if (empty($id) && $id !== 0) throw new ResourceNotFoundException();
+
+		$demandeAppro = $this->daService->getDemandeAppro($id); // recupération de la DA
+		$observations = $this->daService->getObservations($demandeAppro->getNumeroDemandeAppro());
+
+		$daObservation = new DaObservation;
+		$formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, ['daTypeId' => $demandeAppro->getDaTypeId()])->getForm();
+
+		$this->traitementFormulaire($formObservation, $request, $demandeAppro);
+
+		$fichiers = $this->docRattacheService->getAllAttachedFiles($demandeAppro);
+		$timeLineData = $this->daTimelineService->getTimelineData($demandeAppro);
+		$statutEtAction = (new DaAfficherModel)->getStatutEtActionAffichage($demandeAppro->getNumeroDemandeAppro(), "{$demandeAppro->getAgenceServiceEmetteur()} — {$demandeAppro->getDemandeur()}");
+		$resolvedSlug = $this->urlIdCipher->resolveSlugDemandeAppro($request->query->get('redirect'), $this->getUrlGenerator());
+
+		return $this->render('da/detail.html.twig', [
+			'detailTemplate'    => 'detail-reappro',
+			'urlRetour'         => $resolvedSlug['url'],
+			'titreBoutonRetour' => $resolvedSlug['title'],
+			'formObservation'	=> $formObservation->createView(),
+			'demandeAppro'      => $demandeAppro,
+			'isMensuel'         => $demandeAppro->getDaTypeId() == DemandeAppro::TYPE_DA_REAPPRO_MENSUEL,
+			'codeCentrale'      => $this->estAdmin() || $this->estEnergie(),
+			'observations'      => $observations,
+			'fichiers'          => $fichiers,
+			'timelineData'      => $timeLineData,
+			'connectedUser'     => $this->getUser(),
+			'statutDa'          => $statutEtAction['statutDa'],
+			'classStatutDa'    	=> $statutEtAction['classStatutDa'],
+			'action'      		=> $statutEtAction['action'],
+		]);
+	}
+
+	/** 
+	 * Traitement du formulaire
+	 */
+	private function traitementFormulaire($form, Request $request, DemandeAppro $demandeAppro)
+	{
+		$form->handleRequest($request);
+
+		if ($form->isSubmitted() && $form->isValid()) {
+			/** @var DaObservation $daObservation daObservation correspondant au donnée du form */
+			$daObservation = $form->getData();
+
+			$this->daService->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $this->getUserName(), $daObservation->getFileNames());
+
+			$notification = [
+				'type'    => 'success',
+				'message' => 'Votre observation a été enregistré avec succès.',
+			];
+
+			$emailDaService = new EmailDaService($this->getTwig(), $this->getUrlGenerator());
+			$emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estAppro());
+
+			$this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+			return $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
+		}
+	}
+}

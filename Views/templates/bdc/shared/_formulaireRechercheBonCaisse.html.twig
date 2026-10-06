@@ -1,0 +1,47 @@
+<div class="accordion" id="accordionBonCaisse">
+	<div class="accordion-item">
+		<h2 class="accordion-header">
+			<button class="accordion-button enteteAccordion" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBonCaisse" aria-expanded="true" aria-controls="collapseBonCaisse">
+				<i class="fas fa-search me-2"></i>
+				Recherche de bons de caisse
+			</button>
+		</h2>
+		<div id="collapseBonCaisse" class="accordion-collapse collapse" data-bs-parent="#accordionBonCaisse">
+			<div class="accordion-body">
+				{{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
+				<div class="row">
+					<div class="col-12 col-md-2">
+						{{ form_row(form.numeroDemande) }}
+						{{ form_row(form.caisseRetrait) }}
+					</div>
+					<div class="col-12 col-md-2">
+						{{ form_row(form.agenceEmetteur) }}
+						{{ form_row(form.serviceEmetteur) }}
+					</div>
+					<div class="col-12 col-md-2">
+						{{ form_row(form.agenceDebiteur) }}
+						{{ form_row(form.serviceDebiteur) }}
+					</div>
+					<div class="col-12 col-md-2">
+						{{ form_row(form.dateDemande) }}</div>
+					<div class="col-12 col-md-2">
+						{{ form_row(form.typePaiement) }}
+						{{ form_row(form.statutDemande) }}
+					</div>
+					<div class="col-12 col-md-2">
+						{{ form_row(form.retraitLie) }}
+						{{ form_row(form.nomValidateurFinal) }}
+					</div>
+				</div>
+
+				<div class="col-12 text-end">
+					<button type="submit" class="btn btn-sm btn-warning fw-bold">
+						<i class="fas fa-search me-1"></i>
+						Rechercher
+					</button>
+				</div>
+			</div>
+			{{ form_end(form) }}
+		</div>
+	</div>
+</div>

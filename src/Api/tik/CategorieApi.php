@@ -10,13 +10,13 @@ use Symfony\Component\Routing\Annotation\Route;
 class CategorieApi extends Controller
 {
     /**
-     * @Route("/api/sous-categorie-fetch/{id}", name="sous_categorie_fetch")
+     * @Route("/api/sous-categorie-fetch/{id}", name="api_sous_categorie_fetch")
      *
      * @return void
      */
     public function sousCategorie($id)
     {
-        $categorie = self::$em->getRepository(TkiCategorie::class)->find($id);
+        $categorie = $this->getEntityManager()->getRepository(TkiCategorie::class)->find($id);
 
         $sousCategorie = [];
         foreach ($categorie->getSousCategories() as $value) {
@@ -32,13 +32,13 @@ class CategorieApi extends Controller
     }
 
     /**
-     * @Route("/api/autres-categorie-fetch/{id}", name="autre_categorie_fetch")
+     * @Route("/api/autres-categorie-fetch/{id}", name="api_autre_categorie_fetch")
      *
      * @return void
      */
     public function autresCategorie($id)
     {
-        $sousCategorie = self::$em->getRepository(TkiSousCategorie::class)->find($id);
+        $sousCategorie = $this->getEntityManager()->getRepository(TkiSousCategorie::class)->find($id);
 
         $autreCategorie = [];
         foreach ($sousCategorie->getAutresCategories() as $value) {

@@ -36,6 +36,20 @@ class DocDemandePaiement
      */
     private ?string $nomFichier;
 
+    /**
+     * @ORM\Column(type="string", length=255, name="nom_dossier")
+     */
+    private ?string $nomDossier = null;
+
+    /**
+     * @ORM\Column(type="string", length=11, name="num_ddr")
+     */
+    private ?string $numDdr;
+     /**
+     * @ORM\Column(type="integer", name="numeroVersion")
+     */
+    private ?int $numeroVersion = 0;
+
     /**===========================================================================
      * GETTER & SETTER
      *
@@ -109,6 +123,66 @@ class DocDemandePaiement
     public function setNomFichier($nomFichier)
     {
         $this->nomFichier = $nomFichier;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of nomDossier
+     */ 
+    public function getNomDossier()
+    {
+        return $this->nomDossier;
+    }
+
+    /**
+     * Set the value of nomDossier
+     *
+     * @return  self
+     */ 
+    public function setNomDossier($nomDossier)
+    {
+        $this->nomDossier = $nomDossier;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numDdr
+     */ 
+    public function getNumDdr()
+    {
+        return $this->numDdr;
+    }
+
+    /**
+     * Set the value of numDdr
+     *
+     * @return  self
+     */ 
+    public function setNumDdr($numDdr)
+    {
+        $this->numDdr = $numDdr;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroVersion
+     */ 
+    public function getNumeroVersion()
+    {
+        return $this->numeroVersion;
+    }
+
+    /**
+     * Set the value of numeroVersion
+     *
+     * @return  self
+     */ 
+    public function setNumeroVersion($numeroVersion)
+    {
+        $this->numeroVersion = $numeroVersion;
 
         return $this;
     }

@@ -1,22 +1,22 @@
-import { initializeFileHandlers } from '../utils/file_upload_Utils.js';
-import { FetchManager } from '../api/FetchManager.js';
-import { AutoComplete } from '../utils/AutoComplete.js';
+import { initializeFileHandlers } from "../utils/file_upload_Utils.js";
+import { FetchManager } from "../api/FetchManager.js";
+import { AutoComplete } from "../utils/AutoComplete.js";
 const fetchManager = new FetchManager();
 /** ============================================
  * FICHIER BC AC
  *==================================================*/
-console.log('Bonjour');
-const fileInput = document.querySelector('#ac_soumis_pieceJoint01');
+console.log("Bonjour");
+const fileInput = document.querySelector("#ac_soumis_pieceJoint01");
 initializeFileHandlers(1, fileInput);
 
 /**=======================================
  * Methode pour l'autocomplet nom client
  *=======================================*/
-const nomClientInput = document.querySelector('#ac_soumis_nomClient');
-const suggestionContainer = document.querySelector('#suggestion');
+const nomClientInput = document.querySelector("#ac_soumis_nomClient");
+const suggestionContainer = document.querySelector("#suggestion");
 
 async function fetchClient() {
-  return await fetchManager.get('autocomplete/all-client');
+  return await fetchManager.get("api/autocomplete/all-client");
 }
 
 function displayClient(item) {
@@ -31,7 +31,7 @@ function onSelectClient(item) {
 new AutoComplete({
   inputElement: nomClientInput,
   suggestionContainer: suggestionContainer,
-  loaderElement: document.querySelector('#loader-num-fournisseur'), // Ajout du loader
+  loaderElement: document.querySelector("#loader-num-fournisseur"), // Ajout du loader
   debounceDelay: 300, // Délai en ms
   fetchDataCallback: fetchClient,
   displayItemCallback: displayClient,
@@ -54,7 +54,7 @@ new AutoComplete({
 //     }
 //   }
 
-//   const url = "/Hffintranet/autocomplete/all-client";
+//   const url = "/Hffintranet/api/autocomplete/all-client";
 //   preloadData(url); //recupérer les donner à partir de l'url
 
 //   const suggestionContainer = document.querySelector("#suggestion");

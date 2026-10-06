@@ -2,35 +2,27 @@
 
 namespace App\Controller\admin;
 
-
 use App\Controller\Controller;
+use App\Dto\admin\UserDTO;
+use App\Entity\admin\Agence;
+use App\Entity\admin\AgenceServiceIrium;
+use App\Entity\admin\Service;
+use App\Entity\admin\Societte;
+use App\Entity\admin\utilisateur\AgenceServiceDefautSociete;
 use App\Entity\admin\utilisateur\User;
+use App\Factory\admin\UserFactory;
 use App\Form\admin\utilisateur\UserType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-
 class UserController extends Controller
 {
-    private function transformIdEnObjetEntitySuperieur(array $data): array
+    private UserFactory $userFactory;
+
+    public function __construct(UserFactory $userFactory)
     {
-
-        $superieurs = [];
-        foreach ($data as  $values) {
-
-            foreach ($values->getSuperieurs() as  $value) {
-                if (empty($value)) {
-                    return $data;
-                } else {
-                    $superieurs[] = self::$em->getRepository(user::class)->find($value);
-                }
-            }
-            $values->setSuperieurs($superieurs);
-            $superieurs = [];
-        }
-        return $data;
+        $this->userFactory = $userFactory;
     }
-
 
     /**
      * @Route("/admin/utilisateur", name="utilisateur_index")
@@ -39,15 +31,24 @@ class UserController extends Controller
      */
     public function index()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
+        $data = $this->getEntityManager()->getRepository(User::class)->findBy([], ['id' => 'DESC']);
+        $preparedData = $this->prepareDataForListDisplay($data);
 
-        $data = self::$em->getRepository(User::class)->findBy([], ['id' => 'DESC']);
-        $data = $this->transformIdEnObjetEntitySuperieur($data);
+        return $this->render('admin/utilisateur/list.html.twig', [
+            'rows' => $preparedData
+        ]);
+    }
 
-        //$this->logUserVisit('utilisateur_index'); // historisation du page visité par l'utilisateur
+    /**
+     * @Route("/admin/utilisateur/show/{id}", name="utilisateur_show")
+     *
+     * @return void
+     */
+    public function show($id)
+    {
+        $data = $this->getEntityManager()->getRepository(User::class)->find($id);
 
-        self::$twig->display('admin/utilisateur/list.html.twig', [
+        return $this->render('admin/utilisateur/details.html.twig', [
             'data' => $data
         ]);
     }
@@ -57,55 +58,29 @@ class UserController extends Controller
      */
     public function new(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
+        $dto = new UserDTO();
 
-        $user = new User();
+        $profilIdAdmin = $this->getSecurityService()->getProfilId();
 
-        $form = self::$validator->createBuilder(UserType::class, $user)->getForm();
-
+        $form = $this->getFormFactory()->createBuilder(UserType::class, $dto, ['canSeeAll' => $profilIdAdmin === 98])->getForm();
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $utilisateur = $form->getData();
+            $utilisateur = $this->userFactory->createFromDto($dto);
 
-            $selectedApplications = $form->get('applications')->getData();
+            $agServDefSoc = $this->createAgenceServiceDefautSociete($utilisateur);
 
-            foreach ($selectedApplications as $application) {
-                $utilisateur->addApplication($application);
-            }
-
-            $selectedRoles = $form->get('roles')->getData();
-
-            foreach ($selectedRoles as $role) {
-                $utilisateur->addRole($role);
-            }
-
-            // Récupérer les IDs des supérieurs depuis le formulaire
-            $superieurEntities = $form->get('superieurs')->getData();
-
-            $superieurIds = array_map(function ($superieur) {
-                return $superieur->getId();
-            }, $superieurEntities);
-
-            // Mettre à jour les supérieurs de l'utilisateur
-            $user->setSuperieurs($superieurIds);
-            self::$em->persist($utilisateur);
-
-            self::$em->flush();
-
+            $this->getEntityManager()->persist($utilisateur);
+            $this->getEntityManager()->persist($agServDefSoc);
+            $this->getEntityManager()->flush();
 
             $this->redirectToRoute("utilisateur_index");
         }
 
-        //$this->logUserVisit('utilisateur_new'); // historisation du page visité par l'utilisateur
-
-        self::$twig->display('admin/utilisateur/new.html.twig', [
+        return $this->render('admin/utilisateur/new.html.twig', [
             'form' => $form->createView()
         ]);
     }
-
-
 
     /**
      * @Route("/admin/utilisateur/edit/{id}", name="utilisateur_update")
@@ -114,122 +89,82 @@ class UserController extends Controller
      */
     public function edit(Request $request, $id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        $user = self::$em->getRepository(User::class)->find($id);
-        // Conversion de l'utilisateur en objet s'il est en tableau
-        $user = $this->arrayToObjet($user);
-
-
-        $form = self::$validator->createBuilder(UserType::class, $user)->getForm();
-
+        $user = $this->getEntityManager()->getRepository(User::class)->find($id);
+        $profilIdAdmin = $this->getSecurityService()->getProfilId();
+        $dto = $this->userFactory->createDTOFromUser($user);
+        $form = $this->getFormFactory()->createBuilder(UserType::class, $dto, ['canSeeAll' => $profilIdAdmin === 98])->getForm();
         $form->handleRequest($request);
 
         // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
+            $this->userFactory->updateFromDTO($dto, $user);
 
-            if ($user->getSuperieurs() === null) {
-                $user->setSuperieurs([]);
-            }
-            // Récupérer les IDs des supérieurs depuis le formulaire
-            $superieurEntities = $form->get('superieurs')->getData();
-            $superieurIds = array_map(function ($superieur) {
-                return $superieur->getId();
-            }, $superieurEntities);
-
-            // Mettre à jour les supérieurs de l'utilisateur
-            $user->setSuperieurs($superieurIds);
-
-            self::$em->flush();
+            $this->getEntityManager()->flush();
             return $this->redirectToRoute("utilisateur_index");
         }
 
-        //$this->logUserVisit('utilisateur_update', ['id' => $id]); // historisation du page visité par l'utilisateur 
-
-        self::$twig->display('admin/utilisateur/edit.html.twig', [
+        return $this->render('admin/utilisateur/edit.html.twig', [
             'form' => $form->createView(),
         ]);
     }
 
-    /**
-     * @Route("/admin/utilisateur/delete/{id}", name="utilisateur_delete")
-     *
-     * @return void
+    /** 
+     * Fonction pour préparer les données avant de donner à twig
+     * @param  User[] $dataUsers
+     * @return array
      */
-    public function delete($id)
+    private function prepareDataForListDisplay(array $dataUsers): array
     {
-        // Vérification de la session utilisateur
-        $this->verifierSessionUtilisateur();
+        $rows = [];
+        $urlGenerator = $this->getUrlGenerator();
 
-        // Récupération de l'utilisateur
-        $user = self::$em->getRepository(User::class)->find($id);
+        foreach ($dataUsers as $user) {
+            $id = $user->getId();
+            $profils = $user->getProfils();
+            $agServDefSoc = $user->getAgenceServiceDefautSocietes();
 
-
-        // Supprimer les relations manuellement avant suppression
-        foreach ($user->getRoles() as $role) {
-            $user->removeRole($role);
+            /** @var AgenceServiceDefautSociete $entity */
+            foreach ($agServDefSoc as $entity) {
+                $rows[] = [
+                    'username'   => $user->getNomUtilisateur(),
+                    'matricule'  => $user->getMatricule(),
+                    'email'      => $user->getMail(),
+                    'codeSage'   => $entity->getCodeSage(),
+                    'agServ'     => "{$entity->getCodeAgence()} {$entity->getCodeService()}",
+                    'profils'    => $profils,
+                    'url_show'   => $urlGenerator->generate('utilisateur_show', ['id' => $id]),
+                    'url_edit'   => $urlGenerator->generate('utilisateur_update', ['id' => $id]),
+                ];
+            }
         }
 
-        foreach ($user->getApplications() as $application) {
-            $user->removeApplication($application);
-        }
-
-        foreach ($user->getAgencesAutorisees() as $agence) {
-            $user->removeAgenceAutorise($agence);
-        }
-
-        foreach ($user->getServiceAutoriser() as $service) {
-            $user->removeServiceAutoriser($service);
-        }
-
-        foreach ($user->getPermissions() as $permission) {
-            $user->removePermission($permission);
-        }
-
-        foreach ($user->getUserLoggers() as $logger) {
-            self::$em->remove($logger);
-        }
-
-        // foreach ($user->getCommentaireDitOrs() as $commentaire) {
-        //     self::$em->remove($commentaire);
-        // }
-
-        // foreach ($user->getSupportInfoUser() as $support) {
-        //     self::$em->remove($support);
-        // }
-
-        // foreach ($user->getTikPlanningUser() as $planning) {
-        //     self::$em->remove($planning);
-        // }
-
-        // Appliquer les modifications en base
-        self::$em->flush();
-
-        // Supprimer l'utilisateur
-        self::$em->remove($user);
-        self::$em->flush();
-
-        return $this->redirectToRoute("utilisateur_index");
+        return $rows;
     }
 
-
-    /**
-     * @Route("/admin/utilisateur/show/{id}", name="utilisateur_show")
-     *
-     * @return void
-     */
-    public function show($id)
+    private function createAgenceServiceDefautSociete(User $user): AgenceServiceDefautSociete
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
+        $agenceServiceDefautSociete = new AgenceServiceDefautSociete();
+        /** @var AgenceServiceIrium $agServIrium */
+        $agServIrium = $user->getAgenceServiceIrium();
 
-        $data = self::$em->getRepository(User::class)->find($id);
+        $codeAgence = $agServIrium->getAgenceips();
+        $codeService = $agServIrium->getServiceips();
+        $codeSociete = $agServIrium->getSocieteios();
 
-        //$this->logUserVisit('utilisateur_show', ['id' => $id]); // historisation du page visité par l'utilisateur 
+        $agence = $this->getEntityManager()->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAgence]);
+        $service = $this->getEntityManager()->getRepository(Service::class)->findOneBy(['codeService' => $codeService]);
+        $societe = $this->getEntityManager()->getRepository(Societte::class)->findOneBy(['codeSociete' => $codeSociete]);
 
-        self::$twig->display('admin/utilisateur/details.html.twig', [
-            'data' => $data
-        ]);
+        $agenceServiceDefautSociete
+            ->setUser($user)
+            ->setCodeSage($agServIrium->getServicesagepaie())
+            ->setCodeAgence($codeAgence)
+            ->setCodeService($codeService)
+            ->setCodeSociete($codeSociete)
+            ->setAgence($agence)
+            ->setService($service)
+            ->setSociete($societe);
+
+        return $agenceServiceDefautSociete;
     }
 }

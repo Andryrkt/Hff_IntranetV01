@@ -1,0 +1,20 @@
+# Configuration des formulaires
+# Fichier : config/services/services_form.yaml
+
+services:
+    # Formulaires - injection manuelle (configuration existante)
+    App\Form\:
+        resource: '../src/Form/*'
+        autowire: false
+        public: true
+
+    # Formulaires spécifiques avec configuration particulière
+    # App\Form\magasin\devis\DevisMagasinType:
+    #     arguments:
+    #         $options: ['validation_groups' => ['Default']]
+    #     public: true
+
+    # App\Form\dit\DevisDitType:
+    #     arguments:
+    #         $options: ['validation_groups' => ['Default', 'dit']]
+    #     public: true

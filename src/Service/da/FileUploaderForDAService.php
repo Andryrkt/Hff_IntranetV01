@@ -1,0 +1,117 @@
+<?php
+
+namespace App\Service\da;
+
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+
+class FileUploaderForDAService
+{
+    private string $basePath;
+    public const FILE_TYPE = [
+        "DEVIS"           => "devis_pj",
+        "FICHE_TECHNIQUE" => "fiche_technique",
+        "OBSERVATION"     => "observation_pj",
+    ];
+
+    public function __construct()
+    {
+        $this->basePath = rtrim($_ENV['BASE_PATH_FICHIER'], '/');
+    }
+
+    /**
+     * Déplace un fichier uploadé vers une destination
+     */
+    private function moveFile(UploadedFile $file, string $fileName, string $destination): void
+    {
+        if (!is_dir($destination) && !mkdir($destination, 0755, true)) {
+            throw new \RuntimeException(sprintf('Le répertoire "%s" n\'a pas pu être créé.', $destination));
+        }
+
+        try {
+            $file->move($destination, $fileName);
+        } catch (\Exception $e) {
+            throw new \RuntimeException('Erreur lors de l\'upload du fichier : ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Upload un fichier pour DA
+     * 
+     * @param UploadedFile $file               fichier à uploader
+     * @param string       $numeroDemandeAppro numéro de la Demande Appro
+     * @param string       $fileType           type du fichier joint (devis, fiche technique, PJ observation)
+     * 
+     * @return string le nom du fichier final
+     */
+    public function uploadDaFile(UploadedFile $file, string $numeroDemandeAppro, string $fileType): string
+    {
+        $destination = "{$this->basePath}/da/$numeroDemandeAppro/";
+        $extension = strtolower($file->guessExtension() ?? $file->getClientOriginalExtension());
+
+        do {
+            $fileName = sprintf('%s_%s.%s', $fileType, bin2hex(random_bytes(16)), $extension);
+        } while (file_exists($destination . $fileName));
+
+        $this->moveFile($file, $fileName, $destination);
+
+        return $fileName;
+    }
+
+    /**
+     * Upload multiple Da Files
+     * 
+     * @param UploadedFile[] $files              les fichiers à uploader
+     * @param string         $numeroDemandeAppro numéro de la Demande Appro
+     * @param string         $fileType           type du fichier joint (devis, fiche technique, PJ observation)
+     * 
+     * @return array tableau des noms de fichiers finals
+     */
+    public function uploadMultipleDaFiles(?array $files, string $numeroDemandeAppro, string $fileType): array
+    {
+        $fileNames = [];
+        if ($files !== null) {
+            foreach ($files as $file) {
+                if ($file instanceof UploadedFile) {
+                    $fileName = $this->uploadDaFile($file, $numeroDemandeAppro, $fileType); // Appel de la méthode pour uploader le fichier
+                } else {
+                    throw new \InvalidArgumentException('Le fichier doit être une instance de UploadedFile.');
+                }
+                $fileNames[] = $fileName; // Ajouter le nom du fichier dans le tableau
+            }
+        }
+        return $fileNames;
+    }
+
+    // FileUploaderForDAService.php
+    public function handleFileUpload(?array $newFiles, ?string $existingFiles, string $numeroDemandeAppro, string $fileType): array
+    {
+        $finalFileNames = [];
+
+        // 1. Ajouter les fichiers existants (s'ils sont fournis)
+        if ($existingFiles) {
+            $existingArray = explode(',', $existingFiles);
+            $finalFileNames = array_merge($finalFileNames, $existingArray);
+        }
+
+        // 2. Uploader les nouveaux fichiers
+        if ($newFiles) {
+            $uploadedFileNames = $this->uploadMultipleDaFiles($newFiles, $numeroDemandeAppro, $fileType);
+            $finalFileNames = array_merge($finalFileNames, $uploadedFileNames);
+        }
+
+        return $finalFileNames;
+    }
+
+    public function deleteFiles(array $fileNames, string $numeroDemandeAppro): void
+    {
+        $destination = "{$this->basePath}/da/$numeroDemandeAppro";
+
+        foreach ($fileNames as $fileName) {
+            if (empty($fileName)) continue;
+
+            $filePath = "$destination/$fileName";
+
+            if (file_exists($filePath)) unlink($filePath);
+        }
+    }
+}

@@ -7,7 +7,7 @@ use App\Entity\dom\Dom;
 use App\Entity\admin\Agence;
 use App\Entity\admin\dom\Rmq;
 use App\Entity\admin\Service;
-use App\Controller\Controller;
+use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\admin\dom\Catg;
 use App\Entity\admin\dom\Site;
 use App\Entity\admin\dom\Indemnite;
@@ -20,6 +20,7 @@ use App\Repository\admin\AgenceRepository;
 use App\Repository\admin\ServiceRepository;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotNull;
@@ -55,9 +56,9 @@ class DomForm2Type extends AbstractType
         'VIREMENT BANCAIRE' => 'VIREMENT BANCAIRE',
     ];
 
-    public function __construct()
+    public function __construct(EntityManagerInterface $em)
     {
-        $this->em = Controller::getEntity();
+        $this->em = $em;
     }
 
 
@@ -121,7 +122,6 @@ class DomForm2Type extends AbstractType
             ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
                 $form = $event->getForm();
                 $data = $event->getData();
-
 
                 $agenceId = $data['agence'];
 
@@ -478,6 +478,10 @@ class DomForm2Type extends AbstractType
                     ],
                 ]
             )
+            ->add('pieceJustificatif', CheckboxType::class, [
+                'label' => 'Pièce à justifier',
+                'required' => false,
+            ])
             ->add(
                 'client',
                 TextType::class,
@@ -550,7 +554,7 @@ class DomForm2Type extends AbstractType
                 'idemnityDepl',
                 TextType::class,
                 [
-                    'label' => 'Indemnité de déplacement',
+                    'label' => 'Indemnité de chantier',
                     'required' => false
                 ]
             )
@@ -560,7 +564,7 @@ class DomForm2Type extends AbstractType
                 TextType::class,
                 [
                     'mapped' => false,
-                    'label' => 'Total indemnité de déplacement',
+                    'label' => 'Total indemnité de chantier',
                     'attr' => [
                         'readonly' => true
                     ]

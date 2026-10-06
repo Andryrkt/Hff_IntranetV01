@@ -98,7 +98,7 @@ class Mutation
     private string $motifMutation;
 
     /**
-     * @ORM\Column(type="string", length=100, name="Client")
+     * @ORM\Column(type="string", length=100, name="Client", nullable=true)
      */
     private ?string $client = null;
 

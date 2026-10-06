@@ -6,17 +6,16 @@ use Doctrine\ORM\EntityRepository;
 
 class DitRiSoumisAValidationRepository extends EntityRepository
 {
-    public function findRiSoumis($numOr, $numDit)
+    public function findRiSoumis($numOr, string $codeSociete)
     {
         // Étape 2 : Utiliser le numeroVersionMax pour récupérer le statut
         $riSoumis = $this->createQueryBuilder('rsv')
-            ->select('rsv.numeroItv')
+            ->select('DISTINCT rsv.numeroItv')
             ->Where('rsv.numeroOR = :numOr')
-            ->andWhere('rsv.numeroDit = :numDit')
+            ->andWhere('rsv.codeSociete =:codeSociete')
             ->setParameters([
-
+                'codeSociete' => $codeSociete,
                 'numOr' => $numOr,
-                'numDit' => $numDit,
             ])
             ->getQuery()
             ->getArrayResult();

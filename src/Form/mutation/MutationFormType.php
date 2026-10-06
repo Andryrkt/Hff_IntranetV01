@@ -4,7 +4,7 @@ namespace App\Form\mutation;
 
 use App\Entity\admin\Agence;
 
-use App\Controller\Controller;
+use Doctrine\ORM\EntityManagerInterface;
 use App\Controller\Traits\FormatageTrait;
 use App\Entity\admin\dom\Catg;
 use App\Entity\admin\Personnel;
@@ -44,9 +44,9 @@ class MutationFormType extends AbstractType
         'NON' => 'NON',
     ];
 
-    public function __construct()
+    public function __construct(EntityManagerInterface $em)
     {
-        $this->em = Controller::getEntity();
+        $this->em = $em;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -115,7 +115,10 @@ class MutationFormType extends AbstractType
                     'class'         => Catg::class,
                     'choice_label'  => 'description',
                     'query_builder' => function (CatgRepository $catg) {
-                        return $catg->createQueryBuilder('c')->where('c.id <> 5')->orderBy('c.description', 'ASC');
+                        return $catg->createQueryBuilder('c')
+                            ->where('c.id NOT IN (:excluded)')
+                            ->setParameter('excluded', [5, 6, 7])
+                            ->orderBy('c.description', 'ASC');
                     }
                 ]
             )
@@ -143,7 +146,7 @@ class MutationFormType extends AbstractType
                 DateType::class,
                 [
                     'widget' => 'single_text',
-                    'label'  => 'Date fin de frais d\'installation',
+                    'label'  => 'Date fin frais / indemnité',
                 ]
             )
             ->add(
@@ -167,6 +170,7 @@ class MutationFormType extends AbstractType
                 TextType::class,
                 [
                     'label'       => 'Nom du client',
+                    'required'    => false,
                     'constraints' => [
                         new Length([
                             'min'        => 3,
@@ -209,7 +213,7 @@ class MutationFormType extends AbstractType
                 ChoiceType::class,
                 [
                     'mapped'  => false,
-                    'label'   => 'Frais d\'installation',
+                    'label'   => 'Frais d\'installation / Avances sur Indemnité',
                     'choices' => self::AVANCE_SUR_INDEMNITE
                 ]
             )

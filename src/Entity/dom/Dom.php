@@ -4,6 +4,7 @@ namespace App\Entity\dom;
 
 use DateTime;
 use App\Entity\admin\Agence;
+use App\Entity\admin\AgenceService;
 use App\Entity\admin\Service;
 use App\Entity\admin\dom\Catg;
 use App\Entity\admin\dom\Site;
@@ -179,6 +180,8 @@ class Dom
      */
     private ?string $totalGeneralPayer = null;
 
+    private ?string $totalDeplPlusAutres = null;
+
     /**
      * @ORM\Column(type="string", length=50, name="Mode_Paiement",nullable=true)
      */
@@ -347,7 +350,6 @@ class Dom
      */
     private  $serviceDebiteurId;
 
-
     /**
      * @ORM\ManyToOne(targetEntity=Site::class, inversedBy="domSite")
      * @ORM\JoinColumn(name="site_id", referencedColumnName="id")
@@ -358,14 +360,21 @@ class Dom
      * @ORM\ManyToOne(targetEntity=Catg::class, inversedBy="domCatg")
      * @ORM\JoinColumn(name="category_id", referencedColumnName="id")
      */
-    private  $categoryId;
-
-
-    private $codeAgenceAutoriser;
-
-    private $codeServiceAutoriser;
+    private  $categoryId = null;
 
     private $rmq;
+
+    private $statutTropPercuOk = false;
+
+    /**
+     * @ORM\Column(type="boolean", name="piece_justificatif")
+     */
+    private $pieceJustificatif = false;
+
+    /** 
+     * @ORM\Column(type="string", length=2, name="code_societe", nullable=true)
+     */
+    private $codeSociete;
 
     //======================================================================================================================================================
     public function getId()
@@ -973,12 +982,12 @@ class Dom
 
     public function getCategorie()
     {
-        return $this->categorie;
+        return $this->categoryId;
     }
 
     public function setCategorie($categorie): self
     {
-        $this->categorie = $categorie;
+        $this->categoryId = $categorie;
 
         return $this;
     }
@@ -1235,29 +1244,6 @@ class Dom
         return $this;
     }
 
-
-    public function getCodeAgenceAutoriser()
-    {
-        return $this->codeAgenceAutoriser;
-    }
-
-    public function setCodeAgenceAutoriser($codeAgenceAutoriser): self
-    {
-        $this->codeAgenceAutoriser = $codeAgenceAutoriser;
-        return $this;
-    }
-
-    public function getCodeSreviceAutoriser()
-    {
-        return $this->codeServiceAutoriser;
-    }
-
-    public function setCodeServiceAutoriser($codeServiceAutoriser): self
-    {
-        $this->codeServiceAutoriser = $codeServiceAutoriser;
-        return $this;
-    }
-
     public function getRmq()
     {
         return $this->rmq;
@@ -1272,14 +1258,92 @@ class Dom
     public function toArray(): array
     {
         return [
-
             'sousTypeDocument' => $this->sousTypeDocument,
-            'salarier' => $this->salarier,
-            'categorie' => $this->categorie,
-            'matricule' => $this->matricule,
-            'nom' => $this->nom,
-            'prenom' => $this->prenom,
-            'cin' => $this->cin
+            'salarier'         => $this->salarier,
+            'categoryId'       => $this->categoryId,
+            'matricule'        => $this->matricule,
+            'nom'              => $this->nom,
+            'prenom'           => $this->prenom,
+            'codeSociete'      => $this->codeSociete,
+            'cin'              => $this->cin
         ];
+    }
+
+    /**
+     * Get the value of statutTropPercuOk
+     */
+    public function getStatutTropPercuOk()
+    {
+        return $this->statutTropPercuOk;
+    }
+
+    /**
+     * Set the value of statutTropPercuOk
+     *
+     * @return  self
+     */
+    public function setStatutTropPercuOk($statutTropPercuOk)
+    {
+        $this->statutTropPercuOk = $statutTropPercuOk;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pieceJustificatif
+     */
+    public function getPieceJustificatif()
+    {
+        return $this->pieceJustificatif;
+    }
+
+    /**
+     * Set the value of pieceJustificatif
+     *
+     * @return  self
+     */
+    public function setPieceJustificatif($pieceJustificatif)
+    {
+        $this->pieceJustificatif = $pieceJustificatif;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of totalDeplPlusAutres
+     */
+    public function getTotalDeplPlusAutres()
+    {
+        return $this->totalDeplPlusAutres;
+    }
+
+    /**
+     * Set the value of totalDeplPlusAutres
+     *
+     * @return  self
+     */
+    public function setTotalDeplPlusAutres($totalDeplPlusAutres)
+    {
+        $this->totalDeplPlusAutres = $totalDeplPlusAutres;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of codeSociete
+     */
+    public function getCodeSociete()
+    {
+        return $this->codeSociete;
+    }
+
+    /**
+     * Set the value of codeSociete
+     */
+    public function setCodeSociete($codeSociete): self
+    {
+        $this->codeSociete = $codeSociete;
+
+        return $this;
     }
 }

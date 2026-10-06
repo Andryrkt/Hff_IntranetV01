@@ -76,6 +76,7 @@ class AcSoumisType extends AbstractType
             [
                 'label' => 'Date',
                 'data' => $options['data']->getDateCreation()->format('d/m/Y'),
+                'required' => false,
                 'attr' => [
                     'disabled' => true
                 ]
@@ -84,6 +85,7 @@ class AcSoumisType extends AbstractType
             [
                 'label' => 'N° devis',
                 'data' => $options['data']->getNumeroDevis(),
+                'required' => false,
                 'attr' => [
                     'disabled' => true
                 ]
@@ -92,6 +94,7 @@ class AcSoumisType extends AbstractType
             [
                 'label' => 'Statut devis',
                 'data' => $options['data']->getStatutDevis(),
+                'required' => false,
                 'attr' => [
                     'disabled' => true
                 ]
@@ -100,6 +103,7 @@ class AcSoumisType extends AbstractType
             [
                 'label' => 'N° DIT',
                 'data' => $options['data']->getNumeroDit(),
+                'required' => false,
                 'attr' => [
                     'disabled' => true
                 ]
@@ -108,6 +112,7 @@ class AcSoumisType extends AbstractType
             [
                 'label' => 'Date devis',
                 'data' => $options['data']->getDateDevis()->format('d/m/Y'),
+                'required' => false,
                 'attr' => [
                     'disabled' => true
                 ]
@@ -116,6 +121,7 @@ class AcSoumisType extends AbstractType
             [
                 'label' => 'Montant devis',
                 'data' => $this->formatNumber($options['data']->getMontantDevis()),
+                'required' => false,
                 'attr' => [
                     'disabled' => false
                 ]
@@ -124,6 +130,7 @@ class AcSoumisType extends AbstractType
             [
                 'label' => 'Adresse email contact HFF',
                 'data' => $options['data']->getEmailContactHff()?: 'L\'adresse email du chef atelier <réalisé_par> est introuvable',
+                'required' => false,
                 'attr' => [
                     'disabled' => true,
                     'class' => $options['data']->getEmailContactHff() ? '' : 'text-danger'
@@ -133,6 +140,7 @@ class AcSoumisType extends AbstractType
             [
                 'label' => 'N° téléphone contact HFF',
                 'data' => $options['data']->getTelephoneContactHff()?: 'Le téléphone du chef atelier <réalisé_par> est introuvable',
+                'required' => false,
                 'attr' => [
                     'disabled' => true,
                     'class' => $options['data']->getTelephoneContactHff() ? '' : 'text-danger'

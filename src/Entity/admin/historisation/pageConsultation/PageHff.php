@@ -2,17 +2,24 @@
 
 namespace App\Entity\admin\historisation\pageConsultation;
 
+use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\admin\Application;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use App\Entity\admin\utilisateur\ApplicationProfilPage;
 use App\Entity\admin\historisation\pageConsultation\UserLogger;
 use App\Repository\admin\historisation\pageConsultation\PageHffRepository;
 
 /** 
  * @ORM\Entity(repositoryClass=PageHffRepository::class)
  * @ORM\Table(name="Hff_pages")
+ * @ORM\HasLifecycleCallbacks()
  */
 class PageHff
 {
+    use DateTrait;
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -40,11 +47,23 @@ class PageHff
      */
     private $userLoggers;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Application::class, inversedBy="pages")
+     * @ORM\JoinColumn(name="application_id", referencedColumnName="id", nullable=true)
+     */
+    private ?Application $application = null;
+
+    /**
+     * @ORM\OneToMany(targetEntity=ApplicationProfilPage::class, mappedBy="page")
+     */
+    private Collection $applicationProfilPages;
+
     //===================================================================================================
 
     public function __construct()
     {
         $this->userLoggers = new ArrayCollection();
+        $this->applicationProfilPages = new ArrayCollection();
     }
 
     /**
@@ -155,6 +174,51 @@ class PageHff
     public function setUserLoggers($userLoggers)
     {
         $this->userLoggers = $userLoggers;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of application
+     */
+    public function getApplication(): ?Application
+    {
+        return $this->application;
+    }
+
+    /**
+     * Set the value of application
+     */
+    public function setApplication(?Application $application): self
+    {
+        $this->application = $application;
+
+        return $this;
+    }
+
+    public function getApplicationProfilPages(): Collection
+    {
+        return $this->applicationProfilPages;
+    }
+
+    public function addApplicationProfilPage(ApplicationProfilPage $applicationProfilPage): self
+    {
+        if (!$this->applicationProfilPages->contains($applicationProfilPage)) {
+            $this->applicationProfilPages[] = $applicationProfilPage;
+            $applicationProfilPage->setPage($this);
+        }
+
+        return $this;
+    }
+
+    public function removeApplicationProfilPage(ApplicationProfilPage $applicationProfilPage): self
+    {
+        if ($this->applicationProfilPages->contains($applicationProfilPage)) {
+            $this->applicationProfilPages->removeElement($applicationProfilPage);
+            if ($applicationProfilPage->getPage() === $this) {
+                $applicationProfilPage->setPage(null);
+            }
+        }
 
         return $this;
     }

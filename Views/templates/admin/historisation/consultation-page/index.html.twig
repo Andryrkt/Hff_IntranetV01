@@ -5,15 +5,17 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/admin/historisation/consultation-page/index.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v={{ App.browserHash }}">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/admin/historisation/consultation-page/index.css?v={{ App.browserHash }}">
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
 
+{% block breadCrumb %}{% endblock %}
+
 {% block content %}
 	<div class="position-sticky sticky-header">
-		<div class="container mt-4">
+		<div class="container my-4">
 			<h3 class="perso-titre">Historique des consultations de page</h3>
 
 			{% include "/admin/historisation/consultation-page/shared/_formulaireRecherche.html.twig" %}
@@ -63,5 +65,5 @@
 {% endblock %}
 
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/admin/historisation/consultation-page/index.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/admin/historisation/consultation-page/index.js?v={{ App.browserHash }}" type="module"></script>
 {% endblock %}

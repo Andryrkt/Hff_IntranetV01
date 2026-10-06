@@ -2,33 +2,24 @@
 
 namespace App\Form\dom;
 
-
 use App\Entity\dom\Dom;
-
-
-use App\Entity\admin\Agence;
-
 use App\Entity\admin\dom\Rmq;
-use App\Controller\Controller;
 use App\Entity\admin\dom\Catg;
 use App\Entity\admin\Personnel;
 use Doctrine\ORM\EntityRepository;
 use App\Entity\admin\dom\Indemnite;
 use Symfony\Component\Form\FormEvent;
-use App\Entity\admin\utilisateur\User;
 use Symfony\Component\Form\FormEvents;
+use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\admin\AgenceServiceIrium;
 use Symfony\Component\Form\AbstractType;
 use App\Entity\admin\dom\SousTypeDocument;
-use App\Repository\admin\dom\CatgRepository;
-use App\Repository\admin\dom\SousTypeDocumentRepository;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use App\Repository\admin\dom\SousTypeDocumentRepository;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
-
 
 class DomForm1Type extends AbstractType
 {
@@ -39,13 +30,13 @@ class DomForm1Type extends AbstractType
         'TEMPORAIRE' => 'TEMPORAIRE',
     ];
 
-    public function __construct()
+    public function __construct(EntityManagerInterface $em)
     {
-        $this->em = Controller::getEntity();
+        $this->em = $em;
     }
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-
         $builder
             ->add(
                 'agenceEmetteur',
@@ -60,7 +51,6 @@ class DomForm1Type extends AbstractType
                     'data' => $options["data"]->getAgenceEmetteur() ?? null
                 ]
             )
-
             ->add(
                 'serviceEmetteur',
                 TextType::class,
@@ -93,6 +83,12 @@ class DomForm1Type extends AbstractType
                 $data = $event->getData();
                 $sousTypedocument = $data->getSousTypeDocument();
 
+                // Vérifier que sousTypedocument n'est pas null
+                if (!$sousTypedocument) {
+                    return;
+                }
+
+
                 if (substr($data->getAgenceEmetteur(), 0, 2) === '50') {
                     $rmq = $this->em->getRepository(Rmq::class)->findOneBy(['description' => '50']);
                 } else {
@@ -109,20 +105,33 @@ class DomForm1Type extends AbstractType
                 $categories = [];
 
                 foreach ($catg as $value) {
-                    $categories[] = $this->em->getRepository(Catg::class)->find($value['id']);
+                    $category = $this->em->getRepository(Catg::class)->find($value['id']);
+                    if ($category) {
+                        $categories[] = $category;
+                    }
+                }
+
+                // Si aucune catégorie n'est disponible, rendre le champ non requis
+                $isRequired = $sousTypedocument->getId() == 2 && !empty($categories);
+
+                // Si aucune catégorie n'est disponible, ne pas ajouter le champ
+                if (empty($categories)) {
+                    return;
                 }
 
                 $form->add(
-                    'categorie',
+                    'categoryId',
                     EntityType::class,
                     [
                         'label' => 'Catégorie',
                         'class' => Catg::class,
                         'choice_label' => 'description',
-                        'query_builder' => function (CatgRepository $catg) {
-                            return $catg->createQueryBuilder('c')->orderBy('c.description', 'ASC');
-                        },
                         'choices' => $categories,
+                        'placeholder' => false,
+                        'required' => $isRequired,
+                        'empty_data' => null,
+                        'mapped' => true,
+                        'invalid_message' => 'Veuillez sélectionner une catégorie valide.',
                     ]
                 );
             })
@@ -130,8 +139,19 @@ class DomForm1Type extends AbstractType
                 $form = $event->getForm();
                 $data = $event->getData();
 
+                // Vérifier que les données nécessaires existent
+                if (!isset($data['sousTypeDocument']) || !isset($data['agenceEmetteur'])) {
+                    return;
+                }
+
+
                 $sousTypedocumentId = $data['sousTypeDocument'];
                 $sousTypedocument = $this->em->getRepository(SousTypeDocument::class)->find($sousTypedocumentId);
+
+                // Vérifier que sousTypedocument a été trouvé
+                if (!$sousTypedocument) {
+                    return;
+                }
 
                 if (substr($data['agenceEmetteur'], 0, 2) === '50') {
                     $rmq = $this->em->getRepository(Rmq::class)->findOneBy(['description' => '50']);
@@ -149,21 +169,33 @@ class DomForm1Type extends AbstractType
                 $categories = [];
 
                 foreach ($catg as $value) {
-                    $categories[] = $this->em->getRepository(Catg::class)->find($value['id']);
+                    $category = $this->em->getRepository(Catg::class)->find($value['id']);
+                    if ($category) {
+                        $categories[] = $category;
+                    }
                 }
 
+                // Si aucune catégorie n'est disponible, rendre le champ non requis
+                $isRequired = $sousTypedocument->getId() == 2 && !empty($categories);
+
+                // Si aucune catégorie n'est disponible, ne pas ajouter le champ
+                if (empty($categories)) {
+                    return;
+                }
 
                 $form->add(
-                    'categorie',
+                    'categoryId',
                     EntityType::class,
                     [
                         'label' => 'Catégorie',
                         'class' => Catg::class,
                         'choice_label' => 'description',
-                        'query_builder' => function (CatgRepository $catg) {
-                            return $catg->createQueryBuilder('c')->orderBy('c.description', 'ASC');
-                        },
                         'choices' => $categories,
+                        'placeholder' => false,
+                        'required' => $isRequired,
+                        'empty_data' => null,
+                        'mapped' => true,
+                        'invalid_message' => 'Veuillez sélectionner une catégorie valide.',
                     ]
                 );
             })
@@ -177,14 +209,11 @@ class DomForm1Type extends AbstractType
                     'data' => 'PERMANENT'
                 ]
             )
-
             ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($options) {
                 $form = $event->getForm();
-                $data = $event->getData();
 
                 // Récupération de l'ID du service agence irium
-                $agenceServiceIriumId = $this->em->getRepository(AgenceServiceIrium::class)
-                    ->findId($data->getCodeAgenceAutoriser(), $data->getCodeSreviceAutoriser());
+                $agenceServiceIriumId = $this->em->getRepository(AgenceServiceIrium::class)->findByAgenceServices($options['agenceServiceAutorisees'], $options['agenceCodeUser'], $options['serviceCodeUser']);
 
                 // Ajout du champ 'matriculeNom'
                 $form->add(
@@ -208,7 +237,6 @@ class DomForm1Type extends AbstractType
                     ]
                 );
             })
-
             ->add(
                 'matricule',
                 TextType::class,
@@ -242,6 +270,21 @@ class DomForm1Type extends AbstractType
                 [
                     'label' => 'CIN',
                     'required' => true,
+                ]
+            )
+            ->add(
+                'categoryId',
+                EntityType::class,
+                [
+                    'label' => 'Catégorie',
+                    'class' => Catg::class,
+                    'choice_label' => 'description',
+                    'choices' => [],
+                    'placeholder' => false,
+                    'required' => false,
+                    'empty_data' => null,
+                    'mapped' => true,
+                    'invalid_message' => 'Veuillez sélectionner une catégorie valide.',
                 ]
             )
         ;
@@ -280,13 +323,13 @@ class DomForm1Type extends AbstractType
         });
     }
 
-
-
-
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'data_class' => Dom::class,
+            'agenceCodeUser' => '',
+            'serviceCodeUser' => '',
+            'agenceServiceAutorisees' => [],
         ]);
     }
 }

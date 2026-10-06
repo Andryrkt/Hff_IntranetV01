@@ -1,0 +1,41 @@
+{% import "partials/_menu_item.html.twig" as menu_item %}
+
+{% macro render(item) %}
+<div class="modal fade" id="{{ item.id }}" tabindex="-1" aria-labelledby="{{ item.id }}Label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="{{ item.id }}Label">
+                    <i class="{{ item.icon }} me-2"></i>
+                    {{ item.title }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% set itemsPerColumn = 2 %}
+                {% set totalItems = item.items|length %}
+                {% set columnsNeeded = (totalItems / itemsPerColumn)|round(0, 'ceil') %}
+
+                <div class="row">
+                    {% for column in 1..columnsNeeded %}
+                        <div class="col-md-{{ 12 // columnsNeeded }}">
+                            <ul class="list-group list-group-flush">
+                                {% for subitem in item.items|slice((column - 1) * itemsPerColumn, itemsPerColumn) %}
+                                    {% if subitem.subitems is defined %}
+                                        {{ menu_item.render(subitem) }}
+                                        {% for subsubitem in subitem.subitems %}
+                                            {{ menu_item.render(subsubitem, true) }}
+                                        {% endfor %}
+                                    {% else %}
+                                        {{ menu_item.render(subitem) }}
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}

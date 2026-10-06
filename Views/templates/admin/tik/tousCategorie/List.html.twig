@@ -5,11 +5,13 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link href="{{ App.base_path }}/Views/css/tik/tousCategorie.css" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/partials/onglet.css?v={{ App.browserHash }}" rel="stylesheet"/>
 {% endblock %}
 
+{% block breadCrumb %}{% endblock %}
+
 {% block content %}
-	<div class="container-fluid mt-4">
+	<div class="container-fluid my-4">
 		<nav>
 			<div class="onglet-head nav nav-tabs mx-2" id="nav-tab" role="tablist">
 				<button class="nav-link" id="nav-categorie-tab" data-bs-toggle="tab" data-bs-target="#nav-categorie" type="button" role="tab" aria-controls="nav-categorie">Catégories</button>
@@ -192,5 +194,5 @@
 {% endblock %}
 
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/tik/tousCategorie.js"></script>
+	<script src="{{ App.base_path }}/Views/js/tik/tousCategorie.js?v={{ App.browserHash }}"></script>
 {% endblock %}

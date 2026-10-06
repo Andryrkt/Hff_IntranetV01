@@ -1,0 +1,178 @@
+<?php
+
+namespace App\Form\da;
+
+use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDto;
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\Validator\Constraints\Callback;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Symfony\Component\Form\CallbackTransformer;
+
+class DaSoumissionFacBlType extends AbstractType
+{
+    public function buildForm(FormBuilderInterface $builder, array $options)
+    {
+        // dd($options['data']);
+        $numLivs = $options['data']->numLiv;
+
+        $builder
+            ->add('typeDdp', ChoiceType::class, [
+                'choices' => [
+                    // ? réinsérer le choix "ne pas générer" selon Hoby le 22/07/2026
+                    'Ne pas générer une demande de paiement'     => 'aucun', // ! enlever ce choix selon Hoby le 29/05/2026
+                    'BAP (Bon a Payer)'                          => 'bap',
+                    'DDPL (Demande De Paiement après Livraison)' => 'ddpl',
+                    'Régularisation'                             => 'regul'
+                ],
+                'choice_attr' => function ($choice, $key, $value) use ($options) {
+                    $attr = [];
+                    if (in_array($choice, ['bap', 'ddpl']) && $options['data']->estRegule) {
+                        $attr['disabled'] = 'disabled';
+                    }
+                    if ($choice === 'regul' && !$options['data']->estRegule) {
+                        $attr['disabled'] = 'disabled';
+                    }
+                    $attr['data-field-name'] = 'Type de traitement de paiement';
+                    return $attr;
+                },
+                'placeholder' => false,
+                'label' => "Veuillez choisir le type de traitement de <strong>paiement</strong> pour cette facture",
+                'label_html' => true,
+                'expanded' => true,
+                'multiple' => false,
+                'required' => true,
+                'data' => $options['data']->estRegule ? 'regul' : 'ddpl',
+            ])
+            ->add('numeroCde', TextType::class, [
+                'label' => 'Numéro Commande',
+                'attr'  => [
+                    'class' => 'div-disabled',
+                ]
+            ])
+            ->add('numLiv', ChoiceType::class, [
+                'label'       => 'Numéro de livraison IPS (*)',
+                'placeholder' => '-- Choisir un numéro de livraison --',
+                'choices'     => array_combine($numLivs, $numLivs),
+                'attr'        => [
+                    'class'           => count($numLivs) === 1 ? 'div-disabled' : '',
+                    'data-field-name' => 'Numéro de livraison IPS',
+                ],
+                'data'        => count($numLivs) === 1 ? $numLivs[0] : null,
+            ])
+            ->add('dateBlFac', DateType::class, [
+                'widget' => 'single_text',
+                'label'  => 'Date BL facture fournisseur (*)',
+                'attr'   => ['data-field-name' => 'Date BL facture fournisseur']
+            ])
+            ->add('montantBlFacture', TextType::class, [
+                'label' => 'Montant HT du BL facture fournisseur (*)',
+                'required' => $options['data']->estRegule ? false : true,
+                'data' => 0,
+                'attr' => [
+                    'data-field-name' => 'du Montant HT du BL facture fournisseur',
+                    // 'disabled' => $options['data']->estRegule ? true : false,
+                ],
+            ])
+            ->add(
+                'pieceJoint1',
+                FileType::class,
+                [
+                    'label' => 'FacBl à soumettre',
+                    'attr' => ['data-field-name' => 'pour soumettre la Facture / BL'],
+                    'required' => true,
+                    'constraints' => [
+                        new File([
+                            'maxSize' => '5M',
+                            'mimeTypes' => [
+                                'application/pdf',
+                                // 'image/jpeg',
+                                // 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                                // 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                            ],
+                            'mimeTypesMessage' => 'Please upload a valid PDF file.',
+                        ])
+                    ],
+                ]
+            )
+            ->add(
+                'pieceJoint2',
+                FileType::class,
+                [
+                    'label'       => 'Pièces Jointes',
+                    'required'    => false,
+                    'multiple'    => true,
+                    'data_class'  => null,
+                    'mapped'      => true,
+                    'constraints' => [
+                        new Callback([$this, 'validateFiles']),
+                    ],
+                ]
+            )
+        ;
+
+        $builder->get('montantBlFacture')
+            ->addModelTransformer(new CallbackTransformer(
+                function ($montantAsFloat) {
+                    if ($montantAsFloat === null) {
+                        return '';
+                    }
+                    return number_format((float) $montantAsFloat, 2, ',', ' ');
+                },
+                function ($montantAsString) {
+                    if ($montantAsString === null || $montantAsString === '') {
+                        return 0.0;
+                    }
+                    $montantClean = str_replace([' ', ','], ['', '.'], (string) $montantAsString);
+                    return (float) $montantClean;
+                }
+            ));
+    }
+
+    public function validateFiles($files, ExecutionContextInterface $context)
+    {
+        $maxSize = '5M';
+        $mimeTypes = [
+            'application/pdf',
+            'image/jpeg',
+            'image/png',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/vnd.ms-powerpoint',
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        ];
+
+        if ($files) {
+            foreach ($files as $file) {
+                $fileConstraint = new File([
+                    'maxSize' => $maxSize,
+                    'maxSizeMessage' => 'La taille du fichier ne doit pas dépasser 5 Mo.',
+                    'mimeTypes' => $mimeTypes,
+                    'mimeTypesMessage' => 'Veuillez télécharger un fichier valide.',
+                ]);
+
+                $violations = $context->getValidator()->validate($file, $fileConstraint);
+
+                if (count($violations) > 0) {
+                    foreach ($violations as $violation) {
+                        $context->buildViolation($violation->getMessage())
+                            ->addViolation();
+                    }
+                }
+            }
+        }
+    }
+
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefaults([
+            'data_class' => DaSoumissionFacBlDto::class,
+        ]);
+    }
+}

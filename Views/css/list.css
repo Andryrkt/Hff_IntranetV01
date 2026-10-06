@@ -1,19 +1,20 @@
 @media print {
-    * {
-      -webkit-print-color-adjust: exact !important; /* Safari et Chrome */
-      print-color-adjust: exact !important; /* Standard */
-    }
-  
-    table {
-      border-collapse: collapse;
-      width: 100%;
-    }
-  
-    th, td {
-      border: 1px solid black;
-      padding: 8px;
-    }
+  * {
+    -webkit-print-color-adjust: exact !important; /* Safari et Chrome */
+    print-color-adjust: exact !important; /* Standard */
   }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  th,
+  td {
+    border: 1px solid black;
+    padding: 8px;
+  }
+}
 
 .trois-points-vertical {
   text-decoration: none;
@@ -60,7 +61,7 @@
 
 .table-moitier {
   width: 100%;
-  height: 300px;
+  height: 36vh;
   overflow-y: auto;
   display: block;
 }
@@ -84,7 +85,7 @@
 
 thead th {
   position: sticky;
-  /* top:0; */
+  top: 0;
   z-index: 1;
 }
 

@@ -1,0 +1,32 @@
+<p>
+	Nous vous informons que l'article (ou les articles) suivant(s) de votre demande d'achat
+	{{demandeAppro.numeroDemandeAppro}}
+	ne sont actuellement
+	<b>pas disponibles chez le fournisseur
+	</b>.
+</p>
+<hr>
+
+<table>
+	<thead style="background-color:#D9E1F2;">
+		<tr>
+			<th rowspan="2" align="center" valign="middle">CST</th>
+			<th rowspan="2" align="center" valign="middle">REF</th>
+			<th rowspan="2" align="center" valign="middle">DESIGNATION</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for dal in preparedDatas %}
+			<tr>
+				<td>{{ dal.cst }}</td>
+				<td>{{ dal.ref }}</td>
+				<td>{{ dal.desi }}</td>
+			</tr>
+		{% endfor %}
+	</tbody>
+</table><br><hr>
+
+<p>
+	Une nouvelle DA a été créée  dont le numéro est :
+	{{numeroDemandeAppro}}</p>
+<p>Pour toute question, n'hésitez pas à contacter le service Approvisionnement.</p>

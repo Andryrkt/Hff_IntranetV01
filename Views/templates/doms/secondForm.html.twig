@@ -1,18 +1,19 @@
 {% extends "baseTemplate.html.twig" %}
 
-
 {% block title %}
-	Fiche Ordre
+	Création DOM - 2
 {% endblock %}
 
 {% block stylesheets %}
-	<link href="{{ App.base_path }}/Views/css/dom/secondForm.css" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/dom/secondForm.css?v={{ App.browserHash }}" rel="stylesheet"/>
+{% endblock %}
+
+{% block overlay %}
+	{% include "/shared/_overlay.html.twig"  %}
 {% endblock %}
 
 {% block content %}
-
-
-	<div class="container mb-4">
+	<div class="container mt-6 mb-4">
 		<div class="card p-2">
 			<div class="card-body">
 				<div class="row">
@@ -78,6 +79,9 @@
 					<div class="col-12 col-md-6">
 						{{ form_row(form.sousTypeDocument)}}
 					</div>
+					<div class="col-12 col-md-6  d-flex align-items-center {{ codeSousTypeDoc == 'COMPLEMENT' ? '' : 'd-none'}}">
+						{{ form_row(form.pieceJustificatif)}}
+					</div>
 				</div>
 				<div class="row">
 					<div class="col-12 col-md-6" id="categ">
@@ -135,7 +139,14 @@
 					<div class="col-12 col-md-6">
 						{{ form_row(form.heureDebut, {'attr': { 'class' : 'border_orange'}})}}
 						{{ form_row(form.heureFin, {'attr': { 'class' : 'border_orange'}})}}
-						{{ form_row(form.motifDeplacement, {'attr': { 'class' : 'border_orange'}})}}
+						<div class="row">
+							<div class="col-12 col-md-6">
+								{{ form_label(form.motifDeplacement) }}
+							</div>
+						</div>
+						<div class="mb-3">
+							{{ form_widget(form.motifDeplacement, {'attr': { 'class' : 'border_orange'}})}}
+						</div>
 						{{ form_row(form.fiche)}}
 					</div>
 				</div>
@@ -196,7 +207,7 @@
 						{{ form_row(form.modePayement, {'attr': { 'class' : 'border_orange'}})}}
 					</div>
 					<div class="col-12 col-md-6">
-						{{ form_row(form.mode)}}
+						{{ form_row(form.mode, {'attr': { 'class' : 'border_orange'}})}}
 					</div>
 				</div>
 
@@ -215,17 +226,15 @@
 						{{ form_row(form.pieceJoint02) }}
 					</div>
 
-		</div>
-		<div class="row">
-			<div class="mt-2 ">
-				<a onclick="return confirm('Voulez-vous envoyer la demande ?')">
-					<button type="submit" name="Envoyer" class="btn btn-info md-5 fw-bold ajout-overlay" data-bs-toggle="tooltip">
-						<i class="fa fa-print"></i>
-						Envoyer
-					</button>
-				</a>
-			</div>
-		</div>
+				</div>
+				<div class="row">
+					<div class="mt-2 ">
+						<button type="submit" name="Envoyer" class="btn btn-info md-5 fw-bold" data-bs-toggle="tooltip">
+							<i class="fa fa-print"></i>
+							Envoyer
+						</button>
+					</div>
+				</div>
 
 				{{ form_end(form)}}
 
@@ -234,5 +243,5 @@
 	</div>
 {% endblock %}
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/dom/secondForm.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/dom/secondForm.js?v={{ App.browserHash }}" type="module"></script>
 {% endblock %}

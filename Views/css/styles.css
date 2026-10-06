@@ -1765,6 +1765,7 @@ progress {
 }
 .table > thead {
   vertical-align: bottom;
+  z-index: 1;
 }
 
 .table-group-divider {
@@ -5323,7 +5324,7 @@ textarea.form-control-lg {
 }
 
 .modal-backdrop {
-  --bs-backdrop-zindex: 1050;
+  --bs-backdrop-zindex: 1019;
   --bs-backdrop-bg: #000;
   --bs-backdrop-opacity: 0.5;
   position: fixed;

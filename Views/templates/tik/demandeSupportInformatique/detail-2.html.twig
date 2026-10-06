@@ -7,9 +7,10 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link href="/Hffintranet/Views/css/new.css" rel="stylesheet"/>
-	<link href="/Hffintranet/Views/css/tik/detailTik.css" rel="stylesheet"/>
-	<link href="/Hffintranet/Views/css/tik/supportInfo.css" rel="stylesheet">
+	<link href="/Hffintranet/Views/css/new.css?v={{ App.browserHash }}" rel="stylesheet"/>
+	<link href="/Hffintranet/Views/css/partials/onglet.css?v={{ App.browserHash }}" rel="stylesheet"/>
+	<link href="/Hffintranet/Views/css/tik/detailTik.css?v={{ App.browserHash }}" rel="stylesheet"/>
+	<link href="/Hffintranet/Views/css/tik/supportInfo.css?v={{ App.browserHash }}" rel="stylesheet">
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
@@ -197,13 +198,11 @@
 
 	{% endblock %}
 
-	{% block footer %}{% endblock %}
-
 	{% block javascript %}
 		{% if validateur and statutOuvert %}
-			<script type="module" src="/Hffintranet/Views/js/tik/tikDetailValidateur.js"></script>
+			<script type="module" src="/Hffintranet/Views/js/tik/tikDetailValidateur.js?v={{ App.browserHash }}"></script>
 		{% else %}
-			<script type="module" src="/Hffintranet/Views/js/tik/tikDetailIntervenant.js"></script>
+			<script type="module" src="/Hffintranet/Views/js/tik/tikDetailIntervenant.js?v={{ App.browserHash }}"></script>
 		{% endif %}
 
 		<script>

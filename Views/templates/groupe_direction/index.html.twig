@@ -1,0 +1,50 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block content %}
+<div class="container mt-4" style="margin-top:5rem !important">
+    <div class="mb-3">
+        <a href="{{ path('groupe_direction_new') }}" class="btn btn-primary">Ajouter un membre</a>
+    </div>
+
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Matricule</th>
+                        <th>Nom & Prénoms</th>
+                        <th>Créé le</th>
+                        <th>Actif</th>
+                        <th>Date d'activation</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for groupe in groupe_directions %}
+                    <tr>
+                        <td>{{ groupe.matricule }}</td>
+                        <td>{{ groupe.nomPrenoms }}</td>
+                        <td>{{ groupe.dateCreation ? groupe.dateCreation|date('d/m/Y') : '' }}</td>
+                        <td>{{ groupe.actif ? 'Oui' : 'Non' }}</td>
+                        <td>{{ groupe.dateActivation ? groupe.dateActivation|date('d/m/Y') : '' }}</td>
+                        <td>
+                            <a href="{{ path('groupe_direction_edit', {'id': groupe.id}) }}" class="btn btn-sm btn-outline-primary">Éditer</a>
+                            <form method="post" action="{{ path('groupe_direction_delete', {'id': groupe.id}) }}" style="display: inline-block;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce membre ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ groupe.id) }}">
+                                <button class="btn btn-sm btn-outline-danger" type="submit">Supprimer</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

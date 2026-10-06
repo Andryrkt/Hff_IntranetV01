@@ -1,4 +1,4 @@
-/vendor/
+vendor
 /src/Service/TCPDF-main/
 /Views/tcpdf/
 /Upload/
@@ -6,12 +6,20 @@
 /src/Service/FPDI-2.6.0/
 /node_modules/
 /Views/images/
+/logPerfLogger
 .env
 configuration_lanto_hasina.txt
 configuration_prod.txt
-/var/log/app_errors.log
+/var
 src/Controller/pdf/
 src/Controller/authentification.csv
 Dossiers ORs
 react-app
+.idea/
 .vscode
+.idea
+composer.lock
+var
+Views/js/utils/config.js
+*.code-workspace
+.idea/

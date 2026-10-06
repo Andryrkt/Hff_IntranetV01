@@ -1,0 +1,27 @@
+<h5 class="fw-bold">Détails situation réception</h5>
+<table class="table">
+	<thead class="table-dark align-middle">
+		<tr>
+			<th class="text-center">Const</th>
+			<th class="text-center">Ref</th>
+			<th>Désignation</th>
+			<th class="text-center">Qté cde</th>
+			<th class="text-center">Qté receptionnée</th>
+			<th class="text-center">Reliquat</th>
+			<th class="text-center">Statut</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for item in dto.receptions %}
+			<tr>
+				<td class="text-center">{{item.const}}</td>
+				<td class="text-center">{{item.ref}}</td>
+				<td>{{item.designation}}</td>
+				<td class="text-center">{{item.qteCde}}</td>
+				<td class="text-center">{{item.qteReceptionnee}}</td>
+				<td class="text-center">{{item.qteReliquat}}</td>
+				<td class="text-center fw-bold {{item.class}}">{{item.statutRecep}}</td>
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>

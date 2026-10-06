@@ -5,11 +5,13 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/admin/historisation/operation-document/detail.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/admin/historisation/operation-document/detail.css?v={{ App.browserHash }}">
 {% endblock %}
 
+{% block breadCrumb %}{% endblock %}
+
 {% block content %}
-	<div class="container mt-4">
+	<div class="container my-4">
 		<h3 class="perso-titre">Détails des opérations pour le document
 			{{ documentNumber }}</h3>
 

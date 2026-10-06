@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Feuille calcul devis
+			{{numDevis}}</title>
+		<style>{{include('magasin/devis/email/css/style.css')}}</style>
+	</head>
+	<body>
+		<div class="email-container">
+			<div class="email-header">Feuille calcul devis
+				{{numDevis}}</div>
+			<div class="email-body">
+				<p>Bonjour, ceci est un message automatique provenant de l’intranet. Merci de ne pas répondre.</p>
+				<p class="fw-bold">Cordialement,</p>
+			</div>
+			<div class="email-footer">
+				Service Magasin - Henri Fraise Fis & Cie
+				<br>
+				&copy;
+				{{ "now"|date("Y") }}
+				Henri Fraise Fis & cie.
+			</div>
+		</div>
+	</body>
+</html>

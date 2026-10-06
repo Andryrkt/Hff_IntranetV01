@@ -19,13 +19,17 @@ CREATE TABLE devis_soumis_a_validation
 );
 
 ALTER TABLE devis_soumis_a_validation
-ADD montantForfait DECIMAL(18, 2)
+ADD montantForfait DECIMAL(18, 2),
+natureOperation VARCHAR(3),
+devisVenteOuForfait VARCHAR(15),
+devise VARCHAR(10),
+montantVente DECIMAL(18, 2),
+num_migr INT,
+montantRevient DECIMAL(18, 2),
+margeRevient INT,
+type VARCHAR(5),
+nombreLignePiece INT
 
-ALTER TABLE devis_soumis_a_validation
-ADD natureOperation VARCHAR(3)
-
-ALTER TABLE devis_soumis_a_validation 
-ADD devisVenteOuForfait VARCHAR(15)
 
 EXEC sp_rename 'demande_intervention.devis_valide',
 'statut_devis',
@@ -34,26 +38,8 @@ EXEC sp_rename 'demande_intervention.devis_valide',
 ALTER TABLE demande_intervention
 ALTER COLUMN statut_devis VARCHAR(50)
 
-ALTER TABLE devis_soumis_a_validation 
-ADD devise VARCHAR(10)
 
 ALTER TABLE devis_soumis_a_validation
-ADD montantVente DECIMAL(18, 2)
+ADD tache_validateur VARCHAR(200),
+observation VARCHAR(3000)
 
-ALTER TABLE devis_soumis_a_validation
-ADD num_migr INT
-
-
---12/03/2025
-ALTER TABLE devis_soumis_a_validation
-ADD montantRevient DECIMAL(18, 2)
-
-ALTER TABLE devis_soumis_a_validation
-ADD margeRevient INT
---17/03/2025
-ALTER TABLE devis_soumis_a_validation
-ADD type VARCHAR(5)
-
---19/03/2025
-ALTER TABLE devis_soumis_a_validation
-ADD nombreLignePiece INT

@@ -36,14 +36,13 @@ class PdfTableGenerator
     {
         $html = '<tbody>';
         // Vérifier si le tableau $rows est vide
-    
+
         if (empty($rows) && !$expre) {
             $html .= '<tr><td colspan="' . count($headerConfig) . '" style="text-align: center; font-weight: bold;">N/A</td></tr>';
             $html .= '</tbody>';
             return $html;
         }
 
-        
         foreach ($rows as $row) {
 
             // Vérifier si tous les montants sont égaux à 0
@@ -84,8 +83,6 @@ class PdfTableGenerator
                 $value = $this->formatValue($key, $value);
             }
 
-
-
             $html .= '<th style="width: ' . $config['width'] . 'px; ' . $style . '">' . $value . '</th>';
         }
         $html .= '</tr></tfoot>';
@@ -112,7 +109,7 @@ class PdfTableGenerator
         return $styles;
     }
 
-        /**
+    /**
      * Méthode qui formate les valeurs (nombre ou date) au format approprié.
      * Pour les montants, la clé du tableau doit contenir "mtt".
      * Pour les dates, la clé du tableau doit contenir "date".
@@ -150,6 +147,4 @@ class PdfTableGenerator
         // Retourner la valeur non modifiée si aucune condition ne s'applique
         return (string) $value;
     }
-
-
 }

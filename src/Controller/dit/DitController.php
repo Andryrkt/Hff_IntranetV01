@@ -4,130 +4,429 @@ namespace App\Controller\dit;
 
 
 use App\Controller\Controller;
-use App\Entity\admin\Application;
 use App\Controller\Traits\DitTrait;
-use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\FormatageTrait;
-use App\Entity\admin\utilisateur\User;
+use App\Controller\Traits\PdfConversionTrait;
+use App\Dto\Dit\DemandeInterventionDto;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Application;
+use App\Entity\admin\dit\CategorieAteApp;
+use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Entity\admin\dit\WorTypeDocument;
+use App\Entity\admin\Service;
+use App\Entity\admin\StatutDemande;
+use App\Entity\ddd\DemandeDiagnosticPneu;
+use App\Entity\dit\DemandeIntervention;
+use App\Factory\Dit\DemandeInterventionFactory;
 use App\Form\dit\demandeInterventionType;
-use App\Service\genererPdf\GenererPdfDit;
+use App\Model\dit\DitModel;
+use App\Repository\dit\DitRepository;
+use App\Service\autres\AutoIncDecService;
+use App\Service\dit\fichier\DitNameFileService;
+use App\Service\fichier\TraitementDeFichier;
+use App\Service\fichier\UploderFileService;
+use App\Service\genererPdf\dit\GenererPdfDit;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-
+/**
+ * @Route("/atelier/demande-intervention")
+ */
 class DitController extends Controller
 {
     use DitTrait;
     use FormatageTrait;
-    private $historiqueOperation;
+    use PdfConversionTrait;
+
+
+    private DitModel $ditModel;
+    private DitRepository $demandeRepository;
+    private HistoriqueOperationDITService $historiqueOperation;
+    private DemandeInterventionFactory $demandeInterventionFactory;
 
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationDITService;
+        $this->historiqueOperation = new HistoriqueOperationDITService($this->getEntityManager());
+        $this->ditModel = new DitModel();
+        $this->demandeInterventionFactory = new DemandeInterventionFactory($this->getEntityManager(), $this->ditModel, $this->historiqueOperation);
+        $this->demandeRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
     }
-
     /**
-     * @Route("/dit/new", name="dit_new")
+     * @Route("/new/{numeroDemandePneu}", name="dit_new", defaults={"numeroDemandePneu"=null})
      *
      * @param Request $request
-     * @return void
+     * @param string|null $numeroDemandePneu
      */
-    public function new(Request $request)
+    public function new(?string $numeroDemandePneu, Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        //recuperation de l'utilisateur connecter
-        $userId = $this->sessionService->get('user_id');
-        $user = self::$em->getRepository(User::class)->find($userId);
-
-        /** Autorisation accées */
-        $this->autorisationAcces($user);
-        /** FIN AUtorisation acées */
 
         $demandeIntervention = new DemandeIntervention();
 
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+        $demandePneu = null;
+        $fichierDemandeDiagnostic = null;
+
+
+
         //INITIALISATION DU FORMULAIRE
-        $this->initialisationForm($demandeIntervention, self::$em);
-
-        //AFFICHE LE FORMULAIRE
-        $form = self::$validator->createBuilder(demandeInterventionType::class, $demandeIntervention)->getForm();
-
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $dit = $form->getData();
-
-            if(empty($dit->getIdMateriel())) {
-                $message='Échec lors de la création de la DIT... Impossible de récupérer les informations du matériel.';
-                $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
-            }
-
-            $dits = $this->infoEntrerManuel($dit, self::$em, $user);
-
-            //RECUPERATION de la dernière NumeroDemandeIntervention 
-            $this->modificationDernierIdApp($dits);
-
-            /**CREATION DU PDF*/
-            //recupération des donners dans le formulaire
-            $pdfDemandeInterventions = $this->pdfDemandeIntervention($dits, $demandeIntervention);
-        
-            if(!in_array($pdfDemandeInterventions->getIdMateriel(),[14571,7669,7670,7671,7672,7673,7674,7675,7677,9863])) {
-                //récupération des historique de materiel (informix)
-                $historiqueMateriel = $this->historiqueInterventionMateriel($dits);
-            } else {
-                $historiqueMateriel = [];
-            }
-            
-            //genere le PDF
-            $genererPdfDit = new GenererPdfDit();
-            $genererPdfDit->genererPdfDit($pdfDemandeInterventions, $historiqueMateriel);
-
-            //envoie des pièce jointe dans une dossier et la fusionner
-            $this->envoiePieceJoint($form, $dits, $this->fusionPdf);
-
-            //ENVOIE DES DONNEES DE FORMULAIRE DANS LA BASE DE DONNEE
-            $insertDemandeInterventions = $this->insertDemandeIntervention($dits, $demandeIntervention, self::$em);
-            self::$em->persist($insertDemandeInterventions);
-            self::$em->flush();
-
-            //ENVOYER le PDF DANS DOXCUWARE
-            $genererPdfDit->copyInterneToDOCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(), str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
-
-            $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $pdfDemandeInterventions->getNumeroDemandeIntervention(), 'dit_index', true);
+        $agenceService = $this->agenceServiceIpsObjet();
+        $demandeIntervention
+            ->setAgenceEmetteur($agenceService['agenceIps']->getCodeAgence() . ' ' . $agenceService['agenceIps']->getLibelleAgence())
+            ->setServiceEmetteur($agenceService['serviceIps']->getCodeService() . ' ' . $agenceService['serviceIps']->getLibelleService())
+            ->setAgence($agenceService['agenceIps'])
+            ->setService($agenceService['serviceIps'])
+            ->setIdNiveauUrgence($this->getEntityManager()->getRepository(WorNiveauUrgence::class)->find(1))
+            ->setCodeSociete($codeSociete)
+        ;
+        if ($numeroDemandePneu) {
+            [$demandePneu, $fichierDemandeDiagnostic] =  $this->creationDitDemandeDiagnositicPneu($numeroDemandePneu, $demandeIntervention, $codeSociete);
         }
+
+
+        //AFFICHAGE ET TRAITEMENT DU FORMULAIRE
+        $form = $this->getFormFactory()
+            ->createBuilder(
+                demandeInterventionType::class,
+                $demandeIntervention,
+                [
+                    'demandePneu' => $demandePneu
+                ]
+            )
+            ->getForm();
+
+        if ($numeroDemandePneu) {
+            if (file_exists($fichierDemandeDiagnostic)) {
+                $form->get('existingPieceJointDemandePneu')->setData($numeroDemandePneu
+                    . '_DDD.pdf');
+            }
+        }
+
+        $this->traitementFormulaire($form, $request,  $demandePneu, $fichierDemandeDiagnostic);
 
         $this->logUserVisit('dit_new'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display('dit/new.html.twig', [
+        return $this->render('dit/new.html.twig', [
             'form' => $form->createView()
         ]);
     }
 
-    private function modificationDernierIdApp($dits)
+    private function traitementFormulaire($form, Request $request,  ?DemandeDiagnosticPneu $demandePneu = null, ?string $fichierDemandeDiagnostic = null)
     {
-        $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);
-        $application->setDerniereId($dits->getNumeroDemandeIntervention());
-        // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
-        self::$em->persist($application);
-        self::$em->flush();
-    }
+        $form->handleRequest($request);
 
-    private function autorisationApp($user): bool
-    {
-        //id pour DIT est 4
-        $AppIds = $user->getApplicationsIds();
-        return in_array(4, $AppIds);
-    }
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var DemandeIntervention $ditFromForm */
+            $ditFromForm = $form->getData();
 
-    private function autorisationAcces($user)
-    {
-        if (!$this->autorisationApp($user)) {
-            $message = "vous n'avez pas l'autorisation";
+            //bloquer l'enregistrement du DIT si le materiel est mise au rebut (mmat_afect = 'CAS') ou si 
+            if (empty($ditFromForm->getIdMateriel())) {
+                $message = 'Échec lors de la création de la DIT... Impossible de récupérer les informations du matériel. il peut être mis au rebut.';
+                $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
+                return;
+            }
 
-            $this->historiqueOperation->sendNotificationCreation($message, '-', 'profil_acceuil');
+
+            if ($ditFromForm->getInternetExterne() === "EXTERNE" && empty($ditFromForm->getNomClient()) && empty($ditFromForm->getNumeroClient())) {
+                $message = 'Échec lors de la création de la DIT... Impossible de récupérer les informations du client.';
+                $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
+                return;
+            }
+
+            if ($ditFromForm->getReparationRealise() === "ATE POL TANA" && ($ditFromForm->getCategorieDemande()->getLibelleCategorieAteApp() !== "REPARATION" || $ditFromForm->getTypeDocument()->getDescription() !== "Maintenance curative")) {
+                $message = 'Échec lors de la création de la DIT... Pour un DIT à réaliser à l\'ATE POL TANA le type de document doit être Maintenance curative et la catégorie de la demande en REPARATION.';
+                $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
+                return;
+            }
+
+            // 1. Créer le DTO à partir des données du formulaire
+            $dto = DemandeInterventionDto::createFromEntity($ditFromForm);
+
+            // 2. Enrichir le DTO avec les informations système (initialisation ou ajout des info par defaut)
+            $em = $this->getEntityManager();
+            $dto->utilisateurDemandeur = $this->getUserName();
+            $dto->heureDemande = $this->getTime();
+            $dto->dateDemande = new \DateTime($this->getDatesystem());
+            $dto->mailDemandeur = $this->getUserMail();
+
+            // Statut de la demande
+            $statutRepository = $em->getRepository(StatutDemande::class);
+            // Si le DIT est pour l'ATE POL TANA, le statut est "A VALIDER RESP RENTAL", sinon "A AFFECTER"
+            $idStatut = $dto->reparationRealise === "ATE POL TANA" ? DemandeIntervention::STATUT_A_VALIDER_CHEF_RENTAL : DemandeIntervention::STATUT_A_AFFECTER;
+            $dto->idStatutDemande = $statutRepository->find($idStatut);
+
+            /**   @var DemandeIntervention[] $demandeInterventions 3. Utiliser la factory pour créer l'entité complète*/
+            $demandeInterventions = $this->createDemandeInterventionFromDto($dto, $this->demandeInterventionFactory);
+
+            foreach ($demandeInterventions as $demandeIntervention) {
+                // Type de DIT
+                $ditPneumatique = $demandeIntervention->getReparationRealise() === "ATE POL TANA";
+
+                // 4. recuperation du dernière numero demande d'intervention et generation du numero de demande 
+                $application = $em->getRepository(Application::class)->findOneBy(['codeApp' => DemandeIntervention::CODE_APP]);
+                $numeroDemandeIntervention = $this->genererNumeroDemandeIntervention($application);
+
+                // 5.enregistrement du numero demande d'intervention et Modifie la colonne dernière_id dans la table applications
+                $demandeIntervention->setNumeroDemandeIntervention($numeroDemandeIntervention);
+
+
+
+                AutoIncDecService::mettreAJourDerniereIdApplication($application, $em, $numeroDemandeIntervention);
+
+                /** 6. Traitement des fichiers (PDF, pièces jointes) @var array $nomFichierEnregistrer @var string $nomFichier  */
+                $genererPdfDit = new GenererPdfDit();
+                [$nomFichierEnregistrer, $nomFichier]  = $this->traitementDeFichier($form, $demandeIntervention, $genererPdfDit, $ditPneumatique, $fichierDemandeDiagnostic);
+
+                // 7. Enregistrement dans la base de donnée
+                $this->enregistrementBd($demandeIntervention, $nomFichierEnregistrer);
+
+                // 8.Copier le PDF DANS DOXCUWARE
+                $reponse = $genererPdfDit->copyToDOCUWARE($nomFichier, $demandeIntervention->getNumeroDemandeIntervention(), $ditPneumatique);
+
+                // 9. modification de la colonne pdf_deposer_dw et date_depot_pdf_dw
+                $this->modificationBdPourHitorisationDw($em, $demandeIntervention, $reponse);
+            }
+
+            // 10. Recuperation du numero du premier DIT creer
+            $numeroDitCree = $demandeInterventions[0]->getNumeroDemandeIntervention();
+
+            // 11. Modification du statut de Demande Diagnostic Pneu
+            if ($demandePneu) {
+                $demandePneu->setStatut('cloturee');
+                $demandePneu->setNumeroDit($numeroDitCree);
+                $em->persist($demandePneu);
+                $em->flush();
+            }
+            // 12. enregistrement dans l'historisation de la sucès de la demande
+            $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $numeroDitCree, 'dit_index', true);
         }
+    }
+
+    private function modificationBdPourHitorisationDw($em, DemandeIntervention $demandeIntervention, bool $reponse): void
+    {
+        $dit = $this->demandeRepository->findOneBy(['numeroDemandeIntervention' => $demandeIntervention->getNumeroDemandeIntervention(), 'codeSociete' => $demandeIntervention->getCodeSociete()]);
+        $dit->setPdfDeposerDw($reponse)
+            ->setDateDepotPdfDw(new \DateTime());
+        $em->persist($dit);
+        $em->flush();
+    }
+
+    public function genererNumeroDemandeIntervention(Application $application)
+    {
+        // 1. decrementation du dernière numero d'intervention recupérer dans la table applications
+        $numeroDemandeIntervention = AutoIncDecService::autoGenerateNumero(DemandeIntervention::CODE_APP, $application->getDerniereId(), false);
+
+        // 2. Vérification de l'unicité du numéro de demande
+        $existingDemande = $this->demandeRepository->findOneBy(['numeroDemandeIntervention' => $numeroDemandeIntervention]);
+        if ($existingDemande) {
+            // Log de l'erreur et notification à l'utilisateur
+            $message = sprintf(
+                'Échec lors de la création de la DIT. Le numéro de demande "%s" existe déjà. Veuillez réessayer.',
+                $numeroDemandeIntervention
+            );
+            error_log($message); // Log pour les développeurs
+            $this->historiqueOperation->sendNotificationCreation($message, $numeroDemandeIntervention, 'dit_index');
+            return; // Bloquer la suite du traitement
+            exit();
+        }
+
+        //3. retourne le numero decrementer si le numero n'existe pas
+        return $numeroDemandeIntervention;
+    }
+
+    private function enregistrementBd(DemandeIntervention $demandeIntervention, array $nomFichierEnregistrer): void
+    {
+        $demandeIntervention
+            ->setPieceJoint01($nomFichierEnregistrer[0] ?? null)
+            ->setPieceJoint02($nomFichierEnregistrer[1] ?? null)
+            ->setPieceJoint03($nomFichierEnregistrer[2] ?? null);
+        $this->getEntityManager()->persist($demandeIntervention);
+        $this->getEntityManager()->flush();
+    }
+
+    private function traitementDeFichier(FormInterface $form, DemandeIntervention $demandeIntervention, GenererPdfDit $genererPdfDit, bool $ditPneumatique,  ?string $fichierDemandeDiagnostic = null): array
+    {
+        /** 
+         * gestion des pieces jointes et generer le nom du fichier PDF
+         * Enregistrement de fichier uploder
+         * @var array $nomEtCheminFichiersEnregistrer 
+         * @var array $nomFichierEnregistrer 
+         * @var string $nomAvecCheminFichier
+         * @var string $nomFichier
+         */
+        [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $demandeIntervention->getNumeroDemandeIntervention(), str_replace("-", "", $demandeIntervention->getAgenceServiceEmetteur()), $ditPneumatique);
+
+        /** 1. CREATION DE LA PAGE DE GARDE*/
+        $idMateriel = (int)$demandeIntervention->getIdMateriel();
+        if (!in_array($idMateriel, $this->ditModel->getNumeroMatriculePasMateriel())) {
+            //récupération des historique de materiel (informix)
+            $historiqueMateriel = $this->historiqueInterventionMateriel($idMateriel, $demandeIntervention->getReparationRealise());
+        } else {
+            $historiqueMateriel = [];
+        }
+        $genererPdfDit->genererPdfDit($demandeIntervention, $historiqueMateriel, $nomAvecCheminFichier);
+
+        // 2. ajout du page de garde à la premier position
+        $traitementDeFichier = new TraitementDeFichier();
+        $nomEtCheminFichiersEnregistrer = $traitementDeFichier->insertFileAtPosition($nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, 0);
+
+        // 3. Insérer le fichier de diagnostic après la page de garde (position 1) s'il existe
+        if (!empty($fichierDemandeDiagnostic)) {
+            $nomEtCheminFichiersEnregistrer = $traitementDeFichier->insertFileAtPosition(
+                $nomEtCheminFichiersEnregistrer,
+                $fichierDemandeDiagnostic,
+                1   // après la page de garde
+            );
+        }
+        // 4. fusion du page de garde et des pieces jointes (conversion avant la fusion)
+        $nomEtCheminFichierConvertie = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
+        $traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);
+
+        return [$nomFichierEnregistrer, $nomFichier];
+    }
+
+    private function enregistrementFichier(FormInterface $form, string $numDit, string $agServEmetteur, bool $ditPneumatique): array
+    {
+        $nameGenerator = new DitNameFileService();
+        $cheminBaseUpload = $_ENV['BASE_PATH_FICHIER'] . '/dit/';
+        $uploader = new UploderFileService($cheminBaseUpload, $nameGenerator);
+        $path = $cheminBaseUpload . $numDit . '/';
+        if (!is_dir($path)) {
+            mkdir($path, 0777, true);
+        }
+
+        /**
+         * recupère les noms + chemins dans un tableau et les noms dans une autre
+         * @var array $nomEtCheminFichiersEnregistrer
+         * @var array $nomFichierEnregistrer
+         */
+        [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer] = $uploader->getFichiers($form, [
+            'repertoire' => $path,
+            'generer_nom_callback' => function (
+                UploadedFile $file,
+                int $index
+            ) use ($numDit, $nameGenerator, $agServEmetteur) {
+                return $nameGenerator->generateDitNameFile($file, $numDit, $agServEmetteur, $index);
+            }
+        ]);
+
+        $nomFichier = $nameGenerator->generateDitNamePrincipal($numDit, $agServEmetteur, $ditPneumatique);
+        $nomAvecCheminFichier = $path . $nomFichier;
+
+        return [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier];
+    }
+
+    private function creationDitDemandeDiagnositicPneu(string $numeroDemandePneu, DemandeIntervention $demandeIntervention, string $codeSociete)
+    {
+        /**
+         * Création DIT depuis diagnostic pneu
+         */
+        $demandePneu = null;
+        $fichierDemandeDiagnostic = null;
+
+
+        $demandePneu = $this->getEntityManager()
+            ->getRepository(DemandeDiagnosticPneu::class)
+            ->findOneBy([
+                'numeroDemande' => $numeroDemandePneu
+            ]);
+        if ($demandePneu) {
+
+            // ==========================
+            // Informations matériel
+            // ==========================
+
+            $demandeIntervention
+                ->setIdMateriel($demandePneu->getIdMateriel())
+                ->setNumParc($demandePneu->getNumeroParcMateriel());
+            // ==========================
+            // Diagnostic des pneus
+            // ==========================
+            // --- 1. Construction du message complet ---
+            $message = "Bonjour,\n\nPour demande d'intervention selon diagnostic ci-après.\n\n";
+
+            $observationPneus = [];
+            foreach ($demandePneu->getDiagnosticPneus() as $pneu) {
+                $positionMachine = $pneu->getPositionMachine() ?? '-';
+                $positionMachine = ucwords(str_replace('_', ' ', $positionMachine));
+
+                $observationPneus[] = sprintf(
+                    "• N/S Pneu : %s / Position : %s / Diagnostic : %s / Observation : %s",
+                    $pneu->getNumeroSerie() ?? '-',
+                    $positionMachine,
+                    $pneu->getDiagnostic() ?? '-',
+                    $pneu->getObservationAtelier() ?? '-'
+                );
+            }
+
+            // Ajout de la liste des pneus
+            if (!empty($observationPneus)) {
+                $message .= implode("\n", $observationPneus) . "\n\n";
+            }
+
+            // --- 2. Ajout de l'observation globale et de la phrase d'attente ---
+            $observationGlobal = trim($demandePneu->getObservationGlobalAtelier() ?? '');
+            if ($observationGlobal !== '') {
+                $message .=  $observationGlobal . "\n";
+            }
+
+            // --- 3. Assignation de $detailDemande (identique à $message) ---
+            // Si tu veux le même contenu, tu peux soit réutiliser $message, soit une copie
+            $detailDemande = $message;
+
+            // --- 4. Enregistrement dans l'entité ---
+            $demandeIntervention->setDetailDemande($detailDemande);
+            $basePath = rtrim($_ENV['BASE_PATH_FICHIER'], '/\\');
+            $dossierPiecesJointes = $basePath
+                . DIRECTORY_SEPARATOR
+                . 'ddd'
+                . DIRECTORY_SEPARATOR
+                . $numeroDemandePneu
+                . DIRECTORY_SEPARATOR;
+
+            $fichierDemandeDiagnostic = $dossierPiecesJointes
+                . $numeroDemandePneu
+                . '_DDD.pdf';
+
+
+            $demandeIntervention->setObjetDemande(
+                "Demande d'intervention - Suite au diagnostic PNE - "
+                    . $demandePneu->getNumeroDemande()
+            );
+            $demandeIntervention->setReparationRealise("ATE POL TANA");
+
+            $chantier = $demandePneu->getChantier()->getCodeChantier();
+            $serviceDefault  = $this->getEntityManager()
+                ->getRepository(Service::class)
+                ->findOneBy([
+                    'codeService' => $chantier
+                ]);
+            $agenceDefault = $this->getEntityManager()
+                ->getRepository(Agence::class)
+                ->findOneBy([
+                    'codeAgence' => '50',
+                    'codeSociete' => $codeSociete
+                ]);
+            $categorieDemandeDefault = $this->getEntityManager()
+                ->getRepository(CategorieAteApp::class)
+                ->find(CategorieAteApp::REPARATION);
+            $typeDocumentDemandeDefault = $this->getEntityManager()
+                ->getRepository(WorTypeDocument::class)
+                ->find(WorTypeDocument::MAINTENANCE_CURATIVE);
+
+            $demandeIntervention->setAgence($agenceDefault);
+            $demandeIntervention->setService($serviceDefault);
+            $demandeIntervention->setCategorieDemande($categorieDemandeDefault);
+            $demandeIntervention->setTypeDocument($typeDocumentDemandeDefault);
+            $demandeIntervention->setInternetExterne("INTERNE");
+        }
+
+
+        return [$demandePneu, $fichierDemandeDiagnostic];
     }
 }

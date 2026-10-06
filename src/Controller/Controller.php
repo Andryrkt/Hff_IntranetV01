@@ -2,188 +2,199 @@
 
 namespace App\Controller;
 
-
-
-
-use Parsedown;
-
-
-use App\Model\LdapModel;
-use App\Model\ProfilModel;
-use App\Service\FusionPdf;
-use App\Model\dit\DitModel;
-use App\Model\dom\DomModel;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
-use App\Model\badm\BadmModel;
-use App\Service\ExcelService;
-use App\Model\dom\DomListModel;
 use App\Entity\admin\Application;
-use App\Model\dom\DomDetailModel;
-use App\Model\TransferDonnerModel;
-use App\Service\AccessControlService;
 use App\Entity\admin\utilisateur\User;
-use App\Model\dom\DomDuplicationModel;
-use App\Service\SessionManagerService;
-//use App\Model\admin\user\ProfilUserModel;
-use App\Model\admin\personnel\PersonnelModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Entity\admin\historisation\pageConsultation\PageHff;
 use App\Entity\admin\historisation\pageConsultation\UserLogger;
+use App\Entity\admin\utilisateur\Profil;
+use App\Service\navigation\MenuService;
+use App\Service\security\SecurityService;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Form\FormFactoryInterface;
+use Twig\Environment;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
-
+/**
+ * Classe Controller avec injection de dépendances
+ * Cette classe remplace l'ancienne classe Controller statique
+ */
 class Controller
 {
-    protected $fusionPdf;
-
-    protected $ldap;
-    protected $profilModel;
-    protected $casier;
-    protected $badm;
-    protected $Person;
-    protected $DomModel;
-    protected $detailModel;
-    protected $duplicata;
-    protected $domList;
-    protected $ProfilModel;
-
-    protected static $generator;
-    protected static $twig;
-    protected $loader;
-
-    protected $request;
-    protected $response;
-
-    protected static $validator;
-
-    protected $parsedown;
-
-    protected $profilUser;
-
-    protected static $em;
-    protected static $paginator;
-
-    protected $ditModel;
-
-    protected $transfer04;
-
+    // Services injectés (accessibles via getters)
+    protected $entityManager;
+    protected $urlGenerator;
+    protected $twig;
+    protected $formFactory;
+    protected $session;
+    protected $tokenStorage;
+    protected $authorizationChecker;
     protected $sessionService;
+    protected $securityService;
+    protected $menuService;
 
-    protected $accessControl;
-
-    protected $excelService;
+    // Propriétés publiques avec getters lazy pour les modèles et services
+    public $request;
+    public $response;
 
     public function __construct()
     {
-
-        $this->fusionPdf        = new FusionPdf();
-
-        $this->ldap             = new LdapModel();
-
-        $this->profilModel      = new ProfilModel();
-
-
-        $this->badm             = new BadmModel();
-
-        $this->Person           = new PersonnelModel();
-
-        $this->DomModel         = new DomModel();
-        $this->detailModel      = new DomDetailModel();
-        $this->duplicata        = new DomDuplicationModel();
-        $this->domList          = new DomListModel();
-
-        $this->ProfilModel      = new ProfilModel();
-
-        $this->request          = Request::createFromGlobals();
-
-        $this->response         = new Response();
-
-        $this->parsedown        = new Parsedown();
-
-        //$this->profilUser     = new ProfilUserModel();
-
-        $this->ditModel         = new DitModel();
-
-        $this->transfer04       = new TransferDonnerModel();
-
-
-        $this->sessionService   = new SessionManagerService();
-
-        $this->accessControl    = new AccessControlService();
-
-        $this->excelService     = new ExcelService();
-    }
-
-    public static function setTwig($twig)
-    {
-        self::$twig = $twig;
-    }
-    public static function getTwig()
-    {
-        return self::$twig;
-    }
-
-    public static function setValidator($validator)
-    {
-        self::$validator = $validator;
-    }
-
-    public static function setGenerator($generator)
-    {
-        self::$generator = $generator;
-    }
-
-    public static function getGenerator()
-    {
-        return self::$generator;
-    }
-
-    public static function setEntity($em)
-    {
-        self::$em = $em;
-    }
-
-    public static function getEntity()
-    {
-        return self::$em;
-    }
-
-    public static function setPaginator($paginator)
-    {
-        self::$paginator = $paginator;
-    }
-
-
-    protected function SessionDestroy()
-    {
-        // Commence la session si elle n'est pas déjà démarrée
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-
-        // Supprime l'utilisateur de la session
-        unset($_SESSION['user']);
-
-        // Détruit la session
-        session_destroy();
-
-        // Réinitialise toutes les variables de session
-        session_unset();
-
-        // Redirige vers la page d'accueil
-        $this->redirectToRoute('security_signin'); //security_signin
-
-        // Ferme l'écriture de la session pour éviter les problèmes de verrouillage
-        session_write_close();
-
-        // Arrête l'exécution du script pour s'assurer que rien d'autre ne se passe après la redirection
-        exit();
+        // Créer la requête et la réponse
+        $this->request = Request::createFromGlobals();
+        $this->response = new Response();
     }
 
     /**
-     * recupère les l'heures
+     * Récupérer le conteneur de services
+     */
+    protected function getContainer()
+    {
+        global $container;
+        return $container;
+    }
+
+    /**
+     * Récupérer les services depuis le conteneur
+     */
+    protected function getService(string $serviceId)
+    {
+        $container = $this->getContainer();
+        if (!$container) throw new \RuntimeException('Le conteneur de services n\'est pas disponible');
+
+        return $container->get($serviceId);
+    }
+
+    protected function getSessionService(): SessionInterface
+    {
+        if ($this->sessionService === null) {
+            $this->sessionService = $this->getService('session');
+        }
+        return $this->sessionService;
+    }
+
+    /**
+     * Récupérer l'EntityManager
+     */
+    public function getEntityManager(): EntityManagerInterface
+    {
+        if ($this->entityManager === null) {
+            $this->entityManager = $this->getService('doctrine.orm.default_entity_manager');
+        }
+        return $this->entityManager;
+    }
+
+    /**
+     * Récupérer le générateur d'URL
+     */
+    public function getUrlGenerator(): UrlGeneratorInterface
+    {
+        if ($this->urlGenerator === null) {
+            $this->urlGenerator = $this->getService('router');
+        }
+        return $this->urlGenerator;
+    }
+
+    /**
+     * Récupérer Twig
+     */
+    public function getTwig(): Environment
+    {
+        if ($this->twig === null) {
+            $this->twig = $this->getService('twig');
+        }
+        return $this->twig;
+    }
+
+    /**
+     * Récupérer la factory de formulaires
+     */
+    public function getFormFactory(): FormFactoryInterface
+    {
+        if ($this->formFactory === null) {
+            $this->formFactory = ($this->getService('form.factory.lazy'))();
+        }
+        return $this->formFactory;
+    }
+
+    /**
+     * Récupérer le stockage de tokens
+     */
+    public function getTokenStorage(): TokenStorageInterface
+    {
+        if ($this->tokenStorage === null) {
+            $this->tokenStorage = $this->getService('security.token_storage');
+        }
+        return $this->tokenStorage;
+    }
+
+    /**
+     * Récupérer le vérificateur d'autorisation
+     */
+    public function getAuthorizationChecker(): AuthorizationCheckerInterface
+    {
+        if ($this->authorizationChecker === null) {
+            $this->authorizationChecker = $this->getService('security.authorization_checker');
+        }
+        return $this->authorizationChecker;
+    }
+
+    /**
+     * Récupérer le service de sécurité
+     */
+    public function getSecurityService(): SecurityService
+    {
+        if ($this->securityService === null) {
+            $this->securityService = $this->getService('security.service');
+        }
+        return $this->securityService;
+    }
+
+    /** 
+     * Récupérer le service de menu
+     */
+    public function getMenuService(): MenuService
+    {
+        if ($this->menuService === null) {
+            $this->menuService = $this->getService('menu.service');
+        }
+        return $this->menuService;
+    }
+
+    /**
+     * Getter magique pour charger les services à la demande
+     */
+    public function __get(string $name)
+    {
+        switch ($name) {
+            case 'request':
+                return $this->request;
+            case 'response':
+                return $this->response;
+            default:
+                throw new \InvalidArgumentException("Propriété '$name' non trouvée");
+        }
+    }
+
+    /**
+     * Détruire la session utilisateur
+     */
+    protected function SessionDestroy()
+    {
+        $this->getSessionService()->invalidate();
+
+        // Redirige vers la page d'accueil
+        $this->redirectToRoute('security_signin');
+    }
+
+    /**
+     * Récupérer l'heure actuelle
      */
     protected function getTime()
     {
@@ -192,8 +203,7 @@ class Controller
     }
 
     /**
-     * recupère la date d'aujourd'hui
-     * Date Système
+     * Récupérer la date système actuelle
      */
     protected function getDatesystem()
     {
@@ -202,11 +212,17 @@ class Controller
         return $Date_system;
     }
 
+    /**
+     * Conversion de caractères Windows-1252 vers UTF-8
+     */
     protected function conversionCaratere(string $chaine): string
     {
         return iconv('Windows-1252', 'UTF-8', $chaine);
     }
 
+    /**
+     * Conversion de tableau de caractères Windows-1252 vers UTF-8
+     */
     protected function conversionTabCaractere(array $tab): array
     {
         $array = [];
@@ -218,34 +234,31 @@ class Controller
         return $array;
     }
 
+    /**
+     * Rediriger vers une URL
+     */
     protected function redirectTo($url)
     {
-        // Créer une réponse de redirection
         $response = new RedirectResponse($url);
-        // Envoyer la réponse de redirection au client
         $response->send();
     }
 
     /**
-     * redirigé l'utilisateur vers la route donnée en paramètre
-     *
-     * @param string $routeName nom de la route en question 
-     *      Exemple: $routeName = "profil_acceuil"
-     * @param array $params tableau de paramètres à ajouter dans la route
-     * @return void
+     * Rediriger vers une route
      */
     protected function redirectToRoute(string $routeName, array $params = [])
     {
-        $url = self::$generator->generate($routeName, $params);
-        header("Location: $url");
-        exit();
+        $url = $this->getUrlGenerator()->generate($routeName, $params);
+        $this->redirectTo($url);
+        exit;
     }
 
-
+    /**
+     * Tester la validité d'un JSON
+     */
     protected function testJson($jsonData)
     {
         if ($jsonData === false) {
-            // L'encodage a échoué, vérifions pourquoi
             switch (json_last_error()) {
                 case JSON_ERROR_NONE:
                     echo 'Aucune erreur';
@@ -270,11 +283,13 @@ class Controller
                     break;
             }
         } else {
-            // L'encodage a réussi
             echo $jsonData;
         }
     }
 
+    /**
+     * Compléter une chaîne de caractères
+     */
     private function CompleteChaineCaractere($ChaineComplet, $LongerVoulu, $Caracterecomplet, $PositionComplet)
     {
         for ($i = 1; $i < $LongerVoulu; $i++) {
@@ -289,184 +304,120 @@ class Controller
         return $ChaineComplet;
     }
 
-
     /**
-     * Incrimentation de Numero_Applications (DOMAnnéeMoisNuméro)
+     * Incrémentation automatique des numéros d'applications
      */
     protected function autoINcriment(string $nomDemande)
     {
-        //NumDOM auto
-        $YearsOfcours = date('y'); //24
-        $MonthOfcours = date('m'); //01
-        $AnneMoisOfcours = $YearsOfcours . $MonthOfcours; //2401
-        //var_dump($AnneMoisOfcours);
-        // dernier NumDOM dans la base
+        $YearsOfcours = date('y');
+        $MonthOfcours = date('m');
+        $AnneMoisOfcours = $YearsOfcours . $MonthOfcours;
 
-        $Max_Num = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => $nomDemande])->getDerniereId();
+        $Max_Num = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => $nomDemande])->getDerniereId();
 
-        //var_dump($Max_Num);
-        //$Max_Num = 'CAS24040000';
-        //num_sequentielless
-        $vNumSequential =  substr($Max_Num, -4); // lay 4chiffre msincrimente
-        //var_dump($vNumSequential);
+        $vNumSequential = substr($Max_Num, -4);
         $DateAnneemoisnum = substr($Max_Num, -8);
-        //var_dump($DateAnneemoisnum);
         $DateYearsMonthOfMax = substr($DateAnneemoisnum, 0, 4);
-        //var_dump($DateYearsMonthOfMax);
+
         if ($DateYearsMonthOfMax == $AnneMoisOfcours) {
-            $vNumSequential =  $vNumSequential + 1;
+            $vNumSequential = $vNumSequential + 1;
         } else {
             if ($AnneMoisOfcours > $DateYearsMonthOfMax) {
                 $vNumSequential = 1;
             }
         }
-        //var_dump($vNumSequential);
+
         $Result_Num = $nomDemande . $AnneMoisOfcours . $this->CompleteChaineCaractere($vNumSequential, 4, "0", "G");
-        //var_dump($Result_Num);
-
         return $Result_Num;
     }
 
     /**
-     * Decrementation de Numero_Applications (DOMAnnéeMoisNuméro)
-     *
-     * @param string $nomDemande
-     * @return string
+     * Décrémentation automatique des numéros d'applications
      */
-    protected function autoDecrementDIT(string $nomDemande): string
+    protected function autoDecrement(string $nomDemande): string
     {
-        //NumDOM auto
-        $YearsOfcours = date('y'); //24
-        $MonthOfcours = date('m'); //01
-        //$MonthOfcours = "08"; //01
-        $AnneMoisOfcours = $YearsOfcours . $MonthOfcours; //2401
-        //var_dump($AnneMoisOfcours);
-        // dernier NumDOM dans la base
+        $anneMoisCourant = date('ym'); // Format: 2512
 
-        //$Max_Num = $this->casier->RecupereNumCAS()['numCas'];
+        $application = $this->getEntityManager()
+            ->getRepository(Application::class)
+            ->findOneBy(['codeApp' => $nomDemande]);
 
-        if ($nomDemande === 'DIT') {
-            $Max_Num = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT'])->getDerniereId();
-        } else {
-            $Max_Num = $nomDemande . $AnneMoisOfcours . '9999';
+        if (!$application) {
+            throw new \RuntimeException("Application '{$nomDemande}' non trouvée");
         }
 
-        //var_dump($Max_Num);
-        //$Max_Num = 'CAS24040000';
-        //num_sequentielless
-        $vNumSequential =  substr($Max_Num, -4); // lay 4chiffre msincrimente
-        //dump($vNumSequential);
-        $DateAnneemoisnum = substr($Max_Num, -8);
-        //dump($DateAnneemoisnum);
-        $DateYearsMonthOfMax = substr($DateAnneemoisnum, 0, 4);
-        //dump($DateYearsMonthOfMax);
-        if ($DateYearsMonthOfMax == $AnneMoisOfcours) {
-            $vNumSequential =  $vNumSequential - 1;
-        } else {
-            if ($AnneMoisOfcours > $DateYearsMonthOfMax) {
-                $vNumSequential = 9999;
-            }
-        }
+        $dernierId = $application->getDerniereId();
 
-        //dump($vNumSequential);
-        //var_dump($vNumSequential);
-        $Result_Num = $nomDemande . $AnneMoisOfcours . $vNumSequential;
-        //var_dump($Result_Num);
-        //dd($Result_Num);
-        return $Result_Num;
+        // Extraction des composants (ex: DAP25129902)
+        // Format attendu: [CODE][YYMM][NNNN]
+        $longueurCode = strlen($nomDemande);
+        $anneMoisDernier = substr($dernierId, $longueurCode, 4);
+        $numeroSequentiel = (int) substr($dernierId, $longueurCode + 4, 4);
+
+        // Logique de décrémentation
+        if ($anneMoisDernier === $anneMoisCourant) {
+            // Même mois : décrémentation
+            $numeroSequentiel = max(0, $numeroSequentiel - 1);
+        } elseif ($anneMoisCourant > $anneMoisDernier) {
+            // Nouveau mois : réinitialisation à 9999
+            $numeroSequentiel = 9999;
+        }
+        // Si mois courant < dernier mois : garde le numéro actuel (cas edge)
+
+        // Formatage avec padding sur 4 chiffres
+        return sprintf('%s%s%04d', $nomDemande, $anneMoisCourant, $numeroSequentiel);
     }
-
-
-    protected function arrayToObjet(User $user): User
-    {
-
-        $superieurs = [];
-        foreach ($user->getSuperieurs() as  $value) {
-            if (empty($value)) {
-                return $user;
-            } else {
-                $superieurs[] = self::$em->getRepository(user::class)->find($value);
-                $user->setSuperieurs($superieurs);
-            }
-        }
-
-        return $user;
-    }
-
 
     /**
-     * recupère l'agence et service de l'utilisateur connecté dans un tableau où les éléments sont des objets
-     *
-     * @return array
+     * Récupérer l'agence et le service de l'utilisateur connecté (objets)
      */
     protected function agenceServiceIpsObjet(): array
     {
         try {
-            $userId = $this->sessionService->get('user_id');
+            $userInfo = $this->getSessionService()->get('user_info');
 
-            if (!$userId) {
-                throw new \Exception("User ID not found in session");
-            }
+            if (!$userInfo) throw new \Exception("User info not found in session");
 
-            $user = self::$em->getRepository(User::class)->find($userId);
+            $codeAgence = $userInfo["default_agence_code"];
+            $agenceIps = $this->getEntityManager()->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAgence]);
 
-            if (!$user) {
-                throw new \Exception("User not found with ID $userId");
-            }
+            if (!$agenceIps) throw new \Exception("Agence not found with code $codeAgence");
 
-            $codeAgence = $user->getAgenceServiceIrium()->getAgenceIps();
-            $agenceIps = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAgence]);
-
-            if (!$agenceIps) {
-                throw new \Exception("Agence not found with code $codeAgence");
-            }
-
-            $codeService = $user->getAgenceServiceIrium()->getServiceIps();
-            $serviceIps = self::$em->getRepository(Service::class)->findOneBy(['codeService' => $codeService]);
-            if (!$serviceIps) {
-                throw new \Exception("Service not found with code $codeService");
-            }
+            $codeService = $userInfo["default_service_code"];
+            $serviceIps = $this->getEntityManager()->getRepository(Service::class)->findOneBy(['codeService' => $codeService]);
+            if (!$serviceIps) throw new \Exception("Service not found with code $codeService");
 
             return [
-                'agenceIps' => $agenceIps,
+                'agenceIps'  => $agenceIps,
                 'serviceIps' => $serviceIps
             ];
         } catch (\Exception $e) {
-            // Gérer l'erreur ici, par exemple en loguant l'erreur et en retournant une réponse par défaut ou vide.
             error_log($e->getMessage());
             return [
-                'agenceIps' => null,
+                'agenceIps'  => null,
                 'serviceIps' => null
             ];
         }
     }
 
     /**
-     * recupère l'agence et service de l'utilisateur connecté dans un tableau où les éléments sont des chaines de catactère
-     *
-     * @return array
+     * Récupérer l'agence et le service de l'utilisateur connecté (chaînes)
      */
     protected function agenceServiceIpsString(): array
     {
         try {
-            $userId = $this->sessionService->get('user_id');
-            if (!$userId) {
-                throw new \Exception("User ID not found in session");
-            }
+            $userInfo = $this->getSessionService()->get('user_info');
 
-            $user = self::$em->getRepository(User::class)->find($userId);
-            if (!$user) {
-                throw new \Exception("User not found with ID $userId");
-            }
+            if (!$userInfo) throw new \Exception("User info not found in session");
 
-            $codeAgence = $user->getAgenceServiceIrium()->getAgenceips();
-            $agenceIps = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAgence]);
+            $codeAgence = $userInfo["default_agence_code"];
+            $agenceIps = $this->getEntityManager()->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAgence]);
             if (!$agenceIps) {
                 throw new \Exception("Agence not found with code $codeAgence");
             }
 
-            $codeService = $user->getAgenceServiceIrium()->getServiceips();
-            $serviceIps = self::$em->getRepository(Service::class)->findOneBy(['codeService' => $codeService]);
+            $codeService = $userInfo["default_service_code"];
+            $serviceIps = $this->getEntityManager()->getRepository(Service::class)->findOneBy(['codeService' => $codeService]);
             if (!$serviceIps) {
                 throw new \Exception("Service not found with code $codeService");
             }
@@ -478,56 +429,204 @@ class Controller
         } catch (\Throwable $e) {
             error_log($e->getMessage());
             return [
-                'agenceIps' => '',
+                'agenceIps'  => '',
                 'serviceIps' => ''
             ];
         }
     }
 
+    /**
+     * Logger la visite d'un utilisateur
+     */
     protected function logUserVisit(string $nomRoute, ?array $params = null)
     {
-        $idUtilisateur  = $this->sessionService->get('user_id');
-        $utilisateur    = $idUtilisateur !== '-' ? self::$em->getRepository(User::class)->find($idUtilisateur) : null;
+        $userInfo = $this->getSessionService()->get('user_info');
+        $idUtilisateur = $userInfo['id'] ?? "-";
+        $utilisateur = $userInfo ? $this->getEntityManager()->getRepository(User::class)->find($idUtilisateur) : null;
         $utilisateurNom = $utilisateur ? $utilisateur->getNomUtilisateur() : null;
-        $page           = self::$em->getRepository(PageHff::class)->findPageByRouteName($nomRoute);
-        $machine        = gethostbyaddr($_SERVER['REMOTE_ADDR']) ?? $_SERVER['REMOTE_ADDR'];
+        $page = $this->getEntityManager()->getRepository(PageHff::class)->findPageByRouteName($nomRoute);
+        $machine = gethostbyaddr($_SERVER['REMOTE_ADDR']) ?? $_SERVER['REMOTE_ADDR'];
 
-        $log            = new UserLogger();
+        $log = new UserLogger();
 
-        $log->setUtilisateur($utilisateurNom ?: '-');
+        $log->setUtilisateur($utilisateurNom ?? '-');
         $log->setNom_page($page->getNom());
-        // $log->setNom_page('-');
-        $log->setParams($params ?: null);
+        $log->setParams($params);
         $log->setUser($utilisateur);
-        // $log->setPage($page);
         $log->setMachineUser($machine);
 
-        self::$em->persist($log);
-        self::$em->flush();
+        $this->getEntityManager()->persist($log);
+        $this->getEntityManager()->flush();
     }
 
-    protected function verifierSessionUtilisateur()
+    /**
+     * Récupérer l'ID de l'utilisateur
+     */
+    protected function getUserId(): ?int
     {
-        if (!$this->sessionService->has('user_id')) {
-            $this->redirectToRoute("security_signin");
-        }
+        $userInfo = $this->getSessionService()->get('user_info');
+        return $userInfo['id'] ?? null;
     }
 
-    protected function getUserId(): int
-    {
-        return $this->sessionService->get('user_id');
-    }
-
-    protected function getUser(): User
-    {
-        //recuperation de l'utilisateur connecter
-        $userId = $this->getUserId();
-        return  self::$em->getRepository(User::class)->find($userId);
-    }
-
-    protected function getEmail(): string
+    /**
+     * Récupérer l'utilisateur
+     */
+    protected function getUser(): ?User
     {
         $userId = $this->getUserId();
-        return self::$em->getRepository(User::class)->find($userId)->getMail();
+        return $userId ? $this->getEntityManager()->getRepository(User::class)->find($userId) : null;
+    }
+
+    /**
+     * Récupérer l'email de l'utilisateur
+     */
+    protected function getUserMail(): string
+    {
+        $userInfo = $this->getSessionService()->get('user_info');
+        return $userInfo['email'] ?? "";
+    }
+
+    /**
+     * Récupérer le nom de l'utilisateur
+     */
+    protected function getUserName(): string
+    {
+        $userInfo = $this->getSessionService()->get('user_info');
+        return $userInfo['username'] ?? "";
+    }
+
+    /**
+     * Récupérer le profil id enregistré
+     */
+    protected function getProfilId(): string
+    {
+        $userInfo = $this->getSessionService()->get('user_info');
+        return $userInfo['profil_id'] ?? "";
+    }
+
+    /** 
+     * Vérifie si l'utilisateur connecté est un administrateur par son profil
+     */
+    protected function estAdmin(): bool
+    {
+        return $this->getSecurityService()->estAdmin();
+    }
+
+    /** 
+     * Vérifie si l'utilisateur connecté est ATELIER par le fait qu'il peut créer un DIT (ie qui a accès à la page de création de DIT)
+     */
+    protected function estAtelier(): bool
+    {
+        return $this->getSecurityService()->estAtelier();
+    }
+
+    /** 
+     * Vérifie si l'utilisateur connecté est CREATEUR DA DIRECTE par le fait qu'il peut créer un DA DIRECTE (ie qui a accès à la page de création de DA)
+     */
+    protected function estCreateurDaDirecte(): bool
+    {
+        return $this->getSecurityService()->estCreateurDaDirecte();
+    }
+
+    /**
+     * Vérifie si l'utilisateur connecté est APPRO par le fait de son agence et service par défaut (80 - APP)
+     */
+    protected function estAppro(): bool
+    {
+        return $this->getSecurityService()->estAppro();
+    }
+
+    /**
+     * Vérifie si l'utilisateur connecté est dans RH par le fait de son agence et service par défaut (80 - PER)
+     */
+    protected function estRH(): bool
+    {
+        return $this->getSecurityService()->estRH();
+    }
+
+    /**
+     * Vérifie si l'utilisateur connecté est ENERGIE par le fait de son agence par défaut (90/91/92)
+     */
+    protected function estEnergie(): bool
+    {
+        return $this->getSecurityService()->estEnergie();
+    }
+
+    /**
+     * Rendre un template Twig
+     */
+    protected function render(string $template, array $parameters = []): Response
+    {
+        $content = $this->getTwig()->render($template, $parameters);
+        return new Response($content);
+    }
+
+    // =====================================
+    // MÉTHODES HELPER DE BASECONTROLLER
+    // =====================================
+
+    /** 
+     * Réinitialiser et écraser le cache pour le profil donnée
+     */
+    protected function resetAndPasteCache(Profil $profil)
+    {
+        $profilId      = $profil->getId();
+        $dataService   = $this->getSecurityService()->getDataService();
+        $menuService   = $this->getMenuService();
+        $profilIdAdmin = $dataService->getProfilId();
+
+        // 1. Suppression physique
+        $dataService->supprimerClesPhysiques($profilId, $profil);
+        $menuService->supprimerClesPhysiques($profilId);
+
+        // 2. Invalider les deux versions
+        $dataService->invaliderVersion($profilId);
+        $menuService->invaliderVersion($profilId);
+
+        // 3. Vider le cache Doctrine → force la relecture depuis la BDD
+        $this->getEntityManager()->clear();
+
+        // 4. Recharger le profil depuis la BDD (entité fraîche)
+        $profil = $this->getEntityManager()->getRepository(Profil::class)->find($profilId);
+
+        // 5. Basculer sur le profil à reconstruire
+        $dataService->setProfilId($profilId);
+
+        // 6. Reconstruire
+        $dataService->reconstruireSecurityProfil($profil);
+        $menuService->reconstruireMenuProfil($profilId);
+        $dataService->reconstruireAgServProfil($profil);
+
+        // 7. Restaurer le profilId admin
+        $dataService->setProfilId($profilIdAdmin);
+    }
+
+    /**
+     * Méthode helper pour la redirection vers une route avec Response
+     */
+    protected function redirectToRouteResponse(string $routeName, array $params = []): RedirectResponse
+    {
+        $url = $this->getUrlGenerator()->generate($routeName, $params);
+        return new RedirectResponse($url);
+    }
+
+    /**
+     * Méthode helper pour la redirection vers une URL avec Response
+     */
+    protected function redirectToResponse(string $url): RedirectResponse
+    {
+        return new RedirectResponse($url);
+    }
+
+    /**
+     * Méthode helper pour créer une réponse JSON
+     */
+    protected function jsonResponse($data, int $status = 200): Response
+    {
+        return new Response(
+            json_encode($data),
+            $status,
+            ['Content-Type' => 'application/json']
+        );
     }
 }

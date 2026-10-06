@@ -1,0 +1,85 @@
+<?php
+
+
+namespace App\Controller\pol\ors\Livrer;
+
+ini_set('max_execution_time', 10000);
+ini_set('memory_limit', '1000M');
+
+use App\Constants\admin\ApplicationConstant;
+use App\Controller\Controller;
+use App\Controller\Traits\magasin\ors\MagasinOrALivrerTrait;
+use App\Controller\Traits\Transformation;
+use App\Form\magasin\MagasinListeOrALivrerSearchType;
+use App\Service\security\SecurityService;
+use App\Service\TableauEnStringService;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
+
+/**
+ * @Route("/pol/ors-pol")
+ */
+class OrLivrerController extends Controller
+{
+    use Transformation;
+    use MagasinOrALivrerTrait;
+    /**
+     * @Route("/liste-or-livrer", name="pol_or_liste_a_livrer")
+     *
+     * @return void
+     */
+    public function listOrLivrer(Request $request)
+    {
+        $agenceUser = "''";
+
+        // Vérifier la permission de voir tous les données
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
+
+        if (!$multisuccursale) {
+            $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_POL);
+
+            // Si l'utilisateur n'a pas d'agence et service autorisé, on prend son agence par défaut
+            $codeAgence = empty($agenceServiceAutorises) ? [$this->getSecurityService()->getCodeAgenceUser()] : array_column($agenceServiceAutorises, 'agence_code');
+
+            $agenceUser = TableauEnStringService::TableauEnString(',', $codeAgence);
+        }
+
+        $form = $this->getFormFactory()->createBuilder(MagasinListeOrALivrerSearchType::class, ['agenceUser' => $agenceUser], [
+            'method' => 'GET',
+            'est_pneumatique' => true
+        ])->getForm();
+
+        //traitement du formulaire et recupération des data
+        $data = $this->traitementFormualire($form, $request, $agenceUser);
+
+        $this->logUserVisit('magasinListe_or_Livrer'); // historisation du page visité par l'utilisateur
+
+        return $this->render('pol/ors/listOrLivrer.html.twig', [
+            'data' => $data,
+            'form' => $form->createView(),
+            'est_pneumatique' => true
+        ]);
+    }
+
+    private function traitementFormualire(FormInterface $form, Request $request, string $agenceUser): array
+    {
+        $form->handleRequest($request);
+
+        $criteria = [
+            "agenceUser" => $agenceUser,
+            "orCompletNon" => "ORs COMPLET",
+            "pieces" => "PIECES MAGASIN"
+        ];
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            // recupération des données du formulaire
+            $criteria = $form->getData();
+        }
+        //enregistrer les critère de recherche dans la session
+        $this->getSessionService()->set('pol_liste_or_livrer_search_criteria', $criteria);
+
+        //recupération des données
+        return $this->recupData($criteria);
+    }
+}

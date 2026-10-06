@@ -5,11 +5,13 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/admin/historisation/operation-document/dashboard.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/admin/historisation/operation-document/dashboard.css?v={{ App.browserHash }}">
 {% endblock %}
 
+{% block breadCrumb %}{% endblock %}
+
 {% block content %}
-	<div class="container mt-4">
+	<div class="container my-4">
 		<h3 class="perso-titre">Statistiques globales sur les opérations des documents</h3>
 
 		<div
@@ -46,5 +48,5 @@
 
 {% block javascript %}
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-	<script src="{{ App.base_path }}/Views/js/admin/historisation/operation-document/dashboard.js"></script>
+	<script src="{{ App.base_path }}/Views/js/admin/historisation/operation-document/dashboard.js?v={{ App.browserHash }}"></script>
 {% endblock %}

@@ -1,0 +1,77 @@
+<p>
+	La demande
+	{{ daLabel }}
+	n°
+	<b>{{ demandeAppro.numeroDemandeAppro }}</b>
+	a été modifiée par
+	<b>{{ fullNameUser }}</b>.
+</p>
+<p>
+	<b>Détails de la demande :</b>
+	<ul>
+		<li>
+			<b>Numéro de la demande :</b>
+			{{ demandeAppro.numeroDemandeAppro }}
+		</li>
+		<li>
+			<b>Objet de la demande :</b>
+			{{ demandeAppro.objetDal }}
+		</li>
+		<li>
+			<b>Détail de la demande :</b>
+			<div class="espace">
+				{{ demandeAppro.detailDal|raw }}
+			</div>
+		</li>
+		<li>
+			<b>Observation:</b>
+			<div class="espace">
+				{{ observation|raw }}
+			</div>
+		</li>
+	</ul>
+</p>
+<hr>
+<p>Demande avant modification</p>
+<table>
+	<thead style="background-color:#D9E1F2;">
+		<tr>
+			{% for headLabel, headValue in preparedDatas.old.head %}
+				<th>{{ headValue }}</th>
+			{% endfor %}
+		</tr>
+	</thead>
+	<tbody>
+		{% for row in preparedDatas.old.body  %}
+			<tr>
+				{% for headLabel, headValue in preparedDatas.old.head %}
+					<td>{{ row[headLabel] }}</td>
+				{% endfor %}
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>
+<br>
+<hr>
+<p>Demande modifiée par le service
+	{{ service }}.</p>
+<table>
+	<thead style="background-color:#000; color:#f2f2f2;">
+		<tr>
+			{% for headLabel, headValue in preparedDatas.new.head %}
+				<th>{{ headValue }}</th>
+			{% endfor %}
+		</tr>
+	</thead>
+	<tbody>
+		{% for row in preparedDatas.new.body  %}
+			<tr>
+				{% for headLabel, headValue in preparedDatas.new.head %}
+					<td>{{ row[headLabel] }}</td>
+				{% endfor %}
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>
+<br>
+<hr>

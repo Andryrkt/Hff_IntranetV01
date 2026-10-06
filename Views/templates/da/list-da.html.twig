@@ -1,0 +1,180 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Liste des Demandes d'Achats
+{% endblock %}
+
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/new.css?v={{ App.browserHash }}">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v={{ App.browserHash }}">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/list.css?v={{ App.browserHash }}">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/style.css?v={{ App.browserHash }}">
+{% endblock %}
+
+{% block overlay %}
+	{% include "/shared/_overlay.html.twig" %}
+{% endblock %}
+
+{% block content %}
+	<div class="sticky-header-titre">
+		<div class="container">
+			{% include "/partials/_notification.html.twig" %}
+			{% include "/da/shared/listeDA/_formulaireRecherche.html.twig" %}
+			{% include "/da/shared/listeDA/_pagination.html.twig" %}
+		</div>
+	</div>
+
+	<div class="container-fluid">
+		<table class="table table-sticky">
+			<thead class="table-dark align-middle">
+				<tr>
+					<th>
+						<i class="fas fa-ellipsis-vertical"></i>
+					</th>
+					<th class="text-center">N° Demande</th>
+					<th class="text-center">Type de demande</th>
+					<th class="text-center">N° DIT</th>
+					<th class="text-center">Niveau urgence</th>
+					<th class="text-center">N° OR</th>
+					<th class="text-center">Demandeur</th>
+					<th class="text-center">Date de demande</th>
+					<th class="text-center">Statut DA</th>
+					<th class="text-center">Statut DW</th>
+					<th class="text-center">Statut BC</th>
+					<th class="text-center">N° Commande</th>
+					<th class="text-center {{ codeCentrale ? '' : 'd-none' }}">Centrale</th>
+					<th class="text-center">Date Planning OR</th>
+					<th>Fournisseur</th>
+					<th>CST</th>
+					<th>Réference</th>
+					<th>Désignation</th>
+					<th class="text-center">Qté dem</th>
+					<th class="text-center">Qté en attente</th>
+					<th class="text-center">Qté Dispo (Qté à livrer)</th>
+					<th class="text-center">Qté livrée</th>
+					<th class="text-center">Date fin souhaitée</th>
+					<th class="text-center">Date livraison prévue</th>
+					<th class="text-center">
+						<div class="d-flex flex-row align-items-center">
+							<span>Nbr Jour(s) dispo</span>
+							<div class="{{ sortJoursClass ? '' : 'd-none' }}">
+								<i class="{{ sortJoursClass }} fs-4 text-warning"></i>
+							</div>
+						</div>
+					</th>
+					<th class="text-center">Statut compta</th>
+					<th class="text-center">Suppression</th>
+				</tr>
+			</thead>
+			<tbody id="tableBody" class="align-middle">
+				{% for row in data %}
+					<tr>
+						{# === Début Action ==== #}
+						<td style="padding: 0px">
+							<div class="dropdown">
+								<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+									<i class="fas fa-ellipsis-vertical"></i>
+								</button>
+								<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton">
+									{% if row.ajouterDA %}
+										<li>
+											<a class="dropdown-item fw-bold ajout-overlay" href="{{ row.urlCreation }}">Créer une DA à partir du DIT</a>
+										</li>
+									{% endif %}
+									{% if row.demandeDevis %}
+										<li>
+											<a class="dropdown-item fw-bold devis-demande" style="cursor:pointer;" data-demande-devis-path="{{ row.urlDemandeDevis }}">Pointer la demande de devis</a>
+										</li>
+									{% endif %}
+									{% if row.statutValide %}
+										<li>
+											<a class="dropdown-item fw-bold" href="{{ App.base_path_fichier }}/da/{{ row.numeroDemandeAppro }}/{{ row.numeroDemandeAppro }}.pdf" target="_blank">Afficher le PDF de la DA</a>
+										</li>
+									{% endif %}
+									{% if row.telechargerOR %}
+										<li>
+											<a class="dropdown-item fw-bold" href="{{ App.base_path_fichier }}/{{ row.pathOr }}" download>Télécharger l’OR</a>
+										</li>
+									{% endif %}
+								</ul>
+							</div>
+						</td>
+						{# === Fin Actions ==== #}
+						<td class="fs-7 fw-bold ps-3" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ row.objet }}">{{ row.numDaParent }}</td>
+						<td class="d-none">{{ row.numeroDemandeAppro }}</td>
+						<td class="text-center" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ row.numeroDemandeAppro }}">
+							<a href="{{ row.urlDetail }}" target="_blank">{{ row.daTypeIcon|raw }}</a>
+						</td>
+						<td>{{ row.numeroDemandeDit }}</td>
+						<td>{{ row.niveauUrgence }}</td>
+						<td>{{ row.numeroOr }}</td>
+						<td>{{ row.demandeur }}</td>
+						<td>{{ row.dateDemande }}</td>
+						<td class="text-center fw-bold {{ row.styleStatutDA }} {{ row.actionLibelle ? 'action-popover-trigger' : '' }}" data-bs-toggle="{{ row.actionLibelle ? 'popover' : '' }}" data-bs-trigger="hover focus" data-bs-placement="right" data-bs-custom-class="popover-action" title="{{ row.actionActeur }}" data-bs-content="{{ row.actionLibelle }}">{{ row.statutDal }}</td>
+						<td class="text-center fw-bold {{ row.styleStatutOR }}">{{ row.statutOr }}</td>
+						<td class="text-center fw-bold {{ row.styleStatutBC }}">{{ row.statutCde }}</td>
+						<td class="text-center fw-bold">{{ row.numeroCde }}</td>
+						<td class="text-center fw-bold {{ codeCentrale ? '' : 'd-none' }}">{{ row.centrale }}</td>
+						<td class="text-center">{{ row.datePlannigOr }}</td>
+						<td class="text-start">{{ row.nomFournisseur }}</td>
+						<td class="text-start">{{ row.artConstp }}</td>
+						<td class="text-start">{{ row.artRefp }}</td>
+						<td class="text-start {{ row.estDalr ? 'mise-en-evidence' : '' }}">
+							{% if row.verouille %}
+								{{ row.artDesi }}
+							{% else %}
+								<a {% for attr, val in row.aArtDesiAttributes %} {{ attr }}="{{ val }}" {% endfor %}>
+									{{ row.artDesi }}
+								</a>
+							{% endif %}
+						</td>
+						<td class="text-center">{{ row.qteDem }}</td>
+						<td class="text-center">{{ row.qteEnAttent }}</td>
+						<td class="text-center">{{ row.qteDispo }}</td>
+						<td class="text-center">{{ row.qteLivrer }}</td>
+						<td class="text-center">{{ row.dateFinSouhaite }}</td>
+						<td class="text-center">
+							{% if row.envoyeFrn %}
+								<a {% for attr, val in row.aDtLivPrevAttributes %} {{ attr }}="{{ val }}" {% endfor %}>
+									{{ row.dateLivraisonPrevue }}
+								</a>
+							{% else %}
+								{{ row.dateLivraisonPrevue }}
+							{% endif %}
+						</td>
+						<td class="text-center {{ row.styleJoursDispo }}">{{ row.joursDispo }}</td>
+						<td class="text-center fw-bold {{ row.styleStatutCompta }}">
+							{% if row.statutCompta %}
+								<a {% for attr, val in row.ddpCloture %} {{ attr }}="{{ val }}" {% endfor %}>
+									{{ row.statutCompta }}
+								</a>
+							{% else %}
+								-
+							{% endif %}
+						</td>
+						<td class="text-center">
+							{% if row.supprimable %}
+								<i class="fas fa-trash-can text-danger fs-6 delete-line-DA" style="cursor:pointer;" data-bs-toggle="tooltip" title="Supprimer la ligne de DA" data-delete-path="{{ row.urlDelete }}"></i>
+							{% endif %}
+						</td>
+					</tr>
+				{% else %}
+					<tr>
+						<td colspan="26" class="text-center py-4">Aucune donnée trouvée</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+
+	{# {% include "/partials/_pagination.html.twig" %} #}
+
+	{% include "/dit/shared/_modalNiveauUrgence.html.twig" %}
+	{% include "/da/shared/cdeFrn/_modalDateLivraison.html.twig" %}
+	{% include "/da/shared/cdeFrn/_modalDdpCloture.html.twig" %}
+{% endblock %}
+
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v={{ App.browserHash }}"></script>
+	<script src="{{ App.base_path }}/Views/js/da/listeDa/list.js?v={{ App.browserHash }}" type="module"></script>
+{% endblock %}

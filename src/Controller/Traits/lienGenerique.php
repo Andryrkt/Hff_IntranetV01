@@ -19,9 +19,10 @@ trait lienGenerique
      * echo $link; // Résultat possible : http://localhost/my-project
      * ```
      */
-    private function urlGenerique(string $url) : string
+    private function urlGenerique(string $url): string
     {
         $host = $_SERVER['HTTP_HOST']; // Récupère l'IP ou le domaine courant
+        $url = ltrim($url, '/'); // Supprime le / initial s’il existe
         return "http://$host/$url";
     }
 }

@@ -191,4 +191,24 @@ class CdefnrSoumisAValidationModel extends Model
 
         return array_column($this->retournerResult04($sqls),'Cust_ref');
     }
+
+
+    public function facOUNonFacEtValide(string $numeroFournisseur, string  $numCde)
+    {
+        $sql = "SELECT  
+          
+            count(TRZT_Facture.Numero_Facture) as nbfac
+
+            from TRZT_Dossier_Douane
+            LEFT JOIN TRZT_Facture on TRZT_Dossier_Douane.Numero_Dossier_Douane = TRZT_Facture.Numero_Dossier_Douane
+            LEFT JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
+            LEFT JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
+            where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%' 
+            and TRZT_Facture.Numero_Facture like ('PDV_%')
+            and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
+            and GCOT_Facture_Ligne.Numero_PO  = '{$numCde}'
+        ";
+
+        return array_column($this->retournerResultGcot04($sql), 'nbfac');
+    }
 }

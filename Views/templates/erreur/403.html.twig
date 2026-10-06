@@ -1,0 +1,33 @@
+{% extends "baseTemplate.html.twig"%}
+
+{% block title %}
+	403 access forbidden
+{% endblock %}
+
+{% block nav %}{% endblock %}
+
+{% block stylesheets %}
+	<link href="{{ App.base_path }}/Views/css/erreur/404.css?v={{ App.browserHash }}" rel="stylesheet">
+{% endblock %}
+
+{% block breadCrumb %}{% endblock %}
+
+{% block content %}
+	<div id="notfound">
+		<div class="notfound-bg">
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+		</div>
+		<div class="notfound">
+			<p class="text-danger fs-4">Vous n’êtes pas un utilisateur autorisé.</p>
+			<a href="javascript:history.back()">
+				<i class="fas fa-arrow-left-long pe-2"></i>
+				Retour
+			</a>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}{% endblock %}

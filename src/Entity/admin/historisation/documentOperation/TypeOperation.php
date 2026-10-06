@@ -14,6 +14,20 @@ use App\Repository\admin\historisation\documentOperation\TypeOperationRepository
  */
 class TypeOperation
 {
+    const TYPE_OPERATION_SOUMISSION_NAME = 'SOUMISSION';
+    const TYPE_OPERATION_VALIDATION_NAME = 'VALIDATION';
+    const TYPE_OPERATION_MODIFICATION_NAME = 'MODIFICATION';
+    const TYPE_OPERATION_SUPPRESSION_NAME = 'SUPPRESSION';
+    const TYPE_OPERATION_CREATION_NAME = 'CREATION';
+    const TYPE_OPERATION_CLOTURE_NAME = 'CLOTURE';
+
+    const TYPE_OPERATION_SOUMISSION_ID = 1;
+    const TYPE_OPERATION_VALIDATION_ID = 2;
+    const TYPE_OPERATION_MODIFICATION_ID = 3;
+    const TYPE_OPERATION_SUPPRESSION_ID = 4;
+    const TYPE_OPERATION_CREATION_ID = 5;
+    const TYPE_OPERATION_CLOTURE_ID = 6;
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue

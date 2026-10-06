@@ -1,0 +1,171 @@
+<?php
+
+namespace App\Entity\admin\utilisateur;
+
+use Doctrine\ORM\Mapping as ORM;
+use App\Entity\admin\ApplicationProfil;
+use App\Entity\admin\historisation\pageConsultation\PageHff;
+use App\Repository\admin\utilisateur\ApplicationProfilPageRepository;
+
+/**
+ * @ORM\Entity(repositoryClass=ApplicationProfilPageRepository::class)
+ * @ORM\Table(name="application_profil_page")
+ */
+class ApplicationProfilPage
+{
+    /**
+     * @ORM\Id
+     * @ORM\GeneratedValue
+     * @ORM\Column(type="integer")
+     */
+    private int $id;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=ApplicationProfil::class, inversedBy="liaisonsPage")
+     * @ORM\JoinColumn(name="application_profil_id", referencedColumnName="id", nullable=false)
+     */
+    private ?ApplicationProfil $applicationProfil;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=PageHff::class, inversedBy="applicationProfilPages")
+     * @ORM\JoinColumn(name="page_id", referencedColumnName="id", nullable=false)
+     */
+    private ?PageHff $page;
+
+    public function __construct(ApplicationProfil $applicationProfil, PageHff $page)
+    {
+        $this->applicationProfil = $applicationProfil;
+        $this->page = $page;
+    }
+
+    // -------------------------------------------------------------------------
+    //  Permissions
+    // -------------------------------------------------------------------------
+
+    /**
+     * @ORM\Column(type="boolean", name="peut_voir", options={"default": true})
+     */
+    private bool $peutVoir = true;
+
+    /**
+     * @ORM\Column(type="boolean", name="peut_voir_liste_avec_debiteur", options={"default": false})
+     */
+    private bool $peutVoirListeAvecDebiteur = false;
+
+    /**
+     * @ORM\Column(type="boolean", name="peut_multi_succursale", options={"default": false})
+     */
+    private bool $peutMultiSuccursale = false;
+
+    /**
+     * @ORM\Column(type="boolean", name="peut_supprimer", options={"default": false})
+     */
+    private bool $peutSupprimer = false;
+
+    /**
+     * @ORM\Column(type="boolean", name="peut_exporter", options={"default": false})
+     */
+    private bool $peutExporter = false;
+
+    // -------------------------------------------------------------------------
+    //  Getters / Setters
+    // -------------------------------------------------------------------------
+
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function getApplicationProfil(): ?ApplicationProfil
+    {
+        return $this->applicationProfil;
+    }
+
+    public function setApplicationProfil(?ApplicationProfil $applicationProfil): self
+    {
+        $this->applicationProfil = $applicationProfil;
+        return $this;
+    }
+
+    public function getPage(): ?PageHff
+    {
+        return $this->page;
+    }
+
+    public function setPage(?PageHff $page): self
+    {
+        $this->page = $page;
+        return $this;
+    }
+
+    public function isPeutVoir(): bool
+    {
+        return $this->peutVoir;
+    }
+
+    public function setPeutVoir(bool $peutVoir): self
+    {
+        $this->peutVoir = $peutVoir;
+        return $this;
+    }
+
+    public function isPeutVoirListeAvecDebiteur(): bool
+    {
+        return $this->peutVoirListeAvecDebiteur;
+    }
+
+    public function setPeutVoirListeAvecDebiteur(bool $peutVoirListeAvecDebiteur): self
+    {
+        $this->peutVoirListeAvecDebiteur = $peutVoirListeAvecDebiteur;
+
+        return $this;
+    }
+
+    public function isPeutMultiSuccursale(): bool
+    {
+        return $this->peutMultiSuccursale;
+    }
+
+    public function setPeutMultiSuccursale(bool $peutMultiSuccursale): self
+    {
+        $this->peutMultiSuccursale = $peutMultiSuccursale;
+        return $this;
+    }
+
+    public function isPeutSupprimer(): bool
+    {
+        return $this->peutSupprimer;
+    }
+
+    public function setPeutSupprimer(bool $peutSupprimer): self
+    {
+        $this->peutSupprimer = $peutSupprimer;
+        return $this;
+    }
+
+    public function isPeutExporter(): bool
+    {
+        return $this->peutExporter;
+    }
+
+    public function setPeutExporter(bool $peutExporter): self
+    {
+        $this->peutExporter = $peutExporter;
+        return $this;
+    }
+
+    // -------------------------------------------------------------------------
+    //  Helper : retourne toutes les permissions sous forme de tableau
+    // -------------------------------------------------------------------------
+
+    public function toArray(): array
+    {
+        return [
+            'peutVoir'                   => $this->peutVoir,
+            'peutVoirListeAvecDebiteur'  => $this->peutVoirListeAvecDebiteur,
+            'peutMultiSuccursale'        => $this->peutMultiSuccursale,
+            'peutSupprimer'              => $this->peutSupprimer,
+            'peutExporter'               => $this->peutExporter
+        ];
+    }
+}

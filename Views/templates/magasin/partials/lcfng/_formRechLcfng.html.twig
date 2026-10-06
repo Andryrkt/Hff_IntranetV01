@@ -1,0 +1,53 @@
+{% import "macroForm.html.twig" as macroForm %}
+<div class="accordion" id="accordionExample">
+	<div class="accordion-item">
+		<h2 class="accordion-header">
+			<button class="accordion-button enteteAccordion" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+				Formulaire de recherche
+			</button>
+		</h2>
+		<div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+			<div class="accordion-body">
+				{{ form_start(form)}}
+				<div class="row">
+					<div class="col-12 col-md-2">
+						{{ macroForm.agence_service_change(form.agenceEmetteur, form.serviceEmetteur, 'spinner-service-emetteur', 'service-container-emetteur')}}
+					</div>
+					<div class="col-12 col-md-2">
+						{{ macroForm.agence_service_change(form.agence, form.service, 'spinner-service', 'service-container')}}
+						{{form_row(form.numClient)}}
+					</div>
+					<div class="col-12 col-md-2">
+						{{form_row(form.typeDoc)}}
+						{{form_row(form.numDoc)}}
+						{{form_row(form.numDit)}}
+					</div>
+					<div class="col-12 col-md-2">
+						{{form_row(form.dateDebutDoc)}}
+						{{form_row(form.dateFinDoc)}}
+
+					</div>
+					<div class="col-12 col-md-2">
+						{{form_row(form.typeLigne)}}
+						{{form_row(form.constructeur)}}
+						{{form_row(form.referencePiece)}}
+						{{form_row(form.designation)}}
+					</div>
+					<div class="col-12 col-md-2">
+						{{form_row(form.orValide)}}
+					</div>
+				</div>
+				<class class="row">
+					<div class="col-12 ">
+						<div class="d-flex justify-content-end mb-2">
+							<button class="btn btn-warning fw-bold" type="submit">
+								<i class="fab fa-searchengin"></i>
+								Recherche</button>
+						</div>
+					</div>
+				</class>
+				{{ form_end(form)}}
+			</div>
+		</div>
+	</div>
+</div>

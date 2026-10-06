@@ -1,0 +1,26 @@
+{% extends 'baseTemplate.html.twig' %}
+
+{% block title %}Documentation Technique
+{% endblock %}
+
+{% block content %}
+	    <h1>Documentation Technique</h1>
+
+    {% if groupedDocuments is not empty %}
+        {% for category, documents in groupedDocuments %}
+            <h2>{{ category }}</h2>
+            <ul>
+                {% for doc in documents %}
+                    <li>
+                        <a href="{{ path('app_doc_tech_show', {filename: doc.filename}) }}">{{ doc.title }}</a>
+                        {% if doc.metadata.description is defined %}
+                            <p class="doc-description">{{ doc.metadata.description }}</p>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endfor %}
+    {% else %}
+        <p>Aucune documentation technique n'a été trouvée.</p>
+    {% endif %}
+{% endblock %}

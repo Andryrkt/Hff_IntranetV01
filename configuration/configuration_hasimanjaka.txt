@@ -16,7 +16,7 @@ DB_PASSWORD_SQLSERV_4=catkpi
 #connexion à la base de donnée Informix
 DB_DNS_INFORMIX=IPS_HFFPROD64
 DB_USERNAME_INFORMIX=informix
-DB_PASSWORD_INFORMIX=informix
+DB_PASSWORD_INFORMIX=k6UK19zaaAV10i
 
 #connexion à la bas ede donnée sqlServer sans ODBC
 DB_NAME=HFF_INTRANET

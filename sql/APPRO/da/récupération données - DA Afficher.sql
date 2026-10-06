@@ -1,0 +1,9 @@
+
+INSERT INTO da_afficher
+(numero_demande_appro, numero_demande_dit, numero_cde, statut_dal, objet_dal, detail_dal, num_ligne, qte_dem, qte_dispo, qte_livrer, qte_en_attent, art_constp, art_refp, art_desi, code_fams1, art_fams1, code_fams2, art_fams2, numero_fournisseur, nom_fournisseur, date_fin_souhaitee_l, commentaire, prix_unitaire, total, est_fiche_technique, nom_fiche_technique,pj_new_ate, catalogue, date_livraison_prevue, valide_par, numero_version, niveau_urgence, jours_dispo, demandeur, achat_direct,  date_demande, est_dalr, date_creation, date_modification, bc_envoyer_fournisseur, agence_emmetteur_id, Service_emmetteur_id, agence_debiteur_id, service_debiteur_id, demande_appro_id, deleted, da_type_id, est_bl_reappro_soumis, code_centrale, designation_central, numero_demande_appro_mere, code_societe)
+SELECT da.numero_demande_appro,da.numero_demande_dit,'',da.statut_dal,da.objet_dal,da.detail_dal,dal.num_ligne, dal.qte_dem, 0, 0, 0, dal.art_constp, dal.art_refp, dal.art_desi, dal.code_fams1, dal.art_fams1, dal.code_fams2, dal.art_fams2, dal.numero_fournisseur, dal.nom_fournisseur, dal.date_fin_souhaitee_l, dal.commentaire, dal.prix_unitaire, CAST(dal.prix_unitaire AS DECIMAL(18,4)) * dal.qte_dem, dal.est_fiche_technique, dal.nom_fiche_technique, '[]', dal.catalogue, dal.date_livraison_prevue, dal.valide_par, 1, '', dal.jours_dispo, dal.demandeur, da.achat_direct, da.date_creation, 0, da.date_creation, da.date_modification, 0, da.agence_emmetteur_id, da.Service_emmetteur_id, da.agence_debiteur_id, da.service_debiteur_id, da.id, 0, da.da_type_id, 0, da.code_centrale, da.designation_central, da.numero_demande_appro_mere, da.code_societe
+from Demande_Appro da 
+join Demande_Appro_L dal 
+	on dal.demande_appro_id=da.id 
+where da.numero_demande_appro in ('DAP26079993', 'DAP26079992')
+

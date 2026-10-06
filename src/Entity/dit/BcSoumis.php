@@ -75,15 +75,19 @@ class BcSoumis
      * @ORM\Column(type="string", length=50)
      */
     private $statut;
-    
-    
+
+    /** 
+     * @ORM\Column(type="string", length=2, name="code_societe", nullable=true)
+     */
+    private $codeSociete;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
 
     /**
      * Get the value of id
-     */ 
+     */
     public function getId()
     {
         return $this->id;
@@ -93,7 +97,7 @@ class BcSoumis
      * Get the value of numDit
      *
      * @return  string
-     */ 
+     */
     public function getNumDit()
     {
         return $this->numDit;
@@ -105,7 +109,7 @@ class BcSoumis
      * @param  string  $numDit
      *
      * @return  self
-     */ 
+     */
     public function setNumDit(string $numDit)
     {
         $this->numDit = $numDit;
@@ -117,7 +121,7 @@ class BcSoumis
      * Get the value of numDevis
      *
      * @return  string
-     */ 
+     */
     public function getNumDevis()
     {
         return $this->numDevis;
@@ -129,7 +133,7 @@ class BcSoumis
      * @param  string  $numDevis
      *
      * @return  self
-     */ 
+     */
     public function setNumDevis(string $numDevis)
     {
         $this->numDevis = $numDevis;
@@ -141,7 +145,7 @@ class BcSoumis
      * Get the value of numBc
      *
      * @return  string
-     */ 
+     */
     public function getNumBc()
     {
         return $this->numBc;
@@ -153,7 +157,7 @@ class BcSoumis
      * @param  string  $numBc
      *
      * @return  self
-     */ 
+     */
     public function setNumBc(string $numBc)
     {
         $this->numBc = $numBc;
@@ -165,7 +169,7 @@ class BcSoumis
      * Get the value of numVersion
      *
      * @return  integer
-     */ 
+     */
     public function getNumVersion()
     {
         return $this->numVersion;
@@ -177,7 +181,7 @@ class BcSoumis
      * @param  integer  $numVersion
      *
      * @return  self
-     */ 
+     */
     public function setNumVersion($numVersion)
     {
         $this->numVersion = $numVersion;
@@ -187,7 +191,7 @@ class BcSoumis
 
     /**
      * Get the value of dateBc
-     */ 
+     */
     public function getDateBc()
     {
         return $this->dateBc;
@@ -197,7 +201,7 @@ class BcSoumis
      * Set the value of dateBc
      *
      * @return  self
-     */ 
+     */
     public function setDateBc($dateBc)
     {
         $this->dateBc = $dateBc;
@@ -207,7 +211,7 @@ class BcSoumis
 
     /**
      * Get the value of dateDevis
-     */ 
+     */
     public function getDateDevis()
     {
         return $this->dateDevis;
@@ -217,7 +221,7 @@ class BcSoumis
      * Set the value of dateDevis
      *
      * @return  self
-     */ 
+     */
     public function setDateDevis($dateDevis)
     {
         $this->dateDevis = $dateDevis;
@@ -227,7 +231,7 @@ class BcSoumis
 
     /**
      * Get the value of montantDevis
-     */ 
+     */
     public function getMontantDevis()
     {
         return $this->montantDevis;
@@ -237,7 +241,7 @@ class BcSoumis
      * Set the value of montantDevis
      *
      * @return  self
-     */ 
+     */
     public function setMontantDevis($montantDevis)
     {
         $this->montantDevis = $montantDevis;
@@ -247,7 +251,7 @@ class BcSoumis
 
     /**
      * Get the value of dateHeureSoumission
-     */ 
+     */
     public function getDateHeureSoumission()
     {
         return $this->dateHeureSoumission;
@@ -257,7 +261,7 @@ class BcSoumis
      * Set the value of dateHeureSoumission
      *
      * @return  self
-     */ 
+     */
     public function setDateHeureSoumission($dateHeureSoumission)
     {
         $this->dateHeureSoumission = $dateHeureSoumission;
@@ -268,7 +272,7 @@ class BcSoumis
 
     /**
      * Get the value of nomFichier
-     */ 
+     */
     public function getNomFichier()
     {
         return $this->nomFichier;
@@ -278,7 +282,7 @@ class BcSoumis
      * Set the value of nomFichier
      *
      * @return  self
-     */ 
+     */
     public function setNomFichier($nomFichier)
     {
         $this->nomFichier = $nomFichier;
@@ -288,7 +292,7 @@ class BcSoumis
 
     /**
      * Get the value of statut
-     */ 
+     */
     public function getStatut()
     {
         return $this->statut;
@@ -298,10 +302,28 @@ class BcSoumis
      * Set the value of statut
      *
      * @return  self
-     */ 
+     */
     public function setStatut($statut)
     {
         $this->statut = $statut;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of codeSociete
+     */
+    public function getCodeSociete()
+    {
+        return $this->codeSociete;
+    }
+
+    /**
+     * Set the value of codeSociete
+     */
+    public function setCodeSociete($codeSociete): self
+    {
+        $this->codeSociete = $codeSociete;
 
         return $this;
     }

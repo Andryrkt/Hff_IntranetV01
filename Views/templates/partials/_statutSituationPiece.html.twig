@@ -1,0 +1,28 @@
+<div class="my-2 d-flex flex-row">
+	<div role="button" tabindex="0" class="fw-bold" id="tout-afficher">
+		<small>TOUT AFFICHER |</small>
+	</div>
+	<div role="button" tabindex="0" id="tout-livre">
+		<i class="fa-solid fa-circle text-success"></i>
+		<small class="text-success">Tout livré |</small>
+	</div>
+	<div role="button" tabindex="0" id="partiellement-livre">
+		<i class="fa-solid fa-circle text-warning"></i>
+		<small class="text-warning">Partiellement livré |</small>
+	</div>
+	<div role="button" tabindex="0" id="partiellement-dispo">
+		<i class="fa-solid fa-circle text-info"></i>
+		<small class="text-info">Partiellement dispo |</small>
+	</div>
+	<div role="button" tabindex="0" id="complet-non-livre">
+		<i class="fa-solid fa-circle text-primary"></i>
+		<small class="text-primary">Complet non livré |</small>
+	</div>
+	{% if avecBackOrder %}
+		<div role="button" tabindex="0" id="back-order">
+			<small class=" border-end border-start border-danger border-3">
+				Back Order/Error
+			</small>
+		</div>
+	{% endif %}
+</div>

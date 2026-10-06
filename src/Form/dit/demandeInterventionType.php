@@ -4,7 +4,7 @@ namespace App\Form\dit;
 
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
-use App\Controller\Controller;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -22,6 +22,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Repository\admin\dit\WorTypeDocumentRepository;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TelType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 
@@ -33,8 +34,8 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 class demandeInterventionType extends AbstractType
 {
-    private $serviceRepository;
     private $agenceRepository;
+
     const TYPE_REPARATION = [
         'EN COURS' => 'EN COURS',
         'DEJA EFFECTUEE' => 'DEJA EFFECTUEE',
@@ -43,11 +44,14 @@ class demandeInterventionType extends AbstractType
 
     const REPARATION_REALISE = [
         'ATE TANA' => 'ATE TANA',
+        'ATE POL TANA' => 'ATE POL TANA',
         'ATE STAR' => 'ATE STAR',
         'ATE MAS' => 'ATE MAS',
         'ATE TMV' => 'ATE TMV',
         'ATE FTU' => 'ATE FTU',
         'ATE ABV' => 'ATE ABV',
+        'ATE LEV' => 'ATE LEV',
+        'ENERGIE MAN' => 'ENERGIE MAN'
     ];
 
     const INTERNE_EXTERNE = [
@@ -61,18 +65,31 @@ class demandeInterventionType extends AbstractType
     ];
 
 
-    public function __construct()
+    public function __construct(EntityManagerInterface $em)
     {
-        $this->serviceRepository = Controller::getEntity()->getRepository(Service::class);
-        $this->agenceRepository = controller::getEntity()->getRepository(Agence::class);
+        $this->agenceRepository = $em->getRepository(Agence::class);
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $demandePneu = $options['demandePneu'];
+
+        $codeSociete = $options['data']->getCodeSociete();
 
         $builder
-
-            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($options) {
+            ->add('estAtePolTana', CheckboxType::class, [
+                'required' => false, // obligatoire false
+                'label'    => "Intervention pneumatique",
+            ])
+            ->add('estDitAvoir', CheckboxType::class, [
+                'required' => false, // obligatoire false
+                'label'    => "Cette demande est un avoir (annulation de la" . $options['data']->getNumeroDemandeIntervention() . ")",
+            ])
+            ->add('estDitRefacturation', CheckboxType::class, [
+                'required' => false, //obligatoire false
+                'label'    => "Cette demande est une refacturation (reprise de la DIT " . $options['data']->getNumeroDemandeIntervention() . " avec nouvelle facturation>",
+            ])
+            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
                 $form = $event->getForm();
                 $data = $event->getData();
                 $services = null;
@@ -80,9 +97,6 @@ class demandeInterventionType extends AbstractType
                 if ($data instanceof DemandeIntervention && $data->getAgence()) {
                     $services = $data->getAgence()->getServices();
                 }
-                //$services = $data->getAgence()->getServices();
-                // $agence = $event->getData()->getAgence() ?? null;
-                // $services = $agence->getServices();
 
                 $form->add(
                     'service',
@@ -110,20 +124,14 @@ class demandeInterventionType extends AbstractType
             ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
                 $form = $event->getForm();
                 $data = $event->getData();
-
-
-                $agenceId = $data['agence']?? null;
-
+                $agenceId = $data['agence'] ?? null;
                 $services = [];
-
                 if ($agenceId) {
                     $agence = $this->agenceRepository->find($agenceId);
                     if ($agence) {
                         $services = $agence->getServices();
                     }
                 }
-                
-
                 $form->add('service', EntityType::class, [
                     'label' => 'Service Débiteur *',
                     'class' => Service::class,
@@ -158,7 +166,6 @@ class demandeInterventionType extends AbstractType
                     }
                 ]
             )
-
             ->add(
                 'typeReparation',
                 ChoiceType::class,
@@ -184,7 +191,9 @@ class demandeInterventionType extends AbstractType
                     'required' => true,
                     'constraints' => [
                         new Assert\NotBlank(['message' => 'le réparation réalisé par doit être sélectionné'])
-                    ]
+                    ],
+                    'disabled' => $demandePneu !== null,
+
                 ]
             )
             ->add(
@@ -210,17 +219,22 @@ class demandeInterventionType extends AbstractType
                     'placeholder' => false,
                     'data' => 'INTERNE',
                     'required' => false,
+                    'disabled' => $demandePneu !== null,
                     'attr' => [
+                        'readonly' => $demandePneu ? true : false,
                         'class' => 'interneExterne',
-                        'data-informations' => json_encode(['agenceId' => $options['data']->getAgence()->getId(), 'serviceId' => $options['data']->getService()->getId()])
+                        'data-informations' => json_encode([
+                            'agenceId' => $options['data']->getAgence() ? $options['data']->getAgence()->getId() : null,
+                            'serviceId' => $options['data']->getService() ? $options['data']->getService()->getId() : null
+                        ])
                     ]
+
                 ]
             )
             ->add(
                 'agence',
                 EntityType::class,
                 [
-
                     'label' => 'Agence Debiteur *',
                     'placeholder' => '-- Choisir une agence Debiteur --',
                     'class' => Agence::class,
@@ -229,13 +243,16 @@ class demandeInterventionType extends AbstractType
                     },
                     'required' => false,
                     //'data' => $options["data"]->getAgence() ?? null,
-                    'query_builder' => function (AgenceRepository $agenceRepository) {
-                        return $agenceRepository->createQueryBuilder('a')->orderBy('a.codeAgence', 'ASC');
+                    'query_builder' => function (AgenceRepository $agenceRepository) use ($codeSociete) {
+                        $qb = $agenceRepository->createQueryBuilder('a')
+                            ->where('a.codeSociete = :codeSociete')
+                            ->setParameter('codeSociete', $codeSociete)
+                            ->orderBy('a.codeAgence', 'ASC');
+                        return $qb;
                     },
                     'attr' => ['class' => 'agenceDebiteur']
                 ]
             )
-
             ->add(
                 'agenceEmetteur',
                 TextType::class,
@@ -249,7 +266,6 @@ class demandeInterventionType extends AbstractType
                     'data' => $options["data"]->getAgenceEmetteur() ?? null
                 ]
             )
-
             ->add(
                 'serviceEmetteur',
                 TextType::class,
@@ -264,19 +280,6 @@ class demandeInterventionType extends AbstractType
                     'data' => $options["data"]->getServiceEmetteur() ?? null
                 ]
             )
-            // ->add('service', 
-            // EntityType::class,
-            // [
-
-            //     'label' => 'Service Débiteut',
-            //     'placeholder' => '-- Choisir une service débiteur --',
-            //     'class' => Service::class,
-            //     'choice_label' => function (Service $service): string {
-            //         return $service->getCodeService() . ' ' . $service->getLibelleService();
-            //     },
-            //     'required' => false,
-
-            // ])
             ->add(
                 'nomClient',
                 TextType::class,
@@ -287,7 +290,7 @@ class demandeInterventionType extends AbstractType
                         'disabled' => true,
                         'class' => 'nomClient noEntrer autocomplete',
                         'autocomplete' => 'off',
-                        'data-autocomplete-url' => 'autocomplete/all-client' // Mettez ici la route de l'autocomplétion
+                        'data-autocomplete-url' => 'api/autocomplete/all-client' //  la route de l'autocomplétion
                     ]
                 ]
             )
@@ -301,7 +304,7 @@ class demandeInterventionType extends AbstractType
                         'disabled' => true,
                         'class' => 'numClient noEntrer autocomplete',
                         'autocomplete' => 'off',
-                        'data-autocomplete-url' => 'autocomplete/all-client' // Mettez ici la route de l'autocomplétion
+                        'data-autocomplete-url' => 'api/autocomplete/all-client' // la route de l'autocomplétion
                     ]
                 ]
             )
@@ -309,7 +312,7 @@ class demandeInterventionType extends AbstractType
                 'numeroTel',
                 TelType::class,
                 [
-                    
+
                     'label' => 'N° téléphone (*EXTERNE)',
                     'required' => false,
                     'attr' => [
@@ -322,7 +325,7 @@ class demandeInterventionType extends AbstractType
                 'mailClient',
                 EmailType::class,
                 [
-                    
+
                     'label' => "E-mail du client (*EXTERNE)",
                     'required' => false,
                     'attr' => [
@@ -340,7 +343,7 @@ class demandeInterventionType extends AbstractType
                 'attr' => [
                     'disabled' => true,
                     'class' => 'clientSousContrat'
-                    ]
+                ]
             ])
 
             ->add('datePrevueTravaux', DateType::class, [
@@ -443,9 +446,10 @@ class demandeInterventionType extends AbstractType
                     'label' => " Id Matériel *",
                     'required' => true,
                     'attr' => [
-                        'class' => 'noEntrer autocomplete', 
+                        'class' => 'noEntrer autocomplete',
                         'autocomplete' => 'off',
                     ],
+                    'disabled' => $demandePneu !== null,
                     'constraints' => [
                         new NotBlank([
                             'message' => 'l\id materiel ne peut pas être vide.', // Message d'erreur si le champ est vide
@@ -459,12 +463,13 @@ class demandeInterventionType extends AbstractType
                 [
                     'label' => " N° Parc",
                     'required' => false,
+                    'disabled' => $demandePneu !== null,
                     'attr' => [
-                        'class' => 'noEntrer autocomplete', 
+                        'class' => 'noEntrer autocomplete',
                         'autocomplete' => 'off',
                     ]
                 ]
-                
+
             )
             ->add(
                 'numSerie',
@@ -472,8 +477,9 @@ class demandeInterventionType extends AbstractType
                 [
                     'label' => " N° Serie",
                     'required' => false,
+                    'disabled' => $demandePneu !== null,
                     'attr' => [
-                        'class' => 'noEntrer autocomplete', 
+                        'class' => 'noEntrer autocomplete',
                         'autocomplete' => 'off',
                     ]
                 ]
@@ -537,19 +543,28 @@ class demandeInterventionType extends AbstractType
                         ])
                     ],
                 ]
-            )
-
-            // ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event){
-            //     $nomUtilisateur = $event->getData();
-            //     dd($nomUtilisateur);
-            // })
-        ;
+            );
+        if ($demandePneu != null) {
+            $builder->add(
+                'existingPieceJointDemandePneu',
+                TextType::class,
+                [
+                    'mapped' => false,
+                    'required' => false,
+                    'label' => 'Pièce Jointe Diagnostic Pneu',
+                    'attr' => [
+                        'readonly' => true,
+                    ],
+                ]
+            );
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'data_class' => DemandeIntervention::class,
+            'demandePneu' => null,
         ]);
     }
 }

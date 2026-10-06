@@ -1,0 +1,13 @@
+services:
+  # Services de navigation
+  App\Service\navigation\MenuService:
+    autowire: false
+    arguments:
+      - "@doctrine.orm.default_entity_manager"
+    public: true
+
+  App\Service\navigation\BreadcrumbMenuService:
+    autowire: false
+    arguments:
+      - '@App\Service\navigation\MenuService'
+    public: true

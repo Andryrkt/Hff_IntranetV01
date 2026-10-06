@@ -1,0 +1,151 @@
+<?php
+
+namespace App\Model\da;
+
+use App\Model\Model;
+
+class DaSoumissionFacBlModel extends Model
+{
+    public function getMontantReceptionIpsEtNumFac(string $numeroLivraison, string $codeSociete)
+    {
+        $statement = " SELECT  SUM(fllf_pxach) as montant_reception_ips, fliv_livext as numero_facture
+                        FROM informix.frn_llf 
+                        join informix.frn_liv on fliv_numliv = fllf_numliv 
+                        WHERE fllf_numliv='$numeroLivraison' and fliv_soc='$codeSociete'
+                        group by numero_facture
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data;
+    }
+
+
+    public function getRefDesiFrnCdl($numeroLivraison, string $codeSociete)
+    {
+        $statement = " SELECT TRIM(fcdl_refp) as reference
+                ,TRIM(fcdl_desi) as designation
+                ,fllf_numliv as numero_livraison
+            from informix.frn_cdl
+            left join Informix.frn_llf on fllf_numcde = fcdl_numcde and fcdl_soc='$codeSociete'
+            where fllf_numliv = '$numeroLivraison'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data;
+    }
+
+    public function getRefDesiSavLor($numeroLivraison, string $codeSociete)
+    {
+        $statement = " SELECT slor_numcf as numero_livraison 
+                ,TRIM(slor_refp) as reference 
+                ,TRIM(slor_desi) as designation 
+                from Informix.sav_lor 
+                where slor_numcf ='$numeroLivraison' and slor_soc='$codeSociete'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data;
+    }
+
+    /** ================ DDPL ==========================*/
+    /**
+     * Retourne les montants HT et TTC d'une commande.
+     *
+     * @param int $numCde
+     *
+     * @return array{
+     *     montant_total_cde_ht: float,
+     *     montant_total_cde_ttc: float
+     * }
+     */
+    public function getMontantCde(int $numCde): array
+    {
+        $statement = "SELECT 
+                    fcde_mtn as montant_total_cde_ht,
+                    fcde_ttc as montant_total_cde_ttc
+                from informix.frn_cde 
+                where fcde_numcde ='$numCde'
+            ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        if (empty($data)) {
+            return [
+                'montant_total_cde_ht'  => 0.00,
+                'montant_total_cde_ttc' => 0.00,
+            ];
+        }
+
+        return [
+            'montant_total_cde_ht'  => (float) $data[0]['montant_total_cde_ht'],
+            'montant_total_cde_ttc' => (float) $data[0]['montant_total_cde_ttc'],
+        ];
+    }
+
+    public function getArticleCde(int $numCde)
+    {
+        $statement = " SELECT 
+                TRIM(fcdl_constp) as constructeur 
+                ,TRIM(fcdl_ref) as reference
+                ,TRIM(fcdl_desi) as designation
+                ,ROUND(fcdl_qte) as qte_cde
+                ,ROUND(fcdl_solde) as qte_reliquat
+                ,ROUND(fcdl_qteli) as  qte_receptionnee
+            FROM informix.frn_cdl 
+            where fcdl_numcde ='$numCde'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data;
+    }
+
+    public function getPosl(int $numCde, string $codeSociete)
+    {
+        $statement = " SELECT TRIM(fcde_posl) as posl
+            from informix.frn_cde 
+            where fcde_numcde = $numCde
+            AND fcde_soc = '$codeSociete'
+            ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return array_column($data, 'posl')[0] ?? null;
+    }
+
+    public function getDevise(int $numCde, string $codeSociete)
+    {
+        $statement = " SELECT TRIM(fcde_devise) as devise
+            from informix.frn_cde 
+            where fcde_numcde = $numCde
+            AND fcde_soc = '$codeSociete'
+            ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return array_column($data, 'devise')[0] ?? null;
+    }
+
+    public function getMontantLivraison(string $numeroLivraison, string $codeSociete)
+    {
+        $statement = " SELECT SUM(fllf_qteliv * fllf_achnet) as montant_livraison 
+                        from informix.frn_llf 
+                        WHERE fllf_numliv='$numeroLivraison' and fllf_soc='$codeSociete'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return array_column($data, 'montant_livraison')[0] ?? 0.0;
+    }
+}

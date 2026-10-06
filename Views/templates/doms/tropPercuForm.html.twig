@@ -1,18 +1,17 @@
 {% extends "baseTemplate.html.twig" %}
 
-
 {% block title %}
-	Fiche Ordre
+	Création trop perçu
 {% endblock %}
 
 {% block stylesheets %}
-	<link href="{{ App.base_path }}/Views/css/dom/secondForm.css" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/dom/secondForm.css?v={{ App.browserHash }}" rel="stylesheet"/>
 {% endblock %}
 
 {% block content %}
 
 
-	<div class="container mb-4">
+	<div class="container mt-6 mb-4">
 		<div class="card p-2">
 			<div class="card-body">
 				<div class="row">
@@ -30,6 +29,7 @@
 				<input type="hidden" id="oldDateFin" value="{{criteria.oldDateFin}}">
 				<input type="hidden" id="oldNombreJour" value="{{criteria.oldNombreJour}}">
 				<input type="hidden" id="nombreJourTropPercu" value="{{criteria.nombreJourTropPercu}}">
+				<input type="hidden" id="oldTotalGeneral" value="{{criteria.totalGeneral}}">
 
 				{{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}})}}
 
@@ -220,7 +220,7 @@
 				<div class="row">
 					<div class="mt-2 ">
 						<a onclick="return confirm('Voulez-vous envoyer la demande ?')">
-							<button type="submit" name="Envoyer" class="btn btn-info md-5 fw-bold ajout-overlay" data-bs-toggle="tooltip">
+							<button type="submit" name="Envoyer" class="btn btn-info md-5 fw-bold" data-bs-toggle="tooltip">
 								<i class="fa fa-print"></i>
 								Envoyer
 							</button>
@@ -235,5 +235,5 @@
 	</div>
 {% endblock %}
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/dom/tropPercuForm.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/dom/tropPercuForm.js?v={{ App.browserHash }}" type="module"></script>
 {% endblock %}

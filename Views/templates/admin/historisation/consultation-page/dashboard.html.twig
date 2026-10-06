@@ -5,11 +5,13 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/admin/historisation/consultation-page/dashboard.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/admin/historisation/consultation-page/dashboard.css?v={{ App.browserHash }}">
 {% endblock %}
 
+{% block breadCrumb %}{% endblock %}
+
 {% block content %}
-	<div class="container mt-4">
+	<div class="container my-4">
 		<h3 class="perso-titre">Statistiques globales</h3>
 
 		<div class="row">
@@ -24,5 +26,5 @@
 {% endblock %}
 
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/admin/historisation/consultation-page/dashboard.js"></script>
+	<script src="{{ App.base_path }}/Views/js/admin/historisation/consultation-page/dashboard.js?v={{ App.browserHash }}"></script>
 {% endblock %}

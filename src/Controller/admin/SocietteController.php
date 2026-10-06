@@ -1,11 +1,9 @@
 <?php
 
+
 namespace App\Controller\admin;
 
 
-use App\Entity\Role;
-use App\Form\RoleType;
-use App\Entity\Permission;
 use App\Controller\Controller;
 use App\Entity\admin\Societte;
 use App\Form\admin\SocietteType;
@@ -21,108 +19,99 @@ class SocietteController extends Controller
      */
     public function index()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-    $data = self::$em->getRepository(Societte::class)->findBy([], ['id'=>'DESC']);
+        $data = $this->getEntityManager()->getRepository(Societte::class)->findBy([], ['id' => 'DESC']);
 
 
-    self::$twig->display('admin/societte/list.html.twig', 
-    [
-        'data' => $data
-    ]);
+        return $this->render(
+            'admin/societte/list.html.twig',
+            [
+                'data' => $data
+            ]
+        );
     }
 
     /**
-         * @Route("/admin/societte/new", name="societte_new")
-         */
-        public function new(Request $request)
-        {
-            //verification si user connecter
-        $this->verifierSessionUtilisateur();
+     * @Route("/admin/societte/new", name="societte_new")
+     */
+    public function new(Request $request)
+    {
+        $form = $this->getFormFactory()->createBuilder(SocietteType::class)->getForm();
 
-            $form = self::$validator->createBuilder(SocietteType::class)->getForm();
-    
-            $form->handleRequest($request);
-    
-            if($form->isSubmitted() && $form->isValid())
-            {
-                $societte= $form->getData();
-                
+        $form->handleRequest($request);
 
-                self::$em->persist($societte);
-                self::$em->flush();
+        if ($form->isSubmitted() && $form->isValid()) {
+            $societte = $form->getData();
 
-                $this->redirectToRoute("societte_index");
-            }
-    
-            self::$twig->display('admin/societte/new.html.twig', 
-            [
-                'form' => $form->createView()
-            ]);
+
+            $this->getEntityManager()->persist($societte);
+            $this->getEntityManager()->flush();
+
+            $this->redirectToRoute("societte_index");
         }
 
+        return $this->render(
+            'admin/societte/new.html.twig',
+            [
+                'form' => $form->createView()
+            ]
+        );
+    }
 
-                /**
+
+    /**
      * @Route("/admin/societte/edit/{id}", name="societte_update")
      *
      * @return void
      */
     public function edit(Request $request, $id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
+        $user = $this->getEntityManager()->getRepository(Societte::class)->find($id);
 
-        $user = self::$em->getRepository(Societte::class)->find($id);
-        
-        $form = self::$validator->createBuilder(SocietteType::class, $user)->getForm();
+        $form = $this->getFormFactory()->createBuilder(SocietteType::class, $user)->getForm();
 
         $form->handleRequest($request);
 
         // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
 
-            self::$em->flush();
+            $this->getEntityManager()->flush();
             $this->redirectToRoute("societte_index");
-            
         }
 
-        self::$twig->display('admin/societte/edit.html.twig', 
-        [
-            'form' => $form->createView(),
-        ]);
-
+        return $this->render(
+            'admin/societte/edit.html.twig',
+            [
+                'form' => $form->createView(),
+            ]
+        );
     }
 
     /**
-    * @Route("/admin/societte/delete/{id}", name="societte_delete")
-    *
-    * @return void
-    */
+     * @Route("/admin/societte/delete/{id}", name="societte_delete")
+     *
+     * @return void
+     */
     public function delete($id)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-        
-        $societte = self::$em->getRepository(Societte::class)->find($id);
+        $societte = $this->getEntityManager()->getRepository(Societte::class)->find($id);
 
         if ($societte) {
             $typeReparations = $societte->getTypeReparations();
             foreach ($typeReparations as $typeReparation) {
                 $societte->removeTypeReparation($typeReparation);
-                self::$em->persist($typeReparation); // Persist the permission to register the removal
+                $this->getEntityManager()->persist($typeReparation); // Persist the permission to register the removal
             }
 
             // Clear the collection to ensure Doctrine updates the join table
             $societte->getTypeReparations()->clear();
 
             // Flush the entity manager to ensure the removal of the join table entries
-            self::$em->flush();
-        
-                self::$em->remove($societte);
-                self::$em->flush();
+            $this->getEntityManager()->flush();
+
+            $this->getEntityManager()->remove($societte);
+            $this->getEntityManager()->flush();
         }
-        
+
         $this->redirectToRoute("societte_index");
     }
 }

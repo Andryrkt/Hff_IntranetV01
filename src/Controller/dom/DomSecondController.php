@@ -4,86 +4,78 @@ namespace App\Controller\dom;
 
 
 use App\Entity\dom\Dom;
+use App\Service\FusionPdf;
+use App\Model\dom\DomModel;
 use App\Controller\Controller;
 use App\Form\dom\DomForm2Type;
 use App\Controller\Traits\dom\DomsTrait;
-use App\Entity\admin\utilisateur\User;
 use App\Controller\Traits\FormatageTrait;
-use App\Service\historiqueOperation\HistoriqueOperationDOMService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Service\historiqueOperation\HistoriqueOperationDOMService;
 
-
+/**
+ * @Route("/rh/ordre-de-mission")
+ */
 class DomSecondController extends Controller
 {
     use FormatageTrait;
     use DomsTrait;
-    private $historiqueOperation;
+    private HistoriqueOperationDOMService $historiqueOperation;
+    private FusionPdf $fusionPdf;
 
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationDOMService;
+        $this->historiqueOperation = new HistoriqueOperationDOMService($this->getEntityManager());
+        $this->fusionPdf = new FusionPdf();
     }
     /**
      * @Route("/dom-second-form", name="dom_second_form")
      */
     public function secondForm(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         //recuperation de l'utilisateur connecter
-        $userId = $this->sessionService->get('user_id');
-        $user = self::$em->getRepository(User::class)->find($userId);
+        $user = $this->getUser();
 
         $dom = new Dom();
-        /** INITIALISATION des données  */
         //recupération des données qui vient du formulaire 1
-        $form1Data = $this->sessionService->get('form1Data', []);
+        $form1Data = $this->getSessionService()->get('form1Data', []);
+        $codeSousTypeDoc = $form1Data['sousTypeDocument']->getCodeSousType(); // Choix possibles: "Mission", "Frais exceptionnel", "Complément"
+        $isComplement = $codeSousTypeDoc === 'COMPLEMENT';
 
-        $this->initialisationSecondForm($form1Data, self::$em, $dom);
-        $criteria = $this->criteria($form1Data, self::$em);
+        /** INITIALISATION des données  */
+        $this->initialisationSecondForm($form1Data, $this->getEntityManager(), $dom);
+        $criteria = $this->criteria($form1Data, $this->getEntityManager());
 
         $is_temporaire = $form1Data['salarier'];
 
-
-        $form = self::$validator->createBuilder(DomForm2Type::class, $dom)->getForm();
+        $form = $this->getFormFactory()->createBuilder(DomForm2Type::class, $dom)->getForm();
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
 
             $domForm = $form->getData();
 
-            $this->enregistrementValeurdansDom($dom, $domForm, $form, $form1Data, self::$em, $user);
+            $this->enregistrementValeurdansDom($dom, $domForm, $form, $form1Data, $this->getEntityManager(), $user);
 
-            $verificationDateExistant = $this->verifierSiDateExistant($dom->getMatricule(),  $dom->getDateDebut(), $dom->getDateFin());
+            $userDom = "{$dom->getMatricule()} - {$dom->getNom()} {$dom->getPrenom()}";
 
-            if ($form1Data['sousTypeDocument']->getCodeSousType() !== 'COMPLEMENT' && $form1Data['sousTypeDocument']->getCodeSousType() !== 'TROP PERCU') {
-                if ($verificationDateExistant) {
-                    $message = $dom->getMatricule() . ' ' . $dom->getNom() . ' ' . $dom->getPrenom() . " a déja une mission enregistrée sur ces dates, vérifier SVP!";
-                    $this->historiqueOperation->sendNotificationCreation($message, $dom->getNumeroOrdreMission(), 'dom_first_form');
-                } else {
-                    if ($form1Data['sousTypeDocument']->getCodeSousType()  === 'FRAIS EXCEPTIONNEL') {
-                        $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf, $user);
-                    } else {
-                        if ((explode(':', $dom->getModePayement())[0] !== 'MOBILE MONEY' || (explode(':', $dom->getModePayement())[0] === 'MOBILE MONEY')) && (int)str_replace('.', '', $dom->getTotalGeneralPayer()) <= 500000) {
-                            $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf, $user);
-                        } else {
-                            $message = "Assurez vous que le Montant Total est inférieur à 500.000";
+            $conflits = (new DomModel)->verifierConflitDate($dom->getMatricule(), $dom->getDateDebut(), $dom->getDateFin(), $dom->getCodeSociete());
 
-                            $this->historiqueOperation->sendNotificationCreation($message, $dom->getNumeroOrdreMission(), 'dom_first_form');
-                        }
-                    }
-                }
+            $montantOk = (int)str_replace('.', '', $dom->getTotalGeneralPayer()) <= 500000;
+
+            if (!empty($conflits['conge'])) { // pas de controle de type de document
+                $this->historiqueOperation->sendNotificationCreation($this->formatConflitMessage($userDom, "conge", $conflits['conge']), $dom->getNumeroOrdreMission(), 'dom_first_form');
+            } elseif (!$isComplement && !empty($conflits['dom'])) {
+                $this->historiqueOperation->sendNotificationCreation($this->formatConflitMessage($userDom, "dom", $conflits['dom']), $dom->getNumeroOrdreMission(), 'dom_first_form');
+            } elseif ($codeSousTypeDoc === 'FRAIS EXCEPTIONNEL') {
+                $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, $this->getEntityManager(), $this->fusionPdf, $user);
+            } elseif ($montantOk) {
+                $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, $this->getEntityManager(), $this->fusionPdf, $user);
             } else {
-                if ((explode(':', $dom->getModePayement())[0] !== 'MOBILE MONEY' || (explode(':', $dom->getModePayement())[0] === 'MOBILE MONEY')) && (int)str_replace('.', '', $dom->getTotalGeneralPayer()) <= 500000) {
-                    $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf, $user);
-                } else {
-                    $message = "Assurez vous que le Montant Total est inférieur à 500.000";
-
-                    $this->historiqueOperation->sendNotificationCreation($message, $dom->getNumeroOrdreMission(), 'dom_first_form');
-                }
+                $message = "Assurez vous que le Montant Total est inférieur à 500.000";
+                $this->historiqueOperation->sendNotificationCreation($message, $dom->getNumeroOrdreMission(), 'dom_first_form');
             }
 
             $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistré', $dom->getNumeroOrdreMission(), 'doms_liste', true);
@@ -91,10 +83,11 @@ class DomSecondController extends Controller
 
         $this->logUserVisit('dom_second_form'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display('doms/secondForm.html.twig', [
+        return $this->render('doms/secondForm.html.twig', [
             'form'          => $form->createView(),
             'is_temporaire' => $is_temporaire,
-            'criteria'      => $criteria
+            'criteria'      => $criteria,
+            'codeSousTypeDoc'   => $codeSousTypeDoc
         ]);
     }
 }

@@ -1,0 +1,153 @@
+import { displayOverlay } from "../../utils/ui/overlay";
+import { handleAllOldFileEvents } from "../newDirect/field";
+
+document.addEventListener("DOMContentLoaded", function () {
+  buildIndexFromLines();
+
+  handleAllOldFileEvents("demande_appro_form_DAL"); // gérer les évènements sur les anciens fichiers
+
+  document.getElementById("myForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (document.getElementById("children-container").childElementCount > 0) {
+      Swal.fire({
+        title: "Êtes-vous sûr(e) ?",
+        html: `Voulez-vous vraiment enregistrer vos modifications ?`,
+        icon: "warning",
+        showCancelButton: true,
+        reverseButtons: true,
+        confirmButtonColor: "#198754",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Oui, Enregistrer",
+        cancelButtonText: "Non, annuler",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          displayOverlay(true);
+          document.getElementById("child-prototype").remove();
+          document.getElementById("myForm").submit();
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          // ❌ Si l'utilisateur annule
+          Swal.fire({
+            icon: "info",
+            title: "Annulé",
+            text: "Votre modification n'a pas été enregistrée.",
+            timer: 2000,
+            showConfirmButton: false,
+          });
+        }
+      });
+    } else {
+      Swal.fire({
+        icon: "warning",
+        title: "Attention !",
+        text: "Veuillez ajouter au moins un article avant d'enregistrer.",
+      });
+    }
+  });
+
+  document.querySelectorAll(".delete-DA").forEach((deleteButton) => {
+    deleteButton.addEventListener("click", function () {
+      deleteLigneDa(this);
+    });
+  });
+
+  document.getElementById("info-icon").addEventListener("click", function () {
+    Swal.fire({
+      icon: "info",
+      title: "Information utile",
+      html: `
+      <p class="mb-2">
+        Pour faciliter votre recherche, vous pouvez saisir la <strong>référence de l’article</strong>
+        ou bien sa <strong>désignation complète ou partielle</strong> 
+        dans le champ <strong>surligné en jaune</strong> prévu à cet effet.
+      </p>
+    `,
+      confirmButtonText: "Compris",
+      confirmButtonColor: "#fbbb01", // couleur cohérente avec ton style
+      customClass: {
+        htmlContainer: "swal-text-left",
+      },
+    });
+  });
+});
+
+function getMaxIndexFromIds() {
+  const elements = document.querySelectorAll(
+    "div[id^='demande_appro_form_DAL_'].DAL-container"
+  );
+  return Array.from(elements).reduce((max, el) => {
+    const match = el.id.match(/^demande_appro_form_DAL_(\d+)$/);
+    if (match) {
+      const value = parseInt(match[1], 10);
+      return !isNaN(value) && value > max ? value : max;
+    }
+    return max;
+  }, 0);
+}
+
+function getMaxLineFromValues() {
+  const elements = document.querySelectorAll(
+    "[id^='demande_appro_form_DAL_'][id$='_numeroLigne']"
+  );
+  return Array.from(elements).reduce((max, el) => {
+    const value = parseInt(el.value, 10);
+    if (isNaN(value)) {
+      console.warn("Valeur non numérique trouvée pour numeroLigne:", el.value);
+      return max; // ignore les valeurs invalides
+    }
+    return value > max ? value : max;
+  }, 0);
+}
+
+function buildIndexFromLines() {
+  const maxIndex = getMaxIndexFromIds();
+  const maxLine = getMaxLineFromValues();
+
+  // Log et stockage des résultats dans localStorage
+  console.log("Numéro de ligne Max:", maxLine);
+  localStorage.setItem("daWithDitNumLigneMax", maxLine);
+
+  console.log("Max index:", maxIndex);
+  localStorage.setItem("daWithDitLineCounter", maxIndex);
+}
+
+function deleteLigneDa(button) {
+  Swal.fire({
+    title: "Êtes-vous sûr(e) ?",
+    html: `Voulez-vous vraiment supprimer cette ligne de demande d’achat?`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#6c757d",
+    confirmButtonText: "Oui, supprimer",
+    cancelButtonText: "Non, annuler",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      let prototypeId = button.getAttribute("prototype-id");
+      let container = document.getElementById(
+        `demande_appro_form_DAL_${prototypeId}`
+      );
+      let deletedCheck = document.getElementById(
+        `demande_appro_form_DAL_${prototypeId}_deleted`
+      );
+      container.classList.add("d-none"); // cacher la ligne de DA
+      deletedCheck.checked = true; // cocher le champ deleted
+
+      Swal.fire({
+        icon: "success",
+        title: "Supprimé",
+        text: "La ligne de demande d'achat a bien été supprimée avec succès.",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } else if (result.dismiss === Swal.DismissReason.cancel) {
+      // ❌ Si l'utilisateur annule
+      Swal.fire({
+        icon: "info",
+        title: "Annulé",
+        text: "La suppression de la ligne de demande a été annulée.",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    }
+  });
+}

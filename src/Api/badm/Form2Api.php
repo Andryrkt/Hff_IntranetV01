@@ -8,40 +8,40 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class Form2Api extends Controller
 {
-     /**
-     * @Route("/service-fetch/{id}", name="fetch_service", methods={"GET"})
+    /**
+     * @Route("/api/badm/service-fetch/{id}", name="api_badm_fetch_service", methods={"GET"})
      * cette fonction permet d'envoyer les donner du service destinataire et casier destiantaireselon l'agence debiteur en ajax
      * @return void
      */
     public function agenceFetch(int $id)
     {
-        $agence = self::$em->getRepository(Agence::class)->find($id);
-  
+        $agence = $this->getEntityManager()->getRepository(Agence::class)->find($id);
+
         $service = $agence->getServices();
 
-     
-         $services = [];
-       foreach ($service as $value) {
-         $services[] = [
-             'value' => $value->getId(),
-             'text' => $value->getCodeService() . ' ' . $value->getLibelleService(),
-         ];
-       }
 
-       header("Content-type:application/json");
+        $services = [];
+        foreach ($service as $value) {
+            $services[] = [
+                'value' => $value->getId(),
+                'text' => $value->getCodeService() . ' ' . $value->getLibelleService(),
+            ];
+        }
+
+        header("Content-type:application/json");
 
         echo json_encode($services);
     }
 
     /**
-     * @Route("/casier-fetch/{id}", name="fetch_casier", methods={"GET"})
+     * @Route("/api/badm/casier-fetch/{id}", name="api_badm_fetch_casier", methods={"GET"})
      * cette fonction permet d'envoyer les donner du service destinataire l'agence debiteur en ajax
      * @return void
      */
     public function casierFetch(int $id)
     {
-        $agence = self::$em->getRepository(Agence::class)->find($id);
-  
+        $agence = $this->getEntityManager()->getRepository(Agence::class)->find($id);
+
         $casier = $agence->getCasiers();
 
         $casiers = [];

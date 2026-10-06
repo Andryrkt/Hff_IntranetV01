@@ -2,9 +2,13 @@
 
 {% import "macroForm.html.twig" as formMacro %}
 
+{% block title %}
+	Création casier - 1
+{% endblock %}
+
 {% block content %}
 
-	<div class="container">
+	<div class="container mt-6 mb-4">
 		<div class="card">
 			<div class="card-body">
 				<div class="d-flex  flex-row-reverse px-2">
@@ -25,7 +29,7 @@
 					<div class="col-12 col-md-4">{{ form_row(form.numSerie)}}</div>
 				</div>
 				<div class="row mt-2">
-					{{ formMacro.button('submit', 'Suivant','enregistrer', 'color ajout-overlay')}}
+					{{ formMacro.button('submit', 'Suivant','enregistrer', 'color')}}
 				</div>
 				{{ form_end(form)}}
 			</div>

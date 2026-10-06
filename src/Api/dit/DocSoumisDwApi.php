@@ -6,6 +6,8 @@ use App\Controller\Controller;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitDevisSoumisAValidation;
 use App\Model\dit\DitOrSoumisAValidationModel;
+use App\Repository\dit\DitDevisSoumisAValidationRepository;
+use App\Repository\dit\DitRepository;
 use Symfony\Component\Routing\Annotation\Route;
 
 class DocSoumisDwApi extends Controller
@@ -19,7 +21,7 @@ class DocSoumisDwApi extends Controller
         $this->ditOrsoumisAValidationModel = new DitOrSoumisAValidationModel();
     }
     /**
-     * @Route("/constraint-soumission/{numDit}", name="constraint_soumission")
+     * @Route("/api/constraint-soumission/{numDit}", name="api_constraint_soumission")
      *
      * @param string $numDit
      * @return void
@@ -35,14 +37,20 @@ class DocSoumisDwApi extends Controller
 
     private function recupConstrainte(string $numDit): array
     {
-        $constraitDevis = self::$em->getRepository(DemandeIntervention::class)->recupConstraitSoumission($numDit);
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
-        $statutDevis = self::$em->getRepository(DitDevisSoumisAValidation::class)->findStatutDevis($numDit);
+        /** @var DitRepository $ditRepository */
+        $ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
+        $constraitDevis = $ditRepository->recupConstraitSoumission($numDit, $codeSociete);
 
-        $numOrBaseDonner = $this->ditOrsoumisAValidationModel->recupNumeroOr($numDit);
+        /** @var DitDevisSoumisAValidationRepository $ditDevisRepository */
+        $ditDevisRepository = $this->getEntityManager()->getRepository(DitDevisSoumisAValidation::class);
+        $statutDevis = $ditDevisRepository->findStatutDevis($numDit, $codeSociete);
 
+        $numOrBaseDonner = $this->ditOrsoumisAValidationModel->recupNumeroOr($numDit, $codeSociete);
 
-        if(empty($constraitDevis)){
+        if (empty($constraitDevis)) {
             $client = "";
             $statutDit = "";
         } else {
@@ -50,7 +58,7 @@ class DocSoumisDwApi extends Controller
             $statutDit = $constraitDevis[0]['statut'];
         }
 
-        if(empty($numOrBaseDonner)) {
+        if (empty($numOrBaseDonner)) {
             $numeroOR = '';
         } else {
             $numeroOR = $numOrBaseDonner[0]['numor'];
@@ -63,5 +71,4 @@ class DocSoumisDwApi extends Controller
             "numeroOR" => $numeroOR
         ];
     }
-
 }

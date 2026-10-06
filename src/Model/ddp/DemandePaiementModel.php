@@ -11,7 +11,7 @@ class DemandePaiementModel extends Model
 
     public function recupInfoFournissseur()
     {
-        $statement=" SELECT 
+        $statement = " SELECT 
                     FBSE_NUMFOU AS num_fournisseur,
                     UPPER(MIN(FBSE_NOMFOU)) AS nom_fournisseur,  -- Prend un seul nom fournisseur
                     MIN(fbse_devise) AS devise,                  -- Prend une seule devise
@@ -24,23 +24,19 @@ class DemandePaiementModel extends Model
                         WHEN ffou_modp = 'VI' THEN 'VIREMENT'
                         ELSE ffou_modp
                     END) AS mode_paiement,
-                    MIN(CASE
-                        WHEN fbqe_ciban = '' OR fbqe_ciban = 'MG' THEN fbqe_bqcpte
-                        ELSE fbqe_ciban
-                    END) AS rib
+                    TRIM(fbqe_bqcode) ||' '|| TRIM(fbqe_bqguich) ||' '|| TRIM(fbqe_bqcpte) ||' '|| TRIM(fbqe_bqrib) AS rib
                 FROM 
-                    FRN_BSE
+                    informix.FRN_BSE
                 JOIN 
-                    FRN_FOU ON FBSE_NUMFOU = FFOU_NUMFOU
+                    informix.FRN_FOU ON FBSE_NUMFOU = FFOU_NUMFOU
                 JOIN
-                    fou_bqe ON fbqe_numfou = fbse_numfou
+                    informix.fou_bqe ON fbqe_numfou = fbse_numfou
                 WHERE 
                     FFOU_SOC = 'HF'
                 GROUP BY 
-                    FBSE_NUMFOU
+                    FBSE_NUMFOU, rib
                 ORDER BY 
-                    nom_fournisseur;
-
+                    nom_fournisseur
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -50,7 +46,27 @@ class DemandePaiementModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function findListeGcot(string $numeroFournisseur, string  $numCdesString): array
+    public function getFournisseur()
+    {
+        $statement = "SELECT 
+                        FBSE_NUMFOU AS num_fournisseur,
+                        UPPER(MIN(FBSE_NOMFOU)) AS nom_fournisseur
+                    FROM 
+                        FRN_BSE
+                    GROUP BY 
+                        FBSE_NUMFOU
+                    ORDER BY 
+                        nom_fournisseur 
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function findListeGcot(string $numeroFournisseur, string  $numCdesString, string $numFacString): array
     {
         $sql = " SELECT  
             TRZT_Dossier_Douane.Code_Fournisseur, 
@@ -65,24 +81,476 @@ class DemandePaiementModel extends Model
             LEFT JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
             LEFT JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
             where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%' 
-            and TRZT_Facture.Numero_Facture like 'PDV_%'
+            and TRZT_Facture.Numero_Facture not in ({$numFacString})
             and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
             and GCOT_Facture_Ligne.Numero_PO in ({$numCdesString})
             group by TRZT_Dossier_Douane.Code_Fournisseur, TRZT_Dossier_Douane.Libelle_Fournisseur,TRZT_Dossier_Douane.Numero_Dossier_Douane, TRZT_Dossier_Douane.Numero_LTA, TRZT_Dossier_Douane.Numero_HAWB,TRZT_Facture.Numero_Facture, GCOT_Facture_Ligne.Numero_PO
             order by TRZT_Dossier_Douane.Code_Fournisseur, TRZT_Dossier_Douane.Libelle_Fournisseur,TRZT_Dossier_Douane.Numero_Dossier_Douane, TRZT_Dossier_Douane.Numero_LTA, TRZT_Dossier_Douane.Numero_HAWB,TRZT_Facture.Numero_Facture, GCOT_Facture_Ligne.Numero_PO
+            ";
+        return $this->retournerResultGcot04($sql);
+    }
+
+    public function getMontantFacGcot(string $numeroFournisseur, string  $numCdesString, string $numfacture): array
+    {
+        $sql = "SELECT sum(montant_fob) as montantfacture  from TRZT_Facture where Numero_Facture in ({$numfacture})";
+
+        return array_column($this->retournerResultGcot04($sql), 'montantfacture');
+    }
+
+
+
+    public function finListFacGcot(string $numeroFournisseur, string  $numCdesString): array
+    {
+        $sql = " SELECT  
+          distinct 
+            TRZT_Facture.Numero_Facture
+            from TRZT_Dossier_Douane
+            LEFT JOIN TRZT_Facture on TRZT_Dossier_Douane.Numero_Dossier_Douane = TRZT_Facture.Numero_Dossier_Douane
+            LEFT JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
+            LEFT JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
+            where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%' 
+            and TRZT_Facture.Numero_Facture like 'PDV_%'
+            and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
+            and GCOT_Facture_Ligne.Numero_PO in ({$numCdesString})
+        ";
+
+        return array_column($this->retournerResultGcot04($sql), 'Numero_Facture');
+    }
+
+    public function getNumDossierGcot(string $numeroFournisseur, string  $numCdesString, ?string $numFactString): array
+    {
+        if (!empty($numFactString)) {
+            $numFac = " and TRZT_Facture.Numero_Facture in ({$numFactString})";
+        } else {
+            $numFac = '';
+        }
+        $sql = " SELECT  DISTINCT
+            TRZT_Dossier_Douane.Numero_Dossier_Douane
+            from TRZT_Dossier_Douane
+            LEFT JOIN TRZT_Facture on TRZT_Dossier_Douane.Numero_Dossier_Douane = TRZT_Facture.Numero_Dossier_Douane
+            LEFT JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
+            LEFT JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
+            where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%' 
+            $numFac
+            and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
+            and GCOT_Facture_Ligne.Numero_PO in ({$numCdesString})
+            ";
+        return $this->retournerResultGcot04($sql);
+    }
+
+    public function getNumCommande(string $numeroFournisseur, string $numCdesString, ?string $numFactString): string
+    {
+        if (!empty($numFactString)) {
+            $numFac = "and TRZT_Facture.Numero_Facture in ({$numFactString})";
+        } else {
+            $numFac = '';
+        }
+
+        $sql = " SELECT DISTINCT
+        GCOT_Facture_Ligne.Numero_PO as numerocde
+        from TRZT_Dossier_Douane
+        LEFT JOIN TRZT_Facture on TRZT_Dossier_Douane.Numero_Dossier_Douane = TRZT_Facture.Numero_Dossier_Douane
+        LEFT JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
+        LEFT JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
+        where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%' 
+        $numFac
+        and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
+        and GCOT_Facture_Ligne.Numero_PO in ({$numCdesString})
+        ";
+
+        $result = array_column($this->retournerResultGcot04($sql), 'numerocde');
+
+        // Retourner la première valeur ou une chaîne vide
+        return !empty($result) ? (string) $result[0] : '';
+    }
+
+
+    public function findListeDoc($numeroDossier)
+    {
+        $sql = " SELECT  Nom_Fichier, Date_Fichier, Numero_PO
+            from GCOT_Gestion_Document
+            where Numero_PO='{$numeroDossier}'
+            and (Nom_Fichier like '%\PDV%' or Nom_Fichier like '%\LTA%' or Nom_Fichier like '%\HAWB%')
         ";
 
         return $this->retournerResultGcot04($sql);
     }
 
-    public function findListeDoc($numeroDossier)
+    public function cdeFacOuNonFac(string  $numCdesString)
     {
-        $sql=" SELECT  Nom_Fichier, Date_Fichier, Numero_PO
-            from GCOT_Gestion_Document
-            where Numero_PO='{$numeroDossier}'
-            and (Nom_Fichier like '%\PDV%' or Nom_Fichier like '%\BOL%' or Nom_Fichier like '%\HAWB%')
+        $statement = "SELECT ffac_facext  
+                    FROM  frn_fac 
+                    WHERE ffac_numfac 
+                    IN( SELECT DISTINCT fllf_numfac FROM  frn_llf WHERE fllf_numcde = $numCdesString ) 
+        ";
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function getNumCdeDw()
+    {
+        $sql = " SELECT DISTINCT numero_cde as numcde
+                FROM DW_Commande where path is not null
+        ";
+        return array_column($this->retournerResult28($sql), 'numcde');
+    }
+
+
+    public function getPathDwCommande(string $numCde): array
+    {
+        $sql = " SELECT DISTINCT  path, numero_cde from DW_Commande where numero_cde='{$numCde}' and date_creation = (select max(date_creation) from DW_Commande where numero_cde='{$numCde}' )";
+
+        return $this->retournerResult28($sql);
+    }
+
+    public function getMontantCdeAvance(string $numCde)
+    {
+        $statement = " SELECT  sum(fcdl_pxach * fcdl_qte) as montantCde from frn_cdl where fcdl_numcde in ({$numCde})
+        ";
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function getModePaiement()
+    {
+        $statement = " SELECT TRIM(atab_lib) as atablib 
+                        from agr_tab 
+                        where atab_nom='PAI'
         ";
 
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        return array_column($this->convertirEnUtf8($data), 'atablib');
+    }
+
+    public function getDevise()
+    {
+        $statement = " SELECT adev_code as adevcode, 
+                            TRIM(adev_lib)as adevlib 
+                        from agr_dev
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        return $this->convertirEnUtf8($data);
+    }
+
+    /**
+     * Recupère le numero de dossier de douane
+     *
+     * @param string $numeroFournisseur
+     * @param string $numCdesString
+     * @return array retourne une ou plusieurs valeur
+     */
+    public function getNumDossierDouane(string $numeroFournisseur, string  $numCdesString, string $numFacture): array
+    {
+        $sql = " SELECT  DISTINCT
+
+                TRZT_Dossier_Douane.Numero_Dossier_Douane 
+
+                from TRZT_Dossier_Douane
+                LEFT JOIN TRZT_Facture on TRZT_Dossier_Douane.Numero_Dossier_Douane = TRZT_Facture.Numero_Dossier_Douane
+                LEFT JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
+                LEFT JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
+                where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%' 
+                and TRZT_Facture.Numero_Facture in ({$numFacture})
+                and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
+                and GCOT_Facture_Ligne.Numero_PO in ({$numCdesString})
+            ";
         return $this->retournerResultGcot04($sql);
+    }
+
+    public function getFactureNonReglee(string $numeroFournisseur)
+    {
+        $statement = " SELECT 'PDV_'||''||trim(tecr_nopiec) as facture_non_lettree
+                        FROM trs_ecr 
+                        WHERE tecr_nocpp = '{$numeroFournisseur}'
+                        and tecr_codjou = 'Achmag'
+        ";
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        return array_column($this->convertirEnUtf8($data), 'facture_non_lettree');
+    }
+
+    public function getCommandeReceptionnee(string $numeroFournisseur): array
+    {
+        $statement = " SELECT distinct fllf_numcde as commande_receptionnee from frn_llf
+                inner join frn_liv 
+                    on fliv_numliv = fllf_numliv 
+                    and fliv_soc = fllf_soc 
+                    and fliv_succ = fllf_succ 
+                    and fliv_soc = 'HF'
+                where fliv_numfou = '{$numeroFournisseur}'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        $data = $this->convertirEnUtf8($data);
+
+        return array_column($data, 'commande_receptionnee');
+    }
+
+    public function recupInfoPourDa(string $numeroFournisseur, string $numCde)
+    {
+        $statement = " SELECT 
+                    FBSE_NUMFOU AS num_fournisseur,
+                    UPPER(MIN(FBSE_NOMFOU)) AS nom_fournisseur,  -- Prend un seul nom fournisseur (Beneficiaire)
+                    MIN(fbse_devise) AS devise,                  -- Prend une seule devise
+                    TRIM(MIN(CASE
+                        WHEN ffou_modp = 'CB' THEN 'CARTE BANCAIRE'
+                        WHEN ffou_modp = 'CD' THEN 'CHEQUE DIFFERE'
+                        WHEN ffou_modp = 'CH' THEN 'CHEQUE COMPTANT'
+                        WHEN ffou_modp = 'CO' THEN 'ESPECES COMPTANT'
+                        WHEN ffou_modp = 'TA' THEN 'TRAITE'
+                        WHEN ffou_modp = 'VI' THEN 'VIREMENT'
+                        ELSE ffou_modp
+                    END)) AS mode_paiement,
+                    TRIM(fbqe_bqcode) ||' '|| TRIM(fbqe_bqguich) ||' '|| TRIM(fbqe_bqcpte) ||' '|| TRIM(fbqe_bqrib) AS rib_fournisseur,
+                    fcde_succ as code_agence, 
+                    fcde_serv as code_service,
+                    fcde_numcde as numero_cde,
+                    'N°TVA : '||TRIM(fbse_asstva)||' - SIRET : '||fbse_siret
+                    --case when ffou_modp = 'CD' or ffou_modp = 'CH'
+                        --then 'N°TVA : '||TRIM(fbse_asstva)||' - SIRET : '||fbse_siret
+                        --else null
+                    --END 
+                    as cif
+                FROM 
+                    informix.FRN_BSE
+                LEFT JOIN 
+                    informix.FRN_FOU ON FBSE_NUMFOU = FFOU_NUMFOU
+                LEFT JOIN
+                    informix.fou_bqe ON fbqe_numfou = fbse_numfou
+               	LEFT JOIN
+                    informix.frn_cde ON fcde_numfou = fbse_numfou
+                WHERE 
+                    FFOU_SOC = 'HF'
+                    AND fcde_numcde = '{$numCde}'
+                    AND fbse_numfou = '{$numeroFournisseur}'
+                GROUP BY 
+                    FBSE_NUMFOU, code_agence, code_service, numero_cde, cif, rib_fournisseur
+                ORDER BY 
+                    nom_fournisseur
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function getCodeAgenceService(?int $numOr)
+    {
+        $statement = " SELECT 
+                    seor_succ as code_agence, 
+                    seor_servcrt as code_service 
+                    from informix.sav_eor 
+                    where seor_numor = '$numOr'
+        ";
+
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    /**
+     * Retourne les montants HT et TTC d'une commande.
+     *
+     * @param string $numCde
+     * @param string $codeSociete
+     *
+     * @return array{
+     *     montant_total_cde_ht: float,
+     *     montant_total_cde_ttc: float
+     * }
+     */
+    public function getMontantCde(string $numCde, string $codeSociete): array
+    {
+        $statement = " SELECT 
+                    fcde_mtn as montant_total_cde_ht,
+                    fcde_ttc as montant_total_cde_ttc
+                from informix.frn_cde 
+                where fcde_numcde ='$numCde'
+                and fcde_soc = '$codeSociete'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        if (empty($data)) {
+            return [
+                'montant_total_cde_ht'  => 0.00,
+                'montant_total_cde_ttc' => 0.00,
+            ];
+        }
+
+        return [
+            'montant_total_cde_ht'  => (float) $data[0]['montant_total_cde_ht'],
+            'montant_total_cde_ttc' => (float) $data[0]['montant_total_cde_ttc'],
+        ];
+    }
+
+
+    public function recupInfoComamnde(string $numCde, string $numeroFournisseur)
+    {
+        $statement = " SELECT 
+                    FBSE_NUMFOU AS num_fournisseur,
+                    UPPER(MIN(FBSE_NOMFOU)) AS nom_fournisseur,  -- Prend un seul nom fournisseur (Beneficiaire)
+                    MIN(fbse_devise) AS devise,                  -- Prend une seule devise
+                    TRIM(MIN(CASE
+                        WHEN ffou_modp = 'CB' THEN 'CARTE BANCAIRE'
+                        WHEN ffou_modp = 'CD' THEN 'CHEQUE DIFFERE'
+                        WHEN ffou_modp = 'CH' THEN 'CHEQUE COMPTANT'
+                        WHEN ffou_modp = 'CO' THEN 'ESPECES COMPTANT'
+                        WHEN ffou_modp = 'TA' THEN 'TRAITE'
+                        WHEN ffou_modp = 'VI' THEN 'VIREMENT'
+                        ELSE ffou_modp
+                    END)) AS mode_paiement,
+                    TRIM(fbqe_bqcode) ||' '|| TRIM(fbqe_bqguich) ||' '|| TRIM(fbqe_bqcpte) ||' '|| TRIM(fbqe_bqrib) AS rib_fournisseur,
+                    fcde_succ as code_agence, 
+                    fcde_serv as code_service,
+                    fcde_numcde as numero_cde,
+                    fcde_mtn as montant_total_cde
+                FROM 
+                    informix.FRN_BSE
+                JOIN 
+                    informix.FRN_FOU ON FBSE_NUMFOU = FFOU_NUMFOU
+                JOIN
+                    informix.fou_bqe ON fbqe_numfou = fbse_numfou
+               	JOIN
+                    informix.frn_cde ON fcde_numfou = fbse_numfou
+                WHERE 
+                    FFOU_SOC = 'HF'
+                    AND fcde_numcde = '{$numCde}'
+                    AND fbse_numfou = '{$numeroFournisseur}'
+                GROUP BY 
+                    FBSE_NUMFOU, code_agence, code_service, numero_cde, montant_total_cde, rib_fournisseur
+                ORDER BY 
+                    nom_fournisseur
+        ";
+
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function getInfoDdpDa(string $numeroDa, string $numeroCde)
+    {
+        $sql = " SELECT  
+            FORMAT(dp.date_creation, 'dd/MM/yyyy HH:mm:ss') as date_soumission,
+            case 
+                when dsfb.numero_bap is null then dp.numero_demande_paiement
+                else dsfb.numero_bap
+            end as numero,
+            td.libelle_type_demande as type,
+            dp.motif,
+            FORMAT(dp.montant_a_payer, 'N2') as montant_ht,
+            dp.statut,
+            dp.code_societe 
+            from demande_paiement dp 
+            left join da_soumission_facture_bl dsfb 
+            on dsfb.numero_demande_paiement = dp.numero_demande_paiement
+            left join type_demande td ON td.id = dp.type_demande_id 
+            where dp.numero_demande_appro ='{$numeroDa}'
+            and dp.numero_commande = '{$numeroCde}'
+            order by dp.date_creation  desc
+        ";
+        $resultStmt = $this->connexion->query($sql);
+        $data = [];
+        while ($result = odbc_fetch_array($resultStmt)) {
+            $data[] = $this->convertirEnUtf8($result);
+        }
+        return $data;
+    }
+
+    public function getNumeroFactureIps(string $numeroCommande): ?string
+    {
+        $statement = "  SELECT FIRST 1 fllf_numfac 
+                        from informix.frn_llf
+                        where fllf_numcde ='$numeroCommande'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return array_column($data, 'fllf_numfac')[0] ?? null;
+    }
+
+    public function getFilePathDdp(string $numeroDdp, string $table, string $columnName): string
+    {
+        $sql = " SELECT top 1 d.path from $table d where d.$columnName = '$numeroDdp' ORDER BY d.numero_version desc";
+
+        $queryResult = $this->connexion->query($sql);
+
+        if (!$queryResult) throw new \RuntimeException("Échec de la requête pour le DDP : $numeroDdp");
+
+        $result = odbc_fetch_array($queryResult);
+
+        return $result['path'] ?? '';
+    }
+
+    public function getAllDdpByDa(string $numeroDa): array
+    {
+        $sql = "SELECT
+                    dp.numero_demande_paiement AS numero_ddp,
+                    dp.date_creation,
+                    td.code_type_demande AS code_type,
+                    CASE td.code_type_demande
+                        WHEN 'BAP' THEN (
+                            SELECT TOP 1 t1.path
+                                FROM DW_bon_a_payer t1
+                                WHERE t1.numero_bap = dp.numero_demande_paiement
+                                ORDER BY t1.numero_version DESC
+                        )
+                        WHEN 'DPR' THEN (
+                            SELECT TOP 1 t2.path
+                                FROM DW_regularisation_ddp t2
+                                WHERE t2.numero_ddr = dp.numero_demande_paiement
+                                ORDER BY t2.numero_version DESC
+                        )
+                        WHEN 'DPA' THEN (
+                            SELECT TOP 1 t3.path
+                                FROM DW_demande_de_paiement t3
+                                WHERE t3.numero_ddp = dp.numero_demande_paiement
+                                ORDER BY t3.numero_version DESC
+                        )
+                    END AS path
+                FROM demande_paiement dp
+                INNER JOIN type_demande td
+                    ON dp.type_demande_id = td.id
+                WHERE dp.numero_demande_appro = '$numeroDa'
+                ORDER BY dp.date_creation ASC;";
+
+        $resultStmt = $this->connexion->query($sql);
+        $data = [];
+
+        while ($result = odbc_fetch_array($resultStmt)) {
+            $data[] = [
+                'numero_ddp' => $result['numero_ddp'],
+                'code_type'  => $result['code_type'],
+                'path'       => $result['path'],
+            ];
+        }
+
+        return $data;
+    }
+
+    public function isFrnNonImmatricule(int $numFrn): bool
+    {
+        $statement = "SELECT  1 FROM frn_bse WHERE (fbse_asstva IS NULL OR TRIM(fbse_asstva) = '') AND (fbse_siret  IS NULL OR TRIM(fbse_siret)  = '') AND fbse_numfou ='$numFrn' LIMIT 1";
+        $result = $this->connect->executeQuery($statement, [$numFrn]);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+        return count($data) > 0;
     }
 }

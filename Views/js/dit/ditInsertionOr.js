@@ -112,3 +112,30 @@ function formatFileSize(bytes) {
     return (bytes / 1024).toFixed(2) + " KB";
   }
 }
+
+/**
+ * blocage de l'article DA si le nombre d'articles à valider n'est pas égale au nombre d'article dans IPS
+ */
+document.addEventListener("DOMContentLoaded", function () {
+  const blocageArticleDa = document.getElementById("blocage-article-da");
+
+  if (blocageArticleDa.classList.contains("d-none")) {
+    //cree moi une sweet-alert-2 confirm cancel
+    Swal.fire({
+      title: "Souhaitez vous tout de même soumettre l'OR ?",
+      text: "Les articles du bon d'achat validé ne correspondent pas à ceux saisis dans l'OR. Voulez-vous continuer ?",
+      icon: "warning",
+      showCancelButton: true,
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      confirmButtonColor: "#d4a817ff",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "OUI",
+      cancelButtonText: "NON",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        blocageArticleDa.classList.remove("d-none");
+      }
+    });
+  }
+});

@@ -58,7 +58,7 @@ class TkiPlanning
     private $demandeSupportInfo;
 
     /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="tikPlanningUser")
+     * @ORM\ManyToOne(targetEntity=User::class)
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      * 
      */

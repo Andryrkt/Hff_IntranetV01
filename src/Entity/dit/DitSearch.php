@@ -10,50 +10,38 @@ use App\Entity\admin\dit\WorNiveauUrgence;
 
 class DitSearch
 {
-   
-    private ?WorNiveauUrgence $niveauUrgence;
+    private ?WorNiveauUrgence $niveauUrgence = null;
 
-    
-    private ?StatutDemande $statut;
+    private ?StatutDemande $statut = null;
 
-    
     private ?int $idMateriel = 0;
 
-    
-    private ?WorTypeDocument $typeDocument;
+    private ?WorTypeDocument $typeDocument = null;
 
-   
-    private ?string $internetExterne;
+    private ?string $internetExterne = '';
 
+    private ?\Datetime $dateDebut = null;
 
-    private ?\Datetime $dateDebut;
+    private ?\DateTime $dateFin = null;
 
-    private ?\DateTime $dateFin;
-
-   
     private ?string $numParc = '';
 
     private ?string $numSerie = '';
 
+    private ?int $agenceEmetteur = null;
 
-  
-    private ?Agence $agenceEmetteur = null;
+    private ?int $serviceEmetteur = null;
 
-   
-    private ?Service $serviceEmetteur = null;
+    private ?int $agenceDebiteur = null;
 
-    private ?Agence $agenceDebiteur = null;
-
-   
-    private ?Service $serviceDebiteur = null;
-
+    private ?int $serviceDebiteur = null;
 
     private ?string $numDit = '';
 
-    private ?int $numOr = null ;
+    private ?int $numOr = null;
 
     private ?string $statutOr = '';
-    
+
     private ?bool $ditSansOr = false;
 
     private  $categorie;
@@ -62,16 +50,17 @@ class DitSearch
 
     private ?string $sectionAffectee = null;
 
-    
-    private ?string $sectionSupport1;
+    private ?string $sectionSupport1 = '';
 
-    private ?string $sectionSupport2;
+    private ?string $sectionSupport2 = '';
 
-    private ?string $sectionSupport3;
+    private ?string $sectionSupport3 = '';
 
     private ?string $etatFacture = '';
 
     private ?string $numDevis = '';
+
+    private $reparationRealise;
 
     //-===============================================================================================================================
     public function getNiveauUrgence()
@@ -79,7 +68,7 @@ class DitSearch
         return $this->niveauUrgence;
     }
 
-    
+
     public function setNiveauUrgence($niveauUrgence): self
     {
         $this->niveauUrgence = $niveauUrgence;
@@ -87,7 +76,7 @@ class DitSearch
         return $this;
     }
 
-    
+
     public function getStatut()
     {
         return $this->statut;
@@ -105,7 +94,7 @@ class DitSearch
      * Get the value of idMateriel
      *
      * @return  int|null
-     */ 
+     */
     public function getIdMateriel()
     {
         return $this->idMateriel;
@@ -117,7 +106,7 @@ class DitSearch
      * @param  int|null  $idMateriel
      *
      * @return  self
-     */ 
+     */
     public function setIdMateriel($idMateriel)
     {
         $this->idMateriel = $idMateriel;
@@ -129,7 +118,7 @@ class DitSearch
      * Get undocumented variable
      *
      * @return  WorTypeDocument|null
-     */ 
+     */
     public function getTypeDocument()
     {
         return $this->typeDocument;
@@ -141,7 +130,7 @@ class DitSearch
      * @param  WorTypeDocument|null  $typeDocument  Undocumented variable
      *
      * @return  self
-     */ 
+     */
     public function setTypeDocument($typeDocument)
     {
         $this->typeDocument = $typeDocument;
@@ -153,7 +142,7 @@ class DitSearch
      * Get undocumented variable
      *
      * @return  string|null
-     */ 
+     */
     public function getInternetExterne()
     {
         return $this->internetExterne;
@@ -165,7 +154,7 @@ class DitSearch
      * @param  string|null  $interneExterne  Undocumented variable
      *
      * @return  self
-     */ 
+     */
     public function setInternetExterne($interneExterne)
     {
         $this->internetExterne = $interneExterne;
@@ -177,7 +166,7 @@ class DitSearch
      * Get the value of dateDebut
      *
      * @return  \DateTime|null
-     */ 
+     */
     public function getDateDebut()
     {
         return $this->dateDebut;
@@ -189,7 +178,7 @@ class DitSearch
      * @param  \DateTime|null  $dateDebut
      *
      * @return  self
-     */ 
+     */
     public function setDateDebut($dateDebut)
     {
         $this->dateDebut = $dateDebut;
@@ -201,7 +190,7 @@ class DitSearch
      * Get the value of dateFin
      *
      * @return  \DateTime|null
-     */ 
+     */
     public function getDateFin()
     {
         return $this->dateFin;
@@ -213,7 +202,7 @@ class DitSearch
      * @param  \DateTime|null  $dateFin
      *
      * @return  self
-     */ 
+     */
     public function setDateFin($dateFin)
     {
         $this->dateFin = $dateFin;
@@ -225,7 +214,7 @@ class DitSearch
      * Get the value of numParc
      *
      * @return  string|null
-     */ 
+     */
     public function getNumParc()
     {
         return $this->numParc;
@@ -237,7 +226,7 @@ class DitSearch
      * @param  string|null  $numParc
      *
      * @return  self
-     */ 
+     */
     public function setNumParc($numParc)
     {
         $this->numParc = $numParc;
@@ -249,7 +238,7 @@ class DitSearch
      * Get the value of numSerie
      *
      * @return  string|null
-     */ 
+     */
     public function getNumSerie()
     {
         return $this->numSerie;
@@ -261,7 +250,7 @@ class DitSearch
      * @param  string|null  $numSerie
      *
      * @return  self
-     */ 
+     */
     public function setNumSerie($numSerie)
     {
         $this->numSerie = $numSerie;
@@ -272,8 +261,8 @@ class DitSearch
     /**
      * Get the value of agenceEmetteur
      *
-     * @return  Agence|null
-     */ 
+     * @return  ?int
+     */
     public function getAgenceEmetteur()
     {
         return $this->agenceEmetteur;
@@ -282,10 +271,10 @@ class DitSearch
     /**
      * Set the value of agenceEmetteur
      *
-     * @param  Agence|null  $agenceEmetteur
+     * @param  ?int $agenceEmetteur
      *
      * @return  self
-     */ 
+     */
     public function setAgenceEmetteur($agenceEmetteur)
     {
         $this->agenceEmetteur = $agenceEmetteur;
@@ -296,8 +285,8 @@ class DitSearch
     /**
      * Get undocumented variable
      *
-     * @return  Service|null
-     */ 
+     * @return  ?int
+     */
     public function getServiceEmetteur()
     {
         return $this->serviceEmetteur;
@@ -306,10 +295,10 @@ class DitSearch
     /**
      * Set undocumented variable
      *
-     * @param  Service|null  $serviceEmetteur  Undocumented variable
+     * @param  ?int  $serviceEmetteur  Undocumented variable
      *
      * @return  self
-     */ 
+     */
     public function setServiceEmetteur($serviceEmetteur)
     {
         $this->serviceEmetteur = $serviceEmetteur;
@@ -320,8 +309,8 @@ class DitSearch
     /**
      * Get undocumented variable
      *
-     * @return  Agence|null
-     */ 
+     * @return  ?int
+     */
     public function getAgenceDebiteur()
     {
         return $this->agenceDebiteur;
@@ -330,10 +319,10 @@ class DitSearch
     /**
      * Set undocumented variable
      *
-     * @param  Agence|null  $agenceDebiteur  Undocumented variable
+     * @param  ?int  $agenceDebiteur  Undocumented variable
      *
      * @return  self
-     */ 
+     */
     public function setAgenceDebiteur($agenceDebiteur)
     {
         $this->agenceDebiteur = $agenceDebiteur;
@@ -344,8 +333,8 @@ class DitSearch
     /**
      * Get undocumented variable
      *
-     * @return  Service|null
-     */ 
+     * @return  ?int
+     */
     public function getServiceDebiteur()
     {
         return $this->serviceDebiteur;
@@ -354,10 +343,10 @@ class DitSearch
     /**
      * Set undocumented variable
      *
-     * @param  Service|null  $serviceDebiteur  Undocumented variable
+     * @param  ?int  $serviceDebiteur  Undocumented variable
      *
      * @return  self
-     */ 
+     */
     public function setServiceDebiteur($serviceDebiteur)
     {
         $this->serviceDebiteur = $serviceDebiteur;
@@ -369,7 +358,7 @@ class DitSearch
 
     /**
      * Get the value of numDit
-     */ 
+     */
     public function getNumDit()
     {
         return $this->numDit;
@@ -379,7 +368,7 @@ class DitSearch
      * Set the value of numDit
      *
      * @return  self
-     */ 
+     */
     public function setNumDit($numDit)
     {
         $this->numDit = $numDit;
@@ -389,7 +378,7 @@ class DitSearch
 
     /**
      * Get the value of numOr
-     */ 
+     */
     public function getNumOr()
     {
         return $this->numOr;
@@ -399,7 +388,7 @@ class DitSearch
      * Set the value of numOr
      *
      * @return  self
-     */ 
+     */
     public function setNumOr($numOr)
     {
         $this->numOr = $numOr;
@@ -409,7 +398,7 @@ class DitSearch
 
     /**
      * Get the value of statutOr
-     */ 
+     */
     public function getStatutOr()
     {
         return $this->statutOr;
@@ -419,7 +408,7 @@ class DitSearch
      * Set the value of statutOr
      *
      * @return  self
-     */ 
+     */
     public function setStatutOr($statutOr)
     {
         $this->statutOr = $statutOr;
@@ -427,9 +416,9 @@ class DitSearch
         return $this;
     }
 
-     /**
+    /**
      * Get the value of ditSansOr
-     */ 
+     */
     public function getDitSansOr()
     {
         return $this->ditSansOr;
@@ -439,7 +428,7 @@ class DitSearch
      * Set the value of ditSansOr
      *
      * @return  self
-     */ 
+     */
     public function setDitSansOr($ditSansOr)
     {
         $this->ditSansOr = $ditSansOr;
@@ -449,7 +438,7 @@ class DitSearch
 
     /**
      * Get the value of categorie
-     */ 
+     */
     public function getCategorie()
     {
         return $this->categorie;
@@ -459,7 +448,7 @@ class DitSearch
      * Set the value of categorie
      *
      * @return  self
-     */ 
+     */
     public function setCategorie($categorie)
     {
         $this->categorie = $categorie;
@@ -469,7 +458,7 @@ class DitSearch
 
     /**
      * Get the value of utilisateur
-     */ 
+     */
     public function getUtilisateur()
     {
         return $this->utilisateur;
@@ -479,7 +468,7 @@ class DitSearch
      * Set the value of utilisateur
      *
      * @return  self
-     */ 
+     */
     public function setUtilisateur($utilisateur)
     {
         $this->utilisateur = $utilisateur;
@@ -499,9 +488,9 @@ class DitSearch
         return $this;
     }
 
-     /**
+    /**
      * Get the value of sectionSupport1
-     */ 
+     */
     public function getSectionSupport1()
     {
         return $this->sectionSupport1;
@@ -511,17 +500,17 @@ class DitSearch
      * Set the value of sectionSupport1
      *
      * @return  self
-     */ 
+     */
     public function setSectionSupport1($sectionSupport1)
     {
         $this->sectionSupport1 = $sectionSupport1;
 
         return $this;
     }
-    
-        /**
+
+    /**
      * Get the value of sectionSupport2
-     */ 
+     */
     public function getSectionSupport2()
     {
         return $this->sectionSupport2;
@@ -531,18 +520,18 @@ class DitSearch
      * Set the value of sectionSupport2
      *
      * @return  self
-     */ 
+     */
     public function setSectionSupport2($sectionSupport2)
     {
         $this->sectionSupport2 = $sectionSupport2;
 
         return $this;
     }
-    
+
 
     /**
      * Get the value of sectionSupport3
-     */ 
+     */
     public function getSectionSupport3()
     {
         return $this->sectionSupport3;
@@ -552,7 +541,7 @@ class DitSearch
      * Set the value of sectionSupport3
      *
      * @return  self
-     */ 
+     */
     public function setSectionSupport3($sectionSupport3)
     {
         $this->sectionSupport3 = $sectionSupport3;
@@ -560,9 +549,9 @@ class DitSearch
         return $this;
     }
 
-        /**
+    /**
      * Get the value of etatFacture
-     */ 
+     */
     public function getEtatFacture()
     {
         return $this->etatFacture;
@@ -572,7 +561,7 @@ class DitSearch
      * Set the value of etatFacture
      *
      * @return  self
-     */ 
+     */
     public function setEtatFacture($etatFacture)
     {
         $this->etatFacture = $etatFacture;
@@ -582,7 +571,7 @@ class DitSearch
 
     /**
      * Get the value of numDevis
-     */ 
+     */
     public function getNumDevis()
     {
         return $this->numDevis;
@@ -592,10 +581,30 @@ class DitSearch
      * Set the value of numDevis
      *
      * @return  self
-     */ 
+     */
     public function setNumDevis($numDevis)
     {
         $this->numDevis = $numDevis;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of reparationRealise
+     */
+    public function getReparationRealise()
+    {
+        return $this->reparationRealise;
+    }
+
+    /**
+     * Set the value of reparationRealise
+     *
+     * @return  self
+     */
+    public function setReparationRealise($reparationRealise)
+    {
+        $this->reparationRealise = $reparationRealise;
 
         return $this;
     }
@@ -627,10 +636,8 @@ class DitSearch
             'sectionSupport2' => $this->sectionSupport2,
             'sectionSupport3' => $this->sectionSupport3,
             'etatFacture' => $this->etatFacture,
-            'numDevis' => $this->numDevis
+            'numDevis' => $this->numDevis,
+            'reparationRealise' => $this->reparationRealise
         ];
     }
-
-    
 }
-

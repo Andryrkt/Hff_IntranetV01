@@ -1,0 +1,214 @@
+<?php
+
+namespace App\Repository\da;
+
+use App\Constants\ddp\StatutConstants;
+use App\Entity\da\DaAfficher;
+use App\Entity\ddp\DemandePaiement;
+use Doctrine\ORM\Query;
+use Doctrine\ORM\EntityRepository;
+
+class DaSoumissionFacBlRepository extends EntityRepository
+{
+
+    public function getNumeroVersionMax(string $numeroCde, string $codeSociete): ?int
+    {
+        $result = $this->createQueryBuilder('dabc')
+            ->select('MAX(dabc.numeroVersion)')
+            ->where('dabc.numeroCde = :numCde')
+            ->andWhere('dabc.codeSociete = :codeSociete')
+            ->setParameter('numCde', $numeroCde)
+            ->setParameter('codeSociete', $codeSociete)
+            ->getQuery()
+            ->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);
+
+        return $result !== null ? (int) $result : null;
+    }
+
+    public function getStatut(?string $numCde): ?string
+    {
+        // Récupérer le statut correspondant
+        $statut = $this->createQueryBuilder('dabc')
+            ->select('dabc.statut')
+            ->where('dabc.numeroCde = :numCde')
+            ->setParameter('numCde', $numCde)
+            ->orderBy('dabc.numeroVersion', 'DESC')
+            ->setMaxResults(1);
+
+        return $statut->getQuery()
+            ->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);
+    }
+
+    public function getAllLivraisonSoumis(string $numDa, string $numCde, string $codeSociete)
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = " SELECT 
+                dabc.numero_livraison
+            FROM da_soumission_facture_bl dabc
+            LEFT JOIN demande_paiement ddp ON ddp.numero_demande_paiement = dabc.numero_demande_paiement
+            WHERE dabc.numero_demande_appro = :numDa
+            AND dabc.numero_cde = :numCde
+            AND dabc.code_societe = :codeSociete
+            AND (ddp.statut NOT LIKE :statutRefuse OR ddp.statut IS NULL)
+        ";
+
+
+
+        $rows = $conn->fetchAllAssociative($sql, [
+            'numDa' => $numDa,
+            'numCde' => $numCde,
+            'codeSociete' => $codeSociete,
+            'statutRefuse' => '%Refusé%'
+        ]);
+
+        return array_filter(array_column($rows, 'numero_livraison'));
+    }
+
+    public function getNombreLivraisonSoumis(string $numDa, string $numCde, string $codeSociete): ?int
+    {
+        return  $this->createQueryBuilder('dabc')
+            ->select('COUNT(dabc.numLiv)')
+            ->where('dabc.numeroDemandeAppro = :numDa')
+            ->andWhere('dabc.numeroCde = :numCde')
+            ->andWhere('dabc.codeSociete = :codeSociete')
+            ->setParameter('numDa', $numDa)
+            ->setParameter('numCde', $numCde)
+            ->setParameter('codeSociete', $codeSociete)
+            ->getQuery()
+            ->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);
+    }
+
+    public function getAll(array $criteria = [], string $codeSociete)
+    {
+        $qb = $this->createQueryBuilder('dabc')
+            ->where('dabc.numeroBap IS NOT NULL')
+            ->andWhere('dabc.codeSociete = :codeSociete')
+            ->setParameter('codeSociete', $codeSociete);
+
+        // filtres par le numero demande appro
+        if (isset($criteria['numDa']) && !empty($criteria['numDa'])) {
+            $qb->andWhere('dabc.numeroDemandeAppro = :numDa')
+                ->setParameter('numDa', $criteria['numDa']);
+        }
+
+        // filtres par le numero commande
+        if (isset($criteria['numCde']) && !empty($criteria['numCde'])) {
+            $qb->andWhere('dabc.numeroCde = :numCde')
+                ->setParameter('numCde', $criteria['numCde']);
+        }
+
+        // filtres par le numero livraison IPS
+        if (isset($criteria['numLivIps']) && !empty($criteria['numLivIps'])) {
+            $qb->andWhere('dabc.numLiv = :numLivIps')
+                ->setParameter('numLivIps', $criteria['numLivIps']);
+        }
+
+        // filtres par le numero demande de paiement
+        if (isset($criteria['numDdp']) && !empty($criteria['numDdp'])) {
+            $qb->andWhere('dabc.numeroDemandePaiement = :numDdp')
+                ->setParameter('numDdp', $criteria['numDdp']);
+        }
+
+        // filtres par la facture ou le bon de livraison
+        if (isset($criteria['FactureBl']) && !empty($criteria['FactureBl'])) {
+            $qb->andWhere('dabc.refBlFac = :facBl')
+                ->setParameter('facBl', $criteria['FactureBl']);
+        }
+
+        // filtres par le numéro fournisseur
+        if (isset($criteria['fournisseur']) && !empty($criteria['fournisseur'])) {
+            $qb->andWhere('dabc.numeroFournisseur = :fournisseur')
+                ->setParameter('fournisseur', trim(explode('-', $criteria['fournisseur'])[0]));
+        }
+
+        return $qb->orderBy('dabc.id', 'DESC')->getQuery()->getResult();
+    }
+
+    public function getAllSelonNumBap(array $bapNumbers)
+    {
+        return  $this->createQueryBuilder('dabc')
+            ->where('dabc.numeroBap IN (:numBap)')
+            ->setParameter('numBap', $bapNumbers)
+            ->getQuery()
+            ->getResult();
+    }
+    /**
+     * Récupération du date de livraison commande
+     *
+     * @param string $numeroBc
+     * @return \DateTimeInterface|null
+     */
+    public function getDateLivraisonArticle(string $numeroBc): ?\DateTimeInterface
+    {
+        $result = $this->createQueryBuilder('d')
+            ->select('d.dateCreation')
+            ->where('d.numeroCde = :numeroBc')
+            ->andWhere('d.numeroVersion = :firstVersion')
+            ->setParameters([
+                'numeroBc' => $numeroBc,
+                'firstVersion' => 1
+            ])
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);
+
+        return $result ? new \DateTime($result) : null;
+    }
+
+    public function getNumeroFactureDansFacBl(string $numeroCde): array
+    {
+        $result = $this->createQueryBuilder('dabc')
+            ->select('dabc.numeroFactureReappro')
+            ->where('dabc.numeroCde = :numCde')
+            ->andWhere('dabc.refBlFac IS NOT NULL')
+            ->setParameter('numCde', $numeroCde)
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        return $result;
+    }
+
+    public function getInfoDa(int $numCde)
+    {
+        return  $this->createQueryBuilder('dabc')
+            ->select('da.agenceDebiteur, da.serviceDebiteur, dabc.numeroOR, dabc.NumeroFactureFournisseur, da.numeroFournisseur')
+            ->join(DaAfficher::class, 'da', 'WITH', 'da.numeroCde = dabc.numeroCde')
+            ->where('dabc.numeroCde = :numCde')
+            ->setParameter('numCde', $numCde)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
+
+    public function getStatutBap(string $numeroDa, string $numCde): ?array
+    {
+        return $this
+            ->createQueryBuilder('dabc')
+            ->select('dabc.statutBap')
+            ->where('dabc.numeroDemandeAppro = :numDa')
+            ->andWhere('dabc.numeroCde = :numCde')
+            ->setParameter('numDa', $numeroDa)
+            ->setParameter('numCde', $numCde)
+            ->getQuery()
+            ->getSingleColumnResult();
+    }
+
+    public function getMontantFactureDejaSoumis(string $numCde, string $codeSociete): ?float
+    {
+        $result = $this->createQueryBuilder('dabc')
+            ->select('SUM(dabc.montantBlFacture)')
+            ->join(DemandePaiement::class, 'ddp', 'WITH', 'ddp.numeroDdp = dabc.numeroDemandePaiement')
+            ->where('dabc.numeroCde = :numCde')
+            ->andWhere('dabc.codeSociete = :codeSociete')
+            ->andWhere('ddp.statut in (:statut)')
+            ->setParameter('numCde', $numCde)
+            ->setParameter('codeSociete', $codeSociete)
+            ->setParameter('statut', [StatutConstants::VALIDE, StatutConstants::TRANSMIS_COMPTA])
+            ->getQuery()
+            ->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);
+
+        return $result !== null ? (float) $result : null;
+    }
+}

@@ -1,36 +1,15 @@
 <?php
 // cli-config.php
 
-use Doctrine\ORM\Tools\Console\ConsoleRunner as ORMConsoleRunner;
-use Doctrine\Migrations\Tools\Console\ConsoleRunner as MigrationsConsoleRunner;
-use Doctrine\Migrations\DependencyFactory;
-use Doctrine\Migrations\Configuration\Migration\PhpFile;
-use Doctrine\Migrations\Configuration\EntityManager\ExistingEntityManager;
-use Symfony\Component\Console\Application;
+use Doctrine\ORM\Tools\Console\ConsoleRunner;
 
-require_once "doctrineBootstrap.php";
+require_once __DIR__ . '/vendor/autoload.php';
 
-// Configurez l'EntityManager
-$helperSet = ORMConsoleRunner::createHelperSet($entityManager);
+// Récupère l'EntityManager depuis ton bootstrap
+$entityManager = require_once __DIR__ . '/doctrineBootstrap.php'; // ou bootstrap.php
 
-// Configuration pour les migrations
-$config = new PhpFile(__DIR__ . '/config/migrations-config.php');
-$dependencyFactory = DependencyFactory::fromEntityManager($config, new ExistingEntityManager($entityManager));
+return ConsoleRunner::createHelperSet($entityManager);
 
-// Créez l'application console
-$cli = new Application('Doctrine Migrations');
-
-// Ajoutez les commandes de Doctrine ORM
-ORMConsoleRunner::addCommands($cli);
-
-// Ajoutez les commandes de Doctrine Migrations
-MigrationsConsoleRunner::addCommands($cli, $dependencyFactory);
-
-// Définissez le HelperSet
-$cli->setHelperSet($helperSet);
-
-// Exécutez l'application
-$cli->run();
 
 
 

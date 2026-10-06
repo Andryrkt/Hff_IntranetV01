@@ -1,0 +1,52 @@
+<?php
+
+
+namespace App\Controller\Traits\da\creation;
+
+use App\Entity\da\DaAfficher;
+use App\Entity\da\DemandeAppro;
+use App\Entity\dit\DemandeIntervention;
+use App\Service\autres\VersionService;
+use App\Controller\Traits\da\DaTrait;
+use App\Entity\da\DemandeApproL;
+
+trait DaNewTrait
+{
+    use DaTrait;
+
+    /**
+     * Ajoute les données d'une Demande d'Achat (et éventuellement d'une Demande d'Intervention)
+     * dans la table `DaAfficher`, une ligne par DAL (Demande d'Achat Ligne).
+     *
+     * ⚠️ IMPORTANT : Avant d'appeler cette fonction, il est impératif d'exécuter :
+     *     $this->getEntityManager()->flush();
+     * Sans cela, les données risquent de ne pas être cohérentes ou correctement persistées.
+     *
+     * @param DemandeAppro             $demandeAppro  Objet de la demande d'achat à traiter
+     * @param bool                     $firstCreation indique si c'est la première création de la DA
+     * @param DemandeIntervention|null $dit           Optionnellement, la demande d'intervention associée
+     */
+    public function ajouterDaDansTableAffichage(DemandeAppro $demandeAppro, bool $firstCreation, ?DemandeIntervention $dit = null): void
+    {
+        // Récupère le dernier numéro de version existant pour cette demande d'achat
+        $numeroVersionMax = $firstCreation ? 0 : $this->daAfficherRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro(), $demandeAppro->getCodeSociete());
+        $numeroVersion = VersionService::autoIncrement($numeroVersionMax);
+
+        // Parcours chaque ligne DAL de la demande d'achat
+        /** @var DemandeApproL $dal */
+        foreach ($demandeAppro->getDAL() as $dal) {
+            $daAfficher = new DaAfficher();
+            if ($dit) $daAfficher->setDit($dit);
+            $daAfficher->duplicateDa($demandeAppro);
+            $daAfficher->duplicateDal($dal);
+            $daAfficher->setDateDemande($demandeAppro->getDateCreation());
+            $daAfficher->setNumeroVersion($numeroVersion);
+
+            // Gestion caractères spéciaux
+            $daAfficher->setArtDesi($this->normalizeTypographicChars($daAfficher->getArtDesi()));
+
+            $this->getEntityManager()->persist($daAfficher);
+        }
+        $this->getEntityManager()->flush();
+    }
+}

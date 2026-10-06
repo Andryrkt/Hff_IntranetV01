@@ -17,6 +17,15 @@ use App\Repository\admin\utilisateur\RoleRepository;
  */
 class Role
 {
+    public const ROLE_ADMINISTRATEUR       = 1;
+    public const ROLE_VALIDATEUR           = 2;
+    public const ROLE_ATELIER              = 4;
+    public const ROLE_ENERGIE              = 5;
+    public const ROLE_MULTI_SUCURSALES     = 6;
+    public const ROLE_SUPER_ADMINISTRATEUR = 7;
+    public const ROLE_DA_DIRECTE           = 10;
+    public const ROLE_DIRECTION            = 11;
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -40,14 +49,14 @@ class Role
      */
     private $date_modification;
 
-    
+
     /**
      * @ORM\ManyToMany(targetEntity=User::class, mappedBy="roles")
      *
      * @var [type]
      */
     private $users;
-    
+
     /**
      * @ORM\ManyToMany(targetEntity=Permission::class, inversedBy="roles")
      * @ORM\JoinTable(name="role_permissions")
@@ -68,7 +77,7 @@ class Role
 
     /**
      * @return Collection|Roles[]
-     */ 
+     */
     public function getUsers(): Collection
     {
         return $this->users;
@@ -76,7 +85,7 @@ class Role
 
     public function addUser(User $user): self
     {
-        if(!$this->users->contains($user)){
+        if (!$this->users->contains($user)) {
             $this->users[] = $user;
             $user->addRole($this);
         }
@@ -85,10 +94,7 @@ class Role
 
     public function removeUser(User $user): self
     {
-        if($this->users->contains($user)) {
-            $this->users->removeElement($user);
-          $user->removeRole($this);
-        }
+        $this->users->removeElement($user);
         return $this;
     }
 

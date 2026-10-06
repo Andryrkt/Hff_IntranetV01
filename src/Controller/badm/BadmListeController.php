@@ -2,110 +2,127 @@
 
 namespace App\Controller\badm;
 
-use App\Entity\badm\Badm;
+use App\Constants\admin\ApplicationConstant;
 use App\Controller\Controller;
+use App\Controller\Traits\BadmListTrait;
+use App\Entity\badm\Badm;
 use App\Entity\badm\BadmSearch;
 use App\Form\badm\BadmSearchType;
-use App\Entity\admin\utilisateur\User;
 use App\Model\badm\BadmRechercheModel;
-use App\Controller\Traits\BadmListTrait;
+use App\Model\dit\DitModel;
+use App\Repository\badm\BadmRepository;
+use App\Service\ExcelService;
+use App\Service\security\SecurityService;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-
+/**
+ * @Route("/materiel/mouvement-materiel")
+ */
 class BadmListeController extends Controller
 {
     use BadmListTrait;
-
     /**
-     * @Route("/listBadm", name="badmListe_AffichageListeBadm")
+     * @Route("/liste", name="badmListe_AffichageListeBadm")
      */
     public function AffichageListeBadm(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        $userId = $this->sessionService->get('user_id');
-        $userConnecter = self::$em->getRepository(User::class)->find($userId);
-
-        $autoriser = $this->autorisationRole(self::$em);
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
         $badmSearch = new BadmSearch();
 
-        $agenceServiceIps = $this->agenceServiceIpsObjet();
-
         /** INITIALIASATION et REMPLISSAGE de RECHERCHE pendant la nag=vigation pagiantion */
-        $this->initialisation($badmSearch, self::$em, $agenceServiceIps, $autoriser);
+        $this->initialisation($badmSearch, $this->getEntityManager());
 
-        $form = self::$validator->createBuilder(BadmSearchType::class, $badmSearch, [
+        // Agences Services autorisés sur le BADM
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_BADM);
+        $allAgenceServices = $this->getSecurityService()->getAllAgenceServices();
+
+        $form = $this->getFormFactory()->createBuilder(BadmSearchType::class, $badmSearch, [
             'method' => 'GET',
-            'idAgenceEmetteur' => $agenceServiceIps['agenceIps']
+            'allAgenceServices' => $allAgenceServices
         ])->getForm();
 
         $form->handleRequest($request);
 
         $empty = false;
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->rechercherSurNumSerieParc($form, $badmSearch);
-            $badmSearch->setAgenceEmetteur($agenceServiceIps['agenceIps']);
+            $this->rechercherSurNumSerieParc($form, $badmSearch, $codeSociete);
         }
+
+        $this->gererAgenceService($badmSearch, $allAgenceServices);
 
         $criteria = [];
         //transformer l'objet ditSearch en tableau
         $criteria = $badmSearch->toArray();
         //enregistre le critère dans la session
-        $this->sessionService->set('badm_search_criteria', $criteria);
-        
+        $this->getSessionService()->set('badm_search_criteria', $criteria);
 
-        //$agenceServiceEmetteur = $this->agenceServiceEmetteur($autoriser, self::$em);
-        $criteria['agenceAutoriser'] = $userConnecter->getAgenceAutoriserIds();
-
-
-        $repository = self::$em->getRepository(Badm::class);
         $page = max(1, $request->query->getInt('page', 1));
-        $limit = 10;
-        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $criteria, $autoriser);
+        $limit = 50;
 
+        // Agence et service par défaut
+        $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
+        $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
 
-        $this->ajoutNumSerieNumParc($paginationData);
+        // Vérifier la permission de voir tous les données
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
 
+        // Vérifier le permission de voir liste avec débiteur sur la page courante
+        $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2);
 
+        /** @var BadmRepository $repository */
+        $repository = $this->getEntityManager()->getRepository(Badm::class);
+        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $criteria, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeSociete, $peutVoirListeAvecDebiteur, $multisuccursale);
+
+        $this->ajoutNumSerieNumParc($paginationData, $codeSociete);
 
         $this->logUserVisit('badmListe_AffichageListeBadm'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display(
+        return $this->render(
             'badm/listBadm.html.twig',
             [
-                'form' => $form->createView(),
-                'data' => $paginationData['data'],
-                'empty' => $empty,
-                'criteria' => $criteria,
+                'form'        => $form->createView(),
+                'data'        => $paginationData['data'],
+                'empty'       => $empty,
+                'criteria'    => $criteria,
+                'annule'      => false,
                 'currentPage' => $paginationData['currentPage'],
-                'lastPage' => $paginationData['lastPage'],
-                'resultat' => $paginationData['totalItems'],
-                'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getCodeAgence() .' '. $agenceServiceIps['agenceIps']->getLibelleAgence()
+                'lastPage'    => $paginationData['lastPage'],
+                'resultat'    => $paginationData['totalItems'],
             ]
         );
     }
-
-
-
 
     /**
      * @Route("/export-badm-excel", name="export_badm_excel")
      */
     public function exportExcel()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
         // Récupère les critères dans la session
-        $criteria = $this->sessionService->get('badm_search_criteria', []);
-        $option = $this->sessionService->get('badm_search_option', []);
+        $criteria = $this->getSessionService()->get('badm_search_criteria', []);
 
-        // Récupère les entités filtrées
-        $entities = self::$em->getRepository(Badm::class)->findAndFilteredExcel($criteria, $option);
+        // Agences Services autorisés sur le BADM
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_BADM);
 
+        // Agence et service par défaut
+        $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
+        $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
+
+        // Vérifier la permission de voir tous les données
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE, "badmListe_AffichageListeBadm");
+
+        // Vérifier le permission de voir liste avec débiteur sur la page courante
+        $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2, "badmListe_AffichageListeBadm");
+
+        /** @var BadmRepository $repository */
+        $repository = $this->getEntityManager()->getRepository(Badm::class);
+        $entities = $repository->findAndFilteredExcel($criteria, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeSociete, $peutVoirListeAvecDebiteur, $multisuccursale);
         // Convertir les entités en tableau de données
         $data = [];
         $data[] = [
@@ -142,7 +159,7 @@ class BadmListeController extends Controller
         }
 
         // Crée le fichier Excel
-        $this->excelService->createSpreadsheet($data);
+        (new ExcelService())->createSpreadsheet($data);
     }
 
     /**
@@ -153,26 +170,30 @@ class BadmListeController extends Controller
      */
     public function listAnnuler(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        $autoriser = $this->autorisationRole(self::$em);
+        // Code Société de l'utilisateur
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
         $badmSearch = new BadmSearch();
-        $agenceServiceIps = $this->agenceServiceIpsObjet();
-        /** INITIALIASATION et REMPLISSAGE de RECHERCHE pendant la nag=vigation pagiantion */
-        $this->initialisation($badmSearch, self::$em, $agenceServiceIps, $autoriser);
 
-        $form = self::$validator->createBuilder(BadmSearchType::class, $badmSearch, [
+        /** INITIALIASATION et REMPLISSAGE de RECHERCHE pendant la nag=vigation pagiantion */
+        $this->initialisation($badmSearch, $this->getEntityManager());
+
+        $agenceServiceAutorises = $this->getSecurityService()->getAgenceServices(ApplicationConstant::CODE_BADM);
+        $allAgenceServices = $this->getSecurityService()->getAllAgenceServices();
+
+        $form = $this->getFormFactory()->createBuilder(BadmSearchType::class, $badmSearch, [
             'method' => 'GET',
+            'allAgenceServices' => $allAgenceServices
         ])->getForm();
 
         $form->handleRequest($request);
 
         $empty = false;
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->rechercherSurNumSerieParc($form, $badmSearch);
+            $this->rechercherSurNumSerieParc($form, $badmSearch, $codeSociete);
         }
+
+        $this->gererAgenceService($badmSearch, $allAgenceServices);
 
         $criteria = [];
         //transformer l'objet ditSearch en tableau
@@ -181,74 +202,77 @@ class BadmListeController extends Controller
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
 
-        $agenceServiceEmetteur = $this->agenceServiceEmetteur($autoriser, self::$em);
-
-        $option = [
-            'boolean' => $autoriser,
-            'codeAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence']
-        ];
-
         //enregistre le critère dans la session
-        $this->sessionService->set('badm_search_criteria', $criteria);
-        $this->sessionService->set('badm_search_option', $option);
+        $this->getSessionService()->set('badm_search_criteria', $criteria);
 
-        $repository = self::$em->getRepository(Badm::class);
-        $paginationData = $repository->findPaginatedAndFilteredListAnnuler($page, $limit, $criteria, $option);
+        // Agence et service par défaut
+        $agenceIdUser = $this->getSecurityService()->getAgenceIdUser();
+        $serviceIdUser = $this->getSecurityService()->getServiceIdUser();
 
-        
+        // Vérifier la permission de voir tous les données
+        $multisuccursale = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE);
+
+        // Vérifier le permission de voir liste avec débiteur sur la page courante
+        $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2);
+
+        /** @var BadmRepository $repository */
+        $repository = $this->getEntityManager()->getRepository(Badm::class);
+        $paginationData = $repository->findPaginatedAndFilteredListAnnuler($page, $limit, $criteria, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeSociete, $peutVoirListeAvecDebiteur, $multisuccursale);
 
         for ($i = 0; $i < count($paginationData['data']); $i++) {
             $badmRechercheModel = new BadmRechercheModel();
-            $badms = $badmRechercheModel->findDesiSerieParc($paginationData['data'][$i]->getIdMateriel());
+            $badms = $badmRechercheModel->findDesiSerieParc($paginationData['data'][$i]->getIdMateriel(), $codeSociete);
 
             $paginationData['data'][$i]->setDesignation($badms[0]['designation']);
             $paginationData['data'][$i]->setNumSerie($badms[0]['num_serie']);
             $paginationData['data'][$i]->setNumParc($badms[0]['num_parc']);
         }
 
-
         $this->logUserVisit('badm_list_annuler'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display(
+        return $this->render(
             'badm/listBadm.html.twig',
             [
-                'form' => $form->createView(),
-                'data' => $paginationData['data'],
-                'empty' => $empty,
-                'criteria' => $criteria,
+                'form'        => $form->createView(),
+                'data'        => $paginationData['data'],
+                'empty'       => $empty,
+                'criteria'    => $criteria,
+                'annule'      => true,
                 'currentPage' => $paginationData['currentPage'],
-                'lastPage' => $paginationData['lastPage'],
-                'resultat' => $paginationData['totalItems']
+                'lastPage'    => $paginationData['lastPage'],
+                'resultat'    => $paginationData['totalItems']
             ]
         );
     }
 
 
-    public function rechercherSurNumSerieParc($form, $badmSearch)
+    public function rechercherSurNumSerieParc(FormInterface $form, BadmSearch $badmSearch, string $codeSociete)
     {
         $numParc = $form->get('numParc')->getData() === null ? '' : $form->get('numParc')->getData();
-            $numSerie = $form->get('numSerie')->getData() === null ? '' : $form->get('numSerie')->getData();
+        $numSerie = $form->get('numSerie')->getData() === null ? '' : $form->get('numSerie')->getData();
 
-            if (!empty($numParc) || !empty($numSerie)) {
+        if (!empty($numParc) || !empty($numSerie)) {
+            $ditModel = new DitModel();
+            $idMateriel = $ditModel->recuperationIdMateriel($numParc, $numSerie, $codeSociete);
 
-                $idMateriel = $this->ditModel->recuperationIdMateriel($numParc, $numSerie);
-
-                if (!empty($idMateriel)) {
-                    $this->recuperationCriterie($badmSearch, $form);
-                    $badmSearch->setIdMateriel($idMateriel[0]['num_matricule']);
-                } elseif (empty($idMateriel)) {
-                    $empty = true;
-                }
+            if (!empty($idMateriel)) {
+                $this->recuperationCriterie($badmSearch, $form);
+                $badmSearch->setIdMateriel($idMateriel[0]['num_matricule']);
             } else {
                 $this->recuperationCriterie($badmSearch, $form);
-                $badmSearch->setIdMateriel($form->get('idMateriel')->getData());
+                $badmSearch->setIdMateriel('0');
             }
+        } else {
+            $this->recuperationCriterie($badmSearch, $form);
+            $badmSearch->setIdMateriel($form->get('idMateriel')->getData());
+        }
     }
-    private function ajoutNumSerieNumParc($paginationData)
+
+    private function ajoutNumSerieNumParc(array $paginationData, string $codeSociete)
     {
         for ($i = 0; $i < count($paginationData['data']); $i++) {
             $badmRechercheModel = new BadmRechercheModel();
-            $badms = $badmRechercheModel->findDesiSerieParc($paginationData['data'][$i]->getIdMateriel());
+            $badms = $badmRechercheModel->findDesiSerieParc($paginationData['data'][$i]->getIdMateriel(), $codeSociete);
             if (!empty($badms)) {
                 $paginationData['data'][$i]->setDesignation($badms[0]['designation']);
                 $paginationData['data'][$i]->setNumSerie($badms[0]['num_serie']);
@@ -259,6 +283,24 @@ class BadmListeController extends Controller
                 }
             }
         }
+    }
 
+    private function gererAgenceService(BadmSearch $badmSearch, array $allAgenceServices): void
+    {
+        // Changer le serviceEmetteur
+        if ($badmSearch->getServiceEmetteur()) {
+            $ligneId = $badmSearch->getServiceEmetteur();
+            if ($ligneId && isset($allAgenceServices[$ligneId])) {
+                $badmSearch->setServiceEmetteur($allAgenceServices[$ligneId]['service_id']);
+            }
+        }
+
+        // Changer le serviceDebiteur
+        if ($badmSearch->getServiceDebiteur()) {
+            $ligneId = $badmSearch->getServiceDebiteur();
+            if ($ligneId && isset($allAgenceServices[$ligneId])) {
+                $badmSearch->setServiceDebiteur($allAgenceServices[$ligneId]['service_id']);
+            }
+        }
     }
 }
