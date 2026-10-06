@@ -83,7 +83,7 @@ function setupAutocompleteField(articleStockeList) {
       debounceDelay: 300,
       fetchDataCallback: async () => {
         const cache = JSON.parse(
-          localStorage.getItem("autocompleteCache") || "{}",
+          localStorage.getItem("autocompleteCache") || "{}"
         );
 
         if (!cache.fournisseurs) {
@@ -195,28 +195,53 @@ function setupAutocompleteField(articleStockeList) {
 
 function confirmForm() {
   const form = document.querySelector('form[name="da_affectation"]');
+  const actionsConfig = {
+    passerDA: {
+      title: "Passer la DA au demandeur",
+      html: "Êtes-vous sûr de vouloir demander à modifier cette DA par le demandeur ?",
+      icon: "warning",
+      confirmButtonText: "Oui, Passer la DA",
+      textOverlay: "Transmission en cours...",
+      canceledText: "L’action sur la DA a été annulée.",
+    },
+    subdiviserDA: {
+      title: "Subdiviser la DA",
+      html: `Voulez-vous vraiment enregistrer les affectations sur les lignes d'articles ?`,
+      icon: "warning",
+      confirmButtonText: "Oui, Subdiviser",
+      textOverlay: "Subdivision en cours...",
+      canceledText: "La subdivision de la DA a été annulée.",
+    },
+  };
+
   form.addEventListener("submit", (e) => {
     e.preventDefault();
+    const action = e.submitter.name;
+
+    const config = actionsConfig[action];
+    if (!config) return;
 
     // Validation des articles stockés : bloquer si prix_unitaire est nul ou 0
     const rows = document.querySelectorAll("tbody tr");
     let errorMsg = "";
 
-    for (const row of rows) {
-      const articleStocke = row.querySelector('[id$="_articleStocke"]');
-      const prixUnitaire = row.querySelector('[id$="_prixUnitaire"]');
-      const refp = row.querySelector(".da-art-refp");
+    if (action === "subdiviserDA") {
+      for (const row of rows) {
+        const articleStocke = row.querySelector('[id$="_articleStocke"]');
+        const prixUnitaire = row.querySelector('[id$="_prixUnitaire"]');
+        const refp = row.querySelector(".da-art-refp");
 
-      if (
-        articleStocke &&
-        articleStocke.checked &&
-        refp &&
-        refp.value.trim() !== ""
-      ) {
-        const prix = parseFloat(prixUnitaire.value);
-        if (!prix || prix <= 0) {
-          errorMsg = `L'article <b>${refp.value}</b> est géré en stock mais son prix unitaire (PMP) est à zéro ou non trouvé.<br><br>L'enregistrement est bloqué. Merci de vérifier dans IPS s'il vous plaît.`;
-          break;
+        if (
+          articleStocke &&
+          articleStocke.checked &&
+          refp &&
+          refp.value.trim() !== ""
+        ) {
+          const prix = parseFloat(prixUnitaire.value);
+          if (!prix || prix <= 0) {
+            errorMsg = `L'article <b>${refp.value}</b> est géré en stock mais son prix unitaire (PMP) est à zéro ou non trouvé.<br><br>L'enregistrement est bloqué. Merci de vérifier dans IPS s'il vous plaît.`;
+            break;
+          }
         }
       }
     }
@@ -224,7 +249,7 @@ function confirmForm() {
     if (errorMsg) {
       Swal.fire({
         icon: "warning",
-        title: "Action bloquée !",
+        title: "Subdivision de la DA bloquée !",
         html: errorMsg,
         confirmButtonText: "OK",
         customClass: {
@@ -236,18 +261,33 @@ function confirmForm() {
 
     Swal.fire({
       icon: "warning",
-      title: "Attention !",
-      html: `Voulez-vous vraiment enregistrer les affectations sur les lignes d'articles ?`,
+      title: config.title,
+      html: config.html,
       showCancelButton: true,
-      confirmButtonText: "Oui, enregistrer",
+      confirmButtonText: config.confirmButtonText,
       cancelButtonText: "Non, annuler",
       customClass: {
         htmlContainer: "swal-text-left",
       },
     }).then((result) => {
       if (result.isConfirmed) {
-        displayOverlay(true, "Enregistrement en cours ...");
+        displayOverlay(true, config.textOverlay);
+
+        const hidden = document.createElement("input");
+        hidden.type = "hidden";
+        hidden.name = action;
+        hidden.value = "1";
+        form.appendChild(hidden);
+
         form.submit();
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire({
+          icon: "info",
+          title: "Annulé",
+          text: config.canceledText,
+          timer: 2000,
+          showConfirmButton: false,
+        });
       }
     });
   });

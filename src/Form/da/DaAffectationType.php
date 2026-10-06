@@ -23,7 +23,7 @@ class DaAffectationType extends AbstractType
                 'prototype'    => true,
             ])
             ->add('observation', TextareaType::class, [
-                'label'    => 'Observation à l’affectation des lignes d’articles',
+                'label'    => 'Observation lors de la subdivision de la DA / Motif de la transmission de la DA au demandeur',
                 'attr'     => [
                     'rows' => 5,
                 ],
