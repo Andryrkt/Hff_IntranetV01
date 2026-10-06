@@ -6,16 +6,25 @@ use App\Controller\Controller;
 use App\Dto\Da\ddp\BapSearchDto;
 use App\Entity\ddp\DemandePaiement;
 use App\Form\da\ddp\BonApayerType;
+use Doctrine\ORM\EntityManagerInterface;
 use App\Mapper\ddp\DemandePaiementMapper;
-use App\Service\da\FileCheckerService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Repository\ddp\DemandePaiementRepository;
 
 /**
  * @Route("/demande-appro")
  */
 class BonApayerController extends Controller
 {
+    private DemandePaiementRepository $demandePaiementRepository;
+
+    public function __construct(EntityManagerInterface $em)
+    {
+        parent::__construct();
+        $this->demandePaiementRepository = $em->getRepository(DemandePaiement::class);
+    }
+
     /**
      * @Route("/consultation-facture", name="da_bon_a_payer" )
      */
@@ -37,7 +46,7 @@ class BonApayerController extends Controller
         }
 
         // Récupération des données dans la table demande_paiement
-        $ddp = $this->getEntityManager()->getRepository(DemandePaiement::class)->findByConsultationFactureCriteria($criteria);
+        $ddp = $this->demandePaiementRepository->findByConsultationFactureCriteria($criteria);
         // transformation en DTO (DemandePaiementDto)
         $dtos = DemandePaiementMapper::mapInverse($ddp);
 
