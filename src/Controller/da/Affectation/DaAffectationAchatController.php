@@ -3,13 +3,14 @@
 namespace App\Controller\da\Affectation;
 
 use App\Controller\Controller;
-use App\Controller\Traits\da\affectation\DaAffectationTrait;
 use App\Entity\da\DemandeAppro;
+use App\Form\da\DaAffectationType;
 use App\Entity\da\DemandeApproParent;
 use App\Entity\da\DemandeApproParentLine;
-use App\Form\da\DaAffectationType;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\Traits\da\affectation\DaAffectationTrait;
 
 /** @Route("/demande-appro") */
 class DaAffectationAchatController extends Controller
@@ -47,9 +48,14 @@ class DaAffectationAchatController extends Controller
         ]);
     }
 
-    private function traitementFormulaire($form, $request, $daParent)
+    private function traitementFormulaire(FormInterface $form, Request $request, DemandeApproParent $daParent)
     {
         $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $request->request->has('passerDA') && trim((string) $form->get('observation')->getData()) === '') {
+            $this->getSessionService()->set('notification', ['type' => 'error', 'message' => 'Le champ observation est obligatoire pour passer la DA au demandeur.']);
+            $this->redirectToRoute("da_affectation_achat", ['id' => $daParent->getId()]);
+        }
 
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var DemandeApproParent $daParent */

@@ -193,8 +193,52 @@ function setupAutocompleteField(articleStockeList) {
   });
 }
 
+// Passe en mode "Passer la DA" (observation seule requise) ou restaure l'état initial
+function setModePasserDA(form, active) {
+  const observation = form.querySelector('[id$="_observation"]');
+  const label = form.querySelector('label[for$="_observation"]');
+  const OBSERVATION_STAR = " (*)";
+
+  form.querySelectorAll(".da-art-refp").forEach((refp) => {
+    if (active) {
+      refp.dataset.wasRequired = refp.required ? "1" : "";
+      refp.required = false;
+    } else if (refp.dataset.wasRequired !== undefined) {
+      refp.required = refp.dataset.wasRequired === "1";
+    }
+  });
+
+  observation.required = active;
+  const hasStar = label.textContent.endsWith(OBSERVATION_STAR);
+  if (active && !hasStar) label.textContent += OBSERVATION_STAR;
+  if (!active && hasStar)
+    label.textContent = label.textContent.slice(0, -OBSERVATION_STAR.length);
+}
+
 function confirmForm() {
   const form = document.querySelector('form[name="da_affectation"]');
+  const observation = form.querySelector('[id$="_observation"]');
+  const passerDAButton = form.querySelector('[name="passerDA"]');
+  const subdiviserDAButton = form.querySelector('[name="subdiviserDA"]');
+
+  // Clic avant la validation native : le swal passe avant le "required" du navigateur
+  passerDAButton.addEventListener("click", (e) => {
+    setModePasserDA(form, true);
+    if (observation.value.trim() === "") {
+      e.preventDefault();
+      Swal.fire({
+        icon: "warning",
+        title: "Champ obligatoire",
+        html: `Le champ « <b>Motif de la transmission de la DA au demandeur</b> » est obligatoire pour passer la DA au demandeur.`,
+        confirmButtonText: "OK",
+      }).then(() => observation.focus());
+    }
+  });
+
+  subdiviserDAButton.addEventListener("click", () =>
+    setModePasserDA(form, false)
+  );
+
   const actionsConfig = {
     passerDA: {
       title: "Passer la DA au demandeur",
@@ -281,6 +325,7 @@ function confirmForm() {
 
         form.submit();
       } else if (result.dismiss === Swal.DismissReason.cancel) {
+        setModePasserDA(form, false);
         Swal.fire({
           icon: "info",
           title: "Annulé",
