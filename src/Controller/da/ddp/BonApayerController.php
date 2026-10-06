@@ -30,29 +30,34 @@ class BonApayerController extends Controller
      */
     public function index(Request $request)
     {
-        // Code Société de l'utilisateur
-        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+        $bapSearchDto = new BapSearchDto();
 
         // Création du formulaire de recherche
-        $form = $this->getFormFactory()->createBuilder(BonApayerType::class, null, ['method' => 'GET'])->getForm();
+        $form = $this->getFormFactory()->createBuilder(BonApayerType::class, $bapSearchDto, ['method' => 'GET'])->getForm();
 
         // Traitement du formulaire de recherche
         $form->handleRequest($request);
 
-        $criteria = new BapSearchDto();
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var BapSearchDto $criteria */
-            $criteria = $form->getData();
+            /** @var BapSearchDto $bapSearchDto */
+            $bapSearchDto = $form->getData();
         }
 
         // Récupération des données dans la table demande_paiement
-        $ddp = $this->demandePaiementRepository->findByConsultationFactureCriteria($criteria);
+        $ddp = $this->demandePaiementRepository->findByConsultationFactureCriteria($bapSearchDto);
+
         // transformation en DTO (DemandePaiementDto)
         $dtos = DemandePaiementMapper::mapInverse($ddp);
 
         return $this->render('da/ddp/bon_a_payer.html.twig', [
-            'dtos' => $dtos,
-            'form' => $form->createView()
+            'dtos'     => $dtos,
+            'form'     => $form->createView(),
+            'criteria' => $bapSearchDto->toArray()
         ]);
     }
+
+    /** 
+     * @Route("/export-excel/consultation-facture", name="export_excel_consultation_facture")
+     */
+    public function exportExcel(Request $request) {}
 }
