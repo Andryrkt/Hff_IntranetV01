@@ -47,6 +47,9 @@ class DaAfficherMapper
         $codeAgenceUser     = $options['codeAgenceUser'] ?? null;
         $codeServiceUser    = $options['codeServiceUser'] ?? null;
         $agenceServiceIndex = $options['agenceServiceIndex'] ?? [];
+        $slugRedirect       = $options['redirect'] ?? "-";
+
+        $isListCdeFrn       = $slugRedirect === RouteConstant::SLUG_LISTE_CDE_FRN;
 
         $dto = new DaAfficherDto();
         $dto->id = $data->getId();
@@ -139,11 +142,14 @@ class DaAfficherMapper
         $dto->niveauUrgence = $dto->daReappro ? $safeIconBan : $data->getNiveauUrgence();
 
         // Calculs de droits & URLs (Actions & URLs)
-        $this->computeRightsAndUrls($dto, $data, $safeIconBan, $estAdmin, $estAppro, $estAtelier, $options['redirect']);
+        $this->computeRightsAndUrls($dto, $data, $safeIconBan, $estAdmin, $estAppro, $estAtelier, $slugRedirect);
 
         // HTML Attributes
         $dto->tdNumCdeAttributes = $this->prepareTdNumCdeAttributes($dto);
-        $dto->styleClickableCell = $dto->envoyeFrn ? 'clickable-td' : '';
+
+        if ($isListCdeFrn) $dto->styleClickableCell = $dto->envoyeFrn ? 'clickable-td' : '';
+        else $dto->styleClickableCell = in_array($data->getStatutDal(), StatutDaConstant::TRAITER_APPRO_LIST) ? 'clickable-td' : '';
+
         $dto->tdCheckboxAttributes = $this->getCheckboxAttributes($dto);
         $dto->aDtLivPrevAttributes = $this->getADtLivPrevAttributes($dto);
         $dto->aArtDesiAttributes = $this->getAArtDesiAttributes($dto);

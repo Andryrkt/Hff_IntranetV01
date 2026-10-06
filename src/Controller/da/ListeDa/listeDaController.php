@@ -96,6 +96,7 @@ class listeDaController extends Controller
             'form'              => $form->createView(),
             'criteria'          => $criteria,
             'codeCentrale'      => $this->estAdmin() || $this->estEnergie(),
+            'afficherNonDispo'  => $this->estAdmin() || $this->estAppro(),
             'sortJoursClass'    => $sortJoursClass,
             'currentPage'       => $paginationData['currentPage'],
             'totalPages'        => $paginationData['lastPage'],
