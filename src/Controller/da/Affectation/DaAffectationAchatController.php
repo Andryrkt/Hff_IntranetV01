@@ -6,16 +6,18 @@ use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Form\da\DaAffectationType;
 use App\Entity\da\DemandeApproParent;
+use App\Constants\da\StatutDaConstant;
 use App\Entity\da\DemandeApproParentLine;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\Traits\da\creation\DaNewAchatTrait;
 use App\Controller\Traits\da\affectation\DaAffectationTrait;
 
 /** @Route("/demande-appro") */
 class DaAffectationAchatController extends Controller
 {
-    use DaAffectationTrait;
+    use DaAffectationTrait, DaNewAchatTrait;
 
     public function __construct()
     {
@@ -52,31 +54,70 @@ class DaAffectationAchatController extends Controller
     {
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $request->request->has('passerDA') && trim((string) $form->get('observation')->getData()) === '') {
-            $this->getSessionService()->set('notification', ['type' => 'error', 'message' => 'Le champ observation est obligatoire pour passer la DA au demandeur.']);
-            $this->redirectToRoute("da_affectation_achat", ['id' => $daParent->getId()]);
-        }
-
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var DemandeApproParent $daParent */
             $daParent = $form->getData();
+            $btn = $this->getButtonName($request);
 
-            $daParentLines = $daParent->getDemandeApproParentLines();
-            $allDaDirect = $daParentLines->filter(function (DemandeApproParentLine $dapl) {
-                return !$dapl->getArticleStocke();
-            });
-            $allDaPonctuel = $daParentLines->filter(function (DemandeApproParentLine $dapl) {
-                return $dapl->getArticleStocke();
-            });
+            if ($btn === "passerDA")         $this->traitementTransmissionDA($daParent);
+            elseif ($btn === "subdiviserDA") $this->traitementSubdivisionDA($daParent);
+            else {
+                $this->getSessionService()->set('notification', ['type' => 'error', 'message' => 'Veuillez cliquer sur l\'un des boutons valides pour continuer.']);
+            }
+        }
+    }
 
-            // traitement des DA direct
-            if ($allDaDirect->count() > 0) $this->traitementDaParentLines($allDaDirect, $daParent, DemandeAppro::TYPE_DA_DIRECT);
+    public function getButtonName(Request $request): string
+    {
+        if ($request->request->has('passerDA'))         return 'passerDA';
+        elseif ($request->request->has('subdiviserDA')) return 'subdiviserDA';
+        else return 'N\A';
+    }
 
-            // traitement des DA ponctuel
-            if ($allDaPonctuel->count() > 0) $this->traitementDaParentLines($allDaPonctuel, $daParent, DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL);
+    private function traitementTransmissionDA(DemandeApproParent $daParent)
+    {
+        $motif = trim((string) $daParent->getObservation());
 
-            $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'L\'affectation a été enregistrée']);
+        if ($motif === "") {
+            $this->getSessionService()->set('notification', ['type' => 'error', 'message' => 'Le champ motif est obligatoire pour passer la DA au demandeur.']);
+        } else {
+            $daParent->setStatutDal(StatutDaConstant::STATUT_AUTORISER_EMETTEUR);
+
+            foreach ($daParent->getDemandeApproParentLines() as $dapl) {
+                $dapl->setStatutDal(StatutDaConstant::STATUT_AUTORISER_EMETTEUR);
+            }
+
+            $this->getEntityManager()->flush();
+
+            // Ajout de l'observation dans la table da_observation 
+            $this->insertionObservation($daParent->getNumeroDemandeAppro(), $motif);
+
+            // Ajout des données dans la table DaAfficher
+            $this->ajouterDaDansTableAffichageParent($daParent, false);
+
+            $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'La transmission de la DA a été effectuée']);
             $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
         }
+    }
+
+    private function traitementSubdivisionDA(DemandeApproParent $daParent)
+    {
+
+        $daParentLines = $daParent->getDemandeApproParentLines();
+        $allDaDirect = $daParentLines->filter(function (DemandeApproParentLine $dapl) {
+            return !$dapl->getArticleStocke();
+        });
+        $allDaPonctuel = $daParentLines->filter(function (DemandeApproParentLine $dapl) {
+            return $dapl->getArticleStocke();
+        });
+
+        // traitement des DA direct
+        if ($allDaDirect->count() > 0) $this->traitementDaParentLines($allDaDirect, $daParent, DemandeAppro::TYPE_DA_DIRECT);
+
+        // traitement des DA ponctuel
+        if ($allDaPonctuel->count() > 0) $this->traitementDaParentLines($allDaPonctuel, $daParent, DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL);
+
+        $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'L\'affectation a été enregistrée']);
+        $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
     }
 }
