@@ -19,9 +19,6 @@
 		<div class="container">
 			{% include "/partials/_notification.html.twig" %}
 			{% include "/da/ddp/_formulaire_recherche.html.twig" %}
-			<div class="my-2 d-flex justify-content-end">
-				<button type="button" class="btn btn-warning" id="transmettreBAP">Transmettre les DDP/BAP à validation.</button>
-			</div>
 		</div>
 	</div>
 
@@ -51,7 +48,7 @@
 						<td class="text-center">
 							<input type="checkbox" name="{{ row.numeroDdp }}" class="bap-checkbox" {{ row.estStatutATransmettre() ? '' : 'disabled' }}>
 						</td>
-						<td class="text-center">{{ row.numeroCla}}</td>
+						<td class="text-center">{{ row.numeroCla }}</td>
 						<td class="text-center">
 							<a href="{{ path('da_dossier_da', {numDa: row.numeroDemandeAppro}) }}" target="_blank">
 								{{ row.numeroDemandeAppro }}
@@ -59,7 +56,7 @@
 						</td>
 						<td class="text-center">
 							{% if row.fileExists %}
-								<a href="#" class="show-pdf-modal" data-pdf-url="{{ path('bap_pdf_viewer', { numeroDdp: row.numeroDdp, code: row.typeDemande.code }) }}">
+								<a href="#" class="show-pdf-modal" data-pdf-url="{{ path('bap_pdf_viewer', {numeroDdp: row.numeroDdp, code: row.typeDemande.code}) }}">
 									{{ row.numeroDdp }}
 									<i class="fas fa-file-pdf ml-1" style="color: red;"></i>
 								</a>
@@ -69,13 +66,13 @@
 						</td>
 						<td class="text-start">{{ row.typeDemande.libelle }}</td>
 						<td class="text-start">{{ row.numeroFournisseur ~ '-' ~ row.beneficiaire }}</td>
-						<td class="text-center">{{ row.numeroCommande}}</td>
+						<td class="text-center">{{ row.numeroCommande }}</td>
 						<td class="text-center">{{ row.numeroLivraison }}</td>
 						<td class="text-center">{{ row.numeroFacture }}</td>
 						<td class="text-center fw-bold {{ row.styleStatut }}">{{ row.statut }}</td>
-						<td class="text-center">{{ row.dateSoumissionCompta ? row.dateSoumissionCompta | date('d/m/Y'):null }}</td>
+						<td class="text-center">{{ row.dateSoumissionCompta ? row.dateSoumissionCompta|date('d/m/Y') : null }}</td>
 						<td class="text-end">
-							{{ row.montantAPayer|number_format(2,',', '.') }}</td>
+							{{ row.montantAPayer|number_format(2, ',', '.') }}</td>
 					</tr>
 				{% endfor %}
 			</tbody>
