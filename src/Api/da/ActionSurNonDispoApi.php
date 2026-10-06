@@ -23,7 +23,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @Route("/api/demande-appro")
  */
-class ActionSurNonDispoController extends Controller
+class ActionSurNonDispoApi extends Controller
 {
     private $em;
     private DaAfficherRepository $daAfficherRepository;
