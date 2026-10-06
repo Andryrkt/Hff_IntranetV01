@@ -46,7 +46,7 @@
 				{% for row in dtos %}
 					<tr>
 						<td class="text-center">
-							<input type="checkbox" name="{{ row.numeroDdp }}" class="bap-checkbox" {{ row.estStatutATransmettre() ? '' : 'disabled' }}>
+							<input type="checkbox" name="{{ row.numeroDdp }}" class="bap-checkbox" {{ row.enableCheckBox }}>
 						</td>
 						<td class="text-center">{{ row.numeroCla }}</td>
 						<td class="text-center">
@@ -65,14 +65,13 @@
 							{% endif %}
 						</td>
 						<td class="text-start">{{ row.typeDemande.libelle }}</td>
-						<td class="text-start">{{ row.numeroFournisseur ~ '-' ~ row.beneficiaire }}</td>
+						<td class="text-start">{{ row.fournisseur }}</td>
 						<td class="text-center">{{ row.numeroCommande }}</td>
 						<td class="text-center">{{ row.numeroLivraison }}</td>
 						<td class="text-center">{{ row.numeroFacture }}</td>
 						<td class="text-center fw-bold {{ row.styleStatut }}">{{ row.statut }}</td>
-						<td class="text-center">{{ row.dateSoumissionCompta ? row.dateSoumissionCompta|date('d/m/Y') : null }}</td>
-						<td class="text-end">
-							{{ row.montantAPayer|number_format(2, ',', '.') }}</td>
+						<td class="text-center">{{ row.dateSoumissionCompta }}</td>
+						<td class="text-end">{{ row.montantAPayer }}</td>
 					</tr>
 				{% endfor %}
 			</tbody>

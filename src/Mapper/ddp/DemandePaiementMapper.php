@@ -76,12 +76,12 @@ class DemandePaiementMapper
             $dto->typeDemande          = $ddp->getTypeDemandeId();
             $dto->numeroFournisseur    = $ddp->getNumeroFournisseur();
             $dto->beneficiaire         = $ddp->getBeneficiaire();
-            $dto->numeroCommande       =  $ddp->getNumeroCommande();
+            $dto->numeroCommande       = $ddp->getNumeroCommande();
             $numsLivraisons            = self::getNumeroLivraisons($ddp);
             $dto->numeroLivraison      = empty($numsLivraisons) ? null : implode(';', $numsLivraisons);
-            $dto->numeroFacture        =  $ddp->getNumeroFacture();
+            $dto->numeroFacture        = $ddp->getNumeroFacture();
             $dto->statut               = $ddp->getStatut();
-            $dto->dateSoumissionCompta = $ddp->getDateSoumissionCompta();
+            $dto->dateSoumissionCompta = $ddp->getDateSoumissionCompta() ? $ddp->getDateSoumissionCompta()->format('d/m/Y') : null;
 
             //============= pour la liste de ddp ===============
             $dto->codeAgence           = $ddp->getAgenceDebiter();
@@ -90,7 +90,7 @@ class DemandePaiementMapper
             $dto->statutDossierRegul   = $ddp->getStatutDossierRegul();
             $dto->motif                = $ddp->getMotif();
             $dto->numeroDossierDouane  = [];
-            $dto->montantAPayer        = $ddp->getMontantAPayers();
+            $dto->montantAPayer        = number_format($ddp->getMontantAPayers(), 2, ',', '.');
             $dto->devise               = $ddp->getDevise();
             $dto->modePaiement         = $ddp->getModePaiement();
             $dto->demandeur            = $ddp->getDemandeur();
