@@ -69,33 +69,34 @@ class DemandePaiementMapper
         $demandePaiementFileService = new DemandePaiementFileService();
 
         foreach ($ddps as $ddp) {
-            $dto = new DemandePaiementDto();
-            $dto->numeroDdp = $ddp->getNumeroDdp();
-            $dto->numeroCla = $ddp->getNumeroCla();
-            $dto->numeroDemandeAppro = $ddp->getNumeroDemandeAppro();
-            $dto->typeDemande = $ddp->getTypeDemandeId();
-            $dto->numeroFournisseur = $ddp->getNumeroFournisseur();
-            $dto->beneficiaire = $ddp->getBeneficiaire();
-            $dto->numeroCommande =  $ddp->getNumeroCommande();
-            $numsLivraisons = self::getNumeroLivraisons($ddp);
-            $dto->numeroLivraison = empty($numsLivraisons) ? null : implode(';', $numsLivraisons);
-            $dto->numeroFacture =  $ddp->getNumeroFacture();
-            $dto->statut = $ddp->getStatut();
+            $dto                       = new DemandePaiementDto();
+            $dto->numeroDdp            = $ddp->getNumeroDdp();
+            $dto->numeroCla            = $ddp->getNumeroCla();
+            $dto->numeroDemandeAppro   = $ddp->getNumeroDemandeAppro();
+            $dto->typeDemande          = $ddp->getTypeDemandeId();
+            $dto->numeroFournisseur    = $ddp->getNumeroFournisseur();
+            $dto->beneficiaire         = $ddp->getBeneficiaire();
+            $dto->numeroCommande       =  $ddp->getNumeroCommande();
+            $numsLivraisons            = self::getNumeroLivraisons($ddp);
+            $dto->numeroLivraison      = empty($numsLivraisons) ? null : implode(';', $numsLivraisons);
+            $dto->numeroFacture        =  $ddp->getNumeroFacture();
+            $dto->statut               = $ddp->getStatut();
             $dto->dateSoumissionCompta = $ddp->getDateSoumissionCompta();
+
             //============= pour la liste de ddp ===============
-            $dto->codeAgence = $ddp->getAgenceDebiter();
-            $dto->codeService = $ddp->getServiceDebiter();
-            $dto->dateDemande = $ddp->getDateCreation();
-            $dto->statutDossierRegul = $ddp->getStatutDossierRegul();
-            $dto->motif = $ddp->getMotif();
-            $dto->numeroDossierDouane = [];
-            $dto->montantAPayer = $ddp->getMontantAPayers();
-            $dto->devise = $ddp->getDevise();
-            $dto->modePaiement = $ddp->getModePaiement();
-            $dto->demandeur = $ddp->getDemandeur();
-            $dto->appro = $ddp->getAppro() ?? false;
-            $dto->numeroFactureIps = self::getNumeroFactureIps($dto);
-            $dto->fileExists = $demandePaiementFileService->getFileInfo($dto->numeroDdp, $dto->typeDemande->getCode())['exists'];
+            $dto->codeAgence           = $ddp->getAgenceDebiter();
+            $dto->codeService          = $ddp->getServiceDebiter();
+            $dto->dateDemande          = $ddp->getDateCreation();
+            $dto->statutDossierRegul   = $ddp->getStatutDossierRegul();
+            $dto->motif                = $ddp->getMotif();
+            $dto->numeroDossierDouane  = [];
+            $dto->montantAPayer        = $ddp->getMontantAPayers();
+            $dto->devise               = $ddp->getDevise();
+            $dto->modePaiement         = $ddp->getModePaiement();
+            $dto->demandeur            = $ddp->getDemandeur();
+            $dto->appro                = $ddp->getAppro() ?? false;
+            $dto->numeroFactureIps     = self::getNumeroFactureIps($dto);
+            $dto->fileExists           = $demandePaiementFileService->getFileInfo($dto->numeroDdp, $dto->typeDemande->getCode())['exists'];
 
             $dtos[] = $dto;
         }

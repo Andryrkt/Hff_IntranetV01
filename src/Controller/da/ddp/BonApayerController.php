@@ -2,6 +2,7 @@
 
 namespace App\Controller\da\ddp;
 
+use App\Service\ExcelService;
 use App\Controller\Controller;
 use App\Dto\Da\ddp\BapSearchDto;
 use App\Entity\ddp\DemandePaiement;
@@ -59,5 +60,18 @@ class BonApayerController extends Controller
     /** 
      * @Route("/export-excel/consultation-facture", name="export_excel_consultation_facture")
      */
-    public function exportExcel(Request $request) {}
+    public function exportExcel(Request $request)
+    {
+        $requestData = $request->query->all();
+        $bapSearchDto = BapSearchDto::fromArray($requestData);
+
+        // Récupération des données dans la table demande_paiement
+        $ddp = $this->demandePaiementRepository->findByConsultationFactureCriteria($bapSearchDto);
+
+        // transformation en DTO (DemandePaiementDto)
+        $dtos = DemandePaiementMapper::mapInverse($ddp);
+
+        // Crée le fichier Excel
+        (new ExcelService())->createSpreadsheet([], "donnees_" . date('Y-m-d_H-i-s'));
+    }
 }

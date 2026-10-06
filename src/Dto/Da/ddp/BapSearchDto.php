@@ -26,4 +26,20 @@ class BapSearchDto
             'aTraiter'    => $this->aTraiter,
         ];
     }
+
+    public static function fromArray(array $data): self
+    {
+        $dto = new self();
+
+        $dto->numDa       = $data['numDa']       ?? null;
+        $dto->numCde      = $data['numCde']      ?? null;
+        $dto->numLivIps   = $data['numLivIps']   ?? null;
+        $dto->numDdp      = $data['numDdp']      ?? null;
+        $dto->FactureBl   = $data['FactureBl']   ?? null;
+        $dto->fournisseur = $data['fournisseur'] ?? null;
+        $dto->numCla      = $data['numCla']      ?? null;
+        $dto->aTraiter    = (bool) ($data['aTraiter'] ?? false);
+
+        return $dto;
+    }
 }
