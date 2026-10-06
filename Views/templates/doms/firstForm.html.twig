@@ -18,48 +18,46 @@
 						<h3 class="perso-titre">Demande d'Ordre de Mission</h3>
 					</div>
 				</div>
-				{% include "/partials/_notification.html.twig" %}
-
-				{{ form_start(form)}}
+				{{ form_start(form) }}
 				<div class="row">
 					<div class="col-6">
-						{{ form_row(form.agenceEmetteur)}}
+						{{ form_row(form.agenceEmetteur) }}
 					</div>
 					<div class="col-6">
-						{{ form_row(form.serviceEmetteur)}}
+						{{ form_row(form.serviceEmetteur) }}
 					</div>
 				</div>
 				<div class="row">
 					<div class="col-6">
-						{{form_row(form.sousTypeDocument)}}
+						{{ form_row(form.sousTypeDocument) }}
 					</div>
 
 					<div class="col-6" id="chek">
-						{{ form_row(form.salarie)}}
+						{{ form_row(form.salarie) }}
 					</div>
 
 				</div>
 				<div class="row">
 					<div class="col-12">
 						{% if form.categoryId is defined %}
-							{{ form_row(form.categoryId)}}
+							{{ form_row(form.categoryId) }}
 						{% endif %}
 					</div>
 				</div>
 				<div class="row" id="Interne">
 
-					{{ form_row(form.matriculeNom)}}
+					{{ form_row(form.matriculeNom) }}
 
-					{{ form_row(form.matricule)}}
+					{{ form_row(form.matricule) }}
 
 				</div>
 				<div class="row" id="externe">
 
-					{{ form_row(form.nom)}}
+					{{ form_row(form.nom) }}
 
-					{{ form_row(form.prenom)}}
+					{{ form_row(form.prenom) }}
 
-					{{ form_row(form.cin)}}
+					{{ form_row(form.cin) }}
 
 				</div>
 				<div class="row">
@@ -70,9 +68,9 @@
 						</button>
 					</div>
 				</div>
-			</form>
+				</form>
+			</div>
 		</div>
 	</div>
-</div>
-{{ form_end(form)}}{% endblock %}{% block javascript %}
-<script src="{{ App.base_path }}/Views/js/dom/firstForm.js?v={{ App.browserHash }}" type="module"></script>{% endblock %}
+	{{ form_end(form) }}{% endblock %}{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/dom/firstForm.js?v={{ App.browserHash }}" type="module"></script>{% endblock %}

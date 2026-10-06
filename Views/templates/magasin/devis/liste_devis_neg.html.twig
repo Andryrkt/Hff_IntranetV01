@@ -24,7 +24,6 @@
 	<div class="container-fluid">
 		<div class="sticky-header-titre">
 			<div class="container">
-				{% include "/partials/_notification.html.twig" %}
 				{% include "magasin/devis/shared/_formulaireDeRecherche.html.twig" with {'form': form} %}
 			</div>
 		</div>
@@ -55,7 +54,8 @@
 				</tr>
 			</thead>
 			<tbody
-				id="tableBody">{# Le contenu sera chargé dynamiquement par JavaScript #}
+				id="tableBody"
+			>{# Le contenu sera chargé dynamiquement par JavaScript #}
 			</tbody>
 			<tbody id="skeletonLoader" class="d-none">
 				{% for i in 1..20 %}

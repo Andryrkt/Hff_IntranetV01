@@ -11,32 +11,30 @@
 		<div class="card">
 			<div class="card-body">
 				<h3 class="perso-titre">Demande mouvement matériel</h3>
-				{% include "/partials/_notification.html.twig" %}
-
-				{{ form_start(form)}}
-				{{ form_errors(form)}}
+				{{ form_start(form) }}
+				{{ form_errors(form) }}
 				<div class="row">
 					<div class="col-12 col-md-4">
-						{{ form_row(form.agenceEmetteur)}}
+						{{ form_row(form.agenceEmetteur) }}
 					</div>
 					<div class="col-12 col-md-4">
-						{{ form_row(form.serviceEmetteur)}}
+						{{ form_row(form.serviceEmetteur) }}
 					</div>
 				</div>
 				<div class="row">
 					<div class="col-12 col-lg-8 col-md-6">
-						{{ form_row(form.typeMouvement)}}
+						{{ form_row(form.typeMouvement) }}
 					</div>
 				</div>
 				<div class="row">
-					<div class="col-12 col-md-4">{{ form_row(form.idMateriel)}}</div>
-					<div class="col-12 col-md-4">{{ form_row(form.numParc)}}</div>
-					<div class="col-12 col-md-4">{{ form_row(form.numSerie)}}</div>
+					<div class="col-12 col-md-4">{{ form_row(form.idMateriel) }}</div>
+					<div class="col-12 col-md-4">{{ form_row(form.numParc) }}</div>
+					<div class="col-12 col-md-4">{{ form_row(form.numSerie) }}</div>
 				</div>
 				<div class="row mt-2">
-					{{ formMacro.button('submit', 'Suivant','enregistrer', 'color')}}
+					{{ formMacro.button('submit', 'Suivant', 'enregistrer', 'color') }}
 				</div>
-				{{ form_end(form)}}
+				{{ form_end(form) }}
 			</div>
 		</div>
 	</div>

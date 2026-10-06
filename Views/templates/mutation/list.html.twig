@@ -17,7 +17,6 @@
 		<h3 class="perso-titre">
 			Liste de Demande de mutation
 		</h3>
-		{% include "/partials/_notification.html.twig" %}
 		{% include "/mutation/shared/_formulaireRecherche.html.twig" %}
 		{% include "/mutation/shared/_pagination.html.twig" %}
 	</div>
@@ -48,22 +47,22 @@
 					{% set styleStatutDom = '' %}
 					{% set styleStatutDom = '' %}
 
-					{% if item.statutDemande.description | trim == 'OUVERT' %}
-						{% set classeStatutDom ='bg-warning bg-gradient text-cente' %}
-					{% elseif item.statutDemande.description | trim == 'PAYE'  %}
-						{% set classeStatutDom ='bg-success bg-gradient' %}
-					{% elseif  item.statutDemande.description | trim == 'ATTENTE PAIEMENT' %}
-						{% set classeStatutDom ='bg-success' %}
+					{% if item.statutDemande.description|trim == 'OUVERT' %}
+						{% set classeStatutDom = 'bg-warning bg-gradient text-cente' %}
+					{% elseif item.statutDemande.description|trim == 'PAYE' %}
+						{% set classeStatutDom = 'bg-success bg-gradient' %}
+					{% elseif item.statutDemande.description|trim == 'ATTENTE PAIEMENT' %}
+						{% set classeStatutDom = 'bg-success' %}
 						{% set styleStatutDom = '--bs-bg-opacity: .5;' %}
-					{% elseif item.statutDemande.description | trim == 'CONTROLE SERVICE' %}
-						{% set classeStatutDom ='bg-info' %}
-					{% elseif item.statutDemande.description | trim == 'A VALIDER SERVICE EMETTEUR' %}
-						{% set classeStatutDom ='bg-primary' %}
+					{% elseif item.statutDemande.description|trim == 'CONTROLE SERVICE' %}
+						{% set classeStatutDom = 'bg-info' %}
+					{% elseif item.statutDemande.description|trim == 'A VALIDER SERVICE EMETTEUR' %}
+						{% set classeStatutDom = 'bg-primary' %}
 						{% set styleStatutDom = '--bs-bg-opacity: .5;' %}
-					{% elseif item.statutDemande.description | trim == 'VALIDE' or item.statutDemande.description | trim == 'VALIDE COMPTABILITE' or item.statutDemande.description | trim == 'VALIDATION RH' or item.statutDemande.description | trim == 'VALIDATION DG'%}
-						{% set classeStatutDom ='bg-success' %}
-					{% elseif item.statutDemande.description | trim == 'ANNULE CHEF DE SERVICE' or item.statutDemande.description | trim == 'ANNULE COMPTABILITE' or item.statutDemande.description | trim == 'ANNULE SECRETARIAT RH' or item.statutDemande.description | trim == 'ANNULE' %}
-						{% set classeStatutDom ='bg-danger' %}
+					{% elseif item.statutDemande.description|trim == 'VALIDE' or item.statutDemande.description|trim == 'VALIDE COMPTABILITE' or item.statutDemande.description|trim == 'VALIDATION RH' or item.statutDemande.description|trim == 'VALIDATION DG' %}
+						{% set classeStatutDom = 'bg-success' %}
+					{% elseif item.statutDemande.description|trim == 'ANNULE CHEF DE SERVICE' or item.statutDemande.description|trim == 'ANNULE COMPTABILITE' or item.statutDemande.description|trim == 'ANNULE SECRETARIAT RH' or item.statutDemande.description|trim == 'ANNULE' %}
+						{% set classeStatutDom = 'bg-danger' %}
 					{% else %}
 						{% set classeStatutDom = '' %}
 					{% endif %}
@@ -71,24 +70,24 @@
 					<tr>
 
 						{# DEBUT Statut #}
-						<td class="{{classeStatutDom}}" style="{{styleStatutDom}}">{{ item.statutDemande.description}}</td>
+						<td class="{{ classeStatutDom }}" style="{{ styleStatutDom }}">{{ item.statutDemande.description }}</td>
 
 						{# FIN Statut #}
 						<td>
-							<a href="{{ path("mutation_detail", {id:item.id})}}" target="_blank">
+							<a href="{{ path("mutation_detail", {id: item.id}) }}" target="_blank">
 								{{ item.numeroMutation }}
 							</a>
 						</td>
-						<td class="text-center">{{ item.dateDemande | date('d/m/Y')}}</td>
-						<td>{{ item.motifMutation}}</td>
+						<td class="text-center">{{ item.dateDemande|date('d/m/Y') }}</td>
+						<td>{{ item.motifMutation }}</td>
 						<td class="text-center">{{ item.matricule }}</td>
-						<td>{{ item.libelleCodeAgenceService}}</td>
+						<td>{{ item.libelleCodeAgenceService }}</td>
 						<td>{{ item.agenceDebiteur.libelleAgence }}-{{ item.serviceDebiteur.libelleService }}</td>
-						<td class="text-center">{{ item.dateDebut | date('d/m/Y')}}</td>
-						<td>{{ item.client}}</td>
-						<td>{{ item.lieuMutation}}</td>
+						<td class="text-center">{{ item.dateDebut|date('d/m/Y') }}</td>
+						<td>{{ item.client }}</td>
+						<td>{{ item.lieuMutation }}</td>
 						<td class="text-end">{{ item.totalGeneralPayer }}</td>
-						<td class="text-start">{{ item.devis}}</td>
+						<td class="text-start">{{ item.devis }}</td>
 					</tr>
 				{% endfor %}
 			</tbody>

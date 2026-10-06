@@ -83,3 +83,17 @@ document.addEventListener("DOMContentLoaded", () => {
 window.addEventListener("load", () => {
   displayOverlay(false);
 });
+
+// Afficher le spinner lors du déchargement de la page (navigation)
+window.addEventListener("beforeunload", function () {
+  const overlay = document.getElementById("loading-overlays");
+  if (overlay) overlay.classList.add("active");
+});
+
+// Optionnel : s'assurer que le spinner est caché si l'utilisateur revient en arrière (BFCache)
+window.addEventListener("pageshow", function (event) {
+  const overlay = document.getElementById("loading-overlays");
+  if (overlay && event.persisted) {
+    overlay.classList.remove("active");
+  }
+});

@@ -17,10 +17,9 @@
 							Soumission Commande Fournisseur
 						</h3>
 					</div>
-					{% include "/partials/_notification.html.twig" %}
 				</div>
-				{{ form_start(form, { 'attr': { 'id': 'myForm', 'enctype': 'multipart/form-data'} }) }}
-				{{ form_errors(form)}}
+				{{ form_start(form, {'attr': {'id': 'myForm', 'enctype': 'multipart/form-data'}}) }}
+				{{ form_errors(form) }}
 
 				<div class="row">
 
@@ -49,7 +48,9 @@
 		</div>
 		<div class="row">
 			<div
-				id="file-viewer" class="mt-3">
+				id="file-viewer"
+				class="mt-3"
+			>
 				<!-- Onglets -->
 				<ul class="nav nav-tabs" id="pdfTabs" role="tablist">
 					<li class="nav-item" role="presentation">
@@ -66,7 +67,9 @@
 
 				<!-- Contenu des onglets -->
 				<div
-					class="tab-content border border-top-0 p-3" id="pdfTabContent">
+					class="tab-content border border-top-0 p-3"
+					id="pdfTabContent"
+				>
 					<!-- Tab 1 -->
 					<div class="tab-pane fade show active" id="tab1" role="tabpanel" aria-labelledby="tab1-tab">
 						<div id="file-list-1" class="mt-3"></div>

@@ -13,28 +13,25 @@
 {% import "macroForm.html.twig" as macroForm %}
 
 {% block overlay %}
-	{% include "/shared/_overlay.html.twig"  %}
+	{% include "/shared/_overlay.html.twig" %}
 {% endblock %}
 
 {% block content %}
 	<div class="container-spaced">
 		<div class="card">
 			<div class="card-body">
-				{{ form_start(form, { 'attr': { 'id': 'myForm' } }) }}
-				{{ form_errors(form)}}
+				{{ form_start(form, {'attr': {'id': 'myForm'}}) }}
+				{{ form_errors(form) }}
 				<div class="container-fluid">
 					<div class="row">
 						<h3 class="perso-titre">
 							Formulaire Demande d'approvisionnement avec DIT
 						</h3>
 					</div>
-
-					{% include "/partials/_notification.html.twig" %}
-
 					<div class="row">
 						<div class="col-12 col-md-4">
 							{{ macroForm.sousTitre3('Information sur la demande') }}
-							{{ form_row(form.objetDal)}}
+							{{ form_row(form.objetDal) }}
 							<div class="mb-3 position-relative">
 								{{ form_row(form.detailDal) }}
 								<span id="motif-char-count" class="position-absolute end-0 p-0 small text-muted" style="bottom:-1.5em;"></span>
@@ -106,7 +103,7 @@
 							<div id="demande_appro_form_DAL_{{ ligne }}" class="DAL-container">
 								<div class="d-flex gap-3">
 									<div class="w-10">
-										{{ form_widget(DAL.codeFams1, { 'attr': { class:"non-modifiable" } }) }}
+										{{ form_widget(DAL.codeFams1, {'attr': {class: "non-modifiable"}}) }}
 									</div>
 									<div class="w-10">
 										<div class="spinner-container">
@@ -126,14 +123,14 @@
 											</div>
 										</div>
 										<div id="container_{{ ligne }}_codeFams2">
-											{{ form_widget(DAL.codeFams2, { 'attr': { class:"non-modifiable" } }) }}
+											{{ form_widget(DAL.codeFams2, {'attr': {class: "non-modifiable"}}) }}
 										</div>
 									</div>
 									<div class="w-7">
-										{{ form_widget(DAL.artRefp, { 'attr': { class:"non-modifiable" } }) }}
+										{{ form_widget(DAL.artRefp, {'attr': {class: "non-modifiable"}}) }}
 									</div>
 									<div class="w-20">
-										{{ form_widget(DAL.artDesi, { 'attr': { class:"non-modifiable" } }) }}
+										{{ form_widget(DAL.artDesi, {'attr': {class: "non-modifiable"}}) }}
 										<div id="suggestion_{{ ligne }}_artDesi" class="suggestions-container"></div>
 										<div id="spinner_container_{{ ligne }}_artDesi" class="text-center" style="display: none;">
 											<div class="text-overlay">
@@ -143,12 +140,12 @@
 										</div>
 									</div>
 									<div class="w-10">
-										{{ form_widget(DAL.nomFournisseur, { 'attr': { class:"non-modifiable" } }) }}
+										{{ form_widget(DAL.nomFournisseur, {'attr': {class: "non-modifiable"}}) }}
 										<div id="suggestion_{{ ligne }}_nomFournisseur" class="suggestions-container"></div>
 										<div id="spinner_container_{{ ligne }}_nomFournisseur" class="text-center" style="display: none;"></div>
 									</div>
 									<div class="w-10">
-										{{ form_widget(DAL.dateFinSouhaite, { 'attr': { class:"non-modifiable" } }) }}
+										{{ form_widget(DAL.dateFinSouhaite, {'attr': {class: "non-modifiable"}}) }}
 									</div>
 									<div class="w-5">
 										{{ form_widget(DAL.qteDem) }}
@@ -211,7 +208,7 @@
 					</div>
 
 					<div class="row">
-						{{ form_row(form.observation)}}
+						{{ form_row(form.observation) }}
 					</div>
 				</div>
 
