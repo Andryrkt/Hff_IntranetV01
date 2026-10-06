@@ -5,6 +5,7 @@ namespace App\Controller\da\ddp;
 use App\Service\ExcelService;
 use App\Controller\Controller;
 use App\Dto\Da\ddp\BapSearchDto;
+use App\Dto\ddp\DemandePaiementDto;
 use App\Entity\ddp\DemandePaiement;
 use App\Form\da\ddp\BonApayerType;
 use Doctrine\ORM\EntityManagerInterface;
@@ -69,9 +70,54 @@ class BonApayerController extends Controller
         $ddp = $this->demandePaiementRepository->findByConsultationFactureCriteria($bapSearchDto);
 
         // transformation en DTO (DemandePaiementDto)
-        $dtos = DemandePaiementMapper::mapInverse($ddp);
+        $dtos = DemandePaiementMapper::mapInverse($ddp, true);
+
+        // Génération du tableau des données
+        $data = $this->generateTableData($dtos);
 
         // Crée le fichier Excel
-        (new ExcelService())->createSpreadsheet([], "donnees_" . date('Y-m-d_H-i-s'));
+        (new ExcelService())->createSpreadsheet($data, "extraction_consultation_facture_" . date('Y-m-d_H-i-s'));
+    }
+
+    /** 
+     * Génération du tableau des données à partir des dtos
+     * 
+     * @param DemandePaiementDto[] $dtos
+     * 
+     * @return array
+     */
+    private function generateTableData(array $dtos): array
+    {
+        $data[] = [
+            "Numéro CLA",
+            "Numéro DA",
+            "Numéro DDP/BAP",
+            "Type DDP",
+            "Fournisseur",
+            "Numéro cde",
+            "Numéro livraison",
+            "Facture BL",
+            "Statut",
+            "Transmise le",
+            "Montant DDP",
+        ];
+
+        foreach ($dtos as $dto) {
+            $data[] = [
+                $dto->numeroCla ?? "-",
+                $dto->numeroDemandeAppro ?? "-",
+                $dto->numeroDdp ?? "-",
+                $dto->typeDemande,
+                $dto->getFournisseur(),
+                $dto->numeroCommande ?? "-",
+                $dto->numeroLivraison ?? "-",
+                $dto->numeroFacture ?? "-",
+                $dto->statut,
+                $dto->dateSoumissionCompta ?? "-",
+                $dto->montantAPayer,
+            ];
+        }
+
+        return $data;
     }
 }
