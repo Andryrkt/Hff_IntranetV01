@@ -3,7 +3,6 @@
 namespace App\Dto\ddp;
 
 use App\Constants\ddp\StatutConstants;
-use App\Entity\admin\ddp\TypeDemande;
 use App\Traits\ChaineCaractereTrait;
 
 class DemandePaiementDto
@@ -16,7 +15,8 @@ class DemandePaiementDto
     public string $adresseMailDemandeur;
     public string $demandeur;
     public int $numeroVersion = 0;
-    public ?TypeDemande $typeDemande = null;
+    public ?string $typeDemande = null;
+    public ?string $codeTypeDemande = null;
     public ?\DateTime $dateDemande = null;
     public bool $estChangementDeRib = false;
     public ?string $numeroCla = null;

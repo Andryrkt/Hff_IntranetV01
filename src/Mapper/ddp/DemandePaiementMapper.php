@@ -61,19 +61,20 @@ class DemandePaiementMapper
 
     /**
      * @param DemandePaiement[] $ddps
-     * @return array
+     * @param bool $forExcel
+     * @return DemandePaiementDto[]
      */
-    public static function mapInverse(array $ddps): array
+    public static function mapInverse(array $ddps, bool $forExcel = false): array
     {
         $dtos = [];
         $demandePaiementFileService = new DemandePaiementFileService();
 
         foreach ($ddps as $ddp) {
             $dto                       = new DemandePaiementDto();
-            $dto->numeroDdp            = $ddp->getNumeroDdp();
             $dto->numeroCla            = $ddp->getNumeroCla();
             $dto->numeroDemandeAppro   = $ddp->getNumeroDemandeAppro();
-            $dto->typeDemande          = $ddp->getTypeDemandeId();
+            $dto->numeroDdp            = $ddp->getNumeroDdp();
+            $dto->typeDemande          = $ddp->getTypeDemandeId() ? $ddp->getTypeDemandeId()->getLibelle() : "-";
             $dto->numeroFournisseur    = $ddp->getNumeroFournisseur();
             $dto->beneficiaire         = $ddp->getBeneficiaire();
             $dto->numeroCommande       = $ddp->getNumeroCommande();
@@ -84,19 +85,23 @@ class DemandePaiementMapper
             $dto->dateSoumissionCompta = $ddp->getDateSoumissionCompta() ? $ddp->getDateSoumissionCompta()->format('d/m/Y') : null;
 
             //============= pour la liste de ddp ===============
-            $dto->codeAgence           = $ddp->getAgenceDebiter();
-            $dto->codeService          = $ddp->getServiceDebiter();
-            $dto->dateDemande          = $ddp->getDateCreation();
-            $dto->statutDossierRegul   = $ddp->getStatutDossierRegul();
-            $dto->motif                = $ddp->getMotif();
-            $dto->numeroDossierDouane  = [];
             $dto->montantAPayer        = number_format($ddp->getMontantAPayers(), 2, ',', '.');
-            $dto->devise               = $ddp->getDevise();
-            $dto->modePaiement         = $ddp->getModePaiement();
-            $dto->demandeur            = $ddp->getDemandeur();
-            $dto->appro                = $ddp->getAppro() ?? false;
-            $dto->numeroFactureIps     = self::getNumeroFactureIps($dto);
-            $dto->fileExists           = $demandePaiementFileService->getFileInfo($dto->numeroDdp, $dto->typeDemande->getCode())['exists'];
+
+            if (!$forExcel) {
+                $dto->codeTypeDemande      = $ddp->getTypeDemandeId() ? $ddp->getTypeDemandeId()->getCode() : "-";
+                $dto->codeAgence           = $ddp->getAgenceDebiter();
+                $dto->codeService          = $ddp->getServiceDebiter();
+                $dto->dateDemande          = $ddp->getDateCreation();
+                $dto->statutDossierRegul   = $ddp->getStatutDossierRegul();
+                $dto->motif                = $ddp->getMotif();
+                $dto->numeroDossierDouane  = [];
+                $dto->devise               = $ddp->getDevise();
+                $dto->modePaiement         = $ddp->getModePaiement();
+                $dto->demandeur            = $ddp->getDemandeur();
+                $dto->appro                = $ddp->getAppro() ?? false;
+                $dto->numeroFactureIps     = self::getNumeroFactureIps($dto);
+                $dto->fileExists           = $demandePaiementFileService->getFileInfo($dto->numeroDdp, $dto->codeTypeDemande)['exists'];
+            }
 
             $dtos[] = $dto;
         }

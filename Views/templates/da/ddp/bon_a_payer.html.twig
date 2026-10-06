@@ -56,7 +56,7 @@
 						</td>
 						<td class="text-center">
 							{% if row.fileExists %}
-								<a href="#" class="show-pdf-modal" data-pdf-url="{{ path('bap_pdf_viewer', {numeroDdp: row.numeroDdp, code: row.typeDemande.code}) }}">
+								<a href="#" class="show-pdf-modal" data-pdf-url="{{ path('bap_pdf_viewer', {numeroDdp: row.numeroDdp, code: row.codeTypeDemande}) }}">
 									{{ row.numeroDdp }}
 									<i class="fas fa-file-pdf ml-1" style="color: red;"></i>
 								</a>
@@ -64,7 +64,7 @@
 								{{ row.numeroDdp }}
 							{% endif %}
 						</td>
-						<td class="text-start">{{ row.typeDemande.libelle }}</td>
+						<td class="text-start">{{ row.typeDemande }}</td>
 						<td class="text-start">{{ row.fournisseur }}</td>
 						<td class="text-center">{{ row.numeroCommande }}</td>
 						<td class="text-center">{{ row.numeroLivraison }}</td>
