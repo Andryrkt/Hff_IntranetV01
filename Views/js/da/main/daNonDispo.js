@@ -1,5 +1,5 @@
 import { API_ENDPOINTS } from "../../api/apiEndpoints";
-import { FetchManager } from "../../api/FetchManager";
+import { ApiRequestManager } from "../../api/ApiRequestManager";
 import { displayOverlay } from "../../utils/ui/overlay";
 import { swalOptions } from "./ui/swalUtils";
 import {
@@ -10,7 +10,7 @@ import {
 
 document.addEventListener("DOMContentLoaded", () => {
   let lastCheckedNumDa = "";
-  const fetchManager = new FetchManager();
+  const fetchManager = new ApiRequestManager();
   const tableBody = document.querySelector("#tableBody"); // sélecteur pour le tBody
   const checkboxes = tableBody.querySelectorAll(".modern-checkbox"); // tous les checkbox
   const select = document.getElementById("action_non_dispo"); // liste déroulante de choix de redirection
