@@ -47,26 +47,27 @@ Aujourd'hui : `em`, `FileUploaderForDAService` injectés ; 4 repositories + `Fil
 
 ## Code mort à signaler (suppression après accord)
 
-- Traits entiers non utilisés : `DaNewDirectTrait`, `DaNewReapproPonctuelTrait` ; `DaPropositionTrait` (wrapper vide).
-- `DaDetailTrait` : ses 11 méthodes ne sont jamais appelées (`normalizePaths*`, `getBaIntranetPath`, `getBaDocuWarePath`, `getOrPath`, `getBcPath`, `getFacBlPath`, `getDevisPjPathDal`, `getDevisPjPathObservation`) + les repos/modèles `dwBcApproRepository`, `dwFacBlRepository`, `dwDaDirectRepository`, `ditOrsSoumisAValidationRepository`, `dossierInterventionAtelierModel` des traits de détail. Ce rôle est déjà tenu par `DocRattacheService` → `DaService`.
-- Méthodes : `DaListeDitTrait::agenceServiceEmetteur` et `Option` ; `ReportingIpsTrait::calculQteEtMontantTotals` ; `DaDemandeDevisTrait::initDaDemandeDevisTrait` ; propriété `demandeApproParentRepository` (`DaAffectationTrait`) ; `cheminDeBase` (`DaValidationReapproTrait`) ; `$ditOrsSoumisAValidationRepository` (`DaPropositionAvecDitTrait`).
-- `use` inutiles : `MarkupIconTrait` dans `DaSearchType` et `DaListCdeFrnController` ; `DaTrait` dans `DitOrsSoumisAValidationController` ; `lienGenerique` redondant dans les contrôleurs de détail ; `DaTrait` redondant avec `DaAfficherTrait` dans `DaAfficherController`.
+- Traits entiers non utilisés : `DaNewDirectTrait`, `DaNewReapproPonctuelTrait` (**vérifié 2026-10-07**). `DaPropositionTrait` n'est **pas** mort : c'est un wrapper vide de `DaTrait`, utilisé par `DaPropositionAvecDitTrait` et `DaPropositionDirectTrait` ; il disparaît avec la migration de `DaTrait`, pas avant.
+- `DaDetailTrait` : ses 11 méthodes ne sont jamais appelées (`normalizePaths*`, `getBaIntranetPath`, `getBaDocuWarePath`, `getOrPath`, `getBcPath`, `getFacBlPath`, `getDevisPjPathDal`, `getDevisPjPathObservation`) + (`DaDetailTrait` référence aussi `dwDaReapproRepository`/`dwDaReapproPRepository` déclarés nulle part : planterait si appelé) les repos/modèles `dwBcApproRepository`, `dwFacBlRepository`, `dwDaDirectRepository`, `ditOrsSoumisAValidationRepository`, `dossierInterventionAtelierModel` des traits de détail. Ce rôle est déjà tenu par `DocRattacheService` → `DaService`.
+- Méthodes : `DaListeDitTrait::agenceServiceEmetteur` et `agenceServiceEmetteurOption` (la 2e se nomme `Option`, :107) ; `DaService::getLignesRectifiees` (aucun appelant) ; `ReportingIpsTrait::calculQteEtMontantTotals` ; `DaDemandeDevisTrait::initDaDemandeDevisTrait` ; `cheminDeBase` (`DaValidationReapproTrait`) ; `$ditOrsSoumisAValidationRepository` (`DaPropositionAvecDitTrait`).
+- `use` inutiles : `MarkupIconTrait` dans `DaSearchType` et `DaListCdeFrnController` ; `DaTrait` dans `DitOrsSoumisAValidationController` ; `lienGenerique` redondant dans les contrôleurs de détail ; `DaTrait` redondant avec `DaAfficherTrait` dans `DaAfficherController`. (Vérifié : `demandeApproParentRepository` de `DaAffectationTrait` **est utilisé** par `DaAffectationAchatController:35`, donc retiré de la liste.)
 
 ## Bugs évidents à signaler (comportement préservé, aucun correctif dans cette migration)
 
 1. `DaEditAvecDitTrait:94` et `DaEditDirectTrait:94` : DALR dont la ligne DAL vient d'être supprimée → index indéfini puis appel sur null.
-2. `ExportExcelController` appelle `ReportingIpsTrait::getData`, qui lit `$this->rollingMonthsService` non défini dans ce contrôleur (défini seulement dans `ReportingIpsController`).
-3. `getUser()` non gardé (`DaValidationTrait:30`, `DaValidationReapproTrait:45`, `DaTrait:96`) ; `agenceServiceIpsObjet()` peut renvoyer des null avant `->getCodeAgence()` (`DaNewAchatTrait:35-44`).
+2. `ExportExcelController` appelle `ReportingIpsTrait::getData` (:69), qui lit `$this->rollingMonthsService` non défini dans ce contrôleur (défini seulement dans `ReportingIpsController`) ; en plus `getData` renvoie `['results','totals']` alors que le contrôleur lit `['reportingIps']`, `['qteTotale']`, `['montantTotal']` (:45-62) : l'export Excel est cassé deux fois.
+3. `getUser()` non gardé (`DaValidationTrait:30`, `DaValidationReapproTrait:45`, `DaTrait:96`) ; `agenceServiceIpsObjet()` peut renvoyer des null avant `->getCodeAgence()` (`DaNewAchatTrait:35-45`, idem `DaNewAvecDitTrait:56-58`).
 4. `DaValidationDirectTrait` : chemin Ghostscript Windows en dur (:146), `echo` dans la logique métier (:165), commande sans `escapeshellarg` (:159), fichier source écrasé (:170). `PdfConversionTrait` existe déjà.
-5. `DaService::getLignesRectifiees:108` : `->first()` peut renvoyer `false` dans le tableau ; ne filtre pas `deleted` contrairement à `DaTrait:124`.
+5. `DaService::getLignesRectifiees:108` : `->first()` peut renvoyer `false` dans le tableau ; ne filtre pas `deleted` contrairement à `DaTrait:124` ; méthode sans appelant.
 6. `DaAfficherTrait:62-64` : `$demandeAppro` non vérifié avant `getDit()`.
-7. `DaNewAvecDitTrait:153` / `DaNewAvecDitController:118` : destructuring de `getNumeroEtStatutOr` et `$dit` non gardés.
+7. `DaNewAvecDitController:46-52` : `$dit = find()` peut être null et est déréférencé ; `:121` `getPrixUnitaire(...)[0]` non gardé. (`DaNewAvecDitTrait:153` est en fait sûr : `getNumeroEtStatutOr` renvoie toujours un tableau de 2 éléments.)
 8. `DaNewReapproMensuelTrait:67-99` : numéros de ligne qui peuvent entrer en collision.
-9. `DaValidationTrait:63` : DALR chargées sans filtre de version (asymétrique avec DAL).
+9. `DaValidationTrait:63` : DALR chargées sans filtre `deleted` (l'entité n'a pas de champ version ; asymétrique avec DAL).
 10. `DaAffectationTrait:208-218` : cache `oldObservations` ignorant le numéro de DA ; `:148` clé de préfixe non gardée.
 11. `DaPropositionAvecDitTrait::$daObservationRepository` jamais initialisée par son propre trait (initialisée par `DaDetailAvecDitTrait`).
-12. `DaListeDitTrait` : N+1 SQL dans `ajoutNumSerieNumParc` ; conditions testées deux fois (:155-158) ; `criteria['categorie']` traité différemment des autres.
-13. Commentaires faux : « 3 jours » alors que le code ajoute 5 (Direct, Mensuel, Ponctuel).
+12. `DaListeDitTrait` : N+1 SQL dans `ajoutNumSerieNumParc` (:187-191) ; conditions testées deux fois (:154-157) ; `criteria['categorie']` traité différemment des autres.
+13. Commentaires faux : « 3 jours » alors que le code ajoute 5 (Direct :48, Mensuel :59, Ponctuel :49 ; `DaNewAvecDitTrait:146` annonce 3 pour 5/7/10/15 jours).
+14. **Nouveau** : `DaAffectationAchatController:35-37` déréférence `find($id)` sans garde (id inconnu → erreur fatale) ; `getButtonName` y renvoie `'N\A'` (les traits renvoient `''`) et `traitementFormulaire` notifie `'type' => 'error'` alors que le reste du code utilise `'danger'`. Sa `getButtonName` publique masque celle, privée, de `DaNewAchatTrait` (pas de conflit), qui est donc morte dans ce contrôleur ; `initDaNewAchatTrait` n'y est pas appelé (sans effet, idempotent).
 
 ## Doublons à fusionner pendant la migration
 
