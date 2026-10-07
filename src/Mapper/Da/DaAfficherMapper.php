@@ -150,7 +150,7 @@ class DaAfficherMapper
         if ($isListCdeFrn) $dto->styleClickableCell = $dto->envoyeFrn ? 'clickable-td' : '';
         else $dto->styleClickableCell = in_array($data->getStatutDal(), StatutDaConstant::TRAITER_APPRO_LIST) ? 'clickable-td' : '';
 
-        $dto->tdCheckboxAttributes = $this->getCheckboxAttributes($dto);
+        $dto->tdCheckboxAttributes = $this->getCheckboxAttributes($dto, $isListCdeFrn);
         $dto->aDtLivPrevAttributes = $this->getADtLivPrevAttributes($dto);
         $dto->aArtDesiAttributes = $this->getAArtDesiAttributes($dto);
         $dto->ddpCloture = $this->getDdpStatutCloture($dto);
@@ -252,14 +252,14 @@ class DaAfficherMapper
         ];
     }
 
-    private function getCheckboxAttributes(DaAfficherDto $dto): array
+    private function getCheckboxAttributes(DaAfficherDto $dto, bool $isListCdeFrn): array
     {
         return [
-            'class' => 'modern-checkbox',
-            'type' => 'checkbox',
-            'value' => $dto->id,
+            'class'                     => !$isListCdeFrn && !$dto->styleClickableCell ? 'd-none' : "modern-checkbox",
+            'type'                      => 'checkbox',
+            'value'                     => $dto->id,
             'data-numero-demande-appro' => $dto->numeroDemandeAppro,
-            'data-numero-ligne' => $dto->positionBc,
+            'data-numero-ligne'         => $dto->positionBc,
         ];
     }
 

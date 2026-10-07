@@ -115,7 +115,7 @@
 						<td class="text-center fw-bold {{ row.styleStatutOR }}">{{ row.statutOr }}</td>
 						<td class="text-center fw-bold {{ row.styleStatutBC }}">{{ row.statutCde }}</td>
 						<td class="text-center fw-bold">{{ row.numeroCde }}</td>
-						<td class="text-center {{ afficherNonDispo and clickableClass ? clickableClass : 'd-none' }}">
+						<td class="text-center {{ afficherNonDispo ? '' : 'd-none' }} {{ clickableClass }}">
 							<input {% for attr, val in row.tdCheckboxAttributes %} {{ attr }}="{{ val }}" {% endfor %}>
 						</td>
 						<td class="text-center fw-bold {{ codeCentrale ? '' : 'd-none' }} {{ clickableClass }}">{{ row.centrale }}</td>

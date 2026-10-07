@@ -161,7 +161,7 @@ class ActionSurNonDispoApi extends Controller
             ->setNumeroDemandeApproMere($numDa)
             ->setDaTypeId($oldDemandeAppro->getDaTypeId())
             ->setNumeroDemandeDit($oldDemandeAppro->getNumeroDemandeDit())
-            ->setObjetDal($oldDemandeAppro->getObjetDal() . ' (Duplicata ' . $oldDemandeAppro->getNumeroDemandeAppro() . ')')
+            ->setObjetDal("{$oldDemandeAppro->getObjetDal()} (Duplicata {$oldDemandeAppro->getNumeroDemandeAppro()})")
             ->setDetailDal($oldDemandeAppro->getDetailDal())
             ->setAgenceServiceEmetteur($oldDemandeAppro->getAgenceServiceEmetteur())
             ->setAgenceServiceDebiteur($oldDemandeAppro->getAgenceServiceDebiteur())
