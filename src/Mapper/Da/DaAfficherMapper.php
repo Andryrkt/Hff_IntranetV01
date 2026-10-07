@@ -6,7 +6,7 @@ use App\Constants\da\RouteConstant;
 use App\Constants\da\StatutActionConstant;
 use App\Constants\da\StatutBcConstant;
 use App\Constants\da\StatutDaConstant;
-use App\Controller\Traits\da\MarkupIconTrait;
+use App\Service\da\DaIconService;
 use App\Dto\Da\DaAfficherDto;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DaSoumissionBc;
@@ -20,10 +20,9 @@ use Twig\Markup;
 
 class DaAfficherMapper
 {
-    use MarkupIconTrait;
-
     private UrlGeneratorInterface $router;
     private PermissionDaService $permissionDaService;
+    private DaIconService $daIconService;
     private EntityManagerInterface $em;
     private UrlIdCipher $urlIdCipher;
 
@@ -35,6 +34,7 @@ class DaAfficherMapper
         $this->em = $em;
         $this->router = $router;
         $this->permissionDaService = new PermissionDaService();
+        $this->daIconService = new DaIconService();
         $this->urlIdCipher = $urlIdCipher;
     }
 
@@ -74,7 +74,7 @@ class DaAfficherMapper
 
         // Icônes
         $dto->daTypeIcon = $this->getTypeDaIcon($dto->datype);
-        $dto->allIcons = $this->getAllIcons();
+        $dto->allIcons = $this->daIconService->getAllIcons();
         $safeIconSuccess = new Markup('<i class="fas fa-check text-success"></i>', 'UTF-8');
         $safeIconXmark   = new Markup('<i class="fas fa-xmark text-danger"></i>', 'UTF-8');
         $safeIconBan     = new Markup('<i class="fas fa-ban text-muted"></i>', 'UTF-8');
@@ -288,10 +288,10 @@ class DaAfficherMapper
     private function getTypeDaIcon($typeId): string
     {
         $daIcons = [
-            DemandeAppro::TYPE_DA_AVEC_DIT         => $this->getIconDaAvecDIT(),
-            DemandeAppro::TYPE_DA_DIRECT           => $this->getIconDaDirect(),
-            DemandeAppro::TYPE_DA_REAPPRO_MENSUEL  => $this->getIconDaReapproMensuel(),
-            DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL => $this->getIconDaReapproPonctuel(),
+            DemandeAppro::TYPE_DA_AVEC_DIT         => $this->daIconService->getIconDaAvecDIT(),
+            DemandeAppro::TYPE_DA_DIRECT           => $this->daIconService->getIconDaDirect(),
+            DemandeAppro::TYPE_DA_REAPPRO_MENSUEL  => $this->daIconService->getIconDaReapproMensuel(),
+            DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL => $this->daIconService->getIconDaReapproPonctuel(),
             DemandeAppro::TYPE_DA_PARENT           => ''
         ];
 

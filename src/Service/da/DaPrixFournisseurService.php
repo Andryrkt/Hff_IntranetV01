@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Controller\Traits\da;
+namespace App\Service\da;
 
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
 
-trait PrixFournisseurTrait
+class DaPrixFournisseurService
 {
     /**
      * Gérer la liste des fournisseurs et prix correspondant à partir des DAL avec clé unique (cst_ref_designation_qteDem)
@@ -14,7 +14,7 @@ trait PrixFournisseurTrait
      * 
      * @return array le tableau de fournisseurs avec prix
      */
-    private function gererPrixFournisseurs(iterable $dals): array
+    public function gererPrixFournisseurs(iterable $dals): array
     {
         $fournisseurs = [];
         foreach ($dals as $dal) {
@@ -55,7 +55,7 @@ trait PrixFournisseurTrait
         return $fournisseurs;
     }
 
-    private function formatPrix(string $prix): string
+    public function formatPrix(string $prix): string
     {
         if (is_numeric($prix)) return $prix == 0 ? '' : number_format((float) $prix, 2, ',', ' ');
         return '0,00'; // Retourner un montant par défaut si ce n'est pas un nombre

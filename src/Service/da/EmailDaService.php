@@ -3,7 +3,6 @@
 namespace App\Service\da;
 
 use App\Constants\da\RouteConstant;
-use App\Controller\Traits\da\PrixFournisseurTrait;
 use App\Controller\Traits\lienGenerique;
 use App\Entity\admin\utilisateur\User;
 use App\Service\Admin\UrlIdCipher;
@@ -17,12 +16,12 @@ class EmailDaService
 {
     use lienGenerique;
     use PrepareDataDAP;
-    use PrixFournisseurTrait;
     private \Twig\Environment $twig;
     private UrlGeneratorInterface $urlGenerator;
     private string $mailAppro;
     private string $emailTemplate;
     private UrlIdCipher $urlIdCipher;
+    private DaPrixFournisseurService $prixFournisseurService;
 
     public function __construct(\Twig\Environment $twig, UrlGeneratorInterface $urlGenerator)
     {
@@ -30,6 +29,7 @@ class EmailDaService
         $this->mailAppro     = ($_ENV['MAIL_TO_APPRO'] ?? '');
         $this->emailTemplate = "da/email/emailDa.html.twig";
         $this->urlIdCipher   = new UrlIdCipher();
+        $this->prixFournisseurService = new DaPrixFournisseurService();
         $this->urlGenerator  = $urlGenerator;
     }
 
@@ -158,7 +158,7 @@ class EmailDaService
     public function envoyerMailPropositionDa(DemandeAppro $demandeAppro, User $connectedUser)
     {
         $daLabel          = $this->getDaLabelForMail($demandeAppro->getDaTypeId());
-        $fournisseurs     = $this->gererPrixFournisseurs($demandeAppro->getDAL());
+        $fournisseurs     = $this->prixFournisseurService->gererPrixFournisseurs($demandeAppro->getDAL());
         $service          = "appro";
         $serviceDemandeur = $demandeAppro->getDaTypeId() === DemandeAppro::TYPE_DA_AVEC_DIT ? 'atelier' : $demandeAppro->getServiceEmetteur()->getLibelleService();
         $this->envoyerEmail([

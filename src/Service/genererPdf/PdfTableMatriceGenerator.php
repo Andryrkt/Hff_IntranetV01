@@ -3,13 +3,11 @@
 namespace App\Service\genererPdf;
 
 use TCPDF;
-use App\Controller\Traits\da\PrixFournisseurTrait;
 use App\Entity\da\DemandeApproL;
+use App\Service\da\DaPrixFournisseurService;
 
 class PdfTableMatriceGenerator
 {
-    use PrixFournisseurTrait;
-
     /**
      * @var array<string,float> pourcentage par colonne fixe
      */
@@ -33,6 +31,13 @@ class PdfTableMatriceGenerator
      * Total montant par fournisseur (uniquement pour les lignes "choix").
      */
     private array $montantTotalFournisseurs = [];
+
+    private DaPrixFournisseurService $prixFournisseurService;
+
+    public function __construct()
+    {
+        $this->prixFournisseurService = new DaPrixFournisseurService();
+    }
 
     /**
      * Calcule les largeurs de colonnes : fixes + réparties dynamiquement entre "désignation" et les colonnes fournisseurs.
@@ -79,7 +84,7 @@ class PdfTableMatriceGenerator
             $dals = iterator_to_array($dals);
         }
 
-        $fournisseurs = $this->gererPrixFournisseurs($dals);
+        $fournisseurs = $this->prixFournisseurService->gererPrixFournisseurs($dals);
         // Récupérer tous les noms de fournisseurs
         $listeFournisseurs = array_keys($fournisseurs);
 
@@ -117,7 +122,7 @@ class PdfTableMatriceGenerator
         // Ligne montant total principale
         $html .= "<tr >";
         $html .= "<th colspan=\"2\" align=\"center\" style=\"width:{$largeurMontantTotal}%;background-color: #fbbb01;\"><strong>Montant total pré-validé:</strong></th>";
-        $html .= "<th colspan=\"3\" align=\"right\" style=\"width:{$largeurTotalGlobal}%;background-color: #fbbb01;\"><strong>{$this->formatPrix(($this->totalGlobal))}</strong></th>";
+        $html .= "<th colspan=\"3\" align=\"right\" style=\"width:{$largeurTotalGlobal}%;background-color: #fbbb01;\"><strong>{$this->prixFournisseurService->formatPrix(($this->totalGlobal))}</strong></th>";
         $html .= '</tr></thead>';
 
         return  $html;
@@ -223,7 +228,7 @@ class PdfTableMatriceGenerator
             if ($prix === '' || $prix === null || $prix == 0) {
                 $contenu = "";
             } else {
-                $contenu = "PU: $prix <br>MTT: {$this->formatPrix($montant)}";
+                $contenu = "PU: $prix <br>MTT: {$this->prixFournisseurService->formatPrix($montant)}";
             }
 
             $html .= "<td align=\"right\" style=\"{$style}\">{$contenu}</td>";
@@ -246,7 +251,7 @@ class PdfTableMatriceGenerator
 
             $style = "width:{$w['fournisseur']}%;" . ($choix ? ' background-color: #fbbb01;' : '');
 
-            $html .= "<td align=\"right\" style=\"{$style}\">" . "<strong>" . $this->formatPrix($montantTotal) . "</strong></td>";
+            $html .= "<td align=\"right\" style=\"{$style}\">" . "<strong>" . $this->prixFournisseurService->formatPrix($montantTotal) . "</strong></td>";
         }
         return $html . '</tr></tfoot>';
     }

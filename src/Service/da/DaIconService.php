@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Controller\Traits\da;
+namespace App\Service\da;
 
 use Twig\Markup;
 
-trait MarkupIconTrait
+class DaIconService
 {
     /**
      * Génère un icône Font Awesome "layered" avec badge texte et retourne un Markup Twig.
@@ -19,7 +19,7 @@ trait MarkupIconTrait
      * @param string|null $secondaryOffset Transform CSS pour l’offset (ex: 'translate(0.35em,-0.35em) scale(0.55)')
      * @return Markup
      */
-    function faIconLayer(
+    public function faIconLayer(
         string $mainIcon,
         ?string $badge = null,
         ?string $mainColor = '#000',
@@ -55,27 +55,27 @@ trait MarkupIconTrait
         return new Markup($html, 'UTF-8');
     }
 
-    private function getIconDaAvecDIT(): Markup
+    public function getIconDaAvecDIT(): Markup
     {
         return $this->faIconLayer('fa-cart-shopping', 'DIT', '#1f6feb', '#ff6f61', '#cce0ff');
     }
 
-    private function getIconDaDirect(): Markup
+    public function getIconDaDirect(): Markup
     {
         return $this->faIconLayer('fa-cart-shopping', null, '#b97309',  null, '#ffe8cc',  'fa-bolt',  '#ffb703', 'translate(-30%, -85%) scale(0.7)');
     }
 
-    private function getIconDaReapproMensuel(): Markup
+    public function getIconDaReapproMensuel(): Markup
     {
         return $this->faIconLayer('fa-calendar-days', null, '#0f5132', null, '#d9f0e5', 'fa-arrows-rotate', '#20c997', 'translate(20%, -130%)');
     }
 
-    private function getIconDaReapproPonctuel(): Markup
+    public function getIconDaReapproPonctuel(): Markup
     {
         return $this->faIconLayer('fa-calendar-day', null, '#6f42c1', null, '#e8dff5', 'fa-clock', '#9d72d4', 'translate(25%, -120%)');
     }
 
-    private function getAllIcons(): array
+    public function getAllIcons(): array
     {
         return [
             [
