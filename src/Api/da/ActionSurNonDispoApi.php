@@ -1,27 +1,27 @@
 <?php
 
-namespace App\Controller\da\ListeCdeFrn;
+namespace App\Api\da;
 
-use App\Constants\admin\ApplicationConstant;
-use App\Constants\da\StatutBcConstant;
-use App\Constants\da\StatutDaConstant;
-use App\Controller\Controller;
+use Exception;
 use App\Entity\da\DaAfficher;
+use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
+use App\Service\da\EmailDaService;
+use App\Constants\da\StatutBcConstant;
+use App\Constants\da\StatutDaConstant;
 use App\Repository\da\DaAfficherRepository;
+use App\Constants\admin\ApplicationConstant;
+use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
-use App\Service\application\ApplicationService;
-use App\Service\da\EmailDaService;
-use Exception;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Service\application\ApplicationService;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
- * @Route("/api/demande-appro")
+ * @Route("/api/demande-appro/action-sur-non-dispo")
  */
 class ActionSurNonDispoApi extends Controller
 {
@@ -43,7 +43,7 @@ class ActionSurNonDispoApi extends Controller
     }
 
     /**
-     * @Route("/da-list-cde-frn/delete-articles", name="api_list_cde_frn_delete_articles", methods={"POST"})
+     * @Route("/delete-articles", name="api_demande_appro_delete_articles", methods={"POST"})
      */
     public function deleteArticles(Request $request)
     {
@@ -85,7 +85,7 @@ class ActionSurNonDispoApi extends Controller
     }
 
     /**
-     * @Route("/da-list-cde-frn/create-new-articles", name="api_list_cde_frn_create_new_articles", methods={"POST"})
+     * @Route("/create-new-articles", name="api_demande_appro_create_new_articles", methods={"POST"})
      */
     public function createNewDa(Request $request)
     {
@@ -153,34 +153,34 @@ class ActionSurNonDispoApi extends Controller
         }
     }
 
-    private function nouveauDemandeAppro(DemandeAppro $demandeAppro, string $numDa, string $statutDa): DemandeAppro
+    private function nouveauDemandeAppro(DemandeAppro $oldDemandeAppro, string $numDa, string $statutDa): DemandeAppro
     {
-        $da = new DemandeAppro;
-        $da
+        $newDemandeAppro = new DemandeAppro;
+        $newDemandeAppro
             ->setNumeroDemandeAppro($numDa)
             ->setNumeroDemandeApproMere($numDa)
-            ->setDaTypeId($demandeAppro->getDaTypeId())
-            ->setNumeroDemandeDit($demandeAppro->getNumeroDemandeDit())
-            ->setObjetDal($demandeAppro->getObjetDal() . ' (Duplicata ' . $demandeAppro->getNumeroDemandeAppro() . ')')
-            ->setDetailDal($demandeAppro->getDetailDal())
-            ->setAgenceServiceEmetteur($demandeAppro->getAgenceServiceEmetteur())
-            ->setAgenceServiceDebiteur($demandeAppro->getAgenceServiceDebiteur())
-            ->setDateFinSouhaite($demandeAppro->getDateFinSouhaite())
+            ->setDaTypeId($oldDemandeAppro->getDaTypeId())
+            ->setNumeroDemandeDit($oldDemandeAppro->getNumeroDemandeDit())
+            ->setObjetDal($oldDemandeAppro->getObjetDal() . ' (Duplicata ' . $oldDemandeAppro->getNumeroDemandeAppro() . ')')
+            ->setDetailDal($oldDemandeAppro->getDetailDal())
+            ->setAgenceServiceEmetteur($oldDemandeAppro->getAgenceServiceEmetteur())
+            ->setAgenceServiceDebiteur($oldDemandeAppro->getAgenceServiceDebiteur())
+            ->setDateFinSouhaite($oldDemandeAppro->getDateFinSouhaite())
             ->setStatutDal($statutDa)
-            ->setAgenceEmetteur($demandeAppro->getAgenceEmetteur())
-            ->setAgenceDebiteur($demandeAppro->getAgenceDebiteur())
-            ->setServiceDebiteur($demandeAppro->getServiceDebiteur())
-            ->setServiceEmetteur($demandeAppro->getServiceEmetteur())
-            ->setDemandeur($demandeAppro->getDemandeur())
-            ->setIdMateriel($demandeAppro->getIdMateriel())
-            ->setUser($demandeAppro->getUser())
-            ->setCodeSociete($demandeAppro->getCodeSociete())
-            ->setNiveauUrgence($demandeAppro->getNiveauUrgence())
+            ->setAgenceEmetteur($oldDemandeAppro->getAgenceEmetteur())
+            ->setAgenceDebiteur($oldDemandeAppro->getAgenceDebiteur())
+            ->setServiceDebiteur($oldDemandeAppro->getServiceDebiteur())
+            ->setServiceEmetteur($oldDemandeAppro->getServiceEmetteur())
+            ->setDemandeur($oldDemandeAppro->getDemandeur())
+            ->setIdMateriel($oldDemandeAppro->getIdMateriel())
+            ->setUser($oldDemandeAppro->getUser())
+            ->setCodeSociete($oldDemandeAppro->getCodeSociete())
+            ->setNiveauUrgence($oldDemandeAppro->getNiveauUrgence())
         ;
-        $this->em->persist($da);
+        $this->em->persist($newDemandeAppro);
         $this->em->flush();
 
-        if ($da->getId()) return $da;
+        if ($newDemandeAppro->getId()) return $newDemandeAppro;
         else throw new Exception("Erreur lors de la création de la Demande Appro.");
     }
 
