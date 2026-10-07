@@ -3,7 +3,9 @@
 ## Contexte
 
 27 traits (`src/Controller/Traits/da/**`) sont utilisés par ~20 contrôleurs et 6 classes hors contrôleurs. Ils portent de l'état (repositories initialisés par des `initXxxTrait()` appelés dans chaque constructeur), dupliquent beaucoup de code et dépendent de `App\Controller\Controller` (`getEntityManager`, `getUser`, `getSecurityService`, `agenceServiceIpsObjet`, `getTwig`, `getUrlGenerator`).
-`DaService` existe déjà (`em` + `FileUploaderForDAService`) mais est une migration partielle : seul `DaDetailReapproController` l'utilise.
+`DaService` existe déjà (`em` + `FileUploaderForDAService`) mais est une migration partielle : seul `DaDetailReapproController` l'utilise. `DaAfficherService` (`em`) existe aussi, **mais aucun contrôleur ni trait ne l'utilise encore** : il est écrit, pas branché.
+
+**Mise à jour (état du code au 2026-10-07, vs plan initial `9309cbf64`)** : aucun trait n'a été migré ni supprimé (27 traits toujours présents, mêmes consommateurs). Seuls changements : `DaAffectationAchatController` utilise maintenant aussi `DaNewAchatTrait` (nouveau bouton « passer la DA au demandeur » : `traitementTransmissionDA` appelle `insertionObservation` et `ajouterDaDansTableAffichageParent`) et définit sa propre `getButtonName` ; `ActionSurNonDispoController` a été déplacé vers `src/Api/da/ActionSurNonDispoApi.php` (utilise `EmailDaService`, pas de trait) ; `DaAfficherMapper` et `listeDaController` ont reçu des modifications d'affichage sans lien avec les traits. Statuts ci-dessous : **FAIT** / **PARTIEL** / **À FAIRE**.
 
 **Décisions validées** : analyse seule (aucune modification de fichier) ; remplacement complet des traits ; PHP 7.4, **pas de `readonly`** ; services indépendants de `AbstractController`, dépendances injectées par constructeur (autowiring, yaml géré par l'utilisateur) ; plusieurs petits services par domaine, **composition et non héritage** ; le contrôleur lit `Request`/`Form` et passe des valeurs simples au service ; appels `$this->service->méthode()` ; user/session via `App\Service\UserData\UserDataService` ; comportement strictement préservé, bugs seulement signalés ; code mort signalé d'abord.
 
@@ -18,19 +20,19 @@
 
 | Service cible | Reprend | Dépendances constructeur (indicatif) |
 |---|---|---|
-| `DaService` (existant, allégé) | `DaTrait` : `insertionObservation`, `getJoursRestants`, `getLignesRectifieesDA`, `getDeletedLineNumbers`, `appliquerChangementStatut`, `normalizeTypographicChars` ; `DaDemandeDevisTrait::appliquerStatutDemandeDevisEnCours` | `em`, `FileUploaderForDAService` |
-| `DaAfficherService` | `DaAfficherTrait::ajouterDansTableAffichageParNumDa`, `DaNewTrait::ajouterDaDansTableAffichage`, `DaNewAchatTrait::ajouterDaDansTableAffichageParent` | `em`, `UserDataService` (remplace `getUserName`) |
-| `creation/DaCreationService` | `initialisationDemandeAppro{Achat,AvecDit,ReapproMensuel}`, `generateDemandApproLinesFromReappros` (1 seule copie), `handleAgenceEtServiceDebiteur`, `dateLivraisonPrevueDA`, `getDatePlannigOr` | `em`, `UserDataService` (user, agence/service IPS, code société), calcul jours ouvrables (voir risque 3) |
-| `DaFournisseurService` | `setAllFournisseurs` (doublon `DaNewAvecDitTrait` / `DaPropositionAvecDitTrait`), `DaModel` | `DaModel` ou `em`, `UserDataService` ; chargement paresseux |
-| `modification/DaEditionService` | `DaEditTrait` (`getAncienDAL`, `deleteDALR`, `peutModifier`) + `modificationDa`/`modificationDAL` (1 copie au lieu de 2, reçoit des valeurs, pas un `FormInterface`) | `em`, `DaService`, `FileUploaderForDAService` |
-| `detail/DaDetailService` | `prepareDataForDisplayDetail` (AvecDit/Direct fusionnés, route de suppression en paramètre) | `UrlGeneratorInterface` |
-| `validation/DaValidationService` | `DaValidationTrait` (`validerDemandeApproAvecLignes`, `mettreAJourChoixDalr`, `exporterDaEnExcelEtPdf`, helpers Excel), `DaValidationReapproTrait` (`modifierStatut`, `validerDemande`, `refuserDemande`) | `em`, `UserDataService`, `DaService`, `DaAfficherService`, `ExcelService` |
-| `validation/DaSoumissionValidationService` | `ajouterDansDaSoumisAValidation` (3 versions → 1), `creationPDF{AvecDit,Direct,Reappro}`, `fusionAndCopyToDW`, `copyPDFToDW`, conversion Ghostscript | `em`, générateurs PDF (`GenererPdfDa*`), `TraitementDeFichier` |
-| `affectation/DaAffectationService` | `DaAffectationTrait` | `em`, `UserDataService`, `DaService`, `DaAfficherService`, `DaSoumissionValidationService` |
-| `DaListeDitService` | `DaListeDitTrait::data`, `criteriaIsObjectEmpty`, `ajoutNumSerieNumParc` ; la lecture du formulaire/session reste dans le contrôleur | `em`, `DitModel`, `SessionService` |
-| `DaIconService` | `MarkupIconTrait` (sans état, sans dépendance) | aucune |
-| `DaPrixFournisseurService` | `PrixFournisseurTrait` (`gererPrixFournisseurs`, `formatPrix`) pour `EmailDaService` et `PdfTableMatriceGenerator` | aucune |
-| `reappro/ReportingIpsService` | `ReportingIpsTrait::getData` | `ReportingIpsModel`, `RollingMonthsService` |
+| `DaService` (existant, allégé) — **PARTIEL** : `getJoursRestants`, `insertionObservation` (avec `$username`), `getLignesRectifiees`, `appliquerChangementStatut` y sont déjà ; reste `normalizeTypographicChars` et `appliquerStatutDemandeDevisEnCours`, et aucun contrôleur ne l'appelle encore (sauf `DaDetailReapproController`) | `DaTrait` : `insertionObservation`, `getJoursRestants`, `getLignesRectifieesDA`, `appliquerChangementStatut`, `normalizeTypographicChars` ; `DaDemandeDevisTrait::appliquerStatutDemandeDevisEnCours` | `em`, `FileUploaderForDAService` |
+| `DaAfficherService` — **PARTIEL** (service écrit mais jamais utilisé) : contient déjà `getDeletedLineNumbers` (copie de `DaTrait`), `generateDaAfficherOnCreationDa` (= `DaNewTrait::ajouterDaDansTableAffichage`) et `generateDaAfficherOnCreationDaParent` (= `DaNewAchatTrait::ajouterDaDansTableAffichageParent`) ; **reste** `DaAfficherTrait::ajouterDansTableAffichageParNumDa`, et la dépendance `UserDataService` (remplace `getUserName`) ; puis brancher les contrôleurs. Appelant ajouté : `DaAffectationAchatController::traitementTransmissionDA` | `DaAfficherTrait::ajouterDansTableAffichageParNumDa`, `DaNewTrait::ajouterDaDansTableAffichage`, `DaNewAchatTrait::ajouterDaDansTableAffichageParent` | `em`, `UserDataService` (remplace `getUserName`) |
+| `creation/DaCreationService` — **À FAIRE** | `initialisationDemandeAppro{Achat,AvecDit,ReapproMensuel}`, `generateDemandApproLinesFromReappros` (1 seule copie), `handleAgenceEtServiceDebiteur`, `dateLivraisonPrevueDA`, `getDatePlannigOr` | `em`, `UserDataService` (user, agence/service IPS, code société), calcul jours ouvrables (voir risque 3) |
+| `DaFournisseurService` — **À FAIRE** | `setAllFournisseurs` (doublon `DaNewAvecDitTrait` / `DaPropositionAvecDitTrait`), `DaModel` | `DaModel` ou `em`, `UserDataService` ; chargement paresseux |
+| `modification/DaEditionService` — **À FAIRE** | `DaEditTrait` (`getAncienDAL`, `deleteDALR`, `peutModifier`) + `modificationDa`/`modificationDAL` (1 copie au lieu de 2, reçoit des valeurs, pas un `FormInterface`) | `em`, `DaService`, `FileUploaderForDAService` |
+| `detail/DaDetailService` — **À FAIRE** | `prepareDataForDisplayDetail` (AvecDit/Direct fusionnés, route de suppression en paramètre) | `UrlGeneratorInterface` |
+| `validation/DaValidationService` — **À FAIRE** | `DaValidationTrait` (`validerDemandeApproAvecLignes`, `mettreAJourChoixDalr`, `exporterDaEnExcelEtPdf`, helpers Excel), `DaValidationReapproTrait` (`modifierStatut`, `validerDemande`, `refuserDemande`) | `em`, `UserDataService`, `DaService`, `DaAfficherService`, `ExcelService` |
+| `validation/DaSoumissionValidationService` — **À FAIRE** | `ajouterDansDaSoumisAValidation` (3 versions → 1), `creationPDF{AvecDit,Direct,Reappro}`, `fusionAndCopyToDW`, `copyPDFToDW`, conversion Ghostscript | `em`, générateurs PDF (`GenererPdfDa*`), `TraitementDeFichier` |
+| `affectation/DaAffectationService` — **À FAIRE** | `DaAffectationTrait` | `em`, `UserDataService`, `DaService`, `DaAfficherService`, `DaSoumissionValidationService` |
+| `DaListeDitService` — **À FAIRE** | `DaListeDitTrait::data`, `criteriaIsObjectEmpty`, `ajoutNumSerieNumParc` ; la lecture du formulaire/session reste dans le contrôleur | `em`, `DitModel`, `SessionService` |
+| `DaIconService` — **À FAIRE** | `MarkupIconTrait` (sans état, sans dépendance) | aucune |
+| `DaPrixFournisseurService` — **À FAIRE** | `PrixFournisseurTrait` (`gererPrixFournisseurs`, `formatPrix`) pour `EmailDaService` et `PdfTableMatriceGenerator` | aucune |
+| `reappro/ReportingIpsService` — **À FAIRE** | `ReportingIpsTrait::getData` | `ReportingIpsModel`, `RollingMonthsService` |
 
 Les traits « fantômes » (`DaPropositionTrait` vide, `DaNewDirectTrait`, `DaNewReapproPonctuelTrait`) n'ont pas de service : ils sont supprimés (voir code mort).
 
@@ -40,7 +42,8 @@ Aujourd'hui : `em`, `FileUploaderForDAService` injectés ; 4 repositories + `Fil
 - `FileUploaderForDAService` : utilisé par `insertionObservation` seulement. Indispensable tant que cette méthode reste là ; sinon à déplacer avec elle.
 - `FileCheckerService` : utilisé par `getAllDdpPath` seulement → à injecter dans le service qui porte les chemins de documents, pas dans `DaService`.
 - `getDemandeAppro` / `getObservations` / `getDevisPjPath*` : usages différents (lecture vs documents rattachés). Les méthodes `getBaIntranetPath`, `getDevisPjPathDaLine`, `getDevisPjPathObservation`, `getOrPath`, `getAllDdpPath` sont appelées **dynamiquement** (`$service->$method(...)` dans `DocRattacheService`), donc ne pas les renommer/déplacer sans adapter `DocRattacheService` ; candidates à un `DaDocumentService` dans une phase ultérieure.
-- `getJoursRestants`, `getLignesRectifiees`, `appliquerChangementStatut` : jamais appelées sur le service aujourd'hui, mais deviennent nécessaires dès migration de `DaTrait`.
+- `getJoursRestants`, `getLignesRectifiees`, `appliquerChangementStatut` : **FAIT côté service** (présentes dans `DaService`), mais jamais appelées ; à brancher lors de la migration de `DaTrait`. `getDeletedLineNumbers` n'est plus à prévoir dans `DaService` : elle est dans `DaAfficherService`.
+- `insertionObservation` du service prend un `$username` explicite, contrairement au trait (`getUserName()` implicite) : le contrôleur (ex. `DaAffectationAchatController`) doit le fournir via `UserDataService`.
 
 ## Code mort à signaler (suppression après accord)
 
@@ -67,14 +70,14 @@ Aujourd'hui : `em`, `FileUploaderForDAService` injectés ; 4 repositories + `Fil
 
 ## Doublons à fusionner pendant la migration
 
-`getButtonName` (5 copies → 1 helper côté contrôleur) ; `generateDemandApproLinesFromReappros` (2) ; `modificationDa`/`modificationDAL` (2) ; `prepareDataForDisplayDetail` (2) ; `ajouterDansDaSoumisAValidation` (3) ; `exporter{AvecDit,Direct}EnExcelEtPdf` (même corps, callback différent) ; `setAllFournisseurs` (2) ; `modifierStatut` vs `appliquerChangementStatut` ; la déclaration de `daObservationRepository` dans 5 traits ; `ConvertirLesPdf`/`convertPdfWithGhostscript` (~20 classes, hors périmètre sauf celles de `Traits/da`).
+`getButtonName` (6 copies : `DaNewAchatTrait`, `DaNewAvecDitTrait`, `DaNewDirectTrait`, `DaNewReapproMensuelTrait`, `DaNewReapproPonctuelTrait` + nouvelle copie publique dans `DaAffectationAchatController` → 1 helper côté contrôleur) ; `generateDemandApproLinesFromReappros` (2) ; `DaTrait::getDeletedLineNumbers` / `insertionObservation` / `ajouterDaDansTableAffichage*` déjà dupliqués dans `DaAfficherService` et `DaService` (supprimer côté trait à la migration) ; `modificationDa`/`modificationDAL` (2) ; `prepareDataForDisplayDetail` (2) ; `ajouterDansDaSoumisAValidation` (3) ; `exporter{AvecDit,Direct}EnExcelEtPdf` (même corps, callback différent) ; `setAllFournisseurs` (2) ; `modifierStatut` vs `appliquerChangementStatut` ; la déclaration de `daObservationRepository` dans 5 traits ; `ConvertirLesPdf`/`convertPdfWithGhostscript` (~20 classes, hors périmètre sauf celles de `Traits/da`).
 
 ## Ordre de migration recommandé (quand vous passerez à l'implémentation)
 
-0. Lire `UserDataService`, `SecurityService`, `SessionService`, `Controller.php` (`agenceServiceIpsObjet`, `getUserName`) pour confirmer ce qui remplace `getUser`/session/agence.
-1. Supprimer le code mort listé (après votre accord) : risque nul.
-2. Services sans dépendance : `DaIconService`, `DaPrixFournisseurService` (consommateurs : `DaAfficherMapper`, `EmailDaService`, `PdfTableMatriceGenerator`) → valide le câblage yaml.
-3. `DaService` (déjà là) étendu avec `DaTrait`, puis `DaAfficherService` (utilisé par ~10 contrôleurs).
+0. **À FAIRE** — Lire `UserDataService`, `SecurityService`, `SessionService`, `Controller.php` (`agenceServiceIpsObjet`, `getUserName`) pour confirmer ce qui remplace `getUser`/session/agence.
+1. **À FAIRE** — Supprimer le code mort listé (après votre accord) : risque nul.
+2. **À FAIRE** — Services sans dépendance : `DaIconService`, `DaPrixFournisseurService` (consommateurs : `DaAfficherMapper`, `EmailDaService`, `PdfTableMatriceGenerator`) → valide le câblage yaml.
+3. `DaService` (déjà là, **PARTIEL**) étendu avec `DaTrait`, puis `DaAfficherService` (**PARTIEL** : compléter avec `ajouterDansTableAffichageParNumDa`, puis brancher ~10 contrôleurs ; aujourd'hui aucun ne l'utilise).
 4. Par domaine, un contrôleur à la fois : création → édition → détail → validation/soumission → proposition → affectation → liste DIT → reappro.
 5. Supprimer chaque trait dès que plus personne ne l'utilise ; fin : `grep "Traits\\\\da"` ne doit rien renvoyer.
 
