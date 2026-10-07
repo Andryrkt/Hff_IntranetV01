@@ -3,25 +3,17 @@
 namespace App\Controller\Traits\da\detail;
 
 use App\Constants\da\StatutDaConstant;
+use App\Controller\Traits\da\DaTrait;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
-use App\Entity\dw\DwBcAppro;
-use App\Entity\dw\DwDaDirect;
-use App\Entity\dw\DwFacBl;
 use App\Repository\da\DaObservationRepository;
-use App\Repository\dw\DwBcApproRepository;
-use App\Repository\dw\DwDaDirectRepository;
-use App\Repository\dw\DwFactureBonLivraisonRepository;
 
 trait DaDetailDirectTrait
 {
-    use DaDetailTrait;
+    use DaTrait;
 
     //==================================================================================================
-    private DwBcApproRepository $dwBcApproRepository;
-    private DwDaDirectRepository $dwDaDirectRepository;
     private DaObservationRepository $daObservationRepository;
-    private DwFactureBonLivraisonRepository $dwFacBlRepository;
 
     /**
      * Initialise les valeurs par défaut du trait
@@ -30,9 +22,6 @@ trait DaDetailDirectTrait
     {
         $em = $this->getEntityManager();
         $this->initDaTrait();
-        $this->dwFacBlRepository       = $em->getRepository(DwFacBl::class);
-        $this->dwBcApproRepository     = $em->getRepository(DwBcAppro::class);
-        $this->dwDaDirectRepository    = $em->getRepository(DwDaDirect::class);
         $this->daObservationRepository = $em->getRepository(DaObservation::class);
     }
     //==================================================================================================

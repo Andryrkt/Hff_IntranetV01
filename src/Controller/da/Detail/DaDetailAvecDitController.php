@@ -8,7 +8,6 @@ use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Form\da\DaObservationType;
-use App\Controller\Traits\lienGenerique;
 use App\Controller\Traits\da\DaAfficherTrait;
 use App\Controller\Traits\da\detail\DaDetailAvecDitTrait;
 use App\Model\da\DaAfficherModel;
@@ -25,7 +24,6 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException;
  */
 class DaDetailAvecDitController extends Controller
 {
-	use lienGenerique;
 	use DaAfficherTrait;
 	use DaDetailAvecDitTrait;
 

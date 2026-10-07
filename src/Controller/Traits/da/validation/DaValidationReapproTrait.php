@@ -18,7 +18,6 @@ trait DaValidationReapproTrait
     private GenererPdfDaReappro $genererPdfDaReappro;
     private DaObservationRepository $daObservationRepository;
     private DaSoumisAValidationRepository $daSoumisAValidationRepository;
-    private string $cheminDeBase;
 
     //==================================================================================================
     /**
@@ -31,7 +30,6 @@ trait DaValidationReapproTrait
         $this->genererPdfDaReappro = new GenererPdfDaReappro();
         $this->daObservationRepository = $em->getRepository(DaObservation::class);
         $this->daSoumisAValidationRepository = $em->getRepository(DaSoumisAValidation::class);
-        $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/da/';
     }
     //==================================================================================================
 

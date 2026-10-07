@@ -8,19 +8,6 @@ use App\Model\da\reappro\ReportingIpsModel;
 trait ReportingIpsTrait
 {
 
-    private function calculQteEtMontantTotals(array $reportingIps): array
-    {
-        $result = [
-            'qte_totale' => 0,
-            'montant_total' => 0
-        ];
-        foreach ($reportingIps as $item) {
-            $result['qte_totale'] += $item['qte_demande'];
-            $result['montant_total'] += $item['montant'];
-        }
-        return $result;
-    }
-
     private function getData(array $criterias, string $codeSociete): array
     {
         $reportingIpsModel = new ReportingIpsModel();

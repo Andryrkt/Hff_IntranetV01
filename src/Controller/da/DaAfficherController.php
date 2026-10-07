@@ -5,8 +5,6 @@ namespace App\Controller\da;
 use App\Constants\da\StatutOrConstant;
 use App\Controller\Controller;
 use App\Controller\Traits\da\DaAfficherTrait;
-use App\Controller\Traits\da\DaTrait;
-use App\Entity\dit\DitOrsSoumisAValidation;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -14,7 +12,6 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DaAfficherController extends Controller
 {
-    use DaTrait;
     use DaAfficherTrait;
 
     public function __construct()

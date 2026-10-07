@@ -3,9 +3,7 @@
 namespace App\Controller\Traits\da\proposition;
 
 use App\Model\da\DaModel;
-use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Repository\da\DaObservationRepository;
-use App\Repository\dit\DitOrsSoumisAValidationRepository;
 
 trait DaPropositionAvecDitTrait
 {
@@ -14,7 +12,6 @@ trait DaPropositionAvecDitTrait
     //==================================================================================================
     private DaModel $daModel;
     private DaObservationRepository $daObservationRepository;
-    private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
     private $fournisseurs;
 
     /**
@@ -25,7 +22,6 @@ trait DaPropositionAvecDitTrait
         $em = $this->getEntityManager();
         $this->initDaTrait();
         $this->daModel = new DaModel();
-        $this->ditOrsSoumisAValidationRepository = $em->getRepository(DitOrsSoumisAValidation::class);
         $this->setAllFournisseurs();
     }
     //==================================================================================================

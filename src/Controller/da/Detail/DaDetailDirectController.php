@@ -5,7 +5,6 @@ namespace App\Controller\da\Detail;
 use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
 use App\Controller\Traits\da\DaAfficherTrait;
-use App\Controller\Traits\lienGenerique;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeAppro;
 use App\Form\da\DaObservationType;
@@ -23,7 +22,6 @@ use App\Service\da\DaTimelineService;
  */
 class DaDetailDirectController extends Controller
 {
-	use lienGenerique;
 	use DaAfficherTrait;
 	use DaDetailDirectTrait;
 

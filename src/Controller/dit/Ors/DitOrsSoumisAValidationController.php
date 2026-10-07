@@ -7,7 +7,6 @@ ini_set('post_max_size', '5M');
 
 use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
-use App\Controller\Traits\da\DaTrait;
 use App\Controller\Traits\dit\DitOrSoumisAValidationTrait;
 use App\Controller\Traits\FormatageTrait;
 use App\Entity\admin\StatutDemande;
@@ -43,7 +42,6 @@ class DitOrsSoumisAValidationController extends Controller
 {
     use FormatageTrait;
     use DitOrSoumisAValidationTrait;
-    use DaTrait;
 
     private MagasinListeOrLivrerModel $magasinListOrLivrerModel;
     private HistoriqueOperationService $historiqueOperation;

@@ -76,7 +76,7 @@ Aujourd'hui : `em`, `FileUploaderForDAService` injectés ; 4 repositories + `Fil
 ## Ordre de migration recommandé (quand vous passerez à l'implémentation)
 
 0. **À FAIRE** — Lire `UserDataService`, `SecurityService`, `SessionService`, `Controller.php` (`agenceServiceIpsObjet`, `getUserName`) pour confirmer ce qui remplace `getUser`/session/agence.
-1. **À FAIRE** — Supprimer le code mort listé (après votre accord) : risque nul.
+1. **FAIT (2026-10-07, non commité)** — Code mort supprimé : `DaNewDirectTrait`, `DaNewReapproPonctuelTrait`, `DaDetailTrait` (les traits de détail font `use DaTrait` directement), repos/modèles inutilisés des traits de détail et de `DaPropositionAvecDitTrait`, `DaListeDitTrait::agenceServiceEmetteur`/`Option`, `ReportingIpsTrait::calculQteEtMontantTotals`, `initDaDemandeDevisTrait`, `cheminDeBase` de `DaValidationReapproTrait`, `use` inutiles (`MarkupIconTrait` ×2, `DaTrait` ×2, `lienGenerique` ×2). Restent : `DaPropositionTrait` (wrapper utilisé), `DaService::getLignesRectifiees` (sans appelant mais à brancher à l'étape 3).
 2. **À FAIRE** — Services sans dépendance : `DaIconService`, `DaPrixFournisseurService` (consommateurs : `DaAfficherMapper`, `EmailDaService`, `PdfTableMatriceGenerator`) → valide le câblage yaml.
 3. `DaService` (déjà là, **PARTIEL**) étendu avec `DaTrait`, puis `DaAfficherService` (**PARTIEL** : compléter avec `ajouterDansTableAffichageParNumDa`, puis brancher ~10 contrôleurs ; aujourd'hui aucun ne l'utilise).
 4. Par domaine, un contrôleur à la fois : création → édition → détail → validation/soumission → proposition → affectation → liste DIT → reappro.

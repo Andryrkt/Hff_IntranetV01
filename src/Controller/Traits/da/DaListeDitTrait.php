@@ -80,43 +80,6 @@ trait DaListeDitTrait
     }
 
     /**
-     * Methode pour recupérer l'agence et service de l'utilisateur connecter
-     *
-     * @param array $agenceServiceIps
-     * @param boolean $autoriser
-     * @return array
-     */
-    private function agenceServiceEmetteur(array $agenceServiceIps, bool $autoriser): array
-    {
-
-        //initialisation agence et service
-        if ($autoriser) {
-            $agence = null;
-            $service = null;
-        } else {
-            $agence = $agenceServiceIps['agenceIps'];
-            $service = $agenceServiceIps['serviceIps'];
-        }
-
-        return [
-            'agence' => $agence,
-            'service' => $service
-        ];
-    }
-
-    private function Option(bool $autoriser, bool $autorisationRoleEnergie, array $agenceServiceEmetteur, array $agenceIds, array $serviceIds): array
-    {
-        return  [
-            'boolean' => $autoriser,
-            'autorisationRoleEnergie' => $autorisationRoleEnergie,
-            'codeAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence']->getId(),
-            'agenceAutoriserIds' => $agenceIds,
-            'serviceAutoriserIds' => $serviceIds
-        ];
-    }
-
-
-    /**
      * Methode pour recupérer tous les données à afficher
      *
      * @return array

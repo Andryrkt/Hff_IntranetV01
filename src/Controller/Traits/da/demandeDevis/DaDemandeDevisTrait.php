@@ -12,11 +12,6 @@ trait DaDemandeDevisTrait
 {
     use DaTrait;
 
-    public function initDaDemandeDevisTrait()
-    {
-        $this->initDaTrait();
-    }
-
     public function appliquerStatutDemandeDevisEnCours(DemandeAppro $demandeAppro, string $username)
     {
         $demandeAppro

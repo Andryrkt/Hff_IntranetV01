@@ -5,7 +5,6 @@ namespace App\Form\da;
 use App\Constants\da\StatutBcConstant;
 use App\Constants\da\StatutDaConstant;
 use App\Constants\da\StatutOrConstant;
-use App\Controller\Traits\da\MarkupIconTrait;
 use App\Entity\admin\Agence;
 use App\Entity\admin\dit\WorNiveauUrgence;
 use App\Entity\admin\Service;
@@ -30,7 +29,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class DaSearchType extends AbstractType
 {
     use PrepareAgenceServiceTrait;
-    use MarkupIconTrait;
 
     private $agenceRepository;
     private $em;

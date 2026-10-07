@@ -8,7 +8,6 @@ use App\Entity\da\DaAfficher;
 use App\Entity\da\DaSoumissionBc;
 use App\Entity\ddp\DemandePaiement;
 use App\Repository\da\DaAfficherRepository;
-use App\Controller\Traits\da\MarkupIconTrait;
 use App\Factory\da\CdeFrnDto\CdeFrnSearchDto;
 use App\Form\da\daCdeFrn\CdeFrnListType;
 use App\Form\da\daCdeFrn\DaDdpType;
@@ -26,7 +25,6 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DaListCdeFrnController extends Controller
 {
-    use MarkupIconTrait;
 
     private DaAfficherRepository $daAfficherRepository;
     private DaSoumissionBcRepository $daSoumissionBcRepository;

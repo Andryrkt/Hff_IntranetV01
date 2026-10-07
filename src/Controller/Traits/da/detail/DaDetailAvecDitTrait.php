@@ -3,27 +3,17 @@
 namespace App\Controller\Traits\da\detail;
 
 use App\Constants\da\StatutDaConstant;
+use App\Controller\Traits\da\DaTrait;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
-use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Entity\dw\DwBcAppro;
-use App\Entity\dw\DwFacBl;
-use App\Model\dw\dossierInterventionAtelierModel;
 use App\Repository\da\DaObservationRepository;
-use App\Repository\dit\DitOrsSoumisAValidationRepository;
-use App\Repository\dw\DwBcApproRepository;
-use App\Repository\dw\DwFactureBonLivraisonRepository;
 
 trait DaDetailAvecDitTrait
 {
-    use DaDetailTrait;
+    use DaTrait;
 
     //==================================================================================================
-    private DwBcApproRepository $dwBcApproRepository;
     private DaObservationRepository $daObservationRepository;
-    private DwFactureBonLivraisonRepository $dwFacBlRepository;
-    private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
-    private dossierInterventionAtelierModel $dossierInterventionAtelierModel;
 
     /**
      * Initialise les valeurs par défaut du trait
@@ -32,11 +22,7 @@ trait DaDetailAvecDitTrait
     {
         $em = $this->getEntityManager();
         $this->initDaTrait();
-        $this->dwFacBlRepository = $em->getRepository(DwFacBl::class);
-        $this->dwBcApproRepository = $em->getRepository(DwBcAppro::class);
         $this->daObservationRepository = $em->getRepository(DaObservation::class);
-        $this->ditOrsSoumisAValidationRepository = $em->getRepository(DitOrsSoumisAValidation::class);
-        $this->dossierInterventionAtelierModel = new dossierInterventionAtelierModel;
     }
     //==================================================================================================
     /** 
