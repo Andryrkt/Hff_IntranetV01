@@ -94,6 +94,12 @@ services:
       $docRattacheService: '@App\Service\da\DocRattacheService'
     public: true
 
+  App\Controller\da\Affectation\DaAffectationAchatController:
+    arguments:
+      $daService: '@App\Service\da\DaService'
+      $daAfficherService: '@App\Service\da\DaAfficherService'
+    public: true
+
   # Api DA
   App\Api\da\DaAfficherApi:
     arguments:
