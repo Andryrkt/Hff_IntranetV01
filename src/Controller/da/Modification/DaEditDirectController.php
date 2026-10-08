@@ -8,28 +8,30 @@ use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
 use App\Form\da\DemandeApproDirectFormType;
-use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use App\Controller\Traits\da\modification\DaEditDirectTrait;
 use App\Service\Admin\UrlIdCipher;
+use App\Service\da\DaService;
+use App\Service\da\DaAfficherService;
 
 /**
  * @Route("/demande-appro")
  */
 class DaEditDirectController extends Controller
 {
-    use DaAfficherTrait;
     use DaEditDirectTrait;
     private UrlIdCipher $urlIdCipher;
+    private DaService $daService;
+    private DaAfficherService $daAfficherService;
 
-    public function __construct()
+    public function __construct(DaService $daService, DaAfficherService $daAfficherService)
     {
-        parent::__construct();
-
         $this->initDaEditDirectTrait();
         $this->urlIdCipher = new UrlIdCipher;
+        $this->daService = $daService;
+        $this->daAfficherService = $daAfficherService;
     }
 
     /**
@@ -87,7 +89,7 @@ class DaEditDirectController extends Controller
             }
 
             $this->getEntityManager()->flush(); // enregistrer le modifications avant l'appel à la méthode "ajouterDansTableAffichageParNumDa"
-            $this->ajouterDansTableAffichageParNumDa($numDa); // ajout dans la table DaAfficher si le statut a changé
+            $this->daAfficherService->ajouterDansTableAffichageParNumDa($numDa); // ajout dans la table DaAfficher si le statut a changé
 
             $notifType = "success";
             $notifMessage = "Réussite de l'opération: la ligne de DA a été supprimée avec succès.";
@@ -110,11 +112,11 @@ class DaEditDirectController extends Controller
 
             $this->modificationDa($demandeAppro, $form->get('DAL'), StatutDaConstant::STATUT_SOUMIS_APPRO);
             if ($demandeAppro->getObservation() !== null) {
-                $this->insertionObservation($numDa, $demandeAppro->getObservation());
+                $this->daService->insertionObservation($numDa, $demandeAppro->getObservation(), $this->getUserName());
             }
 
             // ajout des données dans la table DaAfficher
-            $this->ajouterDansTableAffichageParNumDa($numDa);
+            $this->daAfficherService->ajouterDansTableAffichageParNumDa($numDa);
 
             $this->emailDaService->envoyerMailModificationDa($demandeAppro, $this->getUser(), $ancienDals);
 
