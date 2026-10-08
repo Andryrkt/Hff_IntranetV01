@@ -6,13 +6,15 @@ use App\Constants\admin\ApplicationConstant;
 use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
+use App\Model\da\DaModel;
 use App\Entity\da\DemandeApproL;
 use App\Entity\dit\DemandeIntervention;
 use App\Form\da\DemandeApproFormType;
 use App\Service\application\ApplicationService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\da\creation\DaNewAvecDitTrait;
+use App\Controller\Traits\da\DaTrait;
+use App\Service\da\DaCreationService;
 use App\Service\da\DaAfficherService;
 use App\Service\da\DaFournisseurService;
 use App\Service\da\DaService;
@@ -23,7 +25,7 @@ use App\Service\da\FileUploaderForDAService;
  */
 class DaNewAvecDitController extends Controller
 {
-    use DaNewAvecDitTrait;
+    use DaTrait;
     const STATUT_DAL = [
         'enregistrerBrouillon' => StatutDaConstant::STATUT_EN_COURS_CREATION,
         'soumissionAppro'      => StatutDaConstant::STATUT_SOUMIS_APPRO,
@@ -31,15 +33,19 @@ class DaNewAvecDitController extends Controller
 
     private DaService $daService;
     private DaAfficherService $daAfficherService;
+    private DaCreationService $daCreationService;
     private DaFournisseurService $daFournisseurService;
+    private DaModel $daModel;
 
-    public function __construct(DaService $daService, DaAfficherService $daAfficherService, DaFournisseurService $daFournisseurService)
+    public function __construct(DaService $daService, DaAfficherService $daAfficherService, DaFournisseurService $daFournisseurService, DaCreationService $daCreationService, DaModel $daModel)
     {
         $this->daService         = $daService;
         $this->daAfficherService = $daAfficherService;
         $this->daFournisseurService = $daFournisseurService;
+        $this->daCreationService = $daCreationService;
+        $this->daModel = $daModel;
 
-        $this->initDaNewAvecDitTrait();
+        $this->initDaTrait();
     }
 
     /**
@@ -53,13 +59,13 @@ class DaNewAvecDitController extends Controller
         /** 
          * @var DemandeIntervention $dit DIT correspondant à l'id $ditId
          */
-        $dit = $this->ditRepository->find($ditId);
+        $dit = $this->getEntityManager()->getRepository(DemandeIntervention::class)->find($ditId);
 
-        $demandeAppro = $daId === 0 ? $this->initialisationDemandeApproAvecDit($dit) : $this->demandeApproRepository->find($daId);
+        $demandeAppro = $daId === 0 ? $this->daCreationService->initialisationDemandeApproAvecDit($dit) : $this->demandeApproRepository->find($daId);
         $demandeAppro
             ->setDit($dit)
             ->setCodeSociete($codeSociete)
-            ->setDateFinSouhaite($this->dateLivraisonPrevueDA($dit->getNumeroDemandeIntervention(), $dit->getIdNiveauUrgence()->getDescription()))
+            ->setDateFinSouhaite($this->daCreationService->dateLivraisonPrevueDA($dit->getNumeroDemandeIntervention(), $dit->getIdNiveauUrgence()->getDescription()))
         ;
 
         $form = $this->getFormFactory()->createBuilder(DemandeApproFormType::class, $demandeAppro)->getForm();
@@ -165,5 +171,14 @@ class DaNewAvecDitController extends Controller
                 $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
             }
         }
+    }
+
+    /** Nom du bouton cliqué : enregistrerBrouillon, soumissionAppro ou chaine vide */
+    private function getButtonName(Request $request): string
+    {
+        foreach (['enregistrerBrouillon', 'soumissionAppro'] as $button) {
+            if ($request->request->has($button)) return $button;
+        }
+        return '';
     }
 }

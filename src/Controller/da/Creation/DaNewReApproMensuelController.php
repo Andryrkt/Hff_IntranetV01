@@ -5,7 +5,8 @@ namespace App\Controller\da\Creation;
 use App\Constants\da\StatutDaConstant;
 use App\Constants\admin\ApplicationConstant;
 use App\Controller\Controller;
-use App\Controller\Traits\da\creation\DaNewReapproMensuelTrait;
+use App\Controller\Traits\da\DaTrait;
+use App\Service\da\DaCreationService;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Form\da\DemandeApproReapproMensuelFormType;
@@ -20,17 +21,19 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DaNewReApproMensuelController extends Controller
 {
-    use DaNewReapproMensuelTrait;
+    use DaTrait;
 
     private DaService $daService;
     private DaAfficherService $daAfficherService;
+    private DaCreationService $daCreationService;
 
-    public function __construct(DaService $daService, DaAfficherService $daAfficherService)
+    public function __construct(DaService $daService, DaAfficherService $daAfficherService, DaCreationService $daCreationService)
     {
         $this->daService         = $daService;
         $this->daAfficherService = $daAfficherService;
+        $this->daCreationService = $daCreationService;
 
-        $this->initDaNewReapproMensuelTrait();
+        $this->initDaTrait();
     }
 
     /**
@@ -41,8 +44,8 @@ class DaNewReApproMensuelController extends Controller
         // Code Société de l'utilisateur
         $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
-        $demandeAppro     = $id === 0 ? $this->initialisationDemandeApproReapproMensuel($codeSociete) : $this->demandeApproRepository->find($id);
-        $this->generateDemandApproLinesFromReappros($demandeAppro);
+        $demandeAppro     = $id === 0 ? $this->daCreationService->initialisationDemandeApproReapproMensuel($codeSociete) : $this->demandeApproRepository->find($id);
+        $this->daCreationService->generateDemandApproLinesFromReappros($demandeAppro);
 
         $form = $this->getFormFactory()->createBuilder(DemandeApproReapproMensuelFormType::class, $demandeAppro, [
             'em' => $this->getEntityManager()
@@ -126,5 +129,14 @@ class DaNewReApproMensuelController extends Controller
                 $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
             }
         }
+    }
+
+    /** Nom du bouton cliqué : enregistrerBrouillon, soumissionAppro ou chaine vide */
+    private function getButtonName(Request $request): string
+    {
+        foreach (['enregistrerBrouillon', 'soumissionAppro'] as $button) {
+            if ($request->request->has($button)) return $button;
+        }
+        return '';
     }
 }

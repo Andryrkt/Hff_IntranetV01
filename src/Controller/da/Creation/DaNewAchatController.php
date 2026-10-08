@@ -5,7 +5,8 @@ namespace App\Controller\da\Creation;
 use App\Constants\admin\ApplicationConstant;
 use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
-use App\Controller\Traits\da\creation\DaNewAchatTrait;
+use App\Controller\Traits\da\DaTrait;
+use App\Service\da\DaCreationService;
 use App\Entity\da\DemandeApproParent;
 use App\Entity\da\DemandeApproParentLine;
 use App\Form\da\DemandeApproAchatFormType;
@@ -20,7 +21,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /** @Route("/demande-appro") */
 class DaNewAchatController extends Controller
 {
-    use DaNewAchatTrait;
+    use DaTrait;
     const STATUT_DAL = [
         'enregistrerBrouillon' => StatutDaConstant::STATUT_EN_COURS_CREATION,
         'soumissionAppro'      => StatutDaConstant::STATUT_SOUMIS_APPRO,
@@ -28,13 +29,15 @@ class DaNewAchatController extends Controller
 
     private DaService $daService;
     private DaAfficherService $daAfficherService;
+    private DaCreationService $daCreationService;
 
-    public function __construct(DaService $daService, DaAfficherService $daAfficherService)
+    public function __construct(DaService $daService, DaAfficherService $daAfficherService, DaCreationService $daCreationService)
     {
         $this->daService         = $daService;
         $this->daAfficherService = $daAfficherService;
+        $this->daCreationService = $daCreationService;
 
-        $this->initDaNewAchatTrait();
+        $this->initDaTrait();
     }
 
     /**
@@ -46,7 +49,7 @@ class DaNewAchatController extends Controller
         $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
         if ($id === 0) {
-            $demandeApproParent = $this->initialisationDemandeApproAchat($codeSociete);
+            $demandeApproParent = $this->daCreationService->initialisationDemandeApproAchat($codeSociete);
         } else {
             $demandeApproParentRepository = $this->getEntityManager()->getRepository(DemandeApproParent::class);
             $demandeApproParent = $demandeApproParentRepository->find($id);
@@ -169,5 +172,14 @@ class DaNewAchatController extends Controller
         $detail = preg_replace('/\n{3,}/', "\n\n", trim($detail));
 
         $demandeApproParent->setDetailDal($detail);
+    }
+
+    /** Nom du bouton cliqué : enregistrerBrouillon, soumissionAppro ou chaine vide */
+    private function getButtonName(Request $request): string
+    {
+        foreach (['enregistrerBrouillon', 'soumissionAppro'] as $button) {
+            if ($request->request->has($button)) return $button;
+        }
+        return '';
     }
 }
