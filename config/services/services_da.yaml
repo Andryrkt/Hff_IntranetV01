@@ -25,6 +25,11 @@ services:
       $userDataService: "@userData.service"
     public: true
 
+  App\Service\da\DaDetailService:
+    arguments:
+      $urlGenerator: '@router'
+    public: true
+
   App\Service\da\DwDataService:
     arguments:
       $em: "@doctrine.orm.default_entity_manager"
@@ -76,6 +81,7 @@ services:
 
   App\Controller\da\Detail\DaDetailAvecDitController:
     arguments:
+      $daDetailService: '@App\Service\da\DaDetailService'
       $docRattacheService: '@App\Service\da\DocRattacheService'
       $daTimelineService: '@App\Service\da\DaTimelineService'
       $daService: '@App\Service\da\DaService'
@@ -84,6 +90,7 @@ services:
 
   App\Controller\da\Detail\DaDetailDirectController:
     arguments:
+      $daDetailService: '@App\Service\da\DaDetailService'
       $docRattacheService: '@App\Service\da\DocRattacheService'
       $daTimelineService: '@App\Service\da\DaTimelineService'
       $daService: '@App\Service\da\DaService'
