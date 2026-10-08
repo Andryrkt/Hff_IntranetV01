@@ -70,8 +70,8 @@ class DaSoumissionCalculService
         }
         // si le fournisseur est assujéti  à la TVA ==> montant HT < Montant TTC 
         if ($dto->estFournisseurAssujetiTva) {
-            $MontantFactureEnCours *= 1.2;
-            $TotalMontantFactureSoumise *= 1.2;
+            $MontantFactureEnCours = $this->daSoumissionFacBlModel->getMontantFactureSoumiseAvecTva($dto->numeroCde, $dto->codeSociete);
+            $TotalMontantFactureSoumise *= 1.2; // Montant TTC des factures déjà soumises
         }
 
 
@@ -100,6 +100,7 @@ class DaSoumissionCalculService
             // si pas de demande de paiement à l'avance : ne pas appliquer le solde avance
             // echo "tsy misy demande de paiement à l'avance";
             $totalMontantPayer = $MontantFactureEnCours;
+            // si le fournisseur n'est pas assujéti à la TVA, le montant cde HT = montant cde TTC
             if ($totalCommandeTTC > 0)  $ratio = ($totalMontantPayer / $totalCommandeTTC) * 100;
         }
 
