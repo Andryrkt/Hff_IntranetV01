@@ -128,6 +128,7 @@ class DaSoumissionFacBlFactory
         $dto->sommeMontantDdpaValider = $this->em->getRepository(DemandePaiement::class)->getSommeMontantDdpaValide($dto->numeroCde, $dto->codeSociete) ?? 0.0;
         $dto->soldeAvance = max(0.0, $dto->sommeMontantDdpaValider - $dto->sommeMontantFactureDejaPayer);
         // dd($dto->sommeMontantFactureDejaPayer, $dto->sommeMontantDdpaValider, $dto->soldeAvance, $dto->montantAregulariser, $dto->soumissionDdpAFaire);
+        $dto->estFournisseurAssujetiTva = $dto->totalMontantCommande < $dto->totalMontantCommandeTTC;
 
         $this->calculService->calculerMontantEtRatios($dto);
 
