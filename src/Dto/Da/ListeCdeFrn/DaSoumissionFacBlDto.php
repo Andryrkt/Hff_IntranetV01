@@ -82,6 +82,8 @@ class DaSoumissionFacBlDto
     public ?string $devise = null;
     public float $totalMontantDdpValid = 0.0;
 
+    public bool $estFournisseurAssujetiTva = false;
+
     public function montantAPayer(): float
     {
         return (float)str_replace(',', '.', str_replace('.', '', $this->montantAPayer));

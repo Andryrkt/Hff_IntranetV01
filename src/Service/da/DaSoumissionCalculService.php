@@ -69,7 +69,7 @@ class DaSoumissionCalculService
             $MontantFactureEnCours *= 0.95;
         }
         // si le fournisseur est assujéti  à la TVA ==> montant HT < Montant TTC 
-        if ($totalCommande < $totalCommandeTTC) {
+        if ($dto->estFournisseurAssujetiTva) {
             $MontantFactureEnCours *= 1.2;
             $TotalMontantFactureSoumise *= 1.2;
         }
@@ -106,7 +106,7 @@ class DaSoumissionCalculService
         $dto->ratioMontantARegul = round($ratio, 2); // ratio du montant à régulariser par rapport au montant total de la commande
         $dto->ratioMontantDejaPaye = $ratioDejaPayer; // ratio du montant déjà payé par rapport au montant total de la commande
         $dto->totalMontantPayer = $TotalMontantFactureSoumise; // montant total à payer (somme du montant de la facture en cours et des montants des factures déjà soumises)
-        $dto->montantAregulariser = $totalCommande < $totalCommandeTTC ? round($totalMontantPayer / 1.2, 2) : round($totalMontantPayer, 2); // montant à régulariser (différence entre le montant total à payer et le montant déjà payé)
+        $dto->montantAregulariser = $dto->estFournisseurAssujetiTva ? round($totalMontantPayer / 1.2, 2) : round($totalMontantPayer, 2); // montant à régulariser (différence entre le montant total à payer et le montant déjà payé)
 
 
 

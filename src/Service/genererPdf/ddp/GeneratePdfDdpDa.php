@@ -460,18 +460,6 @@ class GeneratePdfDdpDa extends GeneratePdf
         });
     }
 
-    private function renderHistoriqueDdp(TCPDF $pdf, array $historiqueDdp, string $devise)
-    {
-        $this->renderInfoSection($pdf, 'RECAPITULATIF DES DEMANDES DE PAIEMENT', '', function () use ($pdf, $historiqueDdp, $devise) {
-            if (empty($historiqueDdp)) {
-                $pdf->Cell(0, 5, "Aucune demande de paiement", 0, 1);
-            } else {
-                $tableGenerator = new PdfTableHistoriqueDdpBAP();
-                $pdf->writeHTML($tableGenerator->generateTable($historiqueDdp, $devise));
-            }
-        });
-    }
-
 
     private function getUsableWidth(TCPDF $pdf)
     {
