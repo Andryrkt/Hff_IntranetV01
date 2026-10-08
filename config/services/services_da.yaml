@@ -25,6 +25,13 @@ services:
       $userDataService: "@userData.service"
     public: true
 
+  App\Service\da\DaEditionService:
+    arguments:
+      $em: "@doctrine.orm.default_entity_manager"
+      $daService: '@App\Service\da\DaService'
+      $daFileUploader: '@App\Service\da\FileUploaderForDAService'
+    public: true
+
   App\Service\da\DaDetailService:
     arguments:
       $urlGenerator: '@router'
@@ -144,12 +151,14 @@ services:
 
   App\Controller\da\Modification\DaEditDirectController:
     arguments:
+      $daEditionService: '@App\Service\da\DaEditionService'
       $daService: '@App\Service\da\DaService'
       $daAfficherService: '@App\Service\da\DaAfficherService'
     public: true
 
   App\Controller\da\Modification\DaEditAvecDitController:
     arguments:
+      $daEditionService: '@App\Service\da\DaEditionService'
       $daService: '@App\Service\da\DaService'
       $daAfficherService: '@App\Service\da\DaAfficherService'
     public: true
