@@ -25,6 +25,12 @@ services:
       $userDataService: "@userData.service"
     public: true
 
+  App\Service\da\DaCreationService:
+    arguments:
+      $em: "@doctrine.orm.default_entity_manager"
+      $userDataService: "@userData.service"
+    public: true
+
   App\Service\da\DaEditionService:
     arguments:
       $em: "@doctrine.orm.default_entity_manager"
@@ -132,18 +138,22 @@ services:
 
   App\Controller\da\Creation\DaNewAchatController:
     arguments:
+      $daCreationService: '@App\Service\da\DaCreationService'
       $daService: '@App\Service\da\DaService'
       $daAfficherService: '@App\Service\da\DaAfficherService'
     public: true
 
   App\Controller\da\Creation\DaNewReApproMensuelController:
     arguments:
+      $daCreationService: '@App\Service\da\DaCreationService'
       $daService: '@App\Service\da\DaService'
       $daAfficherService: '@App\Service\da\DaAfficherService'
     public: true
 
   App\Controller\da\Creation\DaNewAvecDitController:
     arguments:
+      $daCreationService: '@App\Service\da\DaCreationService'
+      $daModel: '@App\Model\da\DaModel'
       $daFournisseurService: '@App\Service\da\DaFournisseurService'
       $daService: '@App\Service\da\DaService'
       $daAfficherService: '@App\Service\da\DaAfficherService'
