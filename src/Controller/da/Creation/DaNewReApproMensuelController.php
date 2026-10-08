@@ -11,6 +11,8 @@ use App\Entity\da\DemandeApproL;
 use App\Form\da\DemandeApproReapproMensuelFormType;
 use Symfony\Component\HttpFoundation\Request;
 use App\Service\application\ApplicationService;
+use App\Service\da\DaAfficherService;
+use App\Service\da\DaService;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -20,9 +22,14 @@ class DaNewReApproMensuelController extends Controller
 {
     use DaNewReapproMensuelTrait;
 
-    public function __construct()
+    private DaService $daService;
+    private DaAfficherService $daAfficherService;
+
+    public function __construct(DaService $daService, DaAfficherService $daAfficherService)
     {
-        parent::__construct();
+        $this->daService         = $daService;
+        $this->daAfficherService = $daAfficherService;
+
         $this->initDaNewReapproMensuelTrait();
     }
 
@@ -87,7 +94,7 @@ class DaNewReApproMensuelController extends Controller
                             ->setNumeroDemandeAppro($numDa)
                             ->setDemandeAppro($demandeAppro)
                             ->setDateFinSouhaite($demandeAppro->getDateFinSouhaite())
-                            ->setJoursDispo($this->getJoursRestants($dal))
+                            ->setJoursDispo($this->daService->getJoursRestants($dal))
                             ->setStatutDal($statutDa);
                         $this->getEntityManager()->persist($dal);
                     } else {
@@ -108,10 +115,10 @@ class DaNewReApproMensuelController extends Controller
                 $this->getEntityManager()->flush();
 
                 /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
-                if ($demandeAppro->getObservation()) $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $demandeAppro->getObservation());
+                if ($demandeAppro->getObservation()) $this->daService->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $demandeAppro->getObservation(), $this->getUserName());
 
                 // ajout des données dans la table DaAfficher
-                $this->ajouterDaDansTableAffichage($demandeAppro, $firstCreation);
+                $this->daAfficherService->generateDaAfficherOnCreationDa($demandeAppro, $firstCreation);
 
                 if ($clickedButtonName === "soumissionAppro") $this->emailDaService->envoyerMailCreationDa($demandeAppro, $this->getUser());
 
