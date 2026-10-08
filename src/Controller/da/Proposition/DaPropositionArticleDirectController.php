@@ -17,7 +17,6 @@ use App\Service\Admin\UrlIdCipher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
-use App\Controller\Traits\da\detail\DaDetailDirectTrait;
 use App\Service\da\FileUploaderForDAService;
 use App\Controller\Traits\da\validation\DaValidationDirectTrait;
 use App\Controller\Traits\da\proposition\DaPropositionDirectTrait;
@@ -31,7 +30,6 @@ class DaPropositionArticleDirectController extends Controller
 {
     use DaValidationDirectTrait;
     use DaPropositionDirectTrait;
-    use DaDetailDirectTrait;
     private const EDIT = 0;
     private DocRattacheService $docRattacheService;
     private UrlIdCipher $urlIdCipher;
@@ -47,7 +45,6 @@ class DaPropositionArticleDirectController extends Controller
 
         $this->initDaPropositionDirectTrait();
         $this->initDaValidationDirectTrait();
-        $this->initDaDetailDirectTrait();
     }
 
     /**
@@ -79,7 +76,7 @@ class DaPropositionArticleDirectController extends Controller
         $this->traitementFormulaire($form, $formObservation, $dals, $request, $numDa, $da); //
         // ===============================================================//
 
-        $observations = $this->daObservationRepository->findBy(['numDa' => $numDa], ['dateCreation' => 'ASC']);
+        $observations = $this->daService->getObservations($numDa);
 
         $fichiers = $this->docRattacheService->getAllAttachedFiles($da);
 

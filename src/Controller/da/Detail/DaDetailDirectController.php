@@ -12,9 +12,10 @@ use App\Service\Admin\UrlIdCipher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
-use App\Controller\Traits\da\detail\DaDetailDirectTrait;
+use App\Controller\Traits\da\DaTrait;
 use App\Model\da\DaAfficherModel;
 use App\Service\da\DaTimelineService;
+use App\Service\da\DaDetailService;
 use App\Service\da\DaService;
 use App\Service\da\DaAfficherService;
 
@@ -23,17 +24,19 @@ use App\Service\da\DaAfficherService;
  */
 class DaDetailDirectController extends Controller
 {
-	use DaDetailDirectTrait;
+	use DaTrait;
 
 	private DocRattacheService $docRattacheService;
 	private DaTimelineService $daTimelineService;
 	private DaService $daService;
 	private DaAfficherService $daAfficherService;
+	private DaDetailService $daDetailService;
 	private UrlIdCipher $urlIdCipher;
 
-	public function __construct(DocRattacheService $docRattacheService, DaTimelineService $daTimelineService, DaService $daService, DaAfficherService $daAfficherService)
+	public function __construct(DocRattacheService $docRattacheService, DaTimelineService $daTimelineService, DaService $daService, DaAfficherService $daAfficherService, DaDetailService $daDetailService)
 	{
-		$this->initDaDetailDirectTrait();
+		$this->initDaTrait();
+		$this->daDetailService = $daDetailService;
 		$this->docRattacheService = $docRattacheService;
 		$this->daTimelineService = $daTimelineService;
 		$this->daService = $daService;
@@ -58,12 +61,12 @@ class DaDetailDirectController extends Controller
 
 		$this->traitementFormulaire($formObservation, $request, $demandeAppro);
 
-		$observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()], ['dateCreation' => 'ASC']);
+		$observations = $this->daService->getObservations($demandeAppro->getNumeroDemandeAppro());
 
 		$statutEtAction = (new DaAfficherModel)->getStatutEtActionAffichage($demandeAppro->getNumeroDemandeAppro(), "{$demandeAppro->getAgenceServiceEmetteur()} — {$demandeAppro->getDemandeur()}");
 		$statutDa = $statutEtAction['statutDa'] ?? "";
 
-		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL(), $statutDa);
+		$demandeApproLPrepared = $this->daDetailService->prepareDataForDisplayDetail($demandeAppro->getDAL(), $statutDa, 'da_delete_line_direct');
 
 		$fichiers = $this->docRattacheService->getAllAttachedFiles($demandeAppro);
 		$timeLineData = $this->daTimelineService->getTimelineData($demandeAppro);

@@ -11,7 +11,6 @@ use App\Entity\da\DemandeApproLR;
 use App\Form\da\DaObservationType;
 use App\Entity\da\DemandeApproLRCollection;
 use App\Form\da\DaPropositionValidationType;
-use App\Controller\Traits\da\detail\DaDetailAvecDitTrait;
 use App\Form\da\DemandeApproLRCollectionType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -32,7 +31,6 @@ class DaPropositionRefAvecDitController extends Controller
 {
     use DaValidationAvecDitTrait;
     use DaPropositionAvecDitTrait;
-    use DaDetailAvecDitTrait;
 
     private const EDIT = 0;
     private DocRattacheService $docRattacheService;
@@ -51,7 +49,6 @@ class DaPropositionRefAvecDitController extends Controller
 
         $this->initDaPropositionAvecDitTrait();
         $this->initDaValidationAvecDitTrait();
-        $this->initDaDetailAvecDitTrait();
     }
 
     /**
@@ -83,7 +80,7 @@ class DaPropositionRefAvecDitController extends Controller
         $this->traitementFormulaire($form, $formObservation, $dals, $request, $numDa, $da);
         // =================================================================================//
 
-        $observations = $this->daObservationRepository->findBy(['numDa' => $numDa], ['dateCreation' => 'ASC']);
+        $observations = $this->daService->getObservations($numDa);
 
         $fichiers = $this->docRattacheService->getAllAttachedFiles($da);
 

@@ -3,7 +3,6 @@
 namespace App\Controller\Traits\da\proposition;
 
 use App\Model\da\DaModel;
-use App\Repository\da\DaObservationRepository;
 
 trait DaPropositionAvecDitTrait
 {
@@ -11,7 +10,6 @@ trait DaPropositionAvecDitTrait
 
     //==================================================================================================
     private DaModel $daModel;
-    private DaObservationRepository $daObservationRepository;
 
     /**
      * Initialise les valeurs par défaut du trait
