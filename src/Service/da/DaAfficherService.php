@@ -6,15 +6,15 @@ use App\Entity\da\DaAfficher;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
-use App\Service\UserData\UserDataService;
-use App\Repository\da\DemandeApproRepository;
-use App\Repository\da\DemandeApproLRepository;
 use App\Entity\da\DemandeApproParent;
 use App\Service\autres\VersionService;
 use App\Entity\dit\DemandeIntervention;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\da\DemandeApproParentLine;
+use App\Service\UserData\UserDataService;
 use App\Repository\da\DaAfficherRepository;
+use App\Repository\da\DemandeApproRepository;
+use App\Repository\da\DemandeApproLRepository;
 
 class DaAfficherService
 {

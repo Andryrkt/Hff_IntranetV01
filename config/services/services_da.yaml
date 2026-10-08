@@ -15,6 +15,8 @@ services:
   App\Service\da\DaAfficherService:
     arguments:
       $em: "@doctrine.orm.default_entity_manager"
+      $daService: '@App\Service\da\DaService'
+      $userDataService: "@userData.service"
     public: true
 
   App\Service\da\DwDataService:
