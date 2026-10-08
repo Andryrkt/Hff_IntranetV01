@@ -13,6 +13,8 @@ use App\Service\application\ApplicationService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\creation\DaNewAvecDitTrait;
+use App\Service\da\DaAfficherService;
+use App\Service\da\DaService;
 use App\Service\da\FileUploaderForDAService;
 
 /**
@@ -26,9 +28,14 @@ class DaNewAvecDitController extends Controller
         'soumissionAppro'      => StatutDaConstant::STATUT_SOUMIS_APPRO,
     ];
 
-    public function __construct()
+    private DaService $daService;
+    private DaAfficherService $daAfficherService;
+
+    public function __construct(DaService $daService, DaAfficherService $daAfficherService)
     {
-        parent::__construct();
+        $this->daService         = $daService;
+        $this->daAfficherService = $daAfficherService;
+
         $this->initDaNewAvecDitTrait();
     }
 
@@ -120,7 +127,7 @@ class DaNewAvecDitController extends Controller
                             ->setStatutDal(StatutDaConstant::STATUT_DAL[$clickedButtonName])
                             ->setPrixUnitaire($this->daModel->getPrixUnitaire($demandeApproL->getArtRefp())[0])
                             ->setNumeroDit($demandeAppro->getNumeroDemandeDit())
-                            ->setJoursDispo($this->getJoursRestants($demandeApproL))
+                            ->setJoursDispo($this->daService->getJoursRestants($demandeApproL))
                             ->setFileNames($allFileNames)
                         ;
 
@@ -144,10 +151,10 @@ class DaNewAvecDitController extends Controller
                 $this->getEntityManager()->flush();
 
                 /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
-                if ($demandeAppro->getObservation()) $this->insertionObservation($numDa, $demandeAppro->getObservation());
+                if ($demandeAppro->getObservation()) $this->daService->insertionObservation($numDa, $demandeAppro->getObservation(), $this->getUserName());
 
                 // ajout des données dans la table DaAfficher
-                $this->ajouterDaDansTableAffichage($demandeAppro, $firstCreation, $dit);
+                $this->daAfficherService->generateDaAfficherOnCreationDa($demandeAppro, $firstCreation, $dit);
 
                 if ($clickedButtonName === "soumissionAppro") $this->emailDaService->envoyerMailCreationDa($demandeAppro, $this->getUser());
 
