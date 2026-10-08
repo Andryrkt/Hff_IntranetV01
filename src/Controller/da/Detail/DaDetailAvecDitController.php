@@ -8,12 +8,13 @@ use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Form\da\DaObservationType;
-use App\Controller\Traits\da\DaAfficherTrait;
 use App\Controller\Traits\da\detail\DaDetailAvecDitTrait;
 use App\Model\da\DaAfficherModel;
 use App\Model\dit\DitModel;
 use App\Service\da\DaTimelineService;
 use App\Service\da\DocRattacheService;
+use App\Service\da\DaService;
+use App\Service\da\DaAfficherService;
 use App\Service\Admin\UrlIdCipher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -24,20 +25,21 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException;
  */
 class DaDetailAvecDitController extends Controller
 {
-	use DaAfficherTrait;
 	use DaDetailAvecDitTrait;
 
 	private DocRattacheService $docRattacheService;
 	private DaTimelineService $daTimelineService;
+	private DaService $daService;
+	private DaAfficherService $daAfficherService;
 	private UrlIdCipher $urlIdCipher;
 
-	public function __construct(DocRattacheService $docRattacheService, DaTimelineService $daTimelineService)
+	public function __construct(DocRattacheService $docRattacheService, DaTimelineService $daTimelineService, DaService $daService, DaAfficherService $daAfficherService)
 	{
-		parent::__construct();
-
 		$this->initDaDetailAvecDitTrait();
 		$this->docRattacheService = $docRattacheService;
 		$this->daTimelineService = $daTimelineService;
+		$this->daService = $daService;
+		$this->daAfficherService = $daAfficherService;
 		$this->urlIdCipher = new UrlIdCipher;
 	}
 
@@ -105,12 +107,12 @@ class DaDetailAvecDitController extends Controller
 			/** @var DaObservation $daObservation daObservation correspondant au donnée du form */
 			$daObservation = $form->getData();
 
-			$this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $daObservation->getFileNames());
+			$this->daService->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $this->getUserName(), $daObservation->getFileNames());
 
 			if ($this->estAppro() && $daObservation->getStatutChange()) {
-				$this->appliquerChangementStatut($demandeAppro, StatutDaConstant::STATUT_AUTORISER_EMETTEUR);
+				$this->daService->appliquerChangementStatut($demandeAppro, StatutDaConstant::STATUT_AUTORISER_EMETTEUR);
 
-				$this->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro());
+				$this->daAfficherService->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro());
 			}
 
 			$notification = [
