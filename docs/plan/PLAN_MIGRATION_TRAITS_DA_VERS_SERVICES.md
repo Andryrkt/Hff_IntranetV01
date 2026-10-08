@@ -135,7 +135,7 @@ Piège commun : `DaService::insertionObservation($numDa, $observation, **$userna
 
 | Partie | Contrôleur | Appels à basculer | Traits retirables | Parcours manuel |
 |---|---|---|---|---|
-| 3.1 | `DaAfficherController` | `ajouterDansTableAffichageParNumDa` (:32) | `DaAfficherTrait` | Ouvrir la liste/la page qui déclenche l'appel avec statut OR validé ; vérifier la nouvelle ligne `DaAfficher` (version +1, statut OR) |
+| 3.1 **FAIT (2026-10-08, non commité ; contrôleur déplacé vers `src/Api/da/`, namespace `App\Api\da`)** | `DaAfficherController` | `ajouterDansTableAffichageParNumDa` (:32) | `DaAfficherTrait` | Ouvrir la liste/la page qui déclenche l'appel avec statut OR validé ; vérifier la nouvelle ligne `DaAfficher` (version +1, statut OR) |
 | 3.2 | `DemandeDevisController` | `appliquerStatutDemandeDevisEnCours` (:38), `ajouterDansTableAffichageParNumDa` (:40) | `DaDemandeDevisTrait`, `DaAfficherTrait` | Demander un devis sur une DA ; statut DA « demande devis », `devisDemandePar` rempli, ligne `DaAfficher` créée |
 | 3.3 | `DaAffectationAchatController` | `insertionObservation` (:93), `ajouterDaDansTableAffichageParent` (:96) ; **le contrôleur garde `DaAffectationTrait`** qui appelle encore l'ancien trait | `DaNewAchatTrait` (sa `getButtonName` est propre) | Passer la DA au demandeur avec motif ; affecter une DA ; observation créée, ligne `DaAfficher` parente |
 | 3.4 | `DaNewAchatController` | `getJoursRestants` (:121), `insertionObservation` (:141), `ajouterDaDansTableAffichageParent` (:144) | garde `DaNewAchatTrait` (initialisation, etc.) | Créer une DA Achat avec observation ; `joursDispo` correct ; ligne `DaAfficher` ; caractères typographiques normalisés |
