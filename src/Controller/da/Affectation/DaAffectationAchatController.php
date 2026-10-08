@@ -2,26 +2,31 @@
 
 namespace App\Controller\da\Affectation;
 
+use App\Service\da\DaService;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Form\da\DaAffectationType;
 use App\Entity\da\DemandeApproParent;
+use App\Service\da\DaAfficherService;
 use App\Constants\da\StatutDaConstant;
 use App\Entity\da\DemandeApproParentLine;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\da\creation\DaNewAchatTrait;
 use App\Controller\Traits\da\affectation\DaAffectationTrait;
 
 /** @Route("/demande-appro") */
 class DaAffectationAchatController extends Controller
 {
-    use DaAffectationTrait, DaNewAchatTrait;
+    use DaAffectationTrait;
 
-    public function __construct()
+    private DaService $daService;
+    private DaAfficherService $daAfficherService;
+
+    public function __construct(DaService $daService, DaAfficherService $daAfficherService)
     {
-        parent::__construct();
+        $this->daService         = $daService;
+        $this->daAfficherService = $daAfficherService;
 
         $this->initDaAffectationTrait();
     }
@@ -90,10 +95,10 @@ class DaAffectationAchatController extends Controller
             $this->getEntityManager()->flush();
 
             // Ajout de l'observation dans la table da_observation 
-            $this->insertionObservation($daParent->getNumeroDemandeAppro(), $motif);
+            $this->daService->insertionObservation($daParent->getNumeroDemandeAppro(), $motif, $this->getUserName());
 
             // Ajout des données dans la table DaAfficher
-            $this->ajouterDaDansTableAffichageParent($daParent, false);
+            $this->daAfficherService->generateDaAfficherOnCreationDaParent($daParent, false);
 
             $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'La transmission de la DA a été effectuée']);
             $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
