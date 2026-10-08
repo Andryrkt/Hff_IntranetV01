@@ -19,6 +19,12 @@ services:
       $userDataService: "@userData.service"
     public: true
 
+  App\Service\da\DaFournisseurService:
+    arguments:
+      $daModel: '@App\Model\da\DaModel'
+      $userDataService: "@userData.service"
+    public: true
+
   App\Service\da\DwDataService:
     arguments:
       $em: "@doctrine.orm.default_entity_manager"
@@ -86,6 +92,7 @@ services:
 
   App\Controller\da\Proposition\DaPropositionRefAvecDitController:
     arguments:
+      $daFournisseurService: '@App\Service\da\DaFournisseurService'
       $docRattacheService: '@App\Service\da\DocRattacheService'
       $daService: '@App\Service\da\DaService'
       $daAfficherService: '@App\Service\da\DaAfficherService'
@@ -123,6 +130,7 @@ services:
 
   App\Controller\da\Creation\DaNewAvecDitController:
     arguments:
+      $daFournisseurService: '@App\Service\da\DaFournisseurService'
       $daService: '@App\Service\da\DaService'
       $daAfficherService: '@App\Service\da\DaAfficherService'
     public: true
