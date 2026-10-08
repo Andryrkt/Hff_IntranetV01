@@ -1,6 +1,7 @@
 imports:
-  - { resource: "services/services_admin.yaml" }
   - { resource: "services/services_app.yaml" }
+  # Après services_app.yaml : ses définitions explicites doivent écraser le chargement par ressource App\Service\
+  - { resource: "services/services_admin.yaml" }
   - { resource: "services/services_custom.yaml" }
   - { resource: "services/services_form.yaml" }
   - { resource: "services/services_framework.yaml" }
