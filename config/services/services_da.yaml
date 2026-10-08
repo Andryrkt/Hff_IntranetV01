@@ -87,11 +87,15 @@ services:
   App\Controller\da\Proposition\DaPropositionRefAvecDitController:
     arguments:
       $docRattacheService: '@App\Service\da\DocRattacheService'
+      $daService: '@App\Service\da\DaService'
+      $daAfficherService: '@App\Service\da\DaAfficherService'
     public: true
 
   App\Controller\da\Proposition\DaPropositionArticleDirectController:
     arguments:
       $docRattacheService: '@App\Service\da\DocRattacheService'
+      $daService: '@App\Service\da\DaService'
+      $daAfficherService: '@App\Service\da\DaAfficherService'
     public: true
 
   App\Controller\da\DossierDa\DaDossierDaController:
