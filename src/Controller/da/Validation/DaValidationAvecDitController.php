@@ -3,7 +3,7 @@
 namespace App\Controller\da\Validation;
 
 use App\Controller\Controller;
-use App\Controller\Traits\da\DaAfficherTrait;
+use App\Service\da\DaAfficherService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\validation\DaValidationAvecDitTrait;
@@ -13,14 +13,14 @@ use App\Controller\Traits\da\validation\DaValidationAvecDitTrait;
  */
 class DaValidationAvecDitController extends Controller
 {
-    use DaAfficherTrait;
     use DaValidationAvecDitTrait;
 
-    public function __construct()
-    {
-        parent::__construct();
+    private DaAfficherService $daAfficherService;
 
+    public function __construct(DaAfficherService $daAfficherService)
+    {
         $this->initDaValidationAvecDitTrait();
+        $this->daAfficherService = $daAfficherService;
     }
 
     /**
@@ -42,7 +42,7 @@ class DaValidationAvecDitController extends Controller
         /** Ajout nom fichier du bon d'achat (excel) */
         $da->setNomFichierBav($resultatExport['fileName']);
 
-        $this->ajouterDansTableAffichageParNumDa($da->getNumeroDemandeAppro(), true); // enregistrer dans la table Da Afficher
+        $this->daAfficherService->ajouterDansTableAffichageParNumDa($da->getNumeroDemandeAppro(), true); // enregistrer dans la table Da Afficher
 
         $this->emailDaService->envoyerMailValidationDa($da, $this->getUser(), $resultatExport);
 
