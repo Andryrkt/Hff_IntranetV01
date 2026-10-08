@@ -22,6 +22,7 @@ use App\Controller\Traits\da\proposition\DaPropositionAvecDitTrait;
 use App\Service\da\DocRattacheService;
 use App\Service\Admin\UrlIdCipher;
 use App\Service\da\DaAfficherService;
+use App\Service\da\DaFournisseurService;
 use App\Service\da\DaService;
 
 /**
@@ -38,12 +39,14 @@ class DaPropositionRefAvecDitController extends Controller
     private UrlIdCipher $urlIdCipher;
     private DaService $daService;
     private DaAfficherService $daAfficherService;
+    private DaFournisseurService $daFournisseurService;
 
-    public function __construct(DocRattacheService $docRattacheService, DaService $daService, DaAfficherService $daAfficherService)
+    public function __construct(DocRattacheService $docRattacheService, DaService $daService, DaAfficherService $daAfficherService, DaFournisseurService $daFournisseurService)
     {
         $this->docRattacheService = $docRattacheService;
         $this->daService = $daService;
         $this->daAfficherService = $daAfficherService;
+        $this->daFournisseurService = $daFournisseurService;
         $this->urlIdCipher = new UrlIdCipher;
 
         $this->initDaPropositionAvecDitTrait();
@@ -626,7 +629,7 @@ class DaPropositionRefAvecDitController extends Controller
                 ->setJoursDispo($DAL->getJoursDispo())
             ;
             if ($demandeApproLR->getNumeroFournisseur() == 0) {
-                $demandeApproLR->setNumeroFournisseur($this->fournisseurs[$demandeApproLR->getNomFournisseur()] ?? 0); // définir le numéro du fournisseur
+                $demandeApproLR->setNumeroFournisseur($this->daFournisseurService->getNumeroFournisseur($demandeApproLR->getNomFournisseur())); // définir le numéro du fournisseur
             }
 
             if ($file) {

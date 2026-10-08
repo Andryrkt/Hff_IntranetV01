@@ -25,7 +25,6 @@ trait DaNewAvecDitTrait
     private DaModel $daModel;
     private DitRepository $ditRepository;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
-    private $fournisseurs;
 
     /**
      * Initialise les valeurs par défaut du trait
@@ -37,7 +36,6 @@ trait DaNewAvecDitTrait
         $this->ditRepository = $em->getRepository(DemandeIntervention::class);
         $this->ditOrsSoumisAValidationRepository = $em->getRepository(DitOrsSoumisAValidation::class);
         $this->daModel = new DaModel();
-        $this->setAllFournisseurs();
     }
     //=====================================================================================
 
@@ -131,16 +129,6 @@ trait DaNewAvecDitTrait
         }
     }
 
-    /** 
-     * Fonctions pour définir les fournisseurs dans le propriété $fournisseur
-     */
-    private function setAllFournisseurs()
-    {
-        // Code Société de l'utilisateur
-        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
-        $fournisseurs = $this->daModel->getAllFournisseur($codeSociete);
-        $this->fournisseurs = array_column($fournisseurs, 'numerofournisseur', 'nomfournisseur');
-    }
 
     /**
      * Définit la date de fin souhaitée automatiquement à 3 jours ouvrables à partir d'aujourd'hui.

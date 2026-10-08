@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\creation\DaNewAvecDitTrait;
 use App\Service\da\DaAfficherService;
+use App\Service\da\DaFournisseurService;
 use App\Service\da\DaService;
 use App\Service\da\FileUploaderForDAService;
 
@@ -30,11 +31,13 @@ class DaNewAvecDitController extends Controller
 
     private DaService $daService;
     private DaAfficherService $daAfficherService;
+    private DaFournisseurService $daFournisseurService;
 
-    public function __construct(DaService $daService, DaAfficherService $daAfficherService)
+    public function __construct(DaService $daService, DaAfficherService $daAfficherService, DaFournisseurService $daFournisseurService)
     {
         $this->daService         = $daService;
         $this->daAfficherService = $daAfficherService;
+        $this->daFournisseurService = $daFournisseurService;
 
         $this->initDaNewAvecDitTrait();
     }
@@ -132,7 +135,7 @@ class DaNewAvecDitController extends Controller
                         ;
 
                         if ($demandeApproL->getNumeroFournisseur() == 0) {
-                            $demandeApproL->setNumeroFournisseur($this->fournisseurs[$demandeApproL->getNomFournisseur()] ?? 0); // définir le numéro du fournisseur
+                            $demandeApproL->setNumeroFournisseur($this->daFournisseurService->getNumeroFournisseur($demandeApproL->getNomFournisseur())); // définir le numéro du fournisseur
                         }
 
                         $this->getEntityManager()->persist($demandeApproL);
