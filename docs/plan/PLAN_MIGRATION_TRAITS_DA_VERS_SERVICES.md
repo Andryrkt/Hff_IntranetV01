@@ -150,6 +150,25 @@ Piège commun : `DaService::insertionObservation($numDa, $observation, **$userna
 
 Points à vérifier avant 3.3, 3.11–3.13 : `DaAffectationTrait:92,102` et `DaValidationReapproTrait:102,108` continuent d'appeler `$this->insertionObservation` / `ajouterDansTableAffichageParNumDa` ; `DaTrait`/`DaAfficherTrait` doivent rester disponibles pour ces contrôleurs jusqu'à l'étape 4.
 
+## Étape 4 : découpage (un domaine par partie ; mêmes règles que l'étape 3)
+
+Ajouté le 2026-10-08 : jusqu'ici l'étape 4 n'était qu'une ligne dans « Ordre de migration ». Les parties 4.1 et 4.2 sont déjà faites et reportées ici ; la suite est une proposition à valider.
+
+| Partie | Domaine / service | Traits visés | Statut |
+|---|---|---|---|
+| 4.1 | `DaFournisseurService` | `setAllFournisseurs` de `DaNewAvecDitTrait` et `DaPropositionAvecDitTrait` | **FAIT (2026-10-08, non commité)** |
+| 4.2 | `DaDetailService` | `DaDetailAvecDitTrait`, `DaDetailDirectTrait` (supprimés) | **FAIT (2026-10-08, non commité)** |
+| 4.3 | Édition : `DaEditionService` | `DaEditTrait`, `DaEditAvecDitTrait`, `DaEditDirectTrait` (`modificationDa`/`modificationDAL` : 1 copie) | À FAIRE |
+| 4.4 | Création : `DaCreationService` | `DaNewTrait`, `DaNewAchatTrait`, `DaNewAvecDitTrait`, `DaNewReapproMensuelTrait` (voir risque 3 : `JoursOuvrablesTrait`) | À FAIRE |
+| 4.5 | Validation/soumission : `DaValidationService`, `DaSoumissionValidationService` | `DaValidationTrait`, `DaValidationAvecDitTrait`, `DaValidationDirectTrait`, `DaValidationReapproTrait` | À FAIRE |
+| 4.6 | Proposition | `DaPropositionAvecDitTrait`, `DaPropositionDirectTrait`, `DaPropositionTrait` | À FAIRE |
+| 4.7 | Affectation : `DaAffectationService` | `DaAffectationTrait` | À FAIRE |
+| 4.8 | Liste DIT : `DaListeDitService` | `DaListeDitTrait` | À FAIRE |
+| 4.9 | Reappro : `ReportingIpsService` | `ReportingIpsTrait` (bug 2 : export Excel cassé) | À FAIRE |
+| 4.10 | Nettoyage final | supprimer `DaTrait`, `DaAfficherTrait`, `DaPropositionTrait` ; `grep "Traits\\da" src` vide | À FAIRE |
+
+Note : `lint:container` et `debug:container` n'existent pas dans ce projet (« no commands defined ») ; la vérification se fait en ouvrant les pages concernées.
+
 ## Vérification (à définir avec vous : pas de tests automatisés)
 
 - `php bin/console lint:container` et `debug:container App\Service\da` après chaque étape (détecte les dépendances manquantes et cycles).
