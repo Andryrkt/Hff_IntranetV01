@@ -31,6 +31,25 @@ services:
       $userDataService: "@userData.service"
     public: true
 
+  App\Service\da\DaSoumissionValidationService:
+    arguments:
+      $em: "@doctrine.orm.default_entity_manager"
+      $daService: '@App\Service\da\DaService'
+      $genererPdfDaAvecDit: '@App\Service\genererPdf\da\GenererPdfDaAvecDit'
+      $genererPdfDaDirect: '@App\Service\genererPdf\da\GenererPdfDaDirect'
+      $genererPdfDaReappro: '@App\Service\genererPdf\da\GenererPdfDaReappro'
+      $traitementDeFichier: '@App\Service\fichier\TraitementDeFichier'
+    public: true
+
+  App\Service\da\DaValidationService:
+    arguments:
+      $em: "@doctrine.orm.default_entity_manager"
+      $userDataService: "@userData.service"
+      $daService: '@App\Service\da\DaService'
+      $daAfficherService: '@App\Service\da\DaAfficherService'
+      $daSoumissionValidationService: '@App\Service\da\DaSoumissionValidationService'
+    public: true
+
   App\Service\da\DaEditionService:
     arguments:
       $em: "@doctrine.orm.default_entity_manager"
@@ -88,6 +107,8 @@ services:
 
   App\Controller\da\Validation\DaValidationReapproMensuelController:
     arguments:
+      $daValidationService: '@App\Service\da\DaValidationService'
+      $daSoumissionValidationService: '@App\Service\da\DaSoumissionValidationService'
       $docRattacheService: '@App\Service\da\DocRattacheService'
       $daService: '@App\Service\da\DaService'
     public: true
@@ -112,6 +133,7 @@ services:
 
   App\Controller\da\Proposition\DaPropositionRefAvecDitController:
     arguments:
+      $daValidationService: '@App\Service\da\DaValidationService'
       $daFournisseurService: '@App\Service\da\DaFournisseurService'
       $docRattacheService: '@App\Service\da\DocRattacheService'
       $daService: '@App\Service\da\DaService'
@@ -120,6 +142,8 @@ services:
 
   App\Controller\da\Proposition\DaPropositionArticleDirectController:
     arguments:
+      $daValidationService: '@App\Service\da\DaValidationService'
+      $daSoumissionValidationService: '@App\Service\da\DaSoumissionValidationService'
       $docRattacheService: '@App\Service\da\DocRattacheService'
       $daService: '@App\Service\da\DaService'
       $daAfficherService: '@App\Service\da\DaAfficherService'
@@ -175,12 +199,26 @@ services:
 
   App\Controller\da\Validation\DaValidationAvecDitController:
     arguments:
+      $daValidationService: '@App\Service\da\DaValidationService'
       $daAfficherService: '@App\Service\da\DaAfficherService'
     public: true
 
   App\Controller\da\Validation\DaValidationDirectController:
     arguments:
+      $daValidationService: '@App\Service\da\DaValidationService'
+      $daSoumissionValidationService: '@App\Service\da\DaSoumissionValidationService'
       $daAfficherService: '@App\Service\da\DaAfficherService'
+    public: true
+
+  App\Controller\admin\generationPDF\GenerationPDFController:
+    arguments:
+      $daSoumissionValidationService: '@App\Service\da\DaSoumissionValidationService'
+    public: true
+
+  App\Controller\admin\generationPDF\GenerationPDFReapproController:
+    arguments:
+      $daService: '@App\Service\da\DaService'
+      $daSoumissionValidationService: '@App\Service\da\DaSoumissionValidationService'
     public: true
 
   # Api DA
