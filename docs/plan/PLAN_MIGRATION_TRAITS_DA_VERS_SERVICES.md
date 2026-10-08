@@ -110,7 +110,9 @@ Consommateurs de `DaIconService` / `DaPrixFournisseurService` : instanciés par 
 - **Aucun commit par Claude** : après chaque petite étape et chaque contrôleur, Claude prépare le message de commit, l'utilisateur commite. Le plan (statuts FAIT/PARTIEL) est mis à jour après chaque partie.
 - Avant chaque contrôleur : vérifier qui instancie ou étend le contrôleur (injection constructeur). Après chaque partie : `php bin/console lint:container`, `grep -r "Traits\\\\da" src`, parcours manuel de la liste de la partie. Claude liste à l'utilisateur les déclarations yaml à ajouter (yaml géré par l'utilisateur ; `DaService`/`DaAfficherService`/`UserDataService` supposés autowirables).
 
-### Partie 3.0 : préparer les services (aucun contrôleur touché)
+### Partie 3.0 : préparer les services (aucun contrôleur touché) — **FAIT (2026-10-08, non commité)**
+
+Implémenté tel que décrit ci-dessous ; `php -l` OK. Reste à faire par l'utilisateur : déclaration yaml éventuelle de `DaAfficherService` (arguments `EntityManagerInterface`, `DaService`, `UserDataService`) puis `lint:container`.
 
 `DaService`
 - Ajouter `normalizeTypographicChars` (identique au trait, à rendre `public`).
