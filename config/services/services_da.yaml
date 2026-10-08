@@ -139,6 +139,11 @@ services:
       $daAfficherService: '@App\Service\da\DaAfficherService'
     public: true
 
+  App\Controller\da\Validation\DaValidationDirectController:
+    arguments:
+      $daAfficherService: '@App\Service\da\DaAfficherService'
+    public: true
+
   # Api DA
   App\Api\da\DaAfficherApi:
     arguments:
