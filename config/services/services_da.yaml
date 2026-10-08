@@ -65,6 +65,7 @@ services:
   App\Controller\da\Validation\DaValidationReapproMensuelController:
     arguments:
       $docRattacheService: '@App\Service\da\DocRattacheService'
+      $daService: '@App\Service\da\DaService'
     public: true
 
   App\Controller\da\Detail\DaDetailAvecDitController:
