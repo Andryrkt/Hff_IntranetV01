@@ -17,7 +17,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use App\Service\da\FileUploaderForDAService;
 use App\Service\da\DaValidationService;
-use App\Controller\Traits\da\proposition\DaPropositionAvecDitTrait;
+use App\Controller\Traits\da\DaTrait;
+use App\Model\da\DaModel;
 use App\Service\da\DocRattacheService;
 use App\Service\Admin\UrlIdCipher;
 use App\Service\da\DaAfficherService;
@@ -29,7 +30,7 @@ use App\Service\da\DaService;
  */
 class DaPropositionRefAvecDitController extends Controller
 {
-    use DaPropositionAvecDitTrait;
+    use DaTrait;
 
     private const EDIT = 0;
     private DocRattacheService $docRattacheService;
@@ -38,17 +39,19 @@ class DaPropositionRefAvecDitController extends Controller
     private DaAfficherService $daAfficherService;
     private DaValidationService $daValidationService;
     private DaFournisseurService $daFournisseurService;
+    private DaModel $daModel;
 
-    public function __construct(DocRattacheService $docRattacheService, DaService $daService, DaAfficherService $daAfficherService, DaFournisseurService $daFournisseurService, DaValidationService $daValidationService)
+    public function __construct(DocRattacheService $docRattacheService, DaService $daService, DaAfficherService $daAfficherService, DaFournisseurService $daFournisseurService, DaValidationService $daValidationService, DaModel $daModel)
     {
         $this->docRattacheService = $docRattacheService;
         $this->daService = $daService;
         $this->daAfficherService = $daAfficherService;
         $this->daFournisseurService = $daFournisseurService;
         $this->daValidationService = $daValidationService;
+        $this->daModel = $daModel;
         $this->urlIdCipher = new UrlIdCipher;
 
-        $this->initDaPropositionAvecDitTrait();
+        $this->initDaTrait();
     }
 
     /**

@@ -20,7 +20,7 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use App\Service\da\FileUploaderForDAService;
 use App\Service\da\DaValidationService;
 use App\Service\da\DaSoumissionValidationService;
-use App\Controller\Traits\da\proposition\DaPropositionDirectTrait;
+use App\Controller\Traits\da\DaTrait;
 use App\Service\da\DaAfficherService;
 use App\Service\da\DaService;
 
@@ -29,7 +29,7 @@ use App\Service\da\DaService;
  */
 class DaPropositionArticleDirectController extends Controller
 {
-    use DaPropositionDirectTrait;
+    use DaTrait;
     private const EDIT = 0;
     private DocRattacheService $docRattacheService;
     private UrlIdCipher $urlIdCipher;
@@ -47,7 +47,7 @@ class DaPropositionArticleDirectController extends Controller
         $this->daSoumissionValidationService = $daSoumissionValidationService;
         $this->urlIdCipher = new UrlIdCipher;
 
-        $this->initDaPropositionDirectTrait();
+        $this->initDaTrait();
     }
 
     /**
