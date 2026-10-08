@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use App\Service\da\FileUploaderForDAService;
-use App\Controller\Traits\da\validation\DaValidationAvecDitTrait;
+use App\Service\da\DaValidationService;
 use App\Controller\Traits\da\proposition\DaPropositionAvecDitTrait;
 use App\Service\da\DocRattacheService;
 use App\Service\Admin\UrlIdCipher;
@@ -29,7 +29,6 @@ use App\Service\da\DaService;
  */
 class DaPropositionRefAvecDitController extends Controller
 {
-    use DaValidationAvecDitTrait;
     use DaPropositionAvecDitTrait;
 
     private const EDIT = 0;
@@ -37,18 +36,19 @@ class DaPropositionRefAvecDitController extends Controller
     private UrlIdCipher $urlIdCipher;
     private DaService $daService;
     private DaAfficherService $daAfficherService;
+    private DaValidationService $daValidationService;
     private DaFournisseurService $daFournisseurService;
 
-    public function __construct(DocRattacheService $docRattacheService, DaService $daService, DaAfficherService $daAfficherService, DaFournisseurService $daFournisseurService)
+    public function __construct(DocRattacheService $docRattacheService, DaService $daService, DaAfficherService $daAfficherService, DaFournisseurService $daFournisseurService, DaValidationService $daValidationService)
     {
         $this->docRattacheService = $docRattacheService;
         $this->daService = $daService;
         $this->daAfficherService = $daAfficherService;
         $this->daFournisseurService = $daFournisseurService;
+        $this->daValidationService = $daValidationService;
         $this->urlIdCipher = new UrlIdCipher;
 
         $this->initDaPropositionAvecDitTrait();
-        $this->initDaValidationAvecDitTrait();
     }
 
     /**
@@ -284,10 +284,10 @@ class DaPropositionRefAvecDitController extends Controller
     {
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
 
-        $da = $this->validerDemandeApproAvecLignes($numDa, $numeroVersionMax);
+        $da = $this->daValidationService->validerDemandeApproAvecLignes($numDa, $numeroVersionMax);
 
         /** CREATION EXCEL */
-        $nomEtChemin = $this->exporterDaAvecDitEnExcelEtPdf($numDa, $numeroVersionMax);
+        $nomEtChemin = $this->daValidationService->exporterDaAvecDitEnExcelEtPdf($numDa, $numeroVersionMax);
 
         /** Ajout nom fichier du bon d'achat (excel) */
         $da->setNomFichierBav($nomEtChemin['fileName']);

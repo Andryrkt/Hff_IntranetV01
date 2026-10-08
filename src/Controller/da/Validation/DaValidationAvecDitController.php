@@ -6,20 +6,23 @@ use App\Controller\Controller;
 use App\Service\da\DaAfficherService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\da\validation\DaValidationAvecDitTrait;
+use App\Controller\Traits\da\DaTrait;
+use App\Service\da\DaValidationService;
 
 /**
  * @Route("/demande-appro")
  */
 class DaValidationAvecDitController extends Controller
 {
-    use DaValidationAvecDitTrait;
+    use DaTrait;
 
     private DaAfficherService $daAfficherService;
+    private DaValidationService $daValidationService;
 
-    public function __construct(DaAfficherService $daAfficherService)
+    public function __construct(DaAfficherService $daAfficherService, DaValidationService $daValidationService)
     {
-        $this->initDaValidationAvecDitTrait();
+        $this->initDaTrait();
+        $this->daValidationService = $daValidationService;
         $this->daAfficherService = $daAfficherService;
     }
 
@@ -34,10 +37,10 @@ class DaValidationAvecDitController extends Controller
 
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
 
-        $da = $this->validerDemandeApproAvecLignes($numDa, $numeroVersionMax, $prixUnitaire, $refsValide);
+        $da = $this->daValidationService->validerDemandeApproAvecLignes($numDa, $numeroVersionMax, $prixUnitaire, $refsValide);
 
         /** CREATION EXCEL */
-        $resultatExport = $this->exporterDaAvecDitEnExcelEtPdf($numDa, $numeroVersionMax);
+        $resultatExport = $this->daValidationService->exporterDaAvecDitEnExcelEtPdf($numDa, $numeroVersionMax);
 
         /** Ajout nom fichier du bon d'achat (excel) */
         $da->setNomFichierBav($resultatExport['fileName']);

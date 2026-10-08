@@ -4,20 +4,26 @@ namespace App\Controller\admin\generationPDF;
 
 use App\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\da\validation\DaValidationReapproTrait;
+use App\Controller\Traits\da\DaTrait;
 use App\Service\da\DaConsumptionHistory;
-use App\Service\genererPdf\da\GenererPdfDaReappro;
+use App\Service\da\DaService;
+use App\Service\da\DaSoumissionValidationService;
 
 /** @Route(path="/admin/generation-PDF") */
 class GenerationPDFReapproController extends Controller
 {
-    use DaValidationReapproTrait;
+    use DaTrait;
 
-    public function __construct()
+    private DaService $daService;
+    private DaSoumissionValidationService $daSoumissionValidationService;
+
+    public function __construct(DaService $daService, DaSoumissionValidationService $daSoumissionValidationService)
     {
         parent::__construct();
 
-        $this->initDaValidationReapproTrait();
+        $this->initDaTrait();
+        $this->daService = $daService;
+        $this->daSoumissionValidationService = $daSoumissionValidationService;
     }
 
     /**
@@ -34,18 +40,14 @@ class GenerationPDFReapproController extends Controller
         $dateRange = $daConsumptionHistory->getLast13MonthsDateRange();
         $monthsList = $daConsumptionHistory->getMonthsList($dateRange['start'], $dateRange['end']);
         $dataHistoriqueConsommation = $daConsumptionHistory->getHistoriqueConsommation($demandeAppro, $dateRange, $monthsList);
-        $observations = $this->daObservationRepository->findBy(
-            ['numDa' => $numeroDemandeAppro],
-            ['dateCreation' => 'ASC']
-        );
+        $observations = $this->daService->getObservations($numeroDemandeAppro);
 
-        $genererPdfReappro = new GenererPdfDaReappro();
-        $genererPdfReappro->genererPdfBonAchatValide($demandeAppro, $observations, $monthsList, $dataHistoriqueConsommation);
+        $this->daSoumissionValidationService->creationPDFReappro($demandeAppro, $observations, $monthsList, $dataHistoriqueConsommation);
 
         // Dépôt du document dans DocuWare
-        $genererPdfReappro->copyToDWDaAValiderReapproPonctuel($numeroDemandeAppro, "");
+        $this->daSoumissionValidationService->copyPDFToDWReapproPonctuel($numeroDemandeAppro);
 
         // Enregistrement dans la table de Soumission
-        $this->ajouterDansDaSoumisAValidation($demandeAppro);
+        $this->daSoumissionValidationService->ajouterDansDaSoumisAValidation($demandeAppro);
     }
 }

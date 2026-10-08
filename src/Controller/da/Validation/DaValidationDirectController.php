@@ -7,7 +7,9 @@ use App\Controller\Controller;
 use App\Service\da\DaAfficherService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\da\validation\DaValidationDirectTrait;
+use App\Controller\Traits\da\DaTrait;
+use App\Service\da\DaValidationService;
+use App\Service\da\DaSoumissionValidationService;
 use App\Entity\da\DemandeAppro;
 
 /**
@@ -15,13 +17,17 @@ use App\Entity\da\DemandeAppro;
  */
 class DaValidationDirectController extends Controller
 {
-    use DaValidationDirectTrait;
+    use DaTrait;
 
     private DaAfficherService $daAfficherService;
+    private DaValidationService $daValidationService;
+    private DaSoumissionValidationService $daSoumissionValidationService;
 
-    public function __construct(DaAfficherService $daAfficherService)
+    public function __construct(DaAfficherService $daAfficherService, DaValidationService $daValidationService, DaSoumissionValidationService $daSoumissionValidationService)
     {
-        $this->initDaValidationDirectTrait();
+        $this->initDaTrait();
+        $this->daValidationService = $daValidationService;
+        $this->daSoumissionValidationService = $daSoumissionValidationService;
         $this->daAfficherService = $daAfficherService;
     }
 
@@ -36,10 +42,10 @@ class DaValidationDirectController extends Controller
 
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
 
-        $da = $this->validerDemandeApproAvecLignes($numDa, $numeroVersionMax, $prixUnitaire, $refsValide);
+        $da = $this->daValidationService->validerDemandeApproAvecLignes($numDa, $numeroVersionMax, $prixUnitaire, $refsValide);
 
         /** CREATION EXCEL ET PDF */
-        $resultatExport = $this->exporterDaDirectEnExcelEtPdf($numDa, $numeroVersionMax);
+        $resultatExport = $this->daValidationService->exporterDaDirectEnExcelEtPdf($numDa, $numeroVersionMax);
 
         /** Ajout nom fichier du bon d'achat (excel) */
         $da->setNomFichierBav($resultatExport['fileName']);
@@ -47,10 +53,10 @@ class DaValidationDirectController extends Controller
         $this->daAfficherService->ajouterDansTableAffichageParNumDa($da->getNumeroDemandeAppro(), true, StatutDaConstant::STATUT_DW_A_VALIDE); // enregistrer dans la table Da Afficher
 
         // ajout des données dans la table DaSoumisAValidation
-        $this->ajouterDansDaSoumisAValidation($da);
+        $this->daSoumissionValidationService->ajouterDansDaSoumisAValidation($da);
 
         /** envoi dans docuware */
-        $this->fusionAndCopyToDW($da->getNumeroDemandeAppro());
+        $this->daSoumissionValidationService->fusionAndCopyToDW($da->getNumeroDemandeAppro());
 
         $this->emailDaService->envoyerMailValidationDa($da, $this->getUser(), $resultatExport);
 

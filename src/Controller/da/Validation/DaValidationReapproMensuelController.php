@@ -7,10 +7,11 @@ use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Form\da\DaObservationType;
 use App\Form\da\DaObservationValidationType;
-use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\da\validation\DaValidationReapproTrait;
+use App\Controller\Traits\da\DaTrait;
+use App\Service\da\DaValidationService;
+use App\Service\da\DaSoumissionValidationService;
 use App\Service\da\DaConsumptionHistory;
 use App\Service\da\DaService;
 use App\Service\da\DocRattacheService;
@@ -22,15 +23,18 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException;
  */
 class DaValidationReapproMensuelController extends Controller
 {
-    use DaAfficherTrait;
-    use DaValidationReapproTrait;
+    use DaTrait;
     private DocRattacheService $docRattacheService;
     private UrlIdCipher $urlIdCipher;
     private DaService $daService;
+    private DaValidationService $daValidationService;
+    private DaSoumissionValidationService $daSoumissionValidationService;
 
-    public function __construct(DocRattacheService $docRattacheService, DaService $daService)
+    public function __construct(DocRattacheService $docRattacheService, DaService $daService, DaValidationService $daValidationService, DaSoumissionValidationService $daSoumissionValidationService)
     {
-        $this->initDaValidationReapproTrait();
+        $this->initDaTrait();
+        $this->daValidationService = $daValidationService;
+        $this->daSoumissionValidationService = $daSoumissionValidationService;
         $this->docRattacheService = $docRattacheService;
         $this->daService = $daService;
         $this->urlIdCipher = new UrlIdCipher;
@@ -57,7 +61,7 @@ class DaValidationReapproMensuelController extends Controller
         $monthsList = $daConsumptionHistory->getMonthsList($dateRange['start'], $dateRange['end']);
         $dataHistoriqueConsommation = $daConsumptionHistory->getHistoriqueConsommation($demandeAppro, $dateRange, $monthsList);
 
-        $observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()], ['dateCreation' => 'ASC']);
+        $observations = $this->daService->getObservations($demandeAppro->getNumeroDemandeAppro());
 
         //========================================== Traitement du formulaire en général ===================================================//
         $this->traitementFormulaire($formReappro, $formObservation, $request, $demandeAppro, $observations, $monthsList, $dataHistoriqueConsommation);
@@ -92,7 +96,7 @@ class DaValidationReapproMensuelController extends Controller
             if ($observation) $this->daService->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $observation, $this->getUserName());
 
             if ($request->request->has('refuser')) {
-                $this->refuserDemande($demandeAppro);
+                $this->daValidationService->refuserDemandeReappro($demandeAppro);
 
                 $this->emailDaService->envoyerMailValidationReappro($demandeAppro, $observation ?? '-', $this->getUser(), false);
 
@@ -101,10 +105,10 @@ class DaValidationReapproMensuelController extends Controller
                     'message' => 'La demande de réappro a été refusé avec succès.',
                 ];
             } elseif ($request->request->has('valider')) {
-                $this->validerDemande($demandeAppro);
-                $this->creationPDFReappro($demandeAppro, $observations, $monthsList, $dataHistoriqueConsommation);
-                $this->copyPDFToDW($demandeAppro->getNumeroDemandeAppro());
-                $this->ajouterDansDaSoumisAValidation($demandeAppro);
+                $this->daValidationService->validerDemandeReappro($demandeAppro);
+                $this->daSoumissionValidationService->creationPDFReappro($demandeAppro, $observations, $monthsList, $dataHistoriqueConsommation);
+                $this->daSoumissionValidationService->copyPDFToDW($demandeAppro->getNumeroDemandeAppro());
+                $this->daSoumissionValidationService->ajouterDansDaSoumisAValidation($demandeAppro);
 
                 $this->emailDaService->envoyerMailValidationReappro($demandeAppro, $observation ?? '-', $this->getUser());
 

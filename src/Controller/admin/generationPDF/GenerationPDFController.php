@@ -4,21 +4,18 @@ namespace App\Controller\admin\generationPDF;
 
 use App\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\da\validation\DaValidationDirectTrait;
-use App\Controller\Traits\da\validation\DaValidationAvecDitTrait;
+use App\Service\da\DaSoumissionValidationService;
 
 /** @Route(path="/admin/generation-PDF") */
 class GenerationPDFController extends Controller
 {
-    use DaValidationDirectTrait;
-    use DaValidationAvecDitTrait;
+    private DaSoumissionValidationService $daSoumissionValidationService;
 
-    public function __construct()
+    public function __construct(DaSoumissionValidationService $daSoumissionValidationService)
     {
         parent::__construct();
 
-        $this->initDaValidationAvecDitTrait();
-        $this->initDaValidationDirectTrait();
+        $this->daSoumissionValidationService = $daSoumissionValidationService;
     }
 
     /**
@@ -26,7 +23,7 @@ class GenerationPDFController extends Controller
      */
     public function genererPdfDa(string $numeroDemandeAppro)
     {
-        $this->creationPDFAvecDit($numeroDemandeAppro);
+        $this->daSoumissionValidationService->creationPDFAvecDit($numeroDemandeAppro);
     }
 
     /**
@@ -34,6 +31,6 @@ class GenerationPDFController extends Controller
      */
     public function genererPdfDaDirect(string $numeroDemandeAppro)
     {
-        $this->creationPDFDirect($numeroDemandeAppro);
+        $this->daSoumissionValidationService->creationPDFDirect($numeroDemandeAppro);
     }
 }

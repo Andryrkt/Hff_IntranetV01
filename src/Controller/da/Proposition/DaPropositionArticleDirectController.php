@@ -18,7 +18,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use App\Service\da\FileUploaderForDAService;
-use App\Controller\Traits\da\validation\DaValidationDirectTrait;
+use App\Service\da\DaValidationService;
+use App\Service\da\DaSoumissionValidationService;
 use App\Controller\Traits\da\proposition\DaPropositionDirectTrait;
 use App\Service\da\DaAfficherService;
 use App\Service\da\DaService;
@@ -28,23 +29,25 @@ use App\Service\da\DaService;
  */
 class DaPropositionArticleDirectController extends Controller
 {
-    use DaValidationDirectTrait;
     use DaPropositionDirectTrait;
     private const EDIT = 0;
     private DocRattacheService $docRattacheService;
     private UrlIdCipher $urlIdCipher;
     private DaService $daService;
     private DaAfficherService $daAfficherService;
+    private DaValidationService $daValidationService;
+    private DaSoumissionValidationService $daSoumissionValidationService;
 
-    public function __construct(DocRattacheService $docRattacheService, DaService $daService, DaAfficherService $daAfficherService)
+    public function __construct(DocRattacheService $docRattacheService, DaService $daService, DaAfficherService $daAfficherService, DaValidationService $daValidationService, DaSoumissionValidationService $daSoumissionValidationService)
     {
         $this->docRattacheService = $docRattacheService;
         $this->daService = $daService;
         $this->daAfficherService = $daAfficherService;
+        $this->daValidationService = $daValidationService;
+        $this->daSoumissionValidationService = $daSoumissionValidationService;
         $this->urlIdCipher = new UrlIdCipher;
 
         $this->initDaPropositionDirectTrait();
-        $this->initDaValidationDirectTrait();
     }
 
     /**
@@ -222,10 +225,10 @@ class DaPropositionArticleDirectController extends Controller
         $this->daAfficherService->ajouterDansTableAffichageParNumDa($numDa, true, StatutDaConstant::STATUT_DW_A_VALIDE); // enregistrement dans la table DaAfficher
 
         // ajout des données dans la table DaSoumisAValidation
-        $this->ajouterDansDaSoumisAValidation($da);
+        $this->daSoumissionValidationService->ajouterDansDaSoumisAValidation($da);
 
         /** envoi dans docuware */
-        $this->fusionAndCopyToDW($da->getNumeroDemandeAppro());
+        $this->daSoumissionValidationService->fusionAndCopyToDW($da->getNumeroDemandeAppro());
 
         $this->emailDaService->envoyerMailValidationDa($da, $this->getUser(), $nomEtChemin);
 
@@ -253,10 +256,10 @@ class DaPropositionArticleDirectController extends Controller
         $this->daAfficherService->ajouterDansTableAffichageParNumDa($numDa, true, StatutDaConstant::STATUT_DW_A_VALIDE);
 
         // ajout des données dans la table DaSoumisAValidation
-        $this->ajouterDansDaSoumisAValidation($da);
+        $this->daSoumissionValidationService->ajouterDansDaSoumisAValidation($da);
 
         /** envoi dans docuware */
-        $this->fusionAndCopyToDW($da->getNumeroDemandeAppro());
+        $this->daSoumissionValidationService->fusionAndCopyToDW($da->getNumeroDemandeAppro());
 
         $this->emailDaService->envoyerMailValidationDa($da, $this->getUser(), $nomEtChemin);
 
@@ -292,10 +295,10 @@ class DaPropositionArticleDirectController extends Controller
     {
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
 
-        $da = $this->validerDemandeApproAvecLignes($numDa, $numeroVersionMax);
+        $da = $this->daValidationService->validerDemandeApproAvecLignes($numDa, $numeroVersionMax);
 
         /** CREATION EXCEL */
-        $nomEtChemin = $this->exporterDaDirectEnExcelEtPdf($numDa, $numeroVersionMax);
+        $nomEtChemin = $this->daValidationService->exporterDaDirectEnExcelEtPdf($numDa, $numeroVersionMax);
 
         /** Ajout nom fichier du bon d'achat (excel) */
         $da->setNomFichierBav($nomEtChemin['fileName']);
