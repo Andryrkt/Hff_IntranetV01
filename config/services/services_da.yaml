@@ -133,6 +133,7 @@ services:
 
   App\Controller\da\Proposition\DaPropositionRefAvecDitController:
     arguments:
+      $daModel: '@App\Model\da\DaModel'
       $daValidationService: '@App\Service\da\DaValidationService'
       $daFournisseurService: '@App\Service\da\DaFournisseurService'
       $docRattacheService: '@App\Service\da\DocRattacheService'
