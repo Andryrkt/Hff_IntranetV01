@@ -2,9 +2,9 @@
 
 namespace App\Controller\da\DemandeDevis;
 
+use App\Service\da\DaService;
 use App\Controller\Controller;
-use App\Controller\Traits\da\DaAfficherTrait;
-use App\Controller\Traits\da\demandeDevis\DaDemandeDevisTrait;
+use App\Service\da\DaAfficherService;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -12,14 +12,13 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DemandeDevisController extends Controller
 {
-    use DaAfficherTrait;
-    use DaDemandeDevisTrait;
+    private DaService $daService;
+    private DaAfficherService $daAfficherService;
 
-    public function __construct()
+    public function __construct(DaService $daService, DaAfficherService $daAfficherService)
     {
-        parent::__construct();
-
-        $this->initDaTrait();
+        $this->daService         = $daService;
+        $this->daAfficherService = $daAfficherService;
     }
 
     /**
@@ -27,7 +26,7 @@ class DemandeDevisController extends Controller
      */
     public function demandeDevisEnCours(int $id)
     {
-        $demandeAppro = $this->demandeApproRepository->find($id);
+        $demandeAppro = $this->daService->getDemandeAppro($id);
 
         if (!$demandeAppro) {
             /** NOTIFICATION */
@@ -35,9 +34,9 @@ class DemandeDevisController extends Controller
             $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
         }
 
-        $this->appliquerStatutDemandeDevisEnCours($demandeAppro, $this->getUserName());
+        $this->daService->appliquerStatutDemandeDevisEnCours($demandeAppro, $this->getUserName());
 
-        $this->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro()); // enregistrer dans la table Da Afficher
+        $this->daAfficherService->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro()); // enregistrer dans la table Da Afficher
 
         /** NOTIFICATION */
         $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Le statut de la demande d’achat a été modifié avec succès.']);
