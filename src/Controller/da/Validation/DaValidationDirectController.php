@@ -4,7 +4,7 @@ namespace App\Controller\da\Validation;
 
 use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
-use App\Controller\Traits\da\DaAfficherTrait;
+use App\Service\da\DaAfficherService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\validation\DaValidationDirectTrait;
@@ -15,14 +15,14 @@ use App\Entity\da\DemandeAppro;
  */
 class DaValidationDirectController extends Controller
 {
-    use DaAfficherTrait;
     use DaValidationDirectTrait;
 
-    public function __construct()
-    {
-        parent::__construct();
+    private DaAfficherService $daAfficherService;
 
+    public function __construct(DaAfficherService $daAfficherService)
+    {
         $this->initDaValidationDirectTrait();
+        $this->daAfficherService = $daAfficherService;
     }
 
     /**
@@ -44,7 +44,7 @@ class DaValidationDirectController extends Controller
         /** Ajout nom fichier du bon d'achat (excel) */
         $da->setNomFichierBav($resultatExport['fileName']);
 
-        $this->ajouterDansTableAffichageParNumDa($da->getNumeroDemandeAppro(), true, StatutDaConstant::STATUT_DW_A_VALIDE); // enregistrer dans la table Da Afficher
+        $this->daAfficherService->ajouterDansTableAffichageParNumDa($da->getNumeroDemandeAppro(), true, StatutDaConstant::STATUT_DW_A_VALIDE); // enregistrer dans la table Da Afficher
 
         // ajout des données dans la table DaSoumisAValidation
         $this->ajouterDansDaSoumisAValidation($da);
