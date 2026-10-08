@@ -69,6 +69,11 @@ Aujourd'hui : `em`, `FileUploaderForDAService` injectés ; 4 repositories + `Fil
 13. Commentaires faux : « 3 jours » alors que le code ajoute 5 (Direct :48, Mensuel :59, Ponctuel :49 ; `DaNewAvecDitTrait:146` annonce 3 pour 5/7/10/15 jours).
 14. **Nouveau** : `DaAffectationAchatController:35-37` déréférence `find($id)` sans garde (id inconnu → erreur fatale) ; `getButtonName` y renvoie `'N\A'` (les traits renvoient `''`) et `traitementFormulaire` notifie `'type' => 'error'` alors que le reste du code utilise `'danger'`. Sa `getButtonName` publique masque celle, privée, de `DaNewAchatTrait` (pas de conflit), qui est donc morte dans ce contrôleur ; `initDaNewAchatTrait` n'y est pas appelé (sans effet, idempotent).
 
+15. **Nouveau (2026-10-08)** : `DaAfficherService::generateDaAfficherOnCreationDa` / `…Parent` ne normalisent pas `artDesi` (les traits `DaNewTrait:46`, `DaNewAchatTrait:97` le font) → divergence à corriger dans le service (3.0), sinon régression silencieuse (apostrophes/guillemets Word).
+16. **Nouveau** : signature d'`insertionObservation` différente entre trait et service (voir « Étape 3 »), et `getUser()->getNomUtilisateur()` (trait) vs `getUserName()` session (service) : risque de valeur différente.
+17. **Nouveau** : `DaService::getLignesRectifiees` (relations Doctrine, `->first()` possible `false`, pas de filtre `deleted`) ≠ `DaTrait::getLignesRectifieesDA` (requêtes, DALR indexés par numéro de ligne même sans lien DAL). Alignée sur le trait en 3.0.
+18. **Nouveau** : `DaAfficherTrait::ajouterDansTableAffichageParNumDa` fait `->getDit()` sans garde (voir 6) et `$oldDaAffichers[0]` après `!empty` : sûr uniquement si le repository renvoie un tableau indexé à partir de 0.
+
 ## Doublons à fusionner pendant la migration
 
 `getButtonName` (6 copies : `DaNewAchatTrait`, `DaNewAvecDitTrait`, `DaNewDirectTrait`, `DaNewReapproMensuelTrait`, `DaNewReapproPonctuelTrait` + nouvelle copie publique dans `DaAffectationAchatController` → 1 helper côté contrôleur) ; `generateDemandApproLinesFromReappros` (2) ; `DaTrait::getDeletedLineNumbers` / `insertionObservation` / `ajouterDaDansTableAffichage*` déjà dupliqués dans `DaAfficherService` et `DaService` (supprimer côté trait à la migration) ; `modificationDa`/`modificationDAL` (2) ; `prepareDataForDisplayDetail` (2) ; `ajouterDansDaSoumisAValidation` (3) ; `exporter{AvecDit,Direct}EnExcelEtPdf` (même corps, callback différent) ; `setAllFournisseurs` (2) ; `modifierStatut` vs `appliquerChangementStatut` ; la déclaration de `daObservationRepository` dans 5 traits ; `ConvertirLesPdf`/`convertPdfWithGhostscript` (~20 classes, hors périmètre sauf celles de `Traits/da`).
@@ -92,9 +97,56 @@ Consommateurs de `DaIconService` / `DaPrixFournisseurService` : instanciés par 
 0. **FAIT** — Lire `UserDataService`, `SecurityService`, `SessionService`, `Controller.php` (`agenceServiceIpsObjet`, `getUserName`) pour confirmer ce qui remplace `getUser`/session/agence.
 1. **FAIT (2026-10-07, non commité)** — Code mort supprimé : `DaNewDirectTrait`, `DaNewReapproPonctuelTrait`, `DaDetailTrait` (les traits de détail font `use DaTrait` directement), repos/modèles inutilisés des traits de détail et de `DaPropositionAvecDitTrait`, `DaListeDitTrait::agenceServiceEmetteur`/`Option`, `ReportingIpsTrait::calculQteEtMontantTotals`, `initDaDemandeDevisTrait`, `cheminDeBase` de `DaValidationReapproTrait`, `use` inutiles (`MarkupIconTrait` ×2, `DaTrait` ×2, `lienGenerique` ×2). Restent : `DaPropositionTrait` (wrapper utilisé), `DaService::getLignesRectifiees` (sans appelant mais à brancher à l'étape 3).
 2. **FAIT (2026-10-07, non commité)** — Services sans dépendance : `DaIconService`, `DaPrixFournisseurService` (consommateurs : `DaAfficherMapper`, `EmailDaService`, `PdfTableMatriceGenerator`) → valide le câblage yaml.
-3. `DaService` (déjà là, **PARTIEL**) étendu avec `DaTrait`, puis `DaAfficherService` (**PARTIEL** : compléter avec `ajouterDansTableAffichageParNumDa`, puis brancher ~10 contrôleurs ; aujourd'hui aucun ne l'utilise).
+3. `DaService` (déjà là, **PARTIEL**) étendu avec `DaTrait`, puis `DaAfficherService` (**PARTIEL** : compléter avec `ajouterDansTableAffichageParNumDa`, puis brancher ~10 contrôleurs ; aujourd'hui aucun ne l'utilise). **→ détaillé ci-dessous (« Étape 3 : découpage »), un contrôleur par partie.**
 4. Par domaine, un contrôleur à la fois : création → édition → détail → validation/soumission → proposition → affectation → liste DIT → reappro.
 5. Supprimer chaque trait dès que plus personne ne l'utilise ; fin : `grep "Traits\\\\da"` ne doit rien renvoyer.
+
+## Étape 3 : découpage (un contrôleur par partie, du plus simple au plus risqué)
+
+**Règles de travail validées (2026-10-08)**
+- Périmètre : uniquement ce qui relève de `DaTrait`, `DaAfficherTrait`, `DaNewTrait`, `DaNewAchatTrait` et `DaDemandeDevisTrait::appliquerStatutDemandeDevisEnCours`. Les autres traits d'un contrôleur restent jusqu'à l'étape 4 ; un contrôleur peut donc utiliser trait **et** service. Si un contrôleur n'a besoin que du trait, il n'est pas migré.
+- Les traits qui font `use DaTrait` (`DaValidationTrait`, `DaEditTrait`, `DaDetail*Trait`, `DaPropositionTrait`, `DaDemandeDevisTrait`, `DaNewTrait`, `DaAffectationTrait` via `DaAfficherTrait`…) ne sont **pas** migrés ici (étape 4). `DaTrait` et `DaAfficherTrait` ne sont supprimés que quand plus aucun consommateur.
+- Divergence trait/service : le service est aligné sur le trait ; la divergence est signalée ici et l'utilisateur tranche (par défaut : version du trait). Comportement strictement préservé, bugs signalés seulement.
+- **Aucun commit par Claude** : après chaque petite étape et chaque contrôleur, Claude prépare le message de commit, l'utilisateur commite. Le plan (statuts FAIT/PARTIEL) est mis à jour après chaque partie.
+- Avant chaque contrôleur : vérifier qui instancie ou étend le contrôleur (injection constructeur). Après chaque partie : `php bin/console lint:container`, `grep -r "Traits\\\\da" src`, parcours manuel de la liste de la partie. Claude liste à l'utilisateur les déclarations yaml à ajouter (yaml géré par l'utilisateur ; `DaService`/`DaAfficherService`/`UserDataService` supposés autowirables).
+
+### Partie 3.0 : préparer les services (aucun contrôleur touché)
+
+`DaService`
+- Ajouter `normalizeTypographicChars` (identique au trait, à rendre `public`).
+- Aligner `getLignesRectifiees` sur `DaTrait::getLignesRectifieesDA` : nouvelle signature `(string $numeroDA, int $version): array` (le service actuel prend `iterable $lignesDAL`) ; mêmes requêtes (DAL non `deleted` de la version, tous les DALR du numéro indexés par numéro de ligne si `choix`). La méthode reste sans appelant dans cette partie ; elle est appelée par `DaAfficherService` (3.0) et le sera ailleurs à l'étape 4.
+- Ajouter `appliquerStatutDemandeDevisEnCours(DemandeAppro, string $username)`.
+- Aucune dépendance de constructeur nouvelle (`em` et les repositories DAL/DALR y sont déjà).
+
+`DaAfficherService`
+- Compléter `generateDaAfficherOnCreationDa` et `generateDaAfficherOnCreationDaParent` : **divergence trouvée**, les traits (`DaNewTrait:46`, `DaNewAchatTrait:97`) appellent `normalizeTypographicChars($daAfficher->getArtDesi())` avant `persist`, pas les services → à ajouter.
+- Ajouter `ajouterDansTableAffichageParNumDa(string $numDa, bool $validationDA = false, string $statut = '', $dateDemande = null)` (copie de `DaAfficherTrait`) ; remplace `getUserName()` par `UserDataService::getUserName()`, `getLignesRectifieesDA`/`normalizeTypographicChars` par `DaService`.
+- Constructeur : `em`, `DaService`, `UserDataService` (+ repositories `DemandeAppro`, `DemandeApproL`, `DaAfficher`). Pas de cycle : `DaService` ne dépend pas de `DaAfficherService`. Remarque : `UserDataService` ne sert qu'à une méthode (principe 1) ; acceptable, sinon passer `$username` en paramètre comme pour `insertionObservation`.
+- `getDeletedLineNumbers` y est déjà (identique au trait).
+
+Commit proposé : `feat: DaService et DaAfficherService alignés sur DaTrait/DaAfficherTrait`
+Vérification : `lint:container`, `debug:container App\Service\da`.
+
+### Contrôleurs (ordre de migration)
+
+Piège commun : `DaService::insertionObservation($numDa, $observation, **$username**, ?$files)` alors que le trait est `($numDa, $observation, ?$files)`. Les appels `insertionObservation(..., $daObservation->getFileNames())` doivent passer `$this->getUserName()` en 3e argument ; sinon `TypeError`. Autre piège : le trait enregistre `$this->getUser()->getNomUtilisateur()`, le service reçoit `getUserName()` (session `user_info['username']`) : à confirmer que les deux valeurs sont identiques.
+
+| Partie | Contrôleur | Appels à basculer | Traits retirables | Parcours manuel |
+|---|---|---|---|---|
+| 3.1 | `DaAfficherController` | `ajouterDansTableAffichageParNumDa` (:32) | `DaAfficherTrait` | Ouvrir la liste/la page qui déclenche l'appel avec statut OR validé ; vérifier la nouvelle ligne `DaAfficher` (version +1, statut OR) |
+| 3.2 | `DemandeDevisController` | `appliquerStatutDemandeDevisEnCours` (:38), `ajouterDansTableAffichageParNumDa` (:40) | `DaDemandeDevisTrait`, `DaAfficherTrait` | Demander un devis sur une DA ; statut DA « demande devis », `devisDemandePar` rempli, ligne `DaAfficher` créée |
+| 3.3 | `DaAffectationAchatController` | `insertionObservation` (:93), `ajouterDaDansTableAffichageParent` (:96) ; **le contrôleur garde `DaAffectationTrait`** qui appelle encore l'ancien trait | `DaNewAchatTrait` (sa `getButtonName` est propre) | Passer la DA au demandeur avec motif ; affecter une DA ; observation créée, ligne `DaAfficher` parente |
+| 3.4 | `DaNewAchatController` | `getJoursRestants` (:121), `insertionObservation` (:141), `ajouterDaDansTableAffichageParent` (:144) | garde `DaNewAchatTrait` (initialisation, etc.) | Créer une DA Achat avec observation ; `joursDispo` correct ; ligne `DaAfficher` ; caractères typographiques normalisés |
+| 3.5 | `DaNewReApproMensuelController` | `getJoursRestants` (:90), `insertionObservation` (:111), `ajouterDaDansTableAffichage` (:114) | garde `DaNewReapproMensuelTrait` | Créer une DA Reappro mensuel (création et re-création `firstCreation=false`) |
+| 3.6 | `DaNewAvecDitController` | `getJoursRestants` (:123), `insertionObservation` (:147), `ajouterDaDansTableAffichage` (:150, avec `$dit`) | garde `DaNewAvecDitTrait` | Créer une DA avec DIT (avec/sans observation) ; DIT rattachée dans `DaAfficher` |
+| 3.7 | `DaDetailDirectController`, 3.8 `DaDetailAvecDitController` | `insertionObservation` (:102/:108), `appliquerChangementStatut` (:105/:111), `ajouterDansTableAffichageParNumDa` (:107/:113) | `DaAfficherTrait` (si plus aucun appel direct) ; `DaDetail*Trait` restent | Afficher le détail ; ajouter une observation avec/sans PJ ; autoriser l'émetteur (changement statut) |
+| 3.9 | `DaEditDirectController`, 3.10 `DaEditAvecDitController` | `ajouterDansTableAffichageParNumDa` (×3), `insertionObservation` ; `getJoursRestants` est dans `DaEditXTrait` → reste | `DaAfficherTrait` | Modifier une DA (lignes ajoutées/supprimées/modifiées) ; observation ; nouvelle version `DaAfficher` |
+| 3.11 | `DaValidationAvecDitController`, 3.12 `DaValidationDirectController`, 3.13 `DaValidationReapproMensuelController` | `ajouterDansTableAffichageParNumDa` (:45/:47) ; `insertionObservation` (:91, :132) ; **`DaValidationReapproTrait` appelle encore l'ancien trait (reste)** | `DaAfficherTrait` seulement pour AvecDit/Direct | Valider une DA (statut, date validation, Excel/PDF), refuser, observation |
+| 3.14 | `DaPropositionRefAvecDitController`, 3.15 `DaPropositionArticleDirectController` | `insertionObservation` (×3), `ajouterDansTableAffichageParNumDa` (×7/×6) | `DaAfficherTrait` | Proposer/choisir/valider des lignes, observation, retour au statut précédent, validation avec DW |
+| 3.16 | `DaDetailReapproController` | déjà sur `DaService` (référence) ; brancher `getLignesRectifiees` si pertinent | — | — |
+| 3.17 | **Branchement final** | `DaService::getLignesRectifiees` appelé par `DaAfficherService` ; supprimer `DaTrait::getLignesRectifieesDA`/`getDeletedLineNumbers`/etc. seulement si plus aucun consommateur (sinon étape 4) | — | Régression : valider + modifier une DA |
+
+Points à vérifier avant 3.3, 3.11–3.13 : `DaAffectationTrait:92,102` et `DaValidationReapproTrait:102,108` continuent d'appeler `$this->insertionObservation` / `ajouterDansTableAffichageParNumDa` ; `DaTrait`/`DaAfficherTrait` doivent rester disponibles pour ces contrôleurs jusqu'à l'étape 4.
 
 ## Vérification (à définir avec vous : pas de tests automatisés)
 
