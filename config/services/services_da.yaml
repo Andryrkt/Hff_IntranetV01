@@ -106,6 +106,12 @@ services:
       $daAfficherService: '@App\Service\da\DaAfficherService'
     public: true
 
+  App\Controller\da\Creation\DaNewReApproMensuelController:
+    arguments:
+      $daService: '@App\Service\da\DaService'
+      $daAfficherService: '@App\Service\da\DaAfficherService'
+    public: true
+
   # Api DA
   App\Api\da\DaAfficherApi:
     arguments:
