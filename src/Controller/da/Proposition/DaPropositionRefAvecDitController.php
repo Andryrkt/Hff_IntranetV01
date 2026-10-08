@@ -22,13 +22,14 @@ use App\Controller\Traits\da\validation\DaValidationAvecDitTrait;
 use App\Controller\Traits\da\proposition\DaPropositionAvecDitTrait;
 use App\Service\da\DocRattacheService;
 use App\Service\Admin\UrlIdCipher;
+use App\Service\da\DaAfficherService;
+use App\Service\da\DaService;
 
 /**
  * @Route("/demande-appro")
  */
 class DaPropositionRefAvecDitController extends Controller
 {
-    use DaAfficherTrait;
     use DaValidationAvecDitTrait;
     use DaPropositionAvecDitTrait;
     use DaDetailAvecDitTrait;
@@ -36,11 +37,14 @@ class DaPropositionRefAvecDitController extends Controller
     private const EDIT = 0;
     private DocRattacheService $docRattacheService;
     private UrlIdCipher $urlIdCipher;
+    private DaService $daService;
+    private DaAfficherService $daAfficherService;
 
-    public function __construct(DocRattacheService $docRattacheService)
+    public function __construct(DocRattacheService $docRattacheService, DaService $daService, DaAfficherService $daAfficherService)
     {
-        parent::__construct();
         $this->docRattacheService = $docRattacheService;
+        $this->daService = $daService;
+        $this->daAfficherService = $daAfficherService;
         $this->urlIdCipher = new UrlIdCipher;
 
         $this->initDaPropositionAvecDitTrait();
@@ -148,13 +152,13 @@ class DaPropositionRefAvecDitController extends Controller
 
     private function traitementEnvoiObservation(DaObservation $daObservation, DemandeAppro $demandeAppro)
     {
-        $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $daObservation->getFileNames());
+        $this->daService->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $this->getUserName(), $daObservation->getFileNames());
 
         if ($this->estAppro() && $daObservation->getStatutChange()) {
             $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), StatutDaConstant::STATUT_AUTORISER_EMETTEUR);
             $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), StatutDaConstant::STATUT_AUTORISER_EMETTEUR);
 
-            $this->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro()); // ajout dans la table DaAfficher si le statut a changé
+            $this->daAfficherService->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro()); // ajout dans la table DaAfficher si le statut a changé
         }
 
         $notification = [
@@ -174,12 +178,12 @@ class DaPropositionRefAvecDitController extends Controller
     private function traitementPourBtnEnvoyerObservation($observation, DemandeAppro $demandeAppro, $statutChange)
     {
         if ($observation !== null) {
-            $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $observation);
+            $this->daService->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $observation, $this->getUserName());
             if ($statutChange) {
                 $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), StatutDaConstant::STATUT_SOUMIS_APPRO);
                 $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), StatutDaConstant::STATUT_SOUMIS_APPRO);
 
-                $this->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro()); // ajout dans la table DaAfficher si le statut a changé
+                $this->daAfficherService->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro()); // ajout dans la table DaAfficher si le statut a changé
             }
             $notification = [
                 'type' => 'success',
@@ -220,7 +224,7 @@ class DaPropositionRefAvecDitController extends Controller
         $this->modificationChoixEtligneDal($refs, $dals);
         $nomEtChemin = $this->validerProposition($numDa);
 
-        $this->ajouterDansTableAffichageParNumDa($numDa, true); // enregistrement dans la table DaAfficher
+        $this->daAfficherService->ajouterDansTableAffichageParNumDa($numDa, true); // enregistrement dans la table DaAfficher
 
         $this->emailDaService->envoyerMailValidationDa($da, $this->getUser(), $nomEtChemin);
 
@@ -245,7 +249,7 @@ class DaPropositionRefAvecDitController extends Controller
         /** VALIDATION DU PROPOSITION PAR L'ATE */
         $nomEtChemin = $this->validerProposition($numDa);
 
-        $this->ajouterDansTableAffichageParNumDa($numDa, true);
+        $this->daAfficherService->ajouterDansTableAffichageParNumDa($numDa, true);
 
         $this->emailDaService->envoyerMailValidationDa($da, $this->getUser(), $nomEtChemin);
 
@@ -310,7 +314,7 @@ class DaPropositionRefAvecDitController extends Controller
 
         $this->modificationChoixEtligneDal($refs, $dals);
 
-        $this->ajouterDansTableAffichageParNumDa($numDa);
+        $this->daAfficherService->ajouterDansTableAffichageParNumDa($numDa);
 
         $this->emailDaService->envoyerMailPropositionDa($da, $this->getUser());
 
@@ -336,7 +340,7 @@ class DaPropositionRefAvecDitController extends Controller
 
         $this->modificationChoixEtligneDal($refs, $dals);
 
-        $this->ajouterDansTableAffichageParNumDa($numDa);
+        $this->daAfficherService->ajouterDansTableAffichageParNumDa($numDa);
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
@@ -355,7 +359,7 @@ class DaPropositionRefAvecDitController extends Controller
         }
 
         if ($observation !== null) {
-            $this->insertionObservation($numDa, $observation);
+            $this->daService->insertionObservation($numDa, $observation, $this->getUserName());
         }
 
         $this->modificationStatutDal($numDa, $statut);
