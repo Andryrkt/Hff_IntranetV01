@@ -161,7 +161,7 @@ Ajouté le 2026-10-08 : jusqu'ici l'étape 4 n'était qu'une ligne dans « Ordre
 | 4.3 | Édition : `DaEditionService` | `DaEditTrait`, `DaEditAvecDitTrait`, `DaEditDirectTrait` (supprimés ; `modificationDa`/`modificationDAL` : 1 copie) | **FAIT (2026-10-08)** |
 | 4.4 | Création : `DaCreationService` | `DaNewTrait`, `DaNewAchatTrait`, `DaNewAvecDitTrait`, `DaNewReapproMensuelTrait` (supprimés) | **FAIT (2026-10-08)** |
 | 4.5 | Validation/soumission : `DaValidationService`, `DaSoumissionValidationService` | `DaValidationTrait`, `DaValidationAvecDitTrait`, `DaValidationDirectTrait`, `DaValidationReapproTrait` (supprimés) | **FAIT (2026-10-08)** |
-| 4.6 | Proposition | `DaPropositionAvecDitTrait`, `DaPropositionDirectTrait`, `DaPropositionTrait` | À FAIRE |
+| 4.6 | Proposition | `DaPropositionAvecDitTrait`, `DaPropositionDirectTrait`, `DaPropositionTrait` (supprimés ; ils ne portaient plus que `DaTrait` et `daModel`). La logique métier des 2 contrôleurs de proposition (repositories, upload, choix DALR, ~300 lignes chacun) reste dans les contrôleurs : extraction éventuelle en `DaPropositionService` hors périmètre « traits » | **FAIT (2026-10-08)** |
 | 4.7 | Affectation : `DaAffectationService` | `DaAffectationTrait` | À FAIRE |
 | 4.8 | Liste DIT : `DaListeDitService` | `DaListeDitTrait` | À FAIRE |
 | 4.9 | Reappro : `ReportingIpsService` | `ReportingIpsTrait` (bug 2 : export Excel cassé) | À FAIRE |
