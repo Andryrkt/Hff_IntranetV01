@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\validation\DaValidationReapproTrait;
 use App\Service\da\DaConsumptionHistory;
+use App\Service\da\DaService;
 use App\Service\da\DocRattacheService;
 use App\Service\Admin\UrlIdCipher;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
@@ -25,13 +26,13 @@ class DaValidationReapproMensuelController extends Controller
     use DaValidationReapproTrait;
     private DocRattacheService $docRattacheService;
     private UrlIdCipher $urlIdCipher;
+    private DaService $daService;
 
-    public function __construct(DocRattacheService $docRattacheService)
+    public function __construct(DocRattacheService $docRattacheService, DaService $daService)
     {
-        parent::__construct();
-
         $this->initDaValidationReapproTrait();
         $this->docRattacheService = $docRattacheService;
+        $this->daService = $daService;
         $this->urlIdCipher = new UrlIdCipher;
     }
 
@@ -88,7 +89,7 @@ class DaValidationReapproMensuelController extends Controller
             // ✅ Récupérer les valeurs des champs caché
             $observation = $formReappro->getData()->getObservation();
 
-            if ($observation) $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $observation);
+            if ($observation) $this->daService->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $observation, $this->getUserName());
 
             if ($request->request->has('refuser')) {
                 $this->refuserDemande($demandeAppro);
@@ -129,7 +130,7 @@ class DaValidationReapproMensuelController extends Controller
 
     private function traitementEnvoiObservation(DaObservation $daObservation, DemandeAppro $demandeAppro)
     {
-        $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $daObservation->getFileNames());
+        $this->daService->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $this->getUserName(), $daObservation->getFileNames());
 
         $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estAppro());
 
