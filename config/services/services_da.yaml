@@ -93,3 +93,9 @@ services:
     arguments:
       $docRattacheService: '@App\Service\da\DocRattacheService'
     public: true
+
+  # Api DA
+  App\Api\da\DaAfficherApi:
+    arguments:
+      $daAfficherService: '@App\Service\da\DaAfficherService'
+    public: true
