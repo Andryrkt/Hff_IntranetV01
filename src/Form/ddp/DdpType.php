@@ -8,11 +8,13 @@ use App\Form\common\AgenceServiceType;
 use App\Form\Common\FileUploadType;
 use App\Form\common\RibType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class DdpType extends AbstractType
@@ -110,38 +112,57 @@ class DdpType extends AbstractType
     }
     public function addNumeroCommande(FormBuilderInterface $builder, array $options)
     {
+        $typeId = $options['data']->typeDdp->getId();
+        // Demande de paiement à l'avance : une seule commande sélectionnable
+        $isMultiple = $typeId !== TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE;
+
         $builder->add(
-            'numeroCommande',
-            ChoiceType::class,
-            [
+            $this->creerChampNumeroCommande($builder->getFormFactory(), $options['data']->numeroCommande, $isMultiple, [
                 'label'     => 'N° Commande fournisseur *',
-                'choices'   =>  $options['data']->numeroCommande,
-                'multiple'  => true,
-                'expanded'  => false,
                 'attr'      => [
-                    'disabled' => $options['data']->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE,
+                    'disabled' => $typeId === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE,
                 ]
-            ]
+            ])
         )
             ->addEventListener(
                 FormEvents::PRE_SUBMIT,
-                function (FormEvent $event) {
+                function (FormEvent $event) use ($isMultiple) {
                     $form = $event->getForm();
                     $data = $event->getData();
+                    $numeroCommandes = array_values(array_filter((array) ($data['numeroCommande'] ?? []), fn($valeur) => $valeur !== ''));
 
                     $form->add(
-                        'numeroCommande',
-                        ChoiceType::class,
-                        [
+                        $this->creerChampNumeroCommande($form->getConfig()->getFormFactory(), $numeroCommandes, $isMultiple, [
                             'label'     => 'N° Commande *',
-                            'choices'   => $data['numeroCommande'] ?? [],
-                            'multiple'  => true,
-                            'expanded'  => false,
                             'required'  => false
-                        ]
+                        ])->getForm()
                     );
                 }
             );
+    }
+
+    /**
+     * Crée le champ numeroCommande en sélection simple ou multiple.
+     * En sélection simple, la valeur est convertie en tableau pour rester
+     * compatible avec DdpDto::$numeroCommande (array).
+     */
+    private function creerChampNumeroCommande(FormFactoryInterface $factory, array $choices, bool $isMultiple, array $options): FormBuilderInterface
+    {
+        $champ = $factory->createNamedBuilder('numeroCommande', ChoiceType::class, null, array_merge([
+            'choices'         => $choices,
+            'multiple'        => $isMultiple,
+            'expanded'        => false,
+            'auto_initialize' => false,
+        ], $options));
+
+        if (!$isMultiple) {
+            $champ->addModelTransformer(new CallbackTransformer(
+                fn($numeroCommandes) => is_array($numeroCommandes) ? ($numeroCommandes[array_key_first($numeroCommandes)] ?? null) : $numeroCommandes,
+                fn($numeroCommande) => ($numeroCommande === null || $numeroCommande === '') ? [] : [$numeroCommande]
+            ));
+        }
+
+        return $champ;
     }
 
     public function addFournisseur(FormBuilderInterface $builder)

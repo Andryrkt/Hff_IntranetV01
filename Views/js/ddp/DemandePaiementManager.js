@@ -276,6 +276,11 @@ export class DemandePaiementManager {
 
   ajoutDesOptions(inputElement, data) {
     inputElement.innerHTML = "";
+    // Select simple : option vide pour éviter la sélection automatique de la
+    // première valeur (et permettre le placeholder Select2)
+    if (!inputElement.multiple) {
+      inputElement.appendChild(new Option("", ""));
+    }
     data.forEach((item) => {
       let option = new Option(item.label, item.value);
       inputElement.appendChild(option);
@@ -501,7 +506,7 @@ export class DemandePaiementManager {
     this.commandesAvecPdfIntrouvable.clear();
     this.mettreAJourEtatSoumission();
 
-    const numCdes = $(this.elements.numCommandeInput).val() || [];
+    const numCdes = this.getNumCdesSelectionnees();
     if (numCdes.length === 0) return;
 
     subTabsNav.classList.toggle("d-none", numCdes.length <= 1);
@@ -664,8 +669,16 @@ export class DemandePaiementManager {
    * de commandes contient une commande dont le PDF est introuvable, ou si le
    * montant saisi ne correspond pas au montant calculé.
    */
+  /**
+   * Commandes sélectionnées, toujours sous forme de tableau : le champ est en
+   * sélection simple pour les demandes de paiement à l'avance (typeId 1).
+   */
+  getNumCdesSelectionnees() {
+    return [].concat($(this.elements.numCommandeInput).val() || []).filter(Boolean);
+  }
+
   mettreAJourEtatSoumission() {
-    const numCdesSelectionnees = $(this.elements.numCommandeInput).val() || [];
+    const numCdesSelectionnees = this.getNumCdesSelectionnees();
     const commandesProblematiques = numCdesSelectionnees.filter((numCde) =>
       this.commandesAvecPdfIntrouvable.has(numCde),
     );
