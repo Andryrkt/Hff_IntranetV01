@@ -100,6 +100,12 @@ services:
       $daAfficherService: '@App\Service\da\DaAfficherService'
     public: true
 
+  App\Controller\da\Creation\DaNewAchatController:
+    arguments:
+      $daService: '@App\Service\da\DaService'
+      $daAfficherService: '@App\Service\da\DaAfficherService'
+    public: true
+
   # Api DA
   App\Api\da\DaAfficherApi:
     arguments:
