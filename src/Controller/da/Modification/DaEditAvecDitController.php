@@ -4,7 +4,9 @@ namespace App\Controller\da\Modification;
 
 use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
-use App\Controller\Traits\da\modification\DaEditAvecDitTrait;
+use App\Controller\Traits\da\DaTrait;
+use App\Entity\da\DaObservation;
+use App\Service\da\DaEditionService;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
@@ -21,17 +23,19 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException;
  */
 class DaEditAvecDitController extends Controller
 {
-    use DaEditAvecDitTrait;
+    use DaTrait;
     private UrlIdCipher $urlIdCipher;
     private DaService $daService;
     private DaAfficherService $daAfficherService;
+    private DaEditionService $daEditionService;
 
-    public function __construct(DaService $daService, DaAfficherService $daAfficherService)
+    public function __construct(DaService $daService, DaAfficherService $daAfficherService, DaEditionService $daEditionService)
     {
-        $this->initDaEditAvecDitTrait();
+        $this->initDaTrait();
         $this->urlIdCipher = new UrlIdCipher;
         $this->daService = $daService;
         $this->daAfficherService = $daAfficherService;
+        $this->daEditionService = $daEditionService;
     }
 
     /**
@@ -47,18 +51,18 @@ class DaEditAvecDitController extends Controller
         $demandeAppro = $this->demandeApproRepository->find($id); // recupération de la DA
         $numDa = $demandeAppro->getNumeroDemandeAppro();
 
-        $ancienDals = $this->getAncienDAL($demandeAppro);
+        $ancienDals = $this->daEditionService->getAncienDAL($demandeAppro);
 
         $form = $this->getFormFactory()->createBuilder(DemandeApproFormType::class, $demandeAppro)->getForm();
 
         $this->traitementForm($form, $request, $ancienDals);
 
-        $observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()], ['dateCreation' => 'DESC']);
+        $observations = $this->getEntityManager()->getRepository(DaObservation::class)->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()], ['dateCreation' => 'DESC']);
 
         return $this->render('da/edit-avec-dit.html.twig', [
             'form'         => $form->createView(),
             'observations' => $observations,
-            'peutModifier' => $this->peutModifier($demandeAppro->getStatutDal(), $this->estAtelier()),
+            'peutModifier' => $this->daEditionService->peutModifier($demandeAppro->getStatutDal(), $this->estAtelier()),
             'numDa'        => $numDa,
         ]);
     }
@@ -108,7 +112,7 @@ class DaEditAvecDitController extends Controller
             $demandeAppro = $form->getData();
             $numDa = $demandeAppro->getNumeroDemandeAppro();
 
-            $this->modificationDa($demandeAppro, $form->get('DAL'), StatutDaConstant::STATUT_SOUMIS_APPRO);
+            $this->daEditionService->modificationDa($demandeAppro, $this->lignesFormulaire($form->get('DAL')), StatutDaConstant::STATUT_SOUMIS_APPRO);
             if ($demandeAppro->getObservation() !== null) {
                 $this->daService->insertionObservation($numDa, $demandeAppro->getObservation(), $this->getUserName());
             }
@@ -121,5 +125,20 @@ class DaEditAvecDitController extends Controller
             $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre modification a été enregistrée']);
             $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
         }
+    }
+
+    /** Valeurs du formulaire des lignes DAL, passées au service (qui ne connaît pas les formulaires) */
+    private function lignesFormulaire($formDAL): array
+    {
+        $lignes = [];
+        foreach ($formDAL as $subFormDAL) {
+            $lignes[] = [
+                'dal'               => $subFormDAL->getData(),
+                'filesToDelete'     => $subFormDAL->get('filesToDelete')->getData(),
+                'existingFileNames' => $subFormDAL->get('existingFileNames')->getData(),
+                'newFiles'          => $subFormDAL->get('fileNames')->getData(),
+            ];
+        }
+        return $lignes;
     }
 }
