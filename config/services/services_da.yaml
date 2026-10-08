@@ -71,6 +71,8 @@ services:
     arguments:
       $docRattacheService: '@App\Service\da\DocRattacheService'
       $daTimelineService: '@App\Service\da\DaTimelineService'
+      $daService: '@App\Service\da\DaService'
+      $daAfficherService: '@App\Service\da\DaAfficherService'
     public: true
 
   App\Controller\da\Detail\DaDetailDirectController:
