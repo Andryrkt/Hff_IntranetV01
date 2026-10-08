@@ -99,3 +99,9 @@ services:
     arguments:
       $daAfficherService: '@App\Service\da\DaAfficherService'
     public: true
+
+  App\Api\da\DemandeDevisApi:
+    arguments:
+      $daService: '@App\Service\da\DaService'
+      $daAfficherService: '@App\Service\da\DaAfficherService'
+    public: true

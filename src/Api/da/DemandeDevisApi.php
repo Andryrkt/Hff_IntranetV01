@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\da\DemandeDevis;
+namespace App\Api\da;
 
 use App\Service\da\DaService;
 use App\Controller\Controller;
@@ -10,7 +10,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @Route("/demande-appro")
  */
-class DemandeDevisController extends Controller
+class DemandeDevisApi extends Controller
 {
     private DaService $daService;
     private DaAfficherService $daAfficherService;
