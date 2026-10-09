@@ -50,6 +50,15 @@ services:
       $daSoumissionValidationService: '@App\Service\da\DaSoumissionValidationService'
     public: true
 
+  App\Service\da\DaAffectationService:
+    arguments:
+      $em: "@doctrine.orm.default_entity_manager"
+      $userDataService: "@userData.service"
+      $daService: '@App\Service\da\DaService'
+      $daAfficherService: '@App\Service\da\DaAfficherService'
+      $daSoumissionValidationService: '@App\Service\da\DaSoumissionValidationService'
+    public: true
+
   App\Service\da\DaEditionService:
     arguments:
       $em: "@doctrine.orm.default_entity_manager"
@@ -157,6 +166,7 @@ services:
 
   App\Controller\da\Affectation\DaAffectationAchatController:
     arguments:
+      $daAffectationService: '@App\Service\da\DaAffectationService'
       $daService: '@App\Service\da\DaService'
       $daAfficherService: '@App\Service\da\DaAfficherService'
     public: true
