@@ -97,7 +97,7 @@ class ExportExcelController extends Controller
      * @param array        $headers     entête du tableau
      * @param bool         $estAppro     true si l'utilisateur est dans le service appro
      * 
-     * @return Generator
+     * @return \Generator
      */
     private function bodyExcel(iterable $dasFiltered, array $headers, bool $estAppro): \Generator
     {
