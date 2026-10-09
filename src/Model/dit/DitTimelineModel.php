@@ -29,11 +29,23 @@ class DitTimelineModel extends Model
             dodr.numero_or                   AS dodr_numero_or,
             dodr.numero_version              AS num_version_or,
             dodr.date_soumission             AS date_soumission_or,
-            dodr.date_demande_modification   AS date_demande_modification,
+            CASE 
+                WHEN dodr.date_et_heure_demande_de_modification IS NOT NULL THEN dodr.date_et_heure_demande_de_modification
+                ELSE dodr.date_demande_modification
+            END AS date_demande_modification,
             dodr.date_validation_devis       AS date_validation_devis,
-            dodr.date_fin_validation_ca      AS date_validation_ca,
-            dodr.date_fin_validation_dt      AS date_validation_dt,
-            dodr.date_fin_validation_ci      AS date_validation_ci,
+            CASE 
+                WHEN dodr.date_et_heure_fin_validation_ca IS NOT NULL THEN dodr.date_et_heure_fin_validation_ca
+                ELSE dodr.date_fin_validation_ca
+            END AS date_validation_ca,
+            CASE 
+                WHEN dodr.date_et_heure_fin_validation_dt IS NOT NULL THEN dodr.date_et_heure_fin_validation_dt
+                ELSE dodr.date_fin_validation_dt
+            END AS date_validation_dt,
+            CASE 
+                WHEN dodr.date_et_heure_fin_validation_ci IS NOT NULL THEN dodr.date_et_heure_fin_validation_ci
+                ELSE dodr.date_fin_validation_ci
+            END AS date_validation_ci,
             dodr.date_fin_validation_fleet_m AS date_validation_fleet_m,
             dodr.date_fin_validation_dg      AS date_validation_dg,
             dodr.date_fin_validation_ser_em  AS date_validation_ser_em,

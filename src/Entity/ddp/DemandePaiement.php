@@ -788,7 +788,8 @@ class DemandePaiement
             }
         }
 
-        $this->montantAPayers = (float) $montantAPayers;
+        // arrondi à 2 décimales (colonne decimal(18,2)) : évite qu'un résidu flottant (ex: 1.4E-10) soit envoyé en notation scientifique à SQL Server
+        $this->montantAPayers = round((float) $montantAPayers, 2);
 
         return $this;
     }

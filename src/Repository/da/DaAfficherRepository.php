@@ -3,6 +3,7 @@
 namespace App\Repository\da;
 
 use App\Entity\da\DaAfficher;
+use Doctrine\ORM\QueryBuilder;
 use App\Entity\da\DemandeAppro;
 use Doctrine\ORM\EntityRepository;
 use App\Constants\da\StatutBcConstant;
@@ -669,15 +670,11 @@ class DaAfficherRepository extends EntityRepository
             ->getSingleColumnResult();
     }
 
-    public function findDerniereVersionDesDA(
-        array $criteria,
-        string $codeSociete
-    ): array {
-
+    private function createDerniereVersionQb(array $criteria, string $codeSociete): QueryBuilder
+    {
         $subDql = 'SELECT MAX(sub.numeroVersion) FROM ' . DaAfficher::class . ' sub WHERE sub.numeroDemandeAppro = d.numeroDemandeAppro';
 
         $qb = $this->_em->createQueryBuilder();
-
         $qb->select('d', 'da', 'dap', 'dit')
             ->from(DaAfficher::class, 'd')
             ->leftJoin('d.demandeAppro', 'da')
@@ -697,7 +694,23 @@ class DaAfficherRepository extends EntityRepository
         $qb->orderBy('d.dateDemande', 'DESC')
             ->addOrderBy('d.numeroFournisseur', 'DESC')
             ->addOrderBy('d.numeroCde', 'DESC');
-        return $qb->getQuery()->getResult();
+
+        return $qb;
+    }
+
+    // Version pour l'export : générateur
+    public function iterateDerniereVersionDesDA(array $criteria, string $codeSociete): \Generator
+    {
+        $query = $this->createDerniereVersionQb($criteria, $codeSociete)->getQuery();
+
+        $i = 0;
+        foreach ($query->toIterable() as $da) {
+            yield $da;
+
+            if (++$i % 500 === 0) {
+                $this->_em->clear(); // libère les entités déjà traitées
+            }
+        }
     }
 
     public function getStatutsBc()
