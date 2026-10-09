@@ -9,7 +9,8 @@ use App\Form\da\DaObservationType;
 use App\Form\da\DaObservationValidationType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\da\DaTrait;
+use App\Repository\da\DemandeApproRepository;
+use App\Service\da\EmailDaService;
 use App\Service\da\DaValidationService;
 use App\Service\da\DaSoumissionValidationService;
 use App\Service\da\DaConsumptionHistory;
@@ -23,7 +24,9 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException;
  */
 class DaValidationReapproMensuelController extends Controller
 {
-    use DaTrait;
+    private DemandeApproRepository $demandeApproRepository;
+    private EmailDaService $emailDaService;
+
     private DocRattacheService $docRattacheService;
     private UrlIdCipher $urlIdCipher;
     private DaService $daService;
@@ -32,7 +35,9 @@ class DaValidationReapproMensuelController extends Controller
 
     public function __construct(DocRattacheService $docRattacheService, DaService $daService, DaValidationService $daValidationService, DaSoumissionValidationService $daSoumissionValidationService)
     {
-        $this->initDaTrait();
+        $em = $this->getEntityManager();
+        $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
+        $this->emailDaService = new EmailDaService($this->getTwig(), $this->getUrlGenerator());
         $this->daValidationService = $daValidationService;
         $this->daSoumissionValidationService = $daSoumissionValidationService;
         $this->docRattacheService = $docRattacheService;

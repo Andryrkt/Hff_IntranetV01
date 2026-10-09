@@ -5,7 +5,7 @@ namespace App\Controller\da\Creation;
 use App\Constants\admin\ApplicationConstant;
 use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
-use App\Controller\Traits\da\DaTrait;
+use App\Service\da\EmailDaService;
 use App\Service\da\DaCreationService;
 use App\Entity\da\DemandeApproParent;
 use App\Entity\da\DemandeApproParentLine;
@@ -21,7 +21,9 @@ use Symfony\Component\Routing\Annotation\Route;
 /** @Route("/demande-appro") */
 class DaNewAchatController extends Controller
 {
-    use DaTrait;
+    private EmailDaService $emailDaService;
+    private FileUploaderForDAService $daFileUploader;
+
     const STATUT_DAL = [
         'enregistrerBrouillon' => StatutDaConstant::STATUT_EN_COURS_CREATION,
         'soumissionAppro'      => StatutDaConstant::STATUT_SOUMIS_APPRO,
@@ -37,7 +39,8 @@ class DaNewAchatController extends Controller
         $this->daAfficherService = $daAfficherService;
         $this->daCreationService = $daCreationService;
 
-        $this->initDaTrait();
+        $this->emailDaService = new EmailDaService($this->getTwig(), $this->getUrlGenerator());
+        $this->daFileUploader = new FileUploaderForDAService();
     }
 
     /**

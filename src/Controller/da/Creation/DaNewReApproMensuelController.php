@@ -5,7 +5,8 @@ namespace App\Controller\da\Creation;
 use App\Constants\da\StatutDaConstant;
 use App\Constants\admin\ApplicationConstant;
 use App\Controller\Controller;
-use App\Controller\Traits\da\DaTrait;
+use App\Repository\da\DemandeApproRepository;
+use App\Service\da\EmailDaService;
 use App\Service\da\DaCreationService;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
@@ -21,7 +22,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DaNewReApproMensuelController extends Controller
 {
-    use DaTrait;
+    private DemandeApproRepository $demandeApproRepository;
+    private EmailDaService $emailDaService;
 
     private DaService $daService;
     private DaAfficherService $daAfficherService;
@@ -33,7 +35,9 @@ class DaNewReApproMensuelController extends Controller
         $this->daAfficherService = $daAfficherService;
         $this->daCreationService = $daCreationService;
 
-        $this->initDaTrait();
+        $em = $this->getEntityManager();
+        $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
+        $this->emailDaService = new EmailDaService($this->getTwig(), $this->getUrlGenerator());
     }
 
     /**

@@ -4,7 +4,8 @@ namespace App\Controller\da\Modification;
 
 use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
-use App\Controller\Traits\da\DaTrait;
+use App\Repository\da\DemandeApproRepository;
+use App\Service\da\EmailDaService;
 use App\Entity\da\DaObservation;
 use App\Service\da\DaEditionService;
 use App\Entity\da\DemandeAppro;
@@ -23,7 +24,9 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException;
  */
 class DaEditAvecDitController extends Controller
 {
-    use DaTrait;
+    private DemandeApproRepository $demandeApproRepository;
+    private EmailDaService $emailDaService;
+
     private UrlIdCipher $urlIdCipher;
     private DaService $daService;
     private DaAfficherService $daAfficherService;
@@ -31,7 +34,9 @@ class DaEditAvecDitController extends Controller
 
     public function __construct(DaService $daService, DaAfficherService $daAfficherService, DaEditionService $daEditionService)
     {
-        $this->initDaTrait();
+        $em = $this->getEntityManager();
+        $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
+        $this->emailDaService = new EmailDaService($this->getTwig(), $this->getUrlGenerator());
         $this->urlIdCipher = new UrlIdCipher;
         $this->daService = $daService;
         $this->daAfficherService = $daAfficherService;

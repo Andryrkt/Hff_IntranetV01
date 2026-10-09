@@ -13,7 +13,8 @@ use App\Form\da\DemandeApproFormType;
 use App\Service\application\ApplicationService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\da\DaTrait;
+use App\Repository\da\DemandeApproRepository;
+use App\Service\da\EmailDaService;
 use App\Service\da\DaCreationService;
 use App\Service\da\DaAfficherService;
 use App\Service\da\DaFournisseurService;
@@ -25,7 +26,10 @@ use App\Service\da\FileUploaderForDAService;
  */
 class DaNewAvecDitController extends Controller
 {
-    use DaTrait;
+    private DemandeApproRepository $demandeApproRepository;
+    private EmailDaService $emailDaService;
+    private FileUploaderForDAService $daFileUploader;
+
     const STATUT_DAL = [
         'enregistrerBrouillon' => StatutDaConstant::STATUT_EN_COURS_CREATION,
         'soumissionAppro'      => StatutDaConstant::STATUT_SOUMIS_APPRO,
@@ -45,7 +49,10 @@ class DaNewAvecDitController extends Controller
         $this->daCreationService = $daCreationService;
         $this->daModel = $daModel;
 
-        $this->initDaTrait();
+        $em = $this->getEntityManager();
+        $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
+        $this->emailDaService = new EmailDaService($this->getTwig(), $this->getUrlGenerator());
+        $this->daFileUploader = new FileUploaderForDAService();
     }
 
     /**

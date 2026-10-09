@@ -11,7 +11,8 @@ use App\Form\da\DemandeApproDirectFormType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
-use App\Controller\Traits\da\DaTrait;
+use App\Repository\da\DemandeApproRepository;
+use App\Service\da\EmailDaService;
 use App\Entity\da\DaObservation;
 use App\Service\da\DaEditionService;
 use App\Service\Admin\UrlIdCipher;
@@ -23,7 +24,9 @@ use App\Service\da\DaAfficherService;
  */
 class DaEditDirectController extends Controller
 {
-    use DaTrait;
+    private DemandeApproRepository $demandeApproRepository;
+    private EmailDaService $emailDaService;
+
     private UrlIdCipher $urlIdCipher;
     private DaService $daService;
     private DaAfficherService $daAfficherService;
@@ -31,7 +34,9 @@ class DaEditDirectController extends Controller
 
     public function __construct(DaService $daService, DaAfficherService $daAfficherService, DaEditionService $daEditionService)
     {
-        $this->initDaTrait();
+        $em = $this->getEntityManager();
+        $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
+        $this->emailDaService = new EmailDaService($this->getTwig(), $this->getUrlGenerator());
         $this->urlIdCipher = new UrlIdCipher;
         $this->daService = $daService;
         $this->daAfficherService = $daAfficherService;

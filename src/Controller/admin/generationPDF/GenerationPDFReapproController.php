@@ -4,7 +4,8 @@ namespace App\Controller\admin\generationPDF;
 
 use App\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\da\DaTrait;
+use App\Repository\da\DemandeApproRepository;
+use App\Entity\da\DemandeAppro;
 use App\Service\da\DaConsumptionHistory;
 use App\Service\da\DaService;
 use App\Service\da\DaSoumissionValidationService;
@@ -12,16 +13,15 @@ use App\Service\da\DaSoumissionValidationService;
 /** @Route(path="/admin/generation-PDF") */
 class GenerationPDFReapproController extends Controller
 {
-    use DaTrait;
+    private DemandeApproRepository $demandeApproRepository;
 
     private DaService $daService;
     private DaSoumissionValidationService $daSoumissionValidationService;
 
     public function __construct(DaService $daService, DaSoumissionValidationService $daSoumissionValidationService)
     {
-        parent::__construct();
-
-        $this->initDaTrait();
+        $em = $this->getEntityManager();
+        $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
         $this->daService = $daService;
         $this->daSoumissionValidationService = $daSoumissionValidationService;
     }

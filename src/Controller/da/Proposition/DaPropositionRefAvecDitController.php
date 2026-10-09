@@ -17,7 +17,10 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use App\Service\da\FileUploaderForDAService;
 use App\Service\da\DaValidationService;
-use App\Controller\Traits\da\DaTrait;
+use App\Repository\da\DemandeApproRepository;
+use App\Repository\da\DemandeApproLRepository;
+use App\Repository\da\DemandeApproLRRepository;
+use App\Service\da\EmailDaService;
 use App\Model\da\DaModel;
 use App\Service\da\DocRattacheService;
 use App\Service\Admin\UrlIdCipher;
@@ -30,7 +33,11 @@ use App\Service\da\DaService;
  */
 class DaPropositionRefAvecDitController extends Controller
 {
-    use DaTrait;
+    private DemandeApproRepository $demandeApproRepository;
+    private DemandeApproLRepository $demandeApproLRepository;
+    private DemandeApproLRRepository $demandeApproLRRepository;
+    private EmailDaService $emailDaService;
+    private FileUploaderForDAService $daFileUploader;
 
     private const EDIT = 0;
     private DocRattacheService $docRattacheService;
@@ -51,7 +58,12 @@ class DaPropositionRefAvecDitController extends Controller
         $this->daModel = $daModel;
         $this->urlIdCipher = new UrlIdCipher;
 
-        $this->initDaTrait();
+        $em = $this->getEntityManager();
+        $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
+        $this->demandeApproLRepository = $em->getRepository(DemandeApproL::class);
+        $this->demandeApproLRRepository = $em->getRepository(DemandeApproLR::class);
+        $this->emailDaService = new EmailDaService($this->getTwig(), $this->getUrlGenerator());
+        $this->daFileUploader = new FileUploaderForDAService();
     }
 
     /**

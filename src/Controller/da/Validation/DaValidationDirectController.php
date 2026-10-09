@@ -7,7 +7,9 @@ use App\Controller\Controller;
 use App\Service\da\DaAfficherService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\da\DaTrait;
+use App\Repository\da\DemandeApproLRepository;
+use App\Entity\da\DemandeApproL;
+use App\Service\da\EmailDaService;
 use App\Service\da\DaValidationService;
 use App\Service\da\DaSoumissionValidationService;
 use App\Entity\da\DemandeAppro;
@@ -17,7 +19,8 @@ use App\Entity\da\DemandeAppro;
  */
 class DaValidationDirectController extends Controller
 {
-    use DaTrait;
+    private DemandeApproLRepository $demandeApproLRepository;
+    private EmailDaService $emailDaService;
 
     private DaAfficherService $daAfficherService;
     private DaValidationService $daValidationService;
@@ -25,7 +28,9 @@ class DaValidationDirectController extends Controller
 
     public function __construct(DaAfficherService $daAfficherService, DaValidationService $daValidationService, DaSoumissionValidationService $daSoumissionValidationService)
     {
-        $this->initDaTrait();
+        $em = $this->getEntityManager();
+        $this->demandeApproLRepository = $em->getRepository(DemandeApproL::class);
+        $this->emailDaService = new EmailDaService($this->getTwig(), $this->getUrlGenerator());
         $this->daValidationService = $daValidationService;
         $this->daSoumissionValidationService = $daSoumissionValidationService;
         $this->daAfficherService = $daAfficherService;

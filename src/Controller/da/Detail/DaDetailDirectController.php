@@ -12,7 +12,8 @@ use App\Service\Admin\UrlIdCipher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
-use App\Controller\Traits\da\DaTrait;
+use App\Repository\da\DemandeApproRepository;
+use App\Service\da\EmailDaService;
 use App\Model\da\DaAfficherModel;
 use App\Service\da\DaTimelineService;
 use App\Service\da\DaDetailService;
@@ -24,7 +25,8 @@ use App\Service\da\DaAfficherService;
  */
 class DaDetailDirectController extends Controller
 {
-	use DaTrait;
+	private DemandeApproRepository $demandeApproRepository;
+	private EmailDaService $emailDaService;
 
 	private DocRattacheService $docRattacheService;
 	private DaTimelineService $daTimelineService;
@@ -35,7 +37,9 @@ class DaDetailDirectController extends Controller
 
 	public function __construct(DocRattacheService $docRattacheService, DaTimelineService $daTimelineService, DaService $daService, DaAfficherService $daAfficherService, DaDetailService $daDetailService)
 	{
-		$this->initDaTrait();
+		$em = $this->getEntityManager();
+		$this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
+		$this->emailDaService = new EmailDaService($this->getTwig(), $this->getUrlGenerator());
 		$this->daDetailService = $daDetailService;
 		$this->docRattacheService = $docRattacheService;
 		$this->daTimelineService = $daTimelineService;
