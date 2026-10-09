@@ -68,7 +68,7 @@ services:
 
   App\Service\da\DaDetailService:
     arguments:
-      $urlGenerator: '@router'
+      $urlGenerator: "@router"
     public: true
 
   App\Service\da\DwDataService:
@@ -85,6 +85,11 @@ services:
     arguments:
       $daService: '@App\Service\da\DaService'
       $dwDataService: '@App\Service\da\DwDataService'
+    public: true
+
+  App\Service\da\DaListeDitService:
+    arguments:
+      $em: "@doctrine.orm.default_entity_manager"
     public: true
 
   # Factories DA
@@ -105,6 +110,11 @@ services:
     autoconfigure: true
     arguments:
       - "@doctrine.orm.default_entity_manager"
+    public: true
+
+  App\Controller\da\DaListeDitController:
+    arguments:
+      $daListeDitService: 'App\Service\da\DaListeDitService'
     public: true
 
   App\Controller\da\Detail\DaDetailReapproController:
