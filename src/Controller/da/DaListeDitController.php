@@ -17,7 +17,7 @@ use App\Entity\admin\dit\WorNiveauUrgence;
 use App\Repository\admin\AgenceRepository;
 use App\Repository\admin\ServiceRepository;
 use App\Constants\admin\ApplicationConstant;
-use App\Controller\Traits\da\DaListeDitTrait;
+use App\Service\da\DaListeDitService;
 use App\Dto\Dit\DitListItemDto;
 use App\Dto\Dit\DitStatusCountDto;
 use App\Repository\da\DemandeApproRepository;
@@ -32,10 +32,8 @@ use App\Service\security\SecurityService;
 
 class DaListeDitController extends Controller
 {
-    use DaListeDitTrait;
-
+    private DaListeDitService $daListeDitService;
     private DitSearch $ditSearch;
-    private DitRepository $ditRepository;
     private DemandeApproRepository $demandeApproRepository;
     private WorTypeDocumentRepository $worTypeDocumentRepository;
     private WorNiveauUrgenceRepository $worNiveauUrgenceRepository;
@@ -44,12 +42,10 @@ class DaListeDitController extends Controller
     private AgenceRepository $agenceRepository;
     private CategorieAteAppRepository $categorieAteAppRepository;
 
-    public function __construct()
+    public function __construct(DaListeDitService $daListeDitService)
     {
-        parent::__construct();
-
+        $this->daListeDitService = $daListeDitService;
         $this->ditSearch = new DitSearch();
-        $this->ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
         $this->demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
         $this->worTypeDocumentRepository = $this->getEntityManager()->getRepository(WorTypeDocument::class);
         $this->worNiveauUrgenceRepository = $this->getEntityManager()->getRepository(WorNiveauUrgence::class);
@@ -103,7 +99,7 @@ class DaListeDitController extends Controller
         $peutVoirListeAvecDebiteur = $this->getSecurityService()->verifierPermission(SecurityService::PERMISSION_AUTH_2);
 
         //recupération des donnée
-        $paginationData = $this->data($request, $ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $peutVoirListeAvecDebiteur, $codeSociete, $multisuccursale);
+        $paginationData = $this->daListeDitService->data($request->query->getInt('page', 1), $ditSearch, $agenceIdUser, $serviceIdUser, $agenceServiceAutorises, $codeAgenceUser, $peutVoirListeAvecDebiteur, $codeSociete, $multisuccursale);
 
         return $this->render('da/list-dit.html.twig', [
             'data'            => array_map(fn($item) => DitListItemDto::fromEntity($item, $this->getUrlGenerator(), new UrlIdCipher), $paginationData['data'] ?? []),
@@ -115,6 +111,71 @@ class DaListeDitController extends Controller
             'form'            => $form->createView(),
             'formIsSubmitted' => $form->isSubmitted(),
         ]);
+    }
+
+    /**
+     * Methode pour l'initialisation des donners dans les champs de formulaire
+     */
+    private function initialisationRechercheDit(): DitSearch
+    {
+        $criteria = $this->getSessionService()->get('list_dit_da_search_criteria');
+        if (!empty($criteria)) {
+            $typeDocument = $criteria['typeDocument'] === null ? null : $this->worTypeDocumentRepository->find($criteria['typeDocument']->getId());
+            $niveauUrgence = $criteria['niveauUrgence'] === null ? null : $this->worNiveauUrgenceRepository->find($criteria['niveauUrgence']->getId());
+            $statut = $criteria['statut'] === null ? null : $this->statutDemandeRepository->find($criteria['statut']->getId());
+            $categorie = $criteria['categorie'] === null ? null : $this->categorieAteAppRepository->find($criteria['categorie']);
+        } else {
+            $typeDocument = null;
+            $niveauUrgence = null;
+            $statut = null;
+            $categorie = null;
+        }
+
+        $this->ditSearch
+            ->setStatut($statut)
+            ->setNiveauUrgence($niveauUrgence)
+            ->setTypeDocument($typeDocument)
+            ->setInternetExterne('INTERNE')
+            ->setDateDebut($criteria['dateDebut'] ?? null)
+            ->setDateFin($criteria['dateFin'] ?? null)
+            ->setIdMateriel($criteria['idMateriel'] ?? null)
+            ->setNumParc($criteria['numParc'] ?? null)
+            ->setNumSerie($criteria['numSerie'] ?? null)
+            ->setAgenceEmetteur($criteria['agenceEmetteur'] ?? null)
+            ->setServiceEmetteur($criteria['serviceEmetteur'] ?? null)
+            ->setAgenceDebiteur($criteria['agenceDebiteur'] ?? null)
+            ->setServiceDebiteur($criteria['serviceDebiteur'] ?? null)
+            ->setNumDit($criteria['numDit'] ?? null)
+            ->setNumOr($criteria['numOr'] ?? null)
+            ->setStatutOr($criteria['statutOr'] ?? null)
+            ->setDitSansOr($criteria['ditSansOr'] ?? null)
+            ->setCategorie($categorie)
+            ->setUtilisateur($criteria['utilisateur'] ?? null)
+            ->setSectionAffectee($criteria['sectionAffectee'] ?? null)
+            ->setSectionSupport1($criteria['sectionSupport1'] ?? null)
+            ->setSectionSupport2($criteria['sectionSupport2'] ?? null)
+            ->setSectionSupport3($criteria['sectionSupport3'] ?? null)
+            ->setEtatFacture($criteria['etatFacture'] ?? null)
+        ;
+
+        return $this->ditSearch;
+    }
+
+    /**
+     * Ajouter les information de la recherche dans la session
+     */
+    private function ajoutCriteredansSession(array $criteriaTab): void
+    {
+        $this->getSessionService()->set('list_dit_da_search_criteria', $criteriaTab);
+    }
+
+    private function recupDataFormulaireRecherhce($form, Request $request): DitSearch
+    {
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->ditSearch = $form->getData();
+        }
+        return $this->ditSearch;
     }
 
     private function gererAgenceService(DitSearch $ditSearch, array $allAgenceServices): void
