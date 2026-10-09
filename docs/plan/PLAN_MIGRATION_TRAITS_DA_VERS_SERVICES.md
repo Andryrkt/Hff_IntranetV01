@@ -52,6 +52,25 @@
 - Un trait qui grossit (état, repositories, `init...()`) est le signal pour le convertir en service.
 - Dans ce projet : un trait déjà converti en service ne revient pas ; tout nouveau code métier DA va directement dans un service de `App\Service\da`.
 
+### Quand un service en injecte d'autres (orchestration)
+
+Un service peut recevoir d'autres services par constructeur quand il **orchestre** un cas d'usage complet. Il ne les « regroupe » pas pour les remplacer.
+
+**Injecter des services dans un service si :**
+- l'opération enchaîne plusieurs étapes qui appartiennent à des domaines différents (ex. `DaValidationService` : changer le statut via `DaService`, tracer via `DaAfficherService`, générer le PDF via `DaSoumissionValidationService`) ;
+- chaque service injecté reste utilisable seul ailleurs (un contrôleur peut aussi appeler `DaService` directement) ;
+- toutes les méthodes du service orchestrateur, ou la majorité, se servent de la dépendance (principe 1) ; une dépendance utilisée par une seule méthode va dans un service dédié.
+
+**Ne pas le faire si :**
+- le service orchestrateur ne fait que relayer des appels (`return $this->x->y()`) : le contrôleur appelle directement le service cible ;
+- cela crée un cycle (A dépend de B qui dépend de A) : extraire la partie commune dans un 3e service dont dépendent les deux ;
+- le constructeur dépasse environ 5 dépendances : le service fait trop de choses, le découper par sous-domaine ;
+- le but est seulement de réduire le nombre d'arguments du contrôleur : un contrôleur peut injecter 3 ou 4 services sans problème.
+
+**Fusionner deux services en un seul** seulement s'ils ont les mêmes dépendances, le même sujet métier et ne sont jamais utilisés séparément. Sinon les garder séparés (composition, pas héritage).
+
+**Sens des dépendances (DA)** : `DaService` et `DaAfficherService` sont la base (ils ne dépendent d'aucun autre service DA, sauf `DaAfficherService` → `DaService`) ; `DaSoumissionValidationService` en dépend ; `DaValidationService` et `DaAffectationService` sont au sommet. Ne pas inverser.
+
 ## Cartographie traits → services (`src/Service/da/`)
 
 | Service cible                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | Reprend                                                                                                                                                                                                   | Dépendances constructeur (indicatif)                                                                     |
