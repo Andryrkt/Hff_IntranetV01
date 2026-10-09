@@ -281,19 +281,30 @@ class EmailDaService
         ]);
     }
 
-    /** 
-     * Méthode pour envoyer un email
+    /**
+     * Méthode pour notifier l'APPRO d'une livraison partielle sur une commande
+     * @param string $numDemandeAppro numéro de la DA
+     * @param string $numCde          numéro de la commande
      */
     public function notifierApproLivraisonPartielle(string $numDemandeAppro, string $numCde)
     {
+        if (!$this->mailAppro) {
+            throw new \RuntimeException("MAIL_TO_APPRO n'est pas configuré : impossible de notifier l'APPRO de la livraison partielle.");
+        }
+
         $this->envoyerEmail([
             'to'        => $this->mailAppro,
             'variables' => [
                 'templateName'  => "livraisonPartielleDa",
                 'header'        => "{$numDemandeAppro} - LIVRAISON PARTIELLE",
                 'subject'       => "{$numDemandeAppro} - Livraison partielle",
+                'nomDemandeur'  => "l'équipe APPRO",
                 'numeroDa'      => $numDemandeAppro,
                 'numeroCde'     => $numCde,
+                'service'       => 'Informatique',
+                'urlIntranet'   => "",
+                'urlDetail'     => "",
+                'dateYear'      => date('Y'),
             ],
         ]);
     }
