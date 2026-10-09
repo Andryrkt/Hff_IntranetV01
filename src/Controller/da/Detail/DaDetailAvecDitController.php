@@ -58,8 +58,8 @@ class DaDetailAvecDitController extends Controller
 		$ditModel = new DitModel();
 		$ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
 		$dit = $ditRepository->findOneBy(["numeroDemandeIntervention" => $demandeAppro->getNumeroDemandeDit()]);
-		$dataModel = $ditModel->recupNumSerieParcPourDa($demandeAppro->getDit() == null ? $dit->getIdMateriel()  : $demandeAppro->getDit()->getIdMateriel());
-
+		$demandeAppro->setDit($dit);
+		$dataModel = $ditModel->recupNumSerieParcPourDa($demandeAppro->getDit()->getIdMateriel());
 		$daObservation = new DaObservation;
 		$formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, ['daTypeId' => $demandeAppro->getDaTypeId()])->getForm();
 
