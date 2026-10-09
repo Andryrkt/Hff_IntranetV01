@@ -92,6 +92,12 @@ services:
       $em: "@doctrine.orm.default_entity_manager"
     public: true
 
+  App\Service\da\reappro\ReportingIpsService:
+    arguments:
+      $reportingIpsModel: '@App\Model\da\reappro\ReportingIpsModel'
+      $rollingMonthsService: '@App\Service\Utils\RollingMonthsService'
+    public: true
+
   # Factories DA
   App\Factory\da\CdeFrnDto\DaSoumissionFacBlFactory:
     arguments:
@@ -114,7 +120,17 @@ services:
 
   App\Controller\da\DaListeDitController:
     arguments:
-      $daListeDitService: 'App\Service\da\DaListeDitService'
+      $daListeDitService: '@App\Service\da\DaListeDitService'
+    public: true
+
+  App\Controller\da\reappro\ReportingIpsController:
+    arguments:
+      $reportingIpsService: '@App\Service\da\reappro\ReportingIpsService'
+    public: true
+
+  App\Controller\da\reappro\ExportExcelController:
+    arguments:
+      $reportingIpsService: '@App\Service\da\reappro\ReportingIpsService'
     public: true
 
   App\Controller\da\Detail\DaDetailReapproController:
