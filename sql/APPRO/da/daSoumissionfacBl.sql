@@ -42,3 +42,7 @@ ALTER TABLE da_soumission_facture_bl ADD
 UPDATE da_soumission_facture_bl
 SET est_facture_reappro = 0
 WHERE est_facture_reappro IS NULL;
+
+ALTER TABLE da_soumission_facture_bl ADD
+    montant_bl_facture_ttc DECIMAL(18,2) NULL
+    ;
