@@ -3,6 +3,7 @@
 namespace App\Repository\ddp;
 
 use App\Constants\ddp\StatutConstants;
+use App\Constants\ddp\TypeDemandePaiementConstants;
 use App\Dto\Da\ddp\BapSearchDto;
 use App\Entity\admin\utilisateur\User;
 use App\Service\TableauEnStringService;
@@ -313,6 +314,29 @@ class DemandePaiementRepository extends EntityRepository
             ]);
 
         return $queryBuilder->getQuery()->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);
+    }
+
+    /**
+     * Somme des montants des factures déjà payées pour une commande, c'est-à-dire
+     * des demandes de paiement "après arrivage" validées ou transmises en compta
+     * (les paiements à l'avance sont sommés à part par getSommeMontantDdpaValide()).
+     */
+    public function getMontantFactureDejaPayer(string $numeroCde, string $codeSociete): ?float
+    {
+        $result = $this->createQueryBuilder('d')
+            ->select('SUM(d.montantAPayers)')
+            ->Where('d.numeroCommande = :numCde')
+            ->andWhere('d.statut in (:statut)')
+            ->andWhere('d.codeSociete = :codeSociete')
+            ->setParameters([
+                'numCde' => $numeroCde,
+                'statut' => [StatutConstants::VALIDE, StatutConstants::TRANSMIS_COMPTA],
+                'codeSociete' => $codeSociete
+            ])
+            ->getQuery()
+            ->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);
+
+        return $result !== null ? (float) $result : null;
     }
 
     public function getSommeMontantValide(string $numeroCde, string $codeSociete)

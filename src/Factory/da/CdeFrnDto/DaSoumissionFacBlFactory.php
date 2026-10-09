@@ -10,7 +10,6 @@ use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDto;
 use App\Dto\ddp\DemandePaiementDto;
 use App\Entity\admin\ddp\TypeDemande;
 use App\Entity\da\DaSoumissionBc;
-use App\Entity\da\DaSoumissionFacBl;
 use App\Entity\ddp\DemandePaiement;
 use App\Mapper\Da\ListCdeFrn\DaSoumissionFacBlMapper;
 use App\Mapper\ddp\DdpRecapMapper;
@@ -125,7 +124,7 @@ class DaSoumissionFacBlFactory
     public function EnrichissementDtoApresSoumission(DaSoumissionFacBlDto $dto)
     {
         $dto->estFournisseurAssujetiTva = $dto->totalMontantCommande < $dto->totalMontantCommandeTTC;
-        $dto->sommeMontantFactureDejaPayer = $this->em->getRepository(DaSoumissionFacBl::class)->getMontantFactureDejaSoumis($dto->numeroCde, $dto->codeSociete) ?? 0.0;
+        $dto->sommeMontantFactureDejaPayer = $this->em->getRepository(DemandePaiement::class)->getMontantFactureDejaPayer($dto->numeroCde, $dto->codeSociete) ?? 0.0;
         $dto->sommeMontantDdpaValider = $this->em->getRepository(DemandePaiement::class)->getSommeMontantDdpaValide($dto->numeroCde, $dto->codeSociete) ?? 0.0;
         $dto->soldeAvance = max(0.0, $dto->sommeMontantDdpaValider - $dto->sommeMontantFactureDejaPayer);
         // dd($dto->sommeMontantFactureDejaPayer, $dto->sommeMontantDdpaValider, $dto->soldeAvance, $dto->montantAregulariser, $dto->soumissionDdpAFaire);
