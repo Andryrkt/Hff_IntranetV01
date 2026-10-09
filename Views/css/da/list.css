@@ -88,7 +88,6 @@
 
 /* Animation de disparition progressive */
 @keyframes fade {
-
   0%,
   100% {
     opacity: 0.2;
@@ -159,11 +158,11 @@
   * CSS pour table hover
   **=============================*/
 
-.table-hover>tbody>tr:hover {
+.table-hover > tbody > tr:hover {
   transform: scale(1.0025);
 }
 
-.modal .table-hover>tbody>tr:hover {
+.modal .table-hover > tbody > tr:hover {
   transform: none;
   cursor: pointer;
 }
@@ -181,7 +180,7 @@
 
 /* Trait fin pour les sous-niveaux (niveaux 2, 3, …)        */
 .sub-separator td,
-tr.sub-separator>td {
+tr.sub-separator > td {
   border-top: 2px solid #000;
   /* même couleur que la bande pleine */
 }
@@ -219,21 +218,50 @@ tr.sub-separator>td {
 /* Indicateurs au-dessus de l'icône du type de DA (pièces jointes / observations) */
 .da-indicateurs {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-evenly;
   align-items: center;
   min-height: 18px;
+  margin-bottom: -6px; /* chevauche le haut de l'icône du type de DA */
+  position: relative;
+  z-index: 1;
+}
+
+.da-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  box-shadow: 0 0 0 2px #fff; /* anneau blanc : détache le badge du fond */
+  transition: background-color 150ms ease;
+}
+
+.da-badge-pj {
+  background: #475569; /* contraste 7,6:1 */
+}
+
+.da-badge-pj .fa-paperclip {
+  font-size: 10px;
+  transform: rotate(-45deg);
 }
 
 .da-badge-obs {
-  display: inline-block;
-  min-width: 18px;
-  height: 18px;
-  line-height: 18px;
-  padding: 0 4px;
-  border-radius: 9px;
-  background: #dc3545;
-  color: #fff;
-  font-size: 11px;
-  font-weight: bold;
-  text-align: center;
+  background: #c62828; /* contraste 5,6:1 */
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .da-badge-pj:hover {
+    background: #334155;
+  }
+
+  .da-badge-obs:hover {
+    background: #a32020;
+  }
 }
