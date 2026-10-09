@@ -216,3 +216,24 @@ tr.sub-separator>td {
   max-width: 60%;
   /* Ajustez le pourcentage selon vos besoins */
 }
+/* Indicateurs au-dessus de l'icône du type de DA (pièces jointes / observations) */
+.da-indicateurs {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 18px;
+}
+
+.da-badge-obs {
+  display: inline-block;
+  min-width: 18px;
+  height: 18px;
+  line-height: 18px;
+  padding: 0 4px;
+  border-radius: 9px;
+  background: #dc3545;
+  color: #fff;
+  font-size: 11px;
+  font-weight: bold;
+  text-align: center;
+}

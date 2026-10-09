@@ -67,6 +67,7 @@
 							<a href="{{ row.urlDetail }}" target="_blank">{{ row.numeroDemandeAppro }}</a>
 						</td>
 						<td class="text-center" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ row.numeroDemandeAppro }}">
+							{% include "/da/shared/listeDA/_indicateursDa.html.twig" %}
 							{{ row.daTypeIcon|raw }}
 						</td>
 						<td class="text-center">{{ row.numeroDemandeDit }}</td>

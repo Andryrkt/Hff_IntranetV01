@@ -16,6 +16,8 @@ class DaAfficherDto
     public $numeroDemandeAppro;
     public $daTypeIcon;
     public $allIcons;
+    public bool $aPiecesJointes = false;
+    public int $nbObservations = 0;
     public $niveauUrgence;
     public $dateFinSouhaite;
     public $artConstp;

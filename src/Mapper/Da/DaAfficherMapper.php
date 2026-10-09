@@ -11,6 +11,7 @@ use App\Dto\Da\DaAfficherDto;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DaSoumissionBc;
 use App\Entity\da\DemandeAppro;
+use App\Model\da\DaAfficherModel;
 use App\Model\da\DaSoumissionFacBlModel;
 use App\Service\da\PermissionDaService;
 use App\Service\Admin\UrlIdCipher;
@@ -25,6 +26,8 @@ class DaAfficherMapper
     private DaIconService $daIconService;
     private EntityManagerInterface $em;
     private UrlIdCipher $urlIdCipher;
+    private DaAfficherModel $daAfficherModel;
+    private array $indicateursDa = [];
 
     public function __construct(
         UrlGeneratorInterface $router,
@@ -36,6 +39,7 @@ class DaAfficherMapper
         $this->permissionDaService = new PermissionDaService();
         $this->daIconService = new DaIconService();
         $this->urlIdCipher = $urlIdCipher;
+        $this->daAfficherModel = new DaAfficherModel();
     }
 
     public function map(DaAfficher $data, array $options = []): DaAfficherDto
@@ -75,6 +79,15 @@ class DaAfficherMapper
         // Icônes
         $dto->daTypeIcon = $this->getTypeDaIcon($dto->datype);
         $dto->allIcons = $this->daIconService->getAllIcons();
+        if ($dto->daTypeIcon !== '') {
+            // cache par DA : une même DA a plusieurs lignes
+            $numDa = $dto->numeroDemandeAppro;
+            $this->indicateursDa[$numDa] ??= [
+                $this->daAfficherModel->aPiecesJointes($numDa),
+                $this->daAfficherModel->countObservations($numDa),
+            ];
+            [$dto->aPiecesJointes, $dto->nbObservations] = $this->indicateursDa[$numDa];
+        }
         $safeIconSuccess = new Markup('<i class="fas fa-check text-success"></i>', 'UTF-8');
         $safeIconXmark   = new Markup('<i class="fas fa-xmark text-danger"></i>', 'UTF-8');
         $safeIconBan     = new Markup('<i class="fas fa-ban text-muted"></i>', 'UTF-8');

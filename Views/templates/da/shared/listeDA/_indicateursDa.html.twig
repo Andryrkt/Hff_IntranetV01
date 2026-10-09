@@ -1,0 +1,4 @@
+<div class="da-indicateurs">
+	<span>{% if row.aPiecesJointes %}<i class="fas fa-paperclip text-secondary"></i>{% endif %}</span>
+	<span>{% if row.nbObservations > 0 %}<span class="da-badge-obs">{{ row.nbObservations > 9 ? '9+' : row.nbObservations }}</span>{% endif %}</span>
+</div>

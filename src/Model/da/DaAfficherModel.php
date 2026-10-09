@@ -258,6 +258,32 @@ class DaAfficherModel extends Model
         return $donnees;
     }
 
+    /**
+     * Vrai si une ligne de DA ou une observation de la DA a des pièces jointes.
+     */
+    public function aPiecesJointes(string $numDa): bool
+    {
+        $numDa = str_replace("'", "''", $numDa);
+        $sql = "SELECT TOP 1 1 AS ok FROM Demande_Appro_L
+                WHERE numero_demande_appro = '$numDa'
+                AND file_names IS NOT NULL AND CAST(file_names AS VARCHAR(MAX)) <> '[]'
+                UNION ALL
+                SELECT TOP 1 1 FROM da_observation
+                WHERE numero_da = '$numDa'
+                AND file_names IS NOT NULL AND CAST(file_names AS VARCHAR(MAX)) <> '[]'";
+
+        return (bool) odbc_fetch_array($this->connexion->query($sql));
+    }
+
+    public function countObservations(string $numDa): int
+    {
+        $numDa = str_replace("'", "''", $numDa);
+        $result = $this->connexion->query("SELECT COUNT(*) AS nb FROM da_observation WHERE numero_da = '$numDa'");
+        $row = odbc_fetch_array($result);
+
+        return (int) ($row['nb'] ?? 0);
+    }
+
     public function checkLivraisonPartielle(string $numDa, string $numCde): bool
     {
         $sql = "SELECT DISTINCT
