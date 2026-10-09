@@ -34,7 +34,7 @@ class DaAfficherDto
     public $datype;
     public $daViaOR;
     public $daDirect;
-    public $daReappro;
+    public $daReapproMensuel;
     public $daParent;
     // Demandeur
     public $demandeur;

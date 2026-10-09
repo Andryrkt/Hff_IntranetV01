@@ -69,7 +69,7 @@ class DaAfficherMapper
         $dto->datype = $data->getDatypeId();
         $dto->daViaOR = $dto->datype === DemandeAppro::TYPE_DA_AVEC_DIT;
         $dto->daDirect = $dto->datype === DemandeAppro::TYPE_DA_DIRECT;
-        $dto->daReappro = $dto->datype === DemandeAppro::TYPE_DA_REAPPRO_MENSUEL;
+        $dto->daReapproMensuel = $dto->datype === DemandeAppro::TYPE_DA_REAPPRO_MENSUEL;
         $dto->daParent = $dto->datype === DemandeAppro::TYPE_DA_PARENT;
 
         // Icônes
@@ -139,7 +139,7 @@ class DaAfficherMapper
 
         // DIT
         $dto->numeroDemandeDit = $dto->daViaOR ? $data->getNumeroDemandeDit() : $safeIconBan;
-        $dto->niveauUrgence = $dto->daReappro ? $safeIconBan : $data->getNiveauUrgence();
+        $dto->niveauUrgence = $dto->daReapproMensuel ? $safeIconBan : $data->getNiveauUrgence();
 
         // Calculs de droits & URLs (Actions & URLs)
         $this->computeRightsAndUrls($dto, $data, $safeIconBan, $estAdmin, $estAppro, $estAtelier, $slugRedirect);
@@ -148,7 +148,11 @@ class DaAfficherMapper
         $dto->tdNumCdeAttributes = $this->prepareTdNumCdeAttributes($dto);
 
         if ($isListCdeFrn) $dto->styleClickableCell = $dto->envoyeFrn ? 'clickable-td' : '';
-        else $dto->styleClickableCell = in_array($data->getStatutDal(), StatutDaConstant::TRAITER_APPRO_LIST) ? 'clickable-td' : '';
+        else $dto->styleClickableCell =
+            in_array($data->getStatutDal(), StatutDaConstant::TRAITER_APPRO_LIST)
+            && ($dto->daViaOR || $dto->daDirect)
+            ? 'clickable-td'
+            : '';
 
         $dto->tdCheckboxAttributes = $this->getCheckboxAttributes($dto, $isListCdeFrn);
         $dto->aDtLivPrevAttributes = $this->getADtLivPrevAttributes($dto);
