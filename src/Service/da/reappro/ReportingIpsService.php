@@ -1,17 +1,31 @@
 <?php
 
-namespace App\Controller\Traits\da\reappro;
+namespace App\Service\da\reappro;
 
 use DateTime;
 use App\Model\da\reappro\ReportingIpsModel;
+use App\Service\Utils\RollingMonthsService;
 
-trait ReportingIpsTrait
+/**
+ * Données du reporting IPS (réappro) : agrégation par produit et par mois.
+ */
+class ReportingIpsService
 {
+    private ReportingIpsModel $reportingIpsModel;
+    private RollingMonthsService $rollingMonthsService;
 
-    private function getData(array $criterias, string $codeSociete): array
+    public function __construct(ReportingIpsModel $reportingIpsModel, RollingMonthsService $rollingMonthsService)
     {
-        $reportingIpsModel = new ReportingIpsModel();
-        $reportingIps = $reportingIpsModel->getReportingData($criterias, $codeSociete);
+        $this->reportingIpsModel = $reportingIpsModel;
+        $this->rollingMonthsService = $rollingMonthsService;
+    }
+
+    /**
+     * @return array{results:array,totals:array}
+     */
+    public function getData(array $criterias, string $codeSociete): array
+    {
+        $reportingIps = $this->reportingIpsModel->getReportingData($criterias, $codeSociete);
 
         // 3. Agréger les données
         $processedData = [];
@@ -50,6 +64,7 @@ trait ReportingIpsTrait
                 // Ignorer les lignes avec des dates invalides
             }
         }
+
         // 4. Filtrer par période avec RollingMonthsService
         $monthExtractor = fn(array $productData): array => array_values($productData['monthly_data']);
 
@@ -73,8 +88,6 @@ trait ReportingIpsTrait
                 }
             }
         }
-        //==================================================================================
-
 
         return [
             'results' => $results,
