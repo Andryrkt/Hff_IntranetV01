@@ -157,6 +157,11 @@ class DaSoumissionFacBl
 
     private $pieceJoint2;
 
+    /**
+     * @ORM\Column(type="decimal", precision=18, scale=2, name="montant_bl_facture_ttc")
+     */
+    private $montantBlFactureTtc;
+
     /**===========================================================================
      * GETTER & SETTER
      *
@@ -665,6 +670,24 @@ class DaSoumissionFacBl
     public function setCodeSociete($codeSociete): self
     {
         $this->codeSociete = $codeSociete;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of montantBlFactureTtc
+     */
+    public function getMontantBlFactureTtc()
+    {
+        return $this->montantBlFactureTtc;
+    }
+
+    /**
+     * Set the value of montantBlFactureTtc
+     */
+    public function setMontantBlFactureTtc($montantBlFactureTtc): self
+    {
+        $this->montantBlFactureTtc = $montantBlFactureTtc;
 
         return $this;
     }

@@ -25,6 +25,7 @@ class DaSoumissionFacBlMapper
             ->setUtilisateur($dto->utilisateur)
             ->setNumeroVersion($dto->numeroVersionFacBl)
             ->setMontantBlFacture($dto->montantBlFacture)
+            ->setMontantBlFactureTtc($dto->montantBlFactureTtc)
             ->setMontantReceptionIps($dto->montantReceptionIps)
             ->setNumeroFournisseur($dto->numeroFournisseur)
             ->setNomFournisseur($dto->nomFournisseur)
@@ -52,6 +53,7 @@ class DaSoumissionFacBlMapper
             ->setNumeroVersion($dto->numeroVersionFacBl)
             ->setDateSoumissionCompta($dto->dateSoumissionCompta)
             ->setMontantBlFacture($dto->montantBlFacture)
+            ->setMontantBlFactureTtc($dto->montantBlFactureTtc)
             ->setMontantReceptionIps($dto->montantReceptionIps)
             ->setNumeroFournisseur($dto->numeroFournisseur)
             ->setNomFournisseur($dto->nomFournisseur)
@@ -141,6 +143,7 @@ class DaSoumissionFacBlMapper
             ->setUtilisateur($dto->utilisateur)
             ->setNumeroVersion($dto->numeroVersionFacBl)
             ->setMontantBlFacture($dto->montantBlFacture)
+            ->setMontantBlFactureTtc($dto->montantBlFactureTtc)
             ->setMontantReceptionIps($dto->montantReceptionIps)
         ;
 
