@@ -234,3 +234,6 @@ Note : `lint:container` et `debug:container` n'existent pas dans ce projet (« n
 - `grep -r "Traits\\\\da" src` : liste des utilisateurs restants, doit diminuer à chaque étape.
 - Parcours manuel par contrôleur migré : créer, modifier, valider (AvecDit, Direct, Reappro), afficher le détail, export Excel/PDF, affectation Achat, liste DIT.
 - Risques : (1) `Controller::redirectToRoute` fait `exit`, donc un service ne doit jamais l'appeler ; (2) les traits et leur contrôleur partagent des propriétés privées homonymes, relire chaque contrôleur pour les `$this->xxxRepository` utilisés directement ; (3) `JoursOuvrablesTrait` (hors `Traits/da`) est utilisé par les traits de création : décider avant l'étape 4 si le service l'utilise tel quel ou si on le convertit aussi.
+
+---
+Suite : voir `docs/plan/PLAN_REFONTE_SERVICES_DA.md` (refonte des services DA : services spécifiques, orchestration, bugs).
