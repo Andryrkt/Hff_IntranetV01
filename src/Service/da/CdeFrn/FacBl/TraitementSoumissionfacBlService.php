@@ -10,10 +10,12 @@ use App\Entity\da\DemandeAppro;
 use App\Entity\dw\DwBcAppro;
 use App\Factory\da\CdeFrnDto\DaSoumissionFacBlFactory;
 use App\Mapper\Da\ListCdeFrn\DaSoumissionFacBlMapper;
+use App\Model\da\DaAfficherModel;
 use App\Model\da\DaSoumissionFacBlModel;
 use App\Repository\da\DaSoumissionFacBlRepository;
 use App\Repository\da\DemandeApproRepository;
 use App\Repository\dw\DwBcApproRepository;
+use App\Service\da\EmailDaService;
 use App\Service\fichier\TraitementDeFichier;
 use App\Service\genererPdf\GeneratePdf;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
@@ -21,6 +23,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class TraitementSoumissionfacBlService
 {
@@ -285,5 +288,15 @@ class TraitementSoumissionfacBlService
             $this->entityManager->persist($daAfficher);
         }
         $this->entityManager->flush();
+    }
+
+    public function notifierApproLivraisonPartielle(DaSoumissionFacBlDto $dto, \Twig\Environment $twig, UrlGeneratorInterface $urlGenerator)
+    {
+        $isLivraisonPartielle = (new DaAfficherModel)->checkLivraisonPartielle($dto->numeroDemandeAppro, $dto->numeroCde);
+
+        if ($isLivraisonPartielle) {
+            $emailDaService = new EmailDaService($twig, $urlGenerator);
+            $emailDaService->notifierApproLivraisonPartielle($dto->numeroDemandeAppro, $dto->numeroCde);
+        }
     }
 }

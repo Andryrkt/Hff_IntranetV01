@@ -56,8 +56,6 @@ class DaSoumissionDataService
 
         $livraisonSoumis = $this->em->getRepository(DaSoumissionFacBl::class)->getAllLivraisonSoumis($numDa, $numCde, $codeSociete);
 
-
-
         foreach ($livraisonSoumis as $numLiv) {
             unset($infosLivraisons[$numLiv]);
         }

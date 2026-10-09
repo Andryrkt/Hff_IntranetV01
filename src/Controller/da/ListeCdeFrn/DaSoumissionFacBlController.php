@@ -35,9 +35,9 @@ class DaSoumissionFacBlController extends Controller
         TraitementSoumissionBAPService $traitementSoumissionBAPService,
         TraitementSoumissionfacBlService $traitementSoumissionfacBlService
     ) {
-        $this->daSoumissionFacBlFactory = $daSoumissionFacBlFactory;
-        $this->traitementSoumissionDDPLService = $traitementSoumissionDDPLService;
-        $this->traitementSoumissionBAPService = $traitementSoumissionBAPService;
+        $this->daSoumissionFacBlFactory         = $daSoumissionFacBlFactory;
+        $this->traitementSoumissionDDPLService  = $traitementSoumissionDDPLService;
+        $this->traitementSoumissionBAPService   = $traitementSoumissionBAPService;
         $this->traitementSoumissionfacBlService = $traitementSoumissionfacBlService;
     }
 
@@ -108,6 +108,8 @@ class DaSoumissionFacBlController extends Controller
             }
 
             if ($sucess) {
+                $this->traitementSoumissionfacBlService->notifierApproLivraisonPartielle($dto, $this->getTwig(), $this->getUrlGenerator());
+
                 /** HISTORISATION */
                 $message = 'Le document est soumis pour validation';
                 $criteria = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn');

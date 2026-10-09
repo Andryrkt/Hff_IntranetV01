@@ -280,6 +280,24 @@ class EmailDaService
             ],
         ]);
     }
+
+    /** 
+     * Méthode pour envoyer un email
+     */
+    public function notifierApproLivraisonPartielle(string $numDemandeAppro, string $numCde)
+    {
+        $this->envoyerEmail([
+            'to'        => $this->mailAppro,
+            'variables' => [
+                'templateName'  => "livraisonPartielleDa",
+                'header'        => "{$numDemandeAppro} - LIVRAISON PARTIELLE",
+                'subject'       => "{$numDemandeAppro} - Livraison partielle",
+                'numeroDa'      => $numDemandeAppro,
+                'numeroCde'     => $numCde,
+            ],
+        ]);
+    }
+
     /** 
      * Méthode pour envoyer un email
      */
