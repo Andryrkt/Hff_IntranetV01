@@ -13,22 +13,20 @@ use App\Entity\da\DemandeApproParentLine;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\da\affectation\DaAffectationTrait;
+use App\Service\da\DaAffectationService;
 
 /** @Route("/demande-appro") */
 class DaAffectationAchatController extends Controller
 {
-    use DaAffectationTrait;
-
     private DaService $daService;
     private DaAfficherService $daAfficherService;
+    private DaAffectationService $daAffectationService;
 
-    public function __construct(DaService $daService, DaAfficherService $daAfficherService)
+    public function __construct(DaService $daService, DaAfficherService $daAfficherService, DaAffectationService $daAffectationService)
     {
         $this->daService         = $daService;
         $this->daAfficherService = $daAfficherService;
-
-        $this->initDaAffectationTrait();
+        $this->daAffectationService = $daAffectationService;
     }
 
     /**
@@ -37,7 +35,7 @@ class DaAffectationAchatController extends Controller
     public function affectationDaAchat($id, Request $request)
     {
         /** @var DemandeApproParent $daParent */
-        $daParent = $this->demandeApproParentRepository->find($id);
+        $daParent = $this->getEntityManager()->getRepository(DemandeApproParent::class)->find($id);
 
         foreach ($daParent->getDemandeApproParentLines() as $dapl) {
             if ($dapl->getArtRefp() === "-") $dapl->setArtRefp("");
@@ -117,10 +115,10 @@ class DaAffectationAchatController extends Controller
         });
 
         // traitement des DA direct
-        if ($allDaDirect->count() > 0) $this->traitementDaParentLines($allDaDirect, $daParent, DemandeAppro::TYPE_DA_DIRECT);
+        if ($allDaDirect->count() > 0) $this->daAffectationService->traitementDaParentLines($allDaDirect, $daParent, DemandeAppro::TYPE_DA_DIRECT);
 
         // traitement des DA ponctuel
-        if ($allDaPonctuel->count() > 0) $this->traitementDaParentLines($allDaPonctuel, $daParent, DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL);
+        if ($allDaPonctuel->count() > 0) $this->daAffectationService->traitementDaParentLines($allDaPonctuel, $daParent, DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL);
 
         $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'L\'affectation a été enregistrée']);
         $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);

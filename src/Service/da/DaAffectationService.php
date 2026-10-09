@@ -1,47 +1,42 @@
 <?php
 
-namespace App\Controller\Traits\da\affectation;
+namespace App\Service\da;
 
-use App\Entity\da\DemandeAppro;
 use App\Constants\da\StatutDaConstant;
+use App\Entity\da\DaAfficher;
 use App\Entity\da\DaObservation;
+use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproParent;
-use App\Entity\da\DaSoumisAValidation;
-use App\Service\autres\VersionService;
-use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\da\DemandeApproParentLine;
-use App\Controller\Traits\da\DaAfficherTrait;
-use App\Repository\da\DaObservationRepository;
+use App\Service\UserData\UserDataService;
 use Doctrine\Common\Collections\Collection;
-use App\Repository\da\DemandeApproParentRepository;
-use App\Repository\da\DaSoumisAValidationRepository;
-use App\Service\da\DaConsumptionHistory;
-use App\Service\genererPdf\da\GenererPdfDaReappro;
+use Doctrine\ORM\EntityManagerInterface;
 
-trait DaAffectationTrait
+/**
+ * Affectation d'une DA parent (Achat) : subdivision en DA directes / réappro ponctuel.
+ */
+class DaAffectationService
 {
-    use DaAfficherTrait;
-    private ?array $oldObservations = null;
-
-    //=====================================================================================
     private EntityManagerInterface $em;
-    private DaObservationRepository $daObservationRepository;
-    private DemandeApproParentRepository $demandeApproParentRepository;
-    private DaSoumisAValidationRepository $daSoumisAValidationRepository;
-    //=====================================================================================
-    /**
-     * Initialise les valeurs par défaut du trait
-     */
-    public function initDaAffectationTrait(): void
-    {
-        $this->initDaTrait();
-        $this->em = $this->getEntityManager();
-        $this->demandeApproParentRepository  = $this->em->getRepository(DemandeApproParent::class);
-        $this->daSoumisAValidationRepository = $this->em->getRepository(DaSoumisAValidation::class);
-        $this->daObservationRepository       = $this->em->getRepository(DaObservation::class);
+    private UserDataService $userDataService;
+    private DaService $daService;
+    private DaAfficherService $daAfficherService;
+    private DaSoumissionValidationService $daSoumissionValidationService;
+
+    public function __construct(
+        EntityManagerInterface $em,
+        UserDataService $userDataService,
+        DaService $daService,
+        DaAfficherService $daAfficherService,
+        DaSoumissionValidationService $daSoumissionValidationService
+    ) {
+        $this->em = $em;
+        $this->userDataService = $userDataService;
+        $this->daService = $daService;
+        $this->daAfficherService = $daAfficherService;
+        $this->daSoumissionValidationService = $daSoumissionValidationService;
     }
-    //=====================================================================================
 
     /**
      * Traite les lignes d'une demande parent
@@ -50,7 +45,7 @@ trait DaAffectationTrait
      * @param DemandeApproParent $daParent       Objet de la demande parent
      * @param int                $daType         Type de la demande
      */
-    private function traitementDaParentLines(Collection $daParentLines, DemandeApproParent $daParent, int $daType)
+    public function traitementDaParentLines(Collection $daParentLines, DemandeApproParent $daParent, int $daType): void
     {
         $demandeAppro = $this->createDemandeAppro($daParent, $daType);
         $numeroDemandeAppro = $demandeAppro->getNumeroDemandeAppro();
@@ -89,17 +84,18 @@ trait DaAffectationTrait
 
         $this->handleOldObservation($numeroDemandeAppro, $daParent->getNumeroDemandeAppro()); // copier les observations de la DA parent
 
-        if ($daParent->getObservation()) $this->insertionObservation($numeroDemandeAppro, $daParent->getObservation()); // insertion d'observation du formulaire dans le nouveau DA
+        if ($daParent->getObservation()) $this->daService->insertionObservation($numeroDemandeAppro, $daParent->getObservation(), $this->userDataService->getUserName()); // observation du formulaire dans la nouvelle DA
 
         $validationDA = $daType === DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL;
         $statutDW = $validationDA ? StatutDaConstant::STATUT_DW_A_VALIDE : '';
 
         // Supprimer les lignes de DA Parent dans la table da_afficher
-        $this->daAfficherRepository->markAsDeletedByNumeroLigne($daParent->getNumeroDemandeAppro(), $notRejectedLines, '__Subdivision-DA__', true);
-        $this->daAfficherRepository->markAsDeletedByNumeroLigne($daParent->getNumeroDemandeAppro(), $rejectedLines, '__Rejected-DA__', true);
+        $daAfficherRepository = $this->em->getRepository(DaAfficher::class);
+        $daAfficherRepository->markAsDeletedByNumeroLigne($daParent->getNumeroDemandeAppro(), $notRejectedLines, '__Subdivision-DA__', true);
+        $daAfficherRepository->markAsDeletedByNumeroLigne($daParent->getNumeroDemandeAppro(), $rejectedLines, '__Rejected-DA__', true);
 
         // Ajouter les nouveaux données dans la table da_afficher
-        $this->ajouterDansTableAffichageParNumDa($numeroDemandeAppro, $validationDA, $statutDW, $daParent->getDateCreation());
+        $this->daAfficherService->ajouterDansTableAffichageParNumDa($numeroDemandeAppro, $validationDA, $statutDW, $daParent->getDateCreation());
 
         if ($validationDA) {
             // création de PDF
@@ -107,31 +103,20 @@ trait DaAffectationTrait
             $dateRange = $daConsumptionHistory->getLast13MonthsDateRange();
             $monthsList = $daConsumptionHistory->getMonthsList($dateRange['start'], $dateRange['end']);
             $dataHistoriqueConsommation = $daConsumptionHistory->getHistoriqueConsommation($demandeAppro, $dateRange, $monthsList);
-            $observations = $this->daObservationRepository->findBy(
-                ['numDa' => $numeroDemandeAppro],
-                ['dateCreation' => 'ASC']
-            );
+            $observations = $this->daService->getObservations($numeroDemandeAppro);
 
-            $genererPdfReappro = new GenererPdfDaReappro();
-            $genererPdfReappro->genererPdfBonAchatValide($demandeAppro, $observations, $monthsList, $dataHistoriqueConsommation);
+            $this->daSoumissionValidationService->creationPDFReappro($demandeAppro, $observations, $monthsList, $dataHistoriqueConsommation);
 
             // Dépôt du document dans DocuWare
-            $genererPdfReappro->copyToDWDaAValiderReapproPonctuel($numeroDemandeAppro, "");
+            $this->daSoumissionValidationService->copyPDFToDWReapproPonctuel($numeroDemandeAppro);
 
             // Enregistrement dans la table de Soumission
-            $this->ajouterDansDaSoumisAValidation($numeroDemandeAppro, $demandeAppro->getDemandeur());
+            $this->daSoumissionValidationService->ajouterDansDaSoumisAValidation($demandeAppro);
         }
     }
 
-    /**
-     * Crée une DA à partir d'une DA parent et du type de DA
-     *
-     * @param DemandeApproParent $daParent Objet de la demande parent
-     * @param int                $daType   Type de la demande
-     *
-     * @return DemandeAppro
-     */
-    private function createDemandeAppro(DemandeApproParent $daParent, int $daType)
+    /** Crée une DA à partir d'une DA parent et du type de DA */
+    private function createDemandeAppro(DemandeApproParent $daParent, int $daType): DemandeAppro
     {
         $demandeAppro = new DemandeAppro();
 
@@ -157,41 +142,17 @@ trait DaAffectationTrait
         if ($daType === DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL) {
             $demandeAppro
                 ->setEstValidee(true)
-                ->setValidateur($this->getUser())
-                ->setValidePar($this->getUser()->getNomUtilisateur())
+                ->setValidateur($this->userDataService->getUser())
+                ->setValidePar($this->userDataService->getUser()->getNomUtilisateur())
             ;
         }
         return $demandeAppro;
     }
 
-    /**
-     * Ajoute les données d'une Demande de Réappro dans la table `DaSoumisAValidation`
-     *
-     * @param string $numeroDemandeAppro  Numéro de la demande de réappro à traiter
-     * @param string $demandeur           Demandeur de la demande de réappro
-     */
-    private function ajouterDansDaSoumisAValidation(string $numeroDemandeAppro, string $demandeur): void
-    {
-        $daSoumisAValidation = new DaSoumisAValidation();
-
-        // Récupère le dernier numéro de version existant pour cette demande d'achat
-        $numeroVersionMax = $this->daSoumisAValidationRepository->getNumeroVersionMax($numeroDemandeAppro);
-        $numeroVersion = VersionService::autoIncrement($numeroVersionMax);
-
-        $daSoumisAValidation
-            ->setNumeroDemandeAppro($numeroDemandeAppro)
-            ->setNumeroVersion($numeroVersion)
-            ->setStatut(StatutDaConstant::STATUT_DW_A_VALIDE)
-            ->setUtilisateur($demandeur)
-        ;
-
-        $this->em->persist($daSoumisAValidation);
-        $this->em->flush();
-    }
-
+    /** Copie les observations de la DA parent vers la nouvelle DA */
     private function handleOldObservation(string $numDa, string $numDaParent): void
     {
-        $observations = $this->getOldObservations($numDaParent);
+        $observations = $this->daService->getObservations($numDaParent);
 
         if (empty($observations)) return;
 
@@ -205,18 +166,7 @@ trait DaAffectationTrait
         $this->em->flush();
     }
 
-    private function getOldObservations(string $numeroDemandeAppro): array
-    {
-        if ($this->oldObservations !== null) return $this->oldObservations;
-
-        $this->oldObservations = $this->daObservationRepository->findBy(
-            ['numDa' => $numeroDemandeAppro],
-            ['dateCreation' => 'ASC']
-        );
-
-        return $this->oldObservations;
-    }
-
+    /** Copie les fichiers de la DA parent vers le dossier de la nouvelle DA */
     private function handleOldFiles(string $numeroDemandeAppro, string $numeroDemandeApproParent, array $fileNames): void
     {
         if (empty($fileNames)) return;
