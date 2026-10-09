@@ -79,10 +79,9 @@ class DdpController extends Controller
             /** @var DdpDto $dto */
             $dto = $form->getData();
 
-            if (!$this->montantEstCorrect($dto)) {
-                $form->get('montantAPayer')->addError(new FormError(
-                    'Le montant saisi ne correspond pas au montant calculé pour la/les commande(s)/facture(s) sélectionnée(s).'
-                ));
+            $erreurMontant = $this->erreurMontant($dto);
+            if ($erreurMontant !== null) {
+                $form->get('montantAPayer')->addError(new FormError($erreurMontant));
                 return;
             }
 
@@ -107,28 +106,54 @@ class DdpController extends Controller
     }
 
     /**
-     * Vérifie que le montant saisi par l'utilisateur correspond au montant
-     * calculé (commande ou facture sélectionnée), miroir de la vérification
-     * déjà faite côté front (DemandePaiementManager.js::verifierMontant).
+     * Vérifie le montant saisi par l'utilisateur, miroir de la vérification
+     * déjà faite côté front (DemandePaiementManager.js::verifierMontant) :
+     * - à l'avance : supérieur à 0 et au plus le montant HT de la commande sélectionnée ;
+     * - après arrivage : égal au montant calculé des factures sélectionnées.
+     *
+     * @return string|null message d'erreur, null si le montant est correct
      */
-    private function montantEstCorrect(DdpDto $dto): bool
+    private function erreurMontant(DdpDto $dto): ?string
     {
-        $montantAttendu = $this->montantAttendu($dto);
-
-        if ($montantAttendu === null) {
-            return true;
+        if ($dto->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE) {
+            return $this->erreurMontantAvance($dto);
         }
 
-        return abs($dto->montantAPayer() - $montantAttendu) < 0.01;
+        $montantAttendu = $this->montantAttendu($dto);
+
+        if ($montantAttendu === null || abs($dto->montantAPayer() - $montantAttendu) < 0.01) {
+            return null;
+        }
+
+        return 'Le montant saisi ne correspond pas au montant calculé pour la/les commande(s)/facture(s) sélectionnée(s).';
+    }
+
+    private function erreurMontantAvance(DdpDto $dto): ?string
+    {
+        $montantSaisi = $dto->montantAPayer();
+
+        if ($montantSaisi <= 0) {
+            return 'Le montant à payer doit être supérieur à 0.';
+        }
+
+        if (empty($dto->numeroCommande)) {
+            return null;
+        }
+
+        $montantCommandeHt = $this->demandePaiementModel->getMontantCde((string) $dto->numeroCommande[0], $dto->codeSociete)['montant_total_cde_ht'];
+
+        if ($montantSaisi - $montantCommandeHt > 0.01) {
+            return sprintf(
+                'Le montant à payer ne peut pas dépasser le montant HT de la commande (%s).',
+                number_format($montantCommandeHt, 2, ',', ' ')
+            );
+        }
+
+        return null;
     }
 
     private function montantAttendu(DdpDto $dto): ?float
     {
-        // Pas de vérification pour les demandes de paiement à l'avance
-        if ($dto->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE) {
-            return null;
-        }
-
         if ($dto->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE) {
             if (empty($dto->numeroFacture)) {
                 return null;

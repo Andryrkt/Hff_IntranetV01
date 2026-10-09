@@ -82,6 +82,7 @@ class InfoFournisseurApi extends Controller
 
         echo json_encode($results);
     }
+    
 
     /**
      * @Route("/api/num-cde-frn/{numeroFournisseur}/{typeId}", name="api_num_cde_frn")
@@ -200,6 +201,22 @@ class InfoFournisseurApi extends Controller
 
         header("Content-type:application/json");
         echo json_encode($montantCde);
+    }
+
+    /**
+     * Montant HT d'une commande fournisseur (plafond du montant à payer pour
+     * une demande de paiement à l'avance)
+     *
+     * @Route("/api/montant-commande-ht/{numCde}", name="api_montant_commande_ht", requirements={"numCde"="\d+"})
+     */
+    public function montantCommandeHt(string $numCde)
+    {
+        $this->libererSession();
+
+        $montantCde = $this->demandePaiementModel()->getMontantCde($numCde, 'HF');
+
+        header("Content-type:application/json");
+        echo json_encode(['montantHt' => $montantCde['montant_total_cde_ht']]);
     }
 
     private function changeStringToArray(array $input): array

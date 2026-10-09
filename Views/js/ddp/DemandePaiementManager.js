@@ -33,7 +33,11 @@ export class DemandePaiementManager {
     // Montant calculé côté serveur (commande/facture sélectionnée), utilisé
     // uniquement pour comparaison : l'utilisateur saisit lui-même le montant.
     this.montantAttendu = null;
+    // Paiement à l'avance (typeId 1) : montant HT de la commande sélectionnée,
+    // plafond du montant saisi (qui doit aussi être > 0).
+    this.montantMaxCommande = null;
     this.montantIncorrect = false;
+    this.messageMontantIncorrect = "";
 
     this.initElements();
     if (this.elements.numFactureInput) {
@@ -100,12 +104,15 @@ export class DemandePaiementManager {
   }
 
   initEventListeners() {
-    // Pas de vérification du montant pour les demandes de paiement à
-    // l'avance (typeId 1) : seul le type "après arrivage" (typeId 2) est
-    // contrôlé, via changeCommandeSelonFacture().
+    // Vérification du montant : "après arrivage" (typeId 2) via
+    // changeCommandeSelonFacture(), "à l'avance" (typeId 1) via
+    // chargerMontantCommandeHt().
 
     $(this.elements.numCommandeInput).on("change", () => {
       this.chargerFichiersCommandeValidee();
+      if (this.typeId == 1 && this.config.urls.montantCommandeHt) {
+        this.chargerMontantCommandeHt();
+      }
     });
 
     if (this.elements.agenceDebiteurInput) {
@@ -650,6 +657,11 @@ export class DemandePaiementManager {
    * (commande ou facture sélectionnée) et met à jour l'état de blocage.
    */
   verifierMontant() {
+    if (this.typeId == 1) {
+      this.verifierMontantAvance();
+      return;
+    }
+
     if (this.montantAttendu === null || isNaN(this.montantAttendu)) {
       this.montantIncorrect = false;
       this.mettreAJourEtatSoumission();
@@ -660,15 +672,69 @@ export class DemandePaiementManager {
     this.montantIncorrect =
       isNaN(montantSaisi) ||
       Math.abs(montantSaisi - this.montantAttendu) > 0.01;
+    this.messageMontantIncorrect =
+      "Le montant saisi ne correspond pas au montant de la/les commande(s)/facture(s) sélectionnée(s).";
 
     this.mettreAJourEtatSoumission();
   }
 
   /**
-   * Bloque (ou débloque) la soumission du formulaire si la sélection actuelle
-   * de commandes contient une commande dont le PDF est introuvable, ou si le
-   * montant saisi ne correspond pas au montant calculé.
+   * Paiement à l'avance : le montant saisi doit être supérieur à 0 et ne pas
+   * dépasser le montant HT de la commande sélectionnée.
    */
+  verifierMontantAvance() {
+    const valeur = this.elements.montantInput.value.trim();
+    const montantSaisi = parseMontant(valeur);
+
+    this.montantIncorrect = false;
+    this.messageMontantIncorrect = "";
+
+    // !(montantSaisi > 0) couvre aussi une saisie non numérique (NaN)
+    if (valeur !== "" && !(montantSaisi > 0)) {
+      this.montantIncorrect = true;
+      this.messageMontantIncorrect =
+        "Le montant à payer doit être supérieur à 0.";
+    } else if (
+      valeur !== "" &&
+      this.montantMaxCommande !== null &&
+      !isNaN(this.montantMaxCommande) &&
+      montantSaisi - this.montantMaxCommande > 0.01
+    ) {
+      this.montantIncorrect = true;
+      this.messageMontantIncorrect = `Le montant à payer ne peut pas dépasser le montant HT de la commande (${formatNumberSpecial(this.montantMaxCommande.toFixed(2))}).`;
+    }
+
+    this.mettreAJourEtatSoumission();
+  }
+
+  /**
+   * Récupère le montant HT de la commande sélectionnée (paiement à l'avance).
+   */
+  async chargerMontantCommandeHt() {
+    const numCde = this.getNumCdesSelectionnees()[0];
+    this.montantMaxCommande = null;
+
+    if (!numCde) {
+      this.verifierMontant();
+      return;
+    }
+
+    try {
+      const url = this.config.urls.montantCommandeHt.replace(":numCde", numCde);
+      const resultat = await this.fetchManager.get(url);
+      // Ignore la réponse si la sélection a changé entre-temps
+      if (this.getNumCdesSelectionnees()[0] !== numCde) return;
+      this.montantMaxCommande = parseFloat(resultat.montantHt);
+    } catch (error) {
+      console.error(
+        "Erreur lors de la récupération du montant de la commande :",
+        error,
+      );
+    }
+
+    this.verifierMontant();
+  }
+
   /**
    * Commandes sélectionnées, toujours sous forme de tableau : le champ est en
    * sélection simple pour les demandes de paiement à l'avance (typeId 1).
@@ -677,6 +743,11 @@ export class DemandePaiementManager {
     return [].concat($(this.elements.numCommandeInput).val() || []).filter(Boolean);
   }
 
+  /**
+   * Bloque (ou débloque) la soumission du formulaire si la sélection actuelle
+   * de commandes contient une commande dont le PDF est introuvable, ou si le
+   * montant saisi est incorrect.
+   */
   mettreAJourEtatSoumission() {
     const numCdesSelectionnees = this.getNumCdesSelectionnees();
     const commandesProblematiques = numCdesSelectionnees.filter((numCde) =>
@@ -703,7 +774,7 @@ export class DemandePaiementManager {
     if (this.elements.montantIncorrectWarning) {
       if (this.montantIncorrect) {
         this.elements.montantIncorrectWarning.textContent =
-          "Le montant saisi ne correspond pas au montant de la/les commande(s)/facture(s) sélectionnée(s).";
+          this.messageMontantIncorrect;
         this.elements.montantIncorrectWarning.classList.remove("d-none");
       } else {
         this.elements.montantIncorrectWarning.textContent = "";
