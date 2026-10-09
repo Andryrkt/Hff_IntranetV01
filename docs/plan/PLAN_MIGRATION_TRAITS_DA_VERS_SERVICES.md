@@ -32,7 +32,7 @@
 | `DaListeDitService` — **FAIT (2026-10-09)** | `DaListeDitTrait::data`, `criteriaIsObjectEmpty`, `ajoutNumSerieNumParc` ; la lecture du formulaire/session reste dans le contrôleur | `em`, `DitModel`, `SessionInterface` (il n'existe pas de classe `SessionService`) ou `UserDataService` |
 | `DaIconService` — **FAIT** | `MarkupIconTrait` (sans état, sans dépendance) | aucune |
 | `DaPrixFournisseurService` — **FAIT** | `PrixFournisseurTrait` (`gererPrixFournisseurs`, `formatPrix`) pour `EmailDaService` et `PdfTableMatriceGenerator` | aucune |
-| `reappro/ReportingIpsService` — **À FAIRE** | `ReportingIpsTrait::getData` | `ReportingIpsModel`, `RollingMonthsService` |
+| `reappro/ReportingIpsService` — **FAIT (2026-10-09)** | `ReportingIpsTrait::getData` | `ReportingIpsModel`, `RollingMonthsService` |
 
 Les traits « fantômes » (`DaPropositionTrait` vide, `DaNewDirectTrait`, `DaNewReapproPonctuelTrait`) n'ont pas de service : ils sont supprimés (voir code mort).
 
@@ -164,7 +164,7 @@ Ajouté le 2026-10-08 : jusqu'ici l'étape 4 n'était qu'une ligne dans « Ordre
 | 4.6 | Proposition | `DaPropositionAvecDitTrait`, `DaPropositionDirectTrait`, `DaPropositionTrait` (supprimés ; ils ne portaient plus que `DaTrait` et `daModel`). La logique métier des 2 contrôleurs de proposition (repositories, upload, choix DALR, ~300 lignes chacun) reste dans les contrôleurs : extraction éventuelle en `DaPropositionService` hors périmètre « traits » | **FAIT (2026-10-08)** |
 | 4.7 | Affectation : `DaAffectationService` | `DaAffectationTrait` (supprimé), `DaAfficherTrait` (supprimé, plus aucun consommateur) | **FAIT (2026-10-08)** |
 | 4.8 | Liste DIT : `DaListeDitService` | `DaListeDitTrait` (supprimé ; `data` (page passée par le contrôleur) et `criteriaIsObjectEmpty` + `ajoutNumSerieNumParc` dans le service, dépendance `em` seule ; lecture formulaire/session `initialisationRechercheDit`/`ajoutCriteredansSession`/`recupDataFormulaireRecherhce` rapatriées en méthodes privées du contrôleur ; doublons `getDateFin`/`getNumParc` du test supprimés, sans effet) | **FAIT (2026-10-09)** |
-| 4.9 | Reappro : `ReportingIpsService` | `ReportingIpsTrait` (bug 2 : export Excel cassé) | À FAIRE |
+| 4.9 | Reappro : `ReportingIpsService` | `ReportingIpsTrait` (supprimé ; `src/Service/da/reappro/ReportingIpsService.php`, `getData` publique, dépendances `ReportingIpsModel` + `RollingMonthsService` injectés ; `ReportingIpsController` et `ExportExcelController` l'utilisent). Bug 2 inchangé : l'export Excel lit toujours `reportingIps`/`qteTotale`/`montantTotal` absents du retour de `getData` (l'erreur « rollingMonthsService non défini » disparaît, reste la 2e) | **FAIT (2026-10-09)** |
 | 4.10 | Nettoyage final | supprimer `DaTrait`, `DaAfficherTrait`, `DaPropositionTrait` ; `grep "Traits\\da" src` vide | À FAIRE |
 
 Note : `lint:container` et `debug:container` n'existent pas dans ce projet (« no commands defined ») ; la vérification se fait en ouvrant les pages concernées.
