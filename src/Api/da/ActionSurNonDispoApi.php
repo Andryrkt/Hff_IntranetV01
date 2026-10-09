@@ -61,6 +61,18 @@ class ActionSurNonDispoApi extends Controller
         }
 
         try {
+            /** @var DaAfficher[] $daAffichers tableau d'objets DaAfficher correpondant aux ID dans daAfficherIds */
+            $daAffichers = $this->daAfficherRepository->findBy(['id' => $daAfficherIds]); // objets DaAfficher correpondant aux ID dans daAfficherIds
+
+            if (!$daAffichers) throw new Exception("aucun article correspondant dans la base de donnée.");
+
+            /** @var DaAfficher $firstDaAfficher premier objet DaAfficher du tableau */
+            $firstDaAfficher = $daAffichers[0];
+
+            if (!in_array($firstDaAfficher->getDaTypeId(), [DemandeAppro::TYPE_DA_AVEC_DIT, DemandeAppro::TYPE_DA_DIRECT])) {
+                throw new Exception("Impossible de supprimer des articles pour ce type de DA. Types autorisés : DA avec OR et DA direct.");
+            }
+
             $connectedUserName = $this->getUserName();
 
             $this->daAfficherRepository->markAsDeletedByListId($daAfficherIds, $connectedUserName);
@@ -106,7 +118,14 @@ class ActionSurNonDispoApi extends Controller
 
             if (!$daAffichers) throw new Exception("aucun article correspondant dans la base de donnée.");
 
-            $demandeApproAvant = $daAffichers[0]->getDemandeAppro();
+            /** @var DaAfficher $firstDaAfficher premier objet DaAfficher du tableau */
+            $firstDaAfficher = $daAffichers[0];
+
+            if (!in_array($firstDaAfficher->getDaTypeId(), [DemandeAppro::TYPE_DA_AVEC_DIT, DemandeAppro::TYPE_DA_DIRECT])) {
+                throw new Exception("Impossible de créer de nouveaux articles pour ce type de DA. Types autorisés : DA avec OR et DA direct.");
+            }
+
+            $demandeApproAvant = $firstDaAfficher->getDemandeAppro();
             if (!$demandeApproAvant) throw new Exception("aucun demande appro ne correspond dans la base de donnée.");
 
             /** 0. Nouveau numéro demande appro et statut */
