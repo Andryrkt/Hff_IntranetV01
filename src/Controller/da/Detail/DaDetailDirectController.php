@@ -2,25 +2,22 @@
 
 namespace App\Controller\da\Detail;
 
-use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
-use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeAppro;
+use App\Entity\da\DaObservation;
+use App\Model\da\DaAfficherModel;
 use App\Form\da\DaObservationType;
-use App\Service\da\DocRattacheService;
 use App\Service\Admin\UrlIdCipher;
+use App\Service\da\DaDetailService;
+use App\Service\da\DaTimelineService;
+use App\Service\da\DocRattacheService;
+use App\Constants\da\StatutDaConstant;
+use App\Service\da\DaObservationService;
+use Doctrine\ORM\EntityManagerInterface;
+use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
-use App\Repository\da\DemandeApproRepository;
-use App\Service\da\EmailDaService;
-use App\Model\da\DaAfficherModel;
-use App\Service\da\DaTimelineService;
-use App\Service\da\DaDetailService;
-use App\Service\da\DaService;
-use App\Service\da\DaObservationService;
-use App\Service\da\DaAfficherService;
-use Doctrine\ORM\EntityManagerInterface;
 
 /**
  * @Route("/demande-appro")
@@ -28,13 +25,10 @@ use Doctrine\ORM\EntityManagerInterface;
 class DaDetailDirectController extends Controller
 {
 	private DemandeApproRepository $demandeApproRepository;
-	private EmailDaService $emailDaService;
 
 	private DocRattacheService $docRattacheService;
 	private DaTimelineService $daTimelineService;
-	private DaService $daService;
 	private DaObservationService $daObservationService;
-	private DaAfficherService $daAfficherService;
 	private DaDetailService $daDetailService;
 	private UrlIdCipher $urlIdCipher;
 
@@ -42,20 +36,14 @@ class DaDetailDirectController extends Controller
 		EntityManagerInterface $em,
 		DocRattacheService $docRattacheService,
 		DaTimelineService $daTimelineService,
-		DaService $daService,
 		DaObservationService $daObservationService,
-		DaAfficherService $daAfficherService,
-		DaDetailService $daDetailService,
-		EmailDaService $emailDaService
+		DaDetailService $daDetailService
 	) {
 		$this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
-		$this->emailDaService = $emailDaService;
 		$this->daDetailService = $daDetailService;
 		$this->docRattacheService = $docRattacheService;
 		$this->daTimelineService = $daTimelineService;
-		$this->daService = $daService;
 		$this->daObservationService = $daObservationService;
-		$this->daAfficherService = $daAfficherService;
 		$this->urlIdCipher = new UrlIdCipher;
 	}
 
@@ -116,25 +104,9 @@ class DaDetailDirectController extends Controller
 		$form->handleRequest($request);
 
 		if ($form->isSubmitted() && $form->isValid()) {
-			/** @var DaObservation $daObservation daObservation correspondant au donnée du form */
-			$daObservation = $form->getData();
+			$notification = $this->daDetailService->envoyerObservation($demandeAppro, $form->getData(), $this->getUserName(), $this->getUser(), $this->estAppro());
 
-			$this->daObservationService->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $this->getUserName(), $daObservation->getFileNames());
-
-			if ($this->estAppro() && $daObservation->getStatutChange()) {
-				$this->daService->appliquerChangementStatut($demandeAppro, StatutDaConstant::STATUT_AUTORISER_EMETTEUR);
-
-				$this->daAfficherService->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro());
-			}
-
-			$notification = [
-				'type' => 'success',
-				'message' => 'Votre observation a été enregistré avec succès.',
-			];
-
-			$this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estAppro());
-
-			$this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+			$this->getSessionService()->set('notification', $notification);
 			return $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
 		}
 	}

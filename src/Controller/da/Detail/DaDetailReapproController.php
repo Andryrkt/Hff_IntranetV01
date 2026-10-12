@@ -3,16 +3,16 @@
 namespace App\Controller\da\Detail;
 
 use App\Service\da\DaService;
-use App\Service\da\DaObservationService;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Model\da\DaAfficherModel;
-use App\Service\da\EmailDaService;
 use App\Form\da\DaObservationType;
 use App\Service\Admin\UrlIdCipher;
+use App\Service\da\DaDetailService;
 use App\Service\da\DaTimelineService;
 use App\Service\da\DocRattacheService;
+use App\Service\da\DaObservationService;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -23,7 +23,7 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException;
  */
 class DaDetailReapproController extends Controller
 {
-	private EmailDaService $emailDaService;
+	private DaDetailService $daDetailService;
 
 	private DaService $daService;
 
@@ -32,9 +32,14 @@ class DaDetailReapproController extends Controller
 	private DaTimelineService $daTimelineService;
 	private DocRattacheService $docRattacheService;
 
-	public function __construct(DaService $daService, DaObservationService $daObservationService, DocRattacheService $docRattacheService, DaTimelineService $daTimelineService, EmailDaService $emailDaService)
-	{
-		$this->emailDaService     = $emailDaService;
+	public function __construct(
+		DaService $daService,
+		DaObservationService $daObservationService,
+		DocRattacheService $docRattacheService,
+		DaTimelineService $daTimelineService,
+		DaDetailService $daDetailService
+	) {
+		$this->daDetailService    = $daDetailService;
 		$this->daService          = $daService;
 		$this->daObservationService = $daObservationService;
 		$this->urlIdCipher        = new UrlIdCipher;
@@ -85,24 +90,14 @@ class DaDetailReapproController extends Controller
 	/** 
 	 * Traitement du formulaire
 	 */
-	private function traitementFormulaire(FormInterface $form, Request $request, DemandeAppro $demandeAppro)
+	private function traitementFormulaire($form, Request $request, DemandeAppro $demandeAppro)
 	{
 		$form->handleRequest($request);
 
 		if ($form->isSubmitted() && $form->isValid()) {
-			/** @var DaObservation $daObservation daObservation correspondant au donnée du form */
-			$daObservation = $form->getData();
+			$notification = $this->daDetailService->envoyerObservation($demandeAppro, $form->getData(), $this->getUserName(), $this->getUser(), $this->estAppro());
 
-			$this->daObservationService->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $this->getUserName(), $daObservation->getFileNames());
-
-			$notification = [
-				'type'    => 'success',
-				'message' => 'Votre observation a été enregistré avec succès.',
-			];
-
-			$this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estAppro());
-
-			$this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+			$this->getSessionService()->set('notification', $notification);
 			return $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
 		}
 	}

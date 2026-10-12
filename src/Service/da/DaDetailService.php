@@ -2,16 +2,60 @@
 
 namespace App\Service\da;
 
+use App\Entity\da\DemandeAppro;
+use App\Entity\da\DaObservation;
 use App\Constants\da\StatutDaConstant;
+use App\Entity\admin\utilisateur\User;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
+/**
+ * Orchestre le détail d'une DA : préparation de l'affichage et envoi d'une observation.
+ */
 class DaDetailService
 {
+    private DaService $daService;
+    private EmailDaService $emailDaService;
     private UrlGeneratorInterface $urlGenerator;
+    private DaObservationService $daObservationService;
+    private DaAfficherService $daAfficherService;
 
-    public function __construct(UrlGeneratorInterface $urlGenerator)
-    {
+    public function __construct(
+        DaService $daService,
+        EmailDaService $emailDaService,
+        UrlGeneratorInterface $urlGenerator,
+        DaObservationService $daObservationService,
+        DaAfficherService $daAfficherService
+    ) {
+        $this->daService = $daService;
+        $this->emailDaService = $emailDaService;
         $this->urlGenerator = $urlGenerator;
+        $this->daObservationService = $daObservationService;
+        $this->daAfficherService = $daAfficherService;
+    }
+
+    /**
+     * Enregistre une observation depuis le détail : insertion, autorisation de l'émetteur (APPRO, si coché),
+     * mise à jour de DaAfficher, mail. Renvoie la notification, la redirection reste au contrôleur.
+     * Pour un Reappro, le formulaire n'a pas de case « statutChange » (toujours false) : aucun changement de statut.
+     */
+    public function envoyerObservation(DemandeAppro $demandeAppro, DaObservation $daObservation, string $username, User $connectedUser, bool $estAppro): array
+    {
+        $numDa = $demandeAppro->getNumeroDemandeAppro();
+
+        $this->daObservationService->insertionObservation($numDa, $daObservation->getObservation(), $username, $daObservation->getFileNames());
+
+        if ($estAppro && $daObservation->getStatutChange()) {
+            $this->daService->appliquerChangementStatut($demandeAppro, StatutDaConstant::STATUT_AUTORISER_EMETTEUR);
+
+            $this->daAfficherService->ajouterDansTableAffichageParNumDa($numDa);
+        }
+
+        $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $connectedUser, $estAppro);
+
+        return [
+            'type'    => 'success',
+            'message' => 'Votre observation a été enregistré avec succès.',
+        ];
     }
 
     /**
