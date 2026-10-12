@@ -704,10 +704,14 @@ a.choix:hover {
   font-size: 0.875rem !important;
 }
 
+:root {
+  --da-shape-size: 2.9em; /* partagé avec .da-type (list.css) */
+}
+
 /* Fond de l'icône : carré arrondi */
 .fa-layers.custom .fa-layer-shape {
-  width: 2.9em;
-  height: 2.9em;
+  width: var(--da-shape-size);
+  height: var(--da-shape-size);
   border-radius: 9px;
 }
 
@@ -729,6 +733,7 @@ a.choix:hover {
   font-size: 0.45em !important;
   padding: 0.5em 0.6em 0;
   border-radius: 0.5em;
+  box-shadow: 0 0 0 1.5px #fff;
   color: white;
 }
 

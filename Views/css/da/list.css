@@ -215,25 +215,22 @@ tr.sub-separator > td {
   max-width: 60%;
   /* Ajustez le pourcentage selon vos besoins */
 }
-/* Indicateurs au-dessus de l'icône du type de DA (pièces jointes / observations) */
-.da-indicateurs {
-  display: flex;
-  justify-content: space-between; /* obs = coin gauche, PJ = coin droit */
-  align-items: center;
-  min-height: 12px;
-  margin: 0 -3px -6px; /* déborde de 3px ; chevauche le haut de l'icône du type de DA */
+/* Conteneur de l'icône du type de DA : même taille que le fond de l'icône, repère des badges */
+.da-type {
   position: relative;
-  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--da-shape-size);
+  height: var(--da-shape-size);
+  font-size: 0.875rem; /* même base que .fa-layers.custom */
+  vertical-align: middle;
 }
 
-/* emplacement fixe : le badge garde son coin même si l'autre est absent */
-.da-slot {
-  display: flex;
-  min-width: 12px;
-  height: 12px;
-}
-
+/* Indicateurs (observations / pièces jointes) : chacun dans son coin, comme .fa-layers-text */
 .da-badge {
+  position: absolute;
+  top: -0.85em;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -246,11 +243,13 @@ tr.sub-separator > td {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   line-height: 1;
-  box-shadow: 0 0 0 2px #fff; /* anneau blanc : détache le badge du fond */
+  z-index: 1;
+  box-shadow: 0 0 0 1.5px #fff; /* anneau blanc : détache le badge du fond */
   transition: background-color 150ms ease;
 }
 
 .da-badge-pj {
+  right: -0.6em;
   background: #6d28d9; /* violet, contraste 7,1:1 */
   padding: 0 3px;
 }
@@ -260,6 +259,7 @@ tr.sub-separator > td {
 }
 
 .da-badge-obs {
+  left: -0.6em;
   background: #c62828; /* contraste 5,6:1 */
 }
 
