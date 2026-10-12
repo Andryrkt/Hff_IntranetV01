@@ -64,14 +64,14 @@ Alternatives, **non retenues par défaut** (à ne proposer que si la règle ci-d
 | `DaService` (allégé) | base | `getJoursRestants`, `getLignesRectifiees`, `appliquerChangementStatut`, `appliquerStatutDemandeDevisEnCours`, `normalizeTypographicChars`, `getDemandeAppro` | `em` | À FAIRE (A4) |
 | `DaPropositionLigneService` | spécifique | logique DAL/DALR et uploads des 2 contrôleurs de proposition | `em`, `FileUploaderForDAService` | À FAIRE (B) |
 | `DaPropositionService` | orchestration | valider/proposer/refuser une proposition : lignes + statut + PDF + mail + `DaAfficher` | `DaPropositionLigneService`, `DaService`, `DaObservationService`, `DaAfficherService`, `DaValidationService`, `EmailDaService` | À FAIRE (B) |
-| `EmailDaService`, `FileUploaderForDAService` | existants | injectés par le conteneur au lieu de `new` | voir A1 | À FAIRE (A1) |
+| `EmailDaService`, `FileUploaderForDAService` | existants | injectés par le conteneur au lieu de `new` | voir A1 | FAIT (A1) |
 | `DaFilterService`, `DaTimelineService`, `EmailDaService`, `DaCreationService` | à auditer | découpe par sous-domaine | — | À FAIRE (C) |
 
 ## Étapes
 
 Chaque étape : `php -l` sur les fichiers modifiés, liste des entrées yaml pour l'utilisateur, parcours manuel de la liste de l'étape, message de commit proposé, mise à jour du statut ici.
 
-### A1. Injection des `new` restants — À FAIRE
+### A1. Injection des `new` restants — FAIT (2026-10-12, yaml à ajouter par l'utilisateur)
 - **Fichiers** : `DaNewAchatController`, `DaNewAvecDitController`, `DaNewReApproMensuelController`, `DaDetailAvecDitController`, `DaDetailDirectController`, `DaDetailReapproController`, `DaEditAvecDitController`, `DaEditDirectController`, `DaPropositionArticleDirectController`, `DaPropositionRefAvecDitController`, `DaValidationAvecDitController`, `DaValidationDirectController`, `DaValidationReapproMensuelController`, `Api/da/ActionSurNonDispoApi` ; `TraitementSoumissionfacBlService:298` (`new EmailDaService`, `$twig`/`$urlGenerator` passés en argument depuis `DaSoumissionFacBlController` : injecter `EmailDaService` dans le constructeur du service et retirer ces arguments) ; `DaValidationService:138` (`new ExcelService()`).
 - **Travail** : `EmailDaService` reçoit `Twig\Environment` et `UrlGeneratorInterface` du conteneur (service à déclarer public) ; `FileUploaderForDAService` est déjà déclaré dans le yaml ; `ExcelService` injecté dans `DaValidationService`. Chaque contrôleur reçoit ce dont il se sert par son constructeur ; les repositories restent tirés de `$em`.
 - **yaml** : déclarer `EmailDaService` ; ajouter les arguments `$emailDaService` / `$daFileUploader` des contrôleurs concernés ; `$excelService` de `DaValidationService`.
