@@ -13,7 +13,7 @@ use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
 use App\Service\Admin\UrlIdCipher;
 use App\Form\da\DemandeApproFormType;
-use App\Service\da\DaService;
+use App\Service\da\DaObservationService;
 use App\Service\da\DaAfficherService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,13 +29,13 @@ class DaEditAvecDitController extends Controller
     private EmailDaService $emailDaService;
 
     private UrlIdCipher $urlIdCipher;
-    private DaService $daService;
+    private DaObservationService $daObservationService;
     private DaAfficherService $daAfficherService;
     private DaEditionService $daEditionService;
 
     public function __construct(
         EntityManagerInterface $em,
-        DaService $daService,
+        DaObservationService $daObservationService,
         DaAfficherService $daAfficherService,
         DaEditionService $daEditionService,
         EmailDaService $emailDaService
@@ -43,7 +43,7 @@ class DaEditAvecDitController extends Controller
         $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
         $this->emailDaService = $emailDaService;
         $this->urlIdCipher = new UrlIdCipher;
-        $this->daService = $daService;
+        $this->daObservationService = $daObservationService;
         $this->daAfficherService = $daAfficherService;
         $this->daEditionService = $daEditionService;
     }
@@ -124,7 +124,7 @@ class DaEditAvecDitController extends Controller
 
             $this->daEditionService->modificationDa($demandeAppro, $this->lignesFormulaire($form->get('DAL')), StatutDaConstant::STATUT_SOUMIS_APPRO);
             if ($demandeAppro->getObservation() !== null) {
-                $this->daService->insertionObservation($numDa, $demandeAppro->getObservation(), $this->getUserName());
+                $this->daObservationService->insertionObservation($numDa, $demandeAppro->getObservation(), $this->getUserName());
             }
 
             $this->daAfficherService->ajouterDansTableAffichageParNumDa($numDa); // ajout dans la table DaAfficher si le statut a changé

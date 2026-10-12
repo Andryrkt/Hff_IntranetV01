@@ -20,20 +20,20 @@ class DaAffectationService
 {
     private EntityManagerInterface $em;
     private UserDataService $userDataService;
-    private DaService $daService;
+    private DaObservationService $daObservationService;
     private DaAfficherService $daAfficherService;
     private DaSoumissionValidationService $daSoumissionValidationService;
 
     public function __construct(
         EntityManagerInterface $em,
         UserDataService $userDataService,
-        DaService $daService,
+        DaObservationService $daObservationService,
         DaAfficherService $daAfficherService,
         DaSoumissionValidationService $daSoumissionValidationService
     ) {
         $this->em = $em;
         $this->userDataService = $userDataService;
-        $this->daService = $daService;
+        $this->daObservationService = $daObservationService;
         $this->daAfficherService = $daAfficherService;
         $this->daSoumissionValidationService = $daSoumissionValidationService;
     }
@@ -84,7 +84,7 @@ class DaAffectationService
 
         $this->handleOldObservation($numeroDemandeAppro, $daParent->getNumeroDemandeAppro()); // copier les observations de la DA parent
 
-        if ($daParent->getObservation()) $this->daService->insertionObservation($numeroDemandeAppro, $daParent->getObservation(), $this->userDataService->getUserName()); // observation du formulaire dans la nouvelle DA
+        if ($daParent->getObservation()) $this->daObservationService->insertionObservation($numeroDemandeAppro, $daParent->getObservation(), $this->userDataService->getUserName()); // observation du formulaire dans la nouvelle DA
 
         $validationDA = $daType === DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL;
         $statutDW = $validationDA ? StatutDaConstant::STATUT_DW_A_VALIDE : '';
@@ -103,7 +103,7 @@ class DaAffectationService
             $dateRange = $daConsumptionHistory->getLast13MonthsDateRange();
             $monthsList = $daConsumptionHistory->getMonthsList($dateRange['start'], $dateRange['end']);
             $dataHistoriqueConsommation = $daConsumptionHistory->getHistoriqueConsommation($demandeAppro, $dateRange, $monthsList);
-            $observations = $this->daService->getObservations($numeroDemandeAppro);
+            $observations = $this->daObservationService->getObservations($numeroDemandeAppro);
 
             $this->daSoumissionValidationService->creationPDFReappro($demandeAppro, $observations, $monthsList, $dataHistoriqueConsommation);
 
@@ -152,7 +152,7 @@ class DaAffectationService
     /** Copie les observations de la DA parent vers la nouvelle DA */
     private function handleOldObservation(string $numDa, string $numDaParent): void
     {
-        $observations = $this->daService->getObservations($numDaParent);
+        $observations = $this->daObservationService->getObservations($numDaParent);
 
         if (empty($observations)) return;
 

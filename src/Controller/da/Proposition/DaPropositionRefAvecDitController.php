@@ -26,7 +26,7 @@ use App\Service\da\DocRattacheService;
 use App\Service\Admin\UrlIdCipher;
 use App\Service\da\DaAfficherService;
 use App\Service\da\DaFournisseurService;
-use App\Service\da\DaService;
+use App\Service\da\DaObservationService;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -43,7 +43,7 @@ class DaPropositionRefAvecDitController extends Controller
     private const EDIT = 0;
     private DocRattacheService $docRattacheService;
     private UrlIdCipher $urlIdCipher;
-    private DaService $daService;
+    private DaObservationService $daObservationService;
     private DaAfficherService $daAfficherService;
     private DaValidationService $daValidationService;
     private DaFournisseurService $daFournisseurService;
@@ -52,7 +52,7 @@ class DaPropositionRefAvecDitController extends Controller
     public function __construct(
         EntityManagerInterface $em,
         DocRattacheService $docRattacheService,
-        DaService $daService,
+        DaObservationService $daObservationService,
         DaAfficherService $daAfficherService,
         DaFournisseurService $daFournisseurService,
         DaValidationService $daValidationService,
@@ -61,7 +61,7 @@ class DaPropositionRefAvecDitController extends Controller
         FileUploaderForDAService $daFileUploader
     ) {
         $this->docRattacheService = $docRattacheService;
-        $this->daService = $daService;
+        $this->daObservationService = $daObservationService;
         $this->daAfficherService = $daAfficherService;
         $this->daFournisseurService = $daFournisseurService;
         $this->daValidationService = $daValidationService;
@@ -103,7 +103,7 @@ class DaPropositionRefAvecDitController extends Controller
         $this->traitementFormulaire($form, $formObservation, $dals, $request, $numDa, $da);
         // =================================================================================//
 
-        $observations = $this->daService->getObservations($numDa);
+        $observations = $this->daObservationService->getObservations($numDa);
 
         $fichiers = $this->docRattacheService->getAllAttachedFiles($da);
 
@@ -174,7 +174,7 @@ class DaPropositionRefAvecDitController extends Controller
 
     private function traitementEnvoiObservation(DaObservation $daObservation, DemandeAppro $demandeAppro)
     {
-        $this->daService->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $this->getUserName(), $daObservation->getFileNames());
+        $this->daObservationService->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $this->getUserName(), $daObservation->getFileNames());
 
         if ($this->estAppro() && $daObservation->getStatutChange()) {
             $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), StatutDaConstant::STATUT_AUTORISER_EMETTEUR);
@@ -200,7 +200,7 @@ class DaPropositionRefAvecDitController extends Controller
     private function traitementPourBtnEnvoyerObservation($observation, DemandeAppro $demandeAppro, $statutChange)
     {
         if ($observation !== null) {
-            $this->daService->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $observation, $this->getUserName());
+            $this->daObservationService->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $observation, $this->getUserName());
             if ($statutChange) {
                 $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), StatutDaConstant::STATUT_SOUMIS_APPRO);
                 $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), StatutDaConstant::STATUT_SOUMIS_APPRO);
@@ -381,7 +381,7 @@ class DaPropositionRefAvecDitController extends Controller
         }
 
         if ($observation !== null) {
-            $this->daService->insertionObservation($numDa, $observation, $this->getUserName());
+            $this->daObservationService->insertionObservation($numDa, $observation, $this->getUserName());
         }
 
         $this->modificationStatutDal($numDa, $statut);

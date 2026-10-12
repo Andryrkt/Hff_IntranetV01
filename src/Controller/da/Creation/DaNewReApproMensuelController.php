@@ -3,6 +3,7 @@
 namespace App\Controller\da\Creation;
 
 use App\Service\da\DaService;
+use App\Service\da\DaObservationService;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
@@ -26,17 +27,20 @@ class DaNewReApproMensuelController extends Controller
     private DemandeApproRepository $demandeApproRepository;
     private EmailDaService $emailDaService;
     private DaService $daService;
+    private DaObservationService $daObservationService;
     private DaAfficherService $daAfficherService;
     private DaCreationService $daCreationService;
 
     public function __construct(
         DaService $daService,
+        DaObservationService $daObservationService,
         EntityManagerInterface $em,
         DaAfficherService $daAfficherService,
         DaCreationService $daCreationService,
         EmailDaService $emailDaService
     ) {
         $this->daService              = $daService;
+        $this->daObservationService = $daObservationService;
         $this->daAfficherService      = $daAfficherService;
         $this->daCreationService      = $daCreationService;
         $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
@@ -125,7 +129,7 @@ class DaNewReApproMensuelController extends Controller
                 $this->getEntityManager()->flush();
 
                 /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
-                if ($demandeAppro->getObservation()) $this->daService->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $demandeAppro->getObservation(), $this->getUserName());
+                if ($demandeAppro->getObservation()) $this->daObservationService->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $demandeAppro->getObservation(), $this->getUserName());
 
                 // ajout des données dans la table DaAfficher
                 $this->daAfficherService->generateDaAfficherOnCreationDa($demandeAppro, $firstCreation);

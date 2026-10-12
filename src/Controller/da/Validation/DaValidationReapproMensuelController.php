@@ -14,7 +14,7 @@ use App\Service\da\EmailDaService;
 use App\Service\da\DaValidationService;
 use App\Service\da\DaSoumissionValidationService;
 use App\Service\da\DaConsumptionHistory;
-use App\Service\da\DaService;
+use App\Service\da\DaObservationService;
 use App\Service\da\DocRattacheService;
 use App\Service\Admin\UrlIdCipher;
 use Doctrine\ORM\EntityManagerInterface;
@@ -30,14 +30,14 @@ class DaValidationReapproMensuelController extends Controller
 
     private DocRattacheService $docRattacheService;
     private UrlIdCipher $urlIdCipher;
-    private DaService $daService;
+    private DaObservationService $daObservationService;
     private DaValidationService $daValidationService;
     private DaSoumissionValidationService $daSoumissionValidationService;
 
     public function __construct(
         EntityManagerInterface $em,
         DocRattacheService $docRattacheService,
-        DaService $daService,
+        DaObservationService $daObservationService,
         DaValidationService $daValidationService,
         DaSoumissionValidationService $daSoumissionValidationService,
         EmailDaService $emailDaService
@@ -47,7 +47,7 @@ class DaValidationReapproMensuelController extends Controller
         $this->daValidationService = $daValidationService;
         $this->daSoumissionValidationService = $daSoumissionValidationService;
         $this->docRattacheService = $docRattacheService;
-        $this->daService = $daService;
+        $this->daObservationService = $daObservationService;
         $this->urlIdCipher = new UrlIdCipher;
     }
 
@@ -72,7 +72,7 @@ class DaValidationReapproMensuelController extends Controller
         $monthsList = $daConsumptionHistory->getMonthsList($dateRange['start'], $dateRange['end']);
         $dataHistoriqueConsommation = $daConsumptionHistory->getHistoriqueConsommation($demandeAppro, $dateRange, $monthsList);
 
-        $observations = $this->daService->getObservations($demandeAppro->getNumeroDemandeAppro());
+        $observations = $this->daObservationService->getObservations($demandeAppro->getNumeroDemandeAppro());
 
         //========================================== Traitement du formulaire en général ===================================================//
         $this->traitementFormulaire($formReappro, $formObservation, $request, $demandeAppro, $observations, $monthsList, $dataHistoriqueConsommation);
@@ -104,7 +104,7 @@ class DaValidationReapproMensuelController extends Controller
             // ✅ Récupérer les valeurs des champs caché
             $observation = $formReappro->getData()->getObservation();
 
-            if ($observation) $this->daService->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $observation, $this->getUserName());
+            if ($observation) $this->daObservationService->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $observation, $this->getUserName());
 
             if ($request->request->has('refuser')) {
                 $this->daValidationService->refuserDemandeReappro($demandeAppro);
@@ -145,7 +145,7 @@ class DaValidationReapproMensuelController extends Controller
 
     private function traitementEnvoiObservation(DaObservation $daObservation, DemandeAppro $demandeAppro)
     {
-        $this->daService->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $this->getUserName(), $daObservation->getFileNames());
+        $this->daObservationService->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $this->getUserName(), $daObservation->getFileNames());
 
         $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estAppro());
 

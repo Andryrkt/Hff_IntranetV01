@@ -2,7 +2,7 @@
 
 namespace App\Controller\da\Affectation;
 
-use App\Service\da\DaService;
+use App\Service\da\DaObservationService;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Form\da\DaAffectationType;
@@ -18,13 +18,13 @@ use App\Service\da\DaAffectationService;
 /** @Route("/demande-appro") */
 class DaAffectationAchatController extends Controller
 {
-    private DaService $daService;
+    private DaObservationService $daObservationService;
     private DaAfficherService $daAfficherService;
     private DaAffectationService $daAffectationService;
 
-    public function __construct(DaService $daService, DaAfficherService $daAfficherService, DaAffectationService $daAffectationService)
+    public function __construct(DaObservationService $daObservationService, DaAfficherService $daAfficherService, DaAffectationService $daAffectationService)
     {
-        $this->daService         = $daService;
+        $this->daObservationService         = $daObservationService;
         $this->daAfficherService = $daAfficherService;
         $this->daAffectationService = $daAffectationService;
     }
@@ -93,7 +93,7 @@ class DaAffectationAchatController extends Controller
             $this->getEntityManager()->flush();
 
             // Ajout de l'observation dans la table da_observation 
-            $this->daService->insertionObservation($daParent->getNumeroDemandeAppro(), $motif, $this->getUserName());
+            $this->daObservationService->insertionObservation($daParent->getNumeroDemandeAppro(), $motif, $this->getUserName());
 
             // Ajout des données dans la table DaAfficher
             $this->daAfficherService->generateDaAfficherOnCreationDaParent($daParent, false);

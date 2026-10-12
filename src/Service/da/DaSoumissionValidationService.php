@@ -23,7 +23,7 @@ use Exception;
 class DaSoumissionValidationService
 {
     private EntityManagerInterface $em;
-    private DaService $daService;
+    private DaObservationService $daObservationService;
     private GenererPdfDaAvecDit $genererPdfDaAvecDit;
     private GenererPdfDaDirect $genererPdfDaDirect;
     private GenererPdfDaReappro $genererPdfDaReappro;
@@ -31,14 +31,14 @@ class DaSoumissionValidationService
 
     public function __construct(
         EntityManagerInterface $em,
-        DaService $daService,
+        DaObservationService $daObservationService,
         GenererPdfDaAvecDit $genererPdfDaAvecDit,
         GenererPdfDaDirect $genererPdfDaDirect,
         GenererPdfDaReappro $genererPdfDaReappro,
         TraitementDeFichier $traitementDeFichier
     ) {
         $this->em = $em;
-        $this->daService = $daService;
+        $this->daObservationService = $daObservationService;
         $this->genererPdfDaAvecDit = $genererPdfDaAvecDit;
         $this->genererPdfDaDirect = $genererPdfDaDirect;
         $this->genererPdfDaReappro = $genererPdfDaReappro;
@@ -57,7 +57,7 @@ class DaSoumissionValidationService
     public function creationPDFDirect(string $numDa): void
     {
         $da = $this->em->getRepository(DemandeAppro::class)->findAvecDernieresDALetLRParNumero($numDa);
-        $observations = $this->daService->getObservations($numDa);
+        $observations = $this->daObservationService->getObservations($numDa);
         $this->genererPdfDaDirect->genererPdfBonAchatValide($da, $observations);
     }
 

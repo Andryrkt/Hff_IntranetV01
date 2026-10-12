@@ -3,26 +3,28 @@
 namespace App\Controller\admin\generationPDF;
 
 use App\Controller\Controller;
-use Symfony\Component\Routing\Annotation\Route;
-use App\Repository\da\DemandeApproRepository;
 use App\Entity\da\DemandeAppro;
 use App\Service\da\DaConsumptionHistory;
-use App\Service\da\DaService;
+use App\Service\da\DaObservationService;
+use App\Repository\da\DemandeApproRepository;
+use Symfony\Component\Routing\Annotation\Route;
 use App\Service\da\DaSoumissionValidationService;
+use Doctrine\ORM\EntityManagerInterface;
 
 /** @Route(path="/admin/generation-PDF") */
 class GenerationPDFReapproController extends Controller
 {
+    private DaObservationService $daObservationService;
     private DemandeApproRepository $demandeApproRepository;
-
-    private DaService $daService;
     private DaSoumissionValidationService $daSoumissionValidationService;
 
-    public function __construct(DaService $daService, DaSoumissionValidationService $daSoumissionValidationService)
-    {
-        $em = $this->getEntityManager();
+    public function __construct(
+        EntityManagerInterface $em,
+        DaObservationService $daObservationService,
+        DaSoumissionValidationService $daSoumissionValidationService
+    ) {
         $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
-        $this->daService = $daService;
+        $this->daObservationService = $daObservationService;
         $this->daSoumissionValidationService = $daSoumissionValidationService;
     }
 
@@ -40,7 +42,7 @@ class GenerationPDFReapproController extends Controller
         $dateRange = $daConsumptionHistory->getLast13MonthsDateRange();
         $monthsList = $daConsumptionHistory->getMonthsList($dateRange['start'], $dateRange['end']);
         $dataHistoriqueConsommation = $daConsumptionHistory->getHistoriqueConsommation($demandeAppro, $dateRange, $monthsList);
-        $observations = $this->daService->getObservations($numeroDemandeAppro);
+        $observations = $this->daObservationService->getObservations($numeroDemandeAppro);
 
         $this->daSoumissionValidationService->creationPDFReappro($demandeAppro, $observations, $monthsList, $dataHistoriqueConsommation);
 

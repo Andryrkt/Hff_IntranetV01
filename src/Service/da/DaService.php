@@ -14,7 +14,6 @@ use App\Repository\da\DaObservationRepository;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
 use App\Model\dw\DossierInterventionAtelierModel;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class DaService
 {
@@ -23,13 +22,11 @@ class DaService
     private DaObservationRepository $daObservationRepository;
     private DemandeApproLRepository $demandeApproLRepository;
     private DemandeApproLRRepository $demandeApproLRRepository;
-    private FileUploaderForDAService $daFileUploader;
     private FileCheckerService $fileCheckerService;
 
-    public function __construct(EntityManagerInterface $em, FileUploaderForDAService $daFileUploader)
+    public function __construct(EntityManagerInterface $em)
     {
         $this->em                       = $em;
-        $this->daFileUploader           = $daFileUploader;
         $this->fileCheckerService       = new FileCheckerService();
         $this->demandeApproRepository   = $em->getRepository(DemandeAppro::class);
         $this->daObservationRepository  = $em->getRepository(DaObservation::class);
@@ -57,37 +54,6 @@ class DaService
 
         // --- 3. Retourner la valeur ---
         return $days;
-    }
-
-    /** 
-     * Fonction pour l'insertion d'une observation
-     * 
-     * @param string         $numDa       le numéro de la DA
-     * @param string         $observation l'Observation à insérer
-     * @param string         $username    le nom de l'utilisateur
-     * @param UploadedFile[] $files       les fichiers à uploader
-     * 
-     * @return void
-     */
-    public function insertionObservation(string $numDa, string $observation, string $username, ?array $files = null): void
-    {
-        $text = str_replace(["\r\n", "\n", "\r"], "<br>", $observation);
-
-        $daObservation = new DaObservation();
-
-        $daObservation
-            ->setObservation($text)
-            ->setNumDa($numDa)
-            ->setUtilisateur($username)
-        ;
-
-        if ($files) {
-            $fileNames = $this->daFileUploader->uploadMultipleDaFiles($files, $numDa, FileUploaderForDAService::FILE_TYPE["OBSERVATION"]);
-            $daObservation->setFileNames($fileNames);
-        }
-
-        $this->em->persist($daObservation);
-        $this->em->flush();
     }
 
     /**
@@ -194,12 +160,6 @@ class DaService
     public function getDemandeAppro(int $id): ?DemandeAppro
     {
         return $this->demandeApproRepository->find($id);
-    }
-
-    /** Récupère tous les observations d'une DA */
-    public function getObservations(string $numDa): array
-    {
-        return $this->daObservationRepository->findBy(['numDa' => $numDa], ['dateCreation' => 'ASC']);
     }
 
     /** 

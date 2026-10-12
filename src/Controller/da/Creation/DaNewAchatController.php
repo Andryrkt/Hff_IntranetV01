@@ -13,6 +13,7 @@ use App\Form\da\DemandeApproAchatFormType;
 use App\Service\application\ApplicationService;
 use App\Service\da\DaAfficherService;
 use App\Service\da\DaService;
+use App\Service\da\DaObservationService;
 use App\Service\da\FileUploaderForDAService;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,17 +31,21 @@ class DaNewAchatController extends Controller
     ];
 
     private DaService $daService;
+
+    private DaObservationService $daObservationService;
     private DaAfficherService $daAfficherService;
     private DaCreationService $daCreationService;
 
     public function __construct(
         DaService $daService,
+        DaObservationService $daObservationService,
         DaAfficherService $daAfficherService,
         DaCreationService $daCreationService,
         EmailDaService $emailDaService,
         FileUploaderForDAService $daFileUploader
     ) {
         $this->daService         = $daService;
+        $this->daObservationService = $daObservationService;
         $this->daAfficherService = $daAfficherService;
         $this->daCreationService = $daCreationService;
         $this->emailDaService    = $emailDaService;
@@ -155,7 +160,7 @@ class DaNewAchatController extends Controller
                 $this->getEntityManager()->flush();
 
                 /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
-                if ($demandeApproParent->getObservation()) $this->daService->insertionObservation($numDa, $demandeApproParent->getObservation(), $this->getUserName());
+                if ($demandeApproParent->getObservation()) $this->daObservationService->insertionObservation($numDa, $demandeApproParent->getObservation(), $this->getUserName());
 
                 // ajout des données dans la table DaAfficher
                 $this->daAfficherService->generateDaAfficherOnCreationDaParent($demandeApproParent, $firstCreation);

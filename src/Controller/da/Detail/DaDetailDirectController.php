@@ -18,6 +18,7 @@ use App\Model\da\DaAfficherModel;
 use App\Service\da\DaTimelineService;
 use App\Service\da\DaDetailService;
 use App\Service\da\DaService;
+use App\Service\da\DaObservationService;
 use App\Service\da\DaAfficherService;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -32,6 +33,7 @@ class DaDetailDirectController extends Controller
 	private DocRattacheService $docRattacheService;
 	private DaTimelineService $daTimelineService;
 	private DaService $daService;
+	private DaObservationService $daObservationService;
 	private DaAfficherService $daAfficherService;
 	private DaDetailService $daDetailService;
 	private UrlIdCipher $urlIdCipher;
@@ -41,6 +43,7 @@ class DaDetailDirectController extends Controller
 		DocRattacheService $docRattacheService,
 		DaTimelineService $daTimelineService,
 		DaService $daService,
+		DaObservationService $daObservationService,
 		DaAfficherService $daAfficherService,
 		DaDetailService $daDetailService,
 		EmailDaService $emailDaService
@@ -51,6 +54,7 @@ class DaDetailDirectController extends Controller
 		$this->docRattacheService = $docRattacheService;
 		$this->daTimelineService = $daTimelineService;
 		$this->daService = $daService;
+		$this->daObservationService = $daObservationService;
 		$this->daAfficherService = $daAfficherService;
 		$this->urlIdCipher = new UrlIdCipher;
 	}
@@ -72,7 +76,7 @@ class DaDetailDirectController extends Controller
 
 		$this->traitementFormulaire($formObservation, $request, $demandeAppro);
 
-		$observations = $this->daService->getObservations($demandeAppro->getNumeroDemandeAppro());
+		$observations = $this->daObservationService->getObservations($demandeAppro->getNumeroDemandeAppro());
 
 		$statutEtAction = (new DaAfficherModel)->getStatutEtActionAffichage($demandeAppro->getNumeroDemandeAppro(), "{$demandeAppro->getAgenceServiceEmetteur()} — {$demandeAppro->getDemandeur()}");
 		$statutDa = $statutEtAction['statutDa'] ?? "";
@@ -115,7 +119,7 @@ class DaDetailDirectController extends Controller
 			/** @var DaObservation $daObservation daObservation correspondant au donnée du form */
 			$daObservation = $form->getData();
 
-			$this->daService->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $this->getUserName(), $daObservation->getFileNames());
+			$this->daObservationService->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $this->getUserName(), $daObservation->getFileNames());
 
 			if ($this->estAppro() && $daObservation->getStatutChange()) {
 				$this->daService->appliquerChangementStatut($demandeAppro, StatutDaConstant::STATUT_AUTORISER_EMETTEUR);

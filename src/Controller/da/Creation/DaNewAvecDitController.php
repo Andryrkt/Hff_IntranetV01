@@ -4,6 +4,7 @@ namespace App\Controller\da\Creation;
 
 use App\Model\da\DaModel;
 use App\Service\da\DaService;
+use App\Service\da\DaObservationService;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
@@ -37,6 +38,8 @@ class DaNewAvecDitController extends Controller
     ];
 
     private DaService $daService;
+
+    private DaObservationService $daObservationService;
     private DaAfficherService $daAfficherService;
     private DaCreationService $daCreationService;
     private DaFournisseurService $daFournisseurService;
@@ -45,6 +48,7 @@ class DaNewAvecDitController extends Controller
     public function __construct(
         EntityManagerInterface $em,
         DaService $daService,
+        DaObservationService $daObservationService,
         DaAfficherService $daAfficherService,
         DaFournisseurService $daFournisseurService,
         DaCreationService $daCreationService,
@@ -53,6 +57,7 @@ class DaNewAvecDitController extends Controller
         FileUploaderForDAService $daFileUploader
     ) {
         $this->daService              = $daService;
+        $this->daObservationService = $daObservationService;
         $this->daAfficherService      = $daAfficherService;
         $this->daFournisseurService   = $daFournisseurService;
         $this->daCreationService      = $daCreationService;
@@ -174,7 +179,7 @@ class DaNewAvecDitController extends Controller
                 $this->getEntityManager()->flush();
 
                 /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
-                if ($demandeAppro->getObservation()) $this->daService->insertionObservation($numDa, $demandeAppro->getObservation(), $this->getUserName());
+                if ($demandeAppro->getObservation()) $this->daObservationService->insertionObservation($numDa, $demandeAppro->getObservation(), $this->getUserName());
 
                 // ajout des données dans la table DaAfficher
                 $this->daAfficherService->generateDaAfficherOnCreationDa($demandeAppro, $firstCreation, $dit);

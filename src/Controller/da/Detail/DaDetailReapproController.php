@@ -3,6 +3,7 @@
 namespace App\Controller\da\Detail;
 
 use App\Service\da\DaService;
+use App\Service\da\DaObservationService;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
@@ -25,14 +26,17 @@ class DaDetailReapproController extends Controller
 	private EmailDaService $emailDaService;
 
 	private DaService $daService;
+
+	private DaObservationService $daObservationService;
 	private UrlIdCipher $urlIdCipher;
 	private DaTimelineService $daTimelineService;
 	private DocRattacheService $docRattacheService;
 
-	public function __construct(DaService $daService, DocRattacheService $docRattacheService, DaTimelineService $daTimelineService, EmailDaService $emailDaService)
+	public function __construct(DaService $daService, DaObservationService $daObservationService, DocRattacheService $docRattacheService, DaTimelineService $daTimelineService, EmailDaService $emailDaService)
 	{
 		$this->emailDaService     = $emailDaService;
 		$this->daService          = $daService;
+		$this->daObservationService = $daObservationService;
 		$this->urlIdCipher        = new UrlIdCipher;
 		$this->daTimelineService  = $daTimelineService;
 		$this->docRattacheService = $docRattacheService;
@@ -48,7 +52,7 @@ class DaDetailReapproController extends Controller
 		if (empty($id) && $id !== 0) throw new ResourceNotFoundException();
 
 		$demandeAppro = $this->daService->getDemandeAppro($id); // recupération de la DA
-		$observations = $this->daService->getObservations($demandeAppro->getNumeroDemandeAppro());
+		$observations = $this->daObservationService->getObservations($demandeAppro->getNumeroDemandeAppro());
 
 		$daObservation = new DaObservation;
 		$formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, ['daTypeId' => $demandeAppro->getDaTypeId()])->getForm();
@@ -89,7 +93,7 @@ class DaDetailReapproController extends Controller
 			/** @var DaObservation $daObservation daObservation correspondant au donnée du form */
 			$daObservation = $form->getData();
 
-			$this->daService->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $this->getUserName(), $daObservation->getFileNames());
+			$this->daObservationService->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $this->getUserName(), $daObservation->getFileNames());
 
 			$notification = [
 				'type'    => 'success',
