@@ -3,12 +3,20 @@
 ## Contexte
 
 La migration des traits est terminée (`PLAN_MIGRATION_TRAITS_DA_VERS_SERVICES.md`, étape 4 : 4.1 à 4.10 FAIT, `src/Controller/Traits/da` supprimé). Restent :
-- des services trop gros : `DaFilterService` (491 lignes), `DaService` (314), `DaTimelineService` (313), `EmailDaService` (294), `DaCreationService` (252) ;
-- 14 fichiers qui instancient `EmailDaService` et/ou `FileUploaderForDAService` par `new` (13 contrôleurs DA + `Api/da/ActionSurNonDispoApi`), plus `new ExcelService()` dans `DaValidationService:138` ;
+- des services trop gros : `DaFilterService` (491 lignes), `EmailDaService` (323), `DaService` (314), `DaTimelineService` (313), `DaCreationService` (252) ;
+- 15 fichiers qui instancient `EmailDaService` et/ou `FileUploaderForDAService` par `new` (13 contrôleurs DA + `Api/da/ActionSurNonDispoApi` + `Service/da/CdeFrn/FacBl/TraitementSoumissionfacBlService:298`), plus `new ExcelService()` dans `DaValidationService:138` ;
 - de la logique métier dans les deux contrôleurs de proposition (~300 lignes chacun) ;
 - 18 bugs signalés, jamais corrigés.
 
 Ce plan applique les règles « service / trait / orchestration » aux services DA existants (audit puis refonte).
+
+## État au 2026-10-12
+
+Depuis la rédaction du plan (2026-10-09), les commits ont porté sur des fonctionnalités et corrections hors refonte (export Excel liste DA, livraison partielle + notification APPRO, indicateurs pièces jointes/observations, récupération DIT, UI). **Aucune étape A1 à E n'est commencée**, tous les statuts restent À FAIRE. Effets de bord à prendre en compte :
+- `EmailDaService` a gagné `notifierApproLivraisonPartielle` (appelé par `TraitementSoumissionfacBlService`, qui fait `new EmailDaService($twig, $urlGenerator)` en ligne 298 et reçoit `$twig`/`$urlGenerator` en arguments de méthode depuis `DaSoumissionFacBlController`) : à traiter en A1.
+- `ActionSurNonDispoApi`, `DaDetailAvecDitController`, `DaSoumissionFacBlController`, `DaSoumissionCalculService`, `DaIconService` ont été modifiés : relire leur état avant de les toucher.
+- Le bug 2 (export Excel) : le commit `815e731b0` a corrigé l'export de la **liste des DA** (`ListeDa/ExportExcelController`) ; l'export **reporting IPS** reste à vérifier avant D.
+- Les numéros de ligne cités ci-dessous sont ceux du 2026-10-09 : les retrouver par `grep` avant de modifier.
 
 ## Décisions validées (2026-10-09)
 
@@ -64,10 +72,10 @@ Alternatives, **non retenues par défaut** (à ne proposer que si la règle ci-d
 Chaque étape : `php -l` sur les fichiers modifiés, liste des entrées yaml pour l'utilisateur, parcours manuel de la liste de l'étape, message de commit proposé, mise à jour du statut ici.
 
 ### A1. Injection des `new` restants — À FAIRE
-- **Fichiers** : `DaNewAchatController`, `DaNewAvecDitController`, `DaNewReApproMensuelController`, `DaDetailAvecDitController`, `DaDetailDirectController`, `DaDetailReapproController`, `DaEditAvecDitController`, `DaEditDirectController`, `DaPropositionArticleDirectController`, `DaPropositionRefAvecDitController`, `DaValidationAvecDitController`, `DaValidationDirectController`, `DaValidationReapproMensuelController`, `Api/da/ActionSurNonDispoApi` ; `DaValidationService:138` (`new ExcelService()`).
+- **Fichiers** : `DaNewAchatController`, `DaNewAvecDitController`, `DaNewReApproMensuelController`, `DaDetailAvecDitController`, `DaDetailDirectController`, `DaDetailReapproController`, `DaEditAvecDitController`, `DaEditDirectController`, `DaPropositionArticleDirectController`, `DaPropositionRefAvecDitController`, `DaValidationAvecDitController`, `DaValidationDirectController`, `DaValidationReapproMensuelController`, `Api/da/ActionSurNonDispoApi` ; `TraitementSoumissionfacBlService:298` (`new EmailDaService`, `$twig`/`$urlGenerator` passés en argument depuis `DaSoumissionFacBlController` : injecter `EmailDaService` dans le constructeur du service et retirer ces arguments) ; `DaValidationService:138` (`new ExcelService()`).
 - **Travail** : `EmailDaService` reçoit `Twig\Environment` et `UrlGeneratorInterface` du conteneur (service à déclarer public) ; `FileUploaderForDAService` est déjà déclaré dans le yaml ; `ExcelService` injecté dans `DaValidationService`. Chaque contrôleur reçoit ce dont il se sert par son constructeur ; les repositories restent tirés de `$em`.
 - **yaml** : déclarer `EmailDaService` ; ajouter les arguments `$emailDaService` / `$daFileUploader` des contrôleurs concernés ; `$excelService` de `DaValidationService`.
-- **Parcours** : créer une DA et la soumettre (mail création), ajouter une observation (mail observation), valider (mail validation + Excel/PDF), modifier (mail modification), proposition avec fiche technique et devis, action non dispo.
+- **Parcours** : soumettre un FacBl en livraison partielle (mail APPRO), créer une DA et la soumettre (mail création), ajouter une observation (mail observation), valider (mail validation + Excel/PDF), modifier (mail modification), proposition avec fiche technique et devis, action non dispo.
 - **Commit proposé** : `refactor: injection de EmailDaService, FileUploaderForDAService et ExcelService`
 
 ### A2. `DaObservationService` — À FAIRE
@@ -96,7 +104,7 @@ Chaque étape : `php -l` sur les fichiers modifiés, liste des entrées yaml pou
 
 ### C. Audit des constructeurs et des gros services — À FAIRE
 - Lister tous les constructeurs de `src/Service/da` et des contrôleurs DA : tout ce qui dépasse 5 dépendances est analysé (découpe ou orchestrateur).
-- Noter, sans le faire d'emblée, la découpe de : `DaFilterService` (491), `DaTimelineService` (313), `EmailDaService` (294, un service par type de mail ?), `DaCreationService` (252, `agenceServiceIpsObjet` et initialisations). Chaque découpe devient une sous-étape C1, C2… avec ses fichiers, son yaml et son parcours, ajoutée ici après l'audit.
+- Noter, sans le faire d'emblée, la découpe de : `DaFilterService` (491), `DaTimelineService` (313), `EmailDaService` (323, un service par type de mail ?), `DaCreationService` (252, `agenceServiceIpsObjet` et initialisations). Chaque découpe devient une sous-étape C1, C2… avec ses fichiers, son yaml et son parcours, ajoutée ici après l'audit.
 - **Commit proposé** : `docs: audit des constructeurs DA` (le plan seul).
 
 ### D. Correction des bugs — À FAIRE (après A à C)
@@ -104,7 +112,7 @@ Un commit par bug : `fix: <bug> (DaXxx)`. Numéros de l'ancien plan (« Bugs év
 
 | Priorité | Bugs | Nature |
 |---|---|---|
-| **P1** (erreur fatale / perte de données) | 1 (`DaEdit*` DALR sur DAL supprimée → index indéfini), 2 (export Excel reporting IPS cassé : `getData` renvoie `results`/`totals`, le contrôleur lit `reportingIps`/`qteTotale`/`montantTotal`), 7 (`DaNewAvecDitController` : `$dit` null déréférencé, `getPrixUnitaire(...)[0]` non gardé), 14 (`DaAffectationAchatController` : `find($id)` sans garde) | plantage |
+| **P1** (erreur fatale / perte de données) | 1 (`DaEdit*` DALR sur DAL supprimée → index indéfini), 2 (export Excel reporting IPS cassé, à revérifier : la liste DA est corrigée depuis `815e731b0` : `getData` renvoie `results`/`totals`, le contrôleur lit `reportingIps`/`qteTotale`/`montantTotal`), 7 (`DaNewAvecDitController` : `$dit` null déréférencé, `getPrixUnitaire(...)[0]` non gardé), 14 (`DaAffectationAchatController` : `find($id)` sans garde) | plantage |
 | **P2** (sécurité / robustesse) | 3 (`getUser()` non gardé, `agenceServiceIpsObjet()` renvoie des null), 4 (Ghostscript : chemin Windows en dur, `echo`, pas de `escapeshellarg`, fichier source écrasé), 6 et 18 (`DaAfficherService::ajouterDansTableAffichageParNumDa` : `getDit()` sans garde, `$oldDaAffichers[0]`) | sécurité, null |
 | **P3** (cohérence des données) | 5 et 17 (`getLignesRectifiees` : `->first()` peut renvoyer `false`, pas de filtre `deleted`, DALR indexés par numéro de ligne), 8 (numéros de ligne en collision, réappro mensuel), 9 (DALR sans filtre `deleted`), 10 (déjà résolu : cache `oldObservations` supprimé ; reste la clé de préfixe non gardée), 11 (obsolète : `daObservationRepository` du trait supprimé), 12 (N+1 SQL dans `DaListeDitService::ajoutNumSerieNumParc`, conditions testées deux fois, `categorie` traité différemment), 15 (`DaAfficherService` normalise `artDesi` : à vérifier que c'est fait), 16 (`getUser()->getNomUtilisateur()` vs `getUserName()` session) | données |
 | **P4** | 13 (commentaires faux « 3 jours » alors que le code ajoute 5) | texte |
