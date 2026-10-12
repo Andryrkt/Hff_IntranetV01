@@ -65,7 +65,7 @@ Alternatives, **non retenues par défaut** (à ne proposer que si la règle ci-d
 | `DaPropositionLigneService` | spécifique | logique DAL/DALR et uploads des 2 contrôleurs de proposition | `em`, `FileUploaderForDAService` | FAIT (B) |
 | `DaPropositionService` | orchestration | valider/proposer/refuser une proposition : lignes + statut + PDF + mail + `DaAfficher` | `DaPropositionLigneService`, `DaService`, `DaObservationService`, `DaAfficherService`, `DaValidationService`, `EmailDaService` | FAIT (B) |
 | `EmailDaService`, `FileUploaderForDAService` | existants | injectés par le conteneur au lieu de `new` | voir A1 | FAIT (A1) |
-| `DaFilterService`, `DaTimelineService`, `EmailDaService`, `DaCreationService` | à auditer | découpe par sous-domaine | — | À FAIRE (C) |
+| `DaFilterService`, `DaTimelineService`, `EmailDaService`, `DaCreationService` | à auditer | découpe par sous-domaine | — | Audit FAIT (C), découpes C1 à C5 à décider |
 
 ## Étapes
 
@@ -107,10 +107,43 @@ Chaque étape : `php -l` sur les fichiers modifiés, liste des entrées yaml pou
 - **Parcours** : proposer, choisir, valider des lignes, observation, retour au statut précédent, validation avec DW, sur AvecDit et Direct.
 - **Commit proposé** : `feat: DaPropositionService et DaPropositionLigneService`
 
-### C. Audit des constructeurs et des gros services — À FAIRE
-- Lister tous les constructeurs de `src/Service/da` et des contrôleurs DA : tout ce qui dépasse 5 dépendances est analysé (découpe ou orchestrateur).
-- Noter, sans le faire d'emblée, la découpe de : `DaFilterService` (491), `DaTimelineService` (313), `EmailDaService` (323, un service par type de mail ?), `DaCreationService` (252, `agenceServiceIpsObjet` et initialisations). Chaque découpe devient une sous-étape C1, C2… avec ses fichiers, son yaml et son parcours, ajoutée ici après l'audit.
-- **Commit proposé** : `docs: audit des constructeurs DA` (le plan seul).
+### C. Audit des constructeurs et des gros services — FAIT (2026-10-12, audit seul ; découpes C1 à C5 à décider)
+
+Audit fait sur `Service/da`, `Controller/da`, `Api/da`, `Factory/da` après A1 à B. Aucun code modifié.
+
+**Constructeurs au-dessus de 5 dépendances**
+
+| Classe | Deps | Lignes | Constat | Décision |
+|---|---|---|---|---|
+| `TraitementSoumissionBAPService` | 11 | 373 | mélange PDF (4 générateurs/modèles), fichiers, persistance | C4 |
+| `TraitementSoumissionDDPLService` | 10 | 328 | idem | C4 |
+| `TraitementSoumissionfacBlService` | 8 | 303 | idem + mail livraison partielle | C4 |
+| `DaNewAvecDitController` | 9 | 203 | flux création + observation + upload + mail dans le contrôleur | C2 |
+| `DaDetailAvecDitController`, `DaDetailDirectController` | 8 | 150 / 141 | flux « envoyer une observation » dupliqué dans les 3 contrôleurs de détail | C1 |
+| `DaSoumissionFacBlFactory` | 7 | 286 | factory, 2 `new` de modèles | laissé (une factory assemble par nature) |
+| `DaNewAchatController`, `DaNewReApproMensuelController` | 6 | 197 / 153 | même flux de création | C2 |
+| `DaPropositionService`, `DaValidationService`, `DaSoumissionValidationService`, `DaValidationReapproMensuelController` | 6 | 264 / 209 / 170 / 155 | orchestrateurs, chaque dépendance sert un maillon du flux | **justifié**, on ne découpe pas |
+
+**Gros services**
+
+| Service | Constat | Décision |
+|---|---|---|
+| `DaFilterService` (491) | 1 seule méthode de 209 lignes (`applyStatutsFilters`) ; agence/service (~95 lignes, `conditionAgenceService`, `supprimerQuatriemeLettrePD3`) indépendant du reste ; appelé uniquement par `DaAfficherRepository` via le conteneur global | C3 |
+| `EmailDaService` (323) | 9 méthodes de mail + 5 helpers, 2 dépendances : cohérent, une seule responsabilité (les mails DA). `new DaPrixFournisseurService()` utilisé par 3 méthodes. Un service par type de mail ferait 9 classes de 30 lignes | **pas de découpe** ; C5 (petit) : injecter `DaPrixFournisseurService` |
+| `DaTimelineService` (313) | 1 dépendance, 1 entrée publique, builders DA / OR / BC privés : cohérent | **pas de découpe** |
+| `DaCreationService` (252) | 2 dépendances ; `agenceServiceIpsObjet` et `handleAgenceEtServiceDebiteur` sont de l'initialisation propre à la création ; 1 `new MagasinListeOrLivrerModel()` | **pas de découpe** ; C5 : injecter le modèle |
+
+**`new` restants hors A1** (`new XxxModel()` / `new ApplicationService` / `new DitModel` / `new HistoriqueOperationDaBcService` dans contrôleurs et services) : listés pour C5, faible priorité, aucun n'empêche la refonte.
+
+#### Sous-étapes proposées (à valider une par une)
+
+- **C1. Flux d'observation des 3 contrôleurs de détail — À FAIRE.** Déplacer dans `DaDetailService` (aujourd'hui 1 dépendance, le routeur) une méthode `envoyerObservation(DemandeAppro, DaObservation, username, User, estAppro): array` (insertion + statut « autoriser émetteur » + `DaAfficher` + mail). Les contrôleurs `DaDetailAvecDit`, `DaDetailDirect`, `DaDetailReappro` retombent de 8 à ~5 dépendances. `DaDetailService` monte à 5. Même schéma que l'étape B (le service renvoie la notification, le contrôleur redirige). yaml : aucun (autowire). Parcours : observation avec/sans PJ, avec/sans « autoriser l'émetteur », sur les 3 types de détail.
+- **C2. Flux de création — À FAIRE, après lecture des 3 contrôleurs.** Mêmes étapes (persist DA + lignes, uploads, observation, `DaAfficher`, mail) dans `DaNewAchat`, `DaNewAvecDit`, `DaNewReApproMensuel`. Cible probable : un orchestrateur par cas d'usage, nom à trancher avec l'utilisateur (règle `Da<CasUsage>Service`). À ne lancer qu'avec l'inventaire des écarts entre les 3, comme pour B.
+- **C3. `DaFilterService` — À FAIRE.** Extraire `applyAgencyServiceFilters` + helpers dans un `DaAgenceServiceFilterService`, et découper `applyStatutsFilters` (209 lignes) en méthodes privées par critère (statut DA, OR, BC, clôturées). Le dépôt récupère le service via le conteneur global : un 2e service impose une 2e ligne `getFilterService()`-like dans `DaAfficherRepository`. Parcours : liste DA et liste cde fournisseurs avec chaque filtre (statuts, dates, agence/service, tri), plus la pagination.
+- **C4. Les 3 `TraitementSoumission*` — HORS PÉRIMÈTRE de ce plan**, à traiter dans un plan dédié (module cde fournisseurs / FacBl, pas DA propositions). Constat noté ci-dessus.
+- **C5. `new` de modèles et services — optionnel.** `DaPrixFournisseurService` dans `EmailDaService`, `MagasinListeOrLivrerModel` dans `DaCreationService`, `DemandePaiementModel` et `DossierInterventionAtelierModel` dans `DaDocumentService`, `DitModel` dans `DaListeDitService`. Un commit par service.
+
+- **Commit proposé** : `plan: audit des constructeurs DA (étape C)` (le plan seul).
 
 ### D. Correction des bugs — À FAIRE (après A à C)
 Un commit par bug : `fix: <bug> (DaXxx)`. Numéros de l'ancien plan (« Bugs évidents »).
