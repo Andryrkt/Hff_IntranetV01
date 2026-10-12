@@ -60,7 +60,7 @@ Alternatives, **non retenues par défaut** (à ne proposer que si la règle ci-d
 | Service | Type | Reprend | Dépendances (indicatif) | Statut |
 |---|---|---|---|---|
 | `DaObservationService` | spécifique | `DaService::insertionObservation`, `getObservations` | `em`, `FileUploaderForDAService` | FAIT (A2) |
-| `DaDocumentService` | spécifique | `DaService::getBaIntranetPath`, `getDevisPjPathDaLine`, `getDevisPjPathObservation`, `getOrPath`, `getAllDdpPath` | `em`, `FileCheckerService` | À FAIRE (A3) |
+| `DaDocumentService` | spécifique | `DaService::getBaIntranetPath`, `getDevisPjPathDaLine`, `getDevisPjPathObservation`, `getOrPath`, `getAllDdpPath` | `em`, `FileCheckerService` | FAIT (A3) |
 | `DaService` (allégé) | base | `getJoursRestants`, `getLignesRectifiees`, `appliquerChangementStatut`, `appliquerStatutDemandeDevisEnCours`, `normalizeTypographicChars`, `getDemandeAppro` | `em` | À FAIRE (A4) |
 | `DaPropositionLigneService` | spécifique | logique DAL/DALR et uploads des 2 contrôleurs de proposition | `em`, `FileUploaderForDAService` | À FAIRE (B) |
 | `DaPropositionService` | orchestration | valider/proposer/refuser une proposition : lignes + statut + PDF + mail + `DaAfficher` | `DaPropositionLigneService`, `DaService`, `DaObservationService`, `DaAfficherService`, `DaValidationService`, `EmailDaService` | À FAIRE (B) |
@@ -86,9 +86,10 @@ Chaque étape : `php -l` sur les fichiers modifiés, liste des entrées yaml pou
 - **Parcours** : ajouter une observation avec et sans pièce jointe sur chaque type de DA ; vérifier la liste d'observations au détail.
 - **Commit proposé** : `feat: DaObservationService extrait de DaService`
 
-### A3. `DaDocumentService` — À FAIRE
+### A3. `DaDocumentService` — FAIT (2026-10-12)
 - Déplacer les 5 méthodes de chemins de documents ; `FileCheckerService` y est injecté (il n'est plus dans `DaService`).
 - **Adapter `DocRattacheService`** : il appelle ces méthodes **dynamiquement** (`$service->$method(...)`) ; sans adaptation, tout plante sans erreur de syntaxe. Mettre à jour la configuration de mapping pour viser `DaDocumentService`.
+- Fait : seul `DocRattacheService` appelait ces 5 méthodes ; son champ `daService` devient `daDocumentService` (les 5 clés `service` de la config passent à `daDocumentService`). `DaService` perd `FileCheckerService`, `daObservationRepository` et 2 modèles ; il ne garde que le noyau (statuts, lignes rectifiées, jours restants, normalisation, `getDemandeAppro`).
 - **Parcours** : ouvrir le détail d'une DA ayant des BA, devis PJ, OR, DDP : les documents rattachés doivent s'afficher comme avant.
 - **Commit proposé** : `feat: DaDocumentService extrait de DaService`
 
