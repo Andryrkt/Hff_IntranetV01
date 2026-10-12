@@ -103,19 +103,50 @@ class DaFilterService
      */
     public function applyStatutsFilters(QueryBuilder $queryBuilder, string $qbLabel, array &$criteria, bool $estCdeFrn = false): void
     {
-        $estAppro = $this->securityService->estAppro();
-        $exprCloturee = $queryBuilder->expr()->andX(
-            $queryBuilder->expr()->eq($qbLabel . '.statutDal', ':statutDaCloture'),
-            $queryBuilder->expr()->eq($qbLabel . '.statutOr', ':statutOrValide'),
-            $queryBuilder->expr()->eq($qbLabel . '.statutCde', ':statutBcTousLivres')
-        );
+        $this->exclureDaFermees($queryBuilder, $qbLabel, $criteria);
 
-        $fnSetClotureParams = function () use ($queryBuilder) {
-            $queryBuilder->setParameter('statutDaCloture', StatutDaConstant::STATUT_CLOTUREE);
-            $queryBuilder->setParameter('statutOrValide', StatutOrConstant::STATUT_VALIDE);
-            $queryBuilder->setParameter('statutBcTousLivres', StatutBcConstant::STATUT_TOUS_LIVRES);
-        };
+        if ($estCdeFrn) {
+            $this->filtrerStatutBc($queryBuilder, $qbLabel, $criteria);
+            $this->filtrerStatutDa($queryBuilder, $qbLabel, $criteria);
+            return;
+        }
 
+        if (
+            !empty($criteria['afficherDaTraiter'])
+            && empty($criteria['statutDA'])
+            && empty($criteria['statutBC'])
+            && empty($criteria['statutOR'])
+            && empty($criteria['numDit'])
+            && empty($criteria['numDa'])
+            && empty($criteria['numCde'])
+        ) {
+            if ($this->securityService->estAppro()) {
+                $criteria['statutDA'] = StatutDaConstant::TRAITER_APPRO_LIST;
+                $criteria['statutBC'] = StatutBcConstant::TRAITER_APPRO_LIST;
+            } else {
+                $criteria['statutDA'] = StatutDaConstant::TRAITER_AUTRES_LIST;
+            }
+        }
+
+        if (!empty($criteria['statutDA']) && !empty($criteria['statutBC']) && is_array($criteria['statutDA']) && is_array($criteria['statutBC'])) {
+            $condNormal = $queryBuilder->expr()->orX(
+                $qbLabel . '.statutDal IN (:statutDaParam)',
+                $qbLabel . '.statutCde IN (:statutBcParam)'
+            );
+            $this->andWhereOuCloturee($queryBuilder, $qbLabel, $condNormal, !empty($criteria['afficherCloturees']));
+            $queryBuilder->setParameter('statutDaParam', $criteria['statutDA'], ArrayParameterType::STRING)
+                ->setParameter('statutBcParam', $criteria['statutBC'], ArrayParameterType::STRING);
+        } else {
+            $this->filtrerStatutDa($queryBuilder, $qbLabel, $criteria);
+        }
+
+        $this->filtrerStatutBc($queryBuilder, $qbLabel, $criteria);
+        $this->filtrerStatutOr($queryBuilder, $qbLabel, $criteria);
+    }
+
+    /** Sans recherche précise ni filtre « clôturées » / statut terminé ou clôturé, exclut les DA terminées et clôturées */
+    private function exclureDaFermees(QueryBuilder $queryBuilder, string $qbLabel, array $criteria): void
+    {
         if (
             empty($criteria['numDit']) && empty($criteria['numDa']) && empty($criteria['numCde'])
             && empty($criteria['afficherCloturees'])
@@ -124,187 +155,73 @@ class DaFilterService
             $queryBuilder->andWhere($qbLabel . '.statutDal NOT IN (:statutDaFermer)')
                 ->setParameter('statutDaFermer', [StatutDaConstant::STATUT_TERMINER, StatutDaConstant::STATUT_CLOTUREE], ArrayParameterType::STRING);
         }
+    }
 
-        if ($estCdeFrn) {
-            if (!empty($criteria['statutBC']) && !is_array($criteria['statutBC'])) {
-                if ($criteria['statutBC'] === StatutBcConstant::BC_EN_COURS) {
-                    if (empty($criteria['afficherCloturees'])) {
-                        $queryBuilder->andWhere($qbLabel . '.statutCde IN (:statutBcParam)')
-                            ->setParameter('statutBcParam', StatutBcConstant::STATUT_BC_EN_COURS, ArrayParameterType::STRING);
-                    } else {
-                        $queryBuilder->andWhere($queryBuilder->expr()->orX(
-                            $qbLabel . '.statutCde IN (:statutBcParam)',
-                            $exprCloturee
-                        ))
-                            ->setParameter('statutBcParam', StatutBcConstant::STATUT_BC_EN_COURS_CLOTURE, ArrayParameterType::STRING);
-                        $fnSetClotureParams();
-                    }
-                } else {
-                    if (empty($criteria['afficherCloturees'])) {
-                        $queryBuilder->andWhere($qbLabel . '.statutCde = :statutBcParam')
-                            ->setParameter('statutBcParam', $criteria['statutBC']);
-                    } else {
-                        $queryBuilder->andWhere($queryBuilder->expr()->orX(
-                            $qbLabel . '.statutCde = :statutBcParam',
-                            $exprCloturee
-                        ))
-                            ->setParameter('statutBcParam', $criteria['statutBC']);
-                        $fnSetClotureParams();
-                    }
-                }
-            }
+    private function filtrerStatutDa(QueryBuilder $queryBuilder, string $qbLabel, array $criteria): void
+    {
+        if (empty($criteria['statutDA'])) return;
 
-            if (!empty($criteria['statutDA'])) {
-                if (is_array($criteria['statutDA'])) {
-                    $condNormal = $qbLabel . '.statutDal IN (:statutDaParam)';
-                    if (!empty($criteria['afficherCloturees'])) {
-                        $queryBuilder->andWhere($queryBuilder->expr()->orX($condNormal, $exprCloturee));
-                        $fnSetClotureParams();
-                    } else {
-                        $queryBuilder->andWhere($condNormal);
-                    }
-                    $queryBuilder->setParameter('statutDaParam', $criteria['statutDA'], ArrayParameterType::STRING);
-                } else {
-                    if ($criteria['statutDA'] === StatutDaConstant::TRAITEMENT_APPRO) {
-                        if (empty($criteria['afficherCloturees'])) {
-                            $queryBuilder->andWhere($qbLabel . '.statutDal IN (:statutDaParam)')
-                                ->setParameter('statutDaParam', StatutDaConstant::TRAITER_APPRO_LIST, ArrayParameterType::STRING);
-                        } else {
-                            $queryBuilder->andWhere($queryBuilder->expr()->orX(
-                                $qbLabel . '.statutDal IN (:statutDaParam)',
-                                $exprCloturee
-                            ))
-                                ->setParameter('statutDaParam', StatutDaConstant::TRAITER_APPRO_LIST_CLOTURE, ArrayParameterType::STRING);
-                            $fnSetClotureParams();
-                        }
-                    } else {
-                        if (empty($criteria['afficherCloturees'])) {
-                            $queryBuilder->andWhere($qbLabel . '.statutDal = :statutDaParam')
-                                ->setParameter('statutDaParam', $criteria['statutDA']);
-                        } else {
-                            $queryBuilder->andWhere($queryBuilder->expr()->orX(
-                                $qbLabel . '.statutDal = :statutDaParam',
-                                $exprCloturee
-                            ))
-                                ->setParameter('statutDaParam', $criteria['statutDA']);
-                            $fnSetClotureParams();
-                        }
-                    }
-                }
-            }
+        $statutDa = $criteria['statutDA'];
+        $cloturees = !empty($criteria['afficherCloturees']);
+
+        if (is_array($statutDa)) {
+            $cond = $qbLabel . '.statutDal IN (:statutDaParam)';
+            $valeur = $statutDa;
+        } elseif ($statutDa === StatutDaConstant::TRAITEMENT_APPRO) {
+            $cond = $qbLabel . '.statutDal IN (:statutDaParam)';
+            $valeur = $cloturees ? StatutDaConstant::TRAITER_APPRO_LIST_CLOTURE : StatutDaConstant::TRAITER_APPRO_LIST;
         } else {
-            if (
-                !empty($criteria['afficherDaTraiter'])
-                && empty($criteria['statutDA'])
-                && empty($criteria['statutBC'])
-                && empty($criteria['statutOR'])
-                && empty($criteria['numDit'])
-                && empty($criteria['numDa'])
-                && empty($criteria['numCde'])
-            ) {
-                if ($estAppro) {
-                    $criteria['statutDA'] = StatutDaConstant::TRAITER_APPRO_LIST;
-                    $criteria['statutBC'] = StatutBcConstant::TRAITER_APPRO_LIST;
-                } else {
-                    $criteria['statutDA'] = StatutDaConstant::TRAITER_AUTRES_LIST;
-                }
-            }
-
-            if (!empty($criteria['statutDA']) && !empty($criteria['statutBC']) && is_array($criteria['statutDA']) && is_array($criteria['statutBC'])) {
-                $condNormal = $queryBuilder->expr()->orX(
-                    $qbLabel . '.statutDal IN (:statutDaParam)',
-                    $qbLabel . '.statutCde IN (:statutBcParam)'
-                );
-
-                if (!empty($criteria['afficherCloturees'])) {
-                    $queryBuilder->andWhere($queryBuilder->expr()->orX($condNormal, $exprCloturee));
-                    $fnSetClotureParams();
-                } else {
-                    $queryBuilder->andWhere($condNormal);
-                }
-                $queryBuilder->setParameter('statutDaParam', $criteria['statutDA'], ArrayParameterType::STRING)
-                    ->setParameter('statutBcParam', $criteria['statutBC'], ArrayParameterType::STRING);
-            } elseif (!empty($criteria['statutDA'])) {
-                if (is_array($criteria['statutDA'])) {
-                    $condNormal = $qbLabel . '.statutDal IN (:statutDaParam)';
-                    if (!empty($criteria['afficherCloturees'])) {
-                        $queryBuilder->andWhere($queryBuilder->expr()->orX($condNormal, $exprCloturee));
-                        $fnSetClotureParams();
-                    } else {
-                        $queryBuilder->andWhere($condNormal);
-                    }
-                    $queryBuilder->setParameter('statutDaParam', $criteria['statutDA'], ArrayParameterType::STRING);
-                } else {
-                    if ($criteria['statutDA'] === StatutDaConstant::TRAITEMENT_APPRO) {
-                        if (empty($criteria['afficherCloturees'])) {
-                            $queryBuilder->andWhere($qbLabel . '.statutDal IN (:statutDaParam)')
-                                ->setParameter('statutDaParam', StatutDaConstant::TRAITER_APPRO_LIST, ArrayParameterType::STRING);
-                        } else {
-                            $queryBuilder->andWhere($queryBuilder->expr()->orX(
-                                $qbLabel . '.statutDal IN (:statutDaParam)',
-                                $exprCloturee
-                            ))
-                                ->setParameter('statutDaParam', StatutDaConstant::TRAITER_APPRO_LIST_CLOTURE, ArrayParameterType::STRING);
-                            $fnSetClotureParams();
-                        }
-                    } else {
-                        if (empty($criteria['afficherCloturees'])) {
-                            $queryBuilder->andWhere($qbLabel . '.statutDal = :statutDaParam')
-                                ->setParameter('statutDaParam', $criteria['statutDA']);
-                        } else {
-                            $queryBuilder->andWhere($queryBuilder->expr()->orX(
-                                $qbLabel . '.statutDal = :statutDaParam',
-                                $exprCloturee
-                            ))
-                                ->setParameter('statutDaParam', $criteria['statutDA']);
-                            $fnSetClotureParams();
-                        }
-                    }
-                }
-            }
-
-            if (!empty($criteria['statutBC']) && !is_array($criteria['statutBC'])) {
-                if ($criteria['statutBC'] === StatutBcConstant::BC_EN_COURS) {
-                    if (empty($criteria['afficherCloturees'])) {
-                        $queryBuilder->andWhere($qbLabel . '.statutCde IN (:statutBcParam)')
-                            ->setParameter('statutBcParam', StatutBcConstant::STATUT_BC_EN_COURS, ArrayParameterType::STRING);
-                    } else {
-                        $queryBuilder->andWhere($queryBuilder->expr()->orX(
-                            $qbLabel . '.statutCde IN (:statutBcParam)',
-                            $exprCloturee
-                        ))
-                            ->setParameter('statutBcParam', StatutBcConstant::STATUT_BC_EN_COURS_CLOTURE, ArrayParameterType::STRING);
-                        $fnSetClotureParams();
-                    }
-                } else {
-                    if (empty($criteria['afficherCloturees'])) {
-                        $queryBuilder->andWhere($qbLabel . '.statutCde = :statutBcParam')
-                            ->setParameter('statutBcParam', $criteria['statutBC']);
-                    } else {
-                        $queryBuilder->andWhere($queryBuilder->expr()->orX(
-                            $qbLabel . '.statutCde = :statutBcParam',
-                            $exprCloturee
-                        ))
-                            ->setParameter('statutBcParam', $criteria['statutBC']);
-                        $fnSetClotureParams();
-                    }
-                }
-            }
-
-            if (!empty($criteria['statutOR']) && !is_array($criteria['statutOR'])) {
-                if (empty($criteria['afficherCloturees'])) {
-                    $queryBuilder->andWhere($qbLabel . '.statutOr = :statutOrParam')
-                        ->setParameter('statutOrParam', $criteria['statutOR']);
-                } else {
-                    $queryBuilder->andWhere($queryBuilder->expr()->orX(
-                        $qbLabel . '.statutOr = :statutOrParam',
-                        $exprCloturee
-                    ))
-                        ->setParameter('statutOrParam', $criteria['statutOR']);
-                    $fnSetClotureParams();
-                }
-            }
+            $cond = $qbLabel . '.statutDal = :statutDaParam';
+            $valeur = $statutDa;
         }
+
+        $this->andWhereOuCloturee($queryBuilder, $qbLabel, $cond, $cloturees);
+        $queryBuilder->setParameter('statutDaParam', $valeur, is_array($valeur) ? ArrayParameterType::STRING : null);
+    }
+
+    private function filtrerStatutBc(QueryBuilder $queryBuilder, string $qbLabel, array $criteria): void
+    {
+        if (empty($criteria['statutBC']) || is_array($criteria['statutBC'])) return;
+
+        $statutBc = $criteria['statutBC'];
+        $cloturees = !empty($criteria['afficherCloturees']);
+
+        if ($statutBc === StatutBcConstant::BC_EN_COURS) {
+            $cond = $qbLabel . '.statutCde IN (:statutBcParam)';
+            $valeur = $cloturees ? StatutBcConstant::STATUT_BC_EN_COURS_CLOTURE : StatutBcConstant::STATUT_BC_EN_COURS;
+        } else {
+            $cond = $qbLabel . '.statutCde = :statutBcParam';
+            $valeur = $statutBc;
+        }
+
+        $this->andWhereOuCloturee($queryBuilder, $qbLabel, $cond, $cloturees);
+        $queryBuilder->setParameter('statutBcParam', $valeur, is_array($valeur) ? ArrayParameterType::STRING : null);
+    }
+
+    private function filtrerStatutOr(QueryBuilder $queryBuilder, string $qbLabel, array $criteria): void
+    {
+        if (empty($criteria['statutOR']) || is_array($criteria['statutOR'])) return;
+
+        $this->andWhereOuCloturee($queryBuilder, $qbLabel, $qbLabel . '.statutOr = :statutOrParam', !empty($criteria['afficherCloturees']));
+        $queryBuilder->setParameter('statutOrParam', $criteria['statutOR']);
+    }
+
+    /** Ajoute la condition ; avec $cloturees, la condition est étendue aux DA clôturées (DA clôturée + OR validé + BC tous livrés) */
+    private function andWhereOuCloturee(QueryBuilder $queryBuilder, string $qbLabel, $cond, bool $cloturees): void
+    {
+        if (!$cloturees) {
+            $queryBuilder->andWhere($cond);
+            return;
+        }
+
+        $queryBuilder->andWhere($queryBuilder->expr()->orX($cond, $queryBuilder->expr()->andX(
+            $queryBuilder->expr()->eq($qbLabel . '.statutDal', ':statutDaCloture'),
+            $queryBuilder->expr()->eq($qbLabel . '.statutOr', ':statutOrValide'),
+            $queryBuilder->expr()->eq($qbLabel . '.statutCde', ':statutBcTousLivres')
+        )))
+            ->setParameter('statutDaCloture', StatutDaConstant::STATUT_CLOTUREE)
+            ->setParameter('statutOrValide', StatutOrConstant::STATUT_VALIDE)
+            ->setParameter('statutBcTousLivres', StatutBcConstant::STATUT_TOUS_LIVRES);
     }
 
     /**
@@ -355,100 +272,6 @@ class DaFilterService
                     ->setParameter('dateFinOR', $criteria['dateFinOR']);
             }
         }
-    }
-
-    public function applyAgencyServiceFilters(QueryBuilder $qb, string $qbLabel, array $criteria)
-    {
-        if (!empty($criteria['agenceEmetteur'])) {
-            $qb->andWhere("$qbLabel.agenceEmetteur = :agEmet")
-                ->setParameter('agEmet', $criteria['agenceEmetteur']);
-        }
-        if (!empty($criteria['serviceEmetteur'])) {
-            $qb->andWhere("$qbLabel.serviceEmetteur = :agServEmet")
-                ->setParameter('agServEmet', $criteria['serviceEmetteur']);
-        }
-
-
-        if (!empty($criteria['agenceDebiteur'])) {
-            $qb->andWhere("$qbLabel.agenceDebiteur = :agDebit")
-                ->setParameter('agDebit', $criteria['agenceDebiteur'])
-            ;
-        }
-
-        if (!empty($criteria['serviceDebiteur'])) {
-            $qb->andWhere("$qbLabel.serviceDebiteur = :serviceDebiteur")
-                ->setParameter('serviceDebiteur', $criteria['serviceDebiteur']);
-        }
-
-        // Vérifier la permission de voir tous les données
-        $multisuccursale = $this->securityService->verifierPermission(SecurityService::PERMISSION_MULTI_SUCCURSALE, "list_da");
-        if (!$multisuccursale) {
-            $this->conditionAgenceService($qb, $qbLabel);
-        }
-    }
-
-    private function conditionAgenceService(QueryBuilder $queryBuilder, string $queryLabel)
-    {
-        $ORX = $queryBuilder->expr()->orX();
-
-        // Agence et service par défaut
-        $agenceIdUser = $this->securityService->getAgenceIdUser();
-        $serviceIdUser = $this->securityService->getServiceIdUser();
-        // Agence et service autoriser sur l'application DAP
-        $agenceServiceAutorises = $this->securityService->getAgenceServices(ApplicationConstant::CODE_DAP);
-        // Vérifier si l'utilisateur a le droit de voir la liste avec le débiteur
-        $peutVoirListeAvecDebiteur = $this->securityService->verifierPermission(SecurityService::PERMISSION_AUTH_2, "list_da");
-
-        // 1- Emetteur du DOM : agence et service de l'utilisateur
-        $ORX->add(
-            $queryBuilder->expr()->andX(
-                $queryBuilder->expr()->eq("$queryLabel.agenceEmetteur", ':agEmetteur'),
-                $queryBuilder->expr()->eq("$queryLabel.serviceEmetteur", ':servEmetteur')
-            )
-        );
-        $queryBuilder->setParameter('agEmetteur', $agenceIdUser);
-        $queryBuilder->setParameter('servEmetteur', $serviceIdUser);
-
-        // 2- Debiteur du DOM : agence et service de l'utilisateur
-        $ORX->add(
-            $queryBuilder->expr()->andX(
-                $queryBuilder->expr()->eq("$queryLabel.agenceDebiteur", ':agDebiteur'),
-                $queryBuilder->expr()->eq("$queryLabel.serviceDebiteur", ':servDebiteur')
-            )
-        );
-        $queryBuilder->setParameter('agDebiteur', $agenceIdUser);
-        $queryBuilder->setParameter('servDebiteur', $serviceIdUser);
-
-        // 3- Emetteur et Débiteur : agence et service autorisés du profil
-        if (!empty($agenceServiceAutorises)) {
-            $orX1 = $queryBuilder->expr()->orX(); // Pour émetteur
-            $orX2 = $peutVoirListeAvecDebiteur ? $queryBuilder->expr()->orX() : null; // Pour débiteur : n'autoriser que si le profil peut voir la liste avec le débiteur
-            foreach ($agenceServiceAutorises as $i => $tab) {
-                $orX1->add(
-                    $queryBuilder->expr()->andX(
-                        $queryBuilder->expr()->eq("$queryLabel.agenceEmetteur", ':agEmetteur_' . $i),
-                        $queryBuilder->expr()->eq("$queryLabel.serviceEmetteur", ':servEmetteur_' . $i)
-                    )
-                );
-                $queryBuilder->setParameter('agEmetteur_' . $i, $tab['agence_id']);
-                $queryBuilder->setParameter('servEmetteur_' . $i, $tab['service_id']);
-                if ($orX2) {
-                    $orX2->add(
-                        $queryBuilder->expr()->andX(
-                            $queryBuilder->expr()->eq("$queryLabel.agenceDebiteur", ':agDebiteur_' . $i),
-                            $queryBuilder->expr()->eq("$queryLabel.serviceDebiteur", ':servDebiteur_' . $i)
-                        )
-                    );
-                    $queryBuilder->setParameter('agDebiteur_' . $i, $tab['agence_id']);
-                    $queryBuilder->setParameter('servDebiteur_' . $i, $tab['service_id']);
-                }
-            }
-
-            $ORX->add($orX1);
-            if ($orX2) $ORX->add($orX2);
-        }
-
-        $queryBuilder->andWhere($ORX);
     }
 
     /**
