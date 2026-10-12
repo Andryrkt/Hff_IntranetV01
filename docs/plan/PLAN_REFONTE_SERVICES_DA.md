@@ -59,7 +59,7 @@ Alternatives, **non retenues par défaut** (à ne proposer que si la règle ci-d
 
 | Service | Type | Reprend | Dépendances (indicatif) | Statut |
 |---|---|---|---|---|
-| `DaObservationService` | spécifique | `DaService::insertionObservation`, `getObservations` | `em`, `FileUploaderForDAService` | À FAIRE (A2) |
+| `DaObservationService` | spécifique | `DaService::insertionObservation`, `getObservations` | `em`, `FileUploaderForDAService` | FAIT (A2) |
 | `DaDocumentService` | spécifique | `DaService::getBaIntranetPath`, `getDevisPjPathDaLine`, `getDevisPjPathObservation`, `getOrPath`, `getAllDdpPath` | `em`, `FileCheckerService` | À FAIRE (A3) |
 | `DaService` (allégé) | base | `getJoursRestants`, `getLignesRectifiees`, `appliquerChangementStatut`, `appliquerStatutDemandeDevisEnCours`, `normalizeTypographicChars`, `getDemandeAppro` | `em` | À FAIRE (A4) |
 | `DaPropositionLigneService` | spécifique | logique DAL/DALR et uploads des 2 contrôleurs de proposition | `em`, `FileUploaderForDAService` | À FAIRE (B) |
@@ -78,9 +78,10 @@ Chaque étape : `php -l` sur les fichiers modifiés, liste des entrées yaml pou
 - **Parcours** : soumettre un FacBl en livraison partielle (mail APPRO), créer une DA et la soumettre (mail création), ajouter une observation (mail observation), valider (mail validation + Excel/PDF), modifier (mail modification), proposition avec fiche technique et devis, action non dispo.
 - **Commit proposé** : `refactor: injection de EmailDaService, FileUploaderForDAService et ExcelService`
 
-### A2. `DaObservationService` — À FAIRE
+### A2. `DaObservationService` — FAIT (2026-10-12)
 - Déplacer `insertionObservation` et `getObservations` de `DaService` ; `DaService` perd `FileUploaderForDAService`.
 - Appelants à basculer (recherche par `grep insertionObservation\|getObservations src`) : contrôleurs de création, détail, édition, validation, proposition ; `DaAffectationService`, `DaValidationService`.
+- Fait : 15 appelants basculés ; `DaService` n'est plus injecté dans les 9 qui ne s'en servaient que pour les observations (GenerationPDFReappro, DaAffectationAchat, DaEditAvecDit/Direct, DaPropositionRefAvecDit/ArticleDirect, DaValidationReapproMensuel, DaAffectationService, DaSoumissionValidationService). `DaService` garde `daObservationRepository` jusqu'à A3 (`getDevisPjPathObservation`).
 - Garder la signature actuelle (`$username` explicite) ; pas d'appel de `DaAfficherService` depuis ce service (règle des cycles).
 - **Parcours** : ajouter une observation avec et sans pièce jointe sur chaque type de DA ; vérifier la liste d'observations au détail.
 - **Commit proposé** : `feat: DaObservationService extrait de DaService`
