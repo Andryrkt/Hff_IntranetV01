@@ -71,7 +71,6 @@ class DaSoumissionCalculService
         // si le fournisseur est assujéti  à la TVA ==> montant HT < Montant TTC 
         if ($dto->estFournisseurAssujetiTva) {
             $MontantFactureEnCours = $this->daSoumissionFacBlModel->getMontantFactureSoumiseAvecTva($dto->numeroCde, $dto->codeSociete);
-            $TotalMontantFactureSoumise *= 1.2; // Montant TTC des factures déjà soumises
         }
 
 
