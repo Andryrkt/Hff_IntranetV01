@@ -62,8 +62,8 @@ Alternatives, **non retenues par défaut** (à ne proposer que si la règle ci-d
 | `DaObservationService` | spécifique | `DaService::insertionObservation`, `getObservations` | `em`, `FileUploaderForDAService` | FAIT (A2) |
 | `DaDocumentService` | spécifique | `DaService::getBaIntranetPath`, `getDevisPjPathDaLine`, `getDevisPjPathObservation`, `getOrPath`, `getAllDdpPath` | `em`, `FileCheckerService` | FAIT (A3) |
 | `DaService` (allégé) | base | `getJoursRestants`, `getLignesRectifiees`, `appliquerChangementStatut`, `appliquerStatutDemandeDevisEnCours`, `normalizeTypographicChars`, `getDemandeAppro` | `em` | FAIT (A4) |
-| `DaPropositionLigneService` | spécifique | logique DAL/DALR et uploads des 2 contrôleurs de proposition | `em`, `FileUploaderForDAService` | À FAIRE (B) |
-| `DaPropositionService` | orchestration | valider/proposer/refuser une proposition : lignes + statut + PDF + mail + `DaAfficher` | `DaPropositionLigneService`, `DaService`, `DaObservationService`, `DaAfficherService`, `DaValidationService`, `EmailDaService` | À FAIRE (B) |
+| `DaPropositionLigneService` | spécifique | logique DAL/DALR et uploads des 2 contrôleurs de proposition | `em`, `FileUploaderForDAService` | FAIT (B) |
+| `DaPropositionService` | orchestration | valider/proposer/refuser une proposition : lignes + statut + PDF + mail + `DaAfficher` | `DaPropositionLigneService`, `DaService`, `DaObservationService`, `DaAfficherService`, `DaValidationService`, `EmailDaService` | FAIT (B) |
 | `EmailDaService`, `FileUploaderForDAService` | existants | injectés par le conteneur au lieu de `new` | voir A1 | FAIT (A1) |
 | `DaFilterService`, `DaTimelineService`, `EmailDaService`, `DaCreationService` | à auditer | découpe par sous-domaine | — | À FAIRE (C) |
 
@@ -98,10 +98,12 @@ Chaque étape : `php -l` sur les fichiers modifiés, liste des entrées yaml pou
 - **Décision (2026-10-12)** : pas de `DaStatutService`. `appliquerChangementStatut` n'a que 3 appelants (`DemandeDevisApi`, `DaDetailAvecDitController`, `DaDetailDirectController`) et `appliquerStatutDemandeDevisEnCours` 1 ; un service de 2 méthodes ajouterait un fichier et 3 injections pour peu de gain. À reconsidérer si une 3e méthode de statut apparaît. `DaService` (156 lignes) garde : `getJoursRestants`, `getLignesRectifiees`, `appliquerChangementStatut`, `appliquerStatutDemandeDevisEnCours`, `normalizeTypographicChars`, `getDemandeAppro`. Aucun changement de code.
 - **Commit proposé** : `plan: A2 à A4 FAIT, DaService réduit au noyau DA`
 
-### B. Propositions — À FAIRE
+### B. Propositions — FAIT (2026-10-12)
 - Extraire la logique métier des deux contrôleurs (`DaPropositionRefAvecDitController`, `DaPropositionArticleDirectController`) : `DaPropositionLigneService` (lignes DAL/DALR, uploads) puis `DaPropositionService` (orchestration). Les contrôleurs ne gardent que `Request`, `Form`, `render`, redirections.
 - Prérequis : A1 à A3 faits (sinon les dépendances du nouveau service se multiplient).
 - Dédupliquer les méthodes communes des deux contrôleurs (la logique « refs / dalrs / dals trié » existe en double).
+- **Fait** : `DaPropositionLigneService` (4 dépendances : `em`, `FileUploaderForDAService`, `DaModel`, `DaFournisseurService`) et `DaPropositionService` (6 : `em`, `DaPropositionLigneService`, `DaObservationService`, `DaAfficherService`, `DaValidationService`, `EmailDaService`). Un seul orchestrateur pour les deux types : les écarts AvecDit / Direct se décident sur `$da->getDaTypeId() === TYPE_DA_DIRECT` (export Excel, étapes DocuWare, message, libellés famille et n° fournisseur). Les contrôleurs passent de ~670 à 156 lignes et ne gardent que formulaires, rendu, session et redirection (le `exit` de `redirectToRoute` impose de laisser la redirection au contrôleur ; les méthodes du service renvoient la notification). `DaValidationService::soumettreDaDirecteADocuware` ajouté pour que l'orchestrateur reste à 6 dépendances (`DaValidationDirectController` refait les mêmes 2 appels : à unifier plus tard).
+- **Écarts assumés** : `modificationIdDALDansDALR` supprimée (public, aucun appelant) ; `recupEntitePageCourante` ne plante plus si aucune DALR trouvée (variable non initialisée) ; une DA d'un autre type ouverte sur l'URL « direct » serait désormais traitée selon son propre type.
 - **Parcours** : proposer, choisir, valider des lignes, observation, retour au statut précédent, validation avec DW, sur AvecDit et Direct.
 - **Commit proposé** : `feat: DaPropositionService et DaPropositionLigneService`
 
