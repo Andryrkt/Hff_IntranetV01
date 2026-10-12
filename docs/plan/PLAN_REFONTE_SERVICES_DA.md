@@ -61,7 +61,7 @@ Alternatives, **non retenues par défaut** (à ne proposer que si la règle ci-d
 |---|---|---|---|---|
 | `DaObservationService` | spécifique | `DaService::insertionObservation`, `getObservations` | `em`, `FileUploaderForDAService` | FAIT (A2) |
 | `DaDocumentService` | spécifique | `DaService::getBaIntranetPath`, `getDevisPjPathDaLine`, `getDevisPjPathObservation`, `getOrPath`, `getAllDdpPath` | `em`, `FileCheckerService` | FAIT (A3) |
-| `DaService` (allégé) | base | `getJoursRestants`, `getLignesRectifiees`, `appliquerChangementStatut`, `appliquerStatutDemandeDevisEnCours`, `normalizeTypographicChars`, `getDemandeAppro` | `em` | À FAIRE (A4) |
+| `DaService` (allégé) | base | `getJoursRestants`, `getLignesRectifiees`, `appliquerChangementStatut`, `appliquerStatutDemandeDevisEnCours`, `normalizeTypographicChars`, `getDemandeAppro` | `em` | FAIT (A4) |
 | `DaPropositionLigneService` | spécifique | logique DAL/DALR et uploads des 2 contrôleurs de proposition | `em`, `FileUploaderForDAService` | À FAIRE (B) |
 | `DaPropositionService` | orchestration | valider/proposer/refuser une proposition : lignes + statut + PDF + mail + `DaAfficher` | `DaPropositionLigneService`, `DaService`, `DaObservationService`, `DaAfficherService`, `DaValidationService`, `EmailDaService` | À FAIRE (B) |
 | `EmailDaService`, `FileUploaderForDAService` | existants | injectés par le conteneur au lieu de `new` | voir A1 | FAIT (A1) |
@@ -93,9 +93,10 @@ Chaque étape : `php -l` sur les fichiers modifiés, liste des entrées yaml pou
 - **Parcours** : ouvrir le détail d'une DA ayant des BA, devis PJ, OR, DDP : les documents rattachés doivent s'afficher comme avant.
 - **Commit proposé** : `feat: DaDocumentService extrait de DaService`
 
-### A4. Alléger `DaService` — À FAIRE
+### A4. Alléger `DaService` — FAIT (2026-10-12)
 - Après A2 et A3, `DaService` ne garde que le noyau DA. Décider si `appliquerChangementStatut` et `appliquerStatutDemandeDevisEnCours` forment un `DaStatutService` (à trancher avec l'utilisateur à ce moment).
-- **Commit proposé** : `refactor: DaService réduit au noyau DA`
+- **Décision (2026-10-12)** : pas de `DaStatutService`. `appliquerChangementStatut` n'a que 3 appelants (`DemandeDevisApi`, `DaDetailAvecDitController`, `DaDetailDirectController`) et `appliquerStatutDemandeDevisEnCours` 1 ; un service de 2 méthodes ajouterait un fichier et 3 injections pour peu de gain. À reconsidérer si une 3e méthode de statut apparaît. `DaService` (156 lignes) garde : `getJoursRestants`, `getLignesRectifiees`, `appliquerChangementStatut`, `appliquerStatutDemandeDevisEnCours`, `normalizeTypographicChars`, `getDemandeAppro`. Aucun changement de code.
+- **Commit proposé** : `plan: A2 à A4 FAIT, DaService réduit au noyau DA`
 
 ### B. Propositions — À FAIRE
 - Extraire la logique métier des deux contrôleurs (`DaPropositionRefAvecDitController`, `DaPropositionArticleDirectController`) : `DaPropositionLigneService` (lignes DAL/DALR, uploads) puis `DaPropositionService` (orchestration). Les contrôleurs ne gardent que `Request`, `Form`, `render`, redirections.
