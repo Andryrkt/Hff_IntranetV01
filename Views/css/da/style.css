@@ -704,13 +704,16 @@ a.choix:hover {
   font-size: 0.875rem !important;
 }
 
-/* Fond de l'icône (cercle, carré, etc.) */
-.fa-layers.custom .fa-layer-base {
-  font-size: 2em;
+/* Fond de l'icône : carré arrondi */
+.fa-layers.custom .fa-layer-shape {
+  width: 2.9em;
+  height: 2.9em;
+  border-radius: 9px;
 }
 
-/* Toutes les icônes internes centrées */
-.fa-layers.custom i {
+/* Toutes les icônes internes et le fond centrés */
+.fa-layers.custom i,
+.fa-layers.custom .fa-layer-shape {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -720,12 +723,12 @@ a.choix:hover {
 /* Badge texte en bas à droite */
 .fa-layers.custom .fa-layers-text {
   position: absolute;
-  bottom: -1em;
-  right: -1em;
+  bottom: -1.5em;
+  right: -1.65em;
   font-weight: 800;
   font-size: 0.45em !important;
-  padding: 0.05em 0.35em;
-  border-radius: 0.2em;
+  padding: 0.5em 0.6em 0;
+  border-radius: 0.5em;
   color: white;
 }
 

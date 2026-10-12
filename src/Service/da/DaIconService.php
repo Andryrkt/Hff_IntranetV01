@@ -30,7 +30,7 @@ class DaIconService
         ?string $secondaryOffset = null
     ): Markup {
         $html = '<span class="fa-layers custom">';
-        $html .= sprintf('<i class="fa-solid fa-circle fa-layer-base" style="color:%s;"></i>', $bgColor);
+        $html .= sprintf('<span class="fa-layer-shape" style="background:%s;"></span>', $bgColor);
         $html .= sprintf('<i class="fa-solid %s" style="color:%s;"></i>', $mainIcon, $mainColor);
 
         if ($badge) {
