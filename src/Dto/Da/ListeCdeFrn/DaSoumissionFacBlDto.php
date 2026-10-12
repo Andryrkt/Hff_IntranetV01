@@ -33,6 +33,7 @@ class DaSoumissionFacBlDto
     public ?string $statutBap = null;
     public ?DateTime $dateSoumissionCompta = null;
     public float $montantBlFacture = 0.0;
+    public float $montantBlFactureTtc = 0.0;
     public float $montantReceptionIps = 0.0;
     public ?string $numeroDemandePaiement = null;
     public ?DateTime $dateStatutBap = null;
@@ -81,6 +82,8 @@ class DaSoumissionFacBlDto
     public  ?string $posl = null; // valeur possible : 'TL' ou autre chose
     public ?string $devise = null;
     public float $totalMontantDdpValid = 0.0;
+
+    public bool $estFournisseurAssujetiTva = false;
 
     public function montantAPayer(): float
     {

@@ -42,7 +42,7 @@ class GenererPdfBonAPayer extends GeneratePdf
         $this->renderRecapOR($pdf, $dataRecapOR, $dto, $daViaOr);
         $this->renderRecapDaAndInfoFacBl($pdf, $w100, $demandeAppro, $infoFacBl);
         $this->renderHistoriqueLivraison($pdf, $historiqueLivraison, $dto->devise);
-        $this->renderHistoriqueDdp($pdf, $dto->demandePaiementDto->ddpRecap, $dto->devise);
+        $this->renderHistoriqueDdp($pdf, $dto);
         $this->renderMontantBap($pdf, $dto);
 
         // Sauvegarder le PDF
@@ -199,16 +199,16 @@ class GenererPdfBonAPayer extends GeneratePdf
         }
     }
 
-    private function renderHistoriqueDdp(TCPDF $pdf, array $historiqueDdp, string $devise)
+    private function renderHistoriqueDdp(TCPDF $pdf, DaSoumissionFacBlDto $dto)
     {
         $pdf->ln(2);
         $this->renderSectionTitle($pdf, "RECAPITULATIF DES DEMANDES DE PAIEMENT", 0);
-        if (empty($historiqueDdp)) {
+        if (empty($dto->demandePaiementDto->ddpRecap)) {
             $pdf->Cell(0, 6, "Aucune demande de paiement", 0, 1);
             $pdf->Ln(2);
         } else {
             $tableGenerator = new PdfTableHistoriqueDdpBAP();
-            $pdf->writeHTML($tableGenerator->generateTable($historiqueDdp, $devise));
+            $pdf->writeHTML($tableGenerator->generateTable($dto));
         }
     }
 

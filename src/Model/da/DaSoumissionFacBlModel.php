@@ -148,4 +148,45 @@ class DaSoumissionFacBlModel extends Model
 
         return array_column($data, 'montant_livraison')[0] ?? 0.0;
     }
+
+    public function getMontantFactureSoumiseAvecTva(string $numeroCommande, string $codeSociete)
+    {
+        $statement = " SELECT  round(SUM(case 
+                        when fcdl_tva = 0 
+                        then (fllf_achnet *  fllf_qtefac) 
+                        else (fllf_achnet *  fllf_qtefac *1.2)
+                        end )
+                        , 2) as montant_facture_soumise_tva
+               
+               from informix.frn_llf
+               inner join informix.frn_cdl 
+               on fcdl_numcde = fllf_numcde 
+               and fcdl_refp = fllf_refp 
+               and fcdl_constp = fllf_constp
+               and fcdl_succ = fllf_succ
+               and fcdl_soc = fllf_soc
+               and fcdl_ligne = fllf_ligne 
+               where fllf_numcde = '$numeroCommande'
+               and fllf_soc = '$codeSociete'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return array_column($data, 'montant_facture_soumise_tva')[0] ?? 0.0;
+    }
+
+    public function getMontantCommandeTtc(string $numeroCommande, string $codeSociete)
+    {
+        $statement = " SELECT  fcde_ttc as montant_cde_ttc 
+                from Informix.frn_cde 
+                where fcde_numcde ='$numeroCommande' 
+                and fcde_soc ='$codeSociete'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return array_column($data, 'montant_cde_ttc')[0] ?? 0.0;
+    }
 }

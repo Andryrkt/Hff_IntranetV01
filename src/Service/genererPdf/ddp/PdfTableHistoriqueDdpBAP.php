@@ -3,23 +3,27 @@
 namespace App\Service\genererPdf\ddp;
 
 use App\Controller\Traits\FormatageTrait;
+use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDto;
 use App\Dto\ddp\DdpRecapDto;
 
 class PdfTableHistoriqueDdpBAP
 {
     use FormatageTrait;
 
-    public function generateTable(array $data, string $devise)
+    public function generateTable(DaSoumissionFacBlDto $dto)
     {
+        $data = $dto->demandePaiementDto->ddpRecap ?? [];
         $html = '<table border="0" cellpadding="2" cellspacing="0" style="font-size: 9px;">';
-        $html .= $this->generateHeader($devise);
+        $html .= $this->generateHeader($dto);
         $html .= $this->generateBody($data);
         $html .= '</table>';
         return $html;
     }
 
-    private function generateHeader(string $devise): string
+    private function generateHeader(DaSoumissionFacBlDto $dto): string
     {
+        $htOuTTC = $dto->estFournisseurAssujetiTva ? "TTC" : "HT";
+
         $columns = [
             $this->createTableCell('center', '9.5%', 'Date'),
             $this->createTableCell('center', '13%', 'Numéro'),
@@ -27,7 +31,7 @@ class PdfTableHistoriqueDdpBAP
             $this->createTableCell('left', '10%', 'N° facture'),
             $this->createTableCell('left', '15%', 'N° facture IPS'),
             $this->createTableCell('center', '5%', '%'),
-            $this->createTableCell('right', '15%', 'Montant HT (' . $devise . ')'),
+            $this->createTableCell('right', '15%', 'Montant ' . $htOuTTC . ' (' . $dto->devise . ')'),
             $this->createTableCell('left', '10%', 'Statut'),
             $this->createTableCell('left', '10%', 'Emetteur'),
         ];
