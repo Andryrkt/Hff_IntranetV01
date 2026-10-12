@@ -2,32 +2,33 @@
 
 namespace App\Controller\da\Creation;
 
-use App\Constants\admin\ApplicationConstant;
-use App\Constants\da\StatutDaConstant;
+use App\Model\da\DaModel;
+use App\Service\da\DaService;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
-use App\Model\da\DaModel;
 use App\Entity\da\DemandeApproL;
-use App\Entity\dit\DemandeIntervention;
-use App\Form\da\DemandeApproFormType;
-use App\Service\application\ApplicationService;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
-use App\Repository\da\DemandeApproRepository;
 use App\Service\da\EmailDaService;
 use App\Service\da\DaCreationService;
 use App\Service\da\DaAfficherService;
+use App\Form\da\DemandeApproFormType;
+use App\Constants\da\StatutDaConstant;
+use App\Entity\dit\DemandeIntervention;
 use App\Service\da\DaFournisseurService;
-use App\Service\da\DaService;
+use Doctrine\ORM\EntityManagerInterface;
 use App\Service\da\FileUploaderForDAService;
+use App\Constants\admin\ApplicationConstant;
+use Symfony\Component\HttpFoundation\Request;
+use App\Repository\da\DemandeApproRepository;
+use App\Service\application\ApplicationService;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/demande-appro")
  */
 class DaNewAvecDitController extends Controller
 {
-    private DemandeApproRepository $demandeApproRepository;
     private EmailDaService $emailDaService;
+    private DemandeApproRepository $demandeApproRepository;
     private FileUploaderForDAService $daFileUploader;
 
     const STATUT_DAL = [
@@ -41,18 +42,24 @@ class DaNewAvecDitController extends Controller
     private DaFournisseurService $daFournisseurService;
     private DaModel $daModel;
 
-    public function __construct(DaService $daService, DaAfficherService $daAfficherService, DaFournisseurService $daFournisseurService, DaCreationService $daCreationService, DaModel $daModel)
-    {
-        $this->daService         = $daService;
-        $this->daAfficherService = $daAfficherService;
-        $this->daFournisseurService = $daFournisseurService;
-        $this->daCreationService = $daCreationService;
-        $this->daModel = $daModel;
-
-        $em = $this->getEntityManager();
+    public function __construct(
+        EntityManagerInterface $em,
+        DaService $daService,
+        DaAfficherService $daAfficherService,
+        DaFournisseurService $daFournisseurService,
+        DaCreationService $daCreationService,
+        DaModel $daModel,
+        EmailDaService $emailDaService,
+        FileUploaderForDAService $daFileUploader
+    ) {
+        $this->daService              = $daService;
+        $this->daAfficherService      = $daAfficherService;
+        $this->daFournisseurService   = $daFournisseurService;
+        $this->daCreationService      = $daCreationService;
+        $this->daModel                = $daModel;
         $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
-        $this->emailDaService = new EmailDaService($this->getTwig(), $this->getUrlGenerator());
-        $this->daFileUploader = new FileUploaderForDAService();
+        $this->emailDaService         = $emailDaService;
+        $this->daFileUploader         = $daFileUploader;
     }
 
     /**

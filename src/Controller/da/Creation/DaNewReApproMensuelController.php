@@ -2,20 +2,21 @@
 
 namespace App\Controller\da\Creation;
 
-use App\Constants\da\StatutDaConstant;
-use App\Constants\admin\ApplicationConstant;
+use App\Service\da\DaService;
 use App\Controller\Controller;
-use App\Repository\da\DemandeApproRepository;
-use App\Service\da\EmailDaService;
-use App\Service\da\DaCreationService;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
-use App\Form\da\DemandeApproReapproMensuelFormType;
+use App\Service\da\EmailDaService;
+use App\Service\da\DaAfficherService;
+use App\Service\da\DaCreationService;
+use App\Constants\da\StatutDaConstant;
+use Doctrine\ORM\EntityManagerInterface;
+use App\Constants\admin\ApplicationConstant;
+use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Service\application\ApplicationService;
-use App\Service\da\DaAfficherService;
-use App\Service\da\DaService;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Form\da\DemandeApproReapproMensuelFormType;
 
 /**
  * @Route("/demande-appro")
@@ -24,20 +25,22 @@ class DaNewReApproMensuelController extends Controller
 {
     private DemandeApproRepository $demandeApproRepository;
     private EmailDaService $emailDaService;
-
     private DaService $daService;
     private DaAfficherService $daAfficherService;
     private DaCreationService $daCreationService;
 
-    public function __construct(DaService $daService, DaAfficherService $daAfficherService, DaCreationService $daCreationService)
-    {
-        $this->daService         = $daService;
-        $this->daAfficherService = $daAfficherService;
-        $this->daCreationService = $daCreationService;
-
-        $em = $this->getEntityManager();
+    public function __construct(
+        DaService $daService,
+        EntityManagerInterface $em,
+        DaAfficherService $daAfficherService,
+        DaCreationService $daCreationService,
+        EmailDaService $emailDaService
+    ) {
+        $this->daService              = $daService;
+        $this->daAfficherService      = $daAfficherService;
+        $this->daCreationService      = $daCreationService;
         $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
-        $this->emailDaService = new EmailDaService($this->getTwig(), $this->getUrlGenerator());
+        $this->emailDaService         = $emailDaService;
     }
 
     /**

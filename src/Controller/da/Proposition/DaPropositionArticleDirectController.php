@@ -26,6 +26,7 @@ use App\Repository\da\DemandeApproLRRepository;
 use App\Service\da\EmailDaService;
 use App\Service\da\DaAfficherService;
 use App\Service\da\DaService;
+use Doctrine\ORM\EntityManagerInterface;
 
 /**
  * @Route("/demande-appro")
@@ -46,21 +47,27 @@ class DaPropositionArticleDirectController extends Controller
     private DaValidationService $daValidationService;
     private DaSoumissionValidationService $daSoumissionValidationService;
 
-    public function __construct(DocRattacheService $docRattacheService, DaService $daService, DaAfficherService $daAfficherService, DaValidationService $daValidationService, DaSoumissionValidationService $daSoumissionValidationService)
-    {
+    public function __construct(
+        EntityManagerInterface $em,
+        DocRattacheService $docRattacheService,
+        DaService $daService,
+        DaAfficherService $daAfficherService,
+        DaValidationService $daValidationService,
+        DaSoumissionValidationService $daSoumissionValidationService,
+        EmailDaService $emailDaService,
+        FileUploaderForDAService $daFileUploader
+    ) {
         $this->docRattacheService = $docRattacheService;
         $this->daService = $daService;
         $this->daAfficherService = $daAfficherService;
         $this->daValidationService = $daValidationService;
         $this->daSoumissionValidationService = $daSoumissionValidationService;
         $this->urlIdCipher = new UrlIdCipher;
-
-        $em = $this->getEntityManager();
         $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
         $this->demandeApproLRepository = $em->getRepository(DemandeApproL::class);
         $this->demandeApproLRRepository = $em->getRepository(DemandeApproLR::class);
-        $this->emailDaService = new EmailDaService($this->getTwig(), $this->getUrlGenerator());
-        $this->daFileUploader = new FileUploaderForDAService();
+        $this->emailDaService = $emailDaService;
+        $this->daFileUploader = $daFileUploader;
     }
 
     /**

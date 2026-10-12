@@ -18,19 +18,22 @@ class DaValidationService
     private DaService $daService;
     private DaAfficherService $daAfficherService;
     private DaSoumissionValidationService $daSoumissionValidationService;
+    private ExcelService $excelService;
 
     public function __construct(
         EntityManagerInterface $em,
         UserDataService $userDataService,
         DaService $daService,
         DaAfficherService $daAfficherService,
-        DaSoumissionValidationService $daSoumissionValidationService
+        DaSoumissionValidationService $daSoumissionValidationService,
+        ExcelService $excelService
     ) {
         $this->em = $em;
         $this->userDataService = $userDataService;
         $this->daService = $daService;
         $this->daAfficherService = $daAfficherService;
         $this->daSoumissionValidationService = $daSoumissionValidationService;
+        $this->excelService = $excelService;
     }
 
     /**
@@ -135,7 +138,7 @@ class DaValidationService
         // 4. Génération du fichier Excel
         $fileName = $numDa . '_' . (new DateTime())->format('Ymd_His') . '.xlsx';
         $filePath = $_ENV['BASE_PATH_FICHIER'] . "/da/$numDa/$fileName";
-        (new ExcelService())->createSpreadsheetEnregistrer($donneesExcel, $filePath);
+        $this->excelService->createSpreadsheetEnregistrer($donneesExcel, $filePath);
 
         return [
             'fileName' => $fileName,

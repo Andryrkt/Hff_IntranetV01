@@ -11,6 +11,7 @@ use App\Entity\da\DemandeApproLR;
 use App\Service\da\EmailDaService;
 use App\Constants\da\StatutBcConstant;
 use App\Constants\da\StatutDaConstant;
+use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\da\DaAfficherRepository;
 use App\Constants\admin\ApplicationConstant;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,15 +32,13 @@ class ActionSurNonDispoApi extends Controller
     private DemandeApproLRRepository $demandeApproLRRepository;
     private EmailDaService $emailDaService;
 
-    public function __construct()
+    public function __construct(EntityManagerInterface $em, EmailDaService $emailDaService)
     {
-        parent::__construct();
-
-        $this->em                       = $this->getEntityManager();
+        $this->em                       = $em;
         $this->daAfficherRepository     = $this->em->getRepository(DaAfficher::class);
         $this->demandeApproLRepository  = $this->em->getRepository(DemandeApproL::class);
         $this->demandeApproLRRepository = $this->em->getRepository(DemandeApproLR::class);
-        $this->emailDaService           = new EmailDaService($this->getTwig(), $this->getUrlGenerator());
+        $this->emailDaService           = $emailDaService;
     }
 
     /**

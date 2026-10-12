@@ -19,6 +19,7 @@ use App\Service\da\DaTimelineService;
 use App\Service\da\DaDetailService;
 use App\Service\da\DaService;
 use App\Service\da\DaAfficherService;
+use Doctrine\ORM\EntityManagerInterface;
 
 /**
  * @Route("/demande-appro")
@@ -35,11 +36,17 @@ class DaDetailDirectController extends Controller
 	private DaDetailService $daDetailService;
 	private UrlIdCipher $urlIdCipher;
 
-	public function __construct(DocRattacheService $docRattacheService, DaTimelineService $daTimelineService, DaService $daService, DaAfficherService $daAfficherService, DaDetailService $daDetailService)
-	{
-		$em = $this->getEntityManager();
+	public function __construct(
+		EntityManagerInterface $em,
+		DocRattacheService $docRattacheService,
+		DaTimelineService $daTimelineService,
+		DaService $daService,
+		DaAfficherService $daAfficherService,
+		DaDetailService $daDetailService,
+		EmailDaService $emailDaService
+	) {
 		$this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
-		$this->emailDaService = new EmailDaService($this->getTwig(), $this->getUrlGenerator());
+		$this->emailDaService = $emailDaService;
 		$this->daDetailService = $daDetailService;
 		$this->docRattacheService = $docRattacheService;
 		$this->daTimelineService = $daTimelineService;

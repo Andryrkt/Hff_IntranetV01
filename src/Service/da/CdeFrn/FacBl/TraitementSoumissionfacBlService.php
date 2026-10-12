@@ -23,7 +23,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class TraitementSoumissionfacBlService
 {
@@ -37,6 +36,7 @@ class TraitementSoumissionfacBlService
     private GeneratePdf $generatePdf;
     private DaSoumissionFacBlModel $daSoumissionFacBlModel;
     private TraitementDeFichier $traitementDeFichier;
+    private EmailDaService $emailDaService;
     private string $cheminDeBase;
     private DemandeApproRepository $demandeApproRepository;
     private DwBcApproRepository $dwBcApproRepository;
@@ -48,7 +48,8 @@ class TraitementSoumissionfacBlService
         DaSoumissionFacBlMapper $daSoumissionfacBlMapper,
         GeneratePdf $generatePdf,
         DaSoumissionFacBlModel $daSoumissionFacBlModel,
-        TraitementDeFichier $traitementDeFichier
+        TraitementDeFichier $traitementDeFichier,
+        EmailDaService $emailDaService
     ) {
         $this->entityManager               = $entityManager;
         $this->historiqueOperation         = $historiqueOperation;
@@ -58,6 +59,7 @@ class TraitementSoumissionfacBlService
         $this->generatePdf                 = $generatePdf;
         $this->daSoumissionFacBlModel      = $daSoumissionFacBlModel;
         $this->traitementDeFichier         = $traitementDeFichier;
+        $this->emailDaService              = $emailDaService;
         $this->cheminDeBase                = ($_ENV['BASE_PATH_FICHIER'] ?? '') . '/da/';
         $this->demandeApproRepository      = $this->entityManager->getRepository(DemandeAppro::class);
         $this->dwBcApproRepository         = $this->entityManager->getRepository(DwBcAppro::class);
@@ -290,13 +292,12 @@ class TraitementSoumissionfacBlService
         $this->entityManager->flush();
     }
 
-    public function notifierApproLivraisonPartielle(DaSoumissionFacBlDto $dto, \Twig\Environment $twig, UrlGeneratorInterface $urlGenerator)
+    public function notifierApproLivraisonPartielle(DaSoumissionFacBlDto $dto)
     {
         $isLivraisonPartielle = (new DaAfficherModel)->checkLivraisonPartielle($dto->numeroDemandeAppro, $dto->numeroCde);
 
         if ($isLivraisonPartielle) {
-            $emailDaService = new EmailDaService($twig, $urlGenerator);
-            $emailDaService->notifierApproLivraisonPartielle($dto->numeroDemandeAppro, $dto->numeroCde);
+            $this->emailDaService->notifierApproLivraisonPartielle($dto->numeroDemandeAppro, $dto->numeroCde);
         }
     }
 }

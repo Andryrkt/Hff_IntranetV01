@@ -108,7 +108,7 @@ class DaSoumissionFacBlController extends Controller
             }
 
             if ($sucess) {
-                $this->traitementSoumissionfacBlService->notifierApproLivraisonPartielle($dto, $this->getTwig(), $this->getUrlGenerator());
+                $this->traitementSoumissionfacBlService->notifierApproLivraisonPartielle($dto);
 
                 /** HISTORISATION */
                 $message = 'Le document est soumis pour validation';

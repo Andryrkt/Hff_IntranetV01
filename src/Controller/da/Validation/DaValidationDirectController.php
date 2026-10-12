@@ -13,6 +13,7 @@ use App\Service\da\EmailDaService;
 use App\Service\da\DaValidationService;
 use App\Service\da\DaSoumissionValidationService;
 use App\Entity\da\DemandeAppro;
+use Doctrine\ORM\EntityManagerInterface;
 
 /**
  * @Route("/demande-appro")
@@ -26,11 +27,15 @@ class DaValidationDirectController extends Controller
     private DaValidationService $daValidationService;
     private DaSoumissionValidationService $daSoumissionValidationService;
 
-    public function __construct(DaAfficherService $daAfficherService, DaValidationService $daValidationService, DaSoumissionValidationService $daSoumissionValidationService)
-    {
-        $em = $this->getEntityManager();
+    public function __construct(
+        EntityManagerInterface $em,
+        DaAfficherService $daAfficherService,
+        DaValidationService $daValidationService,
+        DaSoumissionValidationService $daSoumissionValidationService,
+        EmailDaService $emailDaService
+    ) {
         $this->demandeApproLRepository = $em->getRepository(DemandeApproL::class);
-        $this->emailDaService = new EmailDaService($this->getTwig(), $this->getUrlGenerator());
+        $this->emailDaService = $emailDaService;
         $this->daValidationService = $daValidationService;
         $this->daSoumissionValidationService = $daSoumissionValidationService;
         $this->daAfficherService = $daAfficherService;

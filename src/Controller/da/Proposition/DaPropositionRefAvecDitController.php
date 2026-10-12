@@ -27,6 +27,7 @@ use App\Service\Admin\UrlIdCipher;
 use App\Service\da\DaAfficherService;
 use App\Service\da\DaFournisseurService;
 use App\Service\da\DaService;
+use Doctrine\ORM\EntityManagerInterface;
 
 /**
  * @Route("/demande-appro")
@@ -48,8 +49,17 @@ class DaPropositionRefAvecDitController extends Controller
     private DaFournisseurService $daFournisseurService;
     private DaModel $daModel;
 
-    public function __construct(DocRattacheService $docRattacheService, DaService $daService, DaAfficherService $daAfficherService, DaFournisseurService $daFournisseurService, DaValidationService $daValidationService, DaModel $daModel)
-    {
+    public function __construct(
+        EntityManagerInterface $em,
+        DocRattacheService $docRattacheService,
+        DaService $daService,
+        DaAfficherService $daAfficherService,
+        DaFournisseurService $daFournisseurService,
+        DaValidationService $daValidationService,
+        DaModel $daModel,
+        EmailDaService $emailDaService,
+        FileUploaderForDAService $daFileUploader
+    ) {
         $this->docRattacheService = $docRattacheService;
         $this->daService = $daService;
         $this->daAfficherService = $daAfficherService;
@@ -57,13 +67,11 @@ class DaPropositionRefAvecDitController extends Controller
         $this->daValidationService = $daValidationService;
         $this->daModel = $daModel;
         $this->urlIdCipher = new UrlIdCipher;
-
-        $em = $this->getEntityManager();
         $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
         $this->demandeApproLRepository = $em->getRepository(DemandeApproL::class);
         $this->demandeApproLRRepository = $em->getRepository(DemandeApproLR::class);
-        $this->emailDaService = new EmailDaService($this->getTwig(), $this->getUrlGenerator());
-        $this->daFileUploader = new FileUploaderForDAService();
+        $this->emailDaService = $emailDaService;
+        $this->daFileUploader = $daFileUploader;
     }
 
     /**

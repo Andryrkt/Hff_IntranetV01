@@ -18,6 +18,7 @@ use App\Service\da\DaEditionService;
 use App\Service\Admin\UrlIdCipher;
 use App\Service\da\DaService;
 use App\Service\da\DaAfficherService;
+use Doctrine\ORM\EntityManagerInterface;
 
 /**
  * @Route("/demande-appro")
@@ -32,11 +33,15 @@ class DaEditDirectController extends Controller
     private DaAfficherService $daAfficherService;
     private DaEditionService $daEditionService;
 
-    public function __construct(DaService $daService, DaAfficherService $daAfficherService, DaEditionService $daEditionService)
-    {
-        $em = $this->getEntityManager();
+    public function __construct(
+        EntityManagerInterface $em,
+        DaService $daService,
+        DaAfficherService $daAfficherService,
+        DaEditionService $daEditionService,
+        EmailDaService $emailDaService
+    ) {
         $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
-        $this->emailDaService = new EmailDaService($this->getTwig(), $this->getUrlGenerator());
+        $this->emailDaService = $emailDaService;
         $this->urlIdCipher = new UrlIdCipher;
         $this->daService = $daService;
         $this->daAfficherService = $daAfficherService;

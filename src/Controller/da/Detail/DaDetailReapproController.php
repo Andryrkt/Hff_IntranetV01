@@ -22,14 +22,16 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException;
  */
 class DaDetailReapproController extends Controller
 {
+	private EmailDaService $emailDaService;
 
 	private DaService $daService;
 	private UrlIdCipher $urlIdCipher;
 	private DaTimelineService $daTimelineService;
 	private DocRattacheService $docRattacheService;
 
-	public function __construct(DaService $daService, DocRattacheService $docRattacheService, DaTimelineService $daTimelineService)
+	public function __construct(DaService $daService, DocRattacheService $docRattacheService, DaTimelineService $daTimelineService, EmailDaService $emailDaService)
 	{
+		$this->emailDaService     = $emailDaService;
 		$this->daService          = $daService;
 		$this->urlIdCipher        = new UrlIdCipher;
 		$this->daTimelineService  = $daTimelineService;
@@ -94,8 +96,7 @@ class DaDetailReapproController extends Controller
 				'message' => 'Votre observation a été enregistré avec succès.',
 			];
 
-			$emailDaService = new EmailDaService($this->getTwig(), $this->getUrlGenerator());
-			$emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estAppro());
+			$this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estAppro());
 
 			$this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
 			return $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);

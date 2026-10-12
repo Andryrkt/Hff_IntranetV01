@@ -17,6 +17,7 @@ use App\Service\da\DaConsumptionHistory;
 use App\Service\da\DaService;
 use App\Service\da\DocRattacheService;
 use App\Service\Admin\UrlIdCipher;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 /**
@@ -33,11 +34,16 @@ class DaValidationReapproMensuelController extends Controller
     private DaValidationService $daValidationService;
     private DaSoumissionValidationService $daSoumissionValidationService;
 
-    public function __construct(DocRattacheService $docRattacheService, DaService $daService, DaValidationService $daValidationService, DaSoumissionValidationService $daSoumissionValidationService)
-    {
-        $em = $this->getEntityManager();
+    public function __construct(
+        EntityManagerInterface $em,
+        DocRattacheService $docRattacheService,
+        DaService $daService,
+        DaValidationService $daValidationService,
+        DaSoumissionValidationService $daSoumissionValidationService,
+        EmailDaService $emailDaService
+    ) {
         $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
-        $this->emailDaService = new EmailDaService($this->getTwig(), $this->getUrlGenerator());
+        $this->emailDaService = $emailDaService;
         $this->daValidationService = $daValidationService;
         $this->daSoumissionValidationService = $daSoumissionValidationService;
         $this->docRattacheService = $docRattacheService;

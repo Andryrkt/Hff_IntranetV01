@@ -33,14 +33,18 @@ class DaNewAchatController extends Controller
     private DaAfficherService $daAfficherService;
     private DaCreationService $daCreationService;
 
-    public function __construct(DaService $daService, DaAfficherService $daAfficherService, DaCreationService $daCreationService)
-    {
+    public function __construct(
+        DaService $daService,
+        DaAfficherService $daAfficherService,
+        DaCreationService $daCreationService,
+        EmailDaService $emailDaService,
+        FileUploaderForDAService $daFileUploader
+    ) {
         $this->daService         = $daService;
         $this->daAfficherService = $daAfficherService;
         $this->daCreationService = $daCreationService;
-
-        $this->emailDaService = new EmailDaService($this->getTwig(), $this->getUrlGenerator());
-        $this->daFileUploader = new FileUploaderForDAService();
+        $this->emailDaService    = $emailDaService;
+        $this->daFileUploader    = $daFileUploader;
     }
 
     /**
