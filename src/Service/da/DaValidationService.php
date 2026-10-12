@@ -105,6 +105,15 @@ class DaValidationService
         }
     }
 
+    /**
+     * Après validation d'une DA directe : ajout dans la table DaSoumisAValidation puis envoi dans DocuWare
+     */
+    public function soumettreDaDirecteADocuware(DemandeAppro $da): void
+    {
+        $this->daSoumissionValidationService->ajouterDansDaSoumisAValidation($da);
+        $this->daSoumissionValidationService->fusionAndCopyToDW($da->getNumeroDemandeAppro());
+    }
+
     /** Création du fichier Excel et PDF pour une DA avec DIT */
     public function exporterDaAvecDitEnExcelEtPdf(string $numDa, int $numeroVersion): array
     {
