@@ -2,20 +2,14 @@
 
 namespace App\Controller\da\Creation;
 
-use App\Service\da\DaService;
-use App\Service\da\DaObservationService;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
-use App\Entity\da\DemandeApproL;
-use App\Service\da\EmailDaService;
-use App\Service\da\DaAfficherService;
 use App\Service\da\DaCreationService;
-use App\Constants\da\StatutDaConstant;
+use App\Service\da\DaEnregistrementService;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Constants\admin\ApplicationConstant;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
-use App\Service\application\ApplicationService;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\da\DemandeApproReapproMensuelFormType;
 
@@ -25,26 +19,17 @@ use App\Form\da\DemandeApproReapproMensuelFormType;
 class DaNewReApproMensuelController extends Controller
 {
     private DemandeApproRepository $demandeApproRepository;
-    private EmailDaService $emailDaService;
-    private DaService $daService;
-    private DaObservationService $daObservationService;
-    private DaAfficherService $daAfficherService;
     private DaCreationService $daCreationService;
+    private DaEnregistrementService $daEnregistrementService;
 
     public function __construct(
-        DaService $daService,
-        DaObservationService $daObservationService,
         EntityManagerInterface $em,
-        DaAfficherService $daAfficherService,
         DaCreationService $daCreationService,
-        EmailDaService $emailDaService
+        DaEnregistrementService $daEnregistrementService
     ) {
-        $this->daService              = $daService;
-        $this->daObservationService = $daObservationService;
-        $this->daAfficherService      = $daAfficherService;
-        $this->daCreationService      = $daCreationService;
-        $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
-        $this->emailDaService         = $emailDaService;
+        $this->daCreationService       = $daCreationService;
+        $this->daEnregistrementService = $daEnregistrementService;
+        $this->demandeApproRepository  = $em->getRepository(DemandeAppro::class);
     }
 
     /**
@@ -69,12 +54,6 @@ class DaNewReApproMensuelController extends Controller
         ]);
     }
 
-    private function gererAgenceServiceDebiteur(DemandeAppro $demandeAppro)
-    {
-        $demandeAppro->setAgenceDebiteur($demandeAppro->getDebiteur()['agence'])
-            ->setServiceDebiteur($demandeAppro->getDebiteur()['service'])
-            ->setAgenceServiceDebiteur($demandeAppro->getAgenceDebiteur()->getCodeAgence() . '-' . $demandeAppro->getServiceDebiteur()->getCodeService());
-    }
     private function traitementFormReappro($form, Request $request): void
     {
         $form->handleRequest($request);
@@ -89,54 +68,9 @@ class DaNewReApproMensuelController extends Controller
                 $firstCreation = $demandeAppro->getNumeroDemandeAppro() === null;
                 $numDa = $firstCreation ? $this->autoDecrement(ApplicationConstant::CODE_DAP) : $demandeAppro->getNumeroDemandeAppro();
 
-                $this->gererAgenceServiceDebiteur($demandeAppro);
+                $notification = $this->daEnregistrementService->enregistrerDaReapproMensuel($demandeAppro, $numDa, $firstCreation, $this->getButtonName($request), $this->getUserName(), $this->getUser());
 
-                // Récupérer le nom du bouton cliqué
-                $clickedButtonName = $this->getButtonName($request);
-                $statutDa = StatutDaConstant::STATUT_DAL[$clickedButtonName];
-
-                $demandeAppro
-                    ->setNumeroDemandeAppro($numDa)
-                    ->setNumeroDemandeApproMere($numDa)
-                    ->setDetailDal($demandeAppro->getDetailDal() ?? '-')
-                    ->setStatutDal($statutDa);
-
-                /** @var DemandeApproL $dal */
-                foreach ($demandeAppro->getDAL() as $dal) {
-                    if ($dal->getQteDem()) {
-                        $dal
-                            ->setNumeroDemandeAppro($numDa)
-                            ->setDemandeAppro($demandeAppro)
-                            ->setDateFinSouhaite($demandeAppro->getDateFinSouhaite())
-                            ->setJoursDispo($this->daService->getJoursRestants($dal))
-                            ->setStatutDal($statutDa);
-                        $this->getEntityManager()->persist($dal);
-                    } else {
-                        $demandeAppro->removeDAL($dal); // ne pas persister les DAL avec qteDem vide
-                        $this->getEntityManager()->remove($dal);
-                    }
-                }
-
-                // si c'est la première création, on met à jour la colonne dernière_id dans la table applications
-                if ($firstCreation) {
-                    /** Modifie la colonne dernière_id dans la table applications */
-                    $applicationService = new ApplicationService($this->getEntityManager());
-                    $applicationService->mettreAJourDerniereIdApplication('DAP', $numDa);
-                }
-
-                /** Ajout de demande appro dans la base de donnée (table: Demande_Appro) */
-                $this->getEntityManager()->persist($demandeAppro);
-                $this->getEntityManager()->flush();
-
-                /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
-                if ($demandeAppro->getObservation()) $this->daObservationService->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $demandeAppro->getObservation(), $this->getUserName());
-
-                // ajout des données dans la table DaAfficher
-                $this->daAfficherService->generateDaAfficherOnCreationDa($demandeAppro, $firstCreation);
-
-                if ($clickedButtonName === "soumissionAppro") $this->emailDaService->envoyerMailCreationDa($demandeAppro, $this->getUser());
-
-                $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
+                $this->getSessionService()->set('notification', $notification);
                 $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
             }
         }

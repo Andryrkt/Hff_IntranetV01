@@ -2,25 +2,16 @@
 
 namespace App\Controller\da\Creation;
 
-use App\Model\da\DaModel;
-use App\Service\da\DaService;
-use App\Service\da\DaObservationService;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
-use App\Entity\da\DemandeApproL;
-use App\Service\da\EmailDaService;
 use App\Service\da\DaCreationService;
-use App\Service\da\DaAfficherService;
+use App\Service\da\DaEnregistrementService;
 use App\Form\da\DemandeApproFormType;
-use App\Constants\da\StatutDaConstant;
 use App\Entity\dit\DemandeIntervention;
-use App\Service\da\DaFournisseurService;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Service\da\FileUploaderForDAService;
 use App\Constants\admin\ApplicationConstant;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DemandeApproRepository;
-use App\Service\application\ApplicationService;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -28,43 +19,18 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DaNewAvecDitController extends Controller
 {
-    private EmailDaService $emailDaService;
     private DemandeApproRepository $demandeApproRepository;
-    private FileUploaderForDAService $daFileUploader;
-
-    const STATUT_DAL = [
-        'enregistrerBrouillon' => StatutDaConstant::STATUT_EN_COURS_CREATION,
-        'soumissionAppro'      => StatutDaConstant::STATUT_SOUMIS_APPRO,
-    ];
-
-    private DaService $daService;
-
-    private DaObservationService $daObservationService;
-    private DaAfficherService $daAfficherService;
     private DaCreationService $daCreationService;
-    private DaFournisseurService $daFournisseurService;
-    private DaModel $daModel;
+    private DaEnregistrementService $daEnregistrementService;
 
     public function __construct(
         EntityManagerInterface $em,
-        DaService $daService,
-        DaObservationService $daObservationService,
-        DaAfficherService $daAfficherService,
-        DaFournisseurService $daFournisseurService,
         DaCreationService $daCreationService,
-        DaModel $daModel,
-        EmailDaService $emailDaService,
-        FileUploaderForDAService $daFileUploader
+        DaEnregistrementService $daEnregistrementService
     ) {
-        $this->daService              = $daService;
-        $this->daObservationService = $daObservationService;
-        $this->daAfficherService      = $daAfficherService;
-        $this->daFournisseurService   = $daFournisseurService;
-        $this->daCreationService      = $daCreationService;
-        $this->daModel                = $daModel;
-        $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
-        $this->emailDaService         = $emailDaService;
-        $this->daFileUploader         = $daFileUploader;
+        $this->daCreationService       = $daCreationService;
+        $this->daEnregistrementService = $daEnregistrementService;
+        $this->demandeApproRepository  = $em->getRepository(DemandeAppro::class);
     }
 
     /**
@@ -75,7 +41,7 @@ class DaNewAvecDitController extends Controller
         // Code Société de l'utilisateur
         $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
-        /** 
+        /**
          * @var DemandeIntervention $dit DIT correspondant à l'id $ditId
          */
         $dit = $this->getEntityManager()->getRepository(DemandeIntervention::class)->find($ditId);
@@ -109,84 +75,10 @@ class DaNewAvecDitController extends Controller
             } else {
                 $firstCreation = $demandeAppro->getNumeroDemandeAppro() === null;
                 $numDa = $firstCreation ? $this->autoDecrement(ApplicationConstant::CODE_DAP) : $demandeAppro->getNumeroDemandeAppro();
-                $demandeAppro->setNumeroDemandeAppro($numDa)->setNumeroDemandeApproMere($numDa);
-                $formDAL = $form->get('DAL');
 
-                // Récupérer le nom du bouton cliqué
-                $clickedButtonName = $this->getButtonName($request);
-                $demandeAppro->setStatutDal(StatutDaConstant::STATUT_DAL[$clickedButtonName]);
+                $notification = $this->daEnregistrementService->enregistrerDaAvecDit($demandeAppro, $form, $dit, $numDa, $firstCreation, $this->getButtonName($request), $this->getUserName(), $this->getUser());
 
-                foreach ($formDAL as $subFormDAL) {
-                    /** 
-                     * @var DemandeApproL $demandeApproL
-                     * On récupère les données du formulaire DAL
-                     */
-                    $demandeApproL = $subFormDAL->getData();
-
-                    if ($demandeApproL->getDeleted() == 1) {
-                        $this->getEntityManager()->remove($demandeApproL);
-                    } else {
-                        // Récupérer les données
-                        $filesToDelete = $subFormDAL->get('filesToDelete')->getData();
-                        $existingFileNames = $subFormDAL->get('existingFileNames')->getData();
-                        $newFiles = $subFormDAL->get('fileNames')->getData();
-
-                        // Supprimer les fichiers
-                        if ($filesToDelete) {
-                            $this->daFileUploader->deleteFiles(
-                                explode(',', $filesToDelete),
-                                $numDa
-                            );
-                        }
-
-                        // Gérer l'upload et obtenir la liste finale
-                        $allFileNames = $this->daFileUploader->handleFileUpload(
-                            $newFiles,
-                            $existingFileNames,
-                            $numDa,
-                            FileUploaderForDAService::FILE_TYPE["DEVIS"]
-                        );
-
-                        /** 
-                         * @var DemandeApproL $demandeApproL
-                         */
-                        $demandeApproL
-                            ->setNumeroDemandeAppro($numDa)
-                            ->setStatutDal(StatutDaConstant::STATUT_DAL[$clickedButtonName])
-                            ->setPrixUnitaire($this->daModel->getPrixUnitaire($demandeApproL->getArtRefp())[0])
-                            ->setNumeroDit($demandeAppro->getNumeroDemandeDit())
-                            ->setJoursDispo($this->daService->getJoursRestants($demandeApproL))
-                            ->setFileNames($allFileNames)
-                        ;
-
-                        if ($demandeApproL->getNumeroFournisseur() == 0) {
-                            $demandeApproL->setNumeroFournisseur($this->daFournisseurService->getNumeroFournisseur($demandeApproL->getNomFournisseur())); // définir le numéro du fournisseur
-                        }
-
-                        $this->getEntityManager()->persist($demandeApproL);
-                    }
-                }
-
-                // si c'est la première création, on met à jour la colonne dernière_id dans la table applications
-                if ($firstCreation) {
-                    /** Modifie la colonne dernière_id dans la table applications */
-                    $applicationService = new ApplicationService($this->getEntityManager());
-                    $applicationService->mettreAJourDerniereIdApplication('DAP', $numDa);
-                }
-
-                /** Ajout de demande appro dans la base de donnée (table: Demande_Appro) */
-                $this->getEntityManager()->persist($demandeAppro);
-                $this->getEntityManager()->flush();
-
-                /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
-                if ($demandeAppro->getObservation()) $this->daObservationService->insertionObservation($numDa, $demandeAppro->getObservation(), $this->getUserName());
-
-                // ajout des données dans la table DaAfficher
-                $this->daAfficherService->generateDaAfficherOnCreationDa($demandeAppro, $firstCreation, $dit);
-
-                if ($clickedButtonName === "soumissionAppro") $this->emailDaService->envoyerMailCreationDa($demandeAppro, $this->getUser());
-
-                $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
+                $this->getSessionService()->set('notification', $notification);
                 $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
             }
         }
