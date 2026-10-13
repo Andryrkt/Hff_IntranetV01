@@ -197,6 +197,58 @@ class DemandePaiementModel extends Model
     }
 
 
+    /**
+     * OR validés enregistrés lors de la soumission des commandes fournisseur
+     * (cdefnr_soumis_a_validation_ligne, type_document 'OR', dernière version de chaque commande).
+     *
+     * @param string[] $numCdes numéros de commande (numériques uniquement)
+     *
+     * @return array<int,array{numero_cde:string,numero_or:string}>
+     */
+    public function getNumerosOrParCommandes(array $numCdes): array
+    {
+        $numCdes = array_values(array_filter(array_map('trim', $numCdes), 'ctype_digit'));
+        if (empty($numCdes)) return [];
+
+        $inCdes = "'" . implode("','", $numCdes) . "'";
+
+        $sql = " SELECT DISTINCT csavl.numero_cde, csavl.numero_document as numero_or
+                from cdefnr_soumis_a_validation_ligne csavl
+                where csavl.numero_cde in ($inCdes)
+                and csavl.type_document = 'OR'
+                and csavl.numero_version = (
+                    select max(c2.numero_version) from cdefnr_soumis_a_validation_ligne c2 where c2.numero_cde = csavl.numero_cde
+                )
+        ";
+
+        return $this->retournerResult28($sql);
+    }
+
+    /**
+     * Fichier (path) de la dernière version de chaque OR dans DW_Ordre_De_Reparation.
+     *
+     * @param string[] $numerosOr numéros d'OR (numériques uniquement)
+     *
+     * @return array<int,array{numero_or:string,path:string}>
+     */
+    public function getPathsDwOrdreReparation(array $numerosOr): array
+    {
+        $numerosOr = array_values(array_filter(array_map('trim', $numerosOr), 'ctype_digit'));
+        if (empty($numerosOr)) return [];
+
+        $inOrs = "'" . implode("','", $numerosOr) . "'";
+
+        $sql = " SELECT DISTINCT dodr.numero_or, dodr.path
+                from DW_Ordre_De_Reparation dodr
+                where dodr.numero_or in ($inOrs)
+                and dodr.numero_version = (
+                    select max(d2.numero_version) from DW_Ordre_De_Reparation d2 where d2.numero_or = dodr.numero_or
+                )
+        ";
+
+        return $this->retournerResult28($sql);
+    }
+
     public function getPathDwCommande(string $numCde): array
     {
         $sql = " SELECT DISTINCT  path, numero_cde from DW_Commande where numero_cde='{$numCde}' and date_creation = (select max(date_creation) from DW_Commande where numero_cde='{$numCde}' )";
