@@ -23,8 +23,8 @@ Depuis la rédaction du plan (2026-10-09), les commits ont porté sur des foncti
 - **Périmètre** : uniquement `App\Service\da` et les contrôleurs/API qui les consomment. **Intouchables** : entités, routes, templates Twig. Les services déjà migrés ne sont retouchés que si l'audit le justifie.
 - **Contraintes** : PHP 7.4, pas de `readonly` ; injection **par constructeur uniquement** (pas par argument d'action) ; yaml géré par l'utilisateur (Claude liste les entrées à ajouter dans `config/services/services_da.yaml`) ; **aucun commit par Claude** : un message de commit est proposé à chaque étape.
 - **Nommage** : services d'orchestration nommés **par cas d'usage**, style `Da<CasUsage>Service` (comme `DaValidationService`) ; la doc de la classe indique « orchestre ».
-- **Comportement** : strictement préservé pendant la refonte ; bugs signalés d'abord. La correction des bugs est une **phase dédiée après la refonte** (phase D), un commit par bug.
-- **Ordre** : gains rapides d'abord (A1 → A4), puis propositions (B), audit (C), bugs (D), contrôle final (E).
+- **Comportement** : strictement préservé pendant la refonte ; bugs signalés d'abord. La correction des bugs est une **phase dédiée après la refonte** (phase E), un commit par bug.
+- **Ordre** : gains rapides d'abord (A1 → A4), puis propositions (B), audit (C), utilisateur et repositories (D), bugs (E), contrôle final (F).
 - **Validation** : parcours manuel des pages (pas de tests automatisés pour l'instant) + `php -l` ; `lint:container` n'existe pas dans ce projet. Statut FAIT / À FAIRE par étape.
 
 ## Règles
@@ -65,7 +65,7 @@ Alternatives, **non retenues par défaut** (à ne proposer que si la règle ci-d
 | `DaPropositionLigneService` | spécifique | logique DAL/DALR et uploads des 2 contrôleurs de proposition | `em`, `FileUploaderForDAService` | FAIT (B) |
 | `DaPropositionService` | orchestration | valider/proposer/refuser une proposition : lignes + statut + PDF + mail + `DaAfficher` | `DaPropositionLigneService`, `DaService`, `DaObservationService`, `DaAfficherService`, `DaValidationService`, `EmailDaService` | FAIT (B) |
 | `EmailDaService`, `FileUploaderForDAService` | existants | injectés par le conteneur au lieu de `new` | voir A1 | FAIT (A1) |
-| `DaFilterService`, `DaTimelineService`, `EmailDaService`, `DaCreationService` | à auditer | découpe par sous-domaine | — | Audit FAIT (C), découpes C1 à C5 à décider |
+| `DaFilterService`, `DaTimelineService`, `EmailDaService`, `DaCreationService` | à auditer | découpe par sous-domaine | — | Audit FAIT (C), C1 à C3 FAIT, C4 hors périmètre, C5 partiel |
 
 ## Étapes
 
@@ -148,23 +148,39 @@ Audit fait sur `Service/da`, `Controller/da`, `Api/da`, `Factory/da` après A1 �
   - **Fait** : `DaAgenceServiceFilterService` (agence/service + restriction selon les droits, 1 dépendance `SecurityService`) extrait ; `DaAfficherRepository` l'appelle via `getAgenceServiceFilterService()` (3 sites). `supprimerQuatriemeLettrePD3` n'est pas lié à l'agence (filtre `numDa`) : il reste dans `DaFilterService`. `applyStatutsFilters` (209 lignes, blocs DA et BC dupliqués) passe à ~45 lignes + `exclureDaFermees`, `filtrerStatutDa`, `filtrerStatutBc`, `filtrerStatutOr` et `andWhereOuCloturee` (condition étendue aux DA clôturées). `DaFilterService` : 491 → ~320 lignes. Comportement inchangé (mêmes conditions, mêmes paramètres).
   - **Commit proposé** : `refactor: DaAgenceServiceFilterService extrait, applyStatutsFilters découpé`
 - **C4. Les 3 `TraitementSoumission*` — HORS PÉRIMÈTRE de ce plan**, à traiter dans un plan dédié (module cde fournisseurs / FacBl, pas DA propositions). Constat noté ci-dessus.
-- **C5. `new` de modèles et services — optionnel.** `DaPrixFournisseurService` dans `EmailDaService`, `MagasinListeOrLivrerModel` dans `DaCreationService`, `DemandePaiementModel` et `DossierInterventionAtelierModel` dans `DaDocumentService`, `DitModel` dans `DaListeDitService`. Un commit par service.
+- **C5. `new` de modèles et services — PARTIELLEMENT FAIT (2026-10-13).** Fait : `DaPrixFournisseurService` injecté dans `EmailDaService` (aucun yaml ; commit proposé `refactor: DaPrixFournisseurService injecté dans EmailDaService`). **En attente** : les 4 `new` de modèles, car `Model::__construct` ouvre les connexions DB immédiatement : injecter un modèle les ouvrirait à chaque requête construisant le service. À reprendre après `PLAN_REFONTE_MODEL.md` (connexions paresseuses). Cible initiale : `DaPrixFournisseurService` dans `EmailDaService`, `MagasinListeOrLivrerModel` dans `DaCreationService`, `DemandePaiementModel` et `DossierInterventionAtelierModel` dans `DaDocumentService`, `DitModel` dans `DaListeDitService`. Un commit par service.
 
 - **Commit proposé** : `plan: audit des constructeurs DA (étape C)` (le plan seul).
 
-### D. Correction des bugs — À FAIRE (après A à C)
+### D. Utilisateur et repositories — À FAIRE (après A à C)
+Objectif : performance et cohérence. Périmètre : `Controller/da`, `Api/da`, `Service/da`, `Factory/da`. `Controller` et `UserDataService` ne sont pas modifiés. Le plafond de ~5 dépendances est **ignoré pour cette étape** (à revoir en F). Un commit par sous-étape.
+
+- **D1. `UserDataService` à la place de `getUser()` / `getUserName()` / `getUserMail()` hérités.**
+  - Les contrôleurs DA injectent `UserDataService` (une seule instance partagée par requête ; son constructeur ne fait aucune requête) et n'appellent plus les méthodes héritées de `Controller`. `getUser()->getNomUtilisateur()` devient `getUserName()` (même valeur, aucun `find()`). `getUser()` seulement quand l'entité est nécessaire.
+  - Les services DA qui reçoivent `$user` / `$username` en paramètre injectent `UserDataService` ; on retire ces paramètres des appelants (signature d'`insertionObservation` comprise).
+  - Écarts assumés : `getUser()` renvoie la même instance pendant la requête (un seul `find()` au lieu d'un par appel) ; le cas `null` (session expirée) reste inchangé, le bug 3 reste en E. Absorbe le bug 16.
+  - Repérage : `grep -rn "getUser()\|getUserName()\|getUserMail()\|getNomUtilisateur()" src/Controller/da src/Api/da src/Service/da src/Factory/da` (état au 2026-10-13 : 39 / 19 / 5 occurrences ; 31 lignes référencent déjà `userDataService`).
+  - **Commit proposé** : `refactor: UserDataService injecté à la place de getUser()/getUserName() dans les DA`
+- **D2. Repositories dans le constructeur, selon la situation.**
+  - Service : un repository utilisé par **2 méthodes ou plus** est initialisé dans le constructeur par `$this->em->getRepository(X::class)` et la propriété est **typée** (`DaObservationRepository`, etc.). Un repository utilisé par une seule méthode reste dans la méthode. Pas d'injection directe du repository (pas de yaml, pas de dépendance en plus).
+  - Contrôleur : seulement si plusieurs actions s'en servent.
+  - Repérage : `grep -rn "getRepository(" src/Controller/da src/Api/da src/Service/da` (115 occurrences au 2026-10-13).
+  - **Commit proposé** : `refactor: repositories initialisés dans le constructeur des services DA`
+- **Validation (D1 et D2)** : `php -l`, liste des entrées yaml pour l'utilisateur, parcours manuel complet (liste ci-dessous), mise à jour du statut ici.
+
+### E. Correction des bugs — À FAIRE (après A à D)
 Un commit par bug : `fix: <bug> (DaXxx)`. Numéros de l'ancien plan (« Bugs évidents »).
 
 | Priorité | Bugs | Nature |
 |---|---|---|
 | **P1** (erreur fatale / perte de données) | 1 (`DaEdit*` DALR sur DAL supprimée → index indéfini), 2 (export Excel reporting IPS cassé, à revérifier : la liste DA est corrigée depuis `815e731b0` : `getData` renvoie `results`/`totals`, le contrôleur lit `reportingIps`/`qteTotale`/`montantTotal`), 7 (`DaNewAvecDitController` : `$dit` null déréférencé, `getPrixUnitaire(...)[0]` non gardé), 14 (`DaAffectationAchatController` : `find($id)` sans garde) | plantage |
 | **P2** (sécurité / robustesse) | 3 (`getUser()` non gardé, `agenceServiceIpsObjet()` renvoie des null), 4 (Ghostscript : chemin Windows en dur, `echo`, pas de `escapeshellarg`, fichier source écrasé), 6 et 18 (`DaAfficherService::ajouterDansTableAffichageParNumDa` : `getDit()` sans garde, `$oldDaAffichers[0]`) | sécurité, null |
-| **P3** (cohérence des données) | 5 et 17 (`getLignesRectifiees` : `->first()` peut renvoyer `false`, pas de filtre `deleted`, DALR indexés par numéro de ligne), 8 (numéros de ligne en collision, réappro mensuel), 9 (DALR sans filtre `deleted`), 10 (déjà résolu : cache `oldObservations` supprimé ; reste la clé de préfixe non gardée), 11 (obsolète : `daObservationRepository` du trait supprimé), 12 (N+1 SQL dans `DaListeDitService::ajoutNumSerieNumParc`, conditions testées deux fois, `categorie` traité différemment), 15 (`DaAfficherService` normalise `artDesi` : à vérifier que c'est fait), 16 (`getUser()->getNomUtilisateur()` vs `getUserName()` session) | données |
+| **P3** (cohérence des données) | 5 et 17 (`getLignesRectifiees` : `->first()` peut renvoyer `false`, pas de filtre `deleted`, DALR indexés par numéro de ligne), 8 (numéros de ligne en collision, réappro mensuel), 9 (DALR sans filtre `deleted`), 10 (déjà résolu : cache `oldObservations` supprimé ; reste la clé de préfixe non gardée), 11 (obsolète : `daObservationRepository` du trait supprimé), 12 (N+1 SQL dans `DaListeDitService::ajoutNumSerieNumParc`, conditions testées deux fois, `categorie` traité différemment), 15 (`DaAfficherService` normalise `artDesi` : à vérifier que c'est fait) | données |
 | **P4** | 13 (commentaires faux « 3 jours » alors que le code ajoute 5) | texte |
 
-Avant de commencer D, relire chaque bug dans le code actuel : certains (10, 11, 15) sont déjà résolus ou obsolètes depuis la migration ; les marquer FAIT/OBSOLÈTE au lieu de les corriger.
+Le bug 16 (`getUser()->getNomUtilisateur()` vs `getUserName()` session, même valeur) est absorbé par l'étape D. Avant de commencer E, relire chaque bug dans le code actuel : certains (10, 11, 15) sont déjà résolus ou obsolètes depuis la migration ; les marquer FAIT/OBSOLÈTE au lieu de les corriger.
 
-### E. Contrôle final — À FAIRE
+### F. Contrôle final — À FAIRE
 - `grep -rn "new EmailDaService\|new FileUploaderForDAService\|new ExcelService" src` ne renvoie plus rien (hors services eux-mêmes).
 - Aucun constructeur de service ou contrôleur DA au-dessus de ~5 dépendances sans justification écrite ici.
 - Parcours complet des pages DA (liste ci-dessous).
@@ -176,7 +192,7 @@ Avant de commencer D, relire chaque bug dans le code actuel : certains (10, 11, 
 | Vérification manuelle des pages touchées par 4.8 à 4.10 | transversal : fait avant d'ouvrir A1 (parcours de la liste ci-dessous) |
 | Commits 4.8, 4.9, 4.10 non faits | à faire par l'utilisateur avant A1 ; messages proposés : `feat: DaListeDitService remplace DaListeDitTrait`, `feat: ReportingIpsService remplace ReportingIpsTrait`, `feat: suppression de DaTrait, champs explicites dans les contrôleurs DA` |
 | Injection des `new` restants | A1 |
-| Bugs signalés | D |
+| Bugs signalés | E |
 | `DaPropositionService`, `DaDocumentService` (hors périmètre de l'ancien plan) | B, A3 |
 
 ## Parcours manuel de référence
