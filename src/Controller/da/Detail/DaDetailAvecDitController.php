@@ -11,6 +11,7 @@ use App\Form\da\DaObservationType;
 use App\Controller\Traits\lienGenerique;
 use App\Controller\Traits\da\DaAfficherTrait;
 use App\Controller\Traits\da\detail\DaDetailAvecDitTrait;
+use App\Entity\dit\DemandeIntervention;
 use App\Model\da\DaAfficherModel;
 use App\Model\dit\DitModel;
 use App\Service\da\DaTimelineService;
@@ -55,8 +56,10 @@ class DaDetailAvecDitController extends Controller
 		/** @var DemandeAppro $demandeAppro la demande appro correspondant à l'id $id */
 		$demandeAppro = $this->demandeApproRepository->find($id); // recupération de la DA
 		$ditModel = new DitModel();
+		$ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
+		$dit = $ditRepository->findOneBy(["numeroDemandeIntervention" => $demandeAppro->getNumeroDemandeDit()]);
+		$demandeAppro->setDit($dit);
 		$dataModel = $ditModel->recupNumSerieParcPourDa($demandeAppro->getDit()->getIdMateriel());
-
 		$daObservation = new DaObservation;
 		$formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, ['daTypeId' => $demandeAppro->getDaTypeId()])->getForm();
 
