@@ -282,6 +282,16 @@ class TraitementSoumissionDDPLService
             $this->entityManager->persist($daAfficher);
         }
         $this->entityManager->flush();
+
+        $dto->bilanMajDaAfficher = [
+            'nbArticlesLivres'   => count($daAffichers),
+            'nbLignesMaj'        => count($daAffichers),
+            'articlesNonTrouves' => [],
+        ];
+
+        if (empty($daAffichers)) {
+            error_log("[est_facture_bl_soumis] DA {$dto->numeroDemandeAppro} / CDE {$dto->numeroCde} : aucune ligne da_afficher mise à jour.");
+        }
     }
 
     private function verifierConditionDeBlocage(DaSoumissionFacBlDto $dto): bool

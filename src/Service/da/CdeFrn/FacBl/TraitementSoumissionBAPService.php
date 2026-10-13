@@ -193,48 +193,45 @@ class TraitementSoumissionBAPService
         $daAfficherRepository = $this->entityManager->getRepository(DaAfficher::class);
         $numeroVersionMax = $daAfficherRepository->getNumeroVersionMax($numDa, $codeSociete);
         $typeDa = $daAfficherRepository->getTypeDaSelonNumDa($numDa);
-        $daAffichers = [];
-
+        // articles de la livraison (référence / désignation) selon le type de DA
         if (in_array((int)$typeDa, [DemandeAppro::TYPE_DA_AVEC_DIT, DemandeAppro::TYPE_DA_REAPPRO_MENSUEL, DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL])) {
-            $refDesiSavLors = $this->daSoumissionFacBlModel->getRefDesiSavLor($numLiv, $codeSociete);
-            foreach ($refDesiSavLors as  $refDesiSavLor) {
-                $daAffichers[] = $this->entityManager->getRepository(DaAfficher::class)
-                    ->findOneBy(
-                        [
-                            'numeroDemandeAppro' => $numDa,
-                            'numeroVersion' => $numeroVersionMax,
-                            'numeroCde' => $numCde,
-                            'codeSociete' => $codeSociete,
-                            'artRefp' => $refDesiSavLor['reference'],
-                            'artDesi' => $refDesiSavLor['designation']
-                        ]
-                    );
-            }
+            $articlesLivres = $this->daSoumissionFacBlModel->getRefDesiSavLor($numLiv, $codeSociete);
         } else {
-            $refDesiFrnCdls = $this->daSoumissionFacBlModel->getRefDesiFrnCdl($numLiv, $codeSociete);
-            foreach ($refDesiFrnCdls as  $refDesiFrnCdl) {
-                $daAffichers[] = $this->entityManager->getRepository(DaAfficher::class)
-                    ->findOneBy(
-                        [
-                            'numeroDemandeAppro' => $numDa,
-                            'numeroVersion' => $numeroVersionMax,
-                            'numeroCde' => $numCde,
-                            'codeSociete' => $codeSociete,
-                            'artRefp' => $refDesiFrnCdl['reference'],
-                            'artDesi' => $refDesiFrnCdl['designation']
-                        ]
-                    );
-            }
+            $articlesLivres = $this->daSoumissionFacBlModel->getRefDesiFrnCdl($numLiv, $codeSociete);
         }
 
+        $nbLignesMaj = 0;
+        $articlesNonTrouves = [];
+        foreach ($articlesLivres as $article) {
+            $daAfficher = $daAfficherRepository->findOneBy([
+                'numeroDemandeAppro' => $numDa,
+                'numeroVersion'      => $numeroVersionMax,
+                'numeroCde'          => $numCde,
+                'codeSociete'        => $codeSociete,
+                'artRefp'            => $article['reference'],
+                'artDesi'            => $article['designation']
+            ]);
 
-        foreach ($daAffichers as  $daAfficher) {
-            // article de la livraison non retrouvé dans da_afficher : on l'ignore sans bloquer la mise à jour des autres
-            if (!$daAfficher instanceof DaAfficher) continue;
+            // article de la livraison non retrouvé dans da_afficher : on le signale sans bloquer la mise à jour des autres
+            if (!$daAfficher instanceof DaAfficher) {
+                $articlesNonTrouves[] = "{$article['reference']} - {$article['designation']}";
+                continue;
+            }
             $daAfficher->setEstFactureBlSoumis(true);
             $this->entityManager->persist($daAfficher);
+            $nbLignesMaj++;
         }
         $this->entityManager->flush();
+
+        $dto->bilanMajDaAfficher = [
+            'nbArticlesLivres'   => count($articlesLivres),
+            'nbLignesMaj'        => $nbLignesMaj,
+            'articlesNonTrouves' => $articlesNonTrouves,
+        ];
+
+        if ($nbLignesMaj === 0 || !empty($articlesNonTrouves)) {
+            error_log("[est_facture_bl_soumis] DA $numDa / CDE $numCde / LIV $numLiv : $nbLignesMaj ligne(s) mise(s) à jour sur " . count($articlesLivres) . " article(s) livré(s). Non trouvé(s) : " . implode(' | ', $articlesNonTrouves));
+        }
     }
 
     private function traitementDeFichier(FormInterface $form, DaSoumissionFacBlDto $dto, ?string $mail): array
