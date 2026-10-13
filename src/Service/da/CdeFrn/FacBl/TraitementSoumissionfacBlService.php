@@ -18,7 +18,6 @@ use App\Service\fichier\TraitementDeFichier;
 use App\Service\genererPdf\GeneratePdf;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -255,6 +254,7 @@ class TraitementSoumissionfacBlService
                             'numeroDemandeAppro' => $numDa,
                             'numeroVersion' => $numeroVersionMax,
                             'numeroCde' => $numCde,
+                            'codeSociete' => $codeSociete,
                             'artRefp' => $refDesiSavLor['reference'],
                             'artDesi' => $refDesiSavLor['designation']
                         ]
@@ -269,6 +269,7 @@ class TraitementSoumissionfacBlService
                             'numeroDemandeAppro' => $numDa,
                             'numeroVersion' => $numeroVersionMax,
                             'numeroCde' => $numCde,
+                            'codeSociete' => $codeSociete,
                             'artRefp' => $refDesiFrnCdl['reference'],
                             'artDesi' => $refDesiFrnCdl['designation']
                         ]
@@ -278,9 +279,8 @@ class TraitementSoumissionfacBlService
 
 
         foreach ($daAffichers as  $daAfficher) {
-            if (!$daAfficher instanceof DaAfficher) {
-                throw new Exception('Erreur: L\'objet DaAfficher est invalide.');
-            }
+            // article de la livraison non retrouvé dans da_afficher : on l'ignore sans bloquer la mise à jour des autres
+            if (!$daAfficher instanceof DaAfficher) continue;
             $daAfficher->setEstFactureBlSoumis(true);
             $this->entityManager->persist($daAfficher);
         }
