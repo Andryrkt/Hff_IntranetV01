@@ -4,9 +4,13 @@ on:
   push:
     branches: [ dev ]
 
+concurrency:
+  group: deploy-preprod
+  cancel-in-progress: false
+
 jobs:
   deploy:
-    runs-on: self-hosted
+    runs-on: [ self-hosted, preprod ]
 
     steps:
       - uses: actions/checkout@v4
