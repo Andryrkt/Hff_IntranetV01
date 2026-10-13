@@ -55,7 +55,7 @@ feature/xxx ──PR──> dev (PreProd, tests) ──PR──> main (Productio
 
 ## Mise en production
 
-Quand la PreProd est validée, on ouvre une pull request **`dev` → `main`**.
+Quand la PreProd est validée, on ouvre une pull request **`dev` → `main`**. Dès la fusion, la production est déployée automatiquement (voir `.github/workflows/deploy-prod.yml`).
 
 ## Correction urgente (hotfix)
 
