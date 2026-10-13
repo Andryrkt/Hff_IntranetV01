@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
             "Transmission des demandes DDP/BAP en cours, merci de patienter ..."
           );
           const response = await fetchManager.post(
-            `api/transmettre-bap-compta`,
+            `api/transmettre-bap-compta/${transmettreBAPButton.dataset.appro}`,
             {
               selectedDDP: selectedBAPs,
             }

@@ -29,18 +29,21 @@ class DdpApiController extends Controller
     use PdfConversionTrait;
 
     /**
-     * @Route("/api/transmettre-bap-compta", name="api_transmettre_bap_compta", methods={"POST"})
+     * @Route("/api/transmettre-bap-compta/{appro}", name="api_transmettre_bap_compta", methods={"POST"})
      */
-    public function transmettreBap(Request $request)
+    public function transmettreBap(Request $request, int $appro)
     {
+        $appro = (bool) $appro;
+
         try {
             $data = json_decode($request->getContent(), true);
             $selectedDdp = $data['selectedDDP'] ?? [];
             $numerosBc = array_unique(array_column($selectedDdp, "numeroCde"));
             $ddpNumbers = array_column($selectedDdp, "numeroDdp");
             $ddpNumberString = implode(', ', $ddpNumbers);
-
-            $result = $this->getValidationInfosWithStatus($selectedDdp, $numerosBc);
+            if($appro) {
+                $result = $this->getValidationInfosWithStatus($selectedDdp, $numerosBc);
+            }
 
             if ($result['message']) {
                 return new JsonResponse([
