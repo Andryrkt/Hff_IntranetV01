@@ -3,6 +3,7 @@ name: Deploy PHP Application HffIntranet Prod
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
 
 concurrency:
   group: deploy-prod
@@ -11,8 +12,18 @@ concurrency:
 jobs:
   deploy:
     runs-on: [ self-hosted, prod ]
+    # Le job attend la validation d'un reviewer de l'environnement "production"
+    # (Settings -> Environments -> production -> Required reviewers)
+    environment: production
 
     steps:
+      - name: Check branch
+        if: github.ref_name != 'main'
+        shell: powershell
+        run: |
+          Write-Error "Le deploiement en production n'est autorise que depuis la branche main (branche actuelle : ${{ github.ref_name }})."
+          exit 1
+
       - uses: actions/checkout@v4
 
       - name: Deploy files
