@@ -55,7 +55,22 @@ feature/xxx ──PR──> dev (PreProd, tests) ──PR──> main (Productio
 
 ## Mise en production
 
-Quand la PreProd est validée, on ouvre une pull request **`dev` → `main`**. Dès la fusion, la production est déployée automatiquement (voir `.github/workflows/deploy-prod.yml`).
+Quand la PreProd est validée, on ouvre une pull request **`dev` → `main`**.
+
+La fusion dans `main` **ne met pas directement en production** : le workflow `.github/workflows/deploy-prod.yml` démarre, puis attend la validation d'un reviewer de l'environnement GitHub `production` (Andryrkt, ranofi, Jaina20).
+
+Pour déployer :
+
+1. Sur le serveur, faire une copie du dossier `C:\wamp64\www\Hffintranet` (par exemple `Hffintranet_backup_AAAA-MM-JJ`).
+2. Exécuter les scripts SQL éventuels de la livraison sur la base de production (voir `docs/deploy/`).
+3. Sur GitHub : **Actions** → run **Deploy PHP Application HffIntranet Prod** en attente → **Review deployments** → cocher `production` → **Approve and deploy**.
+4. Vérifier la notification Discord et l'intranet en production.
+
+Pour ne pas déployer : **Review deployments** → **Reject** (ou **Cancel workflow**).
+
+Pour redéployer `main` plus tard : **Actions** → **Deploy PHP Application HffIntranet Prod** → **Run workflow** (branche `main`), puis valider comme ci-dessus.
+
+> ⚠️ Une pull request vers `main` ne doit venir que de `dev` ou d'une branche `hotfix/` créée depuis `main`. Une branche créée depuis `dev` qui est fusionnée dans `main` y amène **tout** le contenu de `dev`.
 
 ## Correction urgente (hotfix)
 
