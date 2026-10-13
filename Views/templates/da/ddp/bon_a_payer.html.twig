@@ -20,7 +20,7 @@
 			{% include "/partials/_notification.html.twig" %}
 			{% include "/da/ddp/_formulaire_recherche.html.twig" %}
 			<div class="my-2 d-flex justify-content-end">
-				<button type="button" class="btn btn-warning" id="transmettreBAP">Transmettre à validation.</button>
+				<button type="button" class="btn btn-warning" id="transmettreBAP" data-appro="{{ appro ? 1 : 0 }}">Transmettre à validation.</button>
 			</div>
 		</div>
 	</div>

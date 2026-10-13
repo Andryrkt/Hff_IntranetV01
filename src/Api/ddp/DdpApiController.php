@@ -29,10 +29,12 @@ class DdpApiController extends Controller
     use PdfConversionTrait;
 
     /**
-     * @Route("/api/transmettre-bap-compta", name="api_transmettre_bap_compta", methods={"POST"})
+     * @Route("/api/transmettre-bap-compta/{appro}", name="api_transmettre_bap_compta", methods={"POST"}, requirements={"appro"="0|1"})
      */
-    public function transmettreBap(Request $request)
+    public function transmettreBap(Request $request, int $appro)
     {
+        $appro = (bool) $appro;
+
         try {
             $data = json_decode($request->getContent(), true);
             $selectedDdp = $data['selectedDDP'] ?? [];
