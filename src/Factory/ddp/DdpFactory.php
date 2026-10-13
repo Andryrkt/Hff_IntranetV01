@@ -81,8 +81,7 @@ class DdpFactory
 
         if ($dto->typeDdp->getId() == TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE) {
             // Récupération des numéros de commande pour le type DDP après arrivage
-            $numeroCommandes = $this->recuperationNumCommande($dto->numeroFournisseur, $dto->numeroFacture);
-            $dto->numeroCommande = [$numeroCommandes];
+            $dto->numeroCommande = $this->recuperationNumCommande($dto->numeroFournisseur, $dto->numeroFacture);
             // copie des fichiers distant dans le dossier DDP
             $this->copierFichierDistant($dto);
         }
@@ -361,15 +360,14 @@ class DdpFactory
      * 
      * @param string $numeroFournisseur
      * @param array $numeroFacture
-     * @return string
+     * @return string[]
      */
-    private function recuperationNumCommande(string $numeroFournisseur, array $numeroFacture): string
+    private function recuperationNumCommande(string $numeroFournisseur, array $numeroFacture): array
     {
         $numCdes = $this->ddpModel->getCommandeReceptionnee($numeroFournisseur);
         $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
         $numFacString = TableauEnStringService::TableauEnString(',', $numeroFacture);
-        $numeroCommandes = $this->ddpModel->getNumCommande($numeroFournisseur, $numCdesString, $numFacString);
-        return $numeroCommandes;
+        return $this->ddpModel->getNumCommandes($numeroFournisseur, $numCdesString, $numFacString);
     }
 
     /**

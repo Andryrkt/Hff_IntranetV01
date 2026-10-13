@@ -141,6 +141,20 @@ class DemandePaiementModel extends Model
 
     public function getNumCommande(string $numeroFournisseur, string $numCdesString, ?string $numFactString): string
     {
+        $result = $this->getNumCommandes($numeroFournisseur, $numCdesString, $numFactString);
+
+        // Retourner la première valeur ou une chaîne vide
+        return !empty($result) ? (string) $result[0] : '';
+    }
+
+    /**
+     * Toutes les commandes (Numero_PO) des factures données, limitées aux
+     * commandes réceptionnées : une facture peut couvrir plusieurs commandes.
+     *
+     * @return string[]
+     */
+    public function getNumCommandes(string $numeroFournisseur, string $numCdesString, ?string $numFactString): array
+    {
         if (!empty($numFactString)) {
             $numFac = "and TRZT_Facture.Numero_Facture in ({$numFactString})";
         } else {
@@ -160,8 +174,7 @@ class DemandePaiementModel extends Model
 
         $result = array_column($this->retournerResultGcot04FiltreSurColonne($sql, 'numerocde', $numCdesString), 'numerocde');
 
-        // Retourner la première valeur ou une chaîne vide
-        return !empty($result) ? (string) $result[0] : '';
+        return array_values(array_unique(array_map(fn($el) => trim((string) $el), $result)));
     }
 
 
