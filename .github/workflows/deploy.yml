@@ -2,7 +2,7 @@ name: Deploy PHP Application HffIntranet PreProd
 
 on:
   push:
-    branches: [ feature/profilUser ]
+    branches: [ dev ]
 
 jobs:
   deploy:
