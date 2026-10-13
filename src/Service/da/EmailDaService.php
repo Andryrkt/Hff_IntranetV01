@@ -23,13 +23,13 @@ class EmailDaService
     private UrlIdCipher $urlIdCipher;
     private DaPrixFournisseurService $prixFournisseurService;
 
-    public function __construct(\Twig\Environment $twig, UrlGeneratorInterface $urlGenerator)
+    public function __construct(\Twig\Environment $twig, UrlGeneratorInterface $urlGenerator, DaPrixFournisseurService $prixFournisseurService)
     {
         $this->twig          = $twig;
         $this->mailAppro     = ($_ENV['MAIL_TO_APPRO'] ?? '');
         $this->emailTemplate = "da/email/emailDa.html.twig";
         $this->urlIdCipher   = new UrlIdCipher();
-        $this->prixFournisseurService = new DaPrixFournisseurService();
+        $this->prixFournisseurService = $prixFournisseurService;
         $this->urlGenerator  = $urlGenerator;
     }
 
