@@ -12,6 +12,7 @@ use App\Controller\Controller;
 use App\Controller\Traits\ddp\DdpTrait;
 use App\Entity\ddp\DemandePaiement;
 use App\Entity\dw\DwCommande;
+use App\Entity\dw\DwBcClientNegoce;
 use App\Model\ddp\DemandePaiementModel;
 use App\Service\TableauEnStringService;
 use App\Entity\cde\CdefnrSoumisAValidation;
@@ -342,6 +343,33 @@ class InfoFournisseurApi extends Controller
                 ];
             }
         }
+
+        header("Content-type:application/json");
+        echo json_encode($fichiers);
+    }
+
+    /**
+     * Récupère les fichiers (colonne 'path' de DW_BC_Client_Negoce) des BC client
+     * rattachés aux commandes fournisseur choisies.
+     *
+     * @Route("/api/fichiers-bc-client/{numeroCommande}", name="api_fichiers_bc_client")
+     */
+    public function fichiersBcClient(string $numeroCommande)
+    {
+        $this->libererSession();
+
+        $numCdes = array_values(array_filter(array_map('trim', explode(',', $numeroCommande))));
+
+        $resultats = $this->getEntityManager()
+            ->getRepository(DwBcClientNegoce::class)
+            ->findPathsByNumeroCdes($numCdes);
+
+        $fichiers = array_map(fn($result) => [
+            'numeroCde'    => $result['numeroCde'],
+            'numeroBccNeg' => $result['numeroBccNeg'],
+            'path'         => $result['path'],
+            'nomFichier'   => basename(str_replace('\\', '/', $result['path'])),
+        ], $resultats);
 
         header("Content-type:application/json");
         echo json_encode($fichiers);

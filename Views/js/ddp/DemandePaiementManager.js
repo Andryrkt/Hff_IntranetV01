@@ -110,6 +110,7 @@ export class DemandePaiementManager {
 
     $(this.elements.numCommandeInput).on("change", () => {
       this.chargerFichiersCommandeValidee();
+      this.chargerFichiersBcClient();
       if (this.typeId == 1 && this.config.urls.montantCommandeHt) {
         this.chargerMontantCommandeHt();
       }
@@ -618,9 +619,21 @@ export class DemandePaiementManager {
    * spinner pendant le chargement effectif du fichier.
    */
   async afficherPdfCommandeValidee(container, fichier) {
+    const charge = await this.afficherPdfDw(container, fichier.nomFichier, fichier.path);
+    if (!charge) {
+      this.commandesAvecPdfIntrouvable.add(fichier.numeroCde);
+      this.mettreAJourEtatSoumission();
+    }
+  }
+
+  /**
+   * Télécharge (en blob) puis affiche un PDF DocuWare (chemin relatif à
+   * BASE_PATH_FICHIER), précédé de sa légende. Retourne false si introuvable.
+   */
+  async afficherPdfDw(container, legendeTexte, path) {
     const legende = document.createElement("p");
     legende.className = "mb-2 fw-bold";
-    legende.textContent = fichier.nomFichier;
+    legende.textContent = legendeTexte;
     container.appendChild(legende);
 
     const spinner = this.creerSpinner("Chargement du PDF...", "80vh");
@@ -628,7 +641,7 @@ export class DemandePaiementManager {
 
     try {
       const baseUrl = window.location.origin;
-      const encodedPath = encodeURIComponent(fichier.path);
+      const encodedPath = encodeURIComponent(path);
       const fileUrl = `${baseUrl}${this.config.urls.telechargerFichierCommandeDw}?path=${encodedPath}`;
 
       const response = await fetch(fileUrl);
@@ -643,12 +656,57 @@ export class DemandePaiementManager {
       embed.style.height = "80vh";
 
       spinner.replaceWith(embed);
+      return true;
     } catch (error) {
       console.error("Erreur lors du chargement du PDF :", error);
       spinner.innerHTML = `<p class="text-danger mb-0">Introuvable</p>`;
+      return false;
+    }
+  }
 
-      this.commandesAvecPdfIntrouvable.add(fichier.numeroCde);
-      this.mettreAJourEtatSoumission();
+  /**
+   * Affiche, dans l'onglet "BC client externe / BC client magasin", les BC
+   * client négoce (DW_BC_Client_Negoce) rattachés aux commandes sélectionnées.
+   * Informatif uniquement : l'absence de BC ne bloque pas la soumission.
+   */
+  async chargerFichiersBcClient() {
+    const container = this.elements.bcClientDwFiles;
+    if (!container || !this.config.urls.fichiersBcClient) return;
+
+    container.innerHTML = "";
+
+    const numCdes = this.getNumCdesSelectionnees();
+    if (numCdes.length === 0) return;
+
+    container.appendChild(this.creerSpinner("Recherche des BC client..."));
+
+    try {
+      const url = this.config.urls.fichiersBcClient.replace(
+        ":numeroCommande",
+        numCdes.join(","),
+      );
+      const fichiers = await this.fetchManager.get(url);
+
+      // Ignore la réponse si la sélection a changé entre-temps
+      if (this.getNumCdesSelectionnees().join(",") !== numCdes.join(",")) return;
+
+      container.innerHTML = "";
+
+      if (fichiers.length === 0) {
+        container.innerHTML = `<p class="text-muted mb-0">Aucun BC client trouvé pour la/les commande(s) ${numCdes.join(", ")}.</p>`;
+        return;
+      }
+
+      fichiers.forEach((fichier) =>
+        this.afficherPdfDw(
+          container,
+          `Commande ${fichier.numeroCde} - BC ${fichier.numeroBccNeg} (${fichier.nomFichier})`,
+          fichier.path,
+        ),
+      );
+    } catch (error) {
+      console.error("Erreur lors de la récupération des BC client :", error);
+      container.innerHTML = `<p class="text-danger mb-0">Erreur lors de la récupération des BC client.</p>`;
     }
   }
 
