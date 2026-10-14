@@ -349,6 +349,47 @@ class InfoFournisseurApi extends Controller
     }
 
     /**
+     * Récupère les fichiers (colonne 'path' de DW_Ordre_De_Reparation) des OR liés
+     * aux commandes fournisseur choisies.
+     *
+     * @Route("/api/fichiers-or-valide/{numeroCommande}", name="api_fichiers_or_valide")
+     */
+    public function fichiersOrValide(string $numeroCommande)
+    {
+        $this->libererSession();
+
+        $numCdes = explode(',', $numeroCommande);
+        $orsParCommande = $this->demandePaiementModel()->getNumerosOrParCommandes($numCdes);
+
+        // OR => commandes liées
+        $commandesParOr = [];
+        foreach ($orsParCommande as $row) {
+            $commandesParOr[trim($row['numero_or'])][] = trim($row['numero_cde']);
+        }
+
+        $fichiers = [];
+        foreach ($this->demandePaiementModel()->getPathsDwOrdreReparation(array_keys($commandesParOr)) as $result) {
+            if (empty($result['path'])) {
+                continue;
+            }
+
+            $numeroOr = trim($result['numero_or']);
+            $fichiers[] = [
+                'numeroOr'   => $numeroOr,
+                'numeroCdes' => array_values(array_unique($commandesParOr[$numeroOr] ?? [])),
+                'path'       => $result['path'],
+                'nomFichier' => basename(str_replace('\\', '/', $result['path'])),
+            ];
+        }
+
+        header("Content-type:application/json");
+        echo json_encode([
+            'numerosOr' => array_map('strval', array_keys($commandesParOr)),
+            'fichiers'  => $fichiers,
+        ]);
+    }
+
+    /**
      * Récupère les fichiers (colonne 'path' de DW_BC_Client_Negoce) des BC client
      * rattachés aux commandes fournisseur choisies.
      *

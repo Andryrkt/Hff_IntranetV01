@@ -110,6 +110,7 @@ export class DemandePaiementManager {
 
     $(this.elements.numCommandeInput).on("change", () => {
       this.chargerFichiersCommandeValidee();
+      this.chargerFichiersOrValide();
       this.chargerFichiersBcClient();
       if (this.typeId == 1 && this.config.urls.montantCommandeHt) {
         this.chargerMontantCommandeHt();
@@ -572,8 +573,85 @@ export class DemandePaiementManager {
    * sélectionnée, et retourne le panneau à remplir.
    */
   ajouterSousOngletCommande(subTabsNav, subTabsContent, numCde, index) {
-    const tabId = `commande-validee-${numCde}`;
-    const estActif = index === 0;
+    return this.ajouterSousOnglet(
+      subTabsNav,
+      subTabsContent,
+      `commande-validee-${numCde}`,
+      `Commande ${numCde}`,
+      index === 0,
+    );
+  }
+
+  /**
+   * Affiche, dans l'onglet "OR validé", un sous-onglet par OR lié aux
+   * commandes fournisseur sélectionnées (fichiers de DW_Ordre_De_Reparation).
+   * Un OR introuvable ne bloque pas la soumission.
+   */
+  async chargerFichiersOrValide() {
+    const subTabsNav = this.elements.orValideSubTabs;
+    const subTabsContent = this.elements.orValideSubTabContent;
+    if (!subTabsNav || !subTabsContent || !this.config.urls.fichiersOrValide)
+      return;
+
+    subTabsNav.innerHTML = "";
+    subTabsContent.innerHTML = "";
+    subTabsNav.classList.add("d-none");
+
+    const numCdes = this.getNumCdesSelectionnees();
+    if (numCdes.length === 0) return;
+
+    // Ignore les réponses d'une sélection précédente
+    const jeton = (this.jetonChargementOr = (this.jetonChargementOr || 0) + 1);
+    subTabsContent.appendChild(this.creerSpinner("Recherche des OR..."));
+
+    try {
+      const url = this.config.urls.fichiersOrValide.replace(
+        ":numeroCommande",
+        numCdes.join(","),
+      );
+      const { numerosOr = [], fichiers = [] } =
+        await this.fetchManager.get(url);
+      if (jeton !== this.jetonChargementOr) return;
+
+      subTabsContent.innerHTML = "";
+
+      if (numerosOr.length === 0) {
+        subTabsContent.innerHTML = `<p class="text-muted mb-0">Aucun OR lié à la/les commande(s) sélectionnée(s).</p>`;
+        return;
+      }
+
+      subTabsNav.classList.toggle("d-none", numerosOr.length <= 1);
+
+      numerosOr.forEach((numeroOr, index) => {
+        const pane = this.ajouterSousOnglet(
+          subTabsNav,
+          subTabsContent,
+          `or-valide-${numeroOr}`,
+          `OR ${numeroOr}`,
+          index === 0,
+        );
+
+        const fichiersDeOr = fichiers.filter((f) => f.numeroOr === numeroOr);
+        if (fichiersDeOr.length === 0) {
+          pane.innerHTML = `<p class="text-danger mb-0">OR ${numeroOr} - Introuvable</p>`;
+          return;
+        }
+
+        fichiersDeOr.forEach((fichier) =>
+          this.afficherPdfCommandeValidee(pane, fichier, false),
+        );
+      });
+    } catch (error) {
+      if (jeton !== this.jetonChargementOr) return;
+      console.error("Erreur lors de la récupération des fichiers OR :", error);
+      subTabsContent.innerHTML = `<p class="text-danger mb-0">Erreur lors de la récupération des fichiers OR.</p>`;
+    }
+  }
+
+  /**
+   * Ajoute un sous-onglet (bouton + panneau vide) et retourne le panneau à remplir.
+   */
+  ajouterSousOnglet(subTabsNav, subTabsContent, tabId, libelle, estActif) {
 
     const navItem = document.createElement("li");
     navItem.className = "nav-item";
@@ -586,7 +664,7 @@ export class DemandePaiementManager {
     navButton.dataset.bsToggle = "pill";
     navButton.dataset.bsTarget = `#${tabId}`;
     navButton.setAttribute("role", "tab");
-    navButton.textContent = `Commande ${numCde}`;
+    navButton.textContent = libelle;
     navItem.appendChild(navButton);
     subTabsNav.appendChild(navItem);
 
@@ -618,7 +696,7 @@ export class DemandePaiementManager {
    * Télécharge (en blob) puis affiche un PDF de commande validée, avec un
    * spinner pendant le chargement effectif du fichier.
    */
-  async afficherPdfCommandeValidee(container, fichier) {
+  async afficherPdfCommandeValidee(container, fichier, bloquerSiIntrouvable = true) {
     const charge = await this.afficherPdfDw(container, fichier.nomFichier, fichier.path);
     if (!charge) {
       this.commandesAvecPdfIntrouvable.add(fichier.numeroCde);
@@ -707,6 +785,11 @@ export class DemandePaiementManager {
     } catch (error) {
       console.error("Erreur lors de la récupération des BC client :", error);
       container.innerHTML = `<p class="text-danger mb-0">Erreur lors de la récupération des BC client.</p>`;
+
+      if (bloquerSiIntrouvable) {
+        this.commandesAvecPdfIntrouvable.add(fichier.numeroCde);
+        this.mettreAJourEtatSoumission();
+      }
     }
   }
 

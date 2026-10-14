@@ -15,6 +15,7 @@ use App\Model\da\DaModel;
 use App\Model\dit\DitModel;
 use App\Service\autres\AutoIncDecService;
 use App\Service\da\FileCheckerService;
+use App\Service\ddp\DemandePaiementFileService;
 use App\Service\dataPdf\ordreReparation\Recapitulation;
 use App\Service\fichier\TraitementDeFichier;
 use App\Service\genererPdf\ddp\GeneratePdfDdpDa;
@@ -35,12 +36,15 @@ class DdpApiController extends Controller
     {
         try {
             $data = json_decode($request->getContent(), true);
+            $appro = (bool) ($data['appro'] ?? false);
             $selectedDdp = $data['selectedDDP'] ?? [];
             $numerosBc = array_unique(array_column($selectedDdp, "numeroCde"));
             $ddpNumbers = array_column($selectedDdp, "numeroDdp");
             $ddpNumberString = implode(', ', $ddpNumbers);
-
-            $result = $this->getValidationInfosWithStatus($selectedDdp, $numerosBc);
+            // La vérification de validation des BC (DW) ne concerne que les DDP appro
+            $result = $appro
+                ? $this->getValidationInfosWithStatus($selectedDdp, $numerosBc)
+                : ['message' => null, 'validationInfos' => []];
 
             if ($result['message']) {
                 return new JsonResponse([
@@ -68,13 +72,22 @@ class DdpApiController extends Controller
                 ;
                 $this->getEntityManager()->persist($ddp);
 
-                $nomCompletFichier = $this->genererPageDeGarde($validationInfo[$ddp->getNumeroCommande()] ?? [], $ddp);
+                // Page de garde DA + fusion des PJ uniquement pour les DDP appro
+                if ($appro) {
+                    $nomCompletFichier = $this->genererPageDeGarde($validationInfo[$ddp->getNumeroCommande()] ?? [], $ddp);
 
-                $this->fusionDesPdf($ddp->getNumeroCommande(), $nomCompletFichier);
+                    $this->fusionDesPdf($ddp->getNumeroCommande(), $nomCompletFichier);
+                }
 
                 /** copie du fichier DDP dans DW */
-                $fileCheckerService = new FileCheckerService();
-                $bapFullpath = $fileCheckerService->getFullPath($ddp->getNumeroDdp());
+                if ($appro) {
+                    // PDF tout juste régénéré (page de garde + PJ)
+                    $bapFullpath = (new FileCheckerService())->getFullPath($ddp->getNumeroDdp());
+                } else {
+                    // même résolution de chemin que la liste (chemin DW en BDD, sinon ddp/{numDdp}/{numDdp}.pdf)
+                    $fileInfo = (new DemandePaiementFileService())->getFileInfo($ddp->getNumeroDdp(), $ddp->getTypeDemandeId()->getCode());
+                    $bapFullpath = $fileInfo['exists'] ? $fileInfo['path'] : null;
+                }
 
                 if (empty($bapFullpath)) {
                     throw new \Exception("Le fichier PDF pour la demande {$ddp->getNumeroDdp()} est introuvable sur le serveur.");

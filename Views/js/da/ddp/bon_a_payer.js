@@ -76,6 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const response = await fetchManager.post(
             `api/transmettre-bap-compta`,
             {
+              appro: transmettreBAPButton.dataset.appro === "1",
               selectedDDP: selectedBAPs,
             }
           );
