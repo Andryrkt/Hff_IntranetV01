@@ -85,6 +85,9 @@ class DaSoumissionFacBlDto
 
     public bool $estFournisseurAssujetiTva = false;
 
+    // bilan de la mise à jour de est_facture_bl_soumis dans da_afficher (nbArticlesLivres, nbLignesMaj, articlesNonTrouves)
+    public array $bilanMajDaAfficher = [];
+
     public function montantAPayer(): float
     {
         return (float)str_replace(',', '.', str_replace('.', '', $this->montantAPayer));
