@@ -4,12 +4,11 @@ namespace App\Controller\da\ListeCdeFrn;
 
 use App\Controller\Controller;
 use App\Entity\da\DaNotificationFacBl;
-use App\Service\da\CdeFrn\FacBl\NotificationSoumissionFacBlService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * Page des notifications de soumission facture / BL (accessible uniquement à l'utilisateur autorisé)
+ * Page des notifications de soumission facture / BL (accessible uniquement aux administrateurs HFF-ADMIN)
  *
  * @Route("/demande-appro")
  */
@@ -66,11 +65,11 @@ class DaNotificationFacBlController extends Controller
     }
 
     /**
-     * Redirige vers l'accueil si l'utilisateur connecté n'est pas autorisé à voir les notifications
+     * Redirige vers l'accueil si l'utilisateur connecté n'est pas administrateur (profil HFF-ADMIN)
      */
     private function verifierAcces(): void
     {
-        if (!NotificationSoumissionFacBlService::estAutorise($this->getUserName())) {
+        if (!$this->estAdmin()) {
             $this->redirectToRoute('profil_acceuil');
         }
     }

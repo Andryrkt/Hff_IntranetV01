@@ -459,6 +459,13 @@ class MenuGroupe
                 ],
             ],
             [
+                'header' => 'Notifications',
+                'icon'   => 'fa-bell',
+                'links'  => [
+                    ['label' => 'Soumission facture / BL', 'icon' => 'fa-file-invoice', 'route' => 'da_notification_facbl'],
+                ],
+            ],
+            [
                 'header' => 'Tickets',
                 'icon'   => 'fa-ticket',
                 'links'  => [

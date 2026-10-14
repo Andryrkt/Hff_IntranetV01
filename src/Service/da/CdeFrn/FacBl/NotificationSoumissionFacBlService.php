@@ -8,22 +8,15 @@ use Doctrine\ORM\EntityManagerInterface;
 
 /**
  * Enregistre une notification dans l'application à chaque soumission de facture / BL.
- * Les notifications sont consultables uniquement par l'utilisateur défini dans UTILISATEUR_AUTORISE.
+ * Les notifications sont consultables uniquement par les administrateurs (profil HFF-ADMIN).
  */
 class NotificationSoumissionFacBlService
 {
-    public const UTILISATEUR_AUTORISE = 'lanto';
-
     private EntityManagerInterface $entityManager;
 
     public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
-    }
-
-    public static function estAutorise(?string $nomUtilisateur): bool
-    {
-        return strtolower(trim((string) $nomUtilisateur)) === self::UTILISATEUR_AUTORISE;
     }
 
     /**
