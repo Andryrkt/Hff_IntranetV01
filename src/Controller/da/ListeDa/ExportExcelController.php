@@ -29,6 +29,8 @@ class ExportExcelController extends Controller
      */
     public function exportExcel()
     {
+        set_time_limit(0);
+
         // Code Société de l'utilisateur
         $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
@@ -38,13 +40,14 @@ class ExportExcelController extends Controller
         $codeCentrale = $this->estAdmin() || $this->estEnergie();
 
         // recupération des données de la DA
-        $dasFiltered = $this->daAfficherRepository->findDerniereVersionDesDA($criteria, $codeSociete);
+        $dasFiltered = $this->daAfficherRepository->iterateDerniereVersionDesDA($criteria, $codeSociete);
 
         // Données généré des $dasFiltered
         $data = $this->generateTableData($dasFiltered, $codeCentrale);
 
         // Crée le fichier Excel
-        (new ExcelService())->createSpreadsheet($data, "donnees_" . date('Y-m-d_H-i-s'));
+        (new ExcelService())->streamSpreadsheet($data, "donnees_" . date('Y-m-d_H-i-s'));
+        exit;
     }
 
     /** 
@@ -90,16 +93,14 @@ class ExportExcelController extends Controller
     /** 
      * Construis le corps du tableau excel
      * 
-     * @param DaAfficher[] $dasFiltered  tableau d'objets DaAfficher à convertir
-     * @param array        $headers      entête du tableau
+     * @param iterable<DaAfficher> $dasFiltered  objets DaAfficher à convertir
+     * @param array        $headers     entête du tableau
      * @param bool         $estAppro     true si l'utilisateur est dans le service appro
      * 
-     * @return array
+     * @return \Generator
      */
-    private function bodyExcel(array $dasFiltered, array $headers, bool $estAppro): array
+    private function bodyExcel(iterable $dasFiltered, array $headers, bool $estAppro): \Generator
     {
-        $data = [];
-
         $typeDemande = [
             DemandeAppro::TYPE_DA_AVEC_DIT         => 'DA AVEC DIT',
             DemandeAppro::TYPE_DA_DIRECT           => 'DA DIRECT',
@@ -147,15 +148,14 @@ class ExportExcelController extends Controller
             "Nbr Jour(s) dispo"        => fn(DaAfficher $da) => $da->getJoursDispo(),
         ];
 
-        /** @var DaAfficher[] $dasFiltered */
+        /** @var DaAfficher $da */
         foreach ($dasFiltered as $da) {
             $row = [];
             foreach ($headers as $col) {
                 $row[] = $columnCallbacks[$col]($da);
             }
-            $data[] = $row;
+            yield $row;
         }
-        return $data;
     }
 
     /** 
@@ -164,14 +164,13 @@ class ExportExcelController extends Controller
      * @param DaAfficher[] $dasFiltered  tableau d'objets DaAfficher à convertir
      * @param bool         $codeCentrale afficher le centrale ou non
      * 
-     * @return array
+     * @return \Generator
      */
-    private function generateTableData(array $dasFiltered, bool $codeCentrale): array
+    private function generateTableData(iterable $dasFiltered, bool $codeCentrale): \Generator
     {
         $headers = $this->headerExcel($codeCentrale);
 
-        $body = $this->bodyExcel($dasFiltered, $headers, $this->estAppro());
-
-        return array_merge([$headers], $body);
+        yield $headers;
+        yield from $this->bodyExcel($dasFiltered, $headers, $this->estAppro());
     }
 }

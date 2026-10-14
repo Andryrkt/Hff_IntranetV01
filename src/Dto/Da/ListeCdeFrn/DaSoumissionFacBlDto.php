@@ -33,6 +33,7 @@ class DaSoumissionFacBlDto
     public ?string $statutBap = null;
     public ?DateTime $dateSoumissionCompta = null;
     public float $montantBlFacture = 0.0;
+    public float $montantBlFactureTtc = 0.0;
     public float $montantReceptionIps = 0.0;
     public ?string $numeroDemandePaiement = null;
     public ?DateTime $dateStatutBap = null;
@@ -83,6 +84,9 @@ class DaSoumissionFacBlDto
     public float $totalMontantDdpValid = 0.0;
 
     public bool $estFournisseurAssujetiTva = false;
+
+    // bilan de la mise à jour de est_facture_bl_soumis dans da_afficher (nbArticlesLivres, nbLignesMaj, articlesNonTrouves)
+    public array $bilanMajDaAfficher = [];
 
     public function montantAPayer(): float
     {

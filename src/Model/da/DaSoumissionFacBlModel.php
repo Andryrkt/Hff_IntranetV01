@@ -22,14 +22,25 @@ class DaSoumissionFacBlModel extends Model
     }
 
 
+    /**
+     * Récupère les références / désignations des lignes de commande fournisseur
+     * concernées par une livraison (frn_llf -> frn_cdl).
+     */
     public function getRefDesiFrnCdl($numeroLivraison, string $codeSociete)
     {
-        $statement = " SELECT TRIM(fcdl_refp) as reference
+        $statement = " SELECT DISTINCT TRIM(fcdl_refp) as reference
                 ,TRIM(fcdl_desi) as designation
                 ,fllf_numliv as numero_livraison
-            from informix.frn_cdl
-            left join Informix.frn_llf on fllf_numcde = fcdl_numcde and fcdl_soc='$codeSociete'
+            from informix.frn_llf
+            inner join informix.frn_cdl
+                on fcdl_numcde = fllf_numcde
+                and fcdl_refp = fllf_refp
+                and fcdl_constp = fllf_constp
+                and fcdl_succ = fllf_succ
+                and fcdl_soc = fllf_soc
+                and fcdl_ligne = fllf_ligne
             where fllf_numliv = '$numeroLivraison'
+            and fllf_soc = '$codeSociete'
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -38,13 +49,23 @@ class DaSoumissionFacBlModel extends Model
         return $data;
     }
 
+    /**
+     * Récupère les références / désignations des lignes d'OR (sav_lor) concernées par une livraison.
+     * NB : slor_numcf contient le numéro de commande fournisseur (et non le numéro de livraison),
+     * on passe donc par frn_llf pour retrouver les articles de la livraison.
+     */
     public function getRefDesiSavLor($numeroLivraison, string $codeSociete)
     {
-        $statement = " SELECT slor_numcf as numero_livraison 
-                ,TRIM(slor_refp) as reference 
-                ,TRIM(slor_desi) as designation 
-                from Informix.sav_lor 
-                where slor_numcf ='$numeroLivraison' and slor_soc='$codeSociete'
+        $statement = " SELECT DISTINCT fllf_numliv as numero_livraison
+                ,TRIM(slor_refp) as reference
+                ,TRIM(slor_desi) as designation
+                from Informix.sav_lor
+                inner join informix.frn_llf
+                    on fllf_numcde = slor_numcf
+                    and fllf_refp = slor_refp
+                    and fllf_soc = slor_soc
+                where fllf_numliv = '$numeroLivraison'
+                and slor_soc = '$codeSociete'
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -147,5 +168,46 @@ class DaSoumissionFacBlModel extends Model
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
         return array_column($data, 'montant_livraison')[0] ?? 0.0;
+    }
+
+    public function getMontantFactureSoumiseAvecTva(string $numeroCommande, string $codeSociete)
+    {
+        $statement = " SELECT  round(SUM(case 
+                        when fcdl_tva = 0 
+                        then (fllf_achnet *  fllf_qtefac) 
+                        else (fllf_achnet *  fllf_qtefac *1.2)
+                        end )
+                        , 2) as montant_facture_soumise_tva
+               
+               from informix.frn_llf
+               inner join informix.frn_cdl 
+               on fcdl_numcde = fllf_numcde 
+               and fcdl_refp = fllf_refp 
+               and fcdl_constp = fllf_constp
+               and fcdl_succ = fllf_succ
+               and fcdl_soc = fllf_soc
+               and fcdl_ligne = fllf_ligne 
+               where fllf_numcde = '$numeroCommande'
+               and fllf_soc = '$codeSociete'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return array_column($data, 'montant_facture_soumise_tva')[0] ?? 0.0;
+    }
+
+    public function getMontantCommandeTtc(string $numeroCommande, string $codeSociete)
+    {
+        $statement = " SELECT  fcde_ttc as montant_cde_ttc 
+                from Informix.frn_cde 
+                where fcde_numcde ='$numeroCommande' 
+                and fcde_soc ='$codeSociete'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return array_column($data, 'montant_cde_ttc')[0] ?? 0.0;
     }
 }

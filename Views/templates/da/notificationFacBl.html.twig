@@ -1,0 +1,92 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Notifications facture BL
+{% endblock %}
+
+{% block stylesheets %}
+	<link href="{{ App.base_path }}/Views/css/new.css?v={{ App.browserHash }}" rel="stylesheet"/>
+{% endblock %}
+
+{% block content %}
+	<div class="container-fluid">
+		<div class="card">
+			<div class="card-body">
+				<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+					<h3 class="perso-titre mb-0">
+						NOTIFICATIONS SOUMISSION FACTURE / BL
+						{% if nbNonLues > 0 %}
+							<span class="badge bg-danger">{{ nbNonLues }} non lue(s)</span>
+						{% endif %}
+					</h3>
+					<div class="d-flex gap-2">
+						{% if anomalieSeulement %}
+							<a href="{{ path('da_notification_facbl') }}" class="btn btn-outline-secondary btn-sm">Toutes les notifications</a>
+						{% else %}
+							<a href="{{ path('da_notification_facbl', {'anomalie': 1}) }}" class="btn btn-outline-danger btn-sm">Anomalies uniquement</a>
+						{% endif %}
+						{% if nbNonLues > 0 %}
+							<a href="{{ path('da_notification_facbl_tout_lu') }}" class="btn btn-outline-warning btn-sm">Tout marquer comme lu</a>
+						{% endif %}
+					</div>
+				</div>
+
+				<div class="table-responsive">
+					<table class="table table-sm table-bordered table-hover align-middle">
+						<thead class="table-dark">
+							<tr>
+								<th>Date</th>
+								<th>Soumis par</th>
+								<th>Type</th>
+								<th>N° DA</th>
+								<th>N° CDE</th>
+								<th>N° livraison</th>
+								<th>N° OR</th>
+								<th class="text-end">Montant</th>
+								<th>est_facture_bl_soumis</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for notification in notifications %}
+								<tr class="{{ notification.estAnomalie ? 'table-danger' : '' }} {{ notification.estLu ? '' : 'fw-bold' }}">
+									<td>{{ notification.dateCreation ? notification.dateCreation|date('d/m/Y H:i') : '-' }}</td>
+									<td>{{ notification.soumisPar ?: '-' }}</td>
+									<td>{{ notification.typeSoumission|upper }}</td>
+									<td>{{ notification.numeroDemandeAppro }}</td>
+									<td>{{ notification.numeroCde }}</td>
+									<td>{{ notification.numeroLivraison }}</td>
+									<td>{{ notification.numeroOR ?: '-' }}</td>
+									<td class="text-end">{{ notification.montant is not null ? notification.montant|number_format(2, ',', ' ') : '-' }}</td>
+									<td>
+										{% if notification.estAnomalie %}
+											<span class="badge bg-danger">Anomalie</span>
+										{% else %}
+											<span class="badge bg-success">OK</span>
+										{% endif %}
+										{{ notification.nbLignesMaj }} / {{ notification.nbArticlesLivres }} ligne(s)
+										{% if notification.articlesNonTrouves %}
+											<details class="mt-1 fw-normal">
+												<summary>Article(s) non trouvé(s)</summary>
+												{{ notification.articlesNonTrouves|nl2br }}
+											</details>
+										{% endif %}
+									</td>
+									<td class="text-center">
+										{% if not notification.estLu %}
+											<a href="{{ path('da_notification_facbl_lu', {'id': notification.id}) }}" class="btn btn-outline-primary btn-sm">Marquer lu</a>
+										{% endif %}
+									</td>
+								</tr>
+							{% else %}
+								<tr>
+									<td colspan="10" class="text-center text-muted">Aucune notification.</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

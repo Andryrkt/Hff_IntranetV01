@@ -4,6 +4,7 @@ namespace App\Service;
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use OpenSpout\Writer\Common\Creator\WriterEntityFactory;
 
 class ExcelService
 {
@@ -36,6 +37,25 @@ class ExcelService
 
         $spreadsheet->disconnectWorksheets();
         unset($spreadsheet);
+    }
+
+    /**
+     * Export en streaming (OpenSpout) : chaque ligne est écrite au fur et à mesure.
+     *
+     * @param iterable $rows lignes (tableaux de valeurs), entête comprise
+     */
+    public function streamSpreadsheet(iterable $rows, string $filename = "donnees"): void
+    {
+        setcookie('fileDownload', 'true', 0, '/');
+
+        $writer = WriterEntityFactory::createXLSXWriter();
+        $writer->openToBrowser("$filename.xlsx"); // envoie aussi les headers HTTP
+
+        foreach ($rows as $row) {
+            $writer->addRow(WriterEntityFactory::createRowFromArray($row));
+        }
+
+        $writer->close();
     }
 
     public function createSpreadsheetEnregistrer(array $data, string $filePath): string

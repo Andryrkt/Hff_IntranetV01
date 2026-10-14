@@ -2,11 +2,15 @@ name: Deploy PHP Application HffIntranet PreProd
 
 on:
   push:
-    branches: [ feature/profilUser ]
+    branches: [ dev ]
+
+concurrency:
+  group: deploy-preprod
+  cancel-in-progress: false
 
 jobs:
   deploy:
-    runs-on: self-hosted
+    runs-on: [ self-hosted, preprod ]
 
     steps:
       - uses: actions/checkout@v4

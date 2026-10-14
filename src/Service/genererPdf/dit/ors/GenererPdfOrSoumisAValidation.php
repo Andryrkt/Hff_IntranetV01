@@ -14,9 +14,9 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
     // ORDRE DE REPARATION (OR)
     public function copyToDw($filename, string $numDit): bool
     {
-        $cheminFichierDistant = "{$this->basePathDocuWare}/OR/{$filename}";
-        $cheminDestinationLocal = "{$this->basePathFile}/dit/{$numDit}/{$filename}";
-        return copy($cheminDestinationLocal, $cheminFichierDistant);
+        $cheminFichierDistant = $this->baseCheminDocuware . 'OR/' . $filename;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'dit/' . $numDit . '/' . $filename;
+        return $this->copierEtJournaliser($cheminDestinationLocal, $cheminFichierDistant);
     }
 
     /**
