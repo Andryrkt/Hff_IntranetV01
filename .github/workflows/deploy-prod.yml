@@ -29,7 +29,7 @@ jobs:
       - name: Deploy files
         shell: powershell
         run: |
-          robocopy .\ "C:\wamp64\www\Hffintranet" /E /XD .git .github var /XF .env
+          robocopy .\ "C:\wamp64\www\Hffintranet" /E /XD .git .github var /XF .env /R:3 /W:10
           if ($LASTEXITCODE -lt 8) { exit 0 } else { exit 1 }
 
       - name: Clear Cache
