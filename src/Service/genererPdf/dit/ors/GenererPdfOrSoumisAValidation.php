@@ -16,7 +16,7 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
     {
         $cheminFichierDistant = $this->baseCheminDocuware . 'OR/' . $filename;
         $cheminDestinationLocal = $this->baseCheminDuFichier . 'dit/' . $numDit . '/' . $filename;
-        return copy($cheminDestinationLocal, $cheminFichierDistant);
+        return $this->copierEtJournaliser($cheminDestinationLocal, $cheminFichierDistant);
     }
 
     /**

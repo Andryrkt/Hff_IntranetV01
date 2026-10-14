@@ -2,6 +2,7 @@
 
 namespace App\Service\genererPdf;
 
+use App\Service\docuware\JournalCopieDocuwareService;
 use TCPDF;
 
 class GeneratePdf
@@ -20,8 +21,10 @@ class GeneratePdf
 
     protected function copyFile(string $sourcePath, string $destinationPath): bool
     {
+        $erreur = null; // raison du dernier échec, enregistrée dans le journal des copies DocuWare
+
         // Fonction interne pour tenter la copie
-        $attemptCopy = function ($attemptNumber) use ($sourcePath, $destinationPath) {
+        $attemptCopy = function ($attemptNumber) use ($sourcePath, $destinationPath, &$erreur) {
             try {
                 $destinationDir = dirname($destinationPath);
 
@@ -29,19 +32,32 @@ class GeneratePdf
                     mkdir($destinationDir, 0777, true);
                 }
 
-                if (!file_exists($sourcePath) || !copy($sourcePath, $destinationPath)) {
+                if (!file_exists($sourcePath)) {
+                    $erreur = "Fichier source introuvable";
+                    return false;
+                }
+
+                error_clear_last();
+                if (!copy($sourcePath, $destinationPath)) {
+                    $erreur = error_get_last()['message'] ?? "La copie a échoué";
                     return false;
                 }
 
                 // Vérification rapide
-                return file_exists($destinationPath) && filesize($destinationPath) > 0;
+                if (!file_exists($destinationPath) || filesize($destinationPath) === 0) {
+                    $erreur = "Fichier absent ou vide dans le dossier DocuWare après la copie";
+                    return false;
+                }
+                return true;
             } catch (\Exception $e) {
+                $erreur = $e->getMessage();
                 return false;
             }
         };
 
         // Première tentative
         if ($attemptCopy(1)) {
+            JournalCopieDocuwareService::enregistrer($sourcePath, $destinationPath, true, 1);
             echo "Fichier copié avec succès : $destinationPath\n";
             return true;
         }
@@ -49,12 +65,34 @@ class GeneratePdf
         // Deuxième tentative après un court délai
         usleep(50000); // 50ms
         if ($attemptCopy(2)) {
+            JournalCopieDocuwareService::enregistrer($sourcePath, $destinationPath, true, 2);
             echo "Fichier copié avec succès après retry : $destinationPath\n";
             return true;
         }
 
-        error_log("Échec de copyFile après 2 tentatives : $sourcePath");
+        JournalCopieDocuwareService::enregistrer($sourcePath, $destinationPath, false, 2, $erreur);
+        error_log("Échec de copyFile après 2 tentatives : $sourcePath ($erreur)");
         return false;
+    }
+
+    /**
+     * Copie simple (une seule tentative, sans affichage) avec enregistrement dans le journal des copies DocuWare.
+     * Utilisée par les méthodes qui faisaient un copy() direct, pour conserver leur comportement.
+     */
+    protected function copierEtJournaliser(string $sourcePath, string $destinationPath): bool
+    {
+        error_clear_last();
+        try {
+            $succes = copy($sourcePath, $destinationPath);
+        } catch (\Exception $e) {
+            JournalCopieDocuwareService::enregistrer($sourcePath, $destinationPath, false, 1, $e->getMessage());
+            throw $e; // même comportement qu'avant pour l'appelant
+        }
+
+        $erreur = $succes ? null : (error_get_last()['message'] ?? "La copie a échoué");
+        JournalCopieDocuwareService::enregistrer($sourcePath, $destinationPath, $succes, 1, $erreur);
+
+        return $succes;
     }
 
 
@@ -65,7 +103,7 @@ class GeneratePdf
     {
         $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
         $cheminDestinationLocal = $this->baseCheminDuFichier . strtolower(substr($NumDom, 0, 3)) . '/' . $NumDom . '_'  . $codeAg_serv . '.pdf';
-        if (copy($cheminDestinationLocal, $cheminFichierDistant)) {
+        if ($this->copierEtJournaliser($cheminDestinationLocal, $cheminFichierDistant)) {
             echo "okey";
         } else {
             echo "sorry";
@@ -78,7 +116,7 @@ class GeneratePdf
     {
         $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/factureValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
         $cheminDestinationLocal = $this->baseCheminDuFichier . 'vfac/factureValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
-        copy($cheminDestinationLocal, $cheminFichierDistant);
+        $this->copierEtJournaliser($cheminDestinationLocal, $cheminFichierDistant);
     }
 
 
@@ -86,7 +124,7 @@ class GeneratePdf
     {
         $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/validation_facture_client_' . $numeroDoc . '_' . $numeroVersion . '.pdf';
         $cheminDestinationLocal = $this->baseCheminDuFichier . 'vfac/validation_facture_client_' . $numeroDoc . '_' . $numeroVersion . '.pdf';
-        copy($cheminDestinationLocal, $cheminFichierDistant);
+        $this->copierEtJournaliser($cheminDestinationLocal, $cheminFichierDistant);
     }
 
 
@@ -111,7 +149,7 @@ class GeneratePdf
     {
         $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $fileName;
         $cheminDestinationLocal = $this->baseCheminDuFichier . 'cde/' . $fileName;
-        if (copy($cheminDestinationLocal, $cheminFichierDistant)) {
+        if ($this->copierEtJournaliser($cheminDestinationLocal, $cheminFichierDistant)) {
             echo "okey";
         } else {
             echo "sorry";
