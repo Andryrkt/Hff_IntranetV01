@@ -6,6 +6,7 @@ use App\Constants\ddp\StatutConstants;
 use App\Constants\ddp\TypeDemandePaiementConstants;
 use App\Dto\Da\ddp\BapSearchDto;
 use App\Entity\admin\utilisateur\User;
+use App\Entity\ddp\DemandePaiement;
 use App\Service\TableauEnStringService;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query;
@@ -337,6 +338,33 @@ class DemandePaiementRepository extends EntityRepository
             ->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);
 
         return $result !== null ? (float) $result : null;
+    }
+
+    /**
+     * Somme des montants des demandes de paiement validées (validé ou transmis
+     * compta) pour une commande, à l'avance comme après arrivage. Seule la
+     * dernière version de chaque demande est prise en compte.
+     */
+    public function getSommeMontantDdpValideParCommande(string $numeroCde, string $codeSociete): float
+    {
+        $result = $this->createQueryBuilder('d')
+            ->select('SUM(d.montantAPayers)')
+            ->where('d.numeroCommande = :numCde')
+            ->andWhere('d.statut IN (:statutsValides)')
+            ->andWhere('d.codeSociete = :codeSociete')
+            ->andWhere('d.numeroVersion = (
+                SELECT MAX(d2.numeroVersion) FROM ' . DemandePaiement::class . ' d2
+                WHERE d2.numeroDdp = d.numeroDdp
+            )')
+            ->setParameters([
+                'numCde'         => $numeroCde,
+                'statutsValides' => [StatutConstants::VALIDE, StatutConstants::TRANSMIS_COMPTA],
+                'codeSociete'    => $codeSociete,
+            ])
+            ->getQuery()
+            ->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);
+
+        return $result !== null ? (float) $result : 0.0;
     }
 
     public function getSommeMontantValide(string $numeroCde, string $codeSociete)

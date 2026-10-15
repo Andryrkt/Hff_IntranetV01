@@ -6,6 +6,7 @@ use App\Constants\ddp\TypeDemandePaiementConstants;
 use App\Controller\Controller;
 use App\Controller\Traits\PdfConversionTrait;
 use App\Dto\ddp\DdpDto;
+use App\Entity\ddp\DemandePaiement;
 use App\Factory\ddp\DdpFactory;
 use App\Form\ddp\DdpType;
 use App\Model\ddp\DemandePaiementModel;
@@ -140,12 +141,21 @@ class DdpController extends Controller
             return null;
         }
 
-        $montantCommandeHt = $this->demandePaiementModel->getMontantCde((string) $dto->numeroCommande[0], $dto->codeSociete)['montant_total_cde_ht'];
+        $numCde = (string) $dto->numeroCommande[0];
+        $montantCommandeHt = $this->demandePaiementModel->getMontantCde($numCde, $dto->codeSociete)['montant_total_cde_ht'];
+        // Plusieurs demandes possibles sur une même commande : le plafond est le
+        // montant HT diminué des demandes de paiement déjà validées.
+        $montantDejaValide = $this->getEntityManager()
+            ->getRepository(DemandePaiement::class)
+            ->getSommeMontantDdpValideParCommande($numCde, $dto->codeSociete);
+        $montantRestant = $montantCommandeHt - $montantDejaValide;
 
-        if ($montantSaisi - $montantCommandeHt > 0.01) {
+        if ($montantSaisi - $montantRestant > 0.01) {
             return sprintf(
-                'Le montant à payer ne peut pas dépasser le montant HT de la commande (%s).',
-                number_format($montantCommandeHt, 2, ',', ' ')
+                'Le montant à payer ne peut pas dépasser le montant restant de la commande (%s = montant HT %s - déjà validé %s).',
+                number_format($montantRestant, 2, ',', ' '),
+                number_format($montantCommandeHt, 2, ',', ' '),
+                number_format($montantDejaValide, 2, ',', ' ')
             );
         }
 
@@ -244,11 +254,26 @@ class DdpController extends Controller
         return $generatePdfDdp;
     }
 
+    /**
+     * Pourcentage du montant à payer par rapport au montant HT total des
+     * commandes de la demande (une seule pour le paiement à l'avance).
+     */
+    private function ratioMontantPayer(DdpDto $dto): float
+    {
+        $montantTotalHt = 0.0;
+        foreach (array_unique($dto->numeroCommande) as $numCde) {
+            $montantTotalHt += $this->demandePaiementModel->getMontantCde((string) $numCde, $dto->codeSociete)['montant_total_cde_ht'];
+        }
+
+        return $montantTotalHt > 0 ? round($dto->montantAPayer() / $montantTotalHt * 100, 2) : 0.0;
+    }
+
     private function enregistrementSurBd(DdpDto $dto): void
     {
         // enregistrement dans la table deamnde_paiement
         $ddp = $this->ddpService->createDdp($dto);
         // enregistrement dans la table demande_paiement_ligne
+        $dto->ratioMontantPayer = $this->ratioMontantPayer($dto);
         $this->ddpLigneService->createLignesFromDto($dto);
         // enregistrement dans la table doc_demande_paiement
         $this->ddpDocService->createDocDdp($dto);

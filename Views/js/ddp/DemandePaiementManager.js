@@ -33,9 +33,12 @@ export class DemandePaiementManager {
     // Montant calculé côté serveur (commande/facture sélectionnée), utilisé
     // uniquement pour comparaison : l'utilisateur saisit lui-même le montant.
     this.montantAttendu = null;
-    // Paiement à l'avance (typeId 1) : montant HT de la commande sélectionnée,
-    // plafond du montant saisi (qui doit aussi être > 0).
+    // Paiement à l'avance (typeId 1) : plafond du montant saisi (qui doit aussi
+    // être > 0) = montant HT de la commande - montant des demandes de paiement
+    // déjà validées pour cette commande.
     this.montantMaxCommande = null;
+    this.montantHtCommande = null;
+    this.montantDejaValide = 0;
     this.montantIncorrect = false;
     this.messageMontantIncorrect = "";
 
@@ -821,7 +824,8 @@ export class DemandePaiementManager {
 
   /**
    * Paiement à l'avance : le montant saisi doit être supérieur à 0 et ne pas
-   * dépasser le montant HT de la commande sélectionnée.
+   * dépasser le montant restant de la commande sélectionnée (montant HT -
+   * montant déjà demandé).
    */
   verifierMontantAvance() {
     const valeur = this.elements.montantInput.value.trim();
@@ -842,18 +846,28 @@ export class DemandePaiementManager {
       montantSaisi - this.montantMaxCommande > 0.01
     ) {
       this.montantIncorrect = true;
-      this.messageMontantIncorrect = `Le montant à payer ne peut pas dépasser le montant HT de la commande (${formatNumberSpecial(this.montantMaxCommande.toFixed(2))}).`;
+      const format = (montant) => formatNumberSpecial(montant.toFixed(2));
+      this.messageMontantIncorrect =
+        this.montantDejaValide > 0
+          ? `Le montant à payer ne peut pas dépasser le montant restant de la commande (${format(this.montantMaxCommande)} = montant HT ${format(this.montantHtCommande)} - déjà validé ${format(this.montantDejaValide)}).`
+          : `Le montant à payer ne peut pas dépasser le montant HT de la commande (${format(this.montantMaxCommande)}).`;
     }
 
     this.mettreAJourEtatSoumission();
   }
 
   /**
-   * Récupère le montant HT de la commande sélectionnée (paiement à l'avance).
+   * Récupère le montant HT de la commande sélectionnée (paiement à l'avance)
+   * et le montant des demandes de paiement déjà validées : le plafond du
+   * montant saisi est leur différence. Affiche aussi l'historique des
+   * demandes de paiement de la commande.
    */
   async chargerMontantCommandeHt() {
     const numCde = this.getNumCdesSelectionnees()[0];
     this.montantMaxCommande = null;
+    this.montantHtCommande = null;
+    this.montantDejaValide = 0;
+    this.afficherHistoriqueDdp(null);
 
     if (!numCde) {
       this.verifierMontant();
@@ -865,7 +879,10 @@ export class DemandePaiementManager {
       const resultat = await this.fetchManager.get(url);
       // Ignore la réponse si la sélection a changé entre-temps
       if (this.getNumCdesSelectionnees()[0] !== numCde) return;
-      this.montantMaxCommande = parseFloat(resultat.montantHt);
+      this.montantHtCommande = parseFloat(resultat.montantHt);
+      this.montantDejaValide = parseFloat(resultat.montantDejaValide) || 0;
+      this.montantMaxCommande = parseFloat(resultat.montantRestant);
+      this.afficherHistoriqueDdp(numCde, resultat);
     } catch (error) {
       console.error(
         "Erreur lors de la récupération du montant de la commande :",
@@ -874,6 +891,83 @@ export class DemandePaiementManager {
     }
 
     this.verifierMontant();
+  }
+
+  /**
+   * Affiche (ou masque si numCde est null) l'historique des demandes de
+   * paiement de la commande, avec les totaux, en haut du formulaire
+   * (même présentation que la demande de paiement DA).
+   */
+  afficherHistoriqueDdp(numCde, resultat = null) {
+    const { historiqueDdp, historiqueDdpBody, historiqueDdpNumCde } =
+      this.elements;
+    if (!historiqueDdp || !historiqueDdpBody) return;
+
+    historiqueDdpBody.innerHTML = "";
+    historiqueDdp.classList.toggle("d-none", !numCde);
+    if (!numCde || !resultat) return;
+
+    if (historiqueDdpNumCde) historiqueDdpNumCde.textContent = numCde;
+
+    const format = (montant) => formatNumberSpecial(Number(montant).toFixed(2));
+    const ajouterLigne = (cellules, className = "") => {
+      const tr = document.createElement("tr");
+      if (className) tr.className = className;
+      cellules.forEach(({ texte = "", classe = "", colspan = 1 }) => {
+        const td = document.createElement("td");
+        td.textContent = texte;
+        if (classe) td.className = classe;
+        if (colspan > 1) td.colSpan = colspan;
+        tr.appendChild(td);
+      });
+      historiqueDdpBody.appendChild(tr);
+    };
+
+    const historique = resultat.historique || [];
+    if (historique.length === 0) {
+      ajouterLigne([
+        { texte: "Aucune donnée disponible", classe: "text-center", colspan: 7 },
+      ]);
+    }
+
+    historique.forEach((ddp) =>
+      ajouterLigne([
+        { texte: ddp.numeroDdp, classe: "text-center" },
+        { texte: ddp.dateCreation, classe: "text-center" },
+        { texte: ddp.motif },
+        { texte: format(ddp.montant), classe: "text-end" },
+        { texte: `${format(ddp.ratio)}%`, classe: "text-end" },
+        { texte: `${format(ddp.cumul)}%`, classe: "text-end" },
+        { texte: ddp.statut, classe: "text-center" },
+      ]),
+    );
+
+    const montantHt = parseFloat(resultat.montantHt) || 0;
+    const ratio = (montant) =>
+      montantHt > 0 ? `${format((montant / montantHt) * 100)}%` : "";
+    const montantDejaValide = parseFloat(resultat.montantDejaValide) || 0;
+    const montantRestant = parseFloat(resultat.montantRestant) || 0;
+
+    ajouterLigne([
+      { texte: "Montant HT de la commande", classe: "fw-bold" },
+      { colspan: 2 },
+      { texte: format(montantHt), classe: "text-end fw-bold" },
+      { colspan: 3 },
+    ]);
+    ajouterLigne([
+      { texte: "Total déjà validé", classe: "fw-bold" },
+      { colspan: 2 },
+      { texte: format(montantDejaValide), classe: "text-end fw-bold" },
+      { texte: ratio(montantDejaValide), classe: "text-end fw-bold" },
+      { colspan: 2 },
+    ]);
+    ajouterLigne([
+      { texte: "Montant restant à payer", classe: "fw-bold" },
+      { colspan: 2 },
+      { texte: format(montantRestant), classe: "text-end text-danger fw-bold" },
+      { texte: ratio(montantRestant), classe: "text-end text-danger fw-bold" },
+      { colspan: 2 },
+    ]);
   }
 
   /**

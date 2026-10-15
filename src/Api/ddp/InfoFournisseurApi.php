@@ -90,16 +90,6 @@ class InfoFournisseurApi extends Controller
      */
     public function numeroCommandeFournisseur($numeroFournisseur, $typeId)
     {
-
-        // $nbrLigne = $this->demandePaiementRepository->CompteNbrligne($numeroFournisseur);
-
-        // if ($nbrLigne <= 0) {
-        // $numComandes = $this->demandePaiementRepository->getnumCde();
-        //     $excludedCommands = $this->changeStringToArray($numComandes);
-        //     $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId, $excludedCommands);
-
-        // $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
-
         // Code Société de l'utilisateur
         $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
@@ -205,19 +195,58 @@ class InfoFournisseurApi extends Controller
     }
 
     /**
-     * Montant HT d'une commande fournisseur (plafond du montant à payer pour
-     * une demande de paiement à l'avance)
+     * Montant HT d'une commande fournisseur et plafond du montant à payer pour
+     * une demande de paiement à l'avance (montant HT - demandes déjà validées),
+     * avec l'historique des demandes de paiement de la commande.
      *
      * @Route("/api/montant-commande-ht/{numCde}", name="api_montant_commande_ht", requirements={"numCde"="\d+"})
      */
     public function montantCommandeHt(string $numCde)
     {
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
         $this->libererSession();
 
-        $montantCde = $this->demandePaiementModel()->getMontantCde($numCde, 'HF');
+        $montantHt = (float) $this->demandePaiementModel()->getMontantCde($numCde, $codeSociete)['montant_total_cde_ht'];
+        // Demandes de paiement déjà validées pour cette commande
+        $montantDejaValide = $this->demandePaiementRepository->getSommeMontantDdpValideParCommande($numCde, $codeSociete);
 
         header("Content-type:application/json");
-        echo json_encode(['montantHt' => $montantCde['montant_total_cde_ht']]);
+        echo json_encode([
+            'montantHt'         => $montantHt,
+            'montantDejaValide' => $montantDejaValide,
+            'montantRestant'    => $montantHt - $montantDejaValide,
+            'historique'        => $this->historiqueDdpCommande($numCde, $montantHt),
+        ]);
+    }
+
+    /**
+     * Historique des demandes de paiement (hors refusées) d'une commande, avec
+     * pour chacune son pourcentage du montant HT de la commande et le cumul.
+     */
+    private function historiqueDdpCommande(string $numCde, float $montantHt): array
+    {
+        $historique = [];
+        $cumul = 0.0;
+
+        /** @var DemandePaiement $ddp */
+        foreach ($this->demandePaiementRepository->getDdpSelonNumCde($numCde) as $ddp) {
+            $montant = (float) $ddp->getMontantAPayers();
+            $ratio = $montantHt > 0 ? $montant / $montantHt * 100 : 0.0;
+            $cumul += $ratio;
+
+            $historique[] = [
+                'numeroDdp'    => $ddp->getNumeroDdp(),
+                'dateCreation' => $ddp->getDateCreation() ? $ddp->getDateCreation()->format('d/m/Y') : '',
+                'motif'        => $ddp->getMotif(),
+                'montant'      => $montant,
+                'ratio'        => $ratio,
+                'cumul'        => $cumul,
+                'statut'       => $ddp->getStatut(),
+            ];
+        }
+
+        return $historique;
     }
 
     private function changeStringToArray(array $input): array

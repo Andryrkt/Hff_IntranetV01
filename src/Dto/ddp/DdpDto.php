@@ -80,6 +80,10 @@ class DdpDto
     public bool $isFrnNonImmatricule = false;
     public bool $appro = false;
 
+    // pourcentage du montant à payer par rapport au montant HT total des commandes
+    // (colonne ratio_montant_payer de demande_paiement_ligne)
+    public float $ratioMontantPayer = 0.0;
+
     /**
      * Transformation du montant à payer en float
      */
