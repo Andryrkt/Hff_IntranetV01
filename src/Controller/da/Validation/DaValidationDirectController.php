@@ -68,7 +68,7 @@ class DaValidationDirectController extends Controller
         /** envoi dans docuware */
         $this->daSoumissionValidationService->fusionAndCopyToDW($da->getNumeroDemandeAppro());
 
-        $this->emailDaService->envoyerMailValidationDa($da, $this->getUser(), $resultatExport);
+        $this->emailDaService->envoyerMailValidationDa($da, $resultatExport);
 
         /** NOTIFICATION */
         $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'La demande a été validée avec succès.']);

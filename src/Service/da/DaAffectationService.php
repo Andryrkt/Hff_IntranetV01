@@ -84,7 +84,7 @@ class DaAffectationService
 
         $this->handleOldObservation($numeroDemandeAppro, $daParent->getNumeroDemandeAppro()); // copier les observations de la DA parent
 
-        if ($daParent->getObservation()) $this->daObservationService->insertionObservation($numeroDemandeAppro, $daParent->getObservation(), $this->userDataService->getUserName()); // observation du formulaire dans la nouvelle DA
+        if ($daParent->getObservation()) $this->daObservationService->insertionObservation($numeroDemandeAppro, $daParent->getObservation()); // observation du formulaire dans la nouvelle DA
 
         $validationDA = $daType === DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL;
         $statutDW = $validationDA ? StatutDaConstant::STATUT_DW_A_VALIDE : '';

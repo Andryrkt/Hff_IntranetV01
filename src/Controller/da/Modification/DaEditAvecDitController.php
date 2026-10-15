@@ -124,12 +124,12 @@ class DaEditAvecDitController extends Controller
 
             $this->daEditionService->modificationDa($demandeAppro, $this->lignesFormulaire($form->get('DAL')), StatutDaConstant::STATUT_SOUMIS_APPRO);
             if ($demandeAppro->getObservation() !== null) {
-                $this->daObservationService->insertionObservation($numDa, $demandeAppro->getObservation(), $this->getUserName());
+                $this->daObservationService->insertionObservation($numDa, $demandeAppro->getObservation());
             }
 
             $this->daAfficherService->ajouterDansTableAffichageParNumDa($numDa); // ajout dans la table DaAfficher si le statut a changé
 
-            $this->emailDaService->envoyerMailModificationDa($demandeAppro, $this->getUser(), $ancienDals);
+            $this->emailDaService->envoyerMailModificationDa($demandeAppro, $ancienDals);
 
             //notification
             $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre modification a été enregistrée']);

@@ -2,6 +2,7 @@
 
 namespace App\Controller\da\Proposition;
 
+use App\Service\UserData\UserDataService;
 use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
 use App\Entity\da\DaObservation;
@@ -25,6 +26,7 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 class DaPropositionArticleDirectController extends Controller
 {
+    private UserDataService $userDataService;
     private DemandeApproRepository $demandeApproRepository;
     private DocRattacheService $docRattacheService;
     private UrlIdCipher $urlIdCipher;
@@ -35,8 +37,10 @@ class DaPropositionArticleDirectController extends Controller
         EntityManagerInterface $em,
         DocRattacheService $docRattacheService,
         DaObservationService $daObservationService,
-        DaPropositionService $daPropositionService
+        DaPropositionService $daPropositionService,
+        UserDataService $userDataService
     ) {
+        $this->userDataService = $userDataService;
         $this->docRattacheService = $docRattacheService;
         $this->daObservationService = $daObservationService;
         $this->daPropositionService = $daPropositionService;
@@ -88,7 +92,7 @@ class DaPropositionArticleDirectController extends Controller
             'observations'            => $observations,
             'fichiers'                => $fichiers,
             'numDa'                   => $numDa,
-            'connectedUser'           => $this->getUser(),
+            'connectedUser'           => $this->userDataService->getUser(),
             'statutAutoriserModifAte' => $da->getStatutDal() === StatutDaConstant::STATUT_AUTORISER_EMETTEUR,
             'estCreateurDaDirecte'    => $this->estCreateurDaDirecte(),
             'estAppro'                => $this->estAppro(),
@@ -105,8 +109,6 @@ class DaPropositionArticleDirectController extends Controller
 
     private function traitementFormulaire($form, $formObservation, Request $request, DemandeAppro $da)
     {
-        $username = $this->getUserName();
-        $user     = $this->getUser();
 
         $form->handleRequest($request);
 
@@ -120,19 +122,19 @@ class DaPropositionArticleDirectController extends Controller
             $notification = null;
             if ($request->request->has('brouillon')) {
                 /** Enregistrer provisoirement */
-                $notification = $this->daPropositionService->enregistrerBrouillon($da, $dalrList, $observation, $refsString, $username);
+                $notification = $this->daPropositionService->enregistrerBrouillon($da, $dalrList, $observation, $refsString);
             } elseif ($request->request->has('enregistrer')) {
                 /** Envoyer proposition */
-                $notification = $this->daPropositionService->envoyerProposition($da, $dalrList, $observation, $refsString, $username, $user);
+                $notification = $this->daPropositionService->envoyerProposition($da, $dalrList, $observation, $refsString);
             } elseif ($request->request->has('changement')) {
                 /** Valider les articles par le demandeur */
-                $notification = $this->daPropositionService->validerParDemandeur($da, $dalrList, $observation, $refsString, $username, $user);
+                $notification = $this->daPropositionService->validerParDemandeur($da, $dalrList, $observation, $refsString);
             } elseif ($request->request->has('observation')) {
                 /** Envoyer observation */
-                $notification = $this->daPropositionService->envoyerObservation($da, $observation, $statutChange, $username, $user, $this->estAppro());
+                $notification = $this->daPropositionService->envoyerObservation($da, $observation, $statutChange, $this->estAppro());
             } elseif ($request->request->has('valider')) {
                 /** Valider les articles par l'appro */
-                $notification = $this->daPropositionService->validerParAppro($da, $dalrList, $observation, $refsString, $username, $user);
+                $notification = $this->daPropositionService->validerParAppro($da, $dalrList, $observation, $refsString);
             }
 
             if ($notification) $this->notifierEtRediriger($notification);
@@ -144,7 +146,7 @@ class DaPropositionArticleDirectController extends Controller
             /** @var DaObservation $daObservation daObservation correspondant au donnée du formObservation */
             $daObservation = $formObservation->getData();
 
-            $this->notifierEtRediriger($this->daPropositionService->envoyerObservationAvecPj($da, $daObservation, $username, $user, $this->estAppro()));
+            $this->notifierEtRediriger($this->daPropositionService->envoyerObservationAvecPj($da, $daObservation, $this->estAppro()));
         }
     }
 

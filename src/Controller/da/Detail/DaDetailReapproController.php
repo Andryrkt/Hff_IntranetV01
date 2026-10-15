@@ -13,6 +13,7 @@ use App\Service\da\DaDetailService;
 use App\Service\da\DaTimelineService;
 use App\Service\da\DocRattacheService;
 use App\Service\da\DaObservationService;
+use App\Service\UserData\UserDataService;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -23,6 +24,7 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException;
  */
 class DaDetailReapproController extends Controller
 {
+	private UserDataService $userDataService;
 	private DaDetailService $daDetailService;
 
 	private DaService $daService;
@@ -37,8 +39,10 @@ class DaDetailReapproController extends Controller
 		DaObservationService $daObservationService,
 		DocRattacheService $docRattacheService,
 		DaTimelineService $daTimelineService,
-		DaDetailService $daDetailService
+		DaDetailService $daDetailService,
+		UserDataService $userDataService
 	) {
+		$this->userDataService = $userDataService;
 		$this->daDetailService    = $daDetailService;
 		$this->daService          = $daService;
 		$this->daObservationService = $daObservationService;
@@ -80,7 +84,7 @@ class DaDetailReapproController extends Controller
 			'observations'      => $observations,
 			'fichiers'          => $fichiers,
 			'timelineData'      => $timeLineData,
-			'connectedUser'     => $this->getUser(),
+			'connectedUser'     => $this->userDataService->getUser(),
 			'statutDa'          => $statutEtAction['statutDa'],
 			'classStatutDa'    	=> $statutEtAction['classStatutDa'],
 			'action'      		=> $statutEtAction['action'],
@@ -95,7 +99,7 @@ class DaDetailReapproController extends Controller
 		$form->handleRequest($request);
 
 		if ($form->isSubmitted() && $form->isValid()) {
-			$notification = $this->daDetailService->envoyerObservation($demandeAppro, $form->getData(), $this->getUserName(), $this->getUser(), $this->estAppro());
+			$notification = $this->daDetailService->envoyerObservation($demandeAppro, $form->getData(), $this->estAppro());
 
 			$this->getSessionService()->set('notification', $notification);
 			return $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);

@@ -3,7 +3,6 @@
 namespace App\Service\da;
 
 use App\Constants\da\StatutDaConstant;
-use App\Entity\admin\utilisateur\User;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproParent;
 use App\Entity\dit\DemandeIntervention;
@@ -40,23 +39,23 @@ class DaEnregistrementService
     }
 
     /** DA avec DIT. */
-    public function enregistrerDaAvecDit(DemandeAppro $demandeAppro, FormInterface $form, DemandeIntervention $dit, string $numDa, bool $firstCreation, string $bouton, string $username, User $user): array
+    public function enregistrerDaAvecDit(DemandeAppro $demandeAppro, FormInterface $form, DemandeIntervention $dit, string $numDa, bool $firstCreation, string $bouton): array
     {
         $statutDal = StatutDaConstant::STATUT_DAL[$bouton];
         $demandeAppro->setNumeroDemandeAppro($numDa)->setNumeroDemandeApproMere($numDa)->setStatutDal($statutDal);
 
         $this->daCreationLigneService->traiterLignesAvecDit($form->get('DAL'), $demandeAppro, $numDa, $statutDal);
-        $this->persisterDa($demandeAppro, $demandeAppro->getObservation(), $numDa, $firstCreation, $username);
+        $this->persisterDa($demandeAppro, $demandeAppro->getObservation(), $numDa, $firstCreation);
 
         $this->daAfficherService->generateDaAfficherOnCreationDa($demandeAppro, $firstCreation, $dit);
 
-        if ($bouton === "soumissionAppro") $this->emailDaService->envoyerMailCreationDa($demandeAppro, $user);
+        if ($bouton === "soumissionAppro") $this->emailDaService->envoyerMailCreationDa($demandeAppro);
 
         return self::NOTIFICATION;
     }
 
     /** DA reappro mensuel. */
-    public function enregistrerDaReapproMensuel(DemandeAppro $demandeAppro, string $numDa, bool $firstCreation, string $bouton, string $username, User $user): array
+    public function enregistrerDaReapproMensuel(DemandeAppro $demandeAppro, string $numDa, bool $firstCreation, string $bouton): array
     {
         $this->appliquerAgenceServiceDebiteur($demandeAppro);
 
@@ -68,17 +67,17 @@ class DaEnregistrementService
             ->setStatutDal($statutDal);
 
         $this->daCreationLigneService->traiterLignesReappro($demandeAppro, $numDa, $statutDal);
-        $this->persisterDa($demandeAppro, $demandeAppro->getObservation(), $numDa, $firstCreation, $username);
+        $this->persisterDa($demandeAppro, $demandeAppro->getObservation(), $numDa, $firstCreation);
 
         $this->daAfficherService->generateDaAfficherOnCreationDa($demandeAppro, $firstCreation);
 
-        if ($bouton === "soumissionAppro") $this->emailDaService->envoyerMailCreationDa($demandeAppro, $user);
+        if ($bouton === "soumissionAppro") $this->emailDaService->envoyerMailCreationDa($demandeAppro);
 
         return self::NOTIFICATION;
     }
 
     /** DA achat (parent). */
-    public function enregistrerDaParent(DemandeApproParent $demandeApproParent, FormInterface $form, string $numDa, bool $firstCreation, string $bouton, string $username, User $user): array
+    public function enregistrerDaParent(DemandeApproParent $demandeApproParent, FormInterface $form, string $numDa, bool $firstCreation, string $bouton): array
     {
         $this->appliquerAgenceServiceDebiteur($demandeApproParent);
 
@@ -89,11 +88,11 @@ class DaEnregistrementService
             ->setStatutDal($statutDal);
 
         $this->daCreationLigneService->traiterLignesParent($form->get('demandeApproParentLines'), $numDa, $statutDal);
-        $this->persisterDa($demandeApproParent, $demandeApproParent->getObservation(), $numDa, $firstCreation, $username);
+        $this->persisterDa($demandeApproParent, $demandeApproParent->getObservation(), $numDa, $firstCreation);
 
         $this->daAfficherService->generateDaAfficherOnCreationDaParent($demandeApproParent, $firstCreation);
 
-        if ($bouton === "soumissionAppro") $this->emailDaService->envoyerMailCreationDaParent($demandeApproParent, $user);
+        if ($bouton === "soumissionAppro") $this->emailDaService->envoyerMailCreationDaParent($demandeApproParent);
 
         return self::NOTIFICATION;
     }
@@ -120,7 +119,7 @@ class DaEnregistrementService
      *
      * @param DemandeAppro|DemandeApproParent $da
      */
-    private function persisterDa($da, ?string $observation, string $numDa, bool $firstCreation, string $username): void
+    private function persisterDa($da, ?string $observation, string $numDa, bool $firstCreation): void
     {
         if ($firstCreation) {
             (new ApplicationService($this->em))->mettreAJourDerniereIdApplication('DAP', $numDa);
@@ -129,6 +128,6 @@ class DaEnregistrementService
         $this->em->persist($da);
         $this->em->flush();
 
-        if ($observation) $this->daObservationService->insertionObservation($numDa, $observation, $username);
+        if ($observation) $this->daObservationService->insertionObservation($numDa, $observation);
     }
 }

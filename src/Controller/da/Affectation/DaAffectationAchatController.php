@@ -2,18 +2,18 @@
 
 namespace App\Controller\da\Affectation;
 
-use App\Service\da\DaObservationService;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Form\da\DaAffectationType;
 use App\Entity\da\DemandeApproParent;
 use App\Service\da\DaAfficherService;
 use App\Constants\da\StatutDaConstant;
+use App\Service\da\DaAffectationService;
+use App\Service\da\DaObservationService;
 use App\Entity\da\DemandeApproParentLine;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Service\da\DaAffectationService;
 
 /** @Route("/demande-appro") */
 class DaAffectationAchatController extends Controller
@@ -93,7 +93,7 @@ class DaAffectationAchatController extends Controller
             $this->getEntityManager()->flush();
 
             // Ajout de l'observation dans la table da_observation 
-            $this->daObservationService->insertionObservation($daParent->getNumeroDemandeAppro(), $motif, $this->getUserName());
+            $this->daObservationService->insertionObservation($daParent->getNumeroDemandeAppro(), $motif);
 
             // Ajout des données dans la table DaAfficher
             $this->daAfficherService->generateDaAfficherOnCreationDaParent($daParent, false);

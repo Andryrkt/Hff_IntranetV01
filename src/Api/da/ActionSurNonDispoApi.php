@@ -12,6 +12,7 @@ use App\Service\da\EmailDaService;
 use App\Constants\da\StatutBcConstant;
 use App\Constants\da\StatutDaConstant;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Service\UserData\UserDataService;
 use App\Repository\da\DaAfficherRepository;
 use App\Constants\admin\ApplicationConstant;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,19 +27,21 @@ use Symfony\Component\HttpFoundation\JsonResponse;
  */
 class ActionSurNonDispoApi extends Controller
 {
-    private $em;
+    private EntityManagerInterface $em;
+    private UserDataService $userDataService;
     private DaAfficherRepository $daAfficherRepository;
     private DemandeApproLRepository $demandeApproLRepository;
     private DemandeApproLRRepository $demandeApproLRRepository;
     private EmailDaService $emailDaService;
 
-    public function __construct(EntityManagerInterface $em, EmailDaService $emailDaService)
+    public function __construct(EntityManagerInterface $em, EmailDaService $emailDaService, UserDataService $userDataService)
     {
         $this->em                       = $em;
         $this->daAfficherRepository     = $this->em->getRepository(DaAfficher::class);
         $this->demandeApproLRepository  = $this->em->getRepository(DemandeApproL::class);
         $this->demandeApproLRRepository = $this->em->getRepository(DemandeApproLR::class);
         $this->emailDaService           = $emailDaService;
+        $this->userDataService          = $userDataService;
     }
 
     /**
@@ -72,7 +75,7 @@ class ActionSurNonDispoApi extends Controller
                 throw new Exception("Impossible de supprimer des articles pour ce type de DA. Types autorisés : DA avec OR et DA direct.");
             }
 
-            $connectedUserName = $this->getUserName();
+            $connectedUserName = $this->userDataService->getUserName();
 
             $this->daAfficherRepository->markAsDeletedByListId($daAfficherIds, $connectedUserName);
             $this->demandeApproLRepository->deleteByNumDaAndLineNumbers($numDa, $lines);
@@ -155,7 +158,7 @@ class ActionSurNonDispoApi extends Controller
             $label = $count > 1 ? 'articles ont été ajoutés' : 'article a été ajouté';
 
             // Notification par email du demandeur sur les articles non dispo fournisseur
-            $this->emailDaService->envoyerMailPourNonDispoArticle($demandeApproAvant, $daAffichers, $numDa, $this->getUser());
+            $this->emailDaService->envoyerMailPourNonDispoArticle($demandeApproAvant, $daAffichers, $numDa);
 
             return new JsonResponse([
                 'status'  => 'success',

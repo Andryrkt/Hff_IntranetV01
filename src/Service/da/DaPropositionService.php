@@ -7,7 +7,6 @@ use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
 use App\Constants\da\StatutDaConstant;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Entity\admin\utilisateur\User;
 
 /**
  * Orchestre les actions d'une proposition (DA avec DIT et DA directe) :
@@ -42,7 +41,7 @@ class DaPropositionService
     /**
      * Enregistrer provisoirement la proposition
      */
-    public function enregistrerBrouillon(DemandeAppro $da, $dalrList, ?string $observation, ?string $refsString, string $username): array
+    public function enregistrerBrouillon(DemandeAppro $da, $dalrList, ?string $observation, ?string $refsString): array
     {
         $dals = $da->getDAL();
         $refs = $this->daPropositionLigneService->parserRefs($refsString);
@@ -53,7 +52,6 @@ class DaPropositionService
             $observation,
             $refs,
             "La proposition a été enregistré avec succès",
-            $username,
             true,
             StatutDaConstant::STATUT_EN_COURS_PROPOSITION
         );
@@ -68,7 +66,7 @@ class DaPropositionService
     /**
      * Envoyer la proposition à l'atelier (DA avec DIT) ou au service (DA directe)
      */
-    public function envoyerProposition(DemandeAppro $da, $dalrList, ?string $observation, ?string $refsString, string $username, User $user): array
+    public function envoyerProposition(DemandeAppro $da, $dalrList, ?string $observation, ?string $refsString): array
     {
         $dals = $da->getDAL();
         $refs = $this->daPropositionLigneService->parserRefs($refsString);
@@ -79,7 +77,6 @@ class DaPropositionService
             $observation,
             $refs,
             $this->estDirect($da) ? "La proposition a été soumis au service" : "La proposition a été soumis à l'atelier",
-            $username,
             true
         );
 
@@ -87,7 +84,7 @@ class DaPropositionService
 
         $this->daAfficherService->ajouterDansTableAffichageParNumDa($da->getNumeroDemandeAppro());
 
-        $this->emailDaService->envoyerMailPropositionDa($da, $user);
+        $this->emailDaService->envoyerMailPropositionDa($da);
 
         return $notification;
     }
@@ -95,7 +92,7 @@ class DaPropositionService
     /**
      * Valider les articles par l'atelier (DA avec DIT) ou le créateur (DA directe)
      */
-    public function validerParDemandeur(DemandeAppro $da, $dalrList, ?string $observation, ?string $refsString, string $username, User $user): array
+    public function validerParDemandeur(DemandeAppro $da, $dalrList, ?string $observation, ?string $refsString): array
     {
         $dals = $da->getDAL();
         $refs = $this->daPropositionLigneService->parserRefs($refsString);
@@ -106,13 +103,12 @@ class DaPropositionService
             $dalrList,
             $observation,
             $refs,
-            "Le choix de la proposition a été changé avec succès",
-            $username
+            "Le choix de la proposition a été changé avec succès"
         );
 
         $this->daPropositionLigneService->modifierChoixEtLigneDal($refs, $dals);
 
-        $this->validerEtNotifier($da, $user);
+        $this->validerEtNotifier($da);
 
         return $notification;
     }
@@ -120,7 +116,7 @@ class DaPropositionService
     /**
      * Valider les articles par l'appro
      */
-    public function validerParAppro(DemandeAppro $da, $dalrList, ?string $observation, ?string $refsString, string $username, User $user): array
+    public function validerParAppro(DemandeAppro $da, $dalrList, ?string $observation, ?string $refsString): array
     {
         $dals = $da->getDAL();
         $refs = $this->daPropositionLigneService->parserRefs($refsString);
@@ -131,14 +127,13 @@ class DaPropositionService
             $observation,
             $refs,
             "Les articles ont été validés avec succès",
-            $username,
             true,
             StatutDaConstant::STATUT_VALIDE
         );
 
         $this->daPropositionLigneService->modifierChoixEtLigneDal($refs, $dals);
 
-        $this->validerEtNotifier($da, $user);
+        $this->validerEtNotifier($da);
 
         return $notification;
     }
@@ -146,7 +141,7 @@ class DaPropositionService
     /**
      * Envoyer une observation depuis le bouton « observation » du formulaire de proposition
      */
-    public function envoyerObservation(DemandeAppro $da, ?string $observation, $statutChange, string $username, User $user, bool $estAppro): array
+    public function envoyerObservation(DemandeAppro $da, ?string $observation, $statutChange, bool $estAppro): array
     {
         if ($observation === null) {
             return $this->notification('danger', 'Echec: Pas d\'observation.');
@@ -154,14 +149,14 @@ class DaPropositionService
 
         $numDa = $da->getNumeroDemandeAppro();
 
-        $this->daObservationService->insertionObservation($numDa, $observation, $username);
+        $this->daObservationService->insertionObservation($numDa, $observation);
         if ($statutChange) {
             $this->modifierStatut($da, StatutDaConstant::STATUT_SOUMIS_APPRO);
 
             $this->daAfficherService->ajouterDansTableAffichageParNumDa($numDa); // ajout dans la table DaAfficher si le statut a changé
         }
 
-        $this->emailDaService->envoyerMailObservationDa($da, $observation, $user, $estAppro);
+        $this->emailDaService->envoyerMailObservationDa($da, $observation, $estAppro);
 
         return $this->notification('success', 'Votre observation a été enregistré avec succès.');
     }
@@ -169,11 +164,11 @@ class DaPropositionService
     /**
      * Envoyer une observation (avec pièces jointes) depuis le formulaire d'observation
      */
-    public function envoyerObservationAvecPj(DemandeAppro $da, DaObservation $daObservation, string $username, User $user, bool $estAppro): array
+    public function envoyerObservationAvecPj(DemandeAppro $da, DaObservation $daObservation, bool $estAppro): array
     {
         $numDa = $da->getNumeroDemandeAppro();
 
-        $this->daObservationService->insertionObservation($numDa, $daObservation->getObservation(), $username, $daObservation->getFileNames());
+        $this->daObservationService->insertionObservation($numDa, $daObservation->getObservation(), $daObservation->getFileNames());
 
         if ($estAppro && $daObservation->getStatutChange()) {
             $this->modifierStatut($da, StatutDaConstant::STATUT_AUTORISER_EMETTEUR);
@@ -181,7 +176,7 @@ class DaPropositionService
             $this->daAfficherService->ajouterDansTableAffichageParNumDa($numDa); // ajout dans la table DaAfficher si le statut a changé
         }
 
-        $this->emailDaService->envoyerMailObservationDa($da, $daObservation->getObservation(), $user, $estAppro);
+        $this->emailDaService->envoyerMailObservationDa($da, $daObservation->getObservation(), $estAppro);
 
         return $this->notification('success', 'Votre observation a été enregistré avec succès.');
     }
@@ -191,7 +186,7 @@ class DaPropositionService
         return $da->getDaTypeId() === DemandeAppro::TYPE_DA_DIRECT;
     }
 
-    private function traiterProposition(DemandeAppro $da, $dalrList, ?string $observation, array $refs, string $messageSuccess, string $username, bool $doSaveDb = false, string $statut = StatutDaConstant::STATUT_SOUMIS_ATE): array
+    private function traiterProposition(DemandeAppro $da, $dalrList, ?string $observation, array $refs, string $messageSuccess, bool $doSaveDb = false, string $statut = StatutDaConstant::STATUT_SOUMIS_ATE): array
     {
         $numDa = $da->getNumeroDemandeAppro();
 
@@ -204,7 +199,7 @@ class DaPropositionService
         }
 
         if ($observation !== null) {
-            $this->daObservationService->insertionObservation($numDa, $observation, $username);
+            $this->daObservationService->insertionObservation($numDa, $observation);
         }
 
         $this->modifierStatut($da, $statut);
@@ -227,7 +222,7 @@ class DaPropositionService
     /**
      * Validation de la proposition : DA validée, Excel/PDF, DaAfficher, (DocuWare pour la DA directe) et mail
      */
-    private function validerEtNotifier(DemandeAppro $da, User $user): void
+    private function validerEtNotifier(DemandeAppro $da): void
     {
         $numDa = $da->getNumeroDemandeAppro();
         $numeroVersionMax = $this->em->getRepository(DemandeApproL::class)->getNumeroVersionMax($numDa);
@@ -251,7 +246,7 @@ class DaPropositionService
             $this->daAfficherService->ajouterDansTableAffichageParNumDa($numDa, true);
         }
 
-        $this->emailDaService->envoyerMailValidationDa($da, $user, $nomEtChemin);
+        $this->emailDaService->envoyerMailValidationDa($da, $nomEtChemin);
     }
 
     private function notification(string $type, string $message): array

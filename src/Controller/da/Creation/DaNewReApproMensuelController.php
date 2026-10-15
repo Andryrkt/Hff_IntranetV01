@@ -68,7 +68,7 @@ class DaNewReApproMensuelController extends Controller
                 $firstCreation = $demandeAppro->getNumeroDemandeAppro() === null;
                 $numDa = $firstCreation ? $this->autoDecrement(ApplicationConstant::CODE_DAP) : $demandeAppro->getNumeroDemandeAppro();
 
-                $notification = $this->daEnregistrementService->enregistrerDaReapproMensuel($demandeAppro, $numDa, $firstCreation, $this->getButtonName($request), $this->getUserName(), $this->getUser());
+                $notification = $this->daEnregistrementService->enregistrerDaReapproMensuel($demandeAppro, $numDa, $firstCreation, $this->getButtonName($request));
 
                 $this->getSessionService()->set('notification', $notification);
                 $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);

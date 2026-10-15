@@ -2,6 +2,7 @@
 
 namespace App\Controller\da\ListeCdeFrn;
 
+use App\Service\UserData\UserDataService;
 use Exception;
 use App\Entity\da\DaAfficher;
 use App\Controller\Controller;
@@ -24,13 +25,15 @@ use Symfony\Component\Form\FormInterface;
  */
 class DaSoumissionBlReapproController extends Controller
 {
+    private UserDataService $userDataService;
     private string $cheminDeBase;
     private TraitementDeFichier $traitementDeFichier;
     private GeneratePdf $generatePdf;
     private HistoriqueOperationService $historiqueOperation;
 
-    public function __construct()
+    public function __construct(UserDataService $userDataService)
     {
+        $this->userDataService = $userDataService;
         parent::__construct();
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/da/';
         $this->traitementDeFichier = new TraitementDeFichier();
@@ -107,7 +110,7 @@ class DaSoumissionBlReapproController extends Controller
             ->setDateClotLiv(null)
             ->setStatut('Soumis')
             ->setPieceJoint1($nomPdfFusionner)
-            ->setUtilisateur($this->getUserName())
+            ->setUtilisateur($this->userDataService->getUserName())
             ->setNumeroVersion(1)
             ->setNumeroBap(null)
             ->setStatutBap(null)

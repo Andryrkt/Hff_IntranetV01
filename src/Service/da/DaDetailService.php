@@ -5,7 +5,6 @@ namespace App\Service\da;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Constants\da\StatutDaConstant;
-use App\Entity\admin\utilisateur\User;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
@@ -38,11 +37,11 @@ class DaDetailService
      * mise à jour de DaAfficher, mail. Renvoie la notification, la redirection reste au contrôleur.
      * Pour un Reappro, le formulaire n'a pas de case « statutChange » (toujours false) : aucun changement de statut.
      */
-    public function envoyerObservation(DemandeAppro $demandeAppro, DaObservation $daObservation, string $username, User $connectedUser, bool $estAppro): array
+    public function envoyerObservation(DemandeAppro $demandeAppro, DaObservation $daObservation, bool $estAppro): array
     {
         $numDa = $demandeAppro->getNumeroDemandeAppro();
 
-        $this->daObservationService->insertionObservation($numDa, $daObservation->getObservation(), $username, $daObservation->getFileNames());
+        $this->daObservationService->insertionObservation($numDa, $daObservation->getObservation(), $daObservation->getFileNames());
 
         if ($estAppro && $daObservation->getStatutChange()) {
             $this->daService->appliquerChangementStatut($demandeAppro, StatutDaConstant::STATUT_AUTORISER_EMETTEUR);
@@ -50,7 +49,7 @@ class DaDetailService
             $this->daAfficherService->ajouterDansTableAffichageParNumDa($numDa);
         }
 
-        $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $connectedUser, $estAppro);
+        $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $estAppro);
 
         return [
             'type'    => 'success',

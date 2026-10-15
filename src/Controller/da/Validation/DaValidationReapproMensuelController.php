@@ -2,6 +2,7 @@
 
 namespace App\Controller\da\Validation;
 
+use App\Service\UserData\UserDataService;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
@@ -25,6 +26,7 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException;
  */
 class DaValidationReapproMensuelController extends Controller
 {
+    private UserDataService $userDataService;
     private DemandeApproRepository $demandeApproRepository;
     private EmailDaService $emailDaService;
 
@@ -40,8 +42,10 @@ class DaValidationReapproMensuelController extends Controller
         DaObservationService $daObservationService,
         DaValidationService $daValidationService,
         DaSoumissionValidationService $daSoumissionValidationService,
-        EmailDaService $emailDaService
+        EmailDaService $emailDaService,
+        UserDataService $userDataService
     ) {
+        $this->userDataService = $userDataService;
         $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
         $this->emailDaService = $emailDaService;
         $this->daValidationService = $daValidationService;
@@ -92,7 +96,7 @@ class DaValidationReapproMensuelController extends Controller
             'observations'    => $observations,
             'dataHistorique'  => $dataHistoriqueConsommation,
             'monthsList'      => $monthsList,
-            'connectedUser'   => $this->getUser(),
+            'connectedUser'   => $this->userDataService->getUser(),
         ]);
     }
 
@@ -104,12 +108,12 @@ class DaValidationReapproMensuelController extends Controller
             // ✅ Récupérer les valeurs des champs caché
             $observation = $formReappro->getData()->getObservation();
 
-            if ($observation) $this->daObservationService->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $observation, $this->getUserName());
+            if ($observation) $this->daObservationService->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $observation);
 
             if ($request->request->has('refuser')) {
                 $this->daValidationService->refuserDemandeReappro($demandeAppro);
 
-                $this->emailDaService->envoyerMailValidationReappro($demandeAppro, $observation ?? '-', $this->getUser(), false);
+                $this->emailDaService->envoyerMailValidationReappro($demandeAppro, $observation ?? '-', false);
 
                 $notification = [
                     'type'    => 'success',
@@ -121,7 +125,7 @@ class DaValidationReapproMensuelController extends Controller
                 $this->daSoumissionValidationService->copyPDFToDW($demandeAppro->getNumeroDemandeAppro());
                 $this->daSoumissionValidationService->ajouterDansDaSoumisAValidation($demandeAppro);
 
-                $this->emailDaService->envoyerMailValidationReappro($demandeAppro, $observation ?? '-', $this->getUser());
+                $this->emailDaService->envoyerMailValidationReappro($demandeAppro, $observation ?? '-');
 
                 $notification = [
                     'type'    => 'success',
@@ -145,9 +149,9 @@ class DaValidationReapproMensuelController extends Controller
 
     private function traitementEnvoiObservation(DaObservation $daObservation, DemandeAppro $demandeAppro)
     {
-        $this->daObservationService->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $this->getUserName(), $daObservation->getFileNames());
+        $this->daObservationService->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $daObservation->getFileNames());
 
-        $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estAppro());
+        $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->estAppro());
 
         $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre observation a été enregistré avec succès.']);
         return $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);

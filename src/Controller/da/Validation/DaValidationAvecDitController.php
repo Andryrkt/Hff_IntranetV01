@@ -55,7 +55,7 @@ class DaValidationAvecDitController extends Controller
 
         $this->daAfficherService->ajouterDansTableAffichageParNumDa($da->getNumeroDemandeAppro(), true); // enregistrer dans la table Da Afficher
 
-        $this->emailDaService->envoyerMailValidationDa($da, $this->getUser(), $resultatExport);
+        $this->emailDaService->envoyerMailValidationDa($da, $resultatExport);
 
         /** NOTIFICATION */
         $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'La demande a été validée avec succès.']);

@@ -14,6 +14,7 @@ use App\Service\da\DocRattacheService;
 use App\Constants\da\StatutDaConstant;
 use App\Service\da\DaObservationService;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Service\UserData\UserDataService;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -24,6 +25,7 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException;
  */
 class DaDetailDirectController extends Controller
 {
+	private UserDataService $userDataService;
 	private DemandeApproRepository $demandeApproRepository;
 
 	private DocRattacheService $docRattacheService;
@@ -37,8 +39,10 @@ class DaDetailDirectController extends Controller
 		DocRattacheService $docRattacheService,
 		DaTimelineService $daTimelineService,
 		DaObservationService $daObservationService,
-		DaDetailService $daDetailService
+		DaDetailService $daDetailService,
+		UserDataService $userDataService
 	) {
+		$this->userDataService = $userDataService;
 		$this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
 		$this->daDetailService = $daDetailService;
 		$this->docRattacheService = $docRattacheService;
@@ -85,7 +89,7 @@ class DaDetailDirectController extends Controller
 			'demandeApproLines'   		=> $demandeApproLPrepared,
 			'observations'      		=> $observations,
 			'fichiers'            		=> $fichiers,
-			'connectedUser'     		=> $this->getUser(),
+			'connectedUser'     		=> $this->userDataService->getUser(),
 			'statutDa'          		=> $statutDa,
 			'classStatutDa'    		    => $statutEtAction['classStatutDa'],
 			'action'      		        => $statutEtAction['action'],
@@ -104,7 +108,7 @@ class DaDetailDirectController extends Controller
 		$form->handleRequest($request);
 
 		if ($form->isSubmitted() && $form->isValid()) {
-			$notification = $this->daDetailService->envoyerObservation($demandeAppro, $form->getData(), $this->getUserName(), $this->getUser(), $this->estAppro());
+			$notification = $this->daDetailService->envoyerObservation($demandeAppro, $form->getData(), $this->estAppro());
 
 			$this->getSessionService()->set('notification', $notification);
 			return $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);

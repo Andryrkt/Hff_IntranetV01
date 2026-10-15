@@ -34,7 +34,7 @@ class DemandeDevisApi extends Controller
             $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
         }
 
-        $this->daService->appliquerStatutDemandeDevisEnCours($demandeAppro, $this->getUserName());
+        $this->daService->appliquerStatutDemandeDevisEnCours($demandeAppro);
 
         $this->daAfficherService->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro()); // enregistrer dans la table Da Afficher
 

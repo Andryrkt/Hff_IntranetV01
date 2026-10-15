@@ -4,6 +4,7 @@ namespace App\Service\da;
 
 use App\Entity\da\DaObservation;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Service\UserData\UserDataService;
 use App\Repository\da\DaObservationRepository;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -12,11 +13,13 @@ class DaObservationService
     private EntityManagerInterface $em;
     private DaObservationRepository $daObservationRepository;
     private FileUploaderForDAService $daFileUploader;
+    private UserDataService $userDataService;
 
-    public function __construct(EntityManagerInterface $em, FileUploaderForDAService $daFileUploader)
+    public function __construct(EntityManagerInterface $em, FileUploaderForDAService $daFileUploader, UserDataService $userDataService)
     {
         $this->em                      = $em;
         $this->daFileUploader          = $daFileUploader;
+        $this->userDataService         = $userDataService;
         $this->daObservationRepository = $em->getRepository(DaObservation::class);
     }
 
@@ -25,12 +28,11 @@ class DaObservationService
      *
      * @param string         $numDa       le numéro de la DA
      * @param string         $observation l'Observation à insérer
-     * @param string         $username    le nom de l'utilisateur
      * @param UploadedFile[] $files       les fichiers à uploader
      *
      * @return void
      */
-    public function insertionObservation(string $numDa, string $observation, string $username, ?array $files = null): void
+    public function insertionObservation(string $numDa, string $observation, ?array $files = null): void
     {
         $text = str_replace(["\r\n", "\n", "\r"], "<br>", $observation);
 
@@ -39,7 +41,7 @@ class DaObservationService
         $daObservation
             ->setObservation($text)
             ->setNumDa($numDa)
-            ->setUtilisateur($username)
+            ->setUtilisateur($this->userDataService->getUserName())
         ;
 
         if ($files) {

@@ -62,7 +62,7 @@ class DaNewAchatController extends Controller
                 $firstCreation = $demandeApproParent->getNumeroDemandeAppro() === null;
                 $numDa = $firstCreation ? $this->autoDecrement(ApplicationConstant::CODE_DAP) : $demandeApproParent->getNumeroDemandeAppro();
 
-                $notification = $this->daEnregistrementService->enregistrerDaParent($demandeApproParent, $form, $numDa, $firstCreation, $this->getButtonName($request), $this->getUserName(), $this->getUser());
+                $notification = $this->daEnregistrementService->enregistrerDaParent($demandeApproParent, $form, $numDa, $firstCreation, $this->getButtonName($request));
 
                 $this->getSessionService()->set('notification', $notification);
                 $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
