@@ -41,6 +41,7 @@
 								<th>N° DA</th>
 								<th>N° CDE</th>
 								<th>N° livraison</th>
+								<th>Version DA</th>
 								<th>N° OR</th>
 								<th class="text-end">Montant</th>
 								<th>est_facture_bl_soumis</th>
@@ -56,6 +57,7 @@
 									<td>{{ notification.numeroDemandeAppro }}</td>
 									<td>{{ notification.numeroCde }}</td>
 									<td>{{ notification.numeroLivraison }}</td>
+									<td class="text-center">{{ notification.numeroVersionDaAfficher ?? '-' }}</td>
 									<td>{{ notification.numeroOR ?: '-' }}</td>
 									<td class="text-end">{{ notification.montant is not null ? notification.montant|number_format(2, ',', ' ') : '-' }}</td>
 									<td>
@@ -80,7 +82,7 @@
 								</tr>
 							{% else %}
 								<tr>
-									<td colspan="10" class="text-center text-muted">Aucune notification.</td>
+									<td colspan="11" class="text-center text-muted">Aucune notification.</td>
 								</tr>
 							{% endfor %}
 						</tbody>

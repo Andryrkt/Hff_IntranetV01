@@ -224,6 +224,7 @@ class TraitementSoumissionBAPService
         $this->entityManager->flush();
 
         $dto->bilanMajDaAfficher = [
+            'numeroVersionDaAfficher' => (int) $numeroVersionMax, // version des lignes da_afficher mises à jour
             'nbArticlesLivres'   => count($articlesLivres),
             'nbLignesMaj'        => $nbLignesMaj,
             'articlesNonTrouves' => $articlesNonTrouves,

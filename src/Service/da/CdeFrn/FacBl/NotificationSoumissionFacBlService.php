@@ -37,6 +37,7 @@ class NotificationSoumissionFacBlService
                 ->setNumeroCde($dto->numeroCde)
                 ->setNumeroLivraison(is_array($dto->numLiv) ? implode(', ', $dto->numLiv) : (string) $dto->numLiv)
                 ->setNumeroOR($dto->numeroOR)
+                ->setNumeroVersionDaAfficher($bilan['numeroVersionDaAfficher'] ?? null)
                 ->setTypeSoumission($dto->typeDdp && $dto->typeDdp !== 'aucun' ? $dto->typeDdp : 'facbl')
                 ->setMontant($dto->montantBlFacture)
                 ->setSoumisPar($soumisPar)

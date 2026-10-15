@@ -46,6 +46,11 @@ class DaNotificationFacBl
     private ?string $numeroOR = null;
 
     /**
+     * @ORM\Column(type="integer", name="numero_version_da_afficher", nullable=true)
+     */
+    private ?int $numeroVersionDaAfficher = null;
+
+    /**
      * @ORM\Column(type="string", length=20, name="type_soumission", nullable=true)
      */
     private ?string $typeSoumission = null;
@@ -131,6 +136,17 @@ class DaNotificationFacBl
     public function setNumeroOR(?string $numeroOR): self
     {
         $this->numeroOR = $numeroOR;
+        return $this;
+    }
+
+    public function getNumeroVersionDaAfficher(): ?int
+    {
+        return $this->numeroVersionDaAfficher;
+    }
+
+    public function setNumeroVersionDaAfficher(?int $numeroVersionDaAfficher): self
+    {
+        $this->numeroVersionDaAfficher = $numeroVersionDaAfficher;
         return $this;
     }
 

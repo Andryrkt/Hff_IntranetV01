@@ -10,6 +10,7 @@ CREATE TABLE
         numero_cde VARCHAR(20) NULL,
         numero_livraison VARCHAR(20) NULL,
         numero_or VARCHAR(20) NULL,
+        numero_version_da_afficher INT NULL,
         type_soumission VARCHAR(20) NULL,
         montant FLOAT NULL,
         soumis_par VARCHAR(100) NULL,
