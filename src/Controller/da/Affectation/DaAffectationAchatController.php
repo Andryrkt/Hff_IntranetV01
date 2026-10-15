@@ -14,6 +14,7 @@ use App\Entity\da\DemandeApproParentLine;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 /** @Route("/demande-appro") */
 class DaAffectationAchatController extends Controller
@@ -36,6 +37,8 @@ class DaAffectationAchatController extends Controller
     {
         /** @var DemandeApproParent $daParent */
         $daParent = $this->getEntityManager()->getRepository(DemandeApproParent::class)->find($id);
+
+        if (!$daParent) throw new ResourceNotFoundException();
 
         foreach ($daParent->getDemandeApproParentLines() as $dapl) {
             if ($dapl->getArtRefp() === "-") $dapl->setArtRefp("");
