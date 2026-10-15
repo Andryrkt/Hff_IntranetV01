@@ -53,8 +53,7 @@ class DdpFactory
         // initialisation formulaire
         $dto->choiceModePaiement = $this->modePaiement();
         $dto->choiceDevise = $this->devise();
-        // $dto->numeroCommande = $this->numeroCmd($idTypeDdp);
-        $dto->numeroCommande = [];
+        $dto->numeroCommande = $this->numeroCmd($idTypeDdp);
         $dto->numeroFacture = [];
 
         // Agence et Service par défaut
@@ -63,25 +62,19 @@ class DdpFactory
             'service' => $this->em->getRepository(Service::class)->find(1)
         ];
 
-        $dto->dateDemande = new \DateTime();
-
         return $dto;
     }
 
     public function apresSoumission(FormInterface $form, DdpDto $dto): DdpDto
     {
         $dto->numeroDdp = $this->numeroGenerateur->genererNumeroDdp();
-        $dto->dateDemande = new \DateTime();
-        // RIB connus du fournisseur, pour signaler un RIB mis à jour sur le PDF
-        if (!empty($dto->numeroFournisseur)) {
-            $dto->ribsFournisseurAncien = $this->ddpModel->getRibsFournisseur($dto->numeroFournisseur);
-        }
         [$nomEtCheminFichiersEnregistrer, $nomFichierTelecharger,  $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $dto);
 
 
         if ($dto->typeDdp->getId() == TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE) {
             // Récupération des numéros de commande pour le type DDP après arrivage
-            $dto->numeroCommande = $this->recuperationNumCommande($dto->numeroFournisseur, $dto->numeroFacture);
+            $numeroCommandes = $this->recuperationNumCommande($dto->numeroFournisseur, $dto->numeroFacture);
+            $dto->numeroCommande = [$numeroCommandes];
             // copie des fichiers distant dans le dossier DDP
             $this->copierFichierDistant($dto);
         }
@@ -117,12 +110,9 @@ class DdpFactory
         $dto->demandeur = $this->securityService->getUserName();
 
         // info utile -----------------------
-        $dto->statut = $dto->typeDdp->getId() === 1 ? StatutConstants::DDPA_A_TRANSMETTRE : StatutConstants::DDPL_A_TRANSMETTRE;
+        $dto->statut = StatutConstants::SOUMIS_A_VALIDATION;
         $dto->numeroVersion = 1;
-        $dto->numeroDossierDouane = array_column(
-            $this->ddpModel->getNumDossierGcot($dto->numeroFournisseur, $dto->getNumeroCommandeString(), $dto->getNumeroFactureString()),
-            'Numero_Dossier_Douane'
-        );
+        $dto->numeroDossierDouane = $this->ddpModel->getNumDossierGcot($dto->numeroFournisseur, $dto->getNumeroCommandeString(), $dto->getNumeroFactureString());
 
         return $dto;
     }
@@ -218,7 +208,7 @@ class DdpFactory
 
         $cheminDeFichiers = [];
         foreach ($numDossiers as $value) {
-            $dossiers = $this->ddpModel->findListeDoc($value['Numero_Dossier_Douane']);
+            $dossiers = $this->ddpModel->findListeDoc($value);
 
             foreach ($dossiers as  $dossier) {
                 $cheminDeFichiers[] = $dossier['Nom_Fichier'];
@@ -255,7 +245,7 @@ class DdpFactory
     {
         $nomDufichierCde = [];
         foreach ($pathAndCdes as  $pathAndCde) {
-            if (!empty($pathAndCde[0]['path'])) {
+            if ($pathAndCde[0]['path'] != null) {
                 $cheminDufichierInitial = $_ENV['BASE_PATH_FICHIER'] . "/" . $pathAndCde[0]['path'];
 
                 if (!file_exists($cheminDufichierInitial)) {
@@ -360,14 +350,15 @@ class DdpFactory
      * 
      * @param string $numeroFournisseur
      * @param array $numeroFacture
-     * @return string[]
+     * @return string
      */
-    private function recuperationNumCommande(string $numeroFournisseur, array $numeroFacture): array
+    private function recuperationNumCommande(string $numeroFournisseur, array $numeroFacture): string
     {
         $numCdes = $this->ddpModel->getCommandeReceptionnee($numeroFournisseur);
         $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
         $numFacString = TableauEnStringService::TableauEnString(',', $numeroFacture);
-        return $this->ddpModel->getNumCommandes($numeroFournisseur, $numCdesString, $numFacString);
+        $numeroCommandes = $this->ddpModel->getNumCommande($numeroFournisseur, $numCdesString, $numFacString);
+        return $numeroCommandes;
     }
 
     /**

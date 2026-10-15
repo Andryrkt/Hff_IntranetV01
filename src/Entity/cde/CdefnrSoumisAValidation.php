@@ -2,8 +2,8 @@
 
 namespace App\Entity\cde;
 
-use Doctrine\ORM\Mapping as ORM;
 use App\Repository\cde\CdefnrSoumisAValidationRepository;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=CdefnrSoumisAValidationRepository::class)
@@ -29,11 +29,6 @@ class CdefnrSoumisAValidation
     private string $codeFournisseur = '';
 
     /**
-     * @ORM\Column(type="string", length=200, name="libelle_fournisseur", nullable=true)
-     */
-    private ?string $libelleFournisseur = null;
-
-    /**
      * @ORM\Column(type="integer", name="numeroVersion")
      */
     private int $numVersion = 0;
@@ -41,7 +36,7 @@ class CdefnrSoumisAValidation
     /**
      * @ORM\Column(type="datetime", name="date_heure_soumission")
      */
-    private $dateHeureSoumission;
+    private  $dateHeureSoumission;
 
     /**
      * @ORM\Column(type="string", length=50, name="statut")
@@ -49,18 +44,25 @@ class CdefnrSoumisAValidation
     private string $statut = '';
 
     /**
-     * @ORM\Column(type="boolean", name="pdf_deposer_dw", nullable=true)
+     * @ORM\Column(type="string", length=255, name="nom_fichier")
      */
-    private ?bool $pdfDeposerDw = null;
+    private string $nomFichier;
 
     /**
-     * @ORM\Column(type="datetime", name="date_depot_dw", nullable=true)
+     * ORM\Column(type="string", length=11, name="numero_da")
      */
-    private ?\DateTime $dateDepotDw = null;
+    private string $numeroDa;
+
+    private $pieceJoint01;
+
+    private array $pieceJoint02 = [];
+
+
 
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
+
 
     /**
      * Get the value of id
@@ -73,15 +75,17 @@ class CdefnrSoumisAValidation
     /**
      * Get the value of numCdeFournisseur
      */
-    public function getNumCdeFournisseur(): string
+    public function getNumCdeFournisseur()
     {
         return $this->numCdeFournisseur;
     }
 
     /**
      * Set the value of numCdeFournisseur
+     *
+     * @return  self
      */
-    public function setNumCdeFournisseur(string $numCdeFournisseur): self
+    public function setNumCdeFournisseur($numCdeFournisseur)
     {
         $this->numCdeFournisseur = $numCdeFournisseur;
 
@@ -91,15 +95,17 @@ class CdefnrSoumisAValidation
     /**
      * Get the value of codeFournisseur
      */
-    public function getCodeFournisseur(): string
+    public function getCodeFournisseur()
     {
         return $this->codeFournisseur;
     }
 
     /**
      * Set the value of codeFournisseur
+     *
+     * @return  self
      */
-    public function setCodeFournisseur(string $codeFournisseur): self
+    public function setCodeFournisseur($codeFournisseur)
     {
         $this->codeFournisseur = $codeFournisseur;
 
@@ -107,40 +113,25 @@ class CdefnrSoumisAValidation
     }
 
     /**
-     * Get the value of libelleFournisseur
-     */
-    public function getLibelleFournisseur(): ?string
-    {
-        return $this->libelleFournisseur ?? '';
-    }
-
-    /**
-     * Set the value of libelleFournisseur
-     */
-    public function setLibelleFournisseur(?string $libelleFournisseur): self
-    {
-        $this->libelleFournisseur = $libelleFournisseur;
-
-        return $this;
-    }
-
-    /**
      * Get the value of numVersion
      */
-    public function getNumVersion(): int
+    public function getNumVersion()
     {
         return $this->numVersion;
     }
 
     /**
      * Set the value of numVersion
+     *
+     * @return  self
      */
-    public function setNumVersion(int $numVersion): self
+    public function setNumVersion($numVersion)
     {
         $this->numVersion = $numVersion;
 
         return $this;
     }
+
 
     /**
      * Get the value of dateHeureSoumission
@@ -152,8 +143,10 @@ class CdefnrSoumisAValidation
 
     /**
      * Set the value of dateHeureSoumission
+     *
+     * @return  self
      */
-    public function setDateHeureSoumission($dateHeureSoumission): self
+    public function setDateHeureSoumission($dateHeureSoumission)
     {
         $this->dateHeureSoumission = $dateHeureSoumission;
 
@@ -163,15 +156,17 @@ class CdefnrSoumisAValidation
     /**
      * Get the value of statut
      */
-    public function getStatut(): string
+    public function getStatut()
     {
         return $this->statut;
     }
 
     /**
      * Set the value of statut
+     *
+     * @return  self
      */
-    public function setStatut(string $statut): self
+    public function setStatut($statut)
     {
         $this->statut = $statut;
 
@@ -179,37 +174,81 @@ class CdefnrSoumisAValidation
     }
 
     /**
-     * Get the value of pdfDeposerDw
+     * Get the value of nomFichier
      */
-    public function isPdfDeposerDw(): ?bool
+    public function getNomFichier()
     {
-        return $this->pdfDeposerDw;
+        return $this->nomFichier;
     }
 
     /**
-     * Set the value of pdfDeposerDw
+     * Set the value of nomFichier
+     *
+     * @return  self
      */
-    public function setPdfDeposerDw(?bool $pdfDeposerDw): self
+    public function setNomFichier($nomFichier)
     {
-        $this->pdfDeposerDw = $pdfDeposerDw;
+        $this->nomFichier = $nomFichier;
 
         return $this;
     }
 
     /**
-     * Get the value of dateDepotDw
+     * Get the value of numeroDa
      */
-    public function getDateDepotDw(): ?\DateTime
+    public function getNumeroDa()
     {
-        return $this->dateDepotDw;
+        return $this->numeroDa;
     }
 
     /**
-     * Set the value of dateDepotDw
+     * Set the value of numeroDa
+     *
+     * @return  self
      */
-    public function setDateDepotDw(?\DateTime $dateDepotDw): self
+    public function setNumeroDa($numeroDa)
     {
-        $this->dateDepotDw = $dateDepotDw;
+        $this->numeroDa = $numeroDa;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pieceJoint01
+     */
+    public function getPieceJoint01()
+    {
+        return $this->pieceJoint01;
+    }
+
+    /**
+     * Set the value of pieceJoint01
+     *
+     * @return  self
+     */
+    public function setPieceJoint01($pieceJoint01)
+    {
+        $this->pieceJoint01 = $pieceJoint01;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pieceJoint02
+     */
+    public function getPieceJoint02()
+    {
+        return $this->pieceJoint02;
+    }
+
+    /**
+     * Set the value of pieceJoint02
+     *
+     * @return  self
+     */
+    public function setPieceJoint02($pieceJoint02)
+    {
+        $this->pieceJoint02 = $pieceJoint02;
 
         return $this;
     }

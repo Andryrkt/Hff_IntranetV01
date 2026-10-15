@@ -18,12 +18,11 @@ class CommandeLivraisonMapper
     {
         $commandeLivraison = new CommandeLivraison();
         if (is_array($dto->numeroCommande) || is_array($dto->numeroFacture)) {
-            $numeroFacture = is_array($dto->numeroFacture) ? implode(';', $dto->numeroFacture) : $dto->numeroFacture;
             foreach ($dto->numeroCommande as $numeroCommande) {
                 $commandeLivraison
                     ->setNumeroCommande($numeroCommande)
                     ->setNumeroLivraison($dto->numeroLivraison ?? null)
-                    ->setNumeroFacture($numeroFacture)
+                    ->setNumeroFacture($dto->numeroFacture)
                 ;
             }
         } else {

@@ -15,6 +15,7 @@ use App\Model\ddp\DemandePaiementModel;
 use App\Service\TableauEnStringService;
 use App\Entity\ddp\DemandePaiementLigne;
 use App\Service\genererPdf\GeneratePdfDdp;
+use App\Entity\cde\CdefnrSoumisAValidation;
 use App\Entity\admin\ddp\DocDemandePaiement;
 use App\Service\fichier\TraitementDeFichier;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,6 +33,7 @@ class EditDemandePaiementController extends Controller
 
     const STATUT_MODIFICATION = 'mModification soumis à validation';
 
+    private $cdeFnrRepository;
     private $demandePaiementModel;
     private string $cheminDeBase;
     private HistoriqueOperationDDPService $historiqueOperation;
@@ -46,6 +48,7 @@ class EditDemandePaiementController extends Controller
     {
         parent::__construct();
         $this->demandePaiementModel = new DemandePaiementModel();
+        $this->cdeFnrRepository = $this->getEntityManager()->getRepository(CdefnrSoumisAValidation::class);
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/ddp';
         $this->historiqueOperation = new HistoriqueOperationDDPService($this->getEntityManager());
         $this->generatePdfDdp = new GeneratePdfDdp();
@@ -190,7 +193,7 @@ class EditDemandePaiementController extends Controller
             $docDemandePaiement = new DocDemandePaiement();
             $donners[] = $docDemandePaiement
                 ->setNumeroDdp($numDdp)
-                ->setTypeDocumentId($data->getTypeDemandeId() !== null ? $data->getTypeDemandeId()->getId() : null)
+                ->setTypeDocumentId($data->getTypeDemandeId())
                 ->setNomFichier($nomFichier)
                 ->setNumeroVersion($numeroversion);
         }
@@ -329,6 +332,7 @@ class EditDemandePaiementController extends Controller
     {
         // $numComandes = $this->ddpRepository->getnumCde();
         // $excludedCommands = $this->changeStringToArray($numComandes);
+        // $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId, $excludedCommands);
         // $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
         $numCdes = $this->demandePaiementModel->getCommandeReceptionnee($numeroFournisseur);
         $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);

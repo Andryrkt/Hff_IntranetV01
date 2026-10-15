@@ -2,6 +2,8 @@
 
 namespace App\Doctrine;
 
+require_once __DIR__ . '/../../config/dotenv.php';
+
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Setup;
 

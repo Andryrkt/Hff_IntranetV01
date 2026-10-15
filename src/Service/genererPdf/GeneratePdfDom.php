@@ -31,7 +31,8 @@ class GeneratePdfDom extends GeneratePdf
                 $pdf->Cell($w50, 8, $tab['MailUser'], 0, 1, 'R');
 
                 // Logo HFF
-                $pdf->Image("{$this->basePathAssets}/logoHff.jpg", 10, 10, 60, 0, 'jpg');
+                $logoPath = $_ENV['BASE_PATH_LONG'] . '/Views/assets/logoHff.jpg';
+                $pdf->Image($logoPath, 10, 10, 60, 0, 'jpg');
 
                 // Grand titre du pdf
                 $pdf->SetFont($font, 'B', 16);
@@ -232,7 +233,8 @@ class GeneratePdfDom extends GeneratePdf
                 $pdf->Cell($w50, 10, $tab['mode'], 0, 1);
 
                 /** Génération de fichier */
-                $pdf->Output("{$this->basePathFile}/dom/{$tab['NumDom']}_{$tab['codeAg_serv']}.pdf", 'F');
+                $Dossier = $_ENV['BASE_PATH_FICHIER'] . '/dom/';
+                $pdf->Output($Dossier . $tab['NumDom'] . '_' . $tab['codeAg_serv'] . '.pdf', 'F');
         }
 
         private function getHalfWidth(TCPDF $pdf)

@@ -33,7 +33,8 @@ class GeneretePdfInventaire extends GeneratePdf
         $pdf->Cell(15, 5, 'Page  ' . $pdf->getAliasNumPage() . '/' . $pdf->getAliasNbPages(), 0, 1, 'R');
 
         // Ajout du logo
-        $pdf->Image("{$this->basePathAssets}/henriFraise.jpg", 10, 12, 35);
+        $logoPath = $_ENV['BASE_PATH_LONG'] . '/Views/assets/henriFraise.jpg';
+        $pdf->Image($logoPath, 10, 12, 35);
 
         // Date en haut à droite
         $pdf->SetFont('dejavusans', '', 8);
