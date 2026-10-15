@@ -98,6 +98,7 @@ class DaEditionService
         /** @var DemandeApproLR[] $dalrs */
         $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numeroDemandeAppro]);
         foreach ($dalrs as $dalr) {
+            if (!isset($dalParLigne[$dalr->getNumeroLigne()])) continue;
             $ligneDAL = $dalParLigne[$dalr->getNumeroLigne()];
             $dalr
                 ->setStatutDal($statut)
