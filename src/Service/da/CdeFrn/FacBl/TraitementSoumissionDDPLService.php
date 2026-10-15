@@ -285,6 +285,7 @@ class TraitementSoumissionDDPLService
 
         $dto->bilanMajDaAfficher = [
             'numeroVersionDaAfficher' => (int) $numeroVersionMax, // version des lignes da_afficher mises à jour
+            'sourceArticles'          => 'da_afficher', // DDPL : toutes les lignes de la commande, sans passer par IPS
             'nbArticlesLivres'   => count($daAffichers),
             'nbLignesMaj'        => count($daAffichers),
             'articlesNonTrouves' => [],

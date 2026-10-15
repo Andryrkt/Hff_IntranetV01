@@ -18,6 +18,7 @@ CREATE TABLE
         nb_lignes_maj INT NOT NULL DEFAULT 0,
         articles_non_trouves VARCHAR(MAX) NULL,
         est_anomalie BIT NOT NULL DEFAULT 0,
+        raison_anomalie VARCHAR(1000) NULL,
         est_lu BIT NOT NULL DEFAULT 0,
         date_creation DATETIME2 NOT NULL DEFAULT GETDATE (),
         date_modification DATETIME2 NOT NULL DEFAULT GETDATE (),

@@ -246,8 +246,10 @@ class TraitementSoumissionfacBlService
         // articles de la livraison (référence / désignation) selon le type de DA
         if (in_array((int)$typeDa, [DemandeAppro::TYPE_DA_AVEC_DIT, DemandeAppro::TYPE_DA_REAPPRO_MENSUEL, DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL])) {
             $articlesLivres = $this->daSoumissionFacBlModel->getRefDesiSavLor($numLiv, $codeSociete);
+            $sourceArticles = 'sav_lor';
         } else {
             $articlesLivres = $this->daSoumissionFacBlModel->getRefDesiFrnCdl($numLiv, $codeSociete);
+            $sourceArticles = 'frn_cdl';
         }
 
         $nbLignesMaj = 0;
@@ -275,6 +277,8 @@ class TraitementSoumissionfacBlService
 
         $dto->bilanMajDaAfficher = [
             'numeroVersionDaAfficher' => (int) $numeroVersionMax, // version des lignes da_afficher mises à jour
+            'typeDa'                  => $typeDa,
+            'sourceArticles'          => $sourceArticles, // requête IPS utilisée pour les articles livrés
             'nbArticlesLivres'   => count($articlesLivres),
             'nbLignesMaj'        => $nbLignesMaj,
             'articlesNonTrouves' => $articlesNonTrouves,
