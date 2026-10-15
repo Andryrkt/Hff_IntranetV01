@@ -161,10 +161,11 @@ Objectif : performance et cohérence. Périmètre : `Controller/da`, `Api/da`, `
   - Écarts assumés : `getUser()` renvoie la même instance pendant la requête (un seul `find()` au lieu d'un par appel) ; le cas `null` (session expirée) reste inchangé, le bug 3 reste en E. Absorbe le bug 16.
   - Repérage : `grep -rn "getUser()\|getUserName()\|getUserMail()\|getNomUtilisateur()" src/Controller/da src/Api/da src/Service/da src/Factory/da` (état au 2026-10-13 : 39 / 19 / 5 occurrences ; 31 lignes référencent déjà `userDataService`).
   - **Commit proposé** : `refactor: UserDataService injecté à la place de getUser()/getUserName() dans les DA`
-- **D2. Repositories dans le constructeur, selon la situation.**
+- **D2. Repositories dans le constructeur, selon la situation. — FAIT (2026-10-15, aucun yaml).**
   - Service : un repository utilisé par **2 méthodes ou plus** est initialisé dans le constructeur par `$this->em->getRepository(X::class)` et la propriété est **typée** (`DaObservationRepository`, etc.). Un repository utilisé par une seule méthode reste dans la méthode. Pas d'injection directe du repository (pas de yaml, pas de dépendance en plus).
   - Contrôleur : seulement si plusieurs actions s'en servent.
   - Repérage : `grep -rn "getRepository(" src/Controller/da src/Api/da src/Service/da` (115 occurrences au 2026-10-13).
+  - **Fait** : 3 services — `DaEditionService` (`DemandeApproLRRepository`), `DaSoumissionDataService` (`DaAfficherRepository`, `DaSoumissionFacBlRepository`), `DaSoumissionValidationService` (`DemandeApproRepository`) ; `TraitementSoumissionDDPLService` réutilise son `daAfficherRepository` déjà initialisé. Les autres `getRepository(` inline sont à usage unique par méthode (règle : on les laisse) ou déjà dans le constructeur ; aucun contrôleur n'a un repository partagé par plusieurs actions.
   - **Commit proposé** : `refactor: repositories initialisés dans le constructeur des services DA`
 - **Validation (D1 et D2)** : `php -l`, liste des entrées yaml pour l'utilisateur, parcours manuel complet (liste ci-dessous), mise à jour du statut ici.
 
