@@ -120,9 +120,8 @@ class TraitementSoumissionDDPLService
         $this->entityManager->flush();
 
         // enregistrement dans la table demande_paiement_commande
-        foreach (DemandePaiementCommandeMapper::map($dto->demandePaiementDto, $ddp) as $ddpCommande) {
-            $this->entityManager->persist($ddpCommande);
-        }
+        $ddpCommande = DemandePaiementCommandeMapper::map($dto->demandePaiementDto, $ddp);
+        $this->entityManager->persist($ddpCommande);
         $this->entityManager->flush();
 
         // enregistremenet dans la table commande_livraison

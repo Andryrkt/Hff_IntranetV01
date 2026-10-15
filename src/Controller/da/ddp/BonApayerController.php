@@ -17,9 +17,9 @@ use Symfony\Component\Routing\Annotation\Route;
 class BonApayerController extends Controller
 {
     /**
-     * @Route("/consultation-facture/{appro}", name="da_bon_a_payer" )
+     * @Route("/consultation-facture", name="da_bon_a_payer" )
      */
-    public function index(Request $request, bool $appro)
+    public function index(Request $request)
     {
         // Code Société de l'utilisateur
         $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
@@ -37,12 +37,11 @@ class BonApayerController extends Controller
         }
 
         // Récupération des données dans la table demande_paiement
-        $ddp = $this->getEntityManager()->getRepository(DemandePaiement::class)->findByConsultationFactureCriteria($criteria, $appro);
+        $ddp = $this->getEntityManager()->getRepository(DemandePaiement::class)->findByConsultationFactureCriteria($criteria);
         // transformation en DTO (DemandePaiementDto)
         $dtos = DemandePaiementMapper::mapInverse($ddp);
 
         return $this->render('da/ddp/bon_a_payer.html.twig', [
-            'appro' => $appro,
             'dtos' => $dtos,
             'form' => $form->createView()
         ]);

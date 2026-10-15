@@ -1,0 +1,113 @@
+# Configuration principale de l'application
+imports:
+    - { resource: 'parameters.yaml' }
+    - { resource: 'services.yaml' }
+    - { resource: 'doctrine.yaml' }
+    - { resource: 'twig.yaml' }
+    - { resource: 'form.yaml' }
+
+# Configuration globale
+framework:
+    # Configuration de base
+    secret: '%env(APP_SECRET)%'
+    http_method_override: false
+    handle_all_throwables: true
+    
+    # Configuration des assets
+    assets:
+        enabled: true
+        packages:
+            public:
+                base_path: '%app.public_dir%'
+                version: '%app.version%'
+                version_format: '%%s?version=%%s'
+    
+    # Configuration des sessions
+    session:
+        enabled: true
+        handler_id: null
+        cookie_secure: auto
+        cookie_samesite: lax
+        storage_factory_id: session.storage.factory.native
+        save_path: '%kernel.project_dir%/var/sessions'
+    
+    # Configuration des profilers
+    profiler:
+        enabled: '%app.debug%'
+        collect: true
+        only_exceptions: false
+        only_master_requests: false
+        dsn: 'file:%kernel.cache_dir%/profiler'
+    
+    # Configuration des web profilers
+    web_profiler:
+        enabled: '%app.debug%'
+        toolbar: '%app.debug%'
+        intercept_redirects: false
+        exclude_ajax: false
+        exclude_paths: []
+        exclude_sections: []
+
+# Configuration de la sécurité
+security:
+    # Configuration CSRF
+    csrf_protection:
+        enabled: '%security.csrf.enabled%'
+    
+    # Configuration des sessions
+    session_fixation_strategy: '%security.session_fixation_strategy%'
+    
+    # Configuration des firewalls
+    firewalls:
+        main:
+            pattern: ^/
+            anonymous: ~
+            form_login:
+                login_path: security_signin
+                check_path: security_signin
+            logout:
+                path: security_logout
+                target: security_signin
+
+# Configuration des paramètres globaux
+parameters:
+    # Configuration de l'application
+    app.name: 'Hffintranet'
+    app.version: '1.0.0'
+    app.locale: 'fr_FR'
+    app.debug: true
+    app.environment: 'dev'
+    
+    # Chemins de base
+    app.base_path: '%env(BASE_PATH_COURT)%'
+    app.views_dir: '%kernel.project_dir%/Views/templates'
+    app.public_dir: '%kernel.project_dir%/public'
+    
+    # Configuration de la base de données
+    database_host: '%env(DB_HOST)%'
+    database_port: '%env(DB_PORT)%'
+    database_name: '%env(DB_NAME)%'
+    database_user: '%env(DB_USER)%'
+    database_password: '%env(DB_PASSWORD)%'
+    
+    # Configuration des sessions
+    session.name: 'HFFSESSION'
+    session.lifetime: 3600
+    
+    # Configuration de la sécurité
+    security.csrf.enabled: true
+    security.session_fixation_strategy: 'migrate'
+    
+    # Configuration Twig
+    twig.debug: true
+    twig.strict_variables: false
+    twig.form_themes:
+        - 'bootstrap_5_layout.html.twig'
+        - 'form_div_layout.html.twig'
+    
+    # Configuration des formulaires
+    form.default_theme: 'bootstrap_5_layout.html.twig'
+    
+    # Configuration de la pagination
+    pagination.items_per_page: 20
+    pagination.max_pages: 10

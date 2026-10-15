@@ -283,9 +283,13 @@ class GenererPdfFactureAValidation extends GeneratePdf
         $pdf->SetXY(118, 2);
         $pdf->Cell(35, 6, $email, 0, 0, 'L');
 
-        $suffixe = "{$ditfacture->getNumeroFact()}_{$ditfacture->getNumeroSoumission()}.pdf";
-        $prefixe = ($interneExterne == 'INTERNE') ? "factureValidation" : "validation_facture_client";
-        $filePath = "{$this->basePathFile}/vfac/{$prefixe}_{$suffixe}";
+
+        $Dossier = $_ENV['BASE_PATH_FICHIER'] . '/vfac/';
+        if ($interneExterne == 'INTERNE') {
+            $filePath = $Dossier . 'factureValidation_' . $ditfacture->getNumeroFact() . '_' . $ditfacture->getNumeroSoumission() . '.pdf';
+        } else {
+            $filePath = $Dossier . 'validation_facture_client_' . $ditfacture->getNumeroFact() . '_' . $ditfacture->getNumeroSoumission() . '.pdf';
+        }
 
         $pdf->Output($filePath, 'F');
 

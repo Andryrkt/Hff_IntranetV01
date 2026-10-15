@@ -36,7 +36,7 @@ class DaSoumissionBcType extends AbstractType
                 'attr' => [
                     'required' => false
                 ],
-                'disabled' => false,
+                'disabled' => true,
             ])
             ->add(
                 'pieceJoint1',

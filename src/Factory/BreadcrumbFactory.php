@@ -19,7 +19,7 @@ class BreadcrumbFactory
     /**
      * Construit le fil d'ariane pour la requête courante.
      */
-    public function createFromCurrentUrl(?string $nomRoute, array $routeParams = []): array
+    public function createFromCurrentUrl(?string $nomRoute): array
     {
         // ─── Item Accueil avec dropdown ───────────────────────────────────────
         $modules  = $this->menuService->getMenuStructure();
@@ -37,7 +37,7 @@ class BreadcrumbFactory
         }
 
         // ─── Cherche le chemin dans l'arbre MenuService ───────────────────────
-        $chemin = $this->menuService->findChemin($nomRoute, $routeParams);
+        $chemin = $this->menuService->findChemin($nomRoute);
 
         if (empty($chemin)) {
             return $this->createBreadcrumbFromPath($accueil);

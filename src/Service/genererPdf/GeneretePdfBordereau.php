@@ -9,7 +9,7 @@ class GeneretePdfBordereau extends GeneratePdf
     public function genererPDF(array $data)
     {
         $pdf = new TCPDF();
-        $logoPath = "{$this->basePathAssets}/henriFraise.jpg";
+        $logoPath = $_ENV['BASE_PATH_LONG'] . '/Views/assets/henriFraise.jpg';
 
         $W_total = $pdf->getPageWidth();  // Hauteur totale du PDF
         $margins = $pdf->GetMargins();    // Tableau des marges (left, top, right)

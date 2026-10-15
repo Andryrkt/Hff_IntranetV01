@@ -24,7 +24,8 @@ class GenererPdfBadm extends GeneratePdf
 
         $pdf->setFont('helvetica', 'B', 14);
         $pdf->setAbsY(11);
-        $pdf->Image("{$this->basePathAssets}/henrifraise.jpg", '', '', 45, 12);
+        $logoPath = $_ENV['BASE_PATH_LONG'] . '/Views/assets/henrifraise.jpg';
+        $pdf->Image($logoPath, '', '', 45, 12);
         $pdf->setAbsX(55);
         //$pdf->Cell(45, 12, 'LOGO', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Cell(110, 6, 'BORDEREAU DE MOUVEMENT DE MATERIEL', 0, 0, '', false, '', 0, false, 'T', 'M');
@@ -280,7 +281,8 @@ class GenererPdfBadm extends GeneratePdf
         //     $this->AjoutImage($pdf, $tab);
         // }
 
-        $pdf->Output("{$this->basePathFile}/bdm/{$tab['Num_BDM']}_{$tab['Agence_Service_Emetteur_Non_separer']}.pdf", 'F');
+        $Dossier = $_ENV['BASE_PATH_FICHIER'].'/bdm/';
+        $pdf->Output($Dossier . $tab['Num_BDM'] . '_' . $tab['Agence_Service_Emetteur_Non_separer'] . '.pdf', 'F');
 
         //$pdf->Output('exemple.pdf', 'I');
     }
@@ -296,16 +298,17 @@ class GenererPdfBadm extends GeneratePdf
     public function AjoutImage($pdf, $tab)
     {
         $pdf->AddPage();
-        $imagePath = $tab['image'];
-        if ($tab['extension'] === 'JPG') {
-            $pdf->Image($imagePath, 15, 25, 180, 150, 'JPG', '', '', true, 75, '', false, false, 0, false, false, false);
-        } elseif ($tab['extension'] === 'JEPG') {
-            $pdf->Image($imagePath, 15, 25, 180, 150, 'JEPG', '', '', true, 75, '', false, false, 0, false, false, false);
-        } elseif ($tab['extension'] === 'PNG') {
-            $pdf->Image($imagePath, 15, 25, 180, 150, 'PNG', '', '', true, 75, '', false, false, 0, false, false, false);
-        }
+            $imagePath = $tab['image'];
+            if ($tab['extension'] === 'JPG') {
+                $pdf->Image($imagePath, 15, 25, 180, 150, 'JPG', '', '', true, 75, '', false, false, 0, false, false, false);
+            } elseif ($tab['extension'] === 'JEPG') {
+                $pdf->Image($imagePath, 15, 25, 180, 150, 'JEPG', '', '', true, 75, '', false, false, 0, false, false, false);
+            } elseif ($tab['extension'] === 'PNG') {
+                $pdf->Image($imagePath, 15, 25, 180, 150, 'PNG', '', '', true, 75, '', false, false, 0, false, false, false);
+            }
     }
 
+    
     /**
      * Recuperation et affichage des or dans une tableau
      *

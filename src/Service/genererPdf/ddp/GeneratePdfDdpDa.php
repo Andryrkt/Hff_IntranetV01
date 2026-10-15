@@ -17,7 +17,7 @@ class GeneratePdfDdpDa extends GeneratePdf
     public function copyToDw(string $nomAvecCheminFichier, string $nomFichier): void
     {
         $cheminDestinationLocal = $nomAvecCheminFichier;
-        $cheminFichierDistant = "{$this->basePathDocuWare}/DEMANDE_DE_PAIEMENT/{$nomFichier}";
+        $cheminFichierDistant = $this->baseCheminDocuware . 'DEMANDE_DE_PAIEMENT/' . $nomFichier;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
@@ -40,6 +40,8 @@ class GeneratePdfDdpDa extends GeneratePdf
         $pdf = new TCPDF();
         $isRegul = $dto->typeDemande->getCode() === "DPR";
 
+        $logoPath = $_ENV['BASE_PATH_LONG'] . '/Views/assets/henriFraise.jpg'; // chemin du logo
+
         $w_total = $pdf->GetPageWidth();  // Largeur totale du PDF
         $margins = $pdf->GetMargins();    // Tableau des marges (left, top, right)
         $usable_width = $w_total - $margins['left'] - $margins['right']; // largeur totale utilisable
@@ -49,7 +51,7 @@ class GeneratePdfDdpDa extends GeneratePdf
         $pdf->AddPage();
 
         // tête de page : Logo | N° DDP | Emetteur sur la même ligne
-        $pdf->Image("{$this->basePathAssets}/henriFraise.jpg", 5, 1, 40, 0, 'jpg'); // logo absolu X=5, Y=1, W=40
+        $pdf->Image($logoPath, 5, 1, 40, 0, 'jpg'); // logo absolu X=5, Y=1, W=40
 
         // Positionner le curseur texte juste après le logo, à la même hauteur
         $pdf->SetXY(45, 5);
@@ -188,13 +190,13 @@ class GeneratePdfDdpDa extends GeneratePdf
         $pdf->Cell(50, 10, 'Agence à débiter ', 1, 0);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell($usable_width - 50, 10, isset($dto->debiteur['agence']) ? $dto->debiteur['agence']->getCodeAgence() : $dto->codeAgence, 1, 1); // valeur de "code Agence à débiter" ( 01)
+        $pdf->Cell($usable_width - 50, 10, $dto->debiteur['agence']->getCodeAgence(), 1, 1); // valeur de "code Agence à débiter" ( 01)
 
         $pdf->SetFont('helvetica', 'B', 12);
         $pdf->Cell(50, 10, 'Service à débiter ', 1, 0);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell($usable_width - 50, 10, isset($dto->debiteur['service']) ? $dto->debiteur['service']->getCodeService() : $dto->codeService, 1, 1); //  valeur de "code Service à débiter" (NEG)
+        $pdf->Cell($usable_width - 50, 10, $dto->debiteur['service']->getCodeService(), 1, 1); //  valeur de "code Service à débiter" (NEG)
 
         $pdf->SetFont('helvetica', 'B', 12);
         $pdf->Cell(50, 10, 'RIB ', 1, 0);
@@ -374,7 +376,7 @@ class GeneratePdfDdpDa extends GeneratePdf
                 'N° commande'        => $infoBC["num_cde"] ?? "-",
                 'N° demande appro'   => $infoBC["num_cde_ext"] ?? "-",
                 'Référence commande' => $infoBC["libelle_cde"] ?? "-",
-                'Date commande'      => isset($infoBC["date_cde"]) ? date("d/m/Y", strtotime($infoBC["date_cde"])) : "-",
+                'Date commande'      => $infoBC["date_cde"] ? date("d/m/Y", strtotime($infoBC["date_cde"])) : "-",
                 'Succursale'         => $infoBC["succ_cde"] ?? "-",
                 'Service'            => $infoBC["serv_cde"] ?? "-",
                 'Opérateur'          => $infoBC["nom_ope"] ?? "-",

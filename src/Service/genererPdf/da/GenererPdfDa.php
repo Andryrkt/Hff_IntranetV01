@@ -25,7 +25,8 @@ abstract class GenererPdfDa extends GeneratePdf
 
         $pdf->setFont('helvetica', 'B', 14);
         $pdf->setAbsY(11);
-        $pdf->Image("{$this->basePathAssets}/logoHff.jpg", '', '', 45, 12);
+        $logoPath =  $_ENV['BASE_PATH_LONG'] . '/Views/assets/logoHff.jpg';
+        $pdf->Image($logoPath, '', '', 45, 12);
         $pdf->setAbsX(55);
         $pdf->Cell(110, 6, $titre[$demandeAppro->getDaTypeId()], 0, 0, 'C', false, '', 0, false, 'T', 'M');
 
@@ -374,7 +375,7 @@ abstract class GenererPdfDa extends GeneratePdf
     protected function saveBonAchatValide(TCPDF $pdf, string $numDa, string $dest = "F"): void
     {
         // Obtention du chemin absolu du répertoire de travail
-        $Dossier = "{$this->basePathFile}/da/$numDa";
+        $Dossier = $_ENV['BASE_PATH_FICHIER'] . "/da/$numDa";
 
         // Vérification si le répertoire existe, sinon le créer
         if (!is_dir($Dossier)) {

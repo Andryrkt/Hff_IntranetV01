@@ -1,7 +1,6 @@
 import { DemandePaiementManager } from "./DemandePaiementManager.js";
 import { formaterNombre } from "../utils/formatNumberUtils.js";
 import { setupConfirmationButtons } from "../utils/ui/boutonConfirmUtils.js";
-import { baseUrl } from "../utils/config.js";
 
 document.addEventListener("DOMContentLoaded", function () {
   const config = {
@@ -42,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function () {
       montantFacture:
         "api/montant-facture/:numFournisseur/:facturesString/:typeId",
       listeDoc: "api/liste-doc/:numero",
-      recupererFichier: `${baseUrl}/api/recuperer-fichier`,
+      recupererFichier: "/Hffintranet/api/recuperer-fichier",
       agenceFetch: "agence-fetch/:agenceDebiteur",
     },
   };
@@ -218,6 +217,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         poucentageAPayer.classList.remove("is-invalid");
       }
+    } else {
     }
 
     //  Mise à jour de la valeur affichée dans poucentageAvance

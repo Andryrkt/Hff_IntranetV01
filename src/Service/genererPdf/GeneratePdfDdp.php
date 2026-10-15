@@ -2,7 +2,6 @@
 
 namespace App\Service\genererPdf;
 
-use App\Dto\ddp\DdpDto;
 use App\Entity\ddp\DemandePaiement;
 use App\Traits\ChaineCaractereTrait;
 use TCPDF;
@@ -18,6 +17,8 @@ class GeneratePdfDdp extends GeneratePdf
     {
         $pdf = new TCPDF();
 
+        $logoPath = $_ENV['BASE_PATH_LONG'] . '/Views/assets/henriFraise.jpg'; // chemin du logo
+
         $w_total = $pdf->GetPageWidth();  // Largeur totale du PDF
         $margins = $pdf->GetMargins();    // Tableau des marges (left, top, right)
         $usable_width = $w_total - $margins['left'] - $margins['right']; // largeur totale utilisable
@@ -31,7 +32,7 @@ class GeneratePdfDdp extends GeneratePdf
         $pdf->SetFont('helvetica', '', 12);
         $pdf->Cell(0, 8, 'Emetteur : ' . $data->getAdresseMailDemandeur(), 0, 1, 'R'); // TO DO: valeur de "Emetteur" (changer 'emetteur@hff.mg')
 
-        $pdf->Image("{$this->basePathAssets}/henriFraise.jpg", 5, 1, 40, 0, 'jpg');
+        $pdf->Image($logoPath, 5, 1, 40, 0, 'jpg');
 
         // Grand titre du pdf
         $pdf->SetFont('helvetica', 'B', 12);
@@ -185,9 +186,11 @@ class GeneratePdfDdp extends GeneratePdf
     /**
      * Genere le PDF DEMANDE DE PAIEMENT (DDP)
      */
-    public function genererPdfDto(DdpDto $dto, string $cheminDeFichier)
+    public function genererPdfDto($dto, string $cheminDeFichier)
     {
         $pdf = new TCPDF();
+
+        $logoPath = $_ENV['BASE_PATH_LONG'] . '/Views/assets/henriFraise.jpg'; // chemin du logo
 
         $w_total = $pdf->GetPageWidth();  // Largeur totale du PDF
         $margins = $pdf->GetMargins();    // Tableau des marges (left, top, right)
@@ -202,7 +205,7 @@ class GeneratePdfDdp extends GeneratePdf
         $pdf->SetFont('helvetica', '', 12);
         $pdf->Cell(0, 8, 'Emetteur : ' . $dto->adresseMailDemandeur, 0, 1, 'R'); // TO DO: valeur de "Emetteur" (changer 'emetteur@hff.mg')
 
-        $pdf->Image("{$this->basePathAssets}/henriFraise.jpg", 5, 1, 40, 0, 'jpg');
+        $pdf->Image($logoPath, 5, 1, 40, 0, 'jpg');
 
         // Grand titre du pdf
         $pdf->SetFont('helvetica', 'B', 12);
@@ -214,7 +217,7 @@ class GeneratePdfDdp extends GeneratePdf
         $pdf->Cell($pdf->GetStringWidth('TYPE DE DEMANDE : '), 10, 'TYPE DE DEMANDE : ', 0, 0);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell(0, 10, $dto->typeDdp->getLibelle(), 0, 0);  // TO DO: valeur de "TYPE DE DEMANDE" (changer 'DEMANDE DE PAIEMENT A L’AVANCE')
+        $pdf->Cell(0, 10, $dto->typeDemande->getLibelle(), 0, 0);  // TO DO: valeur de "TYPE DE DEMANDE" (changer 'DEMANDE DE PAIEMENT A L’AVANCE')
 
         $pdf->Line($pdf->GetX() + 1, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('TYPE DE DEMANDE') + 1, $pdf->GetY() - 2.5);
 
@@ -233,7 +236,7 @@ class GeneratePdfDdp extends GeneratePdf
         $pdf->Cell($pdf->GetStringWidth('DATE : '), 10, 'DATE : ', 0, 0);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell(0, 10, $dto->dateDemandeFormater(), 0, 1); // TO DO: valeur de "DATE" (changer '12/02/2024')
+        $pdf->Cell(0, 10, $dto->dateCreation->format('d/m/Y'), 0, 1); // TO DO: valeur de "DATE" (changer '12/02/2024')
 
         $pdf->Line($pdf->GetX() + 1, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('DATE') + 1, $pdf->GetY() - 2.5);
 
@@ -299,13 +302,13 @@ class GeneratePdfDdp extends GeneratePdf
         $pdf->Cell(50, 10, 'Agence à débiter ', 1, 0);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell($usable_width - 50, 10, '01', 1, 1); // TO DO: valeur de "Agence à débiter" (remplacer '' par sa valeur)
+        $pdf->Cell($usable_width - 50, 10, $dto->debiteur['agence']->getCodeAgence(), 1, 1); // TO DO: valeur de "Agence à débiter" (remplacer '' par sa valeur)
 
         $pdf->SetFont('helvetica', 'B', 12);
         $pdf->Cell(50, 10, 'Service à débiter ', 1, 0);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell($usable_width - 50, 10, 'NEG', 1, 1); // TO DO: valeur de "Service à débiter" (remplacer '' par sa valeur)
+        $pdf->Cell($usable_width - 50, 10, $dto->debiteur['service']->getCodeService(), 1, 1); // TO DO: valeur de "Service à débiter" (remplacer '' par sa valeur)
 
         $pdf->SetFont('helvetica', 'B', 12);
         $pdf->Cell(50, 10, 'RIB ', 1, 0);
@@ -319,12 +322,9 @@ class GeneratePdfDdp extends GeneratePdf
         $pdf->SetFont('helvetica', '', 12);
         $pdf->Cell($usable_width - 50, 10, $dto->contact, 1, 1); // TO DO: valeur de "Contact" (remplacer '' par sa valeur)
 
-        if ($dto->ribFournisseurChanger()) {
-            $pdf->SetTextColor(255, 0, 0); // Rouge
-            $pdf->Cell(0, 10, '*Attention : RIB mis à jour', 0, 1);
-            $pdf->Line($pdf->GetX() + 1, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('*Attention') + 1, $pdf->GetY() - 2.5);
-            $pdf->SetTextColor(0, 0, 0); // Retour au noir
-        }
+        $pdf->Cell(0, 10, '*Attention : RIB mis à jour', 0, 1);
+
+        $pdf->Line($pdf->GetX() + 1, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('*Attention') + 1, $pdf->GetY() - 2.5);
 
         $pdf->Ln(5);
 
@@ -350,7 +350,7 @@ class GeneratePdfDdp extends GeneratePdf
         $pdf->Line($pdf->GetX() + 1, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('Liste des pièces jointes') + 1, $pdf->GetY() - 2.5);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->MultiCell(0, 10, implode(";", $this->nomsFichiersSansExtension($dto->lesFichiers)), 0, 'L', 0, 1); // valeur de "Liste des pièces jointes"
+        $pdf->MultiCell(0, 10, implode(";", $this->removePdfExtension($dto->lesFichiers)), 0, 'L', 0, 1); // TO DO: valeur de "Liste des pièces jointes" (remplacer 'PJ1, PJ2, ...' par sa valeur)
 
         $pdf->Ln(5);
 
@@ -367,24 +367,5 @@ class GeneratePdfDdp extends GeneratePdf
             mkdir($directory, 0777, true);
         }
         $pdf->Output($cheminDeFichier, 'F');
-    }
-
-    /**
-     * Noms des pièces jointes à afficher sur la page de garde : uniquement le nom
-     * du fichier (sans dossier, ex: "PDV\xxx.pdf" → "xxx") et sans extension,
-     * quelle qu'elle soit (.pdf, .PDF, .jpg...). Doublons et vides retirés.
-     */
-    private function nomsFichiersSansExtension(array $fichiers): array
-    {
-        $noms = [];
-        foreach ($fichiers as $fichier) {
-            $nom = basename(str_replace('\\', '/', (string) $fichier));
-            $nom = pathinfo($nom, PATHINFO_FILENAME);
-            if ($nom !== '') {
-                $noms[] = $nom;
-            }
-        }
-
-        return array_values(array_unique($noms));
     }
 }

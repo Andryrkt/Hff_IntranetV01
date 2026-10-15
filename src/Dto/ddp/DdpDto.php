@@ -21,8 +21,6 @@ class DdpDto
     public ?string $numeroFournisseur = null;
     public ?string $beneficiaire = null; // * nom du fournisseur 
     public ?string $ribFournisseur = null;
-    // RIB connus du fournisseur dans IPS (pour détecter un RIB mis à jour)
-    public array $ribsFournisseurAncien = [];
     // Mode paiement
     public ?string $modePaiement = null;
     public array $choiceModePaiement = [];
@@ -58,7 +56,6 @@ class DdpDto
     public array $nomDesFichiersDwCommande = [];
     // pour les nom des fichiers distant dans 192.168.0.15
     public array $nomDesFichiersDistant = [];
-    public array $lesFichiers = [];
 
 
     // info sur l'utilisateur --------------------
@@ -74,15 +71,16 @@ class DdpDto
     public ?string $codeSociete = 'HF';
 
 
-    public ?\DateTime $dateDemande = null;
+    // Demande Appro -------------------------------
+    public ?string $numeroSoumissionDdpDa = null;
+    public ?string $numeroDemandeAppro = null;
+    public ?string $numeroVersionBc = null;
+    public bool $estAppro = false;
+    public ?string $typeDa = null;
+    // utile seulement pour le demande de paiement à l'avance d'une DA avec soumission BC
+    public bool $ddpSoumissioncde = false;
 
 
-    public bool $isFrnNonImmatricule = false;
-    public bool $appro = false;
-
-    // pourcentage du montant à payer par rapport au montant HT total des commandes
-    // (colonne ratio_montant_payer de demande_paiement_ligne)
-    public float $ratioMontantPayer = 0.0;
 
     /**
      * Transformation du montant à payer en float
@@ -102,22 +100,6 @@ class DdpDto
     }
 
     /**
-     * Le RIB saisi diffère-t-il de ceux connus pour le fournisseur ?
-     * (comparaison sans les espaces)
-     */
-    public function ribFournisseurChanger(): bool
-    {
-        $nouveau = str_replace(' ', '', (string) $this->ribFournisseur);
-        if ($nouveau === '') {
-            return false;
-        }
-
-        $anciens = array_map(fn($rib) => str_replace(' ', '', (string) $rib), $this->ribsFournisseurAncien);
-
-        return !in_array($nouveau, $anciens, true);
-    }
-
-    /**
      * Récupération de tous les noms des fichiers
      * dans une seul tableau
      *
@@ -130,48 +112,18 @@ class DdpDto
 
 
     /**
-     * Transformation du numero commande en chaine de caractère quotée, séparée par une virgule
-     * (pour une clause SQL IN (...))
+     * Transformation du numero commande en chaine de caractère séparer par une point virgule
      */
     public function getNumeroCommandeString(): string
     {
-        return is_array($this->numeroCommande) ? TableauEnStringService::TableauEnString(',', $this->numeroCommande) : $this->numeroCommande;
+        return is_array($this->numeroCommande) ? TableauEnStringService::TableauEnString(';', $this->numeroCommande) : $this->numeroCommande;
     }
 
     /**
-     * Transformation du numero facture en chaine de caractère quotée, séparée par une virgule
-     * (pour une clause SQL IN (...))
+     * Transformation du numero facture en chaine de caractère séparer par une point virgule
      */
     public function getNumeroFactureString(): string
     {
-        return is_array($this->numeroFacture) ? TableauEnStringService::TableauEnString(',', $this->numeroFacture) : $this->numeroFacture;
-    }
-
-    /**
-     * Transformation du numero commande en chaine de caractère séparée par un point virgule,
-     * sans guillemets (pour stockage en base, contrairement à getNumeroCommandeString() qui est destiné aux clauses SQL)
-     */
-    public function numeroCommandeSansGuillemet(): string
-    {
-        return is_array($this->numeroCommande) ? implode(';', $this->numeroCommande) : $this->numeroCommande;
-    }
-
-    /**
-     * Transformation du numero facture en chaine de caractère séparée par un point virgule,
-     * sans guillemets (pour stockage en base, contrairement à getNumeroFactureString() qui est destiné aux clauses SQL)
-     */
-    public function numeroFactureSansGuillemet(): string
-    {
-        return is_array($this->numeroFacture) ? implode(';', $this->numeroFacture) : $this->numeroFacture;
-    }
-
-    /**
-     * Formatage de date de demande de paiement
-     *
-     * @return void
-     */
-    public function dateDemandeFormater()
-    {
-        return $this->dateDemande->format('d/m/Y');
+        return is_array($this->numeroFacture) ? TableauEnStringService::TableauEnString(';', $this->numeroFacture) : $this->numeroFacture;
     }
 }

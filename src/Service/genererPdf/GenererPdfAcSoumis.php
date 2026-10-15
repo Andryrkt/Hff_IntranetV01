@@ -34,7 +34,8 @@ class GenererPdfAcSoumis extends GeneratePdf
         // Ajouter une page
         $pdf->AddPage();
 
-        $pdf->Image("{$this->basePathAssets}/logoHFF.jpg", 27, 10, 40, '', 'jpg');
+        $logoPath = $_ENV['BASE_PATH_LONG']. '/Public/build/images/logoHFF.jpg';
+        $pdf->Image($logoPath, 27, 10, 40, '', 'jpg');
 
         // Définir la police pour l'email
         $pdf->SetFont('helvetica', '', 10);
@@ -101,7 +102,7 @@ class GenererPdfAcSoumis extends GeneratePdf
         </p>
         <p>
             Madame, Monsieur,<br><br>
-            Nous accusons réception de votre bon de commande, portant sur <br>' . $acSoumis->getDescriptionBc() . '.<br><br>
+            Nous accusons réception de votre bon de commande, portant sur <br>'. $acSoumis->getDescriptionBc() .'.<br><br>
             Cette commande fait suite à : <br>
             Devis : ' . $acSoumis->getNumeroDevis() . ' (' . $acSoumis->getNumeroDit() . ') du ' . $acSoumis->getDateDevis()->format('d/m/Y') . '<br>
             Montant HT : ' . $this->formatNumberGeneral($acSoumis->getMontantDevis(), ' ', '.', 2) . ' ' . $acSoumis->getDevise() . '. <br>
@@ -115,9 +116,13 @@ class GenererPdfAcSoumis extends GeneratePdf
         // Écriture du contenu HTML dans le PDF
         $pdf->writeHTML($html, true, false, true, false, '');
 
-        $pdf->Image("{$this->basePathAssets}/footer.png", 27, 265, 160, '', 'png');
 
+
+        $logoPath = $_ENV['BASE_PATH_LONG'] . '/Public/build/images/footer.png';
+        $pdf->Image($logoPath, 27, 265, 160, '', 'png');
         // Générer le fichier PDF
-        $pdf->Output("{$this->basePathFile}/dit/ac_bc/{$nomFichier}", 'F');
+        $Dossier = $_ENV['BASE_PATH_FICHIER']. '/dit/ac_bc/';
+        $filePath = $Dossier . $nomFichier;
+        $pdf->Output($filePath, 'F');
     }
 }
