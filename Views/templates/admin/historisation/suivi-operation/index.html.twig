@@ -1,0 +1,158 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Suivi des opérations
+{% endblock %}
+
+{% block stylesheets %}
+	<link href="{{ App.base_path }}/Views/css/new.css?v={{ App.browserHash }}" rel="stylesheet"/>
+{% endblock %}
+
+{% block content %}
+	{% set classesStatut = {
+		'SUCCES': 'bg-success',
+		'ECHEC': 'bg-danger',
+		'INTERROMPU': 'bg-warning text-dark',
+		'EN_COURS': 'bg-secondary'
+	} %}
+	{% set libellesStatut = {
+		'SUCCES': 'OK',
+		'ECHEC': 'ÉCHEC',
+		'INTERROMPU': 'INTERROMPU',
+		'EN_COURS': 'NON TERMINÉ'
+	} %}
+
+	<div class="container-fluid">
+		<div class="card">
+			<div class="card-body">
+				<h3 class="perso-titre mb-3">SUIVI DES OPÉRATIONS ÉTAPE PAR ÉTAPE</h3>
+
+				<form method="get" action="{{ path('suivi_operation_index') }}" class="row g-2 align-items-end mb-3">
+					<div class="col-12 col-md-3">
+						<label for="recherche" class="form-label mb-0">N° document ou utilisateur</label>
+						<input type="text" id="recherche" name="recherche" value="{{ recherche }}" class="form-control form-control-sm">
+					</div>
+					<div class="col-6 col-md-2">
+						<label for="type" class="form-label mb-0">Opération</label>
+						<select id="type" name="type" class="form-select form-select-sm">
+							<option value="">Toutes</option>
+							{% for code, libelle in typesOperation %}
+								<option value="{{ code }}" {{ typeOperation == code ? 'selected' : '' }}>{{ libelle }}</option>
+							{% endfor %}
+						</select>
+					</div>
+					<div class="col-6 col-md-2">
+						<label for="date_debut" class="form-label mb-0">Du</label>
+						<input type="date" id="date_debut" name="date_debut" value="{{ dateDebut ? dateDebut|date('Y-m-d') : '' }}" class="form-control form-control-sm">
+					</div>
+					<div class="col-6 col-md-2">
+						<label for="date_fin" class="form-label mb-0">Au</label>
+						<input type="date" id="date_fin" name="date_fin" value="{{ dateFin ? dateFin|date('Y-m-d') : '' }}" class="form-control form-control-sm">
+					</div>
+					<div class="col-6 col-md-1">
+						<div class="form-check">
+							<input type="checkbox" id="probleme" name="probleme" value="1" class="form-check-input" {{ problemeSeulement ? 'checked' : '' }}>
+							<label for="probleme" class="form-check-label">Problèmes uniquement</label>
+						</div>
+					</div>
+					<div class="col-12 col-md-2 d-flex gap-2">
+						<button type="submit" class="btn btn-warning btn-sm">Rechercher</button>
+						<a href="{{ path('suivi_operation_index') }}" class="btn btn-outline-secondary btn-sm">Effacer</a>
+					</div>
+				</form>
+
+				{% if idHistorique %}
+					<p class="mb-2">
+						<span class="badge bg-info text-dark">Opération liée à l'opération n° {{ idHistorique }} de l'historique</span>
+					</p>
+				{% endif %}
+				<p class="text-muted small mb-2">{{ suivis|length }} opération(s) affichée(s) (200 maximum, les plus récentes en premier). Cliquez sur une ligne pour voir le détail des étapes.</p>
+
+				<div class="table-responsive">
+					<table class="table table-sm table-bordered align-middle">
+						<thead class="table-dark">
+							<tr>
+								<th>Date</th>
+								<th>Opération</th>
+								<th>N° document</th>
+								<th>Utilisateur</th>
+								<th>Résultat</th>
+								<th>Étapes suivies</th>
+								<th>Durée</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for suivi in suivis %}
+								{% set premiere = suivi.etapes|first %}
+								{% set dureeTotale = 0 %}
+								{% for etape in suivi.etapes %}
+									{% set dureeTotale = dureeTotale + (etape.dureeMs ?: 0) %}
+								{% endfor %}
+								<tr role="button" data-bs-toggle="collapse" data-bs-target="#suivi-{{ loop.index }}" class="{{ suivi.statut == 'SUCCES' ? '' : 'table-danger' }}">
+									<td class="text-nowrap">{{ premiere.dateDebut ? premiere.dateDebut|date('d/m/Y H:i:s') : '-' }}</td>
+									<td>{{ typesOperation[premiere.typeOperation] ?? premiere.typeOperation }}</td>
+									<td>{{ premiere.numeroDocument ?: '-' }}</td>
+									<td>{{ premiere.utilisateur ?: '-' }}</td>
+									<td><span class="badge {{ classesStatut[suivi.statut] }}">{{ libellesStatut[suivi.statut] }}</span></td>
+									<td>
+										{% for etape in suivi.etapes %}
+											<span class="badge {{ classesStatut[etape.statut] ?? 'bg-secondary' }}" title="{{ etape.message }}">{{ etape.etape }}</span>
+											{% if not loop.last %}<i class="fas fa-arrow-right text-muted small"></i>{% endif %}
+										{% endfor %}
+									</td>
+									<td class="text-nowrap">{{ (dureeTotale / 1000)|number_format(2, ',', ' ') }} s</td>
+								</tr>
+								<tr class="collapse" id="suivi-{{ loop.index }}">
+									<td colspan="7" class="bg-light">
+										<table class="table table-sm mb-1">
+											<thead>
+												<tr>
+													<th>#</th>
+													<th>Étape</th>
+													<th>Statut</th>
+													<th>Début</th>
+													<th>Durée</th>
+													<th>Message / erreur</th>
+												</tr>
+											</thead>
+											<tbody>
+												{% for etape in suivi.etapes %}
+													<tr>
+														<td>{{ etape.ordre }}</td>
+														<td>{{ etape.etape }}</td>
+														<td><span class="badge {{ classesStatut[etape.statut] ?? 'bg-secondary' }}">{{ libellesStatut[etape.statut] ?? etape.statut }}</span></td>
+														<td class="text-nowrap">{{ etape.dateDebut|date('H:i:s') }}</td>
+														<td class="text-nowrap">{{ etape.dureeMs is not null ? etape.dureeMs ~ ' ms' : '-' }}</td>
+														<td>
+															{{ etape.message }}
+															{% if etape.detailErreur %}
+																<details>
+																	<summary class="small text-muted">Détail technique (fichier, ligne, trace)</summary>
+																	<pre class="small mb-0 user-select-all" style="white-space: pre-wrap;">{{ etape.detailErreur }}</pre>
+																</details>
+															{% endif %}
+														</td>
+													</tr>
+												{% endfor %}
+											</tbody>
+										</table>
+										<small class="text-muted">
+											Page : {{ premiere.url }} · Identifiant de suivi : <span class="user-select-all">{{ suivi.idSuivi }}</span>
+											{% if premiere.idHistoriqueOperation %}
+												· Opération n° {{ premiere.idHistoriqueOperation }} de l'historique
+											{% endif %}
+										</small>
+									</td>
+								</tr>
+							{% else %}
+								<tr>
+									<td colspan="7" class="text-center text-muted">Aucune opération trouvée.</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

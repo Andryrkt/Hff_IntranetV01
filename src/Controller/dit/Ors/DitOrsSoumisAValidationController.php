@@ -31,6 +31,7 @@ use App\Service\FusionPdf;
 use App\Service\genererPdf\dit\ors\GenererPdfOrSoumisAValidation;
 use App\Service\historiqueOperation\HistoriqueOperationORService;
 use App\Service\historiqueOperation\HistoriqueOperationService;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
@@ -146,48 +147,64 @@ class DitOrsSoumisAValidationController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // suivi étape par étape de la soumission (admin > historique > suivi des soumissions)
+            $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_OR, $numOr);
 
             /** DEBUT CONDITION DE BLOCAGE */
             $originalName = $form->get("pieceJoint01")->getData()->getClientOriginalName();
             $observation = $form->get("observation")->getData();
-            $conditionBloquage = $this->conditionsDeBloquegeSoumissionOr($originalName, $numOr, $ditInsertionOrSoumis, $numDit, $codeSociete);
+            $soumissionAutorisee = $suivi->etape('Contrôles de blocage', function () use ($originalName, $numOr, $ditInsertionOrSoumis, $numDit, $codeSociete) {
+                $conditionBloquage = $this->conditionsDeBloquegeSoumissionOr($originalName, $numOr, $ditInsertionOrSoumis, $numDit, $codeSociete);
+                return $this->bloquageOrSoumsi($conditionBloquage, $originalName, $ditInsertionOrSoumis);
+            });
 
             /** FIN CONDITION DE BLOCAGE */
-            if ($this->bloquageOrSoumsi($conditionBloquage, $originalName, $ditInsertionOrSoumis)) {
+            if ($soumissionAutorisee) {
 
-                /** @var DitOrsSoumisAValidationRepository $repository */
-                $repository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
-                $numeroVersionMax = $repository->findNumeroVersionMax($ditInsertionOrSoumis->getNumeroOR(), $codeSociete);
+                $orSoumisValidataion = $suivi->etape('Récupération des données OR (IPS)', function () use ($ditInsertionOrSoumis, $codeSociete, $observation, $numDit) {
+                    /** @var DitOrsSoumisAValidationRepository $repository */
+                    $repository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
+                    $numeroVersionMax = $repository->findNumeroVersionMax($ditInsertionOrSoumis->getNumeroOR(), $codeSociete);
 
-                $ditInsertionOrSoumis
-                    ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
-                    ->setHeureSoumission($this->getTime())
-                    ->setDateSoumission(new \DateTime($this->getDatesystem()))
-                    ->setObservation($observation)
-                    ->setNumeroDit($numDit);
+                    $ditInsertionOrSoumis
+                        ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
+                        ->setHeureSoumission($this->getTime())
+                        ->setDateSoumission(new \DateTime($this->getDatesystem()))
+                        ->setObservation($observation)
+                        ->setNumeroDit($numDit);
 
-                $orSoumisValidationModel = $this->ditModel->recupOrSoumisValidation($ditInsertionOrSoumis->getNumeroOR(), $codeSociete);
+                    $orSoumisValidationModel = $this->ditModel->recupOrSoumisValidation($ditInsertionOrSoumis->getNumeroOR(), $codeSociete);
 
-                $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis, $numDit);
+                    return $this->orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis, $numDit);
+                });
 
                 /** Modification de la colonne statut_or dans la table demande_intervention */
-                $this->modificationStatutOr($numDit, $codeSociete);
+                $suivi->etape('Mise à jour DIT (statut OR)', function () use ($numDit, $codeSociete) {
+                    $this->modificationStatutOr($numDit, $codeSociete);
+                });
 
                 /** ENVOIE des DONNEE dans BASE DE DONNEE */
-                $this->envoieDonnerDansBd($orSoumisValidataion);
+                $suivi->etape('Base de données', function () use ($orSoumisValidataion) {
+                    $this->envoieDonnerDansBd($orSoumisValidataion);
+                });
 
                 /** CREATION , FUSION, ENVOIE DW du PDF */
-                $this->traitementDeFichier($form, $ditInsertionOrSoumis, $codeSociete, $orSoumisValidataion, $numOr);
+                $this->traitementDeFichier($form, $ditInsertionOrSoumis, $codeSociete, $orSoumisValidataion, $numOr, $suivi);
 
                 /** modifier la colonne numero_or dans la table demande_intervention */
-                $this->modificationDuNumeroOrDansDit($numDit, $ditInsertionOrSoumis, $codeSociete);
+                $suivi->etape('Mise à jour DIT (numéro OR)', function () use ($numDit, $ditInsertionOrSoumis, $codeSociete) {
+                    $this->modificationDuNumeroOrDansDit($numDit, $ditInsertionOrSoumis, $codeSociete);
+                });
 
                 /** modifier la colonne numero_or dans la table demande_diagnostic_pneu */
-
-                $this->modificationDuNumeroOrDansDDD($numDit,  $ditInsertionOrSoumis);
+                $suivi->etape('Mise à jour DDD (numéro OR)', function () use ($numDit, $ditInsertionOrSoumis) {
+                    $this->modificationDuNumeroOrDansDDD($numDit,  $ditInsertionOrSoumis);
+                });
 
                 /** modification da_valider */
-                $this->modificationDaAfficher($numDit, $ditInsertionOrSoumis->getNumeroOR(), $daAfficherRepository);
+                $suivi->etape('Mise à jour DA', function () use ($numDit, $ditInsertionOrSoumis, $daAfficherRepository) {
+                    $this->modificationDaAfficher($numDit, $ditInsertionOrSoumis->getNumeroOR(), $daAfficherRepository);
+                });
 
                 $this->historiqueOperation->sendNotificationSoumission('Le document de controle a été généré et soumis pour validation', $ditInsertionOrSoumis->getNumeroOR(), 'dit_index', true);
             } else {
@@ -230,40 +247,54 @@ class DitOrsSoumisAValidationController extends Controller
         return $consommationDesPieces;
     }
 
-    private function traitementDeFichier(FormInterface $form, DitOrsSoumisAValidation $ditInsertionOrSoumis, $codeSociete, $orSoumisValidataion, string $numOr): void
+    private function traitementDeFichier(FormInterface $form, DitOrsSoumisAValidation $ditInsertionOrSoumis, $codeSociete, $orSoumisValidataion, string $numOr, SuiviOperationService $suivi): void
     {
-        $suffix = $this->ditOrsoumisAValidationModel->constructeurPieceMagasin($numOr)[0]['retour'];
+        $suffix = $suivi->etape('Constructeur', function () use ($numOr) {
+            return $this->ditOrsoumisAValidationModel->constructeurPieceMagasin($numOr)[0]['retour'];
+        });
 
-        /** 
+        /**
          * 1. gestion des pieces jointes et generer le nom du fichier PDF
          * Enregistrement de fichier uploder
-         * @var array $nomEtCheminFichiersEnregistrer 
-         * @var array $nomFichierEnregistrer 
+         * @var array $nomEtCheminFichiersEnregistrer
+         * @var array $nomFichierEnregistrer
          * @var string $nomAvecCheminFichier
          * @var string $nomFichier
          */
-        [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $ditInsertionOrSoumis, $suffix);
+        [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier] = $suivi->etape('Fichiers joints', function () use ($form, $ditInsertionOrSoumis, $suffix) {
+            return $this->enregistrementFichier($form, $ditInsertionOrSoumis, $suffix);
+        });
 
         // 2. creation de la page de garde
         $genererPdfOrSoumisAValidation = new GenererPdfOrSoumisAValidation();
-        $this->creationPdf($ditInsertionOrSoumis, $orSoumisValidataion, $suffix, $numOr, $nomAvecCheminFichier, $codeSociete, $genererPdfOrSoumisAValidation);
+        $suivi->etape('Page de garde', function () use ($ditInsertionOrSoumis, $orSoumisValidataion, $suffix, $numOr, $nomAvecCheminFichier, $codeSociete, $genererPdfOrSoumisAValidation) {
+            $this->creationPdf($ditInsertionOrSoumis, $orSoumisValidataion, $suffix, $numOr, $nomAvecCheminFichier, $codeSociete, $genererPdfOrSoumisAValidation);
+        });
 
         // 3. ajout du page de garde à la premier position
         $traitementDeFichier = new TraitementDeFichier();
         $nomEtCheminFichiersEnregistrer = $traitementDeFichier->insertFileAtPosition($nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, 0);
 
         // 4. fusion du page de garde et des pieces jointes (conversion avant la fusion)
-        $nomEtCheminFichierConvertie = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
-        $traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);
+        $nomEtCheminFichierConvertie = $suivi->etape('Conversion', function () use ($nomEtCheminFichiersEnregistrer) {
+            return $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
+        });
+        $suivi->etape('Fusion', function () use ($traitementDeFichier, $nomEtCheminFichierConvertie, $nomAvecCheminFichier) {
+            $traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);
+        });
 
 
         // 5. fusion de pdf Demande appro avec le pdf OR fusionner
         // $this->fusionPdfDaAvecORfusionner($numDit, $mainPdf, $daAfficherRepository);
 
         // 6.  envoyer le pdf fusionner dans DW
-        $reponse = $genererPdfOrSoumisAValidation->copyToDw($nomFichier, $ditInsertionOrSoumis->getNumeroDit());
+        $reponse = $suivi->etape('DocuWare', function () use ($genererPdfOrSoumisAValidation, $nomFichier, $ditInsertionOrSoumis) {
+            return $genererPdfOrSoumisAValidation->copyToDw($nomFichier, $ditInsertionOrSoumis->getNumeroDit());
+        });
         // 9. modification de la colonne pdf_deposer_dw et date_depot_pdf_dw
-        $this->modificationBdPourHitorisationDw($ditInsertionOrSoumis, $reponse);
+        $suivi->etape('Base de données (dépôt DocuWare)', function () use ($ditInsertionOrSoumis, $reponse) {
+            $this->modificationBdPourHitorisationDw($ditInsertionOrSoumis, $reponse);
+        });
     }
 
     private function modificationBdPourHitorisationDw(DitOrsSoumisAValidation $ditInsertionOrSoumis, bool $reponse): void

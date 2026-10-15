@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\historiqueOperation\HistoriqueOperationBLService;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
  * @Route("/magasin/sortie-de-pieces-lubs")
@@ -69,13 +70,19 @@ class BLSoumissionController extends Controller
         try {
 
             $typeBl = $form->getData()['typeBl'];
+            // suivi étape par étape de la soumission (admin > historique > suivi des opérations)
+            $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_BL);
 
             // Enregistrement des fichiers
-            $nomFichiers = $this->enregistrementFichier($form);
+            $nomFichiers = $suivi->etape('Fichiers joints', function () use ($form) {
+                $nomFichiers = $this->enregistrementFichier($form);
 
-            if (empty($nomFichiers)) {
-                throw new \Exception('Aucun fichier valide n\'a été téléchargé.');
-            }
+                if (empty($nomFichiers)) {
+                    throw new \Exception('Aucun fichier valide n\'a été téléchargé.');
+                }
+                return $nomFichiers;
+            });
+            $suivi->setNumeroDocument($nomFichiers[0]);
 
             // Création de l'entité
             $cheminEtNomFichier = $this->cheminDeBase . $nomFichiers[0];
@@ -83,15 +90,19 @@ class BLSoumissionController extends Controller
             $blSoumission = BLSoumissionFactory::createBLSoumission($securityService->getCodeAgenceUser(), $securityService->getCodeServiceUser(), $this->getUserName(), $cheminEtNomFichier, $typeBl);
 
             // Sauvegarde
-            $this->getEntityManager()->persist($blSoumission);
-            $this->getEntityManager()->flush();
+            $suivi->etape('Base de données', function () use ($blSoumission) {
+                $this->getEntityManager()->persist($blSoumission);
+                $this->getEntityManager()->flush();
+            });
 
             //envoie dans DW
-            if ($typeBl === 1) {
-                $this->generatePdfBlFut->copyToDWBlFutInterne($nomFichiers[0]);
-            } else {
-                $this->generatePdfBlFut->copyToDWBlFutFactureClient($nomFichiers[0]);
-            }
+            $suivi->etape('DocuWare', function () use ($typeBl, $nomFichiers) {
+                if ($typeBl === 1) {
+                    $this->generatePdfBlFut->copyToDWBlFutInterne($nomFichiers[0]);
+                } else {
+                    $this->generatePdfBlFut->copyToDWBlFutFactureClient($nomFichiers[0]);
+                }
+            });
 
             // Historisation et notification
             $message = 'Le document est soumis pour validation';

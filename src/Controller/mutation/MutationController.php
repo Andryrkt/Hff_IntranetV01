@@ -16,6 +16,7 @@ use App\Service\genererPdf\GeneratePdfMutation;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationMUTService;
 use App\Service\FusionPdf;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
  * @Route("/rh/mutation")
@@ -46,24 +47,39 @@ class MutationController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // suivi étape par étape de l'enregistrement (admin > historique > suivi des opérations)
+            $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_MUTATION);
+
             $mutationModel = new MutationModel;
-            /** 
+            /**
              * @var Mutation $data
              */
             $data = $form->getData();
             $dateDebut = $data->getDateDebut()->format('Y-m-d');
             $dateFin = $data->getDateFin() ? $data->getDateFin()->format('Y-m-d') : '';
             $matricule = $data->getMatricule();
-            if ((int) $mutationModel->getNombreOM($dateDebut, $dateFin, $matricule) > 0) {
+            [$nombreOM, $nombreDM] = $suivi->etape('Contrôle des conflits de dates', function () use ($mutationModel, $dateDebut, $dateFin, $matricule) {
+                return [(int) $mutationModel->getNombreOM($dateDebut, $dateFin, $matricule), (int) $mutationModel->getNombreDM($dateDebut, $dateFin, $matricule)];
+            });
+            if ($nombreOM > 0) {
                 $this->historiqueOperation->sendNotificationCreation("La demande de mutation a échoué car le matricule '$matricule' est déjà rattaché à une demande d'ordre de mission entre les plages de dates.", '-', 'mutation_liste', false);
-            } else if ((int) $mutationModel->getNombreDM($dateDebut, $dateFin, $matricule) > 0) {
+            } else if ($nombreDM > 0) {
                 $this->historiqueOperation->sendNotificationCreation("La demande de mutation a échoué car le matricule '$matricule' est déjà rattaché à une demande de mutation entre les plages de dates.", '-', 'mutation_liste', false);
             } else {
-                $mutation = $this->enregistrementValeurDansMutation($form, $this->getEntityManager());
+                $mutation = $suivi->etape('Base de données', function () use ($form) {
+                    return $this->enregistrementValeurDansMutation($form, $this->getEntityManager());
+                });
+                $suivi->setNumeroDocument((string) $mutation->getNumeroMutation());
                 $generatePdf = new GeneratePdfMutation;
-                $generatePdf->genererPDF($this->donneePourPdf($form));
-                $this->envoyerPieceJointes($form, $this->fusionPdf);
-                $generatePdf->copyInterneToDOCUWARE($mutation->getNumeroMutation(), $mutation->getAgenceEmetteur()->getCodeAgence() . $mutation->getServiceEmetteur()->getCodeService());
+                $suivi->etape('Page de garde', function () use ($generatePdf, $form) {
+                    $generatePdf->genererPDF($this->donneePourPdf($form));
+                });
+                $suivi->etape('Fichiers joints, conversion et fusion', function () use ($form) {
+                    $this->envoyerPieceJointes($form, $this->fusionPdf);
+                });
+                $suivi->etape('DocuWare', function () use ($generatePdf, $mutation) {
+                    $generatePdf->copyInterneToDOCUWARE($mutation->getNumeroMutation(), $mutation->getAgenceEmetteur()->getCodeAgence() . $mutation->getServiceEmetteur()->getCodeService());
+                });
                 $this->historiqueOperation->sendNotificationCreation('La demande de mutation a été enregistrée avec succès', $mutation->getNumeroMutation(), 'mutation_liste', true);
             }
         }

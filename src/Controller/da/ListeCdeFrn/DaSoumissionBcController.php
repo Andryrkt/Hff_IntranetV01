@@ -27,6 +27,7 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
  * @Route("/demande-appro")
@@ -101,6 +102,8 @@ $dto->demandePaiementAvance = false;
             $numDa = $dto->numeroDemandeAppro;
             $typeDa = $dto->typeDa;
             $codeSociete = $dto->codeSociete;
+            // suivi étape par étape de la soumission (admin > historique > suivi des opérations)
+            SuiviOperationService::demarrer(SuiviOperationService::TYPE_DA_BC, $numCde);
 
             $bcStatut = $this->daSoumissionBcRepository->getStatut($numCde, $codeSociete);
             $condition_1 =  $dto->demandePaiementAvance && !$bcStatut;
@@ -145,31 +148,43 @@ $dto->demandePaiementAvance = false;
         $codeSociete = $dto->codeSociete;
 
         /** ENREGISTREMENT DE FICHIER */
-        $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
+        $nomDeFichiers = SuiviOperationService::suivre('Fichiers joints', function () use ($form, $numCde, $numDa) {
+            return $this->enregistrementFichier($form, $numCde, $numDa);
+        });
 
         //numeroversion max
         $numeroVersionMax = $this->autoIncrement($this->daSoumissionBcRepository->getNumeroVersionMax($numCde, $codeSociete));
         /** FUSION DES PDF */
         $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
-        $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemins);
+        $fichierConvertir = SuiviOperationService::suivre('Conversion', function () use ($nomFichierAvecChemins) {
+            return $this->ConvertirLesPdf($nomFichierAvecChemins);
+        });
         $nomPdfFusionner =  'BCAppro!' . $numCde . '#' . $numDa . '-' . $numOr . '_' . $numeroVersionMax . '.pdf';
         $nomAvecCheminPdfFusionner = $this->cheminDeBase . $numDa . '/' . $nomPdfFusionner;
-        $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
+        SuiviOperationService::suivre('Fusion', function () use ($fichierConvertir, $nomAvecCheminPdfFusionner) {
+            $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
+        });
 
         /** AJOUT DES INFO NECESSAIRE */
         $dto = (new DaSoumissionBcFactory($this->getEntityManager()))->apresSoumission($dto, $this->getUserName(), $nomPdfFusionner);
         $daSoumissionBc = DaSoumissionBcMapper::map($dto);
 
         /** ENREGISTREMENT DANS LA BASE DE DONNEE */
-        $this->getEntityManager()->persist($daSoumissionBc);
-        $this->getEntityManager()->flush();
+        SuiviOperationService::suivre('Base de données', function () use ($daSoumissionBc) {
+            $this->getEntityManager()->persist($daSoumissionBc);
+            $this->getEntityManager()->flush();
+        });
 
         if ($copier) {
             /** COPIER DANS DW */
-            $this->generatePdf->copyToDWBcDa($nomPdfFusionner, $numDa);
+            SuiviOperationService::suivre('DocuWare', function () use ($nomPdfFusionner, $numDa) {
+                $this->generatePdf->copyToDWBcDa($nomPdfFusionner, $numDa);
+            });
 
             /** modification du table da_afficher */
-            $this->modificationDaAfficher($dto);
+            SuiviOperationService::suivre('Mise à jour DA', function () use ($dto) {
+                $this->modificationDaAfficher($dto);
+            });
         }
 
         return [$numeroVersionMax, $nomPdfFusionner];

@@ -28,6 +28,7 @@ use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 class TraitementSoumissionBAPService
 {
@@ -85,23 +86,32 @@ class TraitementSoumissionBAPService
     {
         $sucess = false;
 
-        if ($this->verifierConditionDeBlocage($dto)) {
+        $soumissionAutorisee = SuiviOperationService::suivre('Contrôles de blocage', function () use ($dto) {
+            return $this->verifierConditionDeBlocage($dto);
+        });
+        if ($soumissionAutorisee) {
 
             // enrichissement Dto
-            $dto  = $this->daSoumissionFacBlFactory->EnrichissementDtoApresSoumission($dto);
+            $dto  = SuiviOperationService::suivre('Préparation des données', function () use ($dto) {
+                return $this->daSoumissionFacBlFactory->EnrichissementDtoApresSoumission($dto);
+            });
 
             // Traitement du fichier
             [$nomAvecCheminPdfFusionner, $nomPdfFusionner] = $this->traitementDeFichier($form, $dto, $mail);
             $dto->pieceJoint1 = $nomPdfFusionner;
 
             /** ENREGISTREMENT DANS LA BASE DE DONNEE */
-            $this->enregistrementDansBD($dto);
+            SuiviOperationService::suivre('Base de données', function () use ($dto) {
+                $this->enregistrementDansBD($dto);
+            });
 
             // COPIER DANS DW
             // $this->generatePdf->copyToDWFacBlDa($nomPdfFusionner, $numDa);
 
             /** MODIFICATION DA AFFICHER */
-            $this->modificationDaAfficher($dto);
+            SuiviOperationService::suivre('Mise à jour DA', function () use ($dto) {
+                $this->modificationDaAfficher($dto);
+            });
 
             $sucess = true;
         }
@@ -250,19 +260,25 @@ class TraitementSoumissionBAPService
         $nomOriginalFichier = $dto->pieceJoint1->getClientOriginalName();
 
         /** ENREGISTREMENT DE FICHIER */
-        $nomDeFichiers = $this->enregistrementFichier($form, $dto);
+        $nomDeFichiers = SuiviOperationService::suivre('Fichiers joints', function () use ($form, $dto) {
+            return $this->enregistrementFichier($form, $dto);
+        });
 
         /** AJOUT DES CHEMINS DANS LE TABLEAU */
         $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBaseDa . $numDa . '/');
 
         /** CREATION DE LA PAGE DE GARDE */
-        $pageDeGarde = $this->genererPageDeGarde($infoLiv, $dto, $mail);
+        $pageDeGarde = SuiviOperationService::suivre('Page de garde', function () use ($infoLiv, $dto, $mail) {
+            return $this->genererPageDeGarde($infoLiv, $dto, $mail);
+        });
 
         /** AJOUT DE LA PAGE DE GARDE A LA PREMIERE POSITION */
         $nomFichierAvecChemins = $this->traitementDeFichier->insertFileAtPosition($nomFichierAvecChemins, $pageDeGarde, 0);
 
         /** CONVERTIR LES PDF */
-        $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemins);
+        $fichierConvertir = SuiviOperationService::suivre('Conversion', function () use ($nomFichierAvecChemins) {
+            return $this->ConvertirLesPdf($nomFichierAvecChemins);
+        });
 
         /** GENERATION DU NOM DU FICHIER */
         $numeroVersionMax          = $dto->numeroVersionFacBl;
@@ -270,7 +286,9 @@ class TraitementSoumissionBAPService
         $nomAvecCheminPdfFusionner = $this->cheminDeBaseDa . $numDa . '/' . $nomPdfFusionner;
 
         /** FUSION DES PDF */
-        $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
+        SuiviOperationService::suivre('Fusion', function () use ($fichierConvertir, $nomAvecCheminPdfFusionner) {
+            $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
+        });
 
         /** GENERATION DU DEUXIÈME NOM DU FICHIER  */
         $nomPdfSecond           = "$numDdp.pdf";
@@ -282,7 +300,9 @@ class TraitementSoumissionBAPService
         }
 
         /** FUSION DU DEUXIÈME FICHIER */
-        $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfSecond);
+        SuiviOperationService::suivre('Fusion (dossier demande de paiement)', function () use ($fichierConvertir, $nomAvecCheminPdfSecond) {
+            $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfSecond);
+        });
 
         return [$nomAvecCheminPdfFusionner, $nomPdfFusionner];
     }

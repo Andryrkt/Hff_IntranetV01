@@ -20,6 +20,7 @@ use App\Service\fichier\UploderFileService;
 use App\Service\fichier\TraitementDeFichier;
 use App\Controller\Traits\PdfConversionTrait;
 use App\Service\genererPdf\dit\GenererPdfDit;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 use Symfony\Component\HttpFoundation\Request;
 use App\Factory\Dit\DemandeInterventionFactory;
 use App\Service\application\ApplicationService;
@@ -163,6 +164,9 @@ class DitDuplicationController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // suivi étape par étape de l'enregistrement (admin > historique > suivi des opérations)
+            $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_DIT_DUPLICATION);
+
             /** @var DemandeIntervention $ditFromForm */
             $ditFromForm = $form->getData();
 
@@ -191,30 +195,41 @@ class DitDuplicationController extends Controller
             $dto->mailDemandeur = $user->getMail();
 
             /**   @var array $demandeInterventions 3. Utiliser la factory pour créer l'entité complète*/
-            $demandeInterventions = $this->createDemandeInterventionFromDto($dto, $this->demandeInterventionFactory);
+            $demandeInterventions = $suivi->etape('Préparation des données', function () use ($dto) {
+                return $this->createDemandeInterventionFromDto($dto, $this->demandeInterventionFactory);
+            });
 
 
             foreach ($demandeInterventions as $demandeIntervention) {
                 // Type de DIT
                 $ditPneumatique = $demandeIntervention->getReparationRealise() === "ATE POL TANA";
 
-                // 4. recuperation du dernière numero demande d'intervention et generation du numero de demande 
-                $application = $em->getRepository(Application::class)->findOneBy(['codeApp' => DemandeIntervention::CODE_APP]);
-                $numeroDemandeIntervention = $this->genererNumeroDemandeIntervention($application);
+                // 4. recuperation du dernière numero demande d'intervention et generation du numero de demande
+                $numeroDemandeIntervention = $suivi->etape('Numérotation', function () use ($em, $demandeIntervention) {
+                    $application = $em->getRepository(Application::class)->findOneBy(['codeApp' => DemandeIntervention::CODE_APP]);
+                    $numeroDemandeIntervention = $this->genererNumeroDemandeIntervention($application);
 
-                // 5.enregistrement du numero demande d'intervention et Modifie la colonne dernière_id dans la table applications
-                $demandeIntervention->setNumeroDemandeIntervention($numeroDemandeIntervention);
-                AutoIncDecService::mettreAJourDerniereIdApplication($application, $em, $numeroDemandeIntervention);
+                    // 5.enregistrement du numero demande d'intervention et Modifie la colonne dernière_id dans la table applications
+                    $demandeIntervention->setNumeroDemandeIntervention($numeroDemandeIntervention);
+                    AutoIncDecService::mettreAJourDerniereIdApplication($application, $em, $numeroDemandeIntervention);
+
+                    return $numeroDemandeIntervention;
+                });
+                $suivi->setNumeroDocument($numeroDemandeIntervention);
 
                 /** 6. Traitement des fichiers (PDF, pièces jointes) @var array $nomFichierEnregistrer @var string $nomFichier  */
                 $genererPdfDit = new GenererPdfDit();
                 [$nomFichierEnregistrer, $nomFichier]  = $this->traitementDeFichier($form, $demandeIntervention, $genererPdfDit, $ditPneumatique);
 
                 // 7. Enregistrement dans le persiste
-                $this->enregistrementBd($demandeIntervention, $nomFichierEnregistrer);
+                $suivi->etape('Base de données', function () use ($demandeIntervention, $nomFichierEnregistrer) {
+                    $this->enregistrementBd($demandeIntervention, $nomFichierEnregistrer);
+                });
 
                 // 8.Copier le PDF DANS DOXCUWARE
-                $genererPdfDit->copyToDOCUWARE($nomFichier, $demandeIntervention->getNumeroDemandeIntervention(), $ditPneumatique);
+                $suivi->etape('DocuWare', function () use ($genererPdfDit, $nomFichier, $demandeIntervention, $ditPneumatique) {
+                    $genererPdfDit->copyToDOCUWARE($nomFichier, $demandeIntervention->getNumeroDemandeIntervention(), $ditPneumatique);
+                });
             }
 
             // 10. enregistrement dans l'historisation de la sucès de la demande
@@ -266,24 +281,33 @@ class DitDuplicationController extends Controller
          * @var string $nomAvecCheminFichier
          * @var string $nomFichier
          */
-        [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $demandeIntervention->getNumeroDemandeIntervention(), str_replace("-", "", $demandeIntervention->getAgenceServiceEmetteur()), $ditPneumatique);
+        [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier] = SuiviOperationService::suivre('Fichiers joints', function () use ($form, $demandeIntervention, $ditPneumatique) {
+            return $this->enregistrementFichier($form, $demandeIntervention->getNumeroDemandeIntervention(), str_replace("-", "", $demandeIntervention->getAgenceServiceEmetteur()), $ditPneumatique);
+        });
 
         /** 1. CREATION DE LA PAGE DE GARDE*/
-        $idMateriel = (int)$demandeIntervention->getIdMateriel();
-        if (!in_array($idMateriel, $this->ditModel->getNumeroMatriculePasMateriel())) {
-            //récupération des historique de materiel (informix)
-            $historiqueMateriel = $this->historiqueInterventionMateriel($idMateriel, $demandeIntervention->getReparationRealise());
-        } else {
-            $historiqueMateriel = [];
-        }
-        $genererPdfDit->genererPdfDit($demandeIntervention, $historiqueMateriel, $nomAvecCheminFichier);
+        $historiqueMateriel = SuiviOperationService::suivre('Historique matériel (IPS)', function () use ($demandeIntervention) {
+            $idMateriel = (int)$demandeIntervention->getIdMateriel();
+            if (!in_array($idMateriel, $this->ditModel->getNumeroMatriculePasMateriel())) {
+                //récupération des historique de materiel (informix)
+                return $this->historiqueInterventionMateriel($idMateriel, $demandeIntervention->getReparationRealise());
+            }
+            return [];
+        });
+        SuiviOperationService::suivre('Page de garde', function () use ($genererPdfDit, $demandeIntervention, $historiqueMateriel, $nomAvecCheminFichier) {
+            $genererPdfDit->genererPdfDit($demandeIntervention, $historiqueMateriel, $nomAvecCheminFichier);
+        });
 
         // 2. ajout du page de garde à la premier position
         $traitementDeFichier = new TraitementDeFichier();
         $nomEtCheminFichiersEnregistrer = $traitementDeFichier->insertFileAtPosition($nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, 0);
         // 3. fusion du page de garde et des pieces jointes (conversion avant la fusion)
-        $nomEtCheminFichierConvertie = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
-        $traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);
+        $nomEtCheminFichierConvertie = SuiviOperationService::suivre('Conversion', function () use ($nomEtCheminFichiersEnregistrer) {
+            return $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
+        });
+        SuiviOperationService::suivre('Fusion', function () use ($traitementDeFichier, $nomEtCheminFichierConvertie, $nomAvecCheminFichier) {
+            $traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);
+        });
 
 
         return [$nomFichierEnregistrer, $nomFichier];

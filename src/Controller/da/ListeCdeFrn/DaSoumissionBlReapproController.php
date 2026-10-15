@@ -18,6 +18,7 @@ use App\Factory\da\CdeFrnDto\DaSoumissionBlReapproFactory;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
 use Symfony\Component\Form\FormInterface;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
  * @Route("/demande-appro")
@@ -63,25 +64,39 @@ class DaSoumissionBlReapproController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $dto = $form->getData();
+            // suivi étape par étape de la soumission (admin > historique > suivi des opérations)
+            $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_DA_BL_REAPPRO, $numCde);
 
             /** ENREGISTREMENT DE FICHIER */
-            $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
+            $nomDeFichiers = $suivi->etape('Fichiers joints', function () use ($form, $numCde, $numDa) {
+                return $this->enregistrementFichier($form, $numCde, $numDa);
+            });
 
             /** FUSION DES PDF */
             $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
-            $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemins);
+            $fichierConvertir = $suivi->etape('Conversion', function () use ($nomFichierAvecChemins) {
+                return $this->ConvertirLesPdf($nomFichierAvecChemins);
+            });
             $nomPdfFusionner =  'BlReappro_' . $numCde . '#' . $numDa . '_' . $dto->numeroFactureReappro . '.pdf';
             $nomAvecCheminPdfFusionner = $this->cheminDeBase . $numDa . '/' . $nomPdfFusionner;
-            $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
+            $suivi->etape('Fusion', function () use ($fichierConvertir, $nomAvecCheminPdfFusionner) {
+                $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
+            });
 
             /** COPIER DANS DW */
-            $this->generatePdf->copyToDWBLReappro($nomPdfFusionner, $numDa);
+            $suivi->etape('DocuWare', function () use ($nomPdfFusionner, $numDa) {
+                $this->generatePdf->copyToDWBLReappro($nomPdfFusionner, $numDa);
+            });
 
             /** modification du table da_valider */
-            $this->modificationDaAfficher($numDa, $numCde, $codeSociete);
+            $suivi->etape('Mise à jour DA', function () use ($numDa, $numCde, $codeSociete) {
+                $this->modificationDaAfficher($numDa, $numCde, $codeSociete);
+            });
 
             /** creation de ligne dans le table da_soumission_facture_bl */
-            $this->creationFacBl($dto, $nomPdfFusionner);
+            $suivi->etape('Base de données', function () use ($dto, $nomPdfFusionner) {
+                $this->creationFacBl($dto, $nomPdfFusionner);
+            });
 
             /** HISTORISATION */
             $message = 'Le document est soumis pour validation';

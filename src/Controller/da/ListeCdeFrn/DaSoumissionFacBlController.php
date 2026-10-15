@@ -18,6 +18,7 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
  * @Route("/demande-appro")
@@ -102,6 +103,8 @@ class DaSoumissionFacBlController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var DaSoumissionFacBlDto $dto */
             $dto = $form->getData();
+            // suivi étape par étape de la soumission (admin > historique > suivi des opérations)
+            $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_DA_FAC_BL, $dto->numeroCde);
 
             if (!$dto->soumissionDdpAFaire && ($dto->typeDdp === 'regul' || $dto->typeDdp === 'ddpl')) {
                 $sucess = $this->traitementSoumissionDDPLService->traitementSoumissionDDPL($form, $dto);
@@ -113,7 +116,9 @@ class DaSoumissionFacBlController extends Controller
 
             if ($sucess) {
                 /** NOTIFICATION DANS L'APPLICATION (avec alerte si est_facture_bl_soumis n'a pas été mis à jour) */
-                $this->notificationSoumissionFacBlService->enregistrer($dto, $this->getUserName());
+                $suivi->etape('Notification facture / BL', function () use ($dto) {
+                    $this->notificationSoumissionFacBlService->enregistrer($dto, $this->getUserName());
+                });
 
                 /** HISTORISATION */
                 $message = 'Le document est soumis pour validation';

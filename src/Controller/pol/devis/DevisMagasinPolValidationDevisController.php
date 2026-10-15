@@ -21,6 +21,7 @@ use App\Service\genererPdf\magasin\devis\GeneratePdfDeviMagasinVp;
 use App\Service\magasin\devis\Fichier\DevisMagasinGenererNameFileService;
 use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
 use App\Service\magasin\devis\Validator\DevisMagasinValidationOrchestrator;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
  * @Route("/pol")
@@ -109,14 +110,20 @@ class DevisMagasinPolValidationDevisController extends Controller
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+            // suivi étape par étape de la soumission (admin > historique > suivi des opérations)
+            $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_DEVIS_POL_VALIDATION, (string) $devisMagasin->getNumeroDevis());
 
             // Validation du fichier soumis via le service dédié
-            if (!$orchestrator->validateSubmittedFile($form)) {
+            if (!$suivi->etape('Contrôle du fichier', function () use ($orchestrator, $form) {
+                return $orchestrator->validateSubmittedFile($form);
+            })) {
                 return; // Arrête le traitement si la validation échoue
             }
 
             /** @var string recuperation des suffix selon le constructeur magasin */
-            $suffixConstructeur = $this->listeDevisMagasinModel->constructeurPieceMagasin($devisMagasin->getNumeroDevis());
+            $suffixConstructeur = $suivi->etape('Constructeur', function () use ($devisMagasin) {
+                return $this->listeDevisMagasinModel->constructeurPieceMagasin($devisMagasin->getNumeroDevis());
+            });
 
             /** @var int recupération de numero version max */
             $numeroVersion = $this->devisMagasinRepository->getNumeroVersionMax($devisMagasin->getNumeroDevis(), $codeSociete);
@@ -129,22 +136,34 @@ class DevisMagasinPolValidationDevisController extends Controller
              * @var string $nomAvecCheminFichier
              * @var string $nomFichier
              */
-            [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $devisMagasin->getNumeroDevis(), VersionService::autoIncrement($numeroVersion), $suffixConstructeur, explode('@', $this->getUserMail())[0], self::TYPE_SOUMISSION_VALIDATION_DEVIS);
+            [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier] = $suivi->etape('Fichiers joints', function () use ($form, $devisMagasin, $numeroVersion, $suffixConstructeur) {
+                return $this->enregistrementFichier($form, $devisMagasin->getNumeroDevis(), VersionService::autoIncrement($numeroVersion), $suffixConstructeur, explode('@', $this->getUserMail())[0], self::TYPE_SOUMISSION_VALIDATION_DEVIS);
+            });
 
             /** @var array fusions des fichiers */
-            $nomEtCheminFichierConvertie = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
-            $this->traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);
+            $nomEtCheminFichierConvertie = $suivi->etape('Conversion', function () use ($nomEtCheminFichiersEnregistrer) {
+                return $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
+            });
+            $suivi->etape('Fusion', function () use ($nomEtCheminFichierConvertie, $nomAvecCheminFichier) {
+                $this->traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);
+            });
 
 
             //ajout des informations de IPS et des informations manuelles comme nombre de lignes, cat, nonCat dans le devis magasin
-            $this->ajoutInfoIpsDansDevisMagasin($devisMagasin, $firstDevisIps, $numeroVersion, $nomFichier, self::TYPE_SOUMISSION_VALIDATION_DEVIS);
+            $suivi->etape('Récupération des données devis (IPS)', function () use ($devisMagasin, $firstDevisIps, $numeroVersion, $nomFichier) {
+                $this->ajoutInfoIpsDansDevisMagasin($devisMagasin, $firstDevisIps, $numeroVersion, $nomFichier, self::TYPE_SOUMISSION_VALIDATION_DEVIS);
+            });
 
             //enregistrement du devis magasin
-            $this->getEntityManager()->persist($devisMagasin);
-            $this->getEntityManager()->flush();
+            $suivi->etape('Base de données', function () use ($devisMagasin) {
+                $this->getEntityManager()->persist($devisMagasin);
+                $this->getEntityManager()->flush();
+            });
 
             //envoie du fichier dans DW
-            $this->generatePdfDevisMagasin->copyToDWDevisMagasin($nomFichier, $devisMagasin->getNumeroDevis());
+            $suivi->etape('DocuWare', function () use ($nomFichier, $devisMagasin) {
+                $this->generatePdfDevisMagasin->copyToDWDevisMagasin($nomFichier, $devisMagasin->getNumeroDevis());
+            });
 
 
             //HISTORISATION DE L'OPERATION

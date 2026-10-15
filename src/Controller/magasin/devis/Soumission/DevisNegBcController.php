@@ -12,6 +12,7 @@ use App\Service\fichier\TraitementDeFichier;
 use App\Service\fichier\UploderFileService;
 use App\Service\genererPdf\magasin\devis\GeneratePdfBcNeg;
 use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 use App\Service\magasin\devis\Fichier\DevisMagasinGenererNameFileService;
 use App\Service\magasin\devis\Validation\ValidationBc;
 use Symfony\Component\Form\FormInterface;
@@ -71,17 +72,26 @@ class DevisNegBcController extends Controller
             /** @var BcDto $dto */
             $dto = $form->getData();
 
-            $dto = $this->bcFactory->createApresSoumission($dto, $this->getUserName(), $this->getUserMail());
+            // suivi étape par étape de la soumission (admin > historique > suivi des soumissions)
+            $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_BC_NEGOCE, $dto->numeroDevis);
+
+            $dto = $suivi->etape('Préparation des données', function () use ($dto) {
+                return $this->bcFactory->createApresSoumission($dto, $this->getUserName(), $this->getUserMail());
+            });
 
             //traitemnet des fichiers
-            $this->traitementDesFichiers($form, $dto);
+            $this->traitementDesFichiers($form, $dto, $suivi);
 
             // Enregistrement de la soumission en base de données
             $bcModel = new BcModel();
-            $bcModel->enregistrerBc($dto);
+            $suivi->etape('Base de données', function () use ($bcModel, $dto) {
+                $bcModel->enregistrerBc($dto);
+            });
 
             // Modification du table devis_soumis_a_validation_neg
-            $bcModel->updateDevis($dto);
+            $suivi->etape('Mise à jour du devis', function () use ($bcModel, $dto) {
+                $bcModel->updateDevis($dto);
+            });
 
             //HISTORISATION DE L'OPERATION
             $message = 'Le bon de commande a été soumis avec succès.';
@@ -92,33 +102,43 @@ class DevisNegBcController extends Controller
         }
     }
 
-    private function traitementDesFichiers(FormInterface $form, BcDto $dto): void
+    private function traitementDesFichiers(FormInterface $form, BcDto $dto, SuiviOperationService $suivi): void
     {
-        /** 
+        /**
          * 1. gestion des pieces jointes et generer le nom du fichier PDF
          * Enregistrement de fichier uploder
          * @var array $nomEtCheminFichiersEnregistrer
-         * @var array $nomFichierEnregistrer 
+         * @var array $nomFichierEnregistrer
          * @var string $nomAvecCheminFichier (page de garde)
          * @var string $nomFichier (page de garde)
          */
-        [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $dto->numeroDevis, $dto->numeroVersion);
+        [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier] = $suivi->etape('Fichiers joints', function () use ($form, $dto) {
+            return $this->enregistrementFichier($form, $dto->numeroDevis, $dto->numeroVersion);
+        });
 
         // 2. creation de page de garde
         $generatePdf = new GeneratePdfBcNeg();
         // 2.1 recupération des information utile pour le page de garde et ajout dans le devis magasin
-        $generatePdf->generer($dto, $nomAvecCheminFichier);
+        $suivi->etape('Page de garde', function () use ($generatePdf, $dto, $nomAvecCheminFichier) {
+            $generatePdf->generer($dto, $nomAvecCheminFichier);
+        });
 
         // 3. ajout du page de garde à la dernière position
         $traitementDeFichier = new TraitementDeFichier();
         $nomEtCheminFichiersEnregistrer = $traitementDeFichier->insertFileAtPosition($nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, count($nomEtCheminFichiersEnregistrer));
 
         // 4. fusion du page de garde et des pieces jointes (conversion avant la fusion)
-        $nomEtCheminFichierConvertie = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
-        $traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);
+        $nomEtCheminFichierConvertie = $suivi->etape('Conversion', function () use ($nomEtCheminFichiersEnregistrer) {
+            return $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
+        });
+        $suivi->etape('Fusion', function () use ($traitementDeFichier, $nomEtCheminFichierConvertie, $nomAvecCheminFichier) {
+            $traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);
+        });
 
         // 5. copie du pdf fusioné dans DW
-        $generatePdf->copyToDWBcMagasin($nomFichier, $dto->numeroDevis);
+        $suivi->etape('DocuWare', function () use ($generatePdf, $nomFichier, $dto) {
+            $generatePdf->copyToDWBcMagasin($nomFichier, $dto->numeroDevis);
+        });
     }
 
     private function enregistrementFichier(FormInterface $form, string $numDevis, int $numeroVersion): array

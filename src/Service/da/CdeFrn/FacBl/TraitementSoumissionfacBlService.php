@@ -20,6 +20,7 @@ use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 class TraitementSoumissionfacBlService
 {
@@ -63,13 +64,18 @@ class TraitementSoumissionfacBlService
     {
         $sucess = false;
 
-        if ($this->verifierConditionDeBlocage($dto)) {
+        $soumissionAutorisee = SuiviOperationService::suivre('Contrôles de blocage', function () use ($dto) {
+            return $this->verifierConditionDeBlocage($dto);
+        });
+        if ($soumissionAutorisee) {
             $numCde  = $dto->numeroCde;
             $numDa   = $dto->numeroDemandeAppro;
             $numLiv = $dto->numLiv;
 
             // enrichissement DTO
-            $dto  = $this->daSoumissionFacBlFactory->EnrichissementDtoApresSoumission($dto);
+            $dto  = SuiviOperationService::suivre('Préparation des données', function () use ($dto) {
+                return $this->daSoumissionFacBlFactory->EnrichissementDtoApresSoumission($dto);
+            });
 
             // Traitement du fichier
             [$nomAvecCheminPdfFusionner, $nomPdfFusionner] = $this->traitementDeFichier($form, $dto);
@@ -77,15 +83,21 @@ class TraitementSoumissionfacBlService
 
             // enrichissement Dto
             /** ENREGISTREMENT DANS LA BASE DE DONNEE */
-            $daSoumissionFacBl = $this->daSoumissionfacBlMapper->map($dto);
-            $this->entityManager->persist($daSoumissionFacBl);
-            $this->entityManager->flush();
+            SuiviOperationService::suivre('Base de données', function () use ($dto) {
+                $daSoumissionFacBl = $this->daSoumissionfacBlMapper->map($dto);
+                $this->entityManager->persist($daSoumissionFacBl);
+                $this->entityManager->flush();
+            });
 
             /** COPIER DANS DW */
-            $this->generatePdf->copyToDWFacBlDa($nomPdfFusionner, $numDa);
+            SuiviOperationService::suivre('DocuWare', function () use ($nomPdfFusionner, $numDa) {
+                $this->generatePdf->copyToDWFacBlDa($nomPdfFusionner, $numDa);
+            });
 
             /** MODIFICATION DA AFFICHER */
-            $this->modificationDaAfficher($dto);
+            SuiviOperationService::suivre('Mise à jour DA', function () use ($dto) {
+                $this->modificationDaAfficher($dto);
+            });
 
             $sucess = true;
         }
@@ -143,13 +155,17 @@ class TraitementSoumissionfacBlService
         $nomOriginalFichier = $dto->pieceJoint1->getClientOriginalName();
 
         /** @var array $nomDeFichiers ENREGISTREMENT DE FICHIER */
-        $nomDeFichiers = $this->enregistrementFichier($form, $dto);
+        $nomDeFichiers = SuiviOperationService::suivre('Fichiers joints', function () use ($form, $dto) {
+            return $this->enregistrementFichier($form, $dto);
+        });
 
         /** @var array $nomFichierAvecChemins AJOUT DES CHEMINS DANS LE TABLEAU */
         $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
 
         /** @var array $fichierConvertir  CONVERTIR LES PDF */
-        $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemins);
+        $fichierConvertir = SuiviOperationService::suivre('Conversion', function () use ($nomFichierAvecChemins) {
+            return $this->ConvertirLesPdf($nomFichierAvecChemins);
+        });
 
         /** GENERATION DU NOM DU FICHIER */
         $numeroVersionMax          = $dto->numeroVersionFacBl;
@@ -157,7 +173,9 @@ class TraitementSoumissionfacBlService
         $nomAvecCheminPdfFusionner = $this->cheminDeBase . $numDa . '/' . $nomPdfFusionner;
 
         /** FUSION DES PDF */
-        $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
+        SuiviOperationService::suivre('Fusion', function () use ($fichierConvertir, $nomAvecCheminPdfFusionner) {
+            $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
+        });
 
 
         return [$nomAvecCheminPdfFusionner, $nomPdfFusionner];

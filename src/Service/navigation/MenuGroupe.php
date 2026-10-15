@@ -456,6 +456,7 @@ class MenuGroupe
                 'links'  => [
                     ['label' => 'Consultation de pages',     'icon' => 'fa-eye',              'route' => 'consultation_page_index'],
                     ['label' => 'Historique des opérations', 'icon' => 'fa-file-circle-check', 'route' => 'operation_document_index'],
+                    ['label' => 'Suivi des opérations',     'icon' => 'fa-list-check',        'route' => 'suivi_operation_index'],
                 ],
             ],
             [

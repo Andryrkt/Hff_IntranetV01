@@ -30,6 +30,7 @@ use App\Service\TableauEnStringService;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
  * @Route("/compta/demande-de-paiement")
@@ -150,17 +151,26 @@ class DemandePaiementDaController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $dto = $form->getdata();
+            // suivi étape par étape de l'enregistrement (admin > historique > suivi des opérations)
+            $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_DDP_DA, (string) $dto->numeroDdp);
 
             $nomFichier = $this->traitementDeFichier($dto, $form);
-            $this->enregistrementSurBd($dto, $nomFichier);
+            $suivi->etape('Base de données', function () use ($dto, $nomFichier) {
+                $this->enregistrementSurBd($dto, $nomFichier);
+            });
 
             // si on crée le demande de paiement avance avec la soumission BC
             if ($dto->ddpaDa) {
                 $ddpaDaService = new DdpaDaService($this->getEntityManager());
-                $ddpaDaService
-                    ->modificationtableDaSoumissionBc($dto)
-                    ->copieBcDansDw($dto)
-                    ->modificationStatutBcDansDaAfficher($dto);
+                $suivi->etape('Mise à jour BC DA', function () use ($ddpaDaService, $dto) {
+                    $ddpaDaService->modificationtableDaSoumissionBc($dto);
+                });
+                $suivi->etape('DocuWare (BC)', function () use ($ddpaDaService, $dto) {
+                    $ddpaDaService->copieBcDansDw($dto);
+                });
+                $suivi->etape('Mise à jour DA', function () use ($ddpaDaService, $dto) {
+                    $ddpaDaService->modificationStatutBcDansDaAfficher($dto);
+                });
             }
 
             /** HISTORISATION */
@@ -232,10 +242,12 @@ class DemandePaiementDaController extends Controller
         $numeroCommandes = '';
 
         if (!empty($dto->numeroFournisseur) && $dto->numeroFournisseur !== '-') {
-            $numCdes = $this->demandePaiementModel->getCommandeReceptionnee($dto->numeroFournisseur);
-            $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
-            $numFacString =  $dto->numeroFacture;
-            $numeroCommandes = $this->demandePaiementModel->getNumCommande($dto->numeroFournisseur, $numCdesString, $numFacString);
+            $numeroCommandes = SuiviOperationService::suivre('Récupération des commandes (IPS)', function () use ($dto) {
+                $numCdes = $this->demandePaiementModel->getCommandeReceptionnee($dto->numeroFournisseur);
+                $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
+                $numFacString =  $dto->numeroFacture;
+                return $this->demandePaiementModel->getNumCommande($dto->numeroFournisseur, $numCdesString, $numFacString);
+            });
         }
 
         /** TRAITEMENT FICHIER  AUTRE DOCUMENT ET BC client externe / BC client magasin*/
@@ -254,18 +266,28 @@ class DemandePaiementDaController extends Controller
         }
 
         /** ENREGISTREMENT DU FICHIER */
-        $this->copierFichierDistant($dto);
-        [$nomEtCheminFichiersEnregistrer, $nomFichiersTelecharger,  $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $dto);
+        SuiviOperationService::suivre('Copie des fichiers distants', function () use ($dto) {
+            $this->copierFichierDistant($dto);
+        });
+        [$nomEtCheminFichiersEnregistrer, $nomFichiersTelecharger,  $nomAvecCheminFichier, $nomFichier] = SuiviOperationService::suivre('Fichiers joints', function () use ($form, $dto) {
+            return $this->enregistrementFichier($form, $dto);
+        });
         if ($dto->typeDemande->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE) {
             $dto->numeroCommande = $numeroCommandes;
         }
         $dto->lesFichiers = $this->docDemandePaiementService->fusionDesFichiersDansUnTableau($dto, $nomFichiersTelecharger);
         // generation de la page de garde DDP
-        $this->pageDeGarde($dto, $nomAvecCheminFichier);
+        SuiviOperationService::suivre('Page de garde', function () use ($dto, $nomAvecCheminFichier) {
+            $this->pageDeGarde($dto, $nomAvecCheminFichier);
+        });
         $fichierChoisiAvecChemins = $this->docDemandePaiementService->fichierChoisiAvecChemin($dto);
-        $this->docDemandePaiementService->copieFichierChoisi($dto);
+        SuiviOperationService::suivre('Copie des fichiers choisis', function () use ($dto) {
+            $this->docDemandePaiementService->copieFichierChoisi($dto);
+        });
         // fusion des PDF (page de garde DDP+ autres documents)
-        $this->fusionDesPdf($nomEtCheminFichiersEnregistrer, $fichierChoisiAvecChemins, $nomAvecCheminFichier);
+        SuiviOperationService::suivre('Conversion et fusion', function () use ($nomEtCheminFichiersEnregistrer, $fichierChoisiAvecChemins, $nomAvecCheminFichier) {
+            $this->fusionDesPdf($nomEtCheminFichiersEnregistrer, $fichierChoisiAvecChemins, $nomAvecCheminFichier);
+        });
 
         return $nomFichier;
     }
