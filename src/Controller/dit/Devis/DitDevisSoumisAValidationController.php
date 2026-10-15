@@ -19,6 +19,7 @@ use App\Service\fichier\GenererNonFichierService;
 use App\Repository\dit\DitDevisSoumisAValidationRepository;
 use App\Service\genererPdf\GenererPdfDevisSoumisAValidation;
 use App\Service\historiqueOperation\HistoriqueOperationDEVService;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
  * @Route("/atelier/demande-intervention")
@@ -197,16 +198,28 @@ class DitDevisSoumisAValidationController extends Controller
         $originalName = $form->get("pieceJoint01")->getData()->getClientOriginalName();
         $numeroVersion = $devisSoumisValidataion[0]->getNumeroVersion();
 
-        $blockages = $this->ConditionDeBlockage($numDevis, $numDit, $codeSociete, $this->devisRepository, $originalName);
-        if ($this->blockageSoumission($blockages, $numDevis)) {
+        // suivi étape par étape de la soumission (admin > historique > suivi des soumissions)
+        $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_DEVIS_ATELIER, $numDevis);
+
+        $soumissionAutorisee = $suivi->etape('Contrôles de blocage', function () use ($numDevis, $numDit, $codeSociete, $originalName) {
+            $blockages = $this->ConditionDeBlockage($numDevis, $numDit, $codeSociete, $this->devisRepository, $originalName);
+            return $this->blockageSoumission($blockages, $numDevis);
+        });
+        if ($soumissionAutorisee) {
 
             /** ENVOIE des DONNEE dans BASE DE DONNEE */
-            $this->envoieDonnerDansBd($devisSoumisValidataion, $type, $data);
-            $this->editDevisRattacherDit($numDit, $numDevis, $type, $codeSociete); //ajout du numero devis dans la table demande_intervention
+            $suivi->etape('Base de données', function () use ($devisSoumisValidataion, $type, $data) {
+                $this->envoieDonnerDansBd($devisSoumisValidataion, $type, $data);
+            });
+            $suivi->etape('Mise à jour DIT (numéro devis)', function () use ($numDit, $numDevis, $type, $codeSociete) {
+                $this->editDevisRattacherDit($numDit, $numDevis, $type, $codeSociete); //ajout du numero devis dans la table demande_intervention
+            });
 
 
             /** CREATION , FUSION, ENVOIE DW du PDF */
-            $suffix = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis, $codeSociete)[0]['retour'];
+            $suffix = $suivi->etape('Constructeur', function () use ($numDevis, $codeSociete) {
+                return $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis, $codeSociete)[0]['retour'];
+            });
             //recuperation du fichier ajouter par l'utilisateur
             $file =  $form->get('pieceJoint01')->getData();
 
@@ -215,34 +228,34 @@ class DitDevisSoumisAValidationController extends Controller
                 $nomFichierGenerer = 'verificationprix_' . $numDevis . '-' . $numeroVersion . '#' . $suffix . '~' . $data->getTacheValidateur() . '.pdf';
 
                 // telecharger le fichier en copiant sur son repertoire
-                $this->fileUploader->uploadFileSansName($file, $nomFichierGenerer);
+                $suivi->etape('Fichier joint', function () use ($file, $nomFichierGenerer) {
+                    $this->fileUploader->uploadFileSansName($file, $nomFichierGenerer);
+                });
 
                 //envoye des fichier dans le DW
-                if ($this->estCeVente($numDevis, $codeSociete)) { // si vrai c'est une vente
+                $suivi->etape('DocuWare', function () use ($nomFichierGenerer) {
                     $this->generePdfDevis->copyToDWFichierDevisSoumisVp($nomFichierGenerer); // copier le fichier de devis dans docuware
-                } else {
-                    $this->generePdfDevis->copyToDWFichierDevisSoumisVp($nomFichierGenerer); // copier le fichier de devis dans docuware
-                }
+                });
             } else {
                 $nomFichierCtrl = 'devisctrl_' . $numDevis . '-' . $numeroVersion . '#' . $suffix . '.pdf';
                 //generer le nom du fichier
                 $nomFichierGenerer = 'devisatelier_' . $numDevis . '-' . $numeroVersion . '#' . $suffix . '.pdf';
 
                 // telecharger le fichier en copiant sur son repertoire
-                $this->fileUploader->uploadFileSansName($file, $nomFichierGenerer);
+                $suivi->etape('Fichier joint', function () use ($file, $nomFichierGenerer) {
+                    $this->fileUploader->uploadFileSansName($file, $nomFichierGenerer);
+                });
 
                 //pour création du pdf
-                $this->creationPdf($devisSoumisValidataion, $this->generePdfDevis, $nomFichierCtrl, $codeSociete);
+                $suivi->etape('PDF de contrôle', function () use ($devisSoumisValidataion, $nomFichierCtrl, $codeSociete) {
+                    $this->creationPdf($devisSoumisValidataion, $this->generePdfDevis, $nomFichierCtrl, $codeSociete);
+                });
 
-                // envoyer les fichiers dans DW
-                if ($this->estCeVente($numDevis, $codeSociete)) { // si vrai c'est une vente
-                    $this->generePdfDevis->copyToDWDevisSoumis($nomFichierCtrl);
-                    $this->generePdfDevis->copyToDWFichierDevisSoumis($nomFichierGenerer); // copier le fichier de devis dans docuware
-                } else {
-                    /**envoie des fichiers dans docuware*/
+                // envoyer les fichiers dans DW (même traitement pour un devis vente ou forfait)
+                $suivi->etape('DocuWare', function () use ($nomFichierCtrl, $nomFichierGenerer) {
                     $this->generePdfDevis->copyToDWDevisSoumis($nomFichierCtrl); // copier le fichier de controlle dans docuware
                     $this->generePdfDevis->copyToDWFichierDevisSoumis($nomFichierGenerer); // copier le fichier de devis dans docuware
-                }
+                });
             }
 
 

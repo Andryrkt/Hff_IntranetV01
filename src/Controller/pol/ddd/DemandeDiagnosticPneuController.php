@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\lienGenerique;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 
 /**
@@ -93,9 +94,14 @@ class DemandeDiagnosticPneuController extends Controller
             /** @var DemandeDiagnosticPneu $demande */
             $demande = $form->getData();
             $uploadedFiles = $form->get('piecesJointes')->getData();
+            // suivi étape par étape de l'enregistrement (admin > historique > suivi des opérations)
+            // l'étape est ouverte avant la transaction pour ne pas être annulée par un rollback
+            $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_DDD);
             // ---- Sauvegarde via une méthode interne ----
             try {
-                $this->saveDemande($demande, $uploadedFiles);
+                $suivi->etape('Enregistrement de la demande', function () use ($demande, $uploadedFiles) {
+                    $this->saveDemande($demande, $uploadedFiles);
+                });
             } catch (\Exception $e) {
                 // $this->addFlash('error', $e->getMessage());
                 dump($e->getMessage());
@@ -125,13 +131,20 @@ class DemandeDiagnosticPneuController extends Controller
             $em->persist($demande);
             $em->flush();
             $em->commit();
+            if (SuiviOperationService::courant() !== null) {
+                SuiviOperationService::courant()->setNumeroDocument((string) $numero);
+            }
 
             if ($uploadedFiles) {
-                $this->handlePiecesJointes($uploadedFiles, $demande);
+                SuiviOperationService::suivre('Pièces jointes', function () use ($uploadedFiles, $demande) {
+                    $this->handlePiecesJointes($uploadedFiles, $demande);
+                });
             }
 
             // Envoye mail au atelier
-            $this->envoyerMailAtelier($demande);
+            SuiviOperationService::suivre("Mail à l'atelier", function () use ($demande) {
+                $this->envoyerMailAtelier($demande);
+            });
             // Historique (à décommenter après validation)
             $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $demande->getNumeroDemande(), 'demande_diagnostic_pneu_liste', true);
         } catch (\Exception $e) {

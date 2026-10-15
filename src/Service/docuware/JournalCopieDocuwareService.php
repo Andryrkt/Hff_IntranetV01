@@ -2,6 +2,8 @@
 
 namespace App\Service\docuware;
 
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
+
 /**
  * Journalise chaque copie de fichier vers DocuWare dans la table journal_copie_docuware.
  *
@@ -14,6 +16,12 @@ class JournalCopieDocuwareService
 {
     public static function enregistrer(string $source, string $destination, bool $succes, int $nbTentatives = 1, ?string $messageErreur = null): void
     {
+        // une copie échouée fait passer en échec l'étape DocuWare de la soumission suivie
+        $suivi = SuiviOperationService::courant();
+        if (!$succes && $suivi !== null) {
+            $suivi->signalerProbleme('Copie DocuWare échouée pour ' . basename($destination) . ($messageErreur ? ' : ' . $messageErreur : ''));
+        }
+
         try {
             global $container;
             if (!$container || !$container->has('doctrine.orm.default_entity_manager')) {

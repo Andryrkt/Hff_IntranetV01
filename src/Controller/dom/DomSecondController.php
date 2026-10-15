@@ -13,6 +13,7 @@ use App\Controller\Traits\FormatageTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationDOMService;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
  * @Route("/rh/ordre-de-mission")
@@ -54,14 +55,21 @@ class DomSecondController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // suivi étape par étape de l'enregistrement (admin > historique > suivi des opérations)
+            $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_DOM);
 
             $domForm = $form->getData();
 
-            $this->enregistrementValeurdansDom($dom, $domForm, $form, $form1Data, $this->getEntityManager(), $user);
+            $suivi->etape('Préparation des données', function () use ($dom, $domForm, $form, $form1Data, $user) {
+                $this->enregistrementValeurdansDom($dom, $domForm, $form, $form1Data, $this->getEntityManager(), $user);
+            });
+            $suivi->setNumeroDocument((string) $dom->getNumeroOrdreMission());
 
             $userDom = "{$dom->getMatricule()} - {$dom->getNom()} {$dom->getPrenom()}";
 
-            $conflits = (new DomModel)->verifierConflitDate($dom->getMatricule(), $dom->getDateDebut(), $dom->getDateFin(), $dom->getCodeSociete());
+            $conflits = $suivi->etape('Contrôle des conflits de dates', function () use ($dom) {
+                return (new DomModel)->verifierConflitDate($dom->getMatricule(), $dom->getDateDebut(), $dom->getDateFin(), $dom->getCodeSociete());
+            });
 
             $montantOk = (int)str_replace('.', '', $dom->getTotalGeneralPayer()) <= 500000;
 

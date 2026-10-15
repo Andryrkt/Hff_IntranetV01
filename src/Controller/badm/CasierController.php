@@ -16,6 +16,7 @@ use App\Service\genererPdf\GenererPdfCasier;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationCASService;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
  * @Route("/materiel/casier")
@@ -119,14 +120,19 @@ class CasierController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted()) {
+            // suivi étape par étape de l'enregistrement (admin > historique > suivi des opérations)
+            $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_CASIER);
 
-            $casier->setNumeroCas($this->autoINcriment('CAS'));
-            //RECUPERATION de la dernière Numéro casier
-            $application = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'CAS']);
-            $application->setDerniereId($casier->getNumeroCas());
-            // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
-            $this->getEntityManager()->persist($application);
-            $this->getEntityManager()->flush();
+            $suivi->etape('Numérotation', function () use ($casier) {
+                $casier->setNumeroCas($this->autoINcriment('CAS'));
+                //RECUPERATION de la dernière Numéro casier
+                $application = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'CAS']);
+                $application->setDerniereId($casier->getNumeroCas());
+                // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
+                $this->getEntityManager()->persist($application);
+                $this->getEntityManager()->flush();
+            });
+            $suivi->setNumeroDocument((string) $casier->getNumeroCas());
 
 
             $NumCAS = $casier->getNumeroCas();
@@ -144,11 +150,17 @@ class CasierController extends Controller
 
             /** CREATION PDF */
             $genererPdfCasier = new GenererPdfCasier();
-            $genererPdfCasier->genererPdfCasier($generPdfCasier);
-            $genererPdfCasier->copyInterneToDOCUWARE($NumCAS, $agenceEmetteur . $serviceEmetteur);
+            $suivi->etape('Page de garde', function () use ($genererPdfCasier, $generPdfCasier) {
+                $genererPdfCasier->genererPdfCasier($generPdfCasier);
+            });
+            $suivi->etape('DocuWare', function () use ($genererPdfCasier, $NumCAS, $agenceEmetteur, $serviceEmetteur) {
+                $genererPdfCasier->copyInterneToDOCUWARE($NumCAS, $agenceEmetteur . $serviceEmetteur);
+            });
 
-            $this->getEntityManager()->persist($casier);
-            $this->getEntityManager()->flush();
+            $suivi->etape('Base de données', function () use ($casier) {
+                $this->getEntityManager()->persist($casier);
+                $this->getEntityManager()->flush();
+            });
 
             $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistré', $NumCAS, 'listeTemporaire_affichageListeCasier', true);
         }

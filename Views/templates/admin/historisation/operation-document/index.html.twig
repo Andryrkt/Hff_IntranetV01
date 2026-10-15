@@ -53,6 +53,14 @@
 								<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
 									<i class="fas fa-ellipsis-vertical"></i>
 								</button>
+								<ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+									<li>
+										<a class="dropdown-item" href="{{ path('suivi_operation_index', {historique: item.id}) }}">
+											<i class="fas fa-list-check"></i>
+											Voir les étapes de la soumission
+										</a>
+									</li>
+								</ul>
 							</div>
 						</td>
 						<td>{{ item.id }}</td>

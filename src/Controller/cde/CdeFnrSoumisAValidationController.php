@@ -15,6 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Repository\cde\CdefnrSoumisAValidationRepository;
 use App\Service\historiqueOperation\HistoriqueOperationCDEFNRService;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
  * @Route("/magasin")
@@ -63,29 +64,47 @@ class CdefnrSoumisAValidationController extends Controller
             $blockages = $this->conditionDeBlockage($originalName, $numCdeFournisseur);
 
             // if ($this->blockageSoumissionCdeFnr($blockages, $numCdeFournisseur, $originalName)) {
-                $cdeFournisseur = $this->ajoutDonnerEntity($numCdeFournisseur, $codeFournisseur);
-
                 //Enregistrement du fichier
                 $numFnrCde = $numCdeFournisseur . '_' . $codeFournisseur;
-                $fileName = $this->enregistrementFichier($form, $numFnrCde, $cdeFournisseur->getNumVersion());
-                $fileNameJoints = $this->enregistreFichierJoint($form);
-                array_unshift($fileNameJoints, $fileName);
+                // suivi étape par étape de la soumission (admin > historique > suivi des soumissions)
+                $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_CDE_FOURNISSEUR, $numFnrCde);
+
+                $cdeFournisseur = $suivi->etape('Préparation des données', function () use ($numCdeFournisseur, $codeFournisseur) {
+                    return $this->ajoutDonnerEntity($numCdeFournisseur, $codeFournisseur);
+                });
+
+                $fileNameJoints = $suivi->etape('Fichiers joints', function () use ($form, $numFnrCde, $cdeFournisseur) {
+                    $fileName = $this->enregistrementFichier($form, $numFnrCde, $cdeFournisseur->getNumVersion());
+                    $fileNameJoints = $this->enregistreFichierJoint($form);
+                    array_unshift($fileNameJoints, $fileName);
+
+                    return $fileNameJoints;
+                });
+                $fileName = $fileNameJoints[0];
                 $cheminAvecNomFichier = array_map(
                     function ($file) {
                         return $_ENV['BASE_PATH_FICHIER'] . '/cde_fournisseur/' . $file;
                     },
                     $fileNameJoints
                 );
-                $fichierConverties = $this->ConvertirLesPdf($cheminAvecNomFichier);
+                $fichierConverties = $suivi->etape('Vérification du PDF (conversion)', function () use ($cheminAvecNomFichier) {
+                    return $this->ConvertirLesPdf($cheminAvecNomFichier);
+                });
                 //fusion des fichiers
                 $cheminEtNomFichier = $_ENV['BASE_PATH_FICHIER'] . '/cde_fournisseur/' . $fileName;
-                $this->traitementDeFichier->fusionFichers($fichierConverties, $cheminEtNomFichier);
+                $suivi->etape('Fusion', function () use ($fichierConverties, $cheminEtNomFichier) {
+                    $this->traitementDeFichier->fusionFichers($fichierConverties, $cheminEtNomFichier);
+                });
                 //envoyer le ficher dans docuware
                 $genererPdfCdeFnr = new GenererPdfCdeFnr();
-                $genererPdfCdeFnr->copyToDWCdeFnrSoumis($fileName);
+                $suivi->etape('DocuWare', function () use ($genererPdfCdeFnr, $fileName) {
+                    $genererPdfCdeFnr->copyToDWCdeFnrSoumis($fileName);
+                });
 
                 //ajout des données dans la base de donnée
-                $this->ajoutDonnerDansDb($cdeFournisseur);
+                $suivi->etape('Base de données', function () use ($cdeFournisseur) {
+                    $this->ajoutDonnerDansDb($cdeFournisseur);
+                });
 
                 //historisation de l'operation
                 $message = 'La commade fournisseur a été soumis avec succès';

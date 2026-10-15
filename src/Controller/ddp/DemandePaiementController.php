@@ -29,6 +29,7 @@ use App\Service\TableauEnStringService;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
  * @Route("/compta/demande-de-paiement")
@@ -94,15 +95,24 @@ class DemandePaiementController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $numDdp = $this->autoINcriment('DDP'); // decrementation du numero DDP
-            $this->modificationDernierIdApp($numDdp); //modification de la dernière numero DDP
+            // suivi étape par étape de l'enregistrement (admin > historique > suivi des opérations)
+            $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_DDP);
+
+            $numDdp = $suivi->etape('Numérotation', function () {
+                $numDdp = $this->autoINcriment('DDP'); // decrementation du numero DDP
+                $this->modificationDernierIdApp($numDdp); //modification de la dernière numero DDP
+                return $numDdp;
+            });
+            $suivi->setNumeroDocument($numDdp);
             $data = $form->getData(); //recupération des donnnées
 
             // $numCdes = $this->recuperationCdeFacEtNonFac($id);
-            $numCdes = $this->demandePaiementModel->getCommandeReceptionnee($data->getNumeroFournisseur());
-            $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
-            $numFacString = TableauEnStringService::TableauEnString(',', $data->getNumeroFacture());
-            $numeroCommandes = $this->demandePaiementModel->getNumCommande($data->getNumeroFournisseur(), $numCdesString, $numFacString);
+            $numeroCommandes = $suivi->etape('Récupération des commandes (IPS)', function () use ($data) {
+                $numCdes = $this->demandePaiementModel->getCommandeReceptionnee($data->getNumeroFournisseur());
+                $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
+                $numFacString = TableauEnStringService::TableauEnString(',', $data->getNumeroFacture());
+                return $this->demandePaiementModel->getNumCommande($data->getNumeroFournisseur(), $numCdesString, $numFacString);
+            });
 
             /** TRAITEMENT FICHIER  AUTRE DOCUMENT ET BC client externe / BC client magasin*/
             if ($data->getPieceJoint04() != null) {
@@ -122,37 +132,51 @@ class DemandePaiementController extends Controller
             }
 
             /** ENREGISTREMENT DU FICHIER */
-            $nomDesFichiers = $this->enregistrementFichier($form, $numDdp);
+            $nomDesFichiers = $suivi->etape('Fichiers joints', function () use ($form, $numDdp) {
+                return $this->enregistrementFichier($form, $numDdp);
+            });
             if ($id == 2) {
                 $data->setNumeroCommande($numeroCommandes);
             }
-            $nomDufichierCde = $this->recupCdeDw($data, $numDdp, 1); //recupération de fichier cde dans DW
+            $nomDufichierCde = $suivi->etape('Récupération des commandes (DocuWare)', function () use ($data, $numDdp) {
+                return $this->recupCdeDw($data, $numDdp, 1); //recupération de fichier cde dans DW
+            });
             /** AJOUT DES INFO NECESSAIRE  A L'ENTITE DDP */
             $this->ajoutDesInfoNecessaire($data, $numDdp, $id, $nomDesFichiers, $nomDufichierCde);
 
             /** ENREGISTREMENT DANS BD */
-            $this->EnregistrementBdDdp($data); // enregistrement des données dans la table demande_paiement
-            $this->EnregistrementBdDdpl($data); // enregistrement des données dans la table demande_paiement_ligne
-            $this->enregisterDdpF($data); // enregistrement des données dans la table doc_demande_paiement
-            $this->enregistrementBdHistoriqueStatut($data); // enregistrement des données dans la table historique_statut_ddp
-            $this->enregistrementDemandePaiementCommande($data); // enregistrement des données dans la table demande_paiement_commande
-            $this->enregistrementCommandeLivraison($data); // enregistrement des données dans la table commande_livraison
+            $suivi->etape('Base de données', function () use ($data) {
+                $this->EnregistrementBdDdp($data); // enregistrement des données dans la table demande_paiement
+                $this->EnregistrementBdDdpl($data); // enregistrement des données dans la table demande_paiement_ligne
+                $this->enregisterDdpF($data); // enregistrement des données dans la table doc_demande_paiement
+                $this->enregistrementBdHistoriqueStatut($data); // enregistrement des données dans la table historique_statut_ddp
+                $this->enregistrementDemandePaiementCommande($data); // enregistrement des données dans la table demande_paiement_commande
+                $this->enregistrementCommandeLivraison($data); // enregistrement des données dans la table commande_livraison
+            });
 
             /** COPIER LES FICHIERS DISTANT 192.168.0.15 vers uplode/ddp/... */
             if ($id == 2) {
-                $this->copierFichierDistant($data, $numDdp);
+                $suivi->etape('Copie des fichiers distants', function () use ($data, $numDdp) {
+                    $this->copierFichierDistant($data, $numDdp);
+                });
             }
 
             /** GENERATION DE PDF */
             $nomPageDeGarde = $numDdp . '.pdf';
             $cheminEtNom = $this->cheminDeBase . '/' . $numDdp . '/' . $nomPageDeGarde;
-            $this->generatePdfDdp->genererPDF($data, $cheminEtNom);
+            $suivi->etape('Page de garde', function () use ($data, $cheminEtNom) {
+                $this->generatePdfDdp->genererPDF($data, $cheminEtNom);
+            });
 
             /** FUSION DES PDF */
             $nomFichierAvecChemin = $this->addPrefixToElementArray($data->getLesFichiers(), $this->cheminDeBase . '/' . $numDdp . '/');
-            $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemin);
+            $fichierConvertir = $suivi->etape('Conversion', function () use ($nomFichierAvecChemin) {
+                return $this->ConvertirLesPdf($nomFichierAvecChemin);
+            });
             $tousLesFichersAvecChemin = $this->traitementDeFichier->insertFileAtPosition($fichierConvertir, $cheminEtNom, 0);
-            $this->traitementDeFichier->fusionFichers($tousLesFichersAvecChemin, $cheminEtNom);
+            $suivi->etape('Fusion', function () use ($tousLesFichersAvecChemin, $cheminEtNom) {
+                $this->traitementDeFichier->fusionFichers($tousLesFichersAvecChemin, $cheminEtNom);
+            });
 
             /** ENVOYER DANS DW */
             // $this->generatePdfDdp->copyToDwDdp($nomPageDeGarde, $numDdp, '1');

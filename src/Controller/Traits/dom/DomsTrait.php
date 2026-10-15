@@ -19,6 +19,7 @@ use App\Entity\admin\utilisateur\User;
 use App\Entity\admin\AgenceServiceIrium;
 use App\Entity\admin\dom\SousTypeDocument;
 use App\Service\genererPdf\GeneratePdfDom;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 trait DomsTrait
 {
@@ -200,30 +201,37 @@ trait DomsTrait
         array_unshift($pdfFiles, $mainPdf);
 
         // Récupérer tous les champs de fichiers du formulaire
-        foreach ($form->all() as $fieldName => $field) {
-            if (preg_match('/^pieceJoint\d+$/', $fieldName)) {
-                /** @var UploadedFile|null $file */
-                $file = $field->getData();
-                if ($file !== null) {
-                    // Extraire l'index du champ (e.g., pieceJoint1 -> 1)
-                    if (preg_match('/^pieceJoint(\d+)$/', $fieldName, $matches)) {
-                        $index = (int)$matches[1];
-                        $pdfPath = $this->uploadFile($file, $dom, $fieldName, $index);
-                        if ($pdfPath !== null) {
-                            $pdfFiles[] = $pdfPath;
+        $pdfFiles = SuiviOperationService::suivre('Fichiers joints', function () use ($form, $dom, $pdfFiles) {
+            foreach ($form->all() as $fieldName => $field) {
+                if (preg_match('/^pieceJoint\d+$/', $fieldName)) {
+                    /** @var UploadedFile|null $file */
+                    $file = $field->getData();
+                    if ($file !== null) {
+                        // Extraire l'index du champ (e.g., pieceJoint1 -> 1)
+                        if (preg_match('/^pieceJoint(\d+)$/', $fieldName, $matches)) {
+                            $index = (int)$matches[1];
+                            $pdfPath = $this->uploadFile($file, $dom, $fieldName, $index);
+                            if ($pdfPath !== null) {
+                                $pdfFiles[] = $pdfPath;
+                            }
                         }
                     }
                 }
             }
-        }
+            return $pdfFiles;
+        });
 
         // Nom du fichier PDF fusionné
         $mergedPdfFile = $mainPdf;
 
         // Appeler la fonction pour fusionner les fichiers PDF
         if (!empty($pdfFiles)) {
-            $this->ConvertirLesPdf($pdfFiles);
-            $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
+            SuiviOperationService::suivre('Conversion', function () use ($pdfFiles) {
+                $this->ConvertirLesPdf($pdfFiles);
+            });
+            SuiviOperationService::suivre('Fusion', function () use ($fusionPdf, $pdfFiles, $mergedPdfFile) {
+                $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
+            });
         }
     }
 
@@ -429,21 +437,29 @@ trait DomsTrait
 
     public function recupAppEnvoiDbEtPdf($dom, $domForm, $form, $em, $fusionPdf, $user, $tropPercu = false)
     {
-        //RECUPERATION de la dernière NumeroDordre de mission 
-        $this->enregistreDernierNumDansApplication($dom, $em);
+        //RECUPERATION de la dernière NumeroDordre de mission
+        SuiviOperationService::suivre('Numérotation', function () use ($dom, $em) {
+            $this->enregistreDernierNumDansApplication($dom, $em);
+        });
 
         //ENVOIE DES DONNEES DE FORMULAIRE DANS LA BASE DE DONNEE
-        $em->persist($dom);
-        $em->flush();
+        SuiviOperationService::suivre('Base de données', function () use ($dom, $em) {
+            $em->persist($dom);
+            $em->flush();
+        });
 
         //GENERER un PDF
-        $tabInternePdf = $this->donnerPourPdf($dom, $domForm, $em, $user, $tropPercu);
         $genererPdfDom = new GeneratePdfDom();
-        $genererPdfDom->genererPDF($tabInternePdf);
+        SuiviOperationService::suivre('Page de garde', function () use ($dom, $domForm, $em, $user, $tropPercu, $genererPdfDom) {
+            $tabInternePdf = $this->donnerPourPdf($dom, $domForm, $em, $user, $tropPercu);
+            $genererPdfDom->genererPDF($tabInternePdf);
+        });
         //Fusion piece joint
         $this->envoiePieceJoint($form, $dom, $fusionPdf);
         //envoie vers DW
-        $genererPdfDom->copyInterneToDOCUWARE($dom->getNumeroOrdreMission(), $dom->getAgenceEmetteurId()->getCodeAgence() . '' . $dom->getServiceEmetteurId()->getCodeService());
+        SuiviOperationService::suivre('DocuWare', function () use ($genererPdfDom, $dom) {
+            $genererPdfDom->copyInterneToDOCUWARE($dom->getNumeroOrdreMission(), $dom->getAgenceEmetteurId()->getCodeAgence() . '' . $dom->getServiceEmetteurId()->getCodeService());
+        });
     }
 
     /**

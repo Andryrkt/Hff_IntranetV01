@@ -17,6 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Form\tik\DemandeSupportInformatiqueType;
 use App\Entity\admin\tik\TkiStatutTicketInformatique;
 use App\Service\historiqueOperation\HistoriqueOperationTIKService;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
  * @Route("/it")
@@ -56,30 +57,43 @@ class DemandeSupportInformatiqueController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $dataForm = $form->getData();
+            // suivi étape par étape de l'enregistrement (admin > historique > suivi des opérations)
+            $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_TIK);
 
             if (!$this->validateEmail($user->getMail())) {
                 $message = "Echec de la création de la demande: email invalide.";
                 $this->historiqueOperation->sendNotificationCreation($message, '-', 'liste_tik_index');
             }
 
-            $this->ajoutDonnerDansEntity($dataForm, $supportInfo, $user);
-            $this->rectificationDernierIdApplication($supportInfo);
-            $this->traitementEtEnvoiDeFichier($form, $supportInfo);
+            $suivi->etape('Préparation des données', function () use ($dataForm, $supportInfo, $user) {
+                $this->ajoutDonnerDansEntity($dataForm, $supportInfo, $user);
+            });
+            $suivi->etape('Numérotation', function () use ($supportInfo) {
+                $this->rectificationDernierIdApplication($supportInfo);
+            });
+            $suivi->setNumeroDocument((string) $supportInfo->getNumeroTicket());
+            $suivi->etape('Fichiers joints', function () use ($form, $supportInfo) {
+                $this->traitementEtEnvoiDeFichier($form, $supportInfo);
+            });
 
             $text = str_replace(["\r\n", "\n", "\r"], "<br>", $supportInfo->getDetailDemande());
             $supportInfo->setDetailDemande($text);
 
             //envoi les donnée dans la base de donnée
-            $this->getEntityManager()->persist($supportInfo);
-            $this->getEntityManager()->flush();
+            $suivi->etape('Base de données', function () use ($supportInfo) {
+                $this->getEntityManager()->persist($supportInfo);
+                $this->getEntityManager()->flush();
+            });
 
-            $this->envoyerMailAuxValidateurs([
-                'id'            => $dataForm->getId(),
-                'numTik'        => $dataForm->getNumeroTicket(),
-                'objet'         => $dataForm->getObjetDemande(),
-                'detail'        => $dataForm->getDetailDemande(),
-                'userConnecter' => '', // TODO: nom et prénoms de l'utilisateur connecté
-            ]);
+            $suivi->etape('Mail aux validateurs', function () use ($dataForm) {
+                $this->envoyerMailAuxValidateurs([
+                    'id'            => $dataForm->getId(),
+                    'numTik'        => $dataForm->getNumeroTicket(),
+                    'objet'         => $dataForm->getObjetDemande(),
+                    'detail'        => $dataForm->getDetailDemande(),
+                    'userConnecter' => '', // TODO: nom et prénoms de l'utilisateur connecté
+                ]);
+            });
 
             $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $supportInfo->getNumeroTicket(), 'liste_tik_index', true);
         }
