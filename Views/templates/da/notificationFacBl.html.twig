@@ -67,6 +67,9 @@
 											<span class="badge bg-success">OK</span>
 										{% endif %}
 										{{ notification.nbLignesMaj }} / {{ notification.nbArticlesLivres }} ligne(s)
+										{% if notification.raisonAnomalie %}
+											<div class="mt-1 fw-normal small text-danger">{{ notification.raisonAnomalie }}</div>
+										{% endif %}
 										{% if notification.articlesNonTrouves %}
 											<details class="mt-1 fw-normal">
 												<summary>Article(s) non trouvé(s)</summary>

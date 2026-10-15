@@ -86,6 +86,11 @@ class DaNotificationFacBl
     private bool $estAnomalie = false;
 
     /**
+     * @ORM\Column(type="string", length=1000, name="raison_anomalie", nullable=true)
+     */
+    private ?string $raisonAnomalie = null;
+
+    /**
      * @ORM\Column(type="boolean", name="est_lu")
      */
     private bool $estLu = false;
@@ -213,6 +218,17 @@ class DaNotificationFacBl
     public function setArticlesNonTrouves(?string $articlesNonTrouves): self
     {
         $this->articlesNonTrouves = $articlesNonTrouves;
+        return $this;
+    }
+
+    public function getRaisonAnomalie(): ?string
+    {
+        return $this->raisonAnomalie;
+    }
+
+    public function setRaisonAnomalie(?string $raisonAnomalie): self
+    {
+        $this->raisonAnomalie = $raisonAnomalie !== null ? mb_substr($raisonAnomalie, 0, 1000) : null;
         return $this;
     }
 
