@@ -6,7 +6,9 @@ use App\Constants\da\TypeDaConstants;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Entity\da\DaAfficher;
+use App\Repository\da\DaAfficherRepository;
 use App\Entity\da\DaSoumissionFacBl;
+use App\Repository\da\DaSoumissionFacBlRepository;
 use App\Entity\da\DemandeAppro;
 use App\Model\da\DaModel;
 use App\Model\ddp\DemandePaiementModel;
@@ -18,6 +20,8 @@ use Doctrine\ORM\EntityManagerInterface;
 class DaSoumissionDataService
 {
     private EntityManagerInterface $em;
+    private DaSoumissionFacBlRepository $daSoumissionFacBlRepository;
+    private DaAfficherRepository $daAfficherRepository;
     private DaModel $daModel;
     private DemandePaiementModel $ddpModel;
     private HistoriqueOperationDaFacBlService $historiqueOperation;
@@ -29,6 +33,8 @@ class DaSoumissionDataService
         HistoriqueOperationDaFacBlService $historiqueOperation
     ) {
         $this->em = $em;
+        $this->daSoumissionFacBlRepository = $em->getRepository(DaSoumissionFacBl::class);
+        $this->daAfficherRepository = $em->getRepository(DaAfficher::class);
         $this->daModel = $daModel;
         $this->ddpModel = $ddpModel;
         $this->historiqueOperation = $historiqueOperation;
@@ -41,7 +47,7 @@ class DaSoumissionDataService
 
     public function getDateLivraisonPrevue(string $numDa, string $numCde, string $codeSociete): ?DateTime
     {
-        $date = $this->em->getRepository(DaAfficher::class)->getDateLivraisonPrevue($numDa, $numCde, $codeSociete);
+        $date = $this->daAfficherRepository->getDateLivraisonPrevue($numDa, $numCde, $codeSociete);
         return $date ? new DateTime($date) : null;
     }
 
@@ -54,7 +60,7 @@ class DaSoumissionDataService
             $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
         }
 
-        $livraisonSoumis = $this->em->getRepository(DaSoumissionFacBl::class)->getAllLivraisonSoumis($numDa, $numCde, $codeSociete);
+        $livraisonSoumis = $this->daSoumissionFacBlRepository->getAllLivraisonSoumis($numDa, $numCde, $codeSociete);
 
         foreach ($livraisonSoumis as $numLiv) {
             unset($infosLivraisons[$numLiv]);
@@ -72,7 +78,7 @@ class DaSoumissionDataService
 
     public function getInfoDa(string $numCde, string $codeSociete): array
     {
-        $infoDa = $this->em->getRepository(DaAfficher::class)->getInfoDa($numCde, $codeSociete);
+        $infoDa = $this->daAfficherRepository->getInfoDa($numCde, $codeSociete);
 
         if (empty($infoDa)) {
             $message = "Aucune demande d'approvisionnement n'est associé à la commande n° <b>$numCde</b>.";
@@ -89,7 +95,7 @@ class DaSoumissionDataService
 
     public function getNumeroVersion(string $numCde, string $codeSociete): int
     {
-        $numeroVersionMax = $this->em->getRepository(DaSoumissionFacBl::class)->getNumeroVersionMax($numCde, $codeSociete);
+        $numeroVersionMax = $this->daSoumissionFacBlRepository->getNumeroVersionMax($numCde, $codeSociete);
         return AutoIncDecService::autoIncrement($numeroVersionMax);
     }
 

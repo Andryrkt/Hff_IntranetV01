@@ -6,17 +6,20 @@ use App\Constants\da\StatutDaConstant;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
+use App\Repository\da\DemandeApproLRRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class DaEditionService
 {
     private EntityManagerInterface $em;
+    private DemandeApproLRRepository $demandeApproLRRepository;
     private DaService $daService;
     private FileUploaderForDAService $daFileUploader;
 
     public function __construct(EntityManagerInterface $em, DaService $daService, FileUploaderForDAService $daFileUploader)
     {
         $this->em = $em;
+        $this->demandeApproLRRepository = $em->getRepository(DemandeApproLR::class);
         $this->daService = $daService;
         $this->daFileUploader = $daFileUploader;
     }
@@ -93,7 +96,7 @@ class DaEditionService
         }
 
         /** @var DemandeApproLR[] $dalrs */
-        $dalrs = $this->em->getRepository(DemandeApproLR::class)->findBy(['numeroDemandeAppro' => $numeroDemandeAppro]);
+        $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numeroDemandeAppro]);
         foreach ($dalrs as $dalr) {
             $ligneDAL = $dalParLigne[$dalr->getNumeroLigne()];
             $dalr
@@ -108,7 +111,7 @@ class DaEditionService
     /** Suppression physique des DALR correspondant au DAL $dal */
     private function deleteDALR(DemandeApproL $dal): void
     {
-        $dalrs = $this->em->getRepository(DemandeApproLR::class)->findBy(['numeroLigne' => $dal->getNumeroLigne(), 'numeroDemandeAppro' => $dal->getNumeroDemandeAppro()]);
+        $dalrs = $this->demandeApproLRRepository->findBy(['numeroLigne' => $dal->getNumeroLigne(), 'numeroDemandeAppro' => $dal->getNumeroDemandeAppro()]);
         foreach ($dalrs as $dalr) {
             $this->em->remove($dalr);
         }

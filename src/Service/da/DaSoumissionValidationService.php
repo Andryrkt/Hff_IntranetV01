@@ -6,6 +6,7 @@ use App\Constants\da\StatutDaConstant;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DaSoumisAValidation;
 use App\Entity\da\DemandeAppro;
+use App\Repository\da\DemandeApproRepository;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
 use App\Entity\dit\DemandeIntervention;
@@ -23,6 +24,7 @@ use Exception;
 class DaSoumissionValidationService
 {
     private EntityManagerInterface $em;
+    private DemandeApproRepository $demandeApproRepository;
     private DaObservationService $daObservationService;
     private GenererPdfDaAvecDit $genererPdfDaAvecDit;
     private GenererPdfDaDirect $genererPdfDaDirect;
@@ -38,6 +40,7 @@ class DaSoumissionValidationService
         TraitementDeFichier $traitementDeFichier
     ) {
         $this->em = $em;
+        $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
         $this->daObservationService = $daObservationService;
         $this->genererPdfDaAvecDit = $genererPdfDaAvecDit;
         $this->genererPdfDaDirect = $genererPdfDaDirect;
@@ -48,7 +51,7 @@ class DaSoumissionValidationService
     /** Création du PDF pour une DA avec DIT */
     public function creationPDFAvecDit(string $numDa): void
     {
-        $da = $this->em->getRepository(DemandeAppro::class)->findAvecDernieresDALetLRParNumero($numDa);
+        $da = $this->demandeApproRepository->findAvecDernieresDALetLRParNumero($numDa);
         $dit = $da->getDit() ?? $this->em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $da->getNumeroDemandeDit()]);
         $this->genererPdfDaAvecDit->genererPdfBonAchatValide($dit, $da);
     }
@@ -56,7 +59,7 @@ class DaSoumissionValidationService
     /** Création du PDF pour une DA directe */
     public function creationPDFDirect(string $numDa): void
     {
-        $da = $this->em->getRepository(DemandeAppro::class)->findAvecDernieresDALetLRParNumero($numDa);
+        $da = $this->demandeApproRepository->findAvecDernieresDALetLRParNumero($numDa);
         $observations = $this->daObservationService->getObservations($numDa);
         $this->genererPdfDaDirect->genererPdfBonAchatValide($da, $observations);
     }
