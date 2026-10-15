@@ -2,7 +2,7 @@
 
 namespace App\Service\genererPdf;
 
-use App\Service\docuware\JournalCopieDocuwareService;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 use TCPDF;
 
 class GeneratePdf
@@ -21,7 +21,7 @@ class GeneratePdf
 
     protected function copyFile(string $sourcePath, string $destinationPath): bool
     {
-        $erreur = null; // raison du dernier échec, enregistrée dans le journal des copies DocuWare
+        $erreur = null; // raison du dernier échec, enregistrée dans le suivi des opérations
 
         // Fonction interne pour tenter la copie
         $attemptCopy = function ($attemptNumber) use ($sourcePath, $destinationPath, &$erreur) {
@@ -57,7 +57,7 @@ class GeneratePdf
 
         // Première tentative
         if ($attemptCopy(1)) {
-            JournalCopieDocuwareService::enregistrer($sourcePath, $destinationPath, true, 1);
+            SuiviOperationService::copieDocuware($sourcePath, $destinationPath, true, 1);
             echo "Fichier copié avec succès : $destinationPath\n";
             return true;
         }
@@ -65,18 +65,18 @@ class GeneratePdf
         // Deuxième tentative après un court délai
         usleep(50000); // 50ms
         if ($attemptCopy(2)) {
-            JournalCopieDocuwareService::enregistrer($sourcePath, $destinationPath, true, 2);
+            SuiviOperationService::copieDocuware($sourcePath, $destinationPath, true, 2);
             echo "Fichier copié avec succès après retry : $destinationPath\n";
             return true;
         }
 
-        JournalCopieDocuwareService::enregistrer($sourcePath, $destinationPath, false, 2, $erreur);
+        SuiviOperationService::copieDocuware($sourcePath, $destinationPath, false, 2, $erreur);
         error_log("Échec de copyFile après 2 tentatives : $sourcePath ($erreur)");
         return false;
     }
 
     /**
-     * Copie simple (une seule tentative, sans affichage) avec enregistrement dans le journal des copies DocuWare.
+     * Copie simple (une seule tentative, sans affichage) avec enregistrement dans le suivi des opérations.
      * Utilisée par les méthodes qui faisaient un copy() direct, pour conserver leur comportement.
      */
     protected function copierEtJournaliser(string $sourcePath, string $destinationPath): bool
@@ -85,12 +85,12 @@ class GeneratePdf
         try {
             $succes = copy($sourcePath, $destinationPath);
         } catch (\Exception $e) {
-            JournalCopieDocuwareService::enregistrer($sourcePath, $destinationPath, false, 1, $e->getMessage());
+            SuiviOperationService::copieDocuware($sourcePath, $destinationPath, false, 1, $e->getMessage());
             throw $e; // même comportement qu'avant pour l'appelant
         }
 
         $erreur = $succes ? null : (error_get_last()['message'] ?? "La copie a échoué");
-        JournalCopieDocuwareService::enregistrer($sourcePath, $destinationPath, $succes, 1, $erreur);
+        SuiviOperationService::copieDocuware($sourcePath, $destinationPath, $succes, 1, $erreur);
 
         return $succes;
     }

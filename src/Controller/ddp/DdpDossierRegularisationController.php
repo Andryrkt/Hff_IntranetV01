@@ -18,7 +18,6 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Repository\admin\ddp\DocDemandePaiementRepository;
 use App\Service\historiqueOperation\HistoriqueOperationDDPService;
 use App\Service\historiqueOperation\suivi\SuiviOperationService;
-use App\Service\docuware\JournalCopieDocuwareService;
 
 /**
  * @Route("/compta/demande-de-paiement")
@@ -138,8 +137,8 @@ class DdpDossierRegularisationController extends Controller
         $destinationFinal = $this->baseCheminDocuware . 'DEMANDE_DE_REGULARISATION/' . $numDdr . '.pdf';
         error_clear_last();
         $succes = copy($cheminDeFichier, $destinationFinal);
-        // journal des copies DocuWare (et étape DocuWare du suivi en échec si la copie échoue)
-        JournalCopieDocuwareService::enregistrer($cheminDeFichier, $destinationFinal, $succes, 1, $succes ? null : (error_get_last()['message'] ?? 'La copie a échoué'));
+        // copie enregistrée dans le suivi des opérations (étape en échec si la copie échoue)
+        SuiviOperationService::copieDocuware($cheminDeFichier, $destinationFinal, $succes, 1, $succes ? null : (error_get_last()['message'] ?? 'La copie a échoué'));
     }
 
     private function modificationBdDoc(string $numDdp, string $numDdr): void

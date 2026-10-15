@@ -15,7 +15,7 @@ namespace App\Service\historiqueOperation\suivi;
  *
  * Une étape est enregistrée "EN_COURS" dès son début : si le script s'arrête brutalement (erreur fatale,
  * dépassement de temps, exit), la ligne indique l'étape où le traitement s'est arrêté.
- * L'écriture passe par la connexion DBAL (comme JournalCopieDocuwareService) pour ne pas dépendre de
+ * L'écriture passe par la connexion DBAL (comme le faisait le journal des copies DocuWare) pour ne pas dépendre de
  * l'unité de travail Doctrine de l'appelant. Une erreur de suivi ne doit jamais bloquer l'opération.
  */
 class SuiviOperationService
@@ -56,6 +56,8 @@ class SuiviOperationService
     public const TYPE_BL                          = 'BL';
     public const TYPE_DDD                         = 'DDD';
     public const TYPE_TIK                         = 'TIK';
+    // copie vers DocuWare faite hors d'une opération suivie
+    public const TYPE_COPIE_DOCUWARE              = 'COPIE_DOCUWARE';
 
     public const LIBELLES_TYPE = [
         self::TYPE_DIT                         => 'DIT',
@@ -90,6 +92,7 @@ class SuiviOperationService
         self::TYPE_BL                          => 'BL',
         self::TYPE_DDD                         => 'Diagnostic pneu',
         self::TYPE_TIK                         => 'Ticket informatique',
+        self::TYPE_COPIE_DOCUWARE              => 'Copie DocuWare (hors opération suivie)',
     ];
 
     public const STATUT_EN_COURS   = 'EN_COURS';
@@ -152,6 +155,41 @@ class SuiviOperationService
     public static function suivre(string $libelle, callable $traitement)
     {
         return self::$courant !== null ? self::$courant->etape($libelle, $traitement) : $traitement();
+    }
+
+    /**
+     * Enregistre une copie de fichier vers DocuWare comme une ligne "Copie DocuWare : <fichier>" du suivi en cours
+     * (dossier, taille, tentatives, chemins et raison de l'échec). Une copie échouée fait aussi passer l'étape
+     * englobante (ex. "DocuWare") en échec.
+     * Une copie faite hors d'une opération suivie démarre son propre suivi de type TYPE_COPIE_DOCUWARE.
+     * Appelée par GeneratePdf (copyFile / copierEtJournaliser). Ne lève jamais d'exception.
+     */
+    public static function copieDocuware(string $source, string $destination, bool $succes, int $nbTentatives = 1, ?string $messageErreur = null): void
+    {
+        try {
+            $nomFichier = basename($destination);
+            $suivi      = self::$courant ?? self::demarrer(self::TYPE_COPIE_DOCUWARE, $nomFichier);
+
+            $dossier    = basename(dirname($destination));
+            $taille     = is_file($source) ? number_format(filesize($source) / 1024, 0, ',', ' ') . ' Ko' : 'introuvable';
+            $tentatives = $nbTentatives > 1 ? " ($nbTentatives tentatives)" : '';
+
+            if ($succes) {
+                $message = "Copié dans le dossier DocuWare « $dossier » ($taille)$tentatives";
+            } else {
+                $message = "Échec de la copie dans le dossier DocuWare « $dossier »$tentatives : " . ($messageErreur ?: 'raison inconnue');
+                $suivi->signalerProbleme("Copie DocuWare échouée pour $nomFichier" . ($messageErreur ? " : $messageErreur" : ''));
+            }
+
+            $suivi->ajouterEtapeTerminee(
+                'Copie DocuWare : ' . $nomFichier,
+                $succes ? self::STATUT_SUCCES : self::STATUT_ECHEC,
+                $message,
+                "Fichier à copier : $source ($taille)\nDestination : $destination"
+            );
+        } catch (\Throwable $e) {
+            error_log("[SuiviOperation] Echec de l'enregistrement de la copie DocuWare $source -> $destination : " . $e->getMessage());
+        }
     }
 
     public function getIdSuivi(): string
@@ -254,6 +292,32 @@ class SuiviOperationService
         while (!empty($this->etapesOuvertes)) {
             $this->fermerEtape(self::STATUT_INTERROMPU, "Le traitement s'est arrêté pendant cette étape (redirection ou arrêt du script)");
         }
+    }
+
+    /**
+     * Enregistre directement une étape déjà terminée (sans traitement à exécuter)
+     */
+    private function ajouterEtapeTerminee(string $libelle, string $statut, ?string $message, ?string $detail): void
+    {
+        $this->ordre++;
+        $maintenant = self::formaterDate(microtime(true));
+
+        $this->executer(function ($connexion) use ($libelle, $statut, $message, $detail, $maintenant) {
+            $connexion->insert(self::TABLE, [
+                'id_suivi'        => $this->idSuivi,
+                'type_operation'  => $this->typeOperation,
+                'numero_document' => $this->numeroDocument !== null ? mb_substr($this->numeroDocument, 0, 50) : null,
+                'ordre'           => $this->ordre,
+                'etape'           => mb_substr($libelle, 0, 100),
+                'statut'          => $statut,
+                'message'         => $message !== null ? mb_substr($message, 0, 1000) : null,
+                'detail_erreur'   => $detail !== null ? mb_substr($detail, 0, 8000) : null,
+                'date_debut'      => $maintenant,
+                'date_fin'        => $maintenant,
+                'utilisateur'     => self::getUtilisateur(),
+                'url'             => mb_substr($_SERVER['REQUEST_URI'] ?? 'cli', 0, 500),
+            ]);
+        });
     }
 
     private function ouvrirEtape(string $libelle): void

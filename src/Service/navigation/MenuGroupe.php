@@ -464,7 +464,6 @@ class MenuGroupe
                 'icon'   => 'fa-bell',
                 'links'  => [
                     ['label' => 'Soumission facture / BL', 'icon' => 'fa-file-invoice',   'route' => 'da_notification_facbl'],
-                    ['label' => 'Copies vers DocuWare',    'icon' => 'fa-cloud-arrow-up', 'route' => 'journal_copie_docuware_index'],
                 ],
             ],
             [
