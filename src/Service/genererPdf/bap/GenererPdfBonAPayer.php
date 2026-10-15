@@ -60,9 +60,8 @@ class GenererPdfBonAPayer extends GeneratePdf
 
     private function renderHeader(TCPDF $pdf, ?string $userMail, DaSoumissionFacBlDto $dto): void
     {
-        $logoPath =  $_ENV['BASE_PATH_LONG'] . '/Views/assets/logoHff.jpg';
         $pdf->setAbsY(11);
-        $pdf->Image($logoPath, '', '', 45, 12);
+        $pdf->Image("{$this->basePathAssets}/logoHff.jpg", '', '', 45, 12);
         $pdf->setAbsX(60);
         $pdf->setFont('helvetica', 'B', 22);
         $pdf->Cell(110, 12, 'BAP APPRO', 0, 0, 'C', false, '', 0, false, 'T', 'M');
@@ -240,7 +239,7 @@ class GenererPdfBonAPayer extends GeneratePdf
     private function savePDF(TCPDF $pdf, string $numDa, ?string $numCde = null, string $dest = "F"): string
     {
         // Obtention du chemin absolu du répertoire de travail
-        $Dossier = $_ENV['BASE_PATH_FICHIER'] . "/da/$numDa";
+        $Dossier = "{$this->basePathFile}/da/$numDa";
 
         // Vérification si le répertoire existe, sinon le créer
         if (!is_dir($Dossier)) {

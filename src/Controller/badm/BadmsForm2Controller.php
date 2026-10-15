@@ -135,6 +135,12 @@ class BadmsForm2Controller extends Controller
                 //copy du fichier fusionner dan sdocuware
                 $createPdf->copyInterneToDOCUWARE($badm->getNumBadm(), substr($badm->getAgenceEmetteur(), 0, 2) . substr($badm->getServiceEmetteur(), 0, 3));
 
+                // mise à jour du colonne pdf_deposer_dw et date_depot_pdf_dw
+                $badm->setPdfDeposerDw(true);
+                $badm->setDateDepotPdfDw(new \DateTime());
+                $this->getEntityManager()->persist($badm);
+                $this->getEntityManager()->flush();
+
                 $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrer', $badm->getNumBadm(), 'badmListe_AffichageListeBadm', true);
             }
         }

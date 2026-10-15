@@ -22,7 +22,7 @@ class SecurityService
     // ─── Routes publiques (pas de contrôle d'accès) ──────────────────────────
     private const ROUTES_SEMI_PRIVEES = ['choix_societe', 'sso_annuaire'];
     private const ROUTE_ACCUEIL = 'profil_acceuil';
-    private const ROUTES_PUBLIQUES = ['security_signin', 'auth_deconnexion'];
+    private const ROUTES_PUBLIQUES = ['security_signin', 'auth_deconnexion', 'sso_connect'];
     private const PREFIXES_API = ['api_'];
     private const PREFIXES_EXPORT = ['export_'];
 
@@ -38,6 +38,12 @@ class SecurityService
      * Permet d'appeler verifierPermission() sans paramètre depuis les contrôleurs.
      */
     private ?string $routeCourrante = null;
+
+    /**
+     * Paramètres de la route courante (ex: ['typeDdp' => '2']), sans les
+     * attributs internes (_route, _controller...).
+     */
+    private array $routeParamsCourants = [];
 
     private ?bool $estAdmin = null;
     private ?bool $estAtelier = null;
@@ -55,6 +61,11 @@ class SecurityService
     public function getRouteCourrante(): ?string
     {
         return $this->routeCourrante;
+    }
+
+    public function getRouteParamsCourants(): array
+    {
+        return $this->routeParamsCourants;
     }
 
     /**
@@ -81,6 +92,11 @@ class SecurityService
 
         // Mémoriser la route pour les appels depuis les contrôleurs
         $this->routeCourrante = $nomRoute;
+        $this->routeParamsCourants = array_filter(
+            $request->attributes->all(),
+            fn($valeur, $cle) => strpos((string) $cle, '_') !== 0 && is_scalar($valeur),
+            ARRAY_FILTER_USE_BOTH
+        );
 
         // Route publique ou Route Export → laisse passer sans aucun contrôle
         if ($this->estRoutePublique($nomRoute) || $this->estRouteExport($nomRoute)) {

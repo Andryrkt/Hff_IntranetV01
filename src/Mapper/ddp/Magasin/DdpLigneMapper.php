@@ -23,7 +23,7 @@ class DdpLigneMapper
                 ->setNumeroFacture(self::numeroFacture($dto, $i))
                 ->setMontantFacture($dto->montantAPayer())
                 ->setNumeroVersion(1)
-                ->setRatioMontantPayer(0); // TODO: montant total à rechercher pour le magasin
+                ->setRatioMontantPayer($dto->ratioMontantPayer);
 
             $lignes[] = $ligne;
         }
