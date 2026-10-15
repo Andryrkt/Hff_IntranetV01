@@ -155,7 +155,7 @@ Audit fait sur `Service/da`, `Controller/da`, `Api/da`, `Factory/da` après A1 �
 ### D. Utilisateur et repositories — À FAIRE (après A à C)
 Objectif : performance et cohérence. Périmètre : `Controller/da`, `Api/da`, `Service/da`, `Factory/da`. `Controller` et `UserDataService` ne sont pas modifiés. Le plafond de ~5 dépendances est **ignoré pour cette étape** (à revoir en F). Un commit par sous-étape.
 
-- **D1. `UserDataService` à la place de `getUser()` / `getUserName()` / `getUserMail()` hérités.**
+- **D1. `UserDataService` à la place de `getUser()` / `getUserName()` / `getUserMail()` hérités — FAIT (2026-10-15, aucun yaml).**
   - Les contrôleurs DA injectent `UserDataService` (une seule instance partagée par requête ; son constructeur ne fait aucune requête) et n'appellent plus les méthodes héritées de `Controller`. `getUser()->getNomUtilisateur()` devient `getUserName()` (même valeur, aucun `find()`). `getUser()` seulement quand l'entité est nécessaire.
   - Les services DA qui reçoivent `$user` / `$username` en paramètre injectent `UserDataService` ; on retire ces paramètres des appelants (signature d'`insertionObservation` comprise).
   - Écarts assumés : `getUser()` renvoie la même instance pendant la requête (un seul `find()` au lieu d'un par appel) ; le cas `null` (session expirée) reste inchangé, le bug 3 reste en E. Absorbe le bug 16.
