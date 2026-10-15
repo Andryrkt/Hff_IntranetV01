@@ -13,6 +13,7 @@ use App\Constants\admin\ApplicationConstant;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 /**
  * @Route("/demande-appro")
@@ -46,7 +47,11 @@ class DaNewAvecDitController extends Controller
          */
         $dit = $this->getEntityManager()->getRepository(DemandeIntervention::class)->find($ditId);
 
+        if (!$dit) throw new ResourceNotFoundException();
+
         $demandeAppro = $daId === 0 ? $this->daCreationService->initialisationDemandeApproAvecDit($dit) : $this->demandeApproRepository->find($daId);
+        if (!$demandeAppro) throw new ResourceNotFoundException();
+
         $demandeAppro
             ->setDit($dit)
             ->setCodeSociete($codeSociete)
