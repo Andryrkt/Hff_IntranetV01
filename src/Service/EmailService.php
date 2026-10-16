@@ -88,11 +88,19 @@ class EmailService
                 $mailer->addAttachment($filePath, $fileName);
             }
 
+            // objet et destinataires affichés dans le suivi des opérations (copies fixes MAIL_CC / MAIL_BCC non reprises)
+            $resume = $this->resumeMail($mailer->Subject, $recipients, $cc);
+
+            // l'envoi SMTP prend plusieurs secondes : il est fait après la réponse, l'utilisateur n'attend pas
+            if (self::envoiApresReponse()) {
+                self::mettreEnFile($this, $resume);
+                return true;
+            }
+
             // Envoyer l'e-mail
             $this->twigMailer->send();
 
-            // objet et destinataires affichés dans le suivi des opérations (copies fixes MAIL_CC / MAIL_BCC non reprises)
-            SuiviOperationService::noter($this->resumeMail($mailer->Subject, $recipients, $cc));
+            SuiviOperationService::noter($resume);
 
             return true;
         } catch (\Exception $e) {
@@ -105,6 +113,91 @@ class EmailService
         }
     }
 
+
+    /**
+     * Mails préparés, envoyés à la fin de la requête une fois la réponse transmise au navigateur
+     * @var array<int, array{0: self, 1: string}>
+     */
+    private static array $fileAttente = [];
+
+    /**
+     * Envoi après la réponse : en web uniquement (pas en ligne de commande), désactivable par MAIL_ENVOI_APRES_REPONSE=0
+     */
+    private static function envoiApresReponse(): bool
+    {
+        return PHP_SAPI !== 'cli' && ($_ENV['MAIL_ENVOI_APRES_REPONSE'] ?? '1') !== '0';
+    }
+
+    private static function mettreEnFile(self $service, string $resume): void
+    {
+        if (empty(self::$fileAttente)) {
+            register_shutdown_function([self::class, 'envoyerFileAttente']);
+        }
+        self::$fileAttente[] = [$service, $resume];
+
+        SuiviOperationService::noter('Envoi programmé après la réponse · ' . $resume);
+    }
+
+    /**
+     * Fonction d'arrêt : transmet la réponse au navigateur, puis envoie les mails en attente.
+     * Chaque envoi est une étape "Envoi du mail" du suivi des opérations (durée réelle, erreur SMTP éventuelle).
+     */
+    public static function envoyerFileAttente(): void
+    {
+        $file = self::$fileAttente;
+        self::$fileAttente = [];
+        if (empty($file)) {
+            return;
+        }
+
+        ignore_user_abort(true); // continuer même si le navigateur a déjà fermé la connexion
+        self::libererNavigateur();
+
+        foreach ($file as [$service, $resume]) {
+            try {
+                SuiviOperationService::suivre('Envoi du mail', function () use ($service, $resume) {
+                    SuiviOperationService::noter($resume);
+                    $service->twigMailer->send();
+                });
+            } catch (\Throwable $e) {
+                // l'étape du suivi est déjà en échec avec le message ; on passe au mail suivant
+                error_log('[EmailService] Echec de l\'envoi du mail (' . $resume . ') : ' . $e->getMessage());
+            }
+        }
+    }
+
+    /**
+     * Ferme la session et envoie la réponse complète au navigateur (PHP en module Apache : pas de fastcgi_finish_request),
+     * pour que la page suivante s'affiche sans attendre la fin des envois
+     */
+    private static function libererNavigateur(): void
+    {
+        // la session est verrouillée jusqu'à sa fermeture : la page suivante attendrait sinon la fin des envois
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+
+        if (function_exists('fastcgi_finish_request')) {
+            fastcgi_finish_request();
+            return;
+        }
+
+        if (headers_sent()) {
+            flush();
+            return;
+        }
+
+        // récupère tout ce qui est en tampon (du plus externe au plus interne) et annonce sa taille exacte
+        $contenu = '';
+        while (ob_get_level() > 0) {
+            $contenu = ob_get_clean() . $contenu;
+        }
+        header('Connection: close');
+        header('Content-Encoding: none');
+        header('Content-Length: ' . strlen($contenu));
+        echo $contenu;
+        flush();
+    }
 
     /**
      * Résumé d'un mail pour le suivi des opérations : objet, destinataires et copies
