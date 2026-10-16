@@ -79,7 +79,8 @@ class HistoriqueOperationEtapeRepository extends EntityRepository
     }
 
     /**
-     * ECHEC si une étape a échoué, INTERROMPU si une étape ne s'est pas terminée, sinon SUCCES
+     * ECHEC si une étape a échoué, INTERROMPU si une étape ne s'est pas terminée,
+     * ALERTE si un contrôle signale une anomalie, sinon SUCCES
      *
      * @param HistoriqueOperationEtape[] $etapes
      */
@@ -94,6 +95,9 @@ class HistoriqueOperationEtapeRepository extends EntityRepository
         }
         if (in_array(SuiviOperationService::STATUT_INTERROMPU, $statuts, true) || in_array(SuiviOperationService::STATUT_EN_COURS, $statuts, true)) {
             return SuiviOperationService::STATUT_INTERROMPU;
+        }
+        if (in_array(SuiviOperationService::STATUT_ALERTE, $statuts, true)) {
+            return SuiviOperationService::STATUT_ALERTE;
         }
 
         return SuiviOperationService::STATUT_SUCCES;

@@ -99,6 +99,8 @@ class SuiviOperationService
     public const STATUT_SUCCES     = 'SUCCES';
     public const STATUT_ECHEC      = 'ECHEC';
     public const STATUT_INTERROMPU = 'INTERROMPU';
+    // l'opération a réussi mais un contrôle signale une anomalie à vérifier
+    public const STATUT_ALERTE     = 'ALERTE';
 
     private const TABLE = 'historique_operation_etape';
     private const ERREURS_FATALES = [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR, E_RECOVERABLE_ERROR];
@@ -155,6 +157,18 @@ class SuiviOperationService
     public static function suivre(string $libelle, callable $traitement)
     {
         return self::$courant !== null ? self::$courant->etape($libelle, $traitement) : $traitement();
+    }
+
+    /**
+     * Enregistre le résultat d'un contrôle fait après coup (sans traitement à exécuter) :
+     * SUCCES, ou ALERTE quand l'opération a réussi mais qu'une anomalie est à vérifier.
+     * Ne fait rien si aucune opération n'est suivie.
+     */
+    public static function controle(string $libelle, bool $estAnomalie, string $message, ?string $detail = null): void
+    {
+        if (self::$courant !== null) {
+            self::$courant->ajouterEtapeTerminee($libelle, $estAnomalie ? self::STATUT_ALERTE : self::STATUT_SUCCES, $message, $detail);
+        }
     }
 
     /**

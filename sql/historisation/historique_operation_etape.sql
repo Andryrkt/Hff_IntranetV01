@@ -9,6 +9,8 @@
 -- statut : EN_COURS   -> étape commencée mais jamais terminée (arrêt brutal du script)
 --          SUCCES     -> étape terminée sans erreur
 --          ECHEC      -> exception, copie DocuWare échouée ou message de blocage
+--          ALERTE     -> opération réussie mais un contrôle signale une anomalie
+--                        (ex. est_facture_bl_soumis non mis à jour après une facture / BL)
 --          INTERROMPU -> le script s'est arrêté (redirection / exit) pendant l'étape
 -- ============================================================
 CREATE TABLE

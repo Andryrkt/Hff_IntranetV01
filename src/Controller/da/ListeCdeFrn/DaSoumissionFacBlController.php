@@ -9,7 +9,7 @@ use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDto;
 use App\Entity\da\DaSoumissionFacBl;
 use App\Factory\da\CdeFrnDto\DaSoumissionFacBlFactory;
 use App\Form\da\DaSoumissionFacBlType;
-use App\Service\da\CdeFrn\FacBl\NotificationSoumissionFacBlService;
+use App\Service\da\CdeFrn\FacBl\ControleSoumissionFacBlService;
 use App\Service\da\CdeFrn\FacBl\TraitementSoumissionBAPService;
 use App\Service\da\CdeFrn\FacBl\TraitementSoumissionDDPLService;
 use App\Service\da\CdeFrn\FacBl\TraitementSoumissionfacBlService;
@@ -30,20 +30,20 @@ class DaSoumissionFacBlController extends Controller
     private TraitementSoumissionDDPLService $traitementSoumissionDDPLService;
     private TraitementSoumissionBAPService $traitementSoumissionBAPService;
     private TraitementSoumissionfacBlService $traitementSoumissionfacBlService;
-    private NotificationSoumissionFacBlService $notificationSoumissionFacBlService;
+    private ControleSoumissionFacBlService $controleSoumissionFacBlService;
 
     public function __construct(
         DaSoumissionFacBlFactory $daSoumissionFacBlFactory,
         TraitementSoumissionDDPLService $traitementSoumissionDDPLService,
         TraitementSoumissionBAPService $traitementSoumissionBAPService,
         TraitementSoumissionfacBlService $traitementSoumissionfacBlService,
-        NotificationSoumissionFacBlService $notificationSoumissionFacBlService
+        ControleSoumissionFacBlService $controleSoumissionFacBlService
     ) {
         $this->daSoumissionFacBlFactory = $daSoumissionFacBlFactory;
         $this->traitementSoumissionDDPLService = $traitementSoumissionDDPLService;
         $this->traitementSoumissionBAPService = $traitementSoumissionBAPService;
         $this->traitementSoumissionfacBlService = $traitementSoumissionfacBlService;
-        $this->notificationSoumissionFacBlService = $notificationSoumissionFacBlService;
+        $this->controleSoumissionFacBlService = $controleSoumissionFacBlService;
     }
 
     /**
@@ -104,7 +104,7 @@ class DaSoumissionFacBlController extends Controller
             /** @var DaSoumissionFacBlDto $dto */
             $dto = $form->getData();
             // suivi étape par étape de la soumission (admin > historique > suivi des opérations)
-            $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_DA_FAC_BL, $dto->numeroCde);
+            SuiviOperationService::demarrer(SuiviOperationService::TYPE_DA_FAC_BL, $dto->numeroCde);
 
             if (!$dto->soumissionDdpAFaire && ($dto->typeDdp === 'regul' || $dto->typeDdp === 'ddpl')) {
                 $sucess = $this->traitementSoumissionDDPLService->traitementSoumissionDDPL($form, $dto);
@@ -115,10 +115,8 @@ class DaSoumissionFacBlController extends Controller
             }
 
             if ($sucess) {
-                /** NOTIFICATION DANS L'APPLICATION (avec alerte si est_facture_bl_soumis n'a pas été mis à jour) */
-                $suivi->etape('Notification facture / BL', function () use ($dto) {
-                    $this->notificationSoumissionFacBlService->enregistrer($dto, $this->getUserName());
-                });
+                /** CONTRÔLE DE LA MISE À JOUR DA dans le suivi (ALERTE si est_facture_bl_soumis n'a pas été mis à jour) */
+                $this->controleSoumissionFacBlService->controler($dto);
 
                 /** HISTORISATION */
                 $message = 'Le document est soumis pour validation';
