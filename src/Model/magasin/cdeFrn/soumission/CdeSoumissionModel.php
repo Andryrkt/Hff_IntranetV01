@@ -293,12 +293,15 @@ class CdeSoumissionModel extends Model
             nent_numcde       AS num_doc, 
             nent_numcli       AS num_cli, 
             TRIM(nent_nomcli) AS nom_cli,
-            TRIM('VTE NEG')   AS rmq, 
+            CASE 
+                WHEN nent_natop = 'DIR' THEN 'VTE NEG'
+                ELSE nent_natop
+            END               AS rmq, 
             CASE 
                 WHEN nent_delai IS NOT NULL 
                 THEN TO_CHAR(nent_delai, '%Y-%m-%d') 
                 ELSE NULL 
-            END AS datepla
+            END               AS datepla
         FROM {$this->ipsNegEnt}
         JOIN {$this->ipsNegLig}
             ON nent_numcde = nlig_numcde
