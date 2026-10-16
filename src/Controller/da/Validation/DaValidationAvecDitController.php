@@ -7,6 +7,7 @@ use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\validation\DaValidationAvecDitTrait;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
  * @Route("/demande-appro")
@@ -32,19 +33,30 @@ class DaValidationAvecDitController extends Controller
         $refsValide = json_decode($daValidationData['refsValide'], true) ?? [];
         $prixUnitaire = $request->get('PU', []); // obtenir les PU envoyé par requête
 
+        // suivi étape par étape de la validation (admin > historique > suivi des opérations)
+        $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_DA_VALIDATION_AVEC_DIT, $numDa);
+
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
 
-        $da = $this->validerDemandeApproAvecLignes($numDa, $numeroVersionMax, $prixUnitaire, $refsValide);
+        $da = $suivi->etape('Validation des lignes (base de données)', function () use ($numDa, $numeroVersionMax, $prixUnitaire, $refsValide) {
+            return $this->validerDemandeApproAvecLignes($numDa, $numeroVersionMax, $prixUnitaire, $refsValide);
+        });
 
         /** CREATION EXCEL */
-        $resultatExport = $this->exporterDaAvecDitEnExcelEtPdf($numDa, $numeroVersionMax);
+        $resultatExport = $suivi->etape('Bon d\'achat (Excel et PDF)', function () use ($numDa, $numeroVersionMax) {
+            return $this->exporterDaAvecDitEnExcelEtPdf($numDa, $numeroVersionMax);
+        });
 
         /** Ajout nom fichier du bon d'achat (excel) */
         $da->setNomFichierBav($resultatExport['fileName']);
 
-        $this->ajouterDansTableAffichageParNumDa($da->getNumeroDemandeAppro(), true); // enregistrer dans la table Da Afficher
+        $suivi->etape('Mise à jour da_afficher', function () use ($da) {
+            $this->ajouterDansTableAffichageParNumDa($da->getNumeroDemandeAppro(), true); // enregistrer dans la table Da Afficher
+        });
 
-        $this->emailDaService->envoyerMailValidationDa($da, $this->getUser(), $resultatExport);
+        $suivi->etape('Mail de validation', function () use ($da, $resultatExport) {
+            $this->emailDaService->envoyerMailValidationDa($da, $this->getUser(), $resultatExport);
+        });
 
         /** NOTIFICATION */
         $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'La demande a été validée avec succès.']);
