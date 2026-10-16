@@ -221,10 +221,13 @@ class DitOrsSoumisAValidationController extends Controller
 
         $infoPieceFaibleAchat = [];
         if (!empty($infoOrs)) {
-            foreach ($infoOrs as $infoOr) {
-                $afficher = $this->ditOrsoumisAValidationModel->getPieceFaibleActiviteAchat($infoOr['constructeur'], $infoOr['reference'], $numOr, $codeSociete);
+            // une recherche groupée pour toutes les pièces de l'OR (au lieu d'une requête IPS par ligne)
+            $activiteAchat = $this->ditOrsoumisAValidationModel->getPiecesFaibleActiviteAchat($infoOrs, $numOr, $codeSociete);
 
-                if (isset($afficher[0]) && $afficher[0]['retour'] === 'a afficher') {
+            foreach ($infoOrs as $infoOr) {
+                $afficher = $activiteAchat[trim((string) $infoOr['constructeur']) . '|' . trim((string) $infoOr['reference'])] ?? null;
+
+                if ($afficher !== null && $afficher['retour'] === 'a afficher') {
 
                     $infoPieceFaibleAchat[] = [
                         'numero_itv'        => $infoOr['numero_itv'],
@@ -232,8 +235,8 @@ class DitOrsSoumisAValidationController extends Controller
                         'constructeur'      => $infoOr['constructeur'],
                         'reference'         => $infoOr['reference'],
                         'designation'       => $infoOr['designation'],
-                        'pmp'               => $afficher[0]['pmp'],
-                        'date_derniere_cde' => $afficher[0]['date_derniere_cde'],
+                        'pmp'               => $afficher['pmp'],
+                        'date_derniere_cde' => $afficher['date_derniere_cde'],
                     ];
                 }
             }

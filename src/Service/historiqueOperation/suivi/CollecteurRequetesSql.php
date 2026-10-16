@@ -18,7 +18,7 @@ class CollecteurRequetesSql implements SQLLogger
 
     private ?SQLLogger $loggerPrecedent;
 
-    /** @var array<int, array{sql: string, duree: float}> */
+    /** @var array<int, array{sql: string, duree: float, source?: string}> source : "SQL" (SQL Server, par défaut) ou "IPS" */
     private array $requetes = [];
     private ?string $sqlEnCours = null;
     private float $debut = 0.0;
@@ -51,6 +51,31 @@ class CollecteurRequetesSql implements SQLLogger
     }
 
     /**
+     * Enregistre une requête exécutée hors de Doctrine (ex. IPS / Informix par ODBC)
+     *
+     * @return int|null position de la requête, pour y ajouter ensuite le temps de lecture des résultats
+     */
+    public function enregistrerExterne(string $source, string $sql, float $dureeMs): ?int
+    {
+        if (count($this->requetes) >= self::NOMBRE_MAX) {
+            return null;
+        }
+        $this->requetes[] = ['sql' => $sql, 'duree' => $dureeMs, 'source' => $source];
+
+        return count($this->requetes) - 1;
+    }
+
+    /**
+     * Ajoute un temps (ex. lecture des lignes de résultat) à une requête déjà enregistrée
+     */
+    public function ajouterDuree(int $position, float $dureeMs): void
+    {
+        if (isset($this->requetes[$position])) {
+            $this->requetes[$position]['duree'] += $dureeMs;
+        }
+    }
+
+    /**
      * Position actuelle : les requêtes d'une étape sont celles enregistrées entre son ouverture et sa fermeture
      */
     public function position(): int
@@ -75,8 +100,16 @@ class CollecteurRequetesSql implements SQLLogger
             return null;
         }
 
-        $dureeTotale = array_sum(array_column($requetes, 'duree'));
-        $resume = sprintf('%d requête(s) SQL (%d ms)', count($requetes), round($dureeTotale));
+        // un compteur par base : SQL Server ("SQL") et IPS / Informix ("IPS")
+        $parSource = [];
+        foreach ($requetes as $requete) {
+            $source = $requete['source'] ?? 'SQL';
+            $parSource[$source]['nombre'] = ($parSource[$source]['nombre'] ?? 0) + 1;
+            $parSource[$source]['duree'] = ($parSource[$source]['duree'] ?? 0) + $requete['duree'];
+        }
+        $resume = implode(' · ', array_map(function ($source, $total) {
+            return sprintf('%d requête(s) %s (%d ms)', $total['nombre'], $source, round($total['duree']));
+        }, array_keys($parSource), $parSource));
 
         $ecritures = [];
         foreach ($requetes as $requete) {
@@ -105,10 +138,10 @@ class CollecteurRequetesSql implements SQLLogger
             return null;
         }
 
-        $lignes = ['Requêtes SQL :'];
+        $lignes = ['Requêtes :'];
         foreach ($requetes as $i => $requete) {
             $sql = preg_replace('/\s+/', ' ', trim($requete['sql']));
-            $lignes[] = sprintf('%d. [%d ms] %s', $i + 1, round($requete['duree']), mb_strlen($sql) > 400 ? mb_substr($sql, 0, 400) . '...' : $sql);
+            $lignes[] = sprintf('%d. [%s %d ms] %s', $i + 1, $requete['source'] ?? 'SQL', round($requete['duree']), mb_strlen($sql) > 400 ? mb_substr($sql, 0, 400) . '...' : $sql);
         }
 
         return implode("\n", $lignes);
