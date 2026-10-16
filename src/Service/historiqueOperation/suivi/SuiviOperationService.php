@@ -540,13 +540,22 @@ class SuiviOperationService
     /**
      * Nom de l'utilisateur connecté, lu dans la session sans la démarrer
      */
+    /**
+     * Nom de l'utilisateur suivi de son code agence / service entre parenthèses, ex. "finaritra (80INF)" :
+     * l'agence / service avec lequel il travaille (choisi à la connexion selon la société)
+     */
     private static function getUtilisateur(): ?string
     {
         // gardé en mémoire : la session peut être fermée avant la fin du suivi (mails envoyés après la réponse)
         static $utilisateur = null;
 
         if ($utilisateur === null && session_status() === PHP_SESSION_ACTIVE) {
-            $utilisateur = $_SESSION['_sf2_attributes']['user_info']['username'] ?? null;
+            $info = $_SESSION['_sf2_attributes']['user_info'] ?? [];
+            $nom  = $info['username'] ?? null;
+            if ($nom !== null) {
+                $agenceService = ($info['default_agence_code'] ?? '') . ($info['default_service_code'] ?? '');
+                $utilisateur = mb_substr($nom . ($agenceService !== '' ? " ($agenceService)" : ''), 0, 100);
+            }
         }
 
         return $utilisateur;
