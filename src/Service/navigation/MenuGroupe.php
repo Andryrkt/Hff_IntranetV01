@@ -269,11 +269,6 @@ class MenuGroupe
 
                 ],
             ],
-            [
-                'route'    => 'liste_Cde_Frn_Non_Placer',
-                'label'    => 'Liste des cmds non placées',
-                'icon'     => 'exclamation-circle',
-            ],
         ];
     }
 
