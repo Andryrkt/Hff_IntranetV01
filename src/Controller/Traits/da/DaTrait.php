@@ -15,6 +15,7 @@ use App\Service\da\FileUploaderForDAService;
 use App\Repository\da\DemandeApproRepository;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 trait DaTrait
 {
@@ -103,6 +104,9 @@ trait DaTrait
 
         $em->persist($daObservation);
         $em->flush();
+
+        // extrait de l'observation affiché dans le suivi des opérations
+        SuiviOperationService::noter('« ' . SuiviOperationService::extrait($observation) . ' »' . ($files ? ' (' . count($files) . ' fichier(s) joint(s))' : ''));
     }
 
     /**
