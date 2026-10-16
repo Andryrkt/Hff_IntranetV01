@@ -60,6 +60,11 @@ class CollecteurRequetesSql implements SQLLogger
         if (count($this->requetes) >= self::NOMBRE_MAX) {
             return null;
         }
+        // certaines requêtes IPS sont construites en ISO-8859-1 (ex. désignation accentuée pour Informix) :
+        // le texte est reconverti en UTF-8, sinon SQL Server refuse l'enregistrement du suivi
+        if (!mb_check_encoding($sql, 'UTF-8')) {
+            $sql = mb_convert_encoding($sql, 'UTF-8', 'ISO-8859-1');
+        }
         $this->requetes[] = ['sql' => $sql, 'duree' => $dureeMs, 'source' => $source];
 
         return count($this->requetes) - 1;

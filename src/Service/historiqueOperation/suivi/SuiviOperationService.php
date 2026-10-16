@@ -432,8 +432,8 @@ class SuiviOperationService
                 'ordre'           => $this->ordre,
                 'etape'           => mb_substr($libelle, 0, 100),
                 'statut'          => $statut,
-                'message'         => $message !== null ? mb_substr($message, 0, 1000) : null,
-                'detail_erreur'   => $detail !== null ? mb_substr($detail, 0, 8000) : null,
+                'message'         => $message !== null ? mb_substr(self::texteUtf8($message), 0, 1000) : null,
+                'detail_erreur'   => $detail !== null ? mb_substr(self::texteUtf8($detail), 0, 8000) : null,
                 'date_debut'      => $maintenant,
                 'date_fin'        => $maintenant,
                 'utilisateur'     => self::getUtilisateur(),
@@ -505,30 +505,56 @@ class SuiviOperationService
         }
 
         $fin = microtime(true);
-        $this->executer(function ($connexion) use ($etape, $statut, $message, $detailErreur, $fin) {
-            $connexion->update(self::TABLE, [
-                'statut'        => $statut,
-                'message'       => $message !== null ? mb_substr(strip_tags($message), 0, 1000) : null,
-                'detail_erreur' => $detailErreur !== null ? mb_substr($detailErreur, 0, 8000) : null,
-                'date_fin'      => self::formaterDate($fin),
-                'duree_ms'      => (int) round(($fin - $etape['debut']) * 1000),
+        $fermeture = [
+            'statut'   => $statut,
+            'date_fin' => self::formaterDate($fin),
+            'duree_ms' => (int) round(($fin - $etape['debut']) * 1000),
+        ];
+        $ecrit = $this->executer(function ($connexion) use ($etape, $fermeture, $message, $detailErreur) {
+            $connexion->update(self::TABLE, $fermeture + [
+                'message'       => $message !== null ? mb_substr(self::texteUtf8(strip_tags($message)), 0, 1000) : null,
+                'detail_erreur' => $detailErreur !== null ? mb_substr(self::texteUtf8($detailErreur), 0, 8000) : null,
             ], ['id' => $etape['id']]);
         });
+
+        // si le message ou le détail empêche l'écriture, on enregistre au moins le statut et la durée :
+        // une étape terminée ne doit jamais rester "EN_COURS" (non terminée) dans le suivi
+        if (!$ecrit) {
+            $this->executer(function ($connexion) use ($etape, $fermeture) {
+                $connexion->update(self::TABLE, $fermeture + [
+                    'message' => "Résultat de l'étape enregistré sans son détail (voir le log PHP)",
+                ], ['id' => $etape['id']]);
+            });
+        }
+    }
+
+    /**
+     * Garantit un texte UTF-8 valide (SQL Server refuse l'enregistrement d'un texte mal encodé, ex. ISO-8859-1)
+     */
+    private static function texteUtf8(string $texte): string
+    {
+        return mb_check_encoding($texte, 'UTF-8') ? $texte : mb_convert_encoding($texte, 'UTF-8', 'ISO-8859-1');
     }
 
     /**
      * Exécute une écriture dans la table de suivi sans jamais propager d'erreur
+     *
+     * @return bool false si l'écriture a échoué
      */
-    private function executer(callable $ecriture): void
+    private function executer(callable $ecriture): bool
     {
         try {
             global $container;
             if (!$container || !$container->has('doctrine.orm.default_entity_manager')) {
-                return;
+                return false;
             }
             $ecriture($container->get('doctrine.orm.default_entity_manager')->getConnection());
+
+            return true;
         } catch (\Throwable $e) {
             error_log("[SuiviOperation] Echec de l'enregistrement du suivi {$this->idSuivi} : " . $e->getMessage());
+
+            return false;
         }
     }
 
