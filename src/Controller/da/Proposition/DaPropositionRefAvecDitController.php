@@ -22,6 +22,7 @@ use App\Controller\Traits\da\validation\DaValidationAvecDitTrait;
 use App\Controller\Traits\da\proposition\DaPropositionAvecDitTrait;
 use App\Service\da\DocRattacheService;
 use App\Service\Admin\UrlIdCipher;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
  * @Route("/demande-appro")
@@ -117,6 +118,7 @@ class DaPropositionRefAvecDitController extends Controller
             $dalrList = $form->getData()->getDALR();
             $observation = $form->getData()->getObservation();
             $statutChange = $form->get('statutChange')->getData();
+            $this->demarrerSuiviProposition($request, $numDa);
 
             if ($request->request->has('brouillon')) {
                 /** Enregistrer provisoirement */
@@ -142,19 +144,28 @@ class DaPropositionRefAvecDitController extends Controller
             /** @var DaObservation $daObservation daObservation correspondant au donnée du formObservation */
             $daObservation = $formObservation->getData();
 
+            SuiviOperationService::demarrer(SuiviOperationService::TYPE_DA_OBSERVATION, $numDa);
             $this->traitementEnvoiObservation($daObservation, $da);
         }
     }
 
     private function traitementEnvoiObservation(DaObservation $daObservation, DemandeAppro $demandeAppro)
     {
-        $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $daObservation->getFileNames());
+        SuiviOperationService::suivre('Observation', function () use ($demandeAppro, $daObservation) {
+            $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $daObservation->getFileNames());
+        });
 
         if ($this->estAppro() && $daObservation->getStatutChange()) {
-            $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), StatutDaConstant::STATUT_AUTORISER_EMETTEUR);
-            $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), StatutDaConstant::STATUT_AUTORISER_EMETTEUR);
+            SuiviOperationService::suivre('Statut des lignes de DA', function () use ($demandeAppro) {
+                $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), StatutDaConstant::STATUT_AUTORISER_EMETTEUR);
+            });
+            SuiviOperationService::suivre('Statut de la DA', function () use ($demandeAppro) {
+                $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), StatutDaConstant::STATUT_AUTORISER_EMETTEUR);
+            });
 
-            $this->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro()); // ajout dans la table DaAfficher si le statut a changé
+            SuiviOperationService::suivre('Mise à jour da_afficher', function () use ($demandeAppro) {
+                $this->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro()); // ajout dans la table DaAfficher si le statut a changé
+            });
         }
 
         $notification = [
@@ -162,7 +173,9 @@ class DaPropositionRefAvecDitController extends Controller
             'message' => 'Votre observation a été enregistré avec succès.',
         ];
 
-        $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estAppro());
+        SuiviOperationService::suivre('Mail', function () use ($demandeAppro, $daObservation) {
+            $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estAppro());
+        });
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         return $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
@@ -174,19 +187,29 @@ class DaPropositionRefAvecDitController extends Controller
     private function traitementPourBtnEnvoyerObservation($observation, DemandeAppro $demandeAppro, $statutChange)
     {
         if ($observation !== null) {
-            $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $observation);
+            SuiviOperationService::suivre('Observation', function () use ($demandeAppro, $observation) {
+                $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $observation);
+            });
             if ($statutChange) {
-                $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), StatutDaConstant::STATUT_SOUMIS_APPRO);
-                $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), StatutDaConstant::STATUT_SOUMIS_APPRO);
+                SuiviOperationService::suivre('Statut des lignes de DA', function () use ($demandeAppro) {
+                    $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), StatutDaConstant::STATUT_SOUMIS_APPRO);
+                });
+                SuiviOperationService::suivre('Statut de la DA', function () use ($demandeAppro) {
+                    $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), StatutDaConstant::STATUT_SOUMIS_APPRO);
+                });
 
-                $this->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro()); // ajout dans la table DaAfficher si le statut a changé
+                SuiviOperationService::suivre('Mise à jour da_afficher', function () use ($demandeAppro) {
+                    $this->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro()); // ajout dans la table DaAfficher si le statut a changé
+                });
             }
             $notification = [
                 'type' => 'success',
                 'message' => 'Votre observation a été enregistré avec succès.',
             ];
 
-            $this->emailDaService->envoyerMailObservationDa($demandeAppro, $observation, $this->getUser(), $this->estAppro());
+            SuiviOperationService::suivre('Mail', function () use ($demandeAppro, $observation) {
+                $this->emailDaService->envoyerMailObservationDa($demandeAppro, $observation, $this->getUser(), $this->estAppro());
+            });
         } else {
             $notification = [
                 'type' => 'danger',
@@ -217,12 +240,18 @@ class DaPropositionRefAvecDitController extends Controller
             StatutDaConstant::STATUT_VALIDE
         );
 
-        $this->modificationChoixEtligneDal($refs, $dals);
+        SuiviOperationService::suivre('Choix des références', function () use ($refs, $dals) {
+            $this->modificationChoixEtligneDal($refs, $dals);
+        });
         $nomEtChemin = $this->validerProposition($numDa);
 
-        $this->ajouterDansTableAffichageParNumDa($numDa, true); // enregistrement dans la table DaAfficher
+        SuiviOperationService::suivre('Mise à jour da_afficher', function () use ($numDa) {
+            $this->ajouterDansTableAffichageParNumDa($numDa, true); // enregistrement dans la table DaAfficher
+        });
 
-        $this->emailDaService->envoyerMailValidationDa($da, $this->getUser(), $nomEtChemin);
+        SuiviOperationService::suivre('Mail', function () use ($da, $nomEtChemin) {
+            $this->emailDaService->envoyerMailValidationDa($da, $this->getUser(), $nomEtChemin);
+        });
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
@@ -245,9 +274,13 @@ class DaPropositionRefAvecDitController extends Controller
         /** VALIDATION DU PROPOSITION PAR L'ATE */
         $nomEtChemin = $this->validerProposition($numDa);
 
-        $this->ajouterDansTableAffichageParNumDa($numDa, true);
+        SuiviOperationService::suivre('Mise à jour da_afficher', function () use ($numDa) {
+            $this->ajouterDansTableAffichageParNumDa($numDa, true);
+        });
 
-        $this->emailDaService->envoyerMailValidationDa($da, $this->getUser(), $nomEtChemin);
+        SuiviOperationService::suivre('Mail', function () use ($da, $nomEtChemin) {
+            $this->emailDaService->envoyerMailValidationDa($da, $this->getUser(), $nomEtChemin);
+        });
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
@@ -272,7 +305,9 @@ class DaPropositionRefAvecDitController extends Controller
             false
         );
 
-        $this->modificationChoixEtligneDal($refs, $dals);
+        SuiviOperationService::suivre('Choix des références', function () use ($refs, $dals) {
+            $this->modificationChoixEtligneDal($refs, $dals);
+        });
 
         return $notification;
     }
@@ -281,10 +316,14 @@ class DaPropositionRefAvecDitController extends Controller
     {
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
 
-        $da = $this->validerDemandeApproAvecLignes($numDa, $numeroVersionMax);
+        $da = SuiviOperationService::suivre('Validation des lignes (base de données)', function () use ($numDa, $numeroVersionMax) {
+            return $this->validerDemandeApproAvecLignes($numDa, $numeroVersionMax);
+        });
 
         /** CREATION EXCEL */
-        $nomEtChemin = $this->exporterDaAvecDitEnExcelEtPdf($numDa, $numeroVersionMax);
+        $nomEtChemin = SuiviOperationService::suivre('Bon d\'achat (Excel et PDF)', function () use ($numDa, $numeroVersionMax) {
+            return $this->exporterDaAvecDitEnExcelEtPdf($numDa, $numeroVersionMax);
+        });
 
         /** Ajout nom fichier du bon d'achat (excel) */
         $da->setNomFichierBav($nomEtChemin['fileName']);
@@ -308,11 +347,17 @@ class DaPropositionRefAvecDitController extends Controller
             true
         );
 
-        $this->modificationChoixEtligneDal($refs, $dals);
+        SuiviOperationService::suivre('Choix des références', function () use ($refs, $dals) {
+            $this->modificationChoixEtligneDal($refs, $dals);
+        });
 
-        $this->ajouterDansTableAffichageParNumDa($numDa);
+        SuiviOperationService::suivre('Mise à jour da_afficher', function () use ($numDa) {
+            $this->ajouterDansTableAffichageParNumDa($numDa);
+        });
 
-        $this->emailDaService->envoyerMailPropositionDa($da, $this->getUser());
+        SuiviOperationService::suivre('Mail', function () use ($da) {
+            $this->emailDaService->envoyerMailPropositionDa($da, $this->getUser());
+        });
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
@@ -334,9 +379,13 @@ class DaPropositionRefAvecDitController extends Controller
             StatutDaConstant::STATUT_EN_COURS_PROPOSITION
         );
 
-        $this->modificationChoixEtligneDal($refs, $dals);
+        SuiviOperationService::suivre('Choix des références', function () use ($refs, $dals) {
+            $this->modificationChoixEtligneDal($refs, $dals);
+        });
 
-        $this->ajouterDansTableAffichageParNumDa($numDa);
+        SuiviOperationService::suivre('Mise à jour da_afficher', function () use ($numDa) {
+            $this->ajouterDansTableAffichageParNumDa($numDa);
+        });
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
@@ -347,19 +396,28 @@ class DaPropositionRefAvecDitController extends Controller
         $numDa = $demandeAppro->getNumeroDemandeAppro();
 
         if ($dalrList->isEmpty() && empty($refs)) {
+            SuiviOperationService::controle('Contrôle des modifications', true, "Aucune modification n'a été effectuée");
             return $this->notification('danger', "Aucune modification n'a été effectuée");
         }
 
         if ($doSaveDb) {
-            $this->enregistrementDb($dals, $dalrList, $statut);
+            SuiviOperationService::suivre('Lignes proposées (base de données)', function () use ($dals, $dalrList, $statut) {
+                $this->enregistrementDb($dals, $dalrList, $statut);
+            });
         }
 
         if ($observation !== null) {
-            $this->insertionObservation($numDa, $observation);
+            SuiviOperationService::suivre('Observation', function () use ($numDa, $observation) {
+                $this->insertionObservation($numDa, $observation);
+            });
         }
 
-        $this->modificationStatutDal($numDa, $statut);
-        $this->modificationStatutDa($numDa, $statut);
+        SuiviOperationService::suivre('Statut des lignes de DA', function () use ($numDa, $statut) {
+            $this->modificationStatutDal($numDa, $statut);
+        });
+        SuiviOperationService::suivre('Statut de la DA', function () use ($numDa, $statut) {
+            $this->modificationStatutDa($numDa, $statut);
+        });
 
         return $this->notification('success', $messageSuccess);
     }
@@ -639,6 +697,26 @@ class DaPropositionRefAvecDitController extends Controller
             $DAL->getDemandeApproLR()->add($demandeApproLR);
 
             return $demandeApproLR;
+        }
+    }
+
+    /**
+     * Démarre le suivi de l'opération (admin > historique > suivi des opérations) selon le bouton cliqué
+     */
+    private function demarrerSuiviProposition(Request $request, string $numDa): void
+    {
+        $types = [
+            'brouillon'   => SuiviOperationService::TYPE_DA_PROPOSITION_BROUILLON,
+            'enregistrer' => SuiviOperationService::TYPE_DA_PROPOSITION,
+            'changement'  => SuiviOperationService::TYPE_DA_VALIDATION_CHOIX,
+            'observation' => SuiviOperationService::TYPE_DA_OBSERVATION,
+            'valider'     => SuiviOperationService::TYPE_DA_VALIDATION_APPRO,
+        ];
+        foreach ($types as $bouton => $type) {
+            if ($request->request->has($bouton)) {
+                SuiviOperationService::demarrer($type, $numDa);
+                return;
+            }
         }
     }
 }

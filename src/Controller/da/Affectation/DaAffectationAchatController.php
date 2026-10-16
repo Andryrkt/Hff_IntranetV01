@@ -10,6 +10,7 @@ use App\Entity\da\DemandeApproParentLine;
 use App\Form\da\DaAffectationType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /** @Route("/demande-appro") */
 class DaAffectationAchatController extends Controller
@@ -54,6 +55,8 @@ class DaAffectationAchatController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var DemandeApproParent $daParent */
             $daParent = $form->getData();
+            // suivi étape par étape de l'affectation (admin > historique > suivi des opérations)
+            SuiviOperationService::demarrer(SuiviOperationService::TYPE_DA_AFFECTATION, $daParent->getNumeroDemandeAppro());
 
             $daParentLines = $daParent->getDemandeApproParentLines();
             $allDaDirect = $daParentLines->filter(function (DemandeApproParentLine $dapl) {
