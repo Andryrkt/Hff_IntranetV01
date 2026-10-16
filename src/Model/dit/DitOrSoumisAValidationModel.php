@@ -573,6 +573,97 @@ class DitOrSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
+    /**
+     * Version groupée de getPieceFaibleActiviteAchat : mêmes résultats, en 3 requêtes pour toutes les pièces de l'OR
+     * au lieu d'une requête par ligne (la recherche de la dernière facture fournisseur coûte ~15 ms par pièce).
+     *
+     * @param array $pieces lignes de getInformationOr (clés constructeur, reference)
+     * @return array<string, array{retour: string, date_derniere_cde: ?string, pmp: mixed}> indexé par "constructeur|reference"
+     */
+    public function getPiecesFaibleActiviteAchat(array $pieces, string $numOr, string $codeSociete): array
+    {
+        $cle = function ($constructeur, $reference): string {
+            return trim((string) $constructeur) . '|' . trim((string) $reference);
+        };
+        $echapper = function ($valeur): string {
+            return str_replace("'", "''", trim((string) $valeur));
+        };
+
+        $couples = [];
+        foreach ($pieces as $piece) {
+            $couples[$cle($piece['constructeur'], $piece['reference'])] = [$piece['constructeur'], $piece['reference']];
+        }
+        if (empty($couples)) {
+            return [];
+        }
+
+        // 1. dernière facture fournisseur (plus grand numéro de facture) de chaque pièce, mêmes filtres que la requête unitaire
+        $derniereFacture = [];
+        foreach (array_chunk($couples, 50, true) as $lot) {
+            $conditions = implode(' OR ', array_map(function ($couple) use ($echapper) {
+                return "(fllf_constp = '" . $echapper($couple[0]) . "' AND fllf_refp = '" . $echapper($couple[1]) . "')";
+            }, $lot));
+
+            $statement = "SELECT fllf_constp AS constructeur, fllf_refp AS reference, MAX(ffac_numfac) AS numfac
+                FROM informix.frn_llf
+                INNER JOIN informix.frn_fac
+                        ON ffac_soc = fllf_soc AND ffac_succ = fllf_succ AND ffac_numfac = fllf_numfac
+                INNER JOIN informix.frn_cde
+                        ON fcde_soc = fllf_soc AND fcde_succ = fllf_succ AND fcde_numcde = fllf_numcde
+                WHERE ($conditions)
+                    AND fllf_succ = '01'
+                    AND ffac_serv = 'NEG'
+                    AND fllf_soc = '$codeSociete'
+                    AND fcde_numfou NOT IN (SELECT asuc_num FROM informix.agr_succ WHERE asuc_numsoc = '$codeSociete')
+                    AND fllf_qtefac > 0
+                    AND fllf_constp IN (" . GlobalVariablesService::get('pieces_magasin') . ")
+                GROUP BY fllf_constp, fllf_refp";
+
+            foreach ($this->convertirEnUtf8($this->connect->fetchResults($this->connect->executeQuery($statement))) as $ligne) {
+                $derniereFacture[$cle($ligne['constructeur'], $ligne['reference'])] = $ligne['numfac'];
+            }
+        }
+
+        // 2. date de ces factures
+        $dateFacture = [];
+        $numerosFacture = array_unique(array_values($derniereFacture));
+        foreach (array_chunk($numerosFacture, 200) as $lot) {
+            $statement = "SELECT ffac_numfac AS numfac, ffac_datef AS datef
+                FROM informix.frn_fac
+                WHERE ffac_soc = '$codeSociete' AND ffac_succ = '01'
+                    AND ffac_numfac IN ('" . implode("','", array_map($echapper, $lot)) . "')";
+
+            foreach ($this->convertirEnUtf8($this->connect->fetchResults($this->connect->executeQuery($statement))) as $ligne) {
+                $dateFacture[trim((string) $ligne['numfac'])] = $ligne['datef'];
+            }
+        }
+
+        // 3. PMP des pièces de l'OR
+        $pmp = [];
+        $statement = "SELECT DISTINCT slor_constp AS constructeur, slor_refp AS reference, slor_pmp AS pmp
+            FROM sav_lor
+            WHERE slor_numor = '$numOr'";
+        foreach ($this->convertirEnUtf8($this->connect->fetchResults($this->connect->executeQuery($statement))) as $ligne) {
+            $pmp[$cle($ligne['constructeur'], $ligne['reference'])] = $pmp[$cle($ligne['constructeur'], $ligne['reference'])] ?? $ligne['pmp'];
+        }
+
+        // même règle que la requête unitaire : à afficher si aucune commande trouvée ou dernière commande d'au moins 365 jours
+        $aujourdhui = new \DateTime('today');
+        $resultats = [];
+        foreach ($couples as $k => $couple) {
+            $date = isset($derniereFacture[$k]) ? ($dateFacture[trim((string) $derniereFacture[$k])] ?? null) : null;
+            $nombreJours = $date !== null ? (int) $aujourdhui->diff(new \DateTime($date))->format('%r%a') * -1 : null;
+
+            $resultats[$k] = [
+                'retour'            => ($nombreJours === null || $nombreJours >= 365) ? 'a afficher' : 'ne pas afficher',
+                'date_derniere_cde' => $date,
+                'pmp'               => $pmp[$k] ?? null,
+            ];
+        }
+
+        return $resultats;
+    }
+
     public function getInformationOr(string $numOr, string $codeSociete): array
     {
         $statement = " SELECT

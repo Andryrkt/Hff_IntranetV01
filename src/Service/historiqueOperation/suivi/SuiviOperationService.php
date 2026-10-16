@@ -179,6 +179,31 @@ class SuiviOperationService
     }
 
     /**
+     * Enregistre une requête exécutée hors de Doctrine (IPS / Informix) dans le suivi en cours.
+     * Ne fait rien si aucune opération n'est suivie.
+     *
+     * @return int|null position de la requête (pour ajouterDureeRequete), null si non enregistrée
+     */
+    public static function requeteExterne(string $source, string $sql, float $dureeMs): ?int
+    {
+        if (self::$courant === null || self::$collecteurSql === null) {
+            return null;
+        }
+
+        return self::$collecteurSql->enregistrerExterne($source, $sql, $dureeMs);
+    }
+
+    /**
+     * Ajoute le temps de lecture des résultats à une requête enregistrée par requeteExterne()
+     */
+    public static function ajouterDureeRequete(?int $position, float $dureeMs): void
+    {
+        if ($position !== null && self::$collecteurSql !== null) {
+            self::$collecteurSql->ajouterDuree($position, $dureeMs);
+        }
+    }
+
+    /**
      * Installe (une fois par requête) le collecteur des requêtes SQL sur la connexion Doctrine,
      * pour afficher dans chaque étape les requêtes exécutées, leur durée et les tables / colonnes écrites
      */
