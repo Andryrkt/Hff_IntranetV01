@@ -71,6 +71,8 @@ class SuiviOperationService
     public const TYPE_BC_POL                      = 'BC_POL';
     public const TYPE_BL                          = 'BL';
     public const TYPE_DDD                         = 'DDD';
+    public const TYPE_DDD_DIAGNOSTIC              = 'DDD_DIAGNOSTIC';
+    public const TYPE_DDD_DIAGNOSTIC_BROUILLON    = 'DDD_DIAGNOSTIC_BROUILLON';
     public const TYPE_TIK                         = 'TIK';
     // copie vers DocuWare faite hors d'une opération suivie
     public const TYPE_COPIE_DOCUWARE              = 'COPIE_DOCUWARE';
@@ -122,7 +124,9 @@ class SuiviOperationService
         self::TYPE_DEVIS_POL_ENVOI_CLIENT      => 'Devis POL - envoi client',
         self::TYPE_BC_POL                      => 'BC POL',
         self::TYPE_BL                          => 'BL',
-        self::TYPE_DDD                         => 'Diagnostic pneu',
+        self::TYPE_DDD                         => 'Diagnostic pneu - demande',
+        self::TYPE_DDD_DIAGNOSTIC              => "Diagnostic pneu - diagnostic validé par l'atelier",
+        self::TYPE_DDD_DIAGNOSTIC_BROUILLON    => "Diagnostic pneu - diagnostic enregistré (en cours)",
         self::TYPE_TIK                         => 'Ticket informatique',
         self::TYPE_COPIE_DOCUWARE              => 'Copie DocuWare (hors opération suivie)',
     ];
