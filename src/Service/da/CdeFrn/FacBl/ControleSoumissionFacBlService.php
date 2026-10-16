@@ -3,17 +3,19 @@
 namespace App\Service\da\CdeFrn\FacBl;
 
 use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDto;
-use App\Entity\da\DaNotificationFacBl;
 use App\Entity\da\DemandeAppro;
 use App\Model\da\DaSoumissionFacBlModel;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
- * Enregistre une notification dans l'application à chaque soumission de facture / BL.
- * Les notifications sont consultables uniquement par les administrateurs (profil HFF-ADMIN).
+ * Après chaque soumission de facture / BL, contrôle que est_facture_bl_soumis a bien été mis à jour
+ * sur les lignes da_afficher, et enregistre le résultat dans le suivi des opérations
+ * (étape "Contrôle mise à jour DA") : OK, ou ALERTE avec la raison de l'anomalie.
  */
-class NotificationSoumissionFacBlService
+class ControleSoumissionFacBlService
 {
+    public const LIBELLE_ETAPE = 'Contrôle mise à jour DA (facture / BL)';
+
     private const LIBELLES_TYPE_DA = [
         DemandeAppro::TYPE_DA_AVEC_DIT         => 'DA avec DIT',
         DemandeAppro::TYPE_DA_DIRECT           => 'DA directe',
@@ -22,53 +24,51 @@ class NotificationSoumissionFacBlService
         DemandeAppro::TYPE_DA_PARENT           => 'DA parent',
     ];
 
-    private EntityManagerInterface $entityManager;
     private DaSoumissionFacBlModel $daSoumissionFacBlModel;
 
-    public function __construct(EntityManagerInterface $entityManager, DaSoumissionFacBlModel $daSoumissionFacBlModel)
+    public function __construct(DaSoumissionFacBlModel $daSoumissionFacBlModel)
     {
-        $this->entityManager          = $entityManager;
         $this->daSoumissionFacBlModel = $daSoumissionFacBlModel;
     }
 
     /**
-     * Enregistre la notification. Une erreur est seulement journalisée pour ne pas bloquer la soumission.
+     * Enregistre le contrôle dans le suivi. Une erreur est seulement journalisée pour ne pas bloquer la soumission.
      *
-     * @param DaSoumissionFacBlDto $dto      dto de la soumission (après traitement)
-     * @param string|null          $soumisPar nom de l'utilisateur qui a soumis
+     * @param DaSoumissionFacBlDto $dto dto de la soumission (après traitement)
      */
-    public function enregistrer(DaSoumissionFacBlDto $dto, ?string $soumisPar): void
+    public function controler(DaSoumissionFacBlDto $dto): void
     {
         try {
             $bilan              = $dto->bilanMajDaAfficher;
+            $nbArticlesLivres   = (int) ($bilan['nbArticlesLivres'] ?? 0);
             $nbLignesMaj        = (int) ($bilan['nbLignesMaj'] ?? 0);
+            $version            = $bilan['numeroVersionDaAfficher'] ?? '?';
             $articlesNonTrouves = $bilan['articlesNonTrouves'] ?? [];
             $estAnomalie        = $nbLignesMaj === 0 || !empty($articlesNonTrouves);
 
-            $notification = (new DaNotificationFacBl())
-                ->setNumeroDemandeAppro($dto->numeroDemandeAppro)
-                ->setNumeroCde($dto->numeroCde)
-                ->setNumeroLivraison(is_array($dto->numLiv) ? implode(', ', $dto->numLiv) : (string) $dto->numLiv)
-                ->setNumeroOR($dto->numeroOR)
-                ->setNumeroVersionDaAfficher($bilan['numeroVersionDaAfficher'] ?? null)
-                ->setTypeSoumission($dto->typeDdp && $dto->typeDdp !== 'aucun' ? $dto->typeDdp : 'facbl')
-                ->setMontant($dto->montantBlFacture)
-                ->setSoumisPar($soumisPar)
-                ->setNbArticlesLivres((int) ($bilan['nbArticlesLivres'] ?? 0))
-                ->setNbLignesMaj($nbLignesMaj)
-                ->setArticlesNonTrouves(empty($articlesNonTrouves) ? null : implode("\n", $articlesNonTrouves))
-                ->setEstAnomalie($estAnomalie)
-                ->setRaisonAnomalie($estAnomalie ? $this->raisonAnomalieOuErreur($dto, $bilan) : null);
+            $message = $estAnomalie
+                ? $this->raisonAnomalieOuErreur($dto, $bilan)
+                : "$nbArticlesLivres article(s) livré(s), $nbLignesMaj ligne(s) da_afficher mise(s) à jour (version $version)";
 
-            $this->entityManager->persist($notification);
-            $this->entityManager->flush();
+            $detail = implode("\n", array_filter([
+                'Type : ' . ($dto->typeDdp && $dto->typeDdp !== 'aucun' ? $dto->typeDdp : 'facbl'),
+                'N° DA : ' . $dto->numeroDemandeAppro . ' (version ' . $version . ')',
+                'N° CDE : ' . $dto->numeroCde,
+                'N° livraison : ' . (is_array($dto->numLiv) ? implode(', ', $dto->numLiv) : (string) $dto->numLiv),
+                'N° OR : ' . ($dto->numeroOR ?: '-'),
+                'Montant : ' . ($dto->montantBlFacture !== null ? number_format((float) $dto->montantBlFacture, 2, ',', ' ') : '-'),
+                "Articles livrés : $nbArticlesLivres · lignes da_afficher mises à jour : $nbLignesMaj",
+                empty($articlesNonTrouves) ? null : "Articles non trouvés dans da_afficher :\n" . implode("\n", $articlesNonTrouves),
+            ]));
+
+            SuiviOperationService::controle(self::LIBELLE_ETAPE, $estAnomalie, $message, $detail);
         } catch (\Throwable $e) {
-            error_log("[NotificationSoumissionFacBl] Echec de l'enregistrement de la notification : " . $e->getMessage());
+            error_log("[ControleSoumissionFacBl] Echec du contrôle de la mise à jour DA : " . $e->getMessage());
         }
     }
 
     /**
-     * Le diagnostic interroge IPS : s'il échoue, la notification est quand même enregistrée avec l'erreur
+     * Le diagnostic interroge IPS : s'il échoue, le contrôle est quand même enregistré avec l'erreur
      */
     private function raisonAnomalieOuErreur(DaSoumissionFacBlDto $dto, array $bilan): string
     {

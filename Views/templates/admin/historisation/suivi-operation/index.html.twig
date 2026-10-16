@@ -6,20 +6,31 @@
 
 {% block stylesheets %}
 	<link href="{{ App.base_path }}/Views/css/new.css?v={{ App.browserHash }}" rel="stylesheet"/>
+	<style>
+		/* ALERTE : opération réussie mais anomalie à vérifier (orange, distinct de INTERROMPU en jaune) */
+		.bg-alerte { background-color: #fd7e14 !important; color: #fff; }
+		tr.ligne-alerte > td { background-color: #ffe5d0; }
+	</style>
 {% endblock %}
 
 {% block content %}
 	{% set classesStatut = {
 		'SUCCES': 'bg-success',
 		'ECHEC': 'bg-danger',
+		'ALERTE': 'bg-alerte',
 		'INTERROMPU': 'bg-warning text-dark',
 		'EN_COURS': 'bg-secondary'
 	} %}
 	{% set libellesStatut = {
 		'SUCCES': 'OK',
 		'ECHEC': 'ÉCHEC',
+		'ALERTE': 'ALERTE',
 		'INTERROMPU': 'INTERROMPU',
 		'EN_COURS': 'NON TERMINÉ'
+	} %}
+	{% set classesLigne = {
+		'SUCCES': '',
+		'ALERTE': 'ligne-alerte'
 	} %}
 
 	<div class="container-fluid">
@@ -88,7 +99,7 @@
 								{% for etape in suivi.etapes %}
 									{% set dureeTotale = dureeTotale + (etape.dureeMs ?: 0) %}
 								{% endfor %}
-								<tr role="button" data-bs-toggle="collapse" data-bs-target="#suivi-{{ loop.index }}" class="{{ suivi.statut == 'SUCCES' ? '' : 'table-danger' }}">
+								<tr role="button" data-bs-toggle="collapse" data-bs-target="#suivi-{{ loop.index }}" class="{{ classesLigne[suivi.statut] ?? 'table-danger' }}">
 									<td class="text-nowrap">{{ premiere.dateDebut ? premiere.dateDebut|date('d/m/Y H:i:s') : '-' }}</td>
 									<td>{{ typesOperation[premiere.typeOperation] ?? premiere.typeOperation }}</td>
 									<td>{{ premiere.numeroDocument ?: '-' }}</td>
