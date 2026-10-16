@@ -24,9 +24,22 @@ jobs:
       - name: Clear Cache
         shell: powershell
         run: |
-          if (Test-Path "C:\wamp64\www\Hffintranet_new_profil\var\cache") {
-            Remove-Item -Path "C:\wamp64\www\Hffintranet_new_profil\var\cache\*" -Recurse -Force
+          # Le site reste en ligne pendant le deploiement : Apache recree des fichiers de cache
+          # (var\cache\pools : menu, securite) pendant la suppression, d'ou l'erreur "Le repertoire n'est pas vide".
+          # On reessaie plusieurs fois ; les fichiers recrees entre-temps viennent du nouveau code (deja copie).
+          $cache = "C:\wamp64\www\Hffintranet_new_profil\var\cache"
+          if (Test-Path $cache) {
+            for ($essai = 1; $essai -le 5; $essai++) {
+              Get-ChildItem -Path $cache -Force | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+              if (-not (Get-ChildItem -Path $cache -Recurse -File -Force -ErrorAction SilentlyContinue)) { break }
+              Start-Sleep -Seconds 1
+            }
+            $restants = @(Get-ChildItem -Path $cache -Recurse -File -Force -ErrorAction SilentlyContinue)
+            if ($restants.Count -gt 0) {
+              Write-Warning "$($restants.Count) fichier(s) de cache recree(s) pendant le vidage par des requetes en cours (nouveau code) : conserve(s)."
+            }
           }
+          exit 0
 
       - name: Composer Install and Build
         shell: powershell
