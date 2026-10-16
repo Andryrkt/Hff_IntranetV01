@@ -542,10 +542,13 @@ class SuiviOperationService
      */
     private static function getUtilisateur(): ?string
     {
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            return null;
+        // gardé en mémoire : la session peut être fermée avant la fin du suivi (mails envoyés après la réponse)
+        static $utilisateur = null;
+
+        if ($utilisateur === null && session_status() === PHP_SESSION_ACTIVE) {
+            $utilisateur = $_SESSION['_sf2_attributes']['user_info']['username'] ?? null;
         }
 
-        return $_SESSION['_sf2_attributes']['user_info']['username'] ?? null;
+        return $utilisateur;
     }
 }
