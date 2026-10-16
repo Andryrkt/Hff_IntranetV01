@@ -14,6 +14,7 @@ use App\Service\da\FileUploaderForDAService;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /** @Route("/demande-appro") */
 class DaNewAchatController extends Controller
@@ -69,15 +70,26 @@ class DaNewAchatController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var DemandeApproParent $demandeApproParent */
             $demandeApproParent = $form->getData();
+            // suivi étape par étape de l'enregistrement (admin > historique > suivi des opérations)
+            $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_DA_CREATION_ACHAT, $demandeApproParent->getNumeroDemandeAppro());
 
             if ($demandeApproParent->getDateFinSouhaite() < new \DateTime()) {
-                $this->getSessionService()->set('notification', ['type' => 'error', 'message' => 'La date fin souhaitée ne peut pas être antérieure à la date du jour']);
+                $message = 'La date fin souhaitée ne peut pas être antérieure à la date du jour';
+                $this->getSessionService()->set('notification', ['type' => 'error', 'message' => $message]);
+                $suivi->echecOperation($message);
             } else {
 
-                $this->gererAgenceServiceDebiteur($demandeApproParent);
+                $suivi->etape('Agence / service débiteur', function () use ($demandeApproParent) {
+                    $this->gererAgenceServiceDebiteur($demandeApproParent);
+                });
 
                 $firstCreation = $demandeApproParent->getNumeroDemandeAppro() === null;
-                $numDa = $firstCreation ? $this->autoDecrement(ApplicationConstant::CODE_DAP) : $demandeApproParent->getNumeroDemandeAppro();
+                $numDa = $firstCreation
+                    ? $suivi->etape('Numérotation', function () {
+                        return $this->autoDecrement(ApplicationConstant::CODE_DAP);
+                    })
+                    : $demandeApproParent->getNumeroDemandeAppro();
+                $suivi->setNumeroDocument($numDa);
                 $demandeApproParent->setNumeroDemandeAppro($numDa);
                 $formDemandeApproLines = $form->get('demandeApproParentLines');
 
@@ -87,63 +99,79 @@ class DaNewAchatController extends Controller
                 $clickedButtonName = $this->getButtonName($request);
                 $demandeApproParent->setStatutDal(StatutDaConstant::STATUT_DAL[$clickedButtonName]);
 
-                foreach ($formDemandeApproLines as $subFormDapL) {
-                    /** @var DemandeApproParentLine $demandeApproParentLine */
-                    $demandeApproParentLine = $subFormDapL->getData();
+                $suivi->etape('Lignes de DA (fichiers)', function () use ($formDemandeApproLines, $numDa, $clickedButtonName) {
+                    foreach ($formDemandeApproLines as $subFormDapL) {
+                        /** @var DemandeApproParentLine $demandeApproParentLine */
+                        $demandeApproParentLine = $subFormDapL->getData();
 
-                    if ($demandeApproParentLine->isDeleted()) {
-                        $this->getEntityManager()->remove($demandeApproParentLine);
-                    } else {
-                        // Récupérer les données
-                        $filesToDelete = $subFormDapL->get('filesToDelete')->getData();
-                        $existingFileNames = $subFormDapL->get('existingFileNames')->getData();
-                        $newFiles = $subFormDapL->get('fileNames')->getData();
+                        if ($demandeApproParentLine->isDeleted()) {
+                            $this->getEntityManager()->remove($demandeApproParentLine);
+                        } else {
+                            // Récupérer les données
+                            $filesToDelete = $subFormDapL->get('filesToDelete')->getData();
+                            $existingFileNames = $subFormDapL->get('existingFileNames')->getData();
+                            $newFiles = $subFormDapL->get('fileNames')->getData();
 
-                        // Supprimer les fichiers
-                        if ($filesToDelete) {
-                            $this->daFileUploader->deleteFiles(
-                                explode(',', $filesToDelete),
-                                $numDa
+                            // Supprimer les fichiers
+                            if ($filesToDelete) {
+                                $this->daFileUploader->deleteFiles(
+                                    explode(',', $filesToDelete),
+                                    $numDa
+                                );
+                            }
+
+                            // Gérer l'upload et obtenir la liste finale
+                            $allFileNames = $this->daFileUploader->handleFileUpload(
+                                $newFiles,
+                                $existingFileNames,
+                                $numDa,
+                                FileUploaderForDAService::FILE_TYPE["DEVIS"]
                             );
+
+                            $demandeApproParentLine
+                                ->setNumeroDemandeAppro($numDa)
+                                ->setStatutDal(StatutDaConstant::STATUT_DAL[$clickedButtonName])
+                                ->setJoursDispo($this->getJoursRestants($demandeApproParentLine))
+                                ->setFileNames($allFileNames)
+                            ;
+
+                            $this->getEntityManager()->persist($demandeApproParentLine);
                         }
-
-                        // Gérer l'upload et obtenir la liste finale
-                        $allFileNames = $this->daFileUploader->handleFileUpload(
-                            $newFiles,
-                            $existingFileNames,
-                            $numDa,
-                            FileUploaderForDAService::FILE_TYPE["DEVIS"]
-                        );
-
-                        $demandeApproParentLine
-                            ->setNumeroDemandeAppro($numDa)
-                            ->setStatutDal(StatutDaConstant::STATUT_DAL[$clickedButtonName])
-                            ->setJoursDispo($this->getJoursRestants($demandeApproParentLine))
-                            ->setFileNames($allFileNames)
-                        ;
-
-                        $this->getEntityManager()->persist($demandeApproParentLine);
                     }
-                }
+                });
 
                 // si c'est la première création, on met à jour la colonne dernière_id dans la table applications
                 if ($firstCreation) {
                     /** Modifie la colonne dernière_id dans la table applications */
-                    $applicationService = new ApplicationService($this->getEntityManager());
-                    $applicationService->mettreAJourDerniereIdApplication('DAP', $numDa);
+                    $suivi->etape('Mise à jour du dernier numéro', function () use ($numDa) {
+                        $applicationService = new ApplicationService($this->getEntityManager());
+                        $applicationService->mettreAJourDerniereIdApplication('DAP', $numDa);
+                    });
                 }
 
                 /** Ajout de demande appro dans la base de donnée (table: Demande_Appro) */
-                $this->getEntityManager()->persist($demandeApproParent);
-                $this->getEntityManager()->flush();
+                $suivi->etape('Base de données', function () use ($demandeApproParent) {
+                    $this->getEntityManager()->persist($demandeApproParent);
+                    $this->getEntityManager()->flush();
+                });
 
                 /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
-                if ($demandeApproParent->getObservation()) $this->insertionObservation($numDa, $demandeApproParent->getObservation());
+                if ($demandeApproParent->getObservation()) {
+                    $suivi->etape('Observation', function () use ($numDa, $demandeApproParent) {
+                        $this->insertionObservation($numDa, $demandeApproParent->getObservation());
+                    });
+                }
 
                 // ajout des données dans la table DaAfficher
-                $this->ajouterDaDansTableAffichageParent($demandeApproParent, $firstCreation);
+                $suivi->etape('Mise à jour da_afficher', function () use ($demandeApproParent, $firstCreation) {
+                    $this->ajouterDaDansTableAffichageParent($demandeApproParent, $firstCreation);
+                });
 
-                if ($clickedButtonName === "soumissionAppro") $this->emailDaService->envoyerMailCreationDaParent($demandeApproParent, $this->getUser());
+                if ($clickedButtonName === "soumissionAppro") {
+                    $suivi->etape('Mail de création', function () use ($demandeApproParent) {
+                        $this->emailDaService->envoyerMailCreationDaParent($demandeApproParent, $this->getUser());
+                    });
+                }
 
                 $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
                 $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
