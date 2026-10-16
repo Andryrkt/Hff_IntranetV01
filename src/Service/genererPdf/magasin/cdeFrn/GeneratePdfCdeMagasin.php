@@ -116,7 +116,13 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         $this->pdf->Image("{$this->basePathAssets}/info_HFF_2.png", $this->imgConfig['img2X'], $this->imgConfig['img2Y'], $this->imgConfig['img2W'], $this->imgConfig['img2H'], "PNG");
 
         $this->pdf->SetFont(self::FONT, "B", self::TITLE_SIZE);
-        $this->pdf->Cell(0, self::TITLE_HEIGHT, "Cde Fournisseur", 0, 1);
+        $this->pdf->Cell(0, self::TITLE_HEIGHT, "Cde Fournisseur", 0, 0);
+
+        // Responsable sur la même ligne, aligné à droite
+        $this->pdf->setFont(self::FONT, "B", self::MAIN_TEXT_SIZE);
+        $this->pdf->SetX(self::MARGIN_LEFT);
+        $this->pdf->Cell(0, self::TITLE_HEIGHT - 10, $this->dto->responsable, 0, 1, 'R');
+        $this->pdf->Ln(5);
 
         $this->pdf->setFont(self::FONT, "I", self::MAIN_TEXT_SIZE);
         $this->cellUnderline($this->headerWidth['numCdeLbl'], self::MAIN_TEXT_HEIGHT, "No Commande:", 0, 0);
@@ -144,12 +150,6 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         $this->pdf->Cell($this->headerWidth['numFrn'], self::MAIN_TEXT_HEIGHT, $this->dto->numFrn, 0, 0);
         $this->pdf->MultiCell($this->headerWidth['nomFrn'], self::MAIN_TEXT_HEIGHT, $this->dto->nomFrn, 0, 'L');
 
-        $this->pdf->setFont(self::FONT, "I", self::MAIN_TEXT_SIZE);
-        $this->cellUnderline($this->headerWidth['responsableLbl'], self::MAIN_TEXT_HEIGHT, "Responsable:", 0, 0);
-
-        $this->pdf->setFont(self::FONT, "", self::MAIN_TEXT_SIZE);
-        $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, $this->dto->responsable, 0, 0);
-
         $this->pdf->setFont(self::FONT, "B", self::MAIN_TEXT_SIZE);
         $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, $this->dto->getAgenceService(), 0, 1, 'R');
     }
@@ -161,7 +161,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
      */
     private function renderTable(): void
     {
-        $this->pdf->Ln(3);
+        $this->pdf->Ln(2);
 
         $this->renderTableHeader();
 
@@ -420,7 +420,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
             $this->headerWidth['responsableLbl'] = 24;
 
         $this->headerWidth['numCde'] = $this->headerWidth['numFrn'] = 15;
-        $this->headerWidth['nomFrn'] = 45;
+        $this->headerWidth['nomFrn'] = 60;
 
         $this->imgConfig['img1W'] = 44.852;
         $this->imgConfig['img1H'] = $this->imgConfig['img1W'] * 434 / 1039;
