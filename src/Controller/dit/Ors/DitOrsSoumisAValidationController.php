@@ -443,6 +443,9 @@ class DitOrsSoumisAValidationController extends Controller
             'agenceDebiteur'        => !in_array($agServDebiteurBDSql, $agServInformix),
             'invalidePosition'      => in_array($pos[0]['position'], $invalidPositions),
             'idMaterielDifferent'   => $demandeIntervention->getIdMateriel() !== (int)$idMateriel[0]['nummatricule'],
+            // valeurs affichées dans le message de blocage "matériel différent"
+            'idMaterielOr'          => $idMateriel[0]['nummatricule'] ?? null,
+            'idMaterielDit'         => $demandeIntervention->getIdMateriel(),
             'sansrefClient'         => empty($refClient),
             'situationOrSoumis'     => $situationOrSoumis === 'bloquer',
             'countAgServDeb'        => (int)$countAgServDeb > 1,
@@ -484,7 +487,13 @@ class DitOrsSoumisAValidationController extends Controller
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
             exit;
         } elseif ($conditionBloquage['idMaterielDifferent']) {
-            $message = "Echec de la soumission car le materiel de l'OR ne correspond pas au materiel de la DIT";
+            $message = sprintf(
+                "Echec de la soumission car le matériel de l'OR %s (n° matériel %s) ne correspond pas au matériel de la DIT %s (n° matériel %s)",
+                $ditInsertionOrSoumis->getNumeroOR(),
+                $conditionBloquage['idMaterielOr'] ?? 'introuvable',
+                $ditInsertionOrSoumis->getNumeroDit(),
+                $conditionBloquage['idMaterielDit'] ?? 'non renseigné'
+            );
             $okey = false;
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
             exit;
