@@ -38,50 +38,51 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
- 
-/**==================================================
- * sweetalert pour le bouton Enregistrer
- *==================================================*/
-setupConfirmationButtons();
+  /**==================================================
+   * sweetalert pour le bouton Enregistrer
+   *==================================================*/
+  setupConfirmationButtons();
 
-/** ======================================================
- * validation du donnée pour le champ montant bc
- *=========================================================*/
-const montantBcInput = document.querySelector("#bc_montantBc");
-registerLocale("fr-custom", { delimiters: { thousands: " ", decimal: "," } }); // Enregistrer une locale personnalisée "fr-custom"
-setLocale("fr-custom"); // Utiliser la locale personnalisée
-if (montantBcInput) {
-  montantBcInput.addEventListener("input", (e) => {
-    montantBcInput.value = formatNumberSpecial(montantBcInput.value);
-  });
-}
+  /** ======================================================
+   * validation du donnée pour le champ montant bc
+   *=========================================================*/
+  const montantBcInput = document.querySelector("#bc_montantBc");
+  registerLocale("fr-custom", { delimiters: { thousands: " ", decimal: "," } }); // Enregistrer une locale personnalisée "fr-custom"
+  setLocale("fr-custom"); // Utiliser la locale personnalisée
+  if (montantBcInput) {
+    montantBcInput.addEventListener("input", (e) => {
+      montantBcInput.value = formatNumberSpecial(montantBcInput.value);
+    });
+  }
 
-// Fonction pour récupérer les lignes sélectionnées
-function getLignesSelectionnees() {
-  const lignesRAS = [];
-  const lignesModifier = [];
-  const lignesSupprimer = [];
+  // Fonction pour récupérer les lignes sélectionnées
+  function getLignesSelectionnees() {
+    const lignesRAS = [];
+    const lignesModifier = [];
+    const lignesSupprimer = [];
 
-  document.querySelectorAll(".ras-checkbox:checked").forEach((checkbox) => {
-    lignesRAS.push(checkbox.dataset.numeroLigne);
-  });
+    document.querySelectorAll(".ras-checkbox:checked").forEach((checkbox) => {
+      lignesRAS.push(checkbox.dataset.numeroLigne);
+    });
 
-  document.querySelectorAll(".qty-checkbox:checked").forEach((checkbox) => {
-    lignesModifier.push(checkbox.dataset.numeroLigne);
-  });
+    document.querySelectorAll(".qty-checkbox:checked").forEach((checkbox) => {
+      lignesModifier.push(checkbox.dataset.numeroLigne);
+    });
 
-  document.querySelectorAll(".delete-checkbox:checked").forEach((checkbox) => {
-    lignesSupprimer.push(checkbox.dataset.numeroLigne);
-  });
+    document
+      .querySelectorAll(".delete-checkbox:checked")
+      .forEach((checkbox) => {
+        lignesSupprimer.push(checkbox.dataset.numeroLigne);
+      });
 
-  return {
-    ras: lignesRAS,
-    modifier: lignesModifier,
-    supprimer: lignesSupprimer,
-  };
-}
+    return {
+      ras: lignesRAS,
+      modifier: lignesModifier,
+      supprimer: lignesSupprimer,
+    };
+  }
 
- // --- Checkbox Logic ---
+  // --- Checkbox Logic ---
 
   // Make RAS checkbox read-only for user clicks
   document.querySelectorAll(".ras-checkbox").forEach((checkbox) => {
@@ -99,10 +100,10 @@ function getLignesSelectionnees() {
       // Add event listeners for quantity input fields
       document.querySelectorAll(".nouvelle-qte-input").forEach((input) => {
         input.addEventListener("input", (event) => {
-          const numeroLigne = event.target
-            .closest("tr")
-            .id.split("-")[1];
-          const qtyStatus = document.getElementById(`qty-status-${numeroLigne}`);
+          const numeroLigne = event.target.closest("tr").id.split("-")[1];
+          const qtyStatus = document.getElementById(
+            `qty-status-${numeroLigne}`
+          );
           if (event.target.value) {
             qtyStatus.textContent = `Qté: ${event.target.value}`;
           } else {
@@ -188,4 +189,3 @@ function updateRowUI(numeroLigne) {
     row.classList.add("delete-checked");
   }
 }
-

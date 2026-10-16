@@ -47,9 +47,7 @@ class DevisNegBcController extends Controller
         $bcDto = $this->bcFactory->create($numeroDevis, $codeSociette);
 
         $validationBc = new ValidationBc();
-        if ($validationBc->ValidateBcAvantAffichage($bcDto)) {
-            return;
-        }
+        if ($validationBc->ValidateBcAvantAffichage($bcDto)) return;
 
         //création du formulaire
         $form = $this->getFormFactory()->createBuilder(BcType::class, $bcDto, [
@@ -70,6 +68,8 @@ class DevisNegBcController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var BcDto $dto */
             $dto = $form->getData();
+
+            if ((new ValidationBc())->ValidateBcApresSoumission($dto)) return;
 
             $dto = $this->bcFactory->createApresSoumission($dto, $this->getUserName(), $this->getUserMail());
 
