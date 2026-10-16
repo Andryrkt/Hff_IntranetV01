@@ -27,10 +27,10 @@ export function setupConfirmationButtons() {
       // Validation spécifique au formulaire (importée depuis l'autre fichier)
       try {
         const { validateSpecificForm } =
-          await import("./form-specific-validation.js");
+          await import(`./form-specific-validation.js?v=${Date.now()}`); // évite le cache navigateur
         const specificValidation = await validateSpecificForm(
           form,
-          formSelector,
+          formSelector
         );
         console.log(validateSpecificForm);
 
@@ -46,7 +46,7 @@ export function setupConfirmationButtons() {
         if (error === "CANCELLED") return;
         console.error(
           "Erreur lors du chargement des validations spécifiques:",
-          error,
+          error
         );
         // Continuer sans validation spécifique si le fichier n'est pas trouvé
       }
@@ -126,12 +126,12 @@ function validateFormFields(form) {
       if (!Array.from(group).some((input) => input.checked)) {
         handleInvalidField(errorMessage);
         group.forEach((input) =>
-          input.closest("label")?.classList.add("text-danger"),
+          input.closest("label")?.classList.add("text-danger")
         );
       } else {
         handleValidField();
         group.forEach((input) =>
-          input.closest("label")?.classList.remove("text-danger"),
+          input.closest("label")?.classList.remove("text-danger")
         );
       }
     } else if (typeof field.value === "string") {
@@ -145,7 +145,7 @@ function validateFormFields(form) {
     } else {
       // Cas où 'field' est un conteneur (ex: div pour ChoiceType étendu)
       const inputs = field.querySelectorAll(
-        'input[type="radio"], input[type="checkbox"]',
+        'input[type="radio"], input[type="checkbox"]'
       );
       if (inputs.length > 0) {
         const groupName = inputs[0].name;

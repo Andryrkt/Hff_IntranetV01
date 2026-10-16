@@ -24,20 +24,6 @@ document.addEventListener("DOMContentLoaded", function () {
     initializeFileHandlersMultiple("2", fileInput2);
   }
 
-  // Gestion de la validation du formulaire
-  const form = document.querySelector("#upload-form");
-  if (form) {
-    form.addEventListener("submit", function (e) {
-      // Vérifier si les fichiers requis sont présents
-      const fileInput1 = document.querySelector("#bc_pieceJoint01");
-      if (fileInput1 && fileInput1.files.length === 0) {
-        e.preventDefault();
-        alert("Veuillez sélectionner un fichier devis.");
-        return false;
-      }
-    });
-  }
-
   /**==================================================
    * sweetalert pour le bouton Enregistrer
    *==================================================*/
