@@ -451,6 +451,8 @@ class DitOrsSoumisAValidationController extends Controller
             'idMaterielDit'         => $demandeIntervention->getIdMateriel(),
             'sansrefClient'         => empty($refClient),
             'situationOrSoumis'     => $situationOrSoumis === 'bloquer',
+            // version, statut et date de la dernière soumission, affichés dans le message de blocage
+            'derniereSoumissionOr'  => $situationOrSoumis === 'bloquer' ? $orRepository->getDerniereSoumission($numOr, $codeSociete) : null,
             'countAgServDeb'        => (int)$countAgServDeb > 1,
             'numOrFichier'          => $numOrNomFIchier <> $numOr,
             'numcliExiste'          => $nbrNumcli[0] != 'existe_bdd',
@@ -458,6 +460,32 @@ class DitOrsSoumisAValidationController extends Controller
             'statutBcNonValide'           => $statutBc !== 'Validé atelier' && $internetExterne === 'Externe',
             'estMemeDevise'         => $estMemeDevise,
         ];
+    }
+
+    /**
+     * Message du blocage "un OR est déjà en cours de validation" avec la version, la date et le statut de la dernière soumission
+     * (limité à 255 caractères : colonne libelle_operation de l'historique des opérations)
+     */
+    private function messageOrDejaEnCoursDeValidation(string $numOr, ?array $derniereSoumission): string
+    {
+        if ($derniereSoumission === null) {
+            return "Echec de la soumission de l'OR $numOr . . . un OR est déjà en cours de validation";
+        }
+
+        $date = $derniereSoumission['dateSoumission'] instanceof \DateTimeInterface ? $derniereSoumission['dateSoumission']->format('d/m/Y') : '?';
+        $heure = $derniereSoumission['heureSoumission'] ? ' à ' . substr((string) $derniereSoumission['heureSoumission'], 0, 5) : '';
+        $statuts = empty($derniereSoumission['statuts']) ? 'sans statut' : '« ' . implode(' », « ', $derniereSoumission['statuts']) . ' »';
+
+        $message = sprintf(
+            "Echec de la soumission de l'OR %s : la dernière version (n° %d, soumise le %s%s) est au statut %s. Attendre sa validation, son refus ou une demande de modification.",
+            $numOr,
+            $derniereSoumission['version'],
+            $date,
+            $heure,
+            $statuts
+        );
+
+        return mb_strlen($message) > 255 ? mb_substr($message, 0, 252) . '...' : $message;
     }
 
     private function bloquageOrSoumsi(array $conditionBloquage, string $originalName, $ditInsertionOrSoumis): bool
@@ -506,7 +534,7 @@ class DitOrsSoumisAValidationController extends Controller
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
             exit;
         } elseif ($conditionBloquage['situationOrSoumis']) {
-            $message = "Echec de la soumission de l'OR . . . un OR est déjà en cours de validation ";
+            $message = $this->messageOrDejaEnCoursDeValidation($ditInsertionOrSoumis->getNumeroOR(), $conditionBloquage['derniereSoumissionOr']);
             $okey = false;
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
         } elseif ($conditionBloquage['countAgServDeb']) {
