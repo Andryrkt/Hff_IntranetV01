@@ -142,6 +142,7 @@ class SuiviOperationService
     private const ERREURS_FATALES = [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR, E_RECOVERABLE_ERROR];
 
     private static ?self $courant = null;
+    private static ?CollecteurRequetesSql $collecteurSql = null;
 
     private string $idSuivi;
     private string $typeOperation;
@@ -172,8 +173,32 @@ class SuiviOperationService
     public static function demarrer(string $typeOperation, ?string $numeroDocument = null): self
     {
         self::$courant = new self($typeOperation, $numeroDocument);
+        self::installerCollecteurSql();
 
         return self::$courant;
+    }
+
+    /**
+     * Installe (une fois par requête) le collecteur des requêtes SQL sur la connexion Doctrine,
+     * pour afficher dans chaque étape les requêtes exécutées, leur durée et les tables / colonnes écrites
+     */
+    private static function installerCollecteurSql(): void
+    {
+        if (self::$collecteurSql !== null) {
+            return;
+        }
+
+        try {
+            global $container;
+            if (!$container || !$container->has('doctrine.orm.default_entity_manager')) {
+                return;
+            }
+            $configuration = $container->get('doctrine.orm.default_entity_manager')->getConnection()->getConfiguration();
+            self::$collecteurSql = new CollecteurRequetesSql($configuration->getSQLLogger());
+            $configuration->setSQLLogger(self::$collecteurSql);
+        } catch (\Throwable $e) {
+            error_log('[SuiviOperation] Collecte des requêtes SQL impossible : ' . $e->getMessage());
+        }
     }
 
     /**
@@ -413,7 +438,14 @@ class SuiviOperationService
             $id = (int) $connexion->lastInsertId();
         });
 
-        $this->etapesOuvertes[] = ['id' => $id, 'libelle' => $libelle, 'debut' => $debut, 'problemes' => [], 'infos' => []];
+        $this->etapesOuvertes[] = [
+            'id'        => $id,
+            'libelle'   => $libelle,
+            'debut'     => $debut,
+            'problemes' => [],
+            'infos'     => [],
+            'sql'       => self::$collecteurSql !== null ? self::$collecteurSql->position() : null,
+        ];
     }
 
     private function fermerEtape(string $statut, ?string $message = null, ?string $detailErreur = null): void
@@ -434,6 +466,13 @@ class SuiviOperationService
         // informations notées pendant l'étape (extrait d'observation, objet et destinataires d'un mail...)
         if (!empty($etape['infos'])) {
             $message = implode(' | ', array_filter(array_merge([$message], $etape['infos'])));
+        }
+
+        // requêtes SQL exécutées pendant l'étape : résumé dans le message, liste dans le détail technique
+        if ($etape['sql'] !== null && self::$collecteurSql !== null) {
+            $requetes = self::$collecteurSql->requetesDepuis($etape['sql']);
+            $message = implode(' | ', array_filter([$message, CollecteurRequetesSql::resume($requetes)]));
+            $detailErreur = implode("\n\n", array_filter([$detailErreur, CollecteurRequetesSql::detail($requetes)])) ?: null;
         }
 
         if ($etape['id'] === null) {
