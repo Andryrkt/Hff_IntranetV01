@@ -36,6 +36,9 @@ class SuiviOperationService
     public const TYPE_BADM_DUPLICATION    = 'BADM_DUPLICATION';
     public const TYPE_CASIER              = 'CASIER';
     // Appro et paiement
+    public const TYPE_DA_CREATION_AVEC_DIT         = 'DA_CREATION_AVEC_DIT';
+    public const TYPE_DA_CREATION_ACHAT            = 'DA_CREATION_ACHAT';
+    public const TYPE_DA_CREATION_REAPPRO_MENSUEL  = 'DA_CREATION_REAPPRO_MENSUEL';
     public const TYPE_DA_BC               = 'DA_BC';
     public const TYPE_DA_FAC_BL           = 'DA_FAC_BL';
     public const TYPE_DA_BL_REAPPRO       = 'DA_BL_REAPPRO';
@@ -73,6 +76,9 @@ class SuiviOperationService
         self::TYPE_BADM                        => 'Mouvement matériel',
         self::TYPE_BADM_DUPLICATION            => 'Mouvement matériel (duplication)',
         self::TYPE_CASIER                      => 'Casier',
+        self::TYPE_DA_CREATION_AVEC_DIT        => 'DA - création avec DIT',
+        self::TYPE_DA_CREATION_ACHAT           => 'DA - création achat (directe)',
+        self::TYPE_DA_CREATION_REAPPRO_MENSUEL => 'DA - création réappro mensuel',
         self::TYPE_DA_BC                       => 'DA - bon de commande',
         self::TYPE_DA_FAC_BL                   => 'DA - facture / BL',
         self::TYPE_DA_BL_REAPPRO               => 'DA - BL réappro',
