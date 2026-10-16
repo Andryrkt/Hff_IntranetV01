@@ -286,6 +286,28 @@ class SuiviOperationService
      * Signale un problème non bloquant sur l'étape en cours (ex : copie DocuWare échouée sans exception).
      * L'étape sera enregistrée en ECHEC avec ce message à sa fermeture.
      */
+    /**
+     * Ajoute une information à l'étape en cours du suivi courant, affichée dans "Message / erreur"
+     * (ex. extrait de l'observation, objet et destinataires d'un mail). Ne fait rien hors d'une étape suivie.
+     */
+    public static function noter(string $information): void
+    {
+        if (self::$courant === null || empty(self::$courant->etapesOuvertes)) {
+            return;
+        }
+        self::$courant->etapesOuvertes[count(self::$courant->etapesOuvertes) - 1]['infos'][] = $information;
+    }
+
+    /**
+     * Raccourcit un texte saisi (HTML, sauts de ligne) pour l'afficher dans le suivi, suivi de "..." s'il est coupé
+     */
+    public static function extrait(?string $texte, int $longueur = 80): string
+    {
+        $texte = trim(preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags(str_ireplace(['<br>', '<br/>', '<br />'], ' ', (string) $texte)))));
+
+        return mb_strlen($texte) > $longueur ? rtrim(mb_substr($texte, 0, $longueur)) . '...' : $texte;
+    }
+
     public function signalerProbleme(string $message): void
     {
         if (empty($this->etapesOuvertes)) {
@@ -391,7 +413,7 @@ class SuiviOperationService
             $id = (int) $connexion->lastInsertId();
         });
 
-        $this->etapesOuvertes[] = ['id' => $id, 'libelle' => $libelle, 'debut' => $debut, 'problemes' => []];
+        $this->etapesOuvertes[] = ['id' => $id, 'libelle' => $libelle, 'debut' => $debut, 'problemes' => [], 'infos' => []];
     }
 
     private function fermerEtape(string $statut, ?string $message = null, ?string $detailErreur = null): void
@@ -407,6 +429,11 @@ class SuiviOperationService
                 $statut = self::STATUT_ECHEC;
             }
             $message = implode(' | ', array_filter(array_merge($etape['problemes'], [$message])));
+        }
+
+        // informations notées pendant l'étape (extrait d'observation, objet et destinataires d'un mail...)
+        if (!empty($etape['infos'])) {
+            $message = implode(' | ', array_filter(array_merge([$message], $etape['infos'])));
         }
 
         if ($etape['id'] === null) {

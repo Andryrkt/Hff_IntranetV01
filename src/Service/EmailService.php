@@ -4,6 +4,7 @@ namespace App\Service;
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 class EmailService
 {
@@ -90,14 +91,33 @@ class EmailService
             // Envoyer l'e-mail
             $this->twigMailer->send();
 
+            // objet et destinataires affichés dans le suivi des opérations (copies fixes MAIL_CC / MAIL_BCC non reprises)
+            SuiviOperationService::noter($this->resumeMail($mailer->Subject, $recipients, $cc));
+
             return true;
         } catch (\Exception $e) {
+            if (isset($mailer)) {
+                SuiviOperationService::noter('Échec de l\'envoi : ' . $e->getMessage() . ' · ' . $this->resumeMail($mailer->Subject, $recipients ?? [], $cc));
+            }
             // Gérer l'erreur
             dd('erreur: ' . $e->getMessage());
             return false;
         }
     }
 
+
+    /**
+     * Résumé d'un mail pour le suivi des opérations : objet, destinataires et copies
+     */
+    private function resumeMail(?string $objet, array $destinataires, ?array $copies): string
+    {
+        $resume = 'Objet : ' . ($objet ?: '-') . ' · À : ' . (implode(', ', array_filter($destinataires)) ?: '-');
+        if (!empty(array_filter((array) $copies))) {
+            $resume .= ' · Cc : ' . implode(', ', array_filter($copies));
+        }
+
+        return $resume;
+    }
 
     /**
      * Get the value of mailer
