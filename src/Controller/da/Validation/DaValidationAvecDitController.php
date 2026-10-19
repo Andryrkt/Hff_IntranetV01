@@ -3,10 +3,14 @@
 namespace App\Controller\da\Validation;
 
 use App\Controller\Controller;
-use App\Controller\Traits\da\DaAfficherTrait;
+use App\Service\da\DaAfficherService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\da\validation\DaValidationAvecDitTrait;
+use App\Repository\da\DemandeApproLRepository;
+use App\Entity\da\DemandeApproL;
+use App\Service\da\EmailDaService;
+use App\Service\da\DaValidationService;
+use Doctrine\ORM\EntityManagerInterface;
 use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
@@ -14,14 +18,21 @@ use App\Service\historiqueOperation\suivi\SuiviOperationService;
  */
 class DaValidationAvecDitController extends Controller
 {
-    use DaAfficherTrait;
-    use DaValidationAvecDitTrait;
+    private DemandeApproLRepository $demandeApproLRepository;
+    private EmailDaService $emailDaService;
+    private DaAfficherService $daAfficherService;
+    private DaValidationService $daValidationService;
 
-    public function __construct()
-    {
-        parent::__construct();
-
-        $this->initDaValidationAvecDitTrait();
+    public function __construct(
+        EntityManagerInterface $em,
+        DaAfficherService $daAfficherService,
+        DaValidationService $daValidationService,
+        EmailDaService $emailDaService
+    ) {
+        $this->demandeApproLRepository = $em->getRepository(DemandeApproL::class);
+        $this->emailDaService = $emailDaService;
+        $this->daValidationService = $daValidationService;
+        $this->daAfficherService = $daAfficherService;
     }
 
     /**
@@ -39,23 +50,23 @@ class DaValidationAvecDitController extends Controller
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
 
         $da = $suivi->etape('Validation des lignes (base de données)', function () use ($numDa, $numeroVersionMax, $prixUnitaire, $refsValide) {
-            return $this->validerDemandeApproAvecLignes($numDa, $numeroVersionMax, $prixUnitaire, $refsValide);
+            return $this->daValidationService->validerDemandeApproAvecLignes($numDa, $numeroVersionMax, $prixUnitaire, $refsValide);
         });
 
         /** CREATION EXCEL */
         $resultatExport = $suivi->etape('Bon d\'achat (Excel et PDF)', function () use ($numDa, $numeroVersionMax) {
-            return $this->exporterDaAvecDitEnExcelEtPdf($numDa, $numeroVersionMax);
+            return $this->daValidationService->exporterDaAvecDitEnExcelEtPdf($numDa, $numeroVersionMax);
         });
 
         /** Ajout nom fichier du bon d'achat (excel) */
         $da->setNomFichierBav($resultatExport['fileName']);
 
         $suivi->etape('Mise à jour da_afficher', function () use ($da) {
-            $this->ajouterDansTableAffichageParNumDa($da->getNumeroDemandeAppro(), true); // enregistrer dans la table Da Afficher
+            $this->daAfficherService->ajouterDansTableAffichageParNumDa($da->getNumeroDemandeAppro(), true); // enregistrer dans la table Da Afficher
         });
 
         $suivi->etape('Mail de validation', function () use ($da, $resultatExport) {
-            $this->emailDaService->envoyerMailValidationDa($da, $this->getUser(), $resultatExport);
+            $this->emailDaService->envoyerMailValidationDa($da, $resultatExport);
         });
 
         /** NOTIFICATION */

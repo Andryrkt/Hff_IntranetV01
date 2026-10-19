@@ -6,11 +6,12 @@ use App\Constants\da\RouteConstant;
 use App\Constants\da\StatutActionConstant;
 use App\Constants\da\StatutBcConstant;
 use App\Constants\da\StatutDaConstant;
-use App\Controller\Traits\da\MarkupIconTrait;
+use App\Service\da\DaIconService;
 use App\Dto\Da\DaAfficherDto;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DaSoumissionBc;
 use App\Entity\da\DemandeAppro;
+use App\Model\da\DaAfficherModel;
 use App\Model\da\DaSoumissionFacBlModel;
 use App\Service\da\PermissionDaService;
 use App\Service\Admin\UrlIdCipher;
@@ -20,12 +21,13 @@ use Twig\Markup;
 
 class DaAfficherMapper
 {
-    use MarkupIconTrait;
-
     private UrlGeneratorInterface $router;
     private PermissionDaService $permissionDaService;
+    private DaIconService $daIconService;
     private EntityManagerInterface $em;
     private UrlIdCipher $urlIdCipher;
+    private DaAfficherModel $daAfficherModel;
+    private array $indicateursDa = [];
 
     public function __construct(
         UrlGeneratorInterface $router,
@@ -35,7 +37,9 @@ class DaAfficherMapper
         $this->em = $em;
         $this->router = $router;
         $this->permissionDaService = new PermissionDaService();
+        $this->daIconService = new DaIconService();
         $this->urlIdCipher = $urlIdCipher;
+        $this->daAfficherModel = new DaAfficherModel();
     }
 
     public function map(DaAfficher $data, array $options = []): DaAfficherDto
@@ -47,6 +51,9 @@ class DaAfficherMapper
         $codeAgenceUser     = $options['codeAgenceUser'] ?? null;
         $codeServiceUser    = $options['codeServiceUser'] ?? null;
         $agenceServiceIndex = $options['agenceServiceIndex'] ?? [];
+        $slugRedirect       = $options['redirect'] ?? "-";
+
+        $isListCdeFrn       = $slugRedirect === RouteConstant::SLUG_LISTE_CDE_FRN;
 
         $dto = new DaAfficherDto();
         $dto->id = $data->getId();
@@ -66,12 +73,21 @@ class DaAfficherMapper
         $dto->datype = $data->getDatypeId();
         $dto->daViaOR = $dto->datype === DemandeAppro::TYPE_DA_AVEC_DIT;
         $dto->daDirect = $dto->datype === DemandeAppro::TYPE_DA_DIRECT;
-        $dto->daReappro = $dto->datype === DemandeAppro::TYPE_DA_REAPPRO_MENSUEL;
+        $dto->daReapproMensuel = $dto->datype === DemandeAppro::TYPE_DA_REAPPRO_MENSUEL;
         $dto->daParent = $dto->datype === DemandeAppro::TYPE_DA_PARENT;
 
         // Icônes
         $dto->daTypeIcon = $this->getTypeDaIcon($dto->datype);
-        $dto->allIcons = $this->getAllIcons();
+        $dto->allIcons = $this->daIconService->getAllIcons();
+        if ($dto->daTypeIcon !== '') {
+            // cache par DA : une même DA a plusieurs lignes
+            $numDa = $dto->numeroDemandeAppro;
+            $this->indicateursDa[$numDa] ??= [
+                $this->daAfficherModel->aPiecesJointes($numDa),
+                $this->daAfficherModel->countObservations($numDa),
+            ];
+            [$dto->aPiecesJointes, $dto->nbObservations] = $this->indicateursDa[$numDa];
+        }
         $safeIconSuccess = new Markup('<i class="fas fa-check text-success"></i>', 'UTF-8');
         $safeIconXmark   = new Markup('<i class="fas fa-xmark text-danger"></i>', 'UTF-8');
         $safeIconBan     = new Markup('<i class="fas fa-ban text-muted"></i>', 'UTF-8');
@@ -136,15 +152,22 @@ class DaAfficherMapper
 
         // DIT
         $dto->numeroDemandeDit = $dto->daViaOR ? $data->getNumeroDemandeDit() : $safeIconBan;
-        $dto->niveauUrgence = $dto->daReappro ? $safeIconBan : $data->getNiveauUrgence();
+        $dto->niveauUrgence = $dto->daReapproMensuel ? $safeIconBan : $data->getNiveauUrgence();
 
         // Calculs de droits & URLs (Actions & URLs)
-        $this->computeRightsAndUrls($dto, $data, $safeIconBan, $estAdmin, $estAppro, $estAtelier, $options['redirect']);
+        $this->computeRightsAndUrls($dto, $data, $safeIconBan, $estAdmin, $estAppro, $estAtelier, $slugRedirect);
 
         // HTML Attributes
         $dto->tdNumCdeAttributes = $this->prepareTdNumCdeAttributes($dto);
-        $dto->styleClickableCell = $dto->envoyeFrn ? 'clickable-td' : '';
-        $dto->tdCheckboxAttributes = $this->getCheckboxAttributes($dto);
+
+        if ($isListCdeFrn) $dto->styleClickableCell = $dto->envoyeFrn ? 'clickable-td' : '';
+        else $dto->styleClickableCell =
+            in_array($data->getStatutDal(), StatutDaConstant::TRAITER_APPRO_LIST)
+            && ($dto->daViaOR || $dto->daDirect)
+            ? 'clickable-td'
+            : '';
+
+        $dto->tdCheckboxAttributes = $this->getCheckboxAttributes($dto, $isListCdeFrn);
         $dto->aDtLivPrevAttributes = $this->getADtLivPrevAttributes($dto);
         $dto->aArtDesiAttributes = $this->getAArtDesiAttributes($dto);
         $dto->ddpCloture = $this->getDdpStatutCloture($dto);
@@ -246,14 +269,14 @@ class DaAfficherMapper
         ];
     }
 
-    private function getCheckboxAttributes(DaAfficherDto $dto): array
+    private function getCheckboxAttributes(DaAfficherDto $dto, bool $isListCdeFrn): array
     {
         return [
-            'class' => 'modern-checkbox',
-            'type' => 'checkbox',
-            'value' => $dto->id,
+            'class'                     => !$isListCdeFrn && !$dto->styleClickableCell ? 'd-none' : "modern-checkbox",
+            'type'                      => 'checkbox',
+            'value'                     => $dto->id,
             'data-numero-demande-appro' => $dto->numeroDemandeAppro,
-            'data-numero-ligne' => $dto->positionBc,
+            'data-numero-ligne'         => $dto->positionBc,
         ];
     }
 
@@ -282,10 +305,10 @@ class DaAfficherMapper
     private function getTypeDaIcon($typeId): string
     {
         $daIcons = [
-            DemandeAppro::TYPE_DA_AVEC_DIT         => $this->getIconDaAvecDIT(),
-            DemandeAppro::TYPE_DA_DIRECT           => $this->getIconDaDirect(),
-            DemandeAppro::TYPE_DA_REAPPRO_MENSUEL  => $this->getIconDaReapproMensuel(),
-            DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL => $this->getIconDaReapproPonctuel(),
+            DemandeAppro::TYPE_DA_AVEC_DIT         => $this->daIconService->getIconDaAvecDIT(),
+            DemandeAppro::TYPE_DA_DIRECT           => $this->daIconService->getIconDaDirect(),
+            DemandeAppro::TYPE_DA_REAPPRO_MENSUEL  => $this->daIconService->getIconDaReapproMensuel(),
+            DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL => $this->daIconService->getIconDaReapproPonctuel(),
             DemandeAppro::TYPE_DA_PARENT           => ''
         ];
 

@@ -8,12 +8,17 @@ use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
 use App\Form\da\DemandeApproDirectFormType;
-use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
-use App\Controller\Traits\da\modification\DaEditDirectTrait;
+use App\Repository\da\DemandeApproRepository;
+use App\Service\da\EmailDaService;
+use App\Entity\da\DaObservation;
+use App\Service\da\DaEditionService;
 use App\Service\Admin\UrlIdCipher;
+use App\Service\da\DaObservationService;
+use App\Service\da\DaAfficherService;
+use Doctrine\ORM\EntityManagerInterface;
 use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
@@ -21,16 +26,27 @@ use App\Service\historiqueOperation\suivi\SuiviOperationService;
  */
 class DaEditDirectController extends Controller
 {
-    use DaAfficherTrait;
-    use DaEditDirectTrait;
+    private DemandeApproRepository $demandeApproRepository;
+    private EmailDaService $emailDaService;
+
     private UrlIdCipher $urlIdCipher;
+    private DaObservationService $daObservationService;
+    private DaAfficherService $daAfficherService;
+    private DaEditionService $daEditionService;
 
-    public function __construct()
-    {
-        parent::__construct();
-
-        $this->initDaEditDirectTrait();
+    public function __construct(
+        EntityManagerInterface $em,
+        DaObservationService $daObservationService,
+        DaAfficherService $daAfficherService,
+        DaEditionService $daEditionService,
+        EmailDaService $emailDaService
+    ) {
+        $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
+        $this->emailDaService = $emailDaService;
         $this->urlIdCipher = new UrlIdCipher;
+        $this->daObservationService = $daObservationService;
+        $this->daAfficherService = $daAfficherService;
+        $this->daEditionService = $daEditionService;
     }
 
     /**
@@ -47,18 +63,18 @@ class DaEditDirectController extends Controller
         $numDa = $demandeAppro->getNumeroDemandeAppro();
 
         $estCreateurDeDADirecte = $this->estCreateurDaDirecte();
-        $ancienDals = $this->getAncienDAL($demandeAppro);
+        $ancienDals = $this->daEditionService->getAncienDAL($demandeAppro);
 
         $form = $this->getFormFactory()->createBuilder(DemandeApproDirectFormType::class, $demandeAppro)->getForm();
 
         $this->traitementForm($form, $request, $ancienDals);
 
-        $observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()], ['dateCreation' => 'DESC']);
+        $observations = $this->getEntityManager()->getRepository(DaObservation::class)->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()], ['dateCreation' => 'DESC']);
 
         return $this->render('da/edit-da-direct.html.twig', [
             'form'              => $form->createView(),
             'observations'      => $observations,
-            'peutModifier'      => $this->peutModifier($demandeAppro->getStatutDal(), $estCreateurDeDADirecte),
+            'peutModifier'      => $this->daEditionService->peutModifier($demandeAppro->getStatutDal(), $estCreateurDeDADirecte),
             'numDa'             => $numDa,
         ]);
     }
@@ -94,7 +110,7 @@ class DaEditDirectController extends Controller
                 $this->getEntityManager()->flush(); // enregistrer le modifications avant l'appel à la méthode "ajouterDansTableAffichageParNumDa"
             });
             $suivi->etape('Mise à jour da_afficher', function () use ($numDa) {
-                $this->ajouterDansTableAffichageParNumDa($numDa); // ajout dans la table DaAfficher si le statut a changé
+                $this->daAfficherService->ajouterDansTableAffichageParNumDa($numDa); // ajout dans la table DaAfficher si le statut a changé
             });
 
             $notifType = "success";
@@ -122,21 +138,21 @@ class DaEditDirectController extends Controller
             });
 
             $suivi->etape('Lignes de DA et base de données', function () use ($demandeAppro, $form) {
-                $this->modificationDa($demandeAppro, $form->get('DAL'), StatutDaConstant::STATUT_SOUMIS_APPRO);
+                $this->daEditionService->modificationDa($demandeAppro, $this->lignesFormulaire($form->get('DAL')), StatutDaConstant::STATUT_SOUMIS_APPRO);
             });
             if ($demandeAppro->getObservation() !== null) {
                 $suivi->etape('Observation', function () use ($numDa, $demandeAppro) {
-                    $this->insertionObservation($numDa, $demandeAppro->getObservation());
+                    $this->daObservationService->insertionObservation($numDa, $demandeAppro->getObservation());
                 });
             }
 
             // ajout des données dans la table DaAfficher
             $suivi->etape('Mise à jour da_afficher', function () use ($numDa) {
-                $this->ajouterDansTableAffichageParNumDa($numDa);
+                $this->daAfficherService->ajouterDansTableAffichageParNumDa($numDa);
             });
 
             $suivi->etape('Mail de modification', function () use ($demandeAppro, $ancienDals) {
-                $this->emailDaService->envoyerMailModificationDa($demandeAppro, $this->getUser(), $ancienDals);
+                $this->emailDaService->envoyerMailModificationDa($demandeAppro, $ancienDals);
             });
 
             //notification
@@ -151,5 +167,20 @@ class DaEditDirectController extends Controller
             ->setAgenceDebiteur($demandeAppro->getDebiteur()['agence'])
             ->setServiceDebiteur($demandeAppro->getDebiteur()['service'])
             ->setAgenceServiceDebiteur($demandeAppro->getAgenceDebiteur()->getCodeAgence() . '-' . $demandeAppro->getServiceDebiteur()->getCodeService());
+    }
+
+    /** Valeurs du formulaire des lignes DAL, passées au service (qui ne connaît pas les formulaires) */
+    private function lignesFormulaire($formDAL): array
+    {
+        $lignes = [];
+        foreach ($formDAL as $subFormDAL) {
+            $lignes[] = [
+                'dal'               => $subFormDAL->getData(),
+                'filesToDelete'     => $subFormDAL->get('filesToDelete')->getData(),
+                'existingFileNames' => $subFormDAL->get('existingFileNames')->getData(),
+                'newFiles'          => $subFormDAL->get('fileNames')->getData(),
+            ];
+        }
+        return $lignes;
     }
 }

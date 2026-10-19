@@ -10,12 +10,12 @@
 				{{ form_start(form, {'method': 'GET'}) }}
 				<div class="row">
 					<div class="col-12 col-md-2">
-						{{ form_row(form.numCla)}}
-						{{ form_row(form.numDa)}}
-						{{ form_row(form.aTraiter)}}
+						{{ form_row(form.numCla) }}
+						{{ form_row(form.numDa) }}
+						{{ form_row(form.aTraiter) }}
 					</div>
 					<div class="col-12 col-md-2">
-						{{ form_row(form.numCde)}}
+						{{ form_row(form.numCde) }}
 					</div>
 					<div class="col-12 col-md-2">
 						{{ form_row(form.numLivIps) }}
@@ -44,4 +44,11 @@
 			</div>
 		</div>
 	</div>
+</div>
+<div class="my-2 d-flex justify-content-between">
+	<a href="{{ path('export_excel_consultation_facture', criteria) }}" class="btn btn-sm bg-success text-white fw-bold me-3 afficher-overlay">
+		<i class="fas fa-table"></i>
+		Excel
+	</a>
+	<button type="button" class="btn btn-warning" id="transmettreBAP">Transmettre les DDP/BAP à validation.</button>
 </div>

@@ -16,22 +16,19 @@
 	<div id="intro">
 		<div class="d-flex align-items-center w-100 h-100 justify-content-center" style="backdrop-filter: blur(4px) saturate(1.2);">
 			<div class="container w-25" style="transform: translateY(-25%);">
-
-				{% include "/partials/_notification.html.twig" %}
-
 				<div class="card">
 					<div class="card-body">
 						<div class="container">
-							{{ form_start(form)}}
-							{{ form_errors(form)}}
+							{{ form_start(form) }}
+							{{ form_errors(form) }}
 							<div class="row d-flex justify-content-center mb-2">
 								<h3 class="perso-titre mb-3">Veuillez choisir une société</h3>
 								<img src="Views/assets/logoHFF.jpg" class="w-75 mb-3" id="Logo"/>
-								{{ form_row(form.societe)}}
-								{{ form_errors(form.societe)}}
+								{{ form_row(form.societe) }}
+								{{ form_errors(form.societe) }}
 								<div class="d-none" id="choix-profil">
-									{{ form_row(form.profil)}}
-									{{ form_errors(form.profil)}}
+									{{ form_row(form.profil) }}
+									{{ form_errors(form.profil) }}
 								</div>
 							</div>
 
@@ -41,7 +38,7 @@
 									<i class="fas fa-arrow-right"></i>
 								</button>
 							</div>
-							{{ form_end(form)}}
+							{{ form_end(form) }}
 						</div>
 					</div>
 				</div>

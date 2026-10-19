@@ -6,14 +6,14 @@ use App\Entity\da\DemandeAppro;
 
 class DocRattacheService
 {
-    private DaService $daService; // ! ne pas supprimer car utile dans la méthode `getAllAttachedFiles` sur la récupération dynamique de service (ligne 45)
+    private DaDocumentService $daDocumentService; // ! ne pas supprimer car utile dans la méthode `getAllAttachedFiles` sur la récupération dynamique de service (ligne 45)
     private DwDataService $dwDataService; // ! ne pas supprimer car utile dans la méthode `getAllAttachedFiles` sur la récupération dynamique de service (ligne 45)
     private array $docTypes;
     private array $daDocumentMapping;
 
-    public function __construct(DaService $daService, DwDataService $dwDataService)
+    public function __construct(DaDocumentService $daDocumentService, DwDataService $dwDataService)
     {
-        $this->daService         = $daService;
+        $this->daDocumentService  = $daDocumentService;
         $this->dwDataService     = $dwDataService;
         $this->docTypes          = $this->getDocTypesConfig();
         $this->daDocumentMapping = $this->getDaDocumentMappingConfig();
@@ -93,7 +93,7 @@ class DocRattacheService
                 'type'            => "Bon d'achat (Intranet)",
                 'icon'            => 'fa-solid fa-file-signature',
                 'colorClass'      => 'border-left-bai',
-                'service'         => 'daService',
+                'service'         => 'daDocumentService',
                 'method'          => 'getBaIntranetPath',
                 'normalizer'      => 'normalizePathSingleFile',
                 'normalizerParam' => 'nom',
@@ -103,7 +103,7 @@ class DocRattacheService
                 'type'            => 'Ordre de réparation',
                 'icon'            => 'fa-solid fa-wrench',
                 'colorClass'      => 'border-left-or',
-                'service'         => 'daService',
+                'service'         => 'daDocumentService',
                 'method'          => 'getOrPath',
                 'normalizer'      => 'normalizePathSingleFile',
                 'normalizerParam' => 'numeroOr',
@@ -123,7 +123,7 @@ class DocRattacheService
                 'type'            => 'Devis / PJ (émis dans la demande / proposition)',
                 'icon'            => 'fa-solid fa-money-bill-wave',
                 'colorClass'      => 'border-left-devpj',
-                'service'         => 'daService',
+                'service'         => 'daDocumentService',
                 'method'          => 'getDevisPjPathDaLine',
                 'normalizer'      => 'normalizePathsMultipleFiles',
                 'normalizerParam' => 'nomPj',
@@ -133,7 +133,7 @@ class DocRattacheService
                 'type'            => "Devis / PJ (émis dans l'observation)",
                 'icon'            => 'fa-solid fa-money-bill-wave',
                 'colorClass'      => 'border-left-devpj',
-                'service'         => 'daService',
+                'service'         => 'daDocumentService',
                 'method'          => 'getDevisPjPathObservation',
                 'normalizer'      => 'normalizePathsMultipleFiles',
                 'normalizerParam' => 'nomPj',
@@ -163,7 +163,7 @@ class DocRattacheService
                 'type'            => 'Demande de paiement / Bon à payer',
                 'icon'            => 'fa-solid fa-file-invoice',
                 'colorClass'      => 'border-left-facbl',
-                'service'         => 'daService',
+                'service'         => 'daDocumentService',
                 'method'          => 'getAllDdpPath',
                 'normalizer'      => 'normalizePathsMultipleFiles',
                 'normalizerParam' => 'numeroDdp',
