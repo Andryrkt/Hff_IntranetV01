@@ -35,12 +35,12 @@ class DemandePaiementLigne
     private int $numeroLigne = 0;
 
     /**
-     * @ORM\Column(type="string", length=5, name="numero_commande")
+     * @ORM\Column(type="string", length=50, name="numero_commande")
      */
     private ?string $numeroCommande;
 
     /**
-     * @ORM\Column(type="string", length=5, name="numero_facture")
+     * @ORM\Column(type="string", length=50, name="numero_facture")
      */
     private ?string $numeroFacture;
 

@@ -31,8 +31,7 @@ class GeneratePdfMutation extends GeneratePdf
         $pdf->Line(0, 10, $w_total, 10);
 
         // Logo HFF
-        $logoPath = $_ENV['BASE_PATH_LONG'] . '/Views/assets/logoHff.jpg';
-        $pdf->Image($logoPath, 5, 10, 40, 0, 'jpg');
+        $pdf->Image("{$this->basePathAssets}/logoHff.jpg", 5, 10, 40, 0, 'jpg');
 
         // Grand titre du pdf
         $pdf->SetFont('helvetica', 'B', 16);
@@ -210,7 +209,6 @@ class GeneratePdfMutation extends GeneratePdf
         $pdf->Line(0, $pdf->GetY(), $w_total, $pdf->GetY());
 
         // génération de fichier
-        $Dossier = $_ENV['BASE_PATH_FICHIER'] . '/mut/';
-        $pdf->Output($Dossier . $tab['NumMut'] . '_' . $tab['codeAg_serv'] . '.pdf', 'F');
+        $pdf->Output("{$this->basePathFile}/mut/{$tab['NumMut']}_{$tab['codeAg_serv']}.pdf", 'F');
     }
 }

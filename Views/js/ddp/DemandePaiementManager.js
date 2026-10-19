@@ -12,7 +12,7 @@ import {
   registerLocale,
   setLocale,
   formatNumberSpecial,
-  formaterNombre,
+  parseMontant,
 } from "../utils/formatNumberUtils.js";
 
 export class DemandePaiementManager {
@@ -23,6 +23,24 @@ export class DemandePaiementManager {
     this.isUpdatingCommande = false;
     this.isUpdatingFacture = false;
     this.typeId = null;
+    this.commandesAvecPdfIntrouvable = new Set();
+    // Cache des appels à "api/num-cde-frn/..." (requête coûteuse, identique
+    // pour un couple fournisseur/type donné) : évite de la relancer à chaque
+    // sélection de facture/commande alors que plusieurs écrans en dépendent.
+    this.commandesParFournisseurCache = new Map();
+    // Spinners affichés sous les selects (factures/commandes) pendant le chargement.
+    this.spinnersSelect = new Map();
+    // Montant calculé côté serveur (commande/facture sélectionnée), utilisé
+    // uniquement pour comparaison : l'utilisateur saisit lui-même le montant.
+    this.montantAttendu = null;
+    // Paiement à l'avance (typeId 1) : plafond du montant saisi (qui doit aussi
+    // être > 0) = montant HT de la commande - montant des demandes de paiement
+    // déjà validées pour cette commande.
+    this.montantMaxCommande = null;
+    this.montantHtCommande = null;
+    this.montantDejaValide = 0;
+    this.montantIncorrect = false;
+    this.messageMontantIncorrect = "";
 
     this.initElements();
     if (this.elements.numFactureInput) {
@@ -89,24 +107,18 @@ export class DemandePaiementManager {
   }
 
   initEventListeners() {
-    if (this.typeId != 2) {
-      $(this.elements.numCommandeInput).on("change", async () => {
-        const numCdes = $(this.elements.numCommandeInput).val();
-        let numCde = numCdes.length == 0 ? 0 : numCdes.join(",");
+    // Vérification du montant : "après arrivage" (typeId 2) via
+    // changeCommandeSelonFacture(), "à l'avance" (typeId 1) via
+    // chargerMontantCommandeHt().
 
-        try {
-          const url = this.config.urls.montantCommande.replace(
-            ":numCde",
-            numCde,
-          );
-          const montants = await this.fetchManager.get(url);
-          this.elements.montantInput.value =
-            numCdes.length != 0 ? montants[0].montantcde : "";
-        } catch (err) {
-          console.error("Erreur lors de la récupération des montants :", err);
-        }
-      });
-    }
+    $(this.elements.numCommandeInput).on("change", () => {
+      this.chargerFichiersCommandeValidee();
+      this.chargerFichiersOrValide();
+      this.chargerFichiersBcClient();
+      if (this.typeId == 1 && this.config.urls.montantCommandeHt) {
+        this.chargerMontantCommandeHt();
+      }
+    });
 
     if (this.elements.agenceDebiteurInput) {
       this.elements.agenceDebiteurInput.addEventListener("change", () =>
@@ -141,6 +153,7 @@ export class DemandePaiementManager {
       this.elements.montantInput.value = formatNumberSpecial(
         this.elements.montantInput.value,
       );
+      this.verifierMontant();
     });
 
     if (this.elements.montantProformaInput) {
@@ -164,49 +177,106 @@ export class DemandePaiementManager {
     this.elements.numFrnInput.value = item.num_fournisseur;
     this.elements.beneficiaireInput.value = item.nom_fournisseur;
     this.elements.deviseInput.value = item.devise;
+    // Champ vide (pas "-") quand le RIB est inconnu : le champ est
+    // "required: false", mais RibType valide sa valeur par une regex qui
+    // exige un chiffre au début ; "-" échouait cette validation et
+    // bloquait silencieusement toute la soumission du formulaire.
     this.elements.ribFrnInput.value =
       item.rib && item.rib != 0 && item.rib.trim() !== "XXXXXXXXXXX"
         ? item.rib
-        : "-";
+        : "";
 
     // Déclencher l'événement input pour formater et valider le RIB
-    this.elements.ribFrnInput.dispatchEvent(new Event("input", { bubbles: true }));
+    this.elements.ribFrnInput.dispatchEvent(
+      new Event("input", { bubbles: true }),
+    );
 
     if (this.typeId == 2) {
+      // Pas de chargement de toutes les commandes du fournisseur dans le select
+      // (des milliers pour certains) : le champ est désactivé et n'est rempli
+      // qu'avec les commandes des factures choisies (changeCommandeSelonFacture).
       this.listeFacture(item.num_fournisseur, this.typeId);
-      this.listeCommande2(item.num_fournisseur, this.typeId);
       this.updateCommandesFournisseur(item.num_fournisseur, this.typeId);
 
-      $(this.elements.numFactureInput).on("change", () => {
-        this.changeCommandeSelonFacture(item.num_fournisseur, this.typeId);
-      });
+      // .off() avant .on() : sans cela, chaque sélection de fournisseur
+      // empilait un handler de plus, et un changement de facture relançait
+      // N fois tous les appels (montant, documents, PDF de commande).
+      $(this.elements.numFactureInput)
+        .off("change.ddpFacture")
+        .on("change.ddpFacture", () => {
+          this.changeCommandeSelonFacture(item.num_fournisseur, this.typeId);
+        });
     } else if (this.typeId == 1 && !this.typeDa) {
       this.listeCommande(item.num_fournisseur, this.typeId);
     }
   }
 
-  async listeCommande(numFournisseur, id_type) {
-    try {
+  /**
+   * Récupère (et met en cache par fournisseur/type) le résultat de
+   * "api/num-cde-frn/...", requête coûteuse et identique pour un couple
+   * fournisseur/type donné, réutilisée par plusieurs écrans (factures,
+   * commandes, tableau, changement de facture).
+   */
+  getCommandesFournisseur(numFournisseur, typeId) {
+    const cle = `${numFournisseur}:${typeId}`;
+    if (!this.commandesParFournisseurCache.has(cle)) {
       const url = this.config.urls.commandes
         .replace(":numFournisseur", numFournisseur)
-        .replace(":typeId", id_type);
-      const commandes = await this.fetchManager.get(url);
+        .replace(":typeId", typeId);
+      this.commandesParFournisseurCache.set(cle, this.fetchManager.get(url));
+    }
+    return this.commandesParFournisseurCache.get(cle);
+  }
+
+  async listeCommande(numFournisseur, id_type) {
+    this.toggleChargementSelect(this.elements.numCommandeInput, true);
+    try {
+      const commandes = await this.getCommandesFournisseur(
+        numFournisseur,
+        id_type,
+      );
       this.ajoutDesOptions(this.elements.numCommandeInput, commandes.numCdes);
     } catch (error) {
       console.error("Erreur lors de la récupération des commandes :", error);
+    } finally {
+      this.toggleChargementSelect(this.elements.numCommandeInput, false);
     }
   }
 
-  async listeCommande2(numFournisseur, id_type) {
-    try {
-      const url = this.config.urls.commandes
-        .replace(":numFournisseur", numFournisseur)
-        .replace(":typeId", id_type);
-      const commandes = await this.fetchManager.get(url);
-      const listeCommande = this.transformTab(commandes.listeGcot, "Numero_PO");
-      this.ajoutDesOptions(this.elements.numCommandeInput, listeCommande);
-    } catch (error) {
-      console.error("Erreur lors de la récupération des commandes :", error);
+  /**
+   * Affiche (ou retire) un spinner sous un select2 et le désactive pendant
+   * le chargement de ses options.
+   */
+  toggleChargementSelect(selectElement, enChargement) {
+    if (!selectElement) return;
+
+    const spinnerExistant = this.spinnersSelect.get(selectElement);
+    if (enChargement && !spinnerExistant) {
+      // Mémorise l'état "disabled" d'origine (ex: n° commande désactivé
+      // côté formulaire pour le type 2) pour le restaurer après chargement.
+      selectElement.dataset.disabledInitial = selectElement.disabled
+        ? "1"
+        : "0";
+      const spinner = document.createElement("div");
+      spinner.className =
+        "d-flex align-items-center gap-2 text-muted small mt-1";
+      spinner.innerHTML = `
+        <div class="spinner-border spinner-border-sm text-primary" role="status">
+          <span class="visually-hidden">Chargement...</span>
+        </div>
+        <span>Chargement des données...</span>
+      `;
+      const conteneurSelect2 = $(selectElement).next(".select2-container")[0];
+      (conteneurSelect2 || selectElement).after(spinner);
+      this.spinnersSelect.set(selectElement, spinner);
+      $(selectElement).prop("disabled", true);
+    } else if (!enChargement && spinnerExistant) {
+      spinnerExistant.remove();
+      this.spinnersSelect.delete(selectElement);
+      $(selectElement).prop(
+        "disabled",
+        selectElement.dataset.disabledInitial === "1",
+      );
     }
   }
 
@@ -226,22 +296,36 @@ export class DemandePaiementManager {
 
   ajoutDesOptions(inputElement, data) {
     inputElement.innerHTML = "";
+    // Select simple : option vide pour éviter la sélection automatique de la
+    // première valeur (et permettre le placeholder Select2)
+    if (!inputElement.multiple) {
+      inputElement.appendChild(new Option("", ""));
+    }
     data.forEach((item) => {
       let option = new Option(item.label, item.value);
       inputElement.appendChild(option);
     });
+
+    // Select2 ne rafraîchit son affichage qu'après un événement "change"
+    // explicite sur le <select> sous-jacent : sans ce trigger, les nouvelles
+    // options restent invisibles dans le widget tant qu'aucun autre événement
+    // "change" ne survient (ex: sélection d'une facture).
+    $(inputElement).trigger("change");
   }
 
   async listeFacture(numFournisseur, typeId) {
+    this.toggleChargementSelect(this.elements.numFactureInput, true);
     try {
       this.elements.numFactureInput.innerHTML = "";
       this.elements.numCommandeInput.innerHTML = "";
-      this.elements.montantInput.value = 0;
+      this.elements.montantInput.value = "";
+      this.montantAttendu = null;
+      this.verifierMontant();
 
-      const url = this.config.urls.commandes
-        .replace(":numFournisseur", numFournisseur)
-        .replace(":typeId", typeId);
-      const commandes = await this.fetchManager.get(url);
+      const commandes = await this.getCommandesFournisseur(
+        numFournisseur,
+        typeId,
+      );
       const listeFacture = this.transformTab(
         commandes.listeGcot,
         "Numero_Facture",
@@ -249,6 +333,8 @@ export class DemandePaiementManager {
       this.ajoutDesOptions(this.elements.numFactureInput, listeFacture);
     } catch (error) {
       console.error("Erreur lors de la récupération des factures :", error);
+    } finally {
+      this.toggleChargementSelect(this.elements.numFactureInput, false);
     }
   }
 
@@ -256,12 +342,12 @@ export class DemandePaiementManager {
     if (this.isUpdatingFacture) return;
     this.isUpdatingCommande = true;
 
-    const numFacs = $(this.elements.numFactureInput).val();
+    const numFacs = $(this.elements.numFactureInput).val() || [];
     try {
-      const url = this.config.urls.commandes
-        .replace(":numFournisseur", numFournisseur)
-        .replace(":typeId", typeId);
-      const commandes = await this.fetchManager.get(url);
+      const commandes = await this.getCommandesFournisseur(
+        numFournisseur,
+        typeId,
+      );
       const facturesCorrespondantes = commandes.listeGcot.filter((f) =>
         numFacs.includes(f.Numero_Facture),
       );
@@ -270,7 +356,15 @@ export class DemandePaiementManager {
       ];
 
       this.recupFichier(facturesCorrespondantes);
-      $(this.elements.numCommandeInput).val(numerosPO).trigger("change");
+
+      // Le select ne contient que les commandes des factures choisies, toutes
+      // sélectionnées ; un seul "change" déclenche le chargement des PDF.
+      const selectCommande = this.elements.numCommandeInput;
+      selectCommande.innerHTML = "";
+      numerosPO.forEach((po) =>
+        selectCommande.appendChild(new Option(po, po, true, true)),
+      );
+      $(selectCommande).trigger("change");
 
       const facturesString = facturesCorrespondantes
         .map((f) => f.Numero_Facture)
@@ -278,7 +372,8 @@ export class DemandePaiementManager {
       if (facturesString === "") {
         // Aucune facture sélectionnée : pas de montant à récupérer
         // (l'URL contiendrait un segment vide et donnerait un 404)
-        this.elements.montantInput.value = 0;
+        this.montantAttendu = null;
+        this.verifierMontant();
         return;
       }
 
@@ -288,7 +383,8 @@ export class DemandePaiementManager {
         .replace(":typeId", typeId);
       const montantFacture = await this.fetchManager.get(montantUrl);
 
-      this.elements.montantInput.value = formaterNombre(montantFacture[0], " ");
+      this.montantAttendu = parseMontant(montantFacture[0]);
+      this.verifierMontant();
     } catch (error) {
       console.error(
         "Erreur lors de la récupération du montant facture :",
@@ -303,20 +399,25 @@ export class DemandePaiementManager {
     const numerosDossier = [
       ...new Set(cdeFacCorrespondantes.map((f) => f.Numero_Dossier_Douane)),
     ];
-    let dossiers = [];
 
-    for (const numero of numerosDossier) {
-      try {
-        const url = this.config.urls.listeDoc.replace(":numero", numero);
-        const docs = await this.fetchManager.get(url);
-        dossiers.push(...docs);
-      } catch (error) {
-        console.error(
-          `Erreur lors de la récupération des fichiers pour le dossier ${numero} :`,
-          error,
-        );
-      }
-    }
+    // Récupération en parallèle (au lieu d'un enchaînement séquentiel) :
+    // avec plusieurs dossiers, attendre chaque appel l'un après l'autre
+    // multipliait le temps d'attente par le nombre de dossiers.
+    const resultats = await Promise.all(
+      numerosDossier.map(async (numero) => {
+        try {
+          const url = this.config.urls.listeDoc.replace(":numero", numero);
+          return await this.fetchManager.get(url);
+        } catch (error) {
+          console.error(
+            `Erreur lors de la récupération des fichiers pour le dossier ${numero} :`,
+            error,
+          );
+          return [];
+        }
+      }),
+    );
+    const dossiers = resultats.flat();
 
     const liste = this.elements.fileList;
     liste.innerHTML = "";
@@ -331,67 +432,9 @@ export class DemandePaiementManager {
       a.textContent = `Ouvrir ${nom}`;
       a.target = "_blank";
 
-      a.onclick = async (e) => {
+      a.onclick = (e) => {
         e.preventDefault();
-        const newWindow = window.open("", "_blank");
-        newWindow.document.write(
-          `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Chargement...</title>
-                <style>
-                    .loader {
-                        border: 5px solid #f3f3f3;
-                        border-top: 5px solid #3498db;
-                        border-radius: 50%;
-                        width: 50px;
-                        height: 50px;
-                        animation: spin 2s linear infinite;
-                        margin: 20% auto;
-                    }
-                    @keyframes spin {
-                        0% { transform: rotate(0deg); }
-                        100% { transform: rotate(360deg); }
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="loader"></div>
-                <p style="text-align: center">Chargement du document...</p>
-            </body>
-            </html>
-        `,
-        );
-
-        try {
-          const response = await fetch(a.href);
-          if (!response.ok) throw new Error(await response.text());
-          const contentType = response.headers.get("content-type");
-          const blob = await response.blob();
-          const blobUrl = URL.createObjectURL(blob);
-
-          if (contentType.includes("pdf")) {
-            newWindow.location.href = blobUrl;
-          } else if (contentType.startsWith("image/")) {
-            newWindow.document.body.innerHTML = `<img src="${blobUrl}" style="max-width: 100%; max-height: 100vh">`;
-          } else {
-            const iframe = document.createElement("iframe");
-            iframe.src = blobUrl;
-            iframe.style = "width:100%; height:100vh; border:none";
-            newWindow.document.body.innerHTML = "";
-            newWindow.document.body.appendChild(iframe);
-          }
-
-          newWindow.onunload = () => URL.revokeObjectURL(blobUrl);
-        } catch (error) {
-          console.error("Erreur:", error);
-          newWindow.document.body.innerHTML = `
-                <h1 style="color: red">Erreur</h1>
-                <p>${error.message}</p>
-                <button onclick="window.close()">Fermer</button>
-            `;
-        }
+        this.ouvrirFichierDansNouvelOnglet(a.href);
       };
 
       li.appendChild(a);
@@ -399,11 +442,614 @@ export class DemandePaiementManager {
     });
   }
 
+  /**
+   * Ouvre le fichier pointé par `href` dans un nouvel onglet, avec un loader
+   * pendant le chargement, puis affiche le PDF/image/iframe selon le content-type.
+   */
+  ouvrirFichierDansNouvelOnglet(href) {
+    const newWindow = window.open("", "_blank");
+    newWindow.document.write(
+      `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Chargement...</title>
+            <style>
+                .loader {
+                    border: 5px solid #f3f3f3;
+                    border-top: 5px solid #3498db;
+                    border-radius: 50%;
+                    width: 50px;
+                    height: 50px;
+                    animation: spin 2s linear infinite;
+                    margin: 20% auto;
+                }
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="loader"></div>
+            <p style="text-align: center">Chargement du document...</p>
+        </body>
+        </html>
+    `,
+    );
+
+    (async () => {
+      try {
+        const response = await fetch(href);
+        if (!response.ok) throw new Error(await response.text());
+        const contentType = response.headers.get("content-type");
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+
+        if (contentType.includes("pdf")) {
+          newWindow.location.href = blobUrl;
+        } else if (contentType.startsWith("image/")) {
+          newWindow.document.body.innerHTML = `<img src="${blobUrl}" style="max-width: 100%; max-height: 100vh">`;
+        } else {
+          const iframe = document.createElement("iframe");
+          iframe.src = blobUrl;
+          iframe.style = "width:100%; height:100vh; border:none";
+          newWindow.document.body.innerHTML = "";
+          newWindow.document.body.appendChild(iframe);
+        }
+
+        newWindow.onunload = () => URL.revokeObjectURL(blobUrl);
+      } catch (error) {
+        console.error("Erreur:", error);
+        newWindow.document.body.innerHTML = `
+              <h1 style="color: red">Erreur</h1>
+              <p>${error.message}</p>
+              <button onclick="window.close()">Fermer</button>
+          `;
+      }
+    })();
+  }
+
+  /**
+   * Affiche, dans l'onglet "commande fournisseur validée", un sous-onglet par
+   * commande fournisseur sélectionnée (toujours présent, même sans PDF trouvé).
+   */
+  async chargerFichiersCommandeValidee() {
+    const subTabsNav = this.elements.commandeValideeSubTabs;
+    const subTabsContent = this.elements.commandeValideeSubTabContent;
+    if (!subTabsNav || !subTabsContent) return;
+
+    subTabsNav.innerHTML = "";
+    subTabsContent.innerHTML = "";
+    subTabsNav.classList.add("d-none");
+
+    this.commandesAvecPdfIntrouvable.clear();
+    this.mettreAJourEtatSoumission();
+
+    const numCdes = this.getNumCdesSelectionnees();
+    if (numCdes.length === 0) return;
+
+    subTabsNav.classList.toggle("d-none", numCdes.length <= 1);
+
+    const panesParCommande = new Map();
+    numCdes.forEach((numCde, index) => {
+      const pane = this.ajouterSousOngletCommande(
+        subTabsNav,
+        subTabsContent,
+        numCde,
+        index,
+      );
+      pane.appendChild(this.creerSpinner("Recherche du fichier..."));
+      panesParCommande.set(numCde, pane);
+    });
+
+    try {
+      const url = this.config.urls.fichiersCommandeFournisseur.replace(
+        ":numeroCommande",
+        numCdes.join(","),
+      );
+      const fichiers = await this.fetchManager.get(url);
+
+      numCdes.forEach((numCde) => {
+        const pane = panesParCommande.get(numCde);
+        pane.innerHTML = "";
+
+        const fichiersDeCommande = fichiers.filter(
+          (fichier) => fichier.numeroCde === numCde,
+        );
+
+        if (fichiersDeCommande.length === 0) {
+          this.afficherPdfIntrouvable(pane, numCde);
+          return;
+        }
+
+        fichiersDeCommande.forEach((fichier) =>
+          this.afficherPdfCommandeValidee(pane, fichier),
+        );
+      });
+    } catch (error) {
+      console.error(
+        "Erreur lors de la récupération des fichiers de commande :",
+        error,
+      );
+      numCdes.forEach((numCde) => {
+        const pane = panesParCommande.get(numCde);
+        pane.innerHTML = `<p class="text-danger mb-0">Erreur lors de la récupération des fichiers.</p>`;
+      });
+    }
+  }
+
+  /**
+   * Ajoute un sous-onglet (bouton + panneau vide) pour une commande fournisseur
+   * sélectionnée, et retourne le panneau à remplir.
+   */
+  ajouterSousOngletCommande(subTabsNav, subTabsContent, numCde, index) {
+    return this.ajouterSousOnglet(
+      subTabsNav,
+      subTabsContent,
+      `commande-validee-${numCde}`,
+      `Commande ${numCde}`,
+      index === 0,
+    );
+  }
+
+  /**
+   * Affiche, dans l'onglet "OR validé", un sous-onglet par OR lié aux
+   * commandes fournisseur sélectionnées (fichiers de DW_Ordre_De_Reparation).
+   * Un OR introuvable ne bloque pas la soumission.
+   */
+  async chargerFichiersOrValide() {
+    const subTabsNav = this.elements.orValideSubTabs;
+    const subTabsContent = this.elements.orValideSubTabContent;
+    if (!subTabsNav || !subTabsContent || !this.config.urls.fichiersOrValide)
+      return;
+
+    subTabsNav.innerHTML = "";
+    subTabsContent.innerHTML = "";
+    subTabsNav.classList.add("d-none");
+
+    const numCdes = this.getNumCdesSelectionnees();
+    if (numCdes.length === 0) return;
+
+    // Ignore les réponses d'une sélection précédente
+    const jeton = (this.jetonChargementOr = (this.jetonChargementOr || 0) + 1);
+    subTabsContent.appendChild(this.creerSpinner("Recherche des OR..."));
+
+    try {
+      const url = this.config.urls.fichiersOrValide.replace(
+        ":numeroCommande",
+        numCdes.join(","),
+      );
+      const { numerosOr = [], fichiers = [] } =
+        await this.fetchManager.get(url);
+      if (jeton !== this.jetonChargementOr) return;
+
+      subTabsContent.innerHTML = "";
+
+      if (numerosOr.length === 0) {
+        subTabsContent.innerHTML = `<p class="text-muted mb-0">Aucun OR lié à la/les commande(s) sélectionnée(s).</p>`;
+        return;
+      }
+
+      subTabsNav.classList.toggle("d-none", numerosOr.length <= 1);
+
+      numerosOr.forEach((numeroOr, index) => {
+        const pane = this.ajouterSousOnglet(
+          subTabsNav,
+          subTabsContent,
+          `or-valide-${numeroOr}`,
+          `OR ${numeroOr}`,
+          index === 0,
+        );
+
+        const fichiersDeOr = fichiers.filter((f) => f.numeroOr === numeroOr);
+        if (fichiersDeOr.length === 0) {
+          pane.innerHTML = `<p class="text-danger mb-0">OR ${numeroOr} - Introuvable</p>`;
+          return;
+        }
+
+        fichiersDeOr.forEach((fichier) =>
+          this.afficherPdfCommandeValidee(pane, fichier, false),
+        );
+      });
+    } catch (error) {
+      if (jeton !== this.jetonChargementOr) return;
+      console.error("Erreur lors de la récupération des fichiers OR :", error);
+      subTabsContent.innerHTML = `<p class="text-danger mb-0">Erreur lors de la récupération des fichiers OR.</p>`;
+    }
+  }
+
+  /**
+   * Ajoute un sous-onglet (bouton + panneau vide) et retourne le panneau à remplir.
+   */
+  ajouterSousOnglet(subTabsNav, subTabsContent, tabId, libelle, estActif) {
+
+    const navItem = document.createElement("li");
+    navItem.className = "nav-item";
+    navItem.setAttribute("role", "presentation");
+
+    const navButton = document.createElement("button");
+    navButton.className = `nav-link${estActif ? " active" : ""}`;
+    navButton.id = `${tabId}-tab`;
+    navButton.type = "button";
+    navButton.dataset.bsToggle = "pill";
+    navButton.dataset.bsTarget = `#${tabId}`;
+    navButton.setAttribute("role", "tab");
+    navButton.textContent = libelle;
+    navItem.appendChild(navButton);
+    subTabsNav.appendChild(navItem);
+
+    const pane = document.createElement("div");
+    pane.className = `tab-pane fade${estActif ? " show active" : ""}`;
+    pane.id = tabId;
+    pane.setAttribute("role", "tabpanel");
+    pane.setAttribute("aria-labelledby", `${tabId}-tab`);
+    subTabsContent.appendChild(pane);
+
+    return pane;
+  }
+
+  /**
+   * Affiche le message "Introuvable" pour une commande sans fichier, et
+   * bloque la soumission tant qu'elle reste sélectionnée.
+   */
+  afficherPdfIntrouvable(pane, numCde) {
+    const p = document.createElement("p");
+    p.className = "text-danger mb-0";
+    p.textContent = `Commande ${numCde} - Introuvable`;
+    pane.appendChild(p);
+
+    this.commandesAvecPdfIntrouvable.add(numCde);
+    this.mettreAJourEtatSoumission();
+  }
+
+  /**
+   * Télécharge (en blob) puis affiche un PDF de commande validée, avec un
+   * spinner pendant le chargement effectif du fichier.
+   */
+  async afficherPdfCommandeValidee(container, fichier, bloquerSiIntrouvable = true) {
+    const charge = await this.afficherPdfDw(container, fichier.nomFichier, fichier.path);
+    if (!charge) {
+      this.commandesAvecPdfIntrouvable.add(fichier.numeroCde);
+      this.mettreAJourEtatSoumission();
+    }
+  }
+
+  /**
+   * Télécharge (en blob) puis affiche un PDF DocuWare (chemin relatif à
+   * BASE_PATH_FICHIER), précédé de sa légende. Retourne false si introuvable.
+   */
+  async afficherPdfDw(container, legendeTexte, path) {
+    const legende = document.createElement("p");
+    legende.className = "mb-2 fw-bold";
+    legende.textContent = legendeTexte;
+    container.appendChild(legende);
+
+    const spinner = this.creerSpinner("Chargement du PDF...", "80vh");
+    container.appendChild(spinner);
+
+    try {
+      const baseUrl = window.location.origin;
+      const encodedPath = encodeURIComponent(path);
+      const fileUrl = `${baseUrl}${this.config.urls.telechargerFichierCommandeDw}?path=${encodedPath}`;
+
+      const response = await fetch(fileUrl);
+      if (!response.ok) throw new Error(await response.text());
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
+      const embed = document.createElement("embed");
+      embed.src = blobUrl;
+      embed.type = "application/pdf";
+      embed.width = "100%";
+      embed.style.height = "80vh";
+
+      spinner.replaceWith(embed);
+      return true;
+    } catch (error) {
+      console.error("Erreur lors du chargement du PDF :", error);
+      spinner.innerHTML = `<p class="text-danger mb-0">Introuvable</p>`;
+      return false;
+    }
+  }
+
+  /**
+   * Affiche, dans l'onglet "BC client externe / BC client magasin", les BC
+   * client négoce (DW_BC_Client_Negoce) rattachés aux commandes sélectionnées.
+   * Informatif uniquement : l'absence de BC ne bloque pas la soumission.
+   */
+  async chargerFichiersBcClient() {
+    const container = this.elements.bcClientDwFiles;
+    if (!container || !this.config.urls.fichiersBcClient) return;
+
+    container.innerHTML = "";
+
+    const numCdes = this.getNumCdesSelectionnees();
+    if (numCdes.length === 0) return;
+
+    container.appendChild(this.creerSpinner("Recherche des BC client..."));
+
+    try {
+      const url = this.config.urls.fichiersBcClient.replace(
+        ":numeroCommande",
+        numCdes.join(","),
+      );
+      const fichiers = await this.fetchManager.get(url);
+
+      // Ignore la réponse si la sélection a changé entre-temps
+      if (this.getNumCdesSelectionnees().join(",") !== numCdes.join(",")) return;
+
+      container.innerHTML = "";
+
+      if (fichiers.length === 0) {
+        container.innerHTML = `<p class="text-muted mb-0">Aucun BC client trouvé pour la/les commande(s) ${numCdes.join(", ")}.</p>`;
+        return;
+      }
+
+      fichiers.forEach((fichier) =>
+        this.afficherPdfDw(
+          container,
+          `Commande ${fichier.numeroCde} - BC ${fichier.numeroBccNeg} (${fichier.nomFichier})`,
+          fichier.path,
+        ),
+      );
+    } catch (error) {
+      console.error("Erreur lors de la récupération des BC client :", error);
+      container.innerHTML = `<p class="text-danger mb-0">Erreur lors de la récupération des BC client.</p>`;
+
+      if (bloquerSiIntrouvable) {
+        this.commandesAvecPdfIntrouvable.add(fichier.numeroCde);
+        this.mettreAJourEtatSoumission();
+      }
+    }
+  }
+
+  /**
+   * Compare le montant saisi par l'utilisateur au montant calculé
+   * (commande ou facture sélectionnée) et met à jour l'état de blocage.
+   */
+  verifierMontant() {
+    if (this.typeId == 1) {
+      this.verifierMontantAvance();
+      return;
+    }
+
+    if (this.montantAttendu === null || isNaN(this.montantAttendu)) {
+      this.montantIncorrect = false;
+      this.mettreAJourEtatSoumission();
+      return;
+    }
+
+    const montantSaisi = parseMontant(this.elements.montantInput.value);
+    this.montantIncorrect =
+      isNaN(montantSaisi) ||
+      Math.abs(montantSaisi - this.montantAttendu) > 0.01;
+    this.messageMontantIncorrect =
+      "Le montant saisi ne correspond pas au montant de la/les commande(s)/facture(s) sélectionnée(s).";
+
+    this.mettreAJourEtatSoumission();
+  }
+
+  /**
+   * Paiement à l'avance : le montant saisi doit être supérieur à 0 et ne pas
+   * dépasser le montant restant de la commande sélectionnée (montant HT -
+   * montant déjà demandé).
+   */
+  verifierMontantAvance() {
+    const valeur = this.elements.montantInput.value.trim();
+    const montantSaisi = parseMontant(valeur);
+
+    this.montantIncorrect = false;
+    this.messageMontantIncorrect = "";
+
+    // !(montantSaisi > 0) couvre aussi une saisie non numérique (NaN)
+    if (valeur !== "" && !(montantSaisi > 0)) {
+      this.montantIncorrect = true;
+      this.messageMontantIncorrect =
+        "Le montant à payer doit être supérieur à 0.";
+    } else if (
+      valeur !== "" &&
+      this.montantMaxCommande !== null &&
+      !isNaN(this.montantMaxCommande) &&
+      montantSaisi - this.montantMaxCommande > 0.01
+    ) {
+      this.montantIncorrect = true;
+      const format = (montant) => formatNumberSpecial(montant.toFixed(2));
+      this.messageMontantIncorrect =
+        this.montantDejaValide > 0
+          ? `Le montant à payer ne peut pas dépasser le montant restant de la commande (${format(this.montantMaxCommande)} = montant HT ${format(this.montantHtCommande)} - déjà validé ${format(this.montantDejaValide)}).`
+          : `Le montant à payer ne peut pas dépasser le montant HT de la commande (${format(this.montantMaxCommande)}).`;
+    }
+
+    this.mettreAJourEtatSoumission();
+  }
+
+  /**
+   * Récupère le montant HT de la commande sélectionnée (paiement à l'avance)
+   * et le montant des demandes de paiement déjà validées : le plafond du
+   * montant saisi est leur différence. Affiche aussi l'historique des
+   * demandes de paiement de la commande.
+   */
+  async chargerMontantCommandeHt() {
+    const numCde = this.getNumCdesSelectionnees()[0];
+    this.montantMaxCommande = null;
+    this.montantHtCommande = null;
+    this.montantDejaValide = 0;
+    this.afficherHistoriqueDdp(null);
+
+    if (!numCde) {
+      this.verifierMontant();
+      return;
+    }
+
+    try {
+      const url = this.config.urls.montantCommandeHt.replace(":numCde", numCde);
+      const resultat = await this.fetchManager.get(url);
+      // Ignore la réponse si la sélection a changé entre-temps
+      if (this.getNumCdesSelectionnees()[0] !== numCde) return;
+      this.montantHtCommande = parseFloat(resultat.montantHt);
+      this.montantDejaValide = parseFloat(resultat.montantDejaValide) || 0;
+      this.montantMaxCommande = parseFloat(resultat.montantRestant);
+      this.afficherHistoriqueDdp(numCde, resultat);
+    } catch (error) {
+      console.error(
+        "Erreur lors de la récupération du montant de la commande :",
+        error,
+      );
+    }
+
+    this.verifierMontant();
+  }
+
+  /**
+   * Affiche (ou masque si numCde est null) l'historique des demandes de
+   * paiement de la commande, avec les totaux, en haut du formulaire
+   * (même présentation que la demande de paiement DA).
+   */
+  afficherHistoriqueDdp(numCde, resultat = null) {
+    const { historiqueDdp, historiqueDdpBody, historiqueDdpNumCde } =
+      this.elements;
+    if (!historiqueDdp || !historiqueDdpBody) return;
+
+    historiqueDdpBody.innerHTML = "";
+    historiqueDdp.classList.toggle("d-none", !numCde);
+    if (!numCde || !resultat) return;
+
+    if (historiqueDdpNumCde) historiqueDdpNumCde.textContent = numCde;
+
+    const format = (montant) => formatNumberSpecial(Number(montant).toFixed(2));
+    const ajouterLigne = (cellules, className = "") => {
+      const tr = document.createElement("tr");
+      if (className) tr.className = className;
+      cellules.forEach(({ texte = "", classe = "", colspan = 1 }) => {
+        const td = document.createElement("td");
+        td.textContent = texte;
+        if (classe) td.className = classe;
+        if (colspan > 1) td.colSpan = colspan;
+        tr.appendChild(td);
+      });
+      historiqueDdpBody.appendChild(tr);
+    };
+
+    const historique = resultat.historique || [];
+    if (historique.length === 0) {
+      ajouterLigne([
+        { texte: "Aucune donnée disponible", classe: "text-center", colspan: 7 },
+      ]);
+    }
+
+    historique.forEach((ddp) =>
+      ajouterLigne([
+        { texte: ddp.numeroDdp, classe: "text-center" },
+        { texte: ddp.dateCreation, classe: "text-center" },
+        { texte: ddp.motif },
+        { texte: format(ddp.montant), classe: "text-end" },
+        { texte: `${format(ddp.ratio)}%`, classe: "text-end" },
+        { texte: `${format(ddp.cumul)}%`, classe: "text-end" },
+        { texte: ddp.statut, classe: "text-center" },
+      ]),
+    );
+
+    const montantHt = parseFloat(resultat.montantHt) || 0;
+    const ratio = (montant) =>
+      montantHt > 0 ? `${format((montant / montantHt) * 100)}%` : "";
+    const montantDejaValide = parseFloat(resultat.montantDejaValide) || 0;
+    const montantRestant = parseFloat(resultat.montantRestant) || 0;
+
+    ajouterLigne([
+      { texte: "Montant HT de la commande", classe: "fw-bold" },
+      { colspan: 2 },
+      { texte: format(montantHt), classe: "text-end fw-bold" },
+      { colspan: 3 },
+    ]);
+    ajouterLigne([
+      { texte: "Total déjà validé", classe: "fw-bold" },
+      { colspan: 2 },
+      { texte: format(montantDejaValide), classe: "text-end fw-bold" },
+      { texte: ratio(montantDejaValide), classe: "text-end fw-bold" },
+      { colspan: 2 },
+    ]);
+    ajouterLigne([
+      { texte: "Montant restant à payer", classe: "fw-bold" },
+      { colspan: 2 },
+      { texte: format(montantRestant), classe: "text-end text-danger fw-bold" },
+      { texte: ratio(montantRestant), classe: "text-end text-danger fw-bold" },
+      { colspan: 2 },
+    ]);
+  }
+
+  /**
+   * Commandes sélectionnées, toujours sous forme de tableau : le champ est en
+   * sélection simple pour les demandes de paiement à l'avance (typeId 1).
+   */
+  getNumCdesSelectionnees() {
+    return [].concat($(this.elements.numCommandeInput).val() || []).filter(Boolean);
+  }
+
+  /**
+   * Bloque (ou débloque) la soumission du formulaire si la sélection actuelle
+   * de commandes contient une commande dont le PDF est introuvable, ou si le
+   * montant saisi est incorrect.
+   */
+  mettreAJourEtatSoumission() {
+    const numCdesSelectionnees = this.getNumCdesSelectionnees();
+    const commandesProblematiques = numCdesSelectionnees.filter((numCde) =>
+      this.commandesAvecPdfIntrouvable.has(numCde),
+    );
+    const pdfBloque = commandesProblematiques.length > 0;
+
+    if (this.elements.submitButton) {
+      this.elements.submitButton.disabled = pdfBloque || this.montantIncorrect;
+    }
+
+    if (this.elements.pdfIntrouvableWarning) {
+      if (pdfBloque) {
+        this.elements.pdfIntrouvableWarning.textContent =
+          `PDF introuvable pour la/les commande(s) ${commandesProblematiques.join(", ")}. ` +
+          `Désélectionnez-la/les pour pouvoir soumettre le formulaire.`;
+        this.elements.pdfIntrouvableWarning.classList.remove("d-none");
+      } else {
+        this.elements.pdfIntrouvableWarning.textContent = "";
+        this.elements.pdfIntrouvableWarning.classList.add("d-none");
+      }
+    }
+
+    if (this.elements.montantIncorrectWarning) {
+      if (this.montantIncorrect) {
+        this.elements.montantIncorrectWarning.textContent =
+          this.messageMontantIncorrect;
+        this.elements.montantIncorrectWarning.classList.remove("d-none");
+      } else {
+        this.elements.montantIncorrectWarning.textContent = "";
+        this.elements.montantIncorrectWarning.classList.add("d-none");
+      }
+    }
+  }
+
+  /**
+   * Crée un bloc spinner Bootstrap réutilisable avec un message.
+   */
+  creerSpinner(message, height = "") {
+    const wrapper = document.createElement("div");
+    wrapper.className =
+      "d-flex flex-column justify-content-center align-items-center border rounded gap-2 p-3";
+    if (height) wrapper.style.height = height;
+
+    wrapper.innerHTML = `
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+      <span class="text-muted">${message}</span>
+    `;
+
+    return wrapper;
+  }
+
   async updateCommandesFournisseur(numFournisseur, typeId) {
-    const url = this.config.urls.commandes
-      .replace(":numFournisseur", numFournisseur)
-      .replace(":typeId", typeId);
-    const commandes = await this.fetchManager.get(url);
+    const commandes = await this.getCommandesFournisseur(
+      numFournisseur,
+      typeId,
+    );
 
     const $tableauContainer = this.elements.invoiceTableContainer;
     $tableauContainer.innerHTML = "";

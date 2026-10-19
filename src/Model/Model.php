@@ -184,6 +184,52 @@ class Model
         return $data;
     }
 
+    /**
+     * Exécute une requête GCOT (SQL Server) et ne garde que les lignes dont la colonne
+     * $colonne fait partie de $listeIn.
+     *
+     * Remplace un "AND colonne IN (...)" dans le SQL : avec des milliers de valeurs
+     * (ex: toutes les commandes réceptionnées d'un gros fournisseur), SQL Server échoue
+     * avec "The query processor ran out of internal resources". Le filtre est appliqué
+     * pendant la lecture, sans charger les lignes rejetées en mémoire.
+     *
+     * @param string        $sql             requête SANS la clause IN sur $colonne ($colonne doit être sélectionnée)
+     * @param string        $colonne         colonne à filtrer (ex: 'Numero_PO')
+     * @param string        $listeIn         valeurs quotées séparées par des virgules ("'a','b'")
+     * @param string[]|null $colonnesRetour  si fourni, ne retourne que ces colonnes (sans doublon)
+     */
+    protected function retournerResultGcot04FiltreSurColonne(string $sql, string $colonne, string $listeIn, ?array $colonnesRetour = null): array
+    {
+        $valeursAutorisees = [];
+        foreach (explode(',', $listeIn) as $valeur) {
+            $valeur = trim(trim($valeur), "'");
+            if ($valeur !== '') {
+                $valeursAutorisees[$valeur] = true;
+            }
+        }
+        if (empty($valeursAutorisees)) {
+            return [];
+        }
+
+        $statement = $this->connexion04Gcot->query($sql);
+        $data = [];
+        while ($ligne = odbc_fetch_array($statement)) {
+            if (!isset($valeursAutorisees[trim((string) $ligne[$colonne])])) {
+                continue;
+            }
+
+            if ($colonnesRetour === null) {
+                $data[] = $ligne;
+                continue;
+            }
+
+            $projection = array_intersect_key($ligne, array_flip($colonnesRetour));
+            $data[implode("\x1F", $projection)] = $projection;
+        }
+
+        return array_values($data);
+    }
+
     public function retournerResult04($sql)
     {
         $statement = $this->connexion04->query($sql);

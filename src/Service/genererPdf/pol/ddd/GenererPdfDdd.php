@@ -31,8 +31,7 @@ class GenererPdfDdd extends GeneratePdf
         // --- En-tête (logo + titre + numéro + date) ---
         $pdf->setFont('helvetica', 'B', 14);
         $pdf->setAbsY(11);
-        $logoPath = $_ENV['BASE_PATH_LONG'] . '/Views/assets/logoHff.jpg';
-        $pdf->Image($logoPath, '', '', 45, 12);
+        $pdf->Image("{$this->basePathAssets}/logoHff.jpg", '', '', 45, 12);
         $pdf->setAbsX(55);
         $pdf->Cell(110, 6, 'DEMANDE DE DIAGNOSTIC PNEU', 0, 0, 'C', false, '', 0, false, 'T', 'M');
 

@@ -11,7 +11,6 @@ use App\Entity\admin\Application;
 use App\Entity\admin\ddp\DocDemandePaiement;
 use App\Entity\admin\ddp\TypeDemande;
 use App\Entity\admin\Service;
-use App\Entity\cde\CdefnrSoumisAValidation;
 use App\Entity\ddp\CommandeLivraison;
 use App\Entity\ddp\DemandePaiement;
 use App\Entity\ddp\DemandePaiementCommande;
@@ -20,7 +19,6 @@ use App\Entity\ddp\HistoriqueStatutDdp;
 use App\Form\ddp\DemandePaiementType;
 use App\Model\ddp\DemandePaiementModel;
 use App\Repository\admin\ddp\TypeDemandeRepository;
-use App\Repository\cde\CdefnrSoumisAValidationRepository;
 use App\Repository\ddp\DemandePaiementRepository;
 use App\Service\fichier\TraitementDeFichier;
 use App\Service\genererPdf\GeneratePdfDdp;
@@ -43,7 +41,6 @@ class DemandePaiementController extends Controller
 
     private TypeDemandeRepository $typeDemandeRepository;
     private DemandePaiementModel $demandePaiementModel;
-    private CdefnrSoumisAValidationRepository $cdeFnrRepository;
     private DemandePaiementRepository $demandePaiementRepository;
     private DemandePaiementLigne $demandePaiementLigne;
     private HistoriqueOperationDDPService $historiqueOperation;
@@ -60,7 +57,6 @@ class DemandePaiementController extends Controller
 
         $this->typeDemandeRepository = $this->getEntityManager()->getRepository(TypeDemande::class);
         $this->demandePaiementModel = new DemandePaiementModel();
-        $this->cdeFnrRepository = $this->getEntityManager()->getRepository(CdefnrSoumisAValidation::class);
         $this->demandePaiementRepository  = $this->getEntityManager()->getRepository(DemandePaiement::class);
         $this->demandePaiementLigne = new DemandePaiementLigne();
         $this->historiqueOperation = new HistoriqueOperationDDPService($this->getEntityManager());
@@ -107,8 +103,9 @@ class DemandePaiementController extends Controller
             $data = $form->getData(); //recupération des donnnées
 
             // $numCdes = $this->recuperationCdeFacEtNonFac($id);
-            $numeroCommandes = $suivi->etape('Récupération des commandes (IPS)', function () use ($data) {
-                $numCdes = $this->demandePaiementModel->getCommandeReceptionnee($data->getNumeroFournisseur());
+            $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+            $numeroCommandes = $suivi->etape('Récupération des commandes (IPS)', function () use ($data, $codeSociete) {
+                $numCdes = $this->demandePaiementModel->getCommandeReceptionnee($data->getNumeroFournisseur(), $codeSociete);
                 $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
                 $numFacString = TableauEnStringService::TableauEnString(',', $data->getNumeroFacture());
                 return $this->demandePaiementModel->getNumCommande($data->getNumeroFournisseur(), $numCdesString, $numFacString);
@@ -202,11 +199,11 @@ class DemandePaiementController extends Controller
 
     private function enregistrementDemandePaiementCommande(DemandePaiement $datas): void
     {
-        foreach ($datas->getNumeroCommande() as $data) {
+        foreach ($datas->getNumeroCommande() as $numeroCommande) {
             $demandePaiementCommande = new DemandePaiementCommande();
             $demandePaiementCommande
                 ->setNumeroDdp($datas->getNumeroDdp())
-                ->setNumeroCommande($data->getNumeroCommande())
+                ->setNumeroCommande($numeroCommande)
             ;
             $this->getEntityManager()->persist($demandePaiementCommande);
         }
@@ -217,11 +214,13 @@ class DemandePaiementController extends Controller
 
     private function enregistrementCommandeLivraison(DemandePaiement $datas): void
     {
-        foreach ($datas->getNumeroFacture() as $data) {
+        $numeroFacture = implode(';', $datas->getNumeroFacture());
+
+        foreach ($datas->getNumeroCommande() as $numeroCommande) {
             $commandeLivraison = new CommandeLivraison();
             $commandeLivraison
-                ->setNumeroCommande($datas->getNumeroCommande())
-                ->setNumeroFacture($data->getNumeroFacture())
+                ->setNumeroCommande($numeroCommande)
+                ->setNumeroFacture($numeroFacture)
             ;
             $this->getEntityManager()->persist($commandeLivraison);
         }
@@ -436,7 +435,7 @@ class DemandePaiementController extends Controller
             $docDemandePaiement = new DocDemandePaiement();
             $donners[] = $docDemandePaiement
                 ->setNumeroDdp($numDdp)
-                ->setTypeDocumentId($data->getTypeDemandeId())
+                ->setTypeDocumentId($data->getTypeDemandeId() !== null ? $data->getTypeDemandeId()->getId() : null)
                 ->setNomFichier($nomFichier)
                 ->setNumeroVersion('1');
         }
@@ -488,12 +487,8 @@ class DemandePaiementController extends Controller
     {
         $demandePaiementLigne = $this->recuperationDonnerDdpl($data);
 
-        if (count($demandePaiementLigne) > 1) {
-            foreach ($demandePaiementLigne as $value) {
-                $this->getEntityManager()->persist($value);
-            }
-        } else {
-            $this->getEntityManager()->persist($demandePaiementLigne[0]);
+        foreach ($demandePaiementLigne as $value) {
+            $this->getEntityManager()->persist($value);
         }
 
         $this->getEntityManager()->flush();
@@ -532,8 +527,32 @@ class DemandePaiementController extends Controller
      */
     private function EnregistrementBdDdp(DemandePaiement $data): void
     {
+        // numeroCommande/numeroFacture sont des tableaux (champs multi-select),
+        // mais les colonnes DB sont de simples chaînes : on les convertit
+        // temporairement, puis on restaure les tableaux après le flush car le
+        // reste du traitement (génération du PDF, enregistrement des lignes...)
+        // a besoin de la forme tableau.
+        $numeroCommandeOriginal = $data->getNumeroCommande();
+        $numeroFactureOriginal = $data->getNumeroFacture();
+
+        if (is_array($numeroCommandeOriginal)) {
+            $data->setNumeroCommande(implode(';', $numeroCommandeOriginal));
+        }
+        if (is_array($numeroFactureOriginal)) {
+            $data->setNumeroFacture(implode(';', $numeroFactureOriginal));
+        }
+
         $this->getEntityManager()->persist($data);
         $this->getEntityManager()->flush();
+
+        // Détache l'entité : sans ça, Doctrine la considère toujours comme
+        // gérée et tenterait de ré-écrire numeroCommande/numeroFacture (les
+        // tableaux restaurés juste après) au prochain flush() (déclenché par
+        // les autres méthodes d'enregistrement), provoquant la même erreur.
+        $this->getEntityManager()->detach($data);
+
+        $data->setNumeroCommande($numeroCommandeOriginal);
+        $data->setNumeroFacture($numeroFactureOriginal);
     }
 
     /**
