@@ -1,4 +1,5 @@
 import { DemandePaiementManager } from "./DemandePaiementManager.js";
+import { baseUrl } from "../utils/config.js";
 
 document.addEventListener("DOMContentLoaded", function () {
   const config = {
@@ -11,10 +12,22 @@ document.addEventListener("DOMContentLoaded", function () {
       numCommandeInput: "#demande_paiement_numeroCommande",
       numFactureInput: "#demande_paiement_numeroFacture",
       montantInput: "#demande_paiement_montantAPayer",
+      montantProformaInput: "#demande_paiement_montantFactureProforma",
       suggestionNumFournisseur: "#suggestion-num-fournisseur",
       loaderNumFournisseur: "#loader-num-fournisseur",
       suggestionNomFournisseur: "#suggestion-nom-fournisseur",
       fileList: "#liste_fichiers",
+      commandeValideeSubTabs: "#commandeValideeSubTabs",
+      commandeValideeSubTabContent: "#commandeValideeSubTabContent",
+      orValideSubTabs: "#orValideSubTabs",
+      orValideSubTabContent: "#orValideSubTabContent",
+      bcClientDwFiles: "#bcClientDwFiles",
+      historiqueDdp: "#historiqueDdp",
+      historiqueDdpBody: "#historiqueDdpBody",
+      historiqueDdpNumCde: "#historiqueDdpNumCde",
+      submitButton: "#submitDdpButton",
+      pdfIntrouvableWarning: "#pdfCommandeIntrouvableWarning",
+      montantIncorrectWarning: "#montantIncorrectWarning",
       invoiceTableContainer: "#tableau_facture",
       documentTableContainer: "#tableau_dossier",
       fileInput1: "#demande_paiement_pieceJoint01",
@@ -30,11 +43,15 @@ document.addEventListener("DOMContentLoaded", function () {
     urls: {
       fournisseurs: "api/info-fournisseur-ddp",
       commandes: "api/num-cde-frn/:numFournisseur/:typeId",
-      montantCommande: "api/montant-commande/:numCde",
       montantFacture:
         "api/montant-facture/:numFournisseur/:facturesString/:typeId",
+      montantCommandeHt: "api/montant-commande-ht/:numCde",
       listeDoc: "api/liste-doc/:numero",
-      recupererFichier: "/Hffintranet/api/recuperer-fichier",
+      recupererFichier: `${baseUrl}/api/recuperer-fichier`,
+      fichiersCommandeFournisseur: "api/fichiers-commande-fournisseur/:numeroCommande",
+      fichiersOrValide: "api/fichiers-or-valide/:numeroCommande",
+      fichiersBcClient: "api/fichiers-bc-client/:numeroCommande",
+      telechargerFichierCommandeDw: `${baseUrl}/api/telecharger-fichier-commande-dw`,
       agenceFetch: "agence-fetch/:agenceDebiteur",
     },
   };

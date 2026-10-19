@@ -4,6 +4,7 @@ namespace App\Model\ddp;
 
 use App\Model\Model;
 use App\Model\Traits\ConversionModel;
+use App\Service\TableauEnStringService;
 
 class DemandePaiementModel extends Model
 {
@@ -68,7 +69,7 @@ class DemandePaiementModel extends Model
 
     public function findListeGcot(string $numeroFournisseur, string  $numCdesString, string $numFacString): array
     {
-        $sql = " SELECT  
+        $sql = " SELECT
             TRZT_Dossier_Douane.Code_Fournisseur, 
             TRZT_Dossier_Douane.Libelle_Fournisseur,
             TRZT_Dossier_Douane.Numero_Dossier_Douane, 
@@ -77,17 +78,17 @@ class DemandePaiementModel extends Model
             TRZT_Facture.Numero_Facture, 
             GCOT_Facture_Ligne.Numero_PO
             from TRZT_Dossier_Douane
-            LEFT JOIN TRZT_Facture on TRZT_Dossier_Douane.Numero_Dossier_Douane = TRZT_Facture.Numero_Dossier_Douane
-            LEFT JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
-            LEFT JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
-            where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%' 
-            and TRZT_Facture.Numero_Facture not in ({$numFacString})
+            INNER JOIN TRZT_Facture on TRZT_Dossier_Douane.Numero_Dossier_Douane = TRZT_Facture.Numero_Dossier_Douane
+            INNER JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
+            INNER JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
+            where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%'
             and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
-            and GCOT_Facture_Ligne.Numero_PO in ({$numCdesString})
             group by TRZT_Dossier_Douane.Code_Fournisseur, TRZT_Dossier_Douane.Libelle_Fournisseur,TRZT_Dossier_Douane.Numero_Dossier_Douane, TRZT_Dossier_Douane.Numero_LTA, TRZT_Dossier_Douane.Numero_HAWB,TRZT_Facture.Numero_Facture, GCOT_Facture_Ligne.Numero_PO
             order by TRZT_Dossier_Douane.Code_Fournisseur, TRZT_Dossier_Douane.Libelle_Fournisseur,TRZT_Dossier_Douane.Numero_Dossier_Douane, TRZT_Dossier_Douane.Numero_LTA, TRZT_Dossier_Douane.Numero_HAWB,TRZT_Facture.Numero_Facture, GCOT_Facture_Ligne.Numero_PO
+            OPTION (RECOMPILE)
             ";
-        return $this->retournerResultGcot04($sql);
+
+        return $this->retournerResultGcot04FiltreSurColonne($sql, 'Numero_PO', $numCdesString);
     }
 
     public function getMontantFacGcot(string $numeroFournisseur, string  $numCdesString, string $numfacture): array
@@ -103,18 +104,18 @@ class DemandePaiementModel extends Model
     {
         $sql = " SELECT  
           distinct 
-            TRZT_Facture.Numero_Facture
+            TRZT_Facture.Numero_Facture,
+            GCOT_Facture_Ligne.Numero_PO
             from TRZT_Dossier_Douane
-            LEFT JOIN TRZT_Facture on TRZT_Dossier_Douane.Numero_Dossier_Douane = TRZT_Facture.Numero_Dossier_Douane
-            LEFT JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
-            LEFT JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
-            where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%' 
+            INNER JOIN TRZT_Facture on TRZT_Dossier_Douane.Numero_Dossier_Douane = TRZT_Facture.Numero_Dossier_Douane
+            INNER JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
+            INNER JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
+            where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%'
             and TRZT_Facture.Numero_Facture like 'PDV_%'
             and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
-            and GCOT_Facture_Ligne.Numero_PO in ({$numCdesString})
         ";
 
-        return array_column($this->retournerResultGcot04($sql), 'Numero_Facture');
+        return array_column($this->retournerResultGcot04FiltreSurColonne($sql, 'Numero_PO', $numCdesString, ['Numero_Facture']), 'Numero_Facture');
     }
 
     public function getNumDossierGcot(string $numeroFournisseur, string  $numCdesString, ?string $numFactString): array
@@ -125,20 +126,34 @@ class DemandePaiementModel extends Model
             $numFac = '';
         }
         $sql = " SELECT  DISTINCT
-            TRZT_Dossier_Douane.Numero_Dossier_Douane
+            TRZT_Dossier_Douane.Numero_Dossier_Douane,
+            GCOT_Facture_Ligne.Numero_PO
             from TRZT_Dossier_Douane
             LEFT JOIN TRZT_Facture on TRZT_Dossier_Douane.Numero_Dossier_Douane = TRZT_Facture.Numero_Dossier_Douane
-            LEFT JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
-            LEFT JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
-            where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%' 
+            INNER JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
+            INNER JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
+            where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%'
             $numFac
             and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
-            and GCOT_Facture_Ligne.Numero_PO in ({$numCdesString})
             ";
-        return $this->retournerResultGcot04($sql);
+        return $this->retournerResultGcot04FiltreSurColonne($sql, 'Numero_PO', $numCdesString, ['Numero_Dossier_Douane']);
     }
 
     public function getNumCommande(string $numeroFournisseur, string $numCdesString, ?string $numFactString): string
+    {
+        $result = $this->getNumCommandes($numeroFournisseur, $numCdesString, $numFactString);
+
+        // Retourner la première valeur ou une chaîne vide
+        return !empty($result) ? (string) $result[0] : '';
+    }
+
+    /**
+     * Toutes les commandes (Numero_PO) des factures données, limitées aux
+     * commandes réceptionnées : une facture peut couvrir plusieurs commandes.
+     *
+     * @return string[]
+     */
+    public function getNumCommandes(string $numeroFournisseur, string $numCdesString, ?string $numFactString): array
     {
         if (!empty($numFactString)) {
             $numFac = "and TRZT_Facture.Numero_Facture in ({$numFactString})";
@@ -150,18 +165,16 @@ class DemandePaiementModel extends Model
         GCOT_Facture_Ligne.Numero_PO as numerocde
         from TRZT_Dossier_Douane
         LEFT JOIN TRZT_Facture on TRZT_Dossier_Douane.Numero_Dossier_Douane = TRZT_Facture.Numero_Dossier_Douane
-        LEFT JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
-        LEFT JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
-        where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%' 
+        INNER JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
+        INNER JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
+        where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%'
         $numFac
         and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
-        and GCOT_Facture_Ligne.Numero_PO in ({$numCdesString})
         ";
 
-        $result = array_column($this->retournerResultGcot04($sql), 'numerocde');
+        $result = array_column($this->retournerResultGcot04FiltreSurColonne($sql, 'numerocde', $numCdesString), 'numerocde');
 
-        // Retourner la première valeur ou une chaîne vide
-        return !empty($result) ? (string) $result[0] : '';
+        return array_values(array_unique(array_map(fn($el) => trim((string) $el), $result)));
     }
 
 
@@ -196,6 +209,58 @@ class DemandePaiementModel extends Model
         return array_column($this->retournerResult28($sql), 'numcde');
     }
 
+
+    /**
+     * OR validés enregistrés lors de la soumission des commandes fournisseur
+     * (cdefnr_soumis_a_validation_ligne, type_document 'OR', dernière version de chaque commande).
+     *
+     * @param string[] $numCdes numéros de commande (numériques uniquement)
+     *
+     * @return array<int,array{numero_cde:string,numero_or:string}>
+     */
+    public function getNumerosOrParCommandes(array $numCdes): array
+    {
+        $numCdes = array_values(array_filter(array_map('trim', $numCdes), 'ctype_digit'));
+        if (empty($numCdes)) return [];
+
+        $inCdes = "'" . implode("','", $numCdes) . "'";
+
+        $sql = " SELECT DISTINCT csavl.numero_cde, csavl.numero_document as numero_or
+                from cdefnr_soumis_a_validation_ligne csavl
+                where csavl.numero_cde in ($inCdes)
+                and csavl.type_document = 'OR'
+                and csavl.numero_version = (
+                    select max(c2.numero_version) from cdefnr_soumis_a_validation_ligne c2 where c2.numero_cde = csavl.numero_cde
+                )
+        ";
+
+        return $this->retournerResult28($sql);
+    }
+
+    /**
+     * Fichier (path) de la dernière version de chaque OR dans DW_Ordre_De_Reparation.
+     *
+     * @param string[] $numerosOr numéros d'OR (numériques uniquement)
+     *
+     * @return array<int,array{numero_or:string,path:string}>
+     */
+    public function getPathsDwOrdreReparation(array $numerosOr): array
+    {
+        $numerosOr = array_values(array_filter(array_map('trim', $numerosOr), 'ctype_digit'));
+        if (empty($numerosOr)) return [];
+
+        $inOrs = "'" . implode("','", $numerosOr) . "'";
+
+        $sql = " SELECT DISTINCT dodr.numero_or, dodr.path
+                from DW_Ordre_De_Reparation dodr
+                where dodr.numero_or in ($inOrs)
+                and dodr.numero_version = (
+                    select max(d2.numero_version) from DW_Ordre_De_Reparation d2 where d2.numero_or = dodr.numero_or
+                )
+        ";
+
+        return $this->retournerResult28($sql);
+    }
 
     public function getPathDwCommande(string $numCde): array
     {
@@ -248,7 +313,8 @@ class DemandePaiementModel extends Model
     {
         $sql = " SELECT  DISTINCT
 
-                TRZT_Dossier_Douane.Numero_Dossier_Douane 
+                TRZT_Dossier_Douane.Numero_Dossier_Douane,
+                GCOT_Facture_Ligne.Numero_PO
 
                 from TRZT_Dossier_Douane
                 LEFT JOIN TRZT_Facture on TRZT_Dossier_Douane.Numero_Dossier_Douane = TRZT_Facture.Numero_Dossier_Douane
@@ -257,9 +323,8 @@ class DemandePaiementModel extends Model
                 where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%' 
                 and TRZT_Facture.Numero_Facture in ({$numFacture})
                 and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
-                and GCOT_Facture_Ligne.Numero_PO in ({$numCdesString})
             ";
-        return $this->retournerResultGcot04($sql);
+        return $this->retournerResultGcot04FiltreSurColonne($sql, 'Numero_PO', $numCdesString, ['Numero_Dossier_Douane']);
     }
 
     public function getFactureNonReglee(string $numeroFournisseur)
@@ -274,16 +339,25 @@ class DemandePaiementModel extends Model
         return array_column($this->convertirEnUtf8($data), 'facture_non_lettree');
     }
 
-    public function getCommandeReceptionnee(string $numeroFournisseur): array
+    public function getCommandeReceptionnee(string $numeroFournisseur, string $codeSociete = 'HF', int $typeId = 5, string $numCdeValide = ''): array
     {
         $statement = " SELECT distinct fllf_numcde as commande_receptionnee from frn_llf
                 inner join frn_liv 
                     on fliv_numliv = fllf_numliv 
                     and fliv_soc = fllf_soc 
                     and fliv_succ = fllf_succ 
-                    and fliv_soc = 'HF'
+                    and fliv_soc = '$codeSociete'
                 where fliv_numfou = '{$numeroFournisseur}'
         ";
+
+        // if ($typeId === 1) {
+        //     if (trim($numCdeValide) === '') {
+        //         // Aucune commande validée pour ce fournisseur : aucun résultat
+        //         // possible (et "IN ()" est une erreur de syntaxe SQL/Informix).
+        //         return [];
+        //     }
+        //     $statement .= " And fllf_numcde in ({$numCdeValide})";
+        // }
 
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
@@ -475,9 +549,17 @@ class DemandePaiementModel extends Model
 
     public function getNumeroFactureIps(string $numeroCommande): ?string
     {
-        $statement = "  SELECT FIRST 1 fllf_numfac 
+        $numeroCommandes = array_filter(explode(';', $numeroCommande), fn($valeur) => $valeur !== '');
+
+        if (empty($numeroCommandes)) {
+            return null;
+        }
+
+        $numeroCommandesString = TableauEnStringService::TableauEnString(',', $numeroCommandes);
+
+        $statement = "  SELECT FIRST 1 fllf_numfac
                         from informix.frn_llf
-                        where fllf_numcde ='$numeroCommande'
+                        where fllf_numcde in ($numeroCommandesString)
         ";
 
         $result = $this->connect->executeQuery($statement);

@@ -19,6 +19,8 @@ services:
       $ddpService: '@App\Service\ddp\Magasin\DdpService'
       $ddpLigneService: '@App\Service\ddp\Magasin\DdpLigneService'
       $ddpDocService: '@App\Service\ddp\Magasin\DdpDocService'
+      $demandePaiementModel: '@App\Model\ddp\DemandePaiementModel'
+      $historiqueOperation: '@App\Service\historiqueOperation\HistoriqueOperationDDPService'
     public: true
 
   App\Controller\ddp\DdpDetailController:

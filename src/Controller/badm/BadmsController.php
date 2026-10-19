@@ -128,22 +128,22 @@ class BadmsController extends Controller
                     ->setNumParc($data[0]['num_parc'])
                     ->setNumSerie($data[0]['num_serie'])
                 ;
-                if ($conditionAgenceServiceAutoriser) {
-                    $message = "Vous n'êtes pas autoriser à consulter ce matériel";
+                // if ($conditionAgenceServiceAutoriser) {
+                //     $message = "Vous n'êtes pas autoriser à consulter ce matériel";
 
-                    $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
-                } else {
-                    $formData = [
-                        'idMateriel' => $badm->getIdMateriel(),
-                        'numParc' => $badm->getNumParc(),
-                        'numSerie' => $badm->getNumSerie(),
-                        'typeMouvemnt' => $badm->getTypeMouvement(),
-                        'codeSociete' => $badm->getCodeSociete(),
-                    ];
-                    //envoie des donner dan la session
-                    $this->getSessionService()->set('badmform1Data', $formData);
-                    $this->redirectToRoute("badms_newForm2");
-                }
+                //     $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
+                // } else {
+                $formData = [
+                    'idMateriel' => $badm->getIdMateriel(),
+                    'numParc' => $badm->getNumParc(),
+                    'numSerie' => $badm->getNumSerie(),
+                    'typeMouvemnt' => $badm->getTypeMouvement(),
+                    'codeSociete' => $badm->getCodeSociete(),
+                ];
+                //envoie des donner dan la session
+                $this->getSessionService()->set('badmform1Data', $formData);
+                $this->redirectToRoute("badms_newForm2");
+                // }
             }
         }
 

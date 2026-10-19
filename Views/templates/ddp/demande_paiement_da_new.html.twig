@@ -40,7 +40,7 @@
                 {{ form_start(form, {'attr': {'id': 'demande-paiement-da-form', 'data-form-type': 'demande-paiement-da'}}) }}
                 {{ form_errors(form)}}
                 <div class="row" id="fournisseur-container"
-                    data-is-non-immatricule="{{ dto.isFrnNonImmatricule ? 'true' : 'false' }}">
+                    data-is-non-immatricule="{{ dto.isFrnNonImmatricule }}">
 
                     {% if dto.isFrnNonImmatricule %}
                         <div class="col-12 mb-2">
