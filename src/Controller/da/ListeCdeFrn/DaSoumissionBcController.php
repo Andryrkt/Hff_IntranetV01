@@ -2,6 +2,7 @@
 
 namespace App\Controller\da\ListeCdeFrn;
 
+use App\Service\UserData\UserDataService;
 use App\Constants\da\StatutBcConstant;
 use App\Constants\ddp\TypeDemandePaiementConstants;
 use App\Controller\Controller;
@@ -34,6 +35,7 @@ use App\Service\historiqueOperation\suivi\SuiviOperationService;
  */
 class DaSoumissionBcController extends Controller
 {
+    private UserDataService $userDataService;
     use PdfConversionTrait;
 
     private  DaSoumissionBc $daSoumissionBc;
@@ -46,8 +48,9 @@ class DaSoumissionBcController extends Controller
     private DaAfficherRepository $daAfficherRepository;
     private DaSoumissionBcModel $daSoumissionBcModel;
 
-    public function __construct()
+    public function __construct(UserDataService $userDataService)
     {
+        $this->userDataService = $userDataService;
         parent::__construct();
 
         $this->daSoumissionBc = new DaSoumissionBc();
@@ -166,7 +169,7 @@ $dto->demandePaiementAvance = false;
         });
 
         /** AJOUT DES INFO NECESSAIRE */
-        $dto = (new DaSoumissionBcFactory($this->getEntityManager()))->apresSoumission($dto, $this->getUserName(), $nomPdfFusionner);
+        $dto = (new DaSoumissionBcFactory($this->getEntityManager()))->apresSoumission($dto, $this->userDataService->getUserName(), $nomPdfFusionner);
         $daSoumissionBc = DaSoumissionBcMapper::map($dto);
 
         /** ENREGISTREMENT DANS LA BASE DE DONNEE */

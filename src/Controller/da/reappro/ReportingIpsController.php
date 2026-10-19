@@ -8,27 +8,23 @@ use App\Entity\admin\Application;
 use App\Service\GlobalVariablesService;
 use App\Service\TableauEnStringService;
 use Symfony\Component\Form\FormInterface;
-use App\Service\Utils\RollingMonthsService;
+use App\Service\da\reappro\ReportingIpsService;
 use Symfony\Component\HttpFoundation\Request;
 use App\Form\da\reappro\ReportingIpsSearchType;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\da\reappro\ReportingIpsTrait;
 
 /**
  * @Route("/demande-appro")
  */
 class ReportingIpsController extends Controller
 {
-    use ReportingIpsTrait;
+    private ReportingIpsService $reportingIpsService;
 
-    private RollingMonthsService $rollingMonthsService;
-
-    public function __construct()
+    public function __construct(ReportingIpsService $reportingIpsService)
     {
-        parent::__construct();
-
-        $this->rollingMonthsService = new RollingMonthsService();
+        $this->reportingIpsService = $reportingIpsService;
     }
+
     /**
      * @Route("/reporting-ips", name = "da_reporting_ips")
      */
@@ -54,7 +50,7 @@ class ReportingIpsController extends Controller
         $criterias = $this->traitementFormulaire($form, $request);
 
         /** recuperation des données @var array $results @var array $totals  */
-        ['results' => $results, 'totals' => $totals] = $this->getData($criterias, $codeSociete);
+        ['results' => $results, 'totals' => $totals] = $this->reportingIpsService->getData($criterias, $codeSociete);
 
         return $this->render('da/reappro/reporting_ips/index.html.twig', [
             'results' => $results,
