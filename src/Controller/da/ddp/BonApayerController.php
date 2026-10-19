@@ -52,7 +52,7 @@ class BonApayerController extends Controller
         $dtos = DemandePaiementMapper::mapInverse($ddp);
 
         return $this->render('da/ddp/bon_a_payer.html.twig', [
-            'appro' => $appro,
+            'appro'    => $appro,
             'dtos'     => $dtos,
             'form'     => $form->createView(),
             'criteria' => $bapSearchDto->toArray()
@@ -60,15 +60,15 @@ class BonApayerController extends Controller
     }
 
     /** 
-     * @Route("/export-excel/consultation-facture", name="export_excel_consultation_facture")
+     * @Route("/export-excel/consultation-facture/{appro}", name="export_excel_consultation_facture")
      */
-    public function exportExcel(Request $request)
+    public function exportExcel(Request $request, bool $appro)
     {
         $requestData = $request->query->all();
         $bapSearchDto = BapSearchDto::fromArray($requestData);
 
         // Récupération des données dans la table demande_paiement
-        $ddp = $this->demandePaiementRepository->findByConsultationFactureCriteria($bapSearchDto);
+        $ddp = $this->demandePaiementRepository->findByConsultationFactureCriteria($bapSearchDto, $appro);
 
         // transformation en DTO (DemandePaiementDto)
         $dtos = DemandePaiementMapper::mapInverse($ddp, true);
