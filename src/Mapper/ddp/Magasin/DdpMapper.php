@@ -31,6 +31,7 @@ class DdpMapper
             ->setDemandeur($dto->demandeur)
             ->setModePaiement($dto->modePaiement)
             ->setMontantAPayers($dto->montantAPayer())
+            ->setMontantFactureProforma($dto->montantFactureProforma())
             ->setContact($dto->contact)
             ->setNumeroCommande($dto->getNumeroCommandeString())
             ->setNumeroFacture($dto->getNumeroFactureString())

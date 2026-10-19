@@ -116,6 +116,11 @@ class DemandePaiement
      */
     private ?float $montantAPayers = 0.00;
 
+    /**
+     * @ORM\Column(type="float", scale="2", name="montant_facture_proforma", nullable=true)
+     */
+    private ?float $montantFactureProforma = null;
+
 
     /**
      * @ORM\Column(type="string", length=50, name="contact")
@@ -1300,6 +1305,24 @@ class DemandePaiement
     public function setDdpSoumissioncde($ddpSoumissioncde): self
     {
         $this->ddpSoumissioncde = $ddpSoumissioncde;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of montantFactureProforma
+     */
+    public function getMontantFactureProforma(): ?float
+    {
+        return $this->montantFactureProforma;
+    }
+
+    /**
+     * Set the value of montantFactureProforma
+     */
+    public function setMontantFactureProforma(?float $montantFactureProforma): self
+    {
+        $this->montantFactureProforma = $montantFactureProforma === null ? null : round($montantFactureProforma, 2);
 
         return $this;
     }

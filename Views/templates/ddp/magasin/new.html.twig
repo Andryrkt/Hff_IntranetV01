@@ -16,7 +16,7 @@
 				<div class="row">
 					<div class="col-12 col-md-11">
 						<h3 class="perso-titre">
-							{% if id_type == 1 %}
+							{% if type_ddp == 1 %}
 								Formulaire Demande de paiement à l’avance
 							{% else %}
 								Formulaire Demande de paiement après arrivage
@@ -51,13 +51,17 @@
 					</div>
 					<div class="col-12 col-md-3">
 						{{ form_row(form.contact)}}
-						{{ form_row(form.montantAPayer)}}
 					</div>
 				</div>
 				<div class="row">
 					<div class="col-12 col-md-2">{{ form_row(form.devise)}}</div>
-
-					<div class="col-12 col-md-10">{{ form_row(form.motif)}}</div>
+					<div class="col-12 col-md-3">{{ form_row(form.montantAPayer)}}</div>
+					{% if form.montantFactureProforma is defined %}
+						<div class="col-12 col-md-3">{{ form_row(form.montantFactureProforma)}}</div>
+						<div class="col-12 col-md-4">{{ form_row(form.motif)}}</div>
+					{% else %}
+						<div class="col-12 col-md-7">{{ form_row(form.motif)}}</div>
+					{% endif %}
 				</div>
 				<div class="row">
 					<div class="col-12 col-md-4">
@@ -78,7 +82,7 @@
 				</div>
 				<div class="row">
 					<div class="col-12 col-md-4">
-						{% if id_type == 1 %}
+						{% if type_ddp == 1 %}
 							<p>Veuillez insérer
 								<strong>le proforma facture fournisseur *</strong>
 							</p>

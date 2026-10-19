@@ -142,6 +142,14 @@ export class DemandePaiementManager {
         this.elements.montantInput.value,
       );
     });
+
+    if (this.elements.montantProformaInput) {
+      this.elements.montantProformaInput.addEventListener("input", () => {
+        this.elements.montantProformaInput.value = formatNumberSpecial(
+          this.elements.montantProformaInput.value,
+        );
+      });
+    }
   }
 
   async fetchFournisseurs() {

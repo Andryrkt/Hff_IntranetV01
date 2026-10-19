@@ -13,6 +13,7 @@ class DdpDto
     public ?string $contact = null;
     public ?string $motif = null;
     public ?string $montantAPayer = null; // * montant qu'il faut payer au fournisseur
+    public ?string $montantFactureProforma = null; // * montant indiqué sur la facture proforma du fournisseur
     // numéro de la commande
     public array $numeroCommande = [];
     // numéro de la facture
@@ -87,7 +88,25 @@ class DdpDto
      */
     public function montantAPayer(): float
     {
-        $montant = $this->montantAPayer;
+        return self::montantEnFloat($this->montantAPayer);
+    }
+
+    /**
+     * Transformation du montant facture proforma en float (null si non renseigné)
+     */
+    public function montantFactureProforma(): ?float
+    {
+        if ($this->montantFactureProforma === null || trim($this->montantFactureProforma) === '') {
+            return null;
+        }
+        return self::montantEnFloat($this->montantFactureProforma);
+    }
+
+    /**
+     * Conversion d'un montant saisi (ex: "1 234,56") en float
+     */
+    private static function montantEnFloat($montant): float
+    {
         if (is_string($montant)) {
             if (strpos($montant, ',') !== false) {
                 $montant = str_replace([' ', '.'], '', $montant);

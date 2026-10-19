@@ -67,11 +67,31 @@ class DdpType extends AbstractType
             )
         ;
 
+        $this->addMontantFactureProforma($builder, $options);
         $this->addNumeroCommande($builder, $options);
         $this->addNumeroFacture($builder, $options);
         $this->addFournisseur($builder);
         $this->addAgenceServiceDebiteur($builder, $options);
         $this->addFile($builder);
+    }
+
+    /**
+     * Montant facture proforma : uniquement pour la demande de paiement à l'avance
+     */
+    public function addMontantFactureProforma(FormBuilderInterface $builder, array $options)
+    {
+        if ($options['data']->typeDdp->getId() !== TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE) {
+            return;
+        }
+
+        $builder->add(
+            'montantFactureProforma',
+            TextType::class,
+            [
+                'label' => 'Montant facture proforma',
+                'required' => false
+            ]
+        );
     }
 
     public function addNumeroFacture(FormBuilderInterface $builder, array $options)
