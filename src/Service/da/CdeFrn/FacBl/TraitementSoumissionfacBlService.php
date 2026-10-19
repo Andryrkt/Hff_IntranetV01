@@ -263,7 +263,7 @@ class TraitementSoumissionfacBlService
         $typeDa = $daAfficherRepository->getTypeDaSelonNumDa($numDa);
         // articles de la livraison (référence / désignation) selon le type de DA
         if (in_array((int)$typeDa, [DemandeAppro::TYPE_DA_AVEC_DIT, DemandeAppro::TYPE_DA_REAPPRO_MENSUEL, DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL])) {
-            $articlesLivres = $this->daSoumissionFacBlModel->getRefDesiSavLor($numLiv, $codeSociete);
+            $articlesLivres = $this->daSoumissionFacBlModel->getRefDesiSavLor($numCde, $numLiv, $codeSociete);
             $sourceArticles = 'sav_lor';
         } else {
             $articlesLivres = $this->daSoumissionFacBlModel->getRefDesiFrnCdl($numLiv, $codeSociete);

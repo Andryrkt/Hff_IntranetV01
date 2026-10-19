@@ -51,17 +51,21 @@ class DaSoumissionFacBlModel extends Model
 
     /**
      * Récupère les références / désignations des lignes d'OR (sav_lor) concernées par une livraison.
-     * NB : slor_numcf contient le numéro de commande fournisseur tant que l'article n'est pas réceptionné,
-     * puis IPS le remplace par le numéro de livraison à la réception : on filtre donc sur le numéro de livraison.
+     * NB : slor_natcm indique la nature du numéro porté par slor_numcf :
+     *  - 'C' : numéro de commande fournisseur (article pas encore réceptionné)
+     *  - 'L' : numéro de livraison (IPS le remplace à la réception)
      */
-    public function getRefDesiSavLor($numeroLivraison, string $codeSociete)
+    public function getRefDesiSavLor($numeroCde, $numeroLivraison, string $codeSociete)
     {
         $statement = " SELECT slor_numcf as numero_livraison
                 ,TRIM(slor_refp) as reference
                 ,TRIM(slor_desi) as designation
                 from Informix.sav_lor
-                where slor_numcf = '$numeroLivraison'
-                and slor_soc = '$codeSociete'
+                where slor_soc = '$codeSociete'
+                and (
+                    (slor_natcm = 'C' and slor_numcf = '$numeroCde')
+                    or (slor_natcm = 'L' and slor_numcf = '$numeroLivraison')
+                )
         ";
 
         $result = $this->connect->executeQuery($statement);
