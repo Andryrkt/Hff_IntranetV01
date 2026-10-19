@@ -20,6 +20,7 @@ use App\Repository\da\DemandeApproRepository;
 use App\Service\da\DaObservationService;
 use App\Service\da\DaPropositionService;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
  * @Route("/demande-appro")
@@ -118,23 +119,34 @@ class DaPropositionArticleDirectController extends Controller
             $observation = $form->getData()->getObservation();
             $statutChange = $form->get('statutChange')->getData();
             $refsString = $request->request->get('refs');
+            $this->demarrerSuiviProposition($request, $da->getNumeroDemandeAppro());
 
             $notification = null;
             if ($request->request->has('brouillon')) {
                 /** Enregistrer provisoirement */
-                $notification = $this->daPropositionService->enregistrerBrouillon($da, $dalrList, $observation, $refsString);
+                $notification = SuiviOperationService::suivre('Enregistrement du brouillon', function () use ($da, $dalrList, $observation, $refsString) {
+                    return $this->daPropositionService->enregistrerBrouillon($da, $dalrList, $observation, $refsString);
+                });
             } elseif ($request->request->has('enregistrer')) {
                 /** Envoyer proposition */
-                $notification = $this->daPropositionService->envoyerProposition($da, $dalrList, $observation, $refsString);
+                $notification = SuiviOperationService::suivre('Envoi de la proposition', function () use ($da, $dalrList, $observation, $refsString) {
+                    return $this->daPropositionService->envoyerProposition($da, $dalrList, $observation, $refsString);
+                });
             } elseif ($request->request->has('changement')) {
                 /** Valider les articles par le demandeur */
-                $notification = $this->daPropositionService->validerParDemandeur($da, $dalrList, $observation, $refsString);
+                $notification = SuiviOperationService::suivre('Validation par le demandeur', function () use ($da, $dalrList, $observation, $refsString) {
+                    return $this->daPropositionService->validerParDemandeur($da, $dalrList, $observation, $refsString);
+                });
             } elseif ($request->request->has('observation')) {
                 /** Envoyer observation */
-                $notification = $this->daPropositionService->envoyerObservation($da, $observation, $statutChange, $this->estAppro());
+                $notification = SuiviOperationService::suivre('Envoi de l\'observation', function () use ($da, $observation, $statutChange) {
+                    return $this->daPropositionService->envoyerObservation($da, $observation, $statutChange, $this->estAppro());
+                });
             } elseif ($request->request->has('valider')) {
                 /** Valider les articles par l'appro */
-                $notification = $this->daPropositionService->validerParAppro($da, $dalrList, $observation, $refsString);
+                $notification = SuiviOperationService::suivre('Validation par l\'appro', function () use ($da, $dalrList, $observation, $refsString) {
+                    return $this->daPropositionService->validerParAppro($da, $dalrList, $observation, $refsString);
+                });
             }
 
             if ($notification) $this->notifierEtRediriger($notification);
@@ -146,7 +158,10 @@ class DaPropositionArticleDirectController extends Controller
             /** @var DaObservation $daObservation daObservation correspondant au donnée du formObservation */
             $daObservation = $formObservation->getData();
 
-            $this->notifierEtRediriger($this->daPropositionService->envoyerObservationAvecPj($da, $daObservation, $this->estAppro()));
+            SuiviOperationService::demarrer(SuiviOperationService::TYPE_DA_OBSERVATION, $da->getNumeroDemandeAppro());
+            $this->notifierEtRediriger(SuiviOperationService::suivre('Observation avec pièces jointes', function () use ($da, $daObservation) {
+                return $this->daPropositionService->envoyerObservationAvecPj($da, $daObservation, $this->estAppro());
+            }));
         }
     }
 
@@ -154,5 +169,25 @@ class DaPropositionArticleDirectController extends Controller
     {
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
+    }
+
+    /**
+     * Démarre le suivi de l'opération (admin > historique > suivi des opérations) selon le bouton cliqué
+     */
+    private function demarrerSuiviProposition(Request $request, string $numDa): void
+    {
+        $types = [
+            'brouillon'   => SuiviOperationService::TYPE_DA_PROPOSITION_BROUILLON,
+            'enregistrer' => SuiviOperationService::TYPE_DA_PROPOSITION,
+            'changement'  => SuiviOperationService::TYPE_DA_VALIDATION_CHOIX,
+            'observation' => SuiviOperationService::TYPE_DA_OBSERVATION,
+            'valider'     => SuiviOperationService::TYPE_DA_VALIDATION_APPRO,
+        ];
+        foreach ($types as $bouton => $type) {
+            if ($request->request->has($bouton)) {
+                SuiviOperationService::demarrer($type, $numDa);
+                return;
+            }
+        }
     }
 }

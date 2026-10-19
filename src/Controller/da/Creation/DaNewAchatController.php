@@ -11,6 +11,7 @@ use App\Service\da\DaEnregistrementService;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /** @Route("/demande-appro") */
 class DaNewAchatController extends Controller
@@ -55,14 +56,25 @@ class DaNewAchatController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var DemandeApproParent $demandeApproParent */
             $demandeApproParent = $form->getData();
+            // suivi étape par étape de l'enregistrement (admin > historique > suivi des opérations)
+            $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_DA_CREATION_ACHAT, $demandeApproParent->getNumeroDemandeAppro());
 
             if ($demandeApproParent->getDateFinSouhaite() < new \DateTime()) {
-                $this->getSessionService()->set('notification', ['type' => 'error', 'message' => 'La date fin souhaitée ne peut pas être antérieure à la date du jour']);
+                $message = 'La date fin souhaitée ne peut pas être antérieure à la date du jour';
+                $this->getSessionService()->set('notification', ['type' => 'error', 'message' => $message]);
+                $suivi->echecOperation($message);
             } else {
                 $firstCreation = $demandeApproParent->getNumeroDemandeAppro() === null;
-                $numDa = $firstCreation ? $this->autoDecrement(ApplicationConstant::CODE_DAP) : $demandeApproParent->getNumeroDemandeAppro();
+                $numDa = $firstCreation
+                    ? $suivi->etape('Numérotation', function () {
+                        return $this->autoDecrement(ApplicationConstant::CODE_DAP);
+                    })
+                    : $demandeApproParent->getNumeroDemandeAppro();
+                $suivi->setNumeroDocument($numDa);
 
-                $notification = $this->daEnregistrementService->enregistrerDaParent($demandeApproParent, $form, $numDa, $firstCreation, $this->getButtonName($request));
+                $notification = $suivi->etape('Enregistrement de la DA', function () use ($demandeApproParent, $form, $numDa, $firstCreation, $request) {
+                    return $this->daEnregistrementService->enregistrerDaParent($demandeApproParent, $form, $numDa, $firstCreation, $this->getButtonName($request));
+                });
 
                 $this->getSessionService()->set('notification', $notification);
                 $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);

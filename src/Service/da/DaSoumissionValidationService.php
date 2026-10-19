@@ -11,12 +11,12 @@ use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
 use App\Entity\dit\DemandeIntervention;
 use App\Service\autres\VersionService;
+use App\Service\fichier\ConversionPdfService;
 use App\Service\fichier\TraitementDeFichier;
 use App\Service\genererPdf\da\GenererPdfDaAvecDit;
 use App\Service\genererPdf\da\GenererPdfDaDirect;
 use App\Service\genererPdf\da\GenererPdfDaReappro;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
 
 /**
  * Génération des PDF de DA validée, soumission à validation (table DaSoumisAValidation) et dépôt dans DocuWare.
@@ -131,43 +131,7 @@ class DaSoumissionValidationService
 
     private function convertirLesPdf(array $tousLesFichersAvecChemin): array
     {
-        $tousLesFichiers = [];
-        foreach ($tousLesFichersAvecChemin as $filePath) {
-            $tousLesFichiers[] = $this->convertPdfWithGhostscript($filePath);
-        }
-
-        return $tousLesFichiers;
-    }
-
-    private function convertPdfWithGhostscript(string $filePath): string
-    {
-        $gsPath = 'C:\Program Files\gs\gs10.05.0\bin\gswin64c.exe'; // Modifier selon l'OS
-        $tempFile = $filePath . "_temp.pdf";
-
-        // Vérifier si le fichier existe et est accessible
-        if (!file_exists($filePath)) {
-            throw new Exception("Fichier introuvable : $filePath");
-        }
-
-        if (!is_readable($filePath)) {
-            throw new Exception("Le fichier PDF ne peut pas être lu : $filePath");
-        }
-
-        // Commande Ghostscript
-        $command = "\"$gsPath\" -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -o \"$tempFile\" \"$filePath\"";
-
-        exec($command, $output, $returnVar);
-
-        if ($returnVar !== 0) {
-            echo "Sortie Ghostscript : " . implode("\n", $output);
-            throw new Exception("Erreur lors de la conversion du PDF avec Ghostscript");
-        }
-
-        // Remplacement du fichier
-        if (!rename($tempFile, $filePath)) {
-            throw new Exception("Impossible de remplacer l'ancien fichier PDF.");
-        }
-
-        return $filePath;
+        // conversion Ghostscript seulement pour les fichiers que FPDI ne sait pas lire (voir ConversionPdfService)
+        return (new ConversionPdfService())->convertirLesPdf($tousLesFichersAvecChemin);
     }
 }

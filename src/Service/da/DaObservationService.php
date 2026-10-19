@@ -5,6 +5,7 @@ namespace App\Service\da;
 use App\Entity\da\DaObservation;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Service\UserData\UserDataService;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 use App\Repository\da\DaObservationRepository;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -51,6 +52,9 @@ class DaObservationService
 
         $this->em->persist($daObservation);
         $this->em->flush();
+
+        // extrait de l'observation affiché dans le suivi des opérations
+        SuiviOperationService::noter('« ' . SuiviOperationService::extrait($observation) . ' »' . ($files ? ' (' . count($files) . ' fichier(s) joint(s))' : ''));
     }
 
     /** Récupère tous les observations d'une DA */

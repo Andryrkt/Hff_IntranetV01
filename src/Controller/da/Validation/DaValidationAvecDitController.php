@@ -11,6 +11,7 @@ use App\Entity\da\DemandeApproL;
 use App\Service\da\EmailDaService;
 use App\Service\da\DaValidationService;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
  * @Route("/demande-appro")
@@ -43,19 +44,30 @@ class DaValidationAvecDitController extends Controller
         $refsValide = json_decode($daValidationData['refsValide'], true) ?? [];
         $prixUnitaire = $request->get('PU', []); // obtenir les PU envoyé par requête
 
+        // suivi étape par étape de la validation (admin > historique > suivi des opérations)
+        $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_DA_VALIDATION_AVEC_DIT, $numDa);
+
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
 
-        $da = $this->daValidationService->validerDemandeApproAvecLignes($numDa, $numeroVersionMax, $prixUnitaire, $refsValide);
+        $da = $suivi->etape('Validation des lignes (base de données)', function () use ($numDa, $numeroVersionMax, $prixUnitaire, $refsValide) {
+            return $this->daValidationService->validerDemandeApproAvecLignes($numDa, $numeroVersionMax, $prixUnitaire, $refsValide);
+        });
 
         /** CREATION EXCEL */
-        $resultatExport = $this->daValidationService->exporterDaAvecDitEnExcelEtPdf($numDa, $numeroVersionMax);
+        $resultatExport = $suivi->etape('Bon d\'achat (Excel et PDF)', function () use ($numDa, $numeroVersionMax) {
+            return $this->daValidationService->exporterDaAvecDitEnExcelEtPdf($numDa, $numeroVersionMax);
+        });
 
         /** Ajout nom fichier du bon d'achat (excel) */
         $da->setNomFichierBav($resultatExport['fileName']);
 
-        $this->daAfficherService->ajouterDansTableAffichageParNumDa($da->getNumeroDemandeAppro(), true); // enregistrer dans la table Da Afficher
+        $suivi->etape('Mise à jour da_afficher', function () use ($da) {
+            $this->daAfficherService->ajouterDansTableAffichageParNumDa($da->getNumeroDemandeAppro(), true); // enregistrer dans la table Da Afficher
+        });
 
-        $this->emailDaService->envoyerMailValidationDa($da, $resultatExport);
+        $suivi->etape('Mail de validation', function () use ($da, $resultatExport) {
+            $this->emailDaService->envoyerMailValidationDa($da, $resultatExport);
+        });
 
         /** NOTIFICATION */
         $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'La demande a été validée avec succès.']);

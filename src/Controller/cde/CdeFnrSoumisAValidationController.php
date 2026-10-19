@@ -15,6 +15,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Repository\cde\CdefnrSoumisAValidationRepository;
 use App\Service\historiqueOperation\HistoriqueOperationCDEFNRService;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
+use App\Service\fichier\ConversionPdfService;
 
 /**
  * @Route("/magasin")
@@ -63,29 +65,47 @@ class CdefnrSoumisAValidationController extends Controller
             $blockages = $this->conditionDeBlockage($originalName, $numCdeFournisseur);
 
             // if ($this->blockageSoumissionCdeFnr($blockages, $numCdeFournisseur, $originalName)) {
-                $cdeFournisseur = $this->ajoutDonnerEntity($numCdeFournisseur, $codeFournisseur);
-
                 //Enregistrement du fichier
                 $numFnrCde = $numCdeFournisseur . '_' . $codeFournisseur;
-                $fileName = $this->enregistrementFichier($form, $numFnrCde, $cdeFournisseur->getNumVersion());
-                $fileNameJoints = $this->enregistreFichierJoint($form);
-                array_unshift($fileNameJoints, $fileName);
+                // suivi étape par étape de la soumission (admin > historique > suivi des soumissions)
+                $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_CDE_FOURNISSEUR, $numFnrCde);
+
+                $cdeFournisseur = $suivi->etape('Préparation des données', function () use ($numCdeFournisseur, $codeFournisseur) {
+                    return $this->ajoutDonnerEntity($numCdeFournisseur, $codeFournisseur);
+                });
+
+                $fileNameJoints = $suivi->etape('Fichiers joints', function () use ($form, $numFnrCde, $cdeFournisseur) {
+                    $fileName = $this->enregistrementFichier($form, $numFnrCde, $cdeFournisseur->getNumVersion());
+                    $fileNameJoints = $this->enregistreFichierJoint($form);
+                    array_unshift($fileNameJoints, $fileName);
+
+                    return $fileNameJoints;
+                });
+                $fileName = $fileNameJoints[0];
                 $cheminAvecNomFichier = array_map(
                     function ($file) {
                         return $_ENV['BASE_PATH_FICHIER'] . '/cde_fournisseur/' . $file;
                     },
                     $fileNameJoints
                 );
-                $fichierConverties = $this->ConvertirLesPdf($cheminAvecNomFichier);
+                $fichierConverties = $suivi->etape('Vérification du PDF (conversion)', function () use ($cheminAvecNomFichier) {
+                    return $this->ConvertirLesPdf($cheminAvecNomFichier);
+                });
                 //fusion des fichiers
                 $cheminEtNomFichier = $_ENV['BASE_PATH_FICHIER'] . '/cde_fournisseur/' . $fileName;
-                $this->traitementDeFichier->fusionFichers($fichierConverties, $cheminEtNomFichier);
+                $suivi->etape('Fusion', function () use ($fichierConverties, $cheminEtNomFichier) {
+                    $this->traitementDeFichier->fusionFichers($fichierConverties, $cheminEtNomFichier);
+                });
                 //envoyer le ficher dans docuware
                 $genererPdfCdeFnr = new GenererPdfCdeFnr();
-                $genererPdfCdeFnr->copyToDWCdeFnrSoumis($fileName);
+                $suivi->etape('DocuWare', function () use ($genererPdfCdeFnr, $fileName) {
+                    $genererPdfCdeFnr->copyToDWCdeFnrSoumis($fileName);
+                });
 
                 //ajout des données dans la base de donnée
-                $this->ajoutDonnerDansDb($cdeFournisseur);
+                $suivi->etape('Base de données', function () use ($cdeFournisseur) {
+                    $this->ajoutDonnerDansDb($cdeFournisseur);
+                });
 
                 //historisation de l'operation
                 $message = 'La commade fournisseur a été soumis avec succès';
@@ -218,45 +238,7 @@ class CdefnrSoumisAValidationController extends Controller
 
     private function ConvertirLesPdf(array $tousLesFichersAvecChemin)
     {
-        $tousLesFichiers = [];
-        foreach ($tousLesFichersAvecChemin as $filePath) {
-            $tousLesFichiers[] = $this->convertPdfWithGhostscript($filePath);
-        }
-
-        return $tousLesFichiers;
-    }
-
-
-    private function convertPdfWithGhostscript(string $filePath): string
-    {
-        $gsPath = 'C:\Program Files\gs\gs10.05.0\bin\gswin64c.exe'; // Modifier selon l'OS
-        $tempFile = $filePath . "_temp.pdf";
-
-        // Vérifier si le fichier existe et est accessible
-        if (!file_exists($filePath)) {
-            throw new Exception("Fichier introuvable : $filePath");
-        }
-
-        if (!is_readable($filePath)) {
-            throw new Exception("Le fichier PDF ne peut pas être lu : $filePath");
-        }
-
-        // Commande Ghostscript
-        $command = "\"$gsPath\" -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -o \"$tempFile\" \"$filePath\"";
-        // echo "Commande exécutée : $command<br>";
-
-        exec($command, $output, $returnVar);
-
-        if ($returnVar !== 0) {
-            echo "Sortie Ghostscript : " . implode("\n", $output);
-            throw new Exception("Erreur lors de la conversion du PDF avec Ghostscript");
-        }
-
-        // Remplacement du fichier
-        if (!rename($tempFile, $filePath)) {
-            throw new Exception("Impossible de remplacer l'ancien fichier PDF.");
-        }
-
-        return $filePath;
+        // conversion Ghostscript seulement pour les fichiers que FPDI ne sait pas lire (voir ConversionPdfService)
+        return (new ConversionPdfService())->convertirLesPdf($tousLesFichersAvecChemin);
     }
 }

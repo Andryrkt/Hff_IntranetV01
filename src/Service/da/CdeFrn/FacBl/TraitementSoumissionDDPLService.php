@@ -27,6 +27,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 class TraitementSoumissionDDPLService
 {
@@ -80,10 +81,15 @@ class TraitementSoumissionDDPLService
     public function traitementSoumissionDDPL(FormInterface $form, DaSoumissionFacBlDto $dto): bool
     {
         $sucess = false;
-        if ($this->verifierConditionDeBlocage($dto)) {
+        $soumissionAutorisee = SuiviOperationService::suivre('Contrôles de blocage', function () use ($dto) {
+            return $this->verifierConditionDeBlocage($dto);
+        });
+        if ($soumissionAutorisee) {
 
             // enrichissement Dto
-            $dto  = $this->daSoumissionFacBlFactory->enrichissementDtoApresSoumission($dto);
+            $dto  = SuiviOperationService::suivre('Préparation des données', function () use ($dto) {
+                return $this->daSoumissionFacBlFactory->enrichissementDtoApresSoumission($dto);
+            });
 
             // Traitement du fichier (enregistrement et fusion)
             [$nomAvecCheminPdfFusionner, $nomPdfFusionner] = $this->traitementDeFichier($form, $dto);
@@ -91,13 +97,17 @@ class TraitementSoumissionDDPLService
 
 
             // enregistrement dans la base de données (table da_soumission_fac_bl, demande_paiement_commande, commande_livraison)
-            $this->enregistrementDansDB($dto);
+            SuiviOperationService::suivre('Base de données', function () use ($dto) {
+                $this->enregistrementDansDB($dto);
+            });
 
             // copie du fichier fusionné dans le dossier de DW (Facture_BL frns apppro)
             // $this->generatePdf->copyToDWFacBlDa($nomPdfFusionner, $dto->numeroDemandeAppro);
 
             // modification du table da_afficher pour le champ est_facture_bl_soumis
-            $this->modificationDaAfficher($dto);
+            SuiviOperationService::suivre('Mise à jour DA', function () use ($dto) {
+                $this->modificationDaAfficher($dto);
+            });
 
             // generation de demande de paiement
             $this->traitementPourDdp($dto, $nomAvecCheminPdfFusionner);
@@ -161,12 +171,18 @@ class TraitementSoumissionDDPLService
             "dateLivIPS" => $infoLiv["date_clot"],
         ];
         //=============
-        $this->generatePdfDdp->generer($infoValidationBC, $infoMateriel, $dataRecapOR, $historiqueLivraison, $demandeAppro, $infoFacBl, $dto, $dto->demandePaiementDto, $cheminEtNom);
+        SuiviOperationService::suivre('Page de garde demande de paiement', function () use ($infoValidationBC, $infoMateriel, $dataRecapOR, $historiqueLivraison, $demandeAppro, $infoFacBl, $dto, $cheminEtNom) {
+            $this->generatePdfDdp->generer($infoValidationBC, $infoMateriel, $dataRecapOR, $historiqueLivraison, $demandeAppro, $infoFacBl, $dto, $dto->demandePaiementDto, $cheminEtNom);
+        });
 
         // fusion du page de garde du demande de paiement et le facture Bl
         $pdfAFusionner = [$cheminEtNom, $nomAvecCheminPdfFusionner];
-        $fichierConvertir = $this->ConvertirLesPdf($pdfAFusionner);
-        $this->traitementDeFichier->fusionFichers($fichierConvertir, $cheminEtNom);
+        $fichierConvertir = SuiviOperationService::suivre('Conversion (demande de paiement)', function () use ($pdfAFusionner) {
+            return $this->ConvertirLesPdf($pdfAFusionner);
+        });
+        SuiviOperationService::suivre('Fusion (demande de paiement)', function () use ($fichierConvertir, $cheminEtNom) {
+            $this->traitementDeFichier->fusionFichers($fichierConvertir, $cheminEtNom);
+        });
     }
 
     private function traitementDeFichier($form, $dto): array
@@ -177,13 +193,17 @@ class TraitementSoumissionDDPLService
         $nomOriginalFichier = $dto->pieceJoint1->getClientOriginalName();
 
         /** ENREGISTREMENT DE FICHIER */
-        $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
+        $nomDeFichiers = SuiviOperationService::suivre('Fichiers joints', function () use ($form, $numCde, $numDa) {
+            return $this->enregistrementFichier($form, $numCde, $numDa);
+        });
 
         /** AJOUT DES CHEMINS DANS LE TABLEAU */
         $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
 
         /** CONVERTIR LES PDF */
-        $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemins);
+        $fichierConvertir = SuiviOperationService::suivre('Conversion', function () use ($nomFichierAvecChemins) {
+            return $this->ConvertirLesPdf($nomFichierAvecChemins);
+        });
 
         /** GENERATION DU NOM DU FICHIER */
         $numeroVersionMax          = $dto->numeroVersionFacBl;
@@ -191,7 +211,9 @@ class TraitementSoumissionDDPLService
         $nomAvecCheminPdfFusionner = $this->cheminDeBase . $numDa . '/' . $nomPdfFusionner;
 
         /** FUSION DES PDF */
-        $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
+        SuiviOperationService::suivre('Fusion', function () use ($fichierConvertir, $nomAvecCheminPdfFusionner) {
+            $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
+        });
 
         return [$nomAvecCheminPdfFusionner, $nomPdfFusionner];
     }
@@ -282,6 +304,18 @@ class TraitementSoumissionDDPLService
             $this->entityManager->persist($daAfficher);
         }
         $this->entityManager->flush();
+
+        $dto->bilanMajDaAfficher = [
+            'numeroVersionDaAfficher' => (int) $numeroVersionMax, // version des lignes da_afficher mises à jour
+            'sourceArticles'          => 'da_afficher', // DDPL : toutes les lignes de la commande, sans passer par IPS
+            'nbArticlesLivres'   => count($daAffichers),
+            'nbLignesMaj'        => count($daAffichers),
+            'articlesNonTrouves' => [],
+        ];
+
+        if (empty($daAffichers)) {
+            error_log("[est_facture_bl_soumis] DA {$dto->numeroDemandeAppro} / CDE {$dto->numeroCde} : aucune ligne da_afficher mise à jour.");
+        }
     }
 
     private function verifierConditionDeBlocage(DaSoumissionFacBlDto $dto): bool

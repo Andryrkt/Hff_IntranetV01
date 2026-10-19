@@ -27,6 +27,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
  * @Route("/pol/demande-diagnostic-pneu")
@@ -181,15 +182,22 @@ class DemandeDiagnosticPneuDetailController extends Controller
             $data = $form->getData();
             $action = $request->request->get('action');
             $uploadedFiles = $form->get('piecesJointesAtelier')->getData();
+            // suivi étape par étape du diagnostic (admin > historique > suivi des opérations)
+            $suivi = SuiviOperationService::demarrer(
+                $action == "valider" ? SuiviOperationService::TYPE_DDD_DIAGNOSTIC : SuiviOperationService::TYPE_DDD_DIAGNOSTIC_BROUILLON,
+                $numeroDemande
+            );
 
 
             // Always persist the diagnostic pneus
-            foreach ($data['diagnosticPneus'] as $pneu) {
-                $em->persist($pneu);
-            }
+            $suivi->etape('Diagnostics des pneus', function () use ($data, $em, $demande) {
+                foreach ($data['diagnosticPneus'] as $pneu) {
+                    $em->persist($pneu);
+                }
 
-            // Always update observation
-            $demande->setObservationGlobalAtelier($data['observationGlobalAtelier']);
+                // Always update observation
+                $demande->setObservationGlobalAtelier($data['observationGlobalAtelier']);
+            });
 
             // --- Handle button actions ---
             $demande->setStatut('diag en cours');
@@ -198,13 +206,19 @@ class DemandeDiagnosticPneuDetailController extends Controller
             if ($action == "valider") {
                 $this->traitementDeFichier($form, $demande, $genererPdfDit);
                 $demande->setStatut('traitee atelier');
-                $this->envoyerMailNotification($demande);
+                $suivi->etape("Mail de notification", function () use ($demande) {
+                    $this->envoyerMailNotification($demande);
+                });
             } else {
                 $demande->setStatut('diag en cours');
-                $this->handlePiecesJointesAtelier($uploadedFiles, $demande);
+                $suivi->etape('Pièces jointes atelier', function () use ($uploadedFiles, $demande) {
+                    $this->handlePiecesJointesAtelier($uploadedFiles, $demande);
+                });
             }
 
-            $em->flush();
+            $suivi->etape('Base de données', function () use ($em) {
+                $em->flush();
+            });
 
             return $this->redirectToRoute('demande_diagnostic_pneu_details_atelier', [
                 'numeroDemande' => $numeroDemande
@@ -311,11 +325,13 @@ class DemandeDiagnosticPneuDetailController extends Controller
             $nomFichierEnregistrer,
             $nomAvecCheminFichier,
             $nomFichier
-        ] = $this->enregistrementFichier(
-            $form,
-            $demandeDiagnosticPneu->getNumeroDemande(),
-            'DDD'
-        );
+        ] = SuiviOperationService::suivre('Fichiers joints', function () use ($form, $demandeDiagnosticPneu) {
+            return $this->enregistrementFichier(
+                $form,
+                $demandeDiagnosticPneu->getNumeroDemande(),
+                'DDD'
+            );
+        });
 
         if (!is_array($nomEtCheminFichiersEnregistrer)) {
             $nomEtCheminFichiersEnregistrer = [];
@@ -399,12 +415,14 @@ class DemandeDiagnosticPneuDetailController extends Controller
         /*
      * Génération du PDF principal avec les images
      */
-        $genererPdfDdd->genererPdfDiagnosticPneu(
-            $demandeDiagnosticPneu,
-            $nomAvecCheminFichier,
-            $imagesDemandeur,
-            $imagesAtelier
-        );
+        SuiviOperationService::suivre('PDF du diagnostic', function () use ($genererPdfDdd, $demandeDiagnosticPneu, $nomAvecCheminFichier, $imagesDemandeur, $imagesAtelier) {
+            $genererPdfDdd->genererPdfDiagnosticPneu(
+                $demandeDiagnosticPneu,
+                $nomAvecCheminFichier,
+                $imagesDemandeur,
+                $imagesAtelier
+            );
+        });
 
         /*
      * Traitement des autres pièces jointes
@@ -423,17 +441,21 @@ class DemandeDiagnosticPneuDetailController extends Controller
             /*
          * Conversion des autres fichiers
          */
-            $fichiersConvertis = $this->ConvertirLesPdf(
-                $autresFichiers
-            );
+            $fichiersConvertis = SuiviOperationService::suivre('Conversion', function () use ($autresFichiers) {
+                return $this->ConvertirLesPdf(
+                    $autresFichiers
+                );
+            });
 
             /*
          * Fusion finale
          */
-            $traitementDeFichier->fusionFichers(
-                $fichiersConvertis,
-                $nomAvecCheminFichier
-            );
+            SuiviOperationService::suivre('Fusion', function () use ($traitementDeFichier, $fichiersConvertis, $nomAvecCheminFichier) {
+                $traitementDeFichier->fusionFichers(
+                    $fichiersConvertis,
+                    $nomAvecCheminFichier
+                );
+            });
         }
 
         return [

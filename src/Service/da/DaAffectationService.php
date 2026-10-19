@@ -12,6 +12,7 @@ use App\Entity\da\DemandeApproParentLine;
 use App\Service\UserData\UserDataService;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
  * Affectation d'une DA parent (Achat) : subdivision en DA directes / réappro ponctuel.
@@ -47,7 +48,13 @@ class DaAffectationService
      */
     public function traitementDaParentLines(Collection $daParentLines, DemandeApproParent $daParent, int $daType): void
     {
-        $demandeAppro = $this->createDemandeAppro($daParent, $daType);
+        // les libellés d'étape précisent la DA créée : une affectation peut créer une DA directe et une DA ponctuelle
+        $validationDA = $daType === DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL;
+        $suffixe = $validationDA ? ' (DA ponctuelle)' : ' (DA directe)';
+
+        $demandeAppro = SuiviOperationService::suivre('Création de la DA' . $suffixe, function () use ($daParent, $daType) {
+            return $this->createDemandeAppro($daParent, $daType);
+        });
         $numeroDemandeAppro = $demandeAppro->getNumeroDemandeAppro();
 
         $numLigne = 0;
@@ -55,63 +62,76 @@ class DaAffectationService
         $rejectedLines = [];
         $notRejectedLines = [];
 
-        /** @var DemandeApproParentLine $daParentLine */
-        foreach ($daParentLines as $daParentLine) {
-            $demandeApproLine = new DemandeApproL();
+        SuiviOperationService::suivre("Lignes $numeroDemandeAppro et fichiers" . $suffixe, function () use ($daParentLines, $daParent, $demandeAppro, $numeroDemandeAppro, &$numLigne, &$rejectedLines, &$notRejectedLines) {
+            /** @var DemandeApproParentLine $daParentLine */
+            foreach ($daParentLines as $daParentLine) {
+                $demandeApproLine = new DemandeApproL();
 
-            $demandeApproLine
-                ->duplicateDaParentLine($daParentLine)
-                ->setNumeroDemandeAppro($numeroDemandeAppro)
-                ->setNumeroLigne(++$numLigne)
-                ->setStatutDal($demandeAppro->getStatutDal())
-                ->setEstValidee($demandeAppro->getEstValidee())
-                ->setValidePar($demandeAppro->getValidePar())
-            ;
+                $demandeApproLine
+                    ->duplicateDaParentLine($daParentLine)
+                    ->setNumeroDemandeAppro($numeroDemandeAppro)
+                    ->setNumeroLigne(++$numLigne)
+                    ->setStatutDal($demandeAppro->getStatutDal())
+                    ->setEstValidee($demandeAppro->getEstValidee())
+                    ->setValidePar($demandeAppro->getValidePar())
+                ;
 
-            $this->handleOldFiles($numeroDemandeAppro, $daParent->getNumeroDemandeAppro(), $daParentLine->getFileNames());
+                $this->handleOldFiles($numeroDemandeAppro, $daParent->getNumeroDemandeAppro(), $daParentLine->getFileNames());
 
-            // ajouter dans la collection des DAL de la nouvelle DA
-            $demandeAppro->addDAL($demandeApproLine);
+                // ajouter dans la collection des DAL de la nouvelle DA
+                $demandeAppro->addDAL($demandeApproLine);
 
-            $this->em->persist($demandeApproLine);
+                $this->em->persist($demandeApproLine);
 
-            // ajout de ligne à supprimer pour les lignes de DA parent dans da_afficher
-            if ($daParentLine->isDeleted()) $rejectedLines[] = $daParentLine->getNumeroLigne();
-            else $notRejectedLines[] = $daParentLine->getNumeroLigne();
-        }
-        $this->em->persist($demandeAppro);
-        $this->em->flush();
+                // ajout de ligne à supprimer pour les lignes de DA parent dans da_afficher
+                if ($daParentLine->isDeleted()) $rejectedLines[] = $daParentLine->getNumeroLigne();
+                else $notRejectedLines[] = $daParentLine->getNumeroLigne();
+            }
+        });
+        SuiviOperationService::suivre('Base de données' . $suffixe, function () use ($demandeAppro) {
+            $this->em->persist($demandeAppro);
+            $this->em->flush();
+        });
 
-        $this->handleOldObservation($numeroDemandeAppro, $daParent->getNumeroDemandeAppro()); // copier les observations de la DA parent
+        SuiviOperationService::suivre('Observations' . $suffixe, function () use ($numeroDemandeAppro, $daParent) {
+            $this->handleOldObservation($numeroDemandeAppro, $daParent->getNumeroDemandeAppro()); // copier les observations de la DA parent
 
-        if ($daParent->getObservation()) $this->daObservationService->insertionObservation($numeroDemandeAppro, $daParent->getObservation()); // observation du formulaire dans la nouvelle DA
+            if ($daParent->getObservation()) $this->daObservationService->insertionObservation($numeroDemandeAppro, $daParent->getObservation()); // observation du formulaire dans la nouvelle DA
+        });
 
-        $validationDA = $daType === DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL;
         $statutDW = $validationDA ? StatutDaConstant::STATUT_DW_A_VALIDE : '';
 
-        // Supprimer les lignes de DA Parent dans la table da_afficher
-        $daAfficherRepository = $this->em->getRepository(DaAfficher::class);
-        $daAfficherRepository->markAsDeletedByNumeroLigne($daParent->getNumeroDemandeAppro(), $notRejectedLines, '__Subdivision-DA__', true);
-        $daAfficherRepository->markAsDeletedByNumeroLigne($daParent->getNumeroDemandeAppro(), $rejectedLines, '__Rejected-DA__', true);
+        SuiviOperationService::suivre('Mise à jour da_afficher' . $suffixe, function () use ($daParent, $notRejectedLines, $rejectedLines, $numeroDemandeAppro, $validationDA, $statutDW) {
+            // Supprimer les lignes de DA Parent dans la table da_afficher
+            $daAfficherRepository = $this->em->getRepository(DaAfficher::class);
+            $daAfficherRepository->markAsDeletedByNumeroLigne($daParent->getNumeroDemandeAppro(), $notRejectedLines, '__Subdivision-DA__', true);
+            $daAfficherRepository->markAsDeletedByNumeroLigne($daParent->getNumeroDemandeAppro(), $rejectedLines, '__Rejected-DA__', true);
 
-        // Ajouter les nouveaux données dans la table da_afficher
-        $this->daAfficherService->ajouterDansTableAffichageParNumDa($numeroDemandeAppro, $validationDA, $statutDW, $daParent->getDateCreation());
+            // Ajouter les nouveaux données dans la table da_afficher
+            $this->daAfficherService->ajouterDansTableAffichageParNumDa($numeroDemandeAppro, $validationDA, $statutDW, $daParent->getDateCreation());
+        });
 
         if ($validationDA) {
             // création de PDF
-            $daConsumptionHistory = new DaConsumptionHistory();
-            $dateRange = $daConsumptionHistory->getLast13MonthsDateRange();
-            $monthsList = $daConsumptionHistory->getMonthsList($dateRange['start'], $dateRange['end']);
-            $dataHistoriqueConsommation = $daConsumptionHistory->getHistoriqueConsommation($demandeAppro, $dateRange, $monthsList);
-            $observations = $this->daObservationService->getObservations($numeroDemandeAppro);
+            SuiviOperationService::suivre('PDF de la DA' . $suffixe, function () use ($demandeAppro, $numeroDemandeAppro) {
+                $daConsumptionHistory = new DaConsumptionHistory();
+                $dateRange = $daConsumptionHistory->getLast13MonthsDateRange();
+                $monthsList = $daConsumptionHistory->getMonthsList($dateRange['start'], $dateRange['end']);
+                $dataHistoriqueConsommation = $daConsumptionHistory->getHistoriqueConsommation($demandeAppro, $dateRange, $monthsList);
+                $observations = $this->daObservationService->getObservations($numeroDemandeAppro);
 
-            $this->daSoumissionValidationService->creationPDFReappro($demandeAppro, $observations, $monthsList, $dataHistoriqueConsommation);
+                $this->daSoumissionValidationService->creationPDFReappro($demandeAppro, $observations, $monthsList, $dataHistoriqueConsommation);
+            });
 
             // Dépôt du document dans DocuWare
-            $this->daSoumissionValidationService->copyPDFToDWReapproPonctuel($numeroDemandeAppro);
+            SuiviOperationService::suivre('DocuWare' . $suffixe, function () use ($numeroDemandeAppro) {
+                $this->daSoumissionValidationService->copyPDFToDWReapproPonctuel($numeroDemandeAppro);
+            });
 
             // Enregistrement dans la table de Soumission
-            $this->daSoumissionValidationService->ajouterDansDaSoumisAValidation($demandeAppro);
+            SuiviOperationService::suivre('Base de données (DA soumise à validation)' . $suffixe, function () use ($demandeAppro) {
+                $this->daSoumissionValidationService->ajouterDansDaSoumisAValidation($demandeAppro);
+            });
         }
     }
 

@@ -17,6 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationBADMService;
 use App\Service\FusionPdf;
 use App\Model\badm\BadmModel;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
  * @Route("/materiel/mouvement-materiel")
@@ -62,6 +63,8 @@ class BadmsForm2Controller extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // suivi étape par étape de l'enregistrement (admin > historique > suivi des opérations)
+            $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_BADM);
 
             $badm->setTypeMouvement($this->getEntityManager()->getRepository(TypeMouvement::class)->find($badm->getTypeMouvement()));
             //recuperatin de l'id du type de mouvemnet choisi par l'utilisateur dans le formulaire 1
@@ -97,19 +100,26 @@ class BadmsForm2Controller extends Controller
                 $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
             } else {
 
-                $this->ajoutDesDonnnerFormulaire($data, $this->getEntityManager(), $badm, $form, $idTypeMouvement);
+                $suivi->etape('Préparation des données', function () use ($data, $badm, $form, $idTypeMouvement) {
+                    $this->ajoutDesDonnnerFormulaire($data, $this->getEntityManager(), $badm, $form, $idTypeMouvement);
+                });
+                $suivi->setNumeroDocument((string) $badm->getNumBadm());
 
                 //RECUPERATION de la dernière Numéro de mouvement materiel pour l'application BDM et l'enregistrer dans la table application
-                $application = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'BDM']);
-                $application->setDerniereId($badm->getNumBadm());
-                // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
-                $this->getEntityManager()->persist($application);
-                $this->getEntityManager()->flush();
+                $suivi->etape('Numérotation', function () use ($badm) {
+                    $application = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'BDM']);
+                    $application->setDerniereId($badm->getNumBadm());
+                    // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
+                    $this->getEntityManager()->persist($application);
+                    $this->getEntityManager()->flush();
+                });
 
                 //recuperation des ordres de réparation
-                $orDb = $this->badm->recupeOr((int)$data[0]['num_matricule']);
-                $OR = $this->ouiNonOr($orDb);
-                $orDb = $this->miseEnformeOrDb($orDb);
+                [$orDb, $OR] = $suivi->etape('Récupération des OR (IPS)', function () use ($data) {
+                    $orDb = $this->badm->recupeOr((int)$data[0]['num_matricule']);
+                    $OR = $this->ouiNonOr($orDb);
+                    return [$this->miseEnformeOrDb($orDb), $OR];
+                });
 
 
                 $idAgenceEmetteur = $this->getEntityManager()->getRepository(Agence::class)->findOneBy(['codeAgence' => substr($badm->getAgenceEmetteur(), 0, 2)]);
@@ -123,17 +133,25 @@ class BadmsForm2Controller extends Controller
                 ;
 
                 //ENVOIE DANS LE BASE DE DONNEE
-                $this->getEntityManager()->persist($badm);
-                $this->getEntityManager()->flush();
+                $suivi->etape('Base de données', function () use ($badm) {
+                    $this->getEntityManager()->persist($badm);
+                    $this->getEntityManager()->flush();
+                });
 
                 /** CREATION PDF */
                 $createPdf = new GenererPdfBadm();
-                $generPdfBadm = $this->genereteTabPdf($OR, $data, $badm, $form, $this->getEntityManager(), $idTypeMouvement);
-                $createPdf->genererPdfBadm($generPdfBadm, $orDb);
+                $suivi->etape('Page de garde', function () use ($createPdf, $OR, $data, $badm, $form, $idTypeMouvement, $orDb) {
+                    $generPdfBadm = $this->genereteTabPdf($OR, $data, $badm, $form, $this->getEntityManager(), $idTypeMouvement);
+                    $createPdf->genererPdfBadm($generPdfBadm, $orDb);
+                });
                 //envoie des pièce jointe dans une dossier et le fusionner
-                $this->envoiePieceJoint($form, $badm, $this->fusionPdf);
+                $suivi->etape('Fichiers joints, conversion et fusion', function () use ($form, $badm) {
+                    $this->envoiePieceJoint($form, $badm, $this->fusionPdf);
+                });
                 //copy du fichier fusionner dan sdocuware
-                $createPdf->copyInterneToDOCUWARE($badm->getNumBadm(), substr($badm->getAgenceEmetteur(), 0, 2) . substr($badm->getServiceEmetteur(), 0, 3));
+                $suivi->etape('DocuWare', function () use ($createPdf, $badm) {
+                    $createPdf->copyInterneToDOCUWARE($badm->getNumBadm(), substr($badm->getAgenceEmetteur(), 0, 2) . substr($badm->getServiceEmetteur(), 0, 3));
+                });
 
                 $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrer', $badm->getNumBadm(), 'badmListe_AffichageListeBadm', true);
             }

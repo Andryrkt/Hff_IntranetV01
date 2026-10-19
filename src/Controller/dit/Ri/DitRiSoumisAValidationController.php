@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Controller\Traits\dit\DitRiSoumisAValidationTrait;
 use App\Service\genererPdf\GenererPdfRiSoumisAValidataion;
 use App\Service\historiqueOperation\HistoriqueOperationRIService;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
  * @Route("/atelier/demande-intervention")
@@ -84,22 +85,31 @@ class DitRiSoumisAValidationController extends Controller
 
         if ($form->isSubmitted()) {
             $dataForm = $form->getData();
+            // suivi étape par étape de la soumission (admin > historique > suivi des soumissions)
+            $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_RI, 'RI_' . $numOr);
 
             // Récupérer les valeurs des cases cochées
             $itvCoches = $this->itvCocher($itvAfficher, $form);
 
-            $conditionDeBlocage = $this->conditionDeBlocageSoumission($ditRiSoumisAValidationModel, $ditRiSoumiAValidation, $numOr, $itvCoches, $itvDejaSoumis, $codeSociete);
+            $soumissionAutorisee = $suivi->etape('Contrôles de blocage', function () use ($ditRiSoumisAValidationModel, $ditRiSoumiAValidation, $numOr, $itvCoches, $itvDejaSoumis, $codeSociete) {
+                $conditionDeBlocage = $this->conditionDeBlocageSoumission($ditRiSoumisAValidationModel, $ditRiSoumiAValidation, $numOr, $itvCoches, $itvDejaSoumis, $codeSociete);
+                return $this->blocage($conditionDeBlocage, $numOr);
+            });
 
-            if ($this->blocage($conditionDeBlocage, $numOr)) {
+            if ($soumissionAutorisee) {
 
                 // ajout des informations utiles dans l'entité ditRiSoumiAValidation
-                $numeroSoumission = $ditRiSoumisAValidationModel->recupNumeroSoumission($dataForm->getNumeroOR(), $codeSociete);
+                $numeroSoumission = $suivi->etape('Base de données (numéro de soumission)', function () use ($ditRiSoumisAValidationModel, $dataForm, $codeSociete) {
+                    return $ditRiSoumisAValidationModel->recupNumeroSoumission($dataForm->getNumeroOR(), $codeSociete);
+                });
                 $ditRiSoumiAValidation = $this->insertionInfoUtile($dataForm, $ditRiSoumiAValidation, $numeroSoumission, $numDit);
 
                 $genererPdfRi = new GenererPdfRiSoumisAValidataion();
 
                 // ENREGISTRE LE FICHIER
-                $this->traiterFichierJoint($form, $dataForm, $itvCoches);
+                $suivi->etape('Fichiers RI', function () use ($form, $dataForm, $itvCoches) {
+                    $this->traiterFichierJoint($form, $dataForm, $itvCoches);
+                });
 
                 foreach ($itvCoches as $itv) {
                     $riSoumisAValidation = new DitRiSoumisAValidation();
@@ -116,12 +126,16 @@ class DitRiSoumisAValidationController extends Controller
                     $this->getEntityManager()->persist($riSoumisAValidation);
 
                     // Génération du PDF
-                    $genererPdfRi->copyToDwRiSoumis($itv, $riSoumisAValidation->getNumeroOR());
+                    $suivi->etape('DocuWare (intervention ' . $itv . ')', function () use ($genererPdfRi, $itv, $riSoumisAValidation) {
+                        $genererPdfRi->copyToDwRiSoumis($itv, $riSoumisAValidation->getNumeroOR());
+                    });
                 }
 
                 /** ENVOIE des DONNEE dans BASE DE DONNEE */
                 // Flushe toutes les entités et l'historique
-                $this->getEntityManager()->flush();
+                $suivi->etape('Base de données', function () {
+                    $this->getEntityManager()->flush();
+                });
 
                 $this->historiqueOperation->sendNotificationSoumission('Le rapport d\'intervention a été soumis avec succès', 'RI_' . $dataForm->getNumeroOR(), 'dit_index', true);
             }

@@ -15,6 +15,7 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /** @Route("/demande-appro") */
 class DaAffectationAchatController extends Controller
@@ -63,6 +64,8 @@ class DaAffectationAchatController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var DemandeApproParent $daParent */
             $daParent = $form->getData();
+            // suivi étape par étape de l'affectation (admin > historique > suivi des opérations)
+            SuiviOperationService::demarrer(SuiviOperationService::TYPE_DA_AFFECTATION, $daParent->getNumeroDemandeAppro());
             $btn = $this->getButtonName($request);
 
             if ($btn === "passerDA")         $this->traitementTransmissionDA($daParent);

@@ -19,6 +19,7 @@ use App\Service\Admin\UrlIdCipher;
 use App\Service\da\DaObservationService;
 use App\Service\da\DaAfficherService;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
  * @Route("/demande-appro")
@@ -88,28 +89,36 @@ class DaEditDirectController extends Controller
             'numeroLigne'        => $ligne
         ]);
 
+        // suivi étape par étape de la suppression (admin > historique > suivi des opérations)
+        $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_DA_SUPPRESSION_LIGNE, $numDa);
+
         if ($demandeApproLs) {
-            $demandeApproLRs = $this->getEntityManager()->getRepository(DemandeApproLR::class)->findBy([
-                'numeroDemandeAppro' => $numDa,
-                'numeroLigne'        => $ligne
-            ]);
+            $suivi->etape('Suppression de la ligne ' . $ligne . ' (base de données)', function () use ($demandeApproLs, $numDa, $ligne) {
+                $demandeApproLRs = $this->getEntityManager()->getRepository(DemandeApproLR::class)->findBy([
+                    'numeroDemandeAppro' => $numDa,
+                    'numeroLigne'        => $ligne
+                ]);
 
-            foreach ($demandeApproLs as $demandeApproL) {
-                $this->getEntityManager()->remove($demandeApproL);
-            }
+                foreach ($demandeApproLs as $demandeApproL) {
+                    $this->getEntityManager()->remove($demandeApproL);
+                }
 
-            foreach ($demandeApproLRs as $demandeApproLR) {
-                $this->getEntityManager()->remove($demandeApproLR);
-            }
+                foreach ($demandeApproLRs as $demandeApproLR) {
+                    $this->getEntityManager()->remove($demandeApproLR);
+                }
 
-            $this->getEntityManager()->flush(); // enregistrer le modifications avant l'appel à la méthode "ajouterDansTableAffichageParNumDa"
-            $this->daAfficherService->ajouterDansTableAffichageParNumDa($numDa); // ajout dans la table DaAfficher si le statut a changé
+                $this->getEntityManager()->flush(); // enregistrer le modifications avant l'appel à la méthode "ajouterDansTableAffichageParNumDa"
+            });
+            $suivi->etape('Mise à jour da_afficher', function () use ($numDa) {
+                $this->daAfficherService->ajouterDansTableAffichageParNumDa($numDa); // ajout dans la table DaAfficher si le statut a changé
+            });
 
             $notifType = "success";
             $notifMessage = "Réussite de l'opération: la ligne de DA a été supprimée avec succès.";
         } else {
             $notifType = "danger";
             $notifMessage = "Echec de la suppression de la ligne: la ligne de DA n'existe pas.";
+            $suivi->echecOperation($notifMessage . " (ligne $ligne)");
         }
         $this->getSessionService()->set('notification', ['type' => $notifType, 'message' => $notifMessage]);
         $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
@@ -122,17 +131,29 @@ class DaEditDirectController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             $demandeAppro = $form->getData();
             $numDa = $demandeAppro->getNumeroDemandeAppro();
-            $this->gererAgenceServiceDebiteur($demandeAppro);
+            // suivi étape par étape de la modification (admin > historique > suivi des opérations)
+            $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_DA_MODIFICATION_DIRECTE, $numDa);
+            $suivi->etape('Agence / service débiteur', function () use ($demandeAppro) {
+                $this->gererAgenceServiceDebiteur($demandeAppro);
+            });
 
-            $this->daEditionService->modificationDa($demandeAppro, $this->lignesFormulaire($form->get('DAL')), StatutDaConstant::STATUT_SOUMIS_APPRO);
+            $suivi->etape('Lignes de DA et base de données', function () use ($demandeAppro, $form) {
+                $this->daEditionService->modificationDa($demandeAppro, $this->lignesFormulaire($form->get('DAL')), StatutDaConstant::STATUT_SOUMIS_APPRO);
+            });
             if ($demandeAppro->getObservation() !== null) {
-                $this->daObservationService->insertionObservation($numDa, $demandeAppro->getObservation());
+                $suivi->etape('Observation', function () use ($numDa, $demandeAppro) {
+                    $this->daObservationService->insertionObservation($numDa, $demandeAppro->getObservation());
+                });
             }
 
             // ajout des données dans la table DaAfficher
-            $this->daAfficherService->ajouterDansTableAffichageParNumDa($numDa);
+            $suivi->etape('Mise à jour da_afficher', function () use ($numDa) {
+                $this->daAfficherService->ajouterDansTableAffichageParNumDa($numDa);
+            });
 
-            $this->emailDaService->envoyerMailModificationDa($demandeAppro, $ancienDals);
+            $suivi->etape('Mail de modification', function () use ($demandeAppro, $ancienDals) {
+                $this->emailDaService->envoyerMailModificationDa($demandeAppro, $ancienDals);
+            });
 
             //notification
             $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre modification a été enregistrée']);

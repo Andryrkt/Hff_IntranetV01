@@ -10,6 +10,7 @@ use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
  * @Route("/magasin/dematerialisation")
@@ -51,12 +52,18 @@ class EnvoyerAuClientController extends Controller
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $dto = $form->getData();
+            // suivi étape par étape de l'enregistrement (admin > historique > suivi des opérations)
+            $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_DEVIS_NEG_ENVOI_CLIENT, (string) $dto->numeroDevis);
 
-            $dto = (new EnvoyerAuClientFactory())->createFromDto($dto);
+            $dto = $suivi->etape('Préparation des données', function () use ($dto) {
+                return (new EnvoyerAuClientFactory())->createFromDto($dto);
+            });
 
             // Modification dans la base de données
             $pointageModel = new PointageModel();
-            $pointageModel->updatePointage($dto);
+            $suivi->etape('Base de données', function () use ($pointageModel, $dto) {
+                $pointageModel->updatePointage($dto);
+            });
 
             //HISTORISATION DE L'OPERATION
             $message = "Pointage enregistré avec succès .";

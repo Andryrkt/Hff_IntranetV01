@@ -2,6 +2,7 @@
 
 namespace App\Repository\dit;
 
+use App\Entity\dit\DitOrsSoumisAValidation;
 use Doctrine\ORM\EntityRepository;
 
 class DitOrsSoumisAValidationRepository extends EntityRepository
@@ -318,6 +319,36 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
      * @param string $numOr
      * @return void
      */
+    /**
+     * Dernière version soumise d'un OR (pour expliquer le blocage "un OR est déjà en cours de validation")
+     *
+     * @return array{version: int, statuts: string[], dateSoumission: ?\DateTimeInterface, heureSoumission: ?string}|null
+     */
+    public function getDerniereSoumission(string $numOr, string $codeSociete): ?array
+    {
+        $lignes = $this->createQueryBuilder('o')
+            ->select('o.numeroVersion, o.statut, o.dateSoumission, o.heureSoumission')
+            ->where('o.numeroOR = :numOr')
+            ->andWhere('o.codeSociete = :codeSociete')
+            ->andWhere('o.numeroVersion = (SELECT MAX(o2.numeroVersion) FROM ' . DitOrsSoumisAValidation::class . ' o2 WHERE o2.numeroOR = :numOr AND o2.codeSociete = :codeSociete)')
+            ->setParameter('numOr', $numOr)
+            ->setParameter('codeSociete', $codeSociete)
+            ->getQuery()
+            ->getArrayResult();
+
+        if (empty($lignes)) {
+            return null;
+        }
+
+        return [
+            'version'         => (int) $lignes[0]['numeroVersion'],
+            // une ligne par intervention : on garde les statuts distincts
+            'statuts'         => array_values(array_unique(array_filter(array_map('trim', array_column($lignes, 'statut'))))),
+            'dateSoumission'  => $lignes[0]['dateSoumission'],
+            'heureSoumission' => $lignes[0]['heureSoumission'],
+        ];
+    }
+
     public function getblocageStatut(string $numOr, string $numDit, string $codeSociete): string
     {
         $qb = $this->createQueryBuilder('o');

@@ -14,6 +14,7 @@ use App\Service\da\DaValidationService;
 use App\Service\da\DaSoumissionValidationService;
 use App\Entity\da\DemandeAppro;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
  * @Route("/demande-appro")
@@ -50,25 +51,40 @@ class DaValidationDirectController extends Controller
         $refsValide = json_decode($daValidationData['refsValide'], true) ?? [];
         $prixUnitaire = $request->get('PU', []); // obtenir les PU envoyé par requête
 
+        // suivi étape par étape de la validation (admin > historique > suivi des opérations)
+        $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_DA_VALIDATION_DIRECTE, $numDa);
+
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
 
-        $da = $this->daValidationService->validerDemandeApproAvecLignes($numDa, $numeroVersionMax, $prixUnitaire, $refsValide);
+        $da = $suivi->etape('Validation des lignes (base de données)', function () use ($numDa, $numeroVersionMax, $prixUnitaire, $refsValide) {
+            return $this->daValidationService->validerDemandeApproAvecLignes($numDa, $numeroVersionMax, $prixUnitaire, $refsValide);
+        });
 
         /** CREATION EXCEL ET PDF */
-        $resultatExport = $this->daValidationService->exporterDaDirectEnExcelEtPdf($numDa, $numeroVersionMax);
+        $resultatExport = $suivi->etape('Bon d\'achat (Excel et PDF)', function () use ($numDa, $numeroVersionMax) {
+            return $this->daValidationService->exporterDaDirectEnExcelEtPdf($numDa, $numeroVersionMax);
+        });
 
         /** Ajout nom fichier du bon d'achat (excel) */
         $da->setNomFichierBav($resultatExport['fileName']);
 
-        $this->daAfficherService->ajouterDansTableAffichageParNumDa($da->getNumeroDemandeAppro(), true, StatutDaConstant::STATUT_DW_A_VALIDE); // enregistrer dans la table Da Afficher
+        $suivi->etape('Mise à jour da_afficher', function () use ($da) {
+            $this->daAfficherService->ajouterDansTableAffichageParNumDa($da->getNumeroDemandeAppro(), true, StatutDaConstant::STATUT_DW_A_VALIDE); // enregistrer dans la table Da Afficher
+        });
 
         // ajout des données dans la table DaSoumisAValidation
-        $this->daSoumissionValidationService->ajouterDansDaSoumisAValidation($da);
+        $suivi->etape('Base de données (DA soumise à validation)', function () use ($da) {
+            $this->daSoumissionValidationService->ajouterDansDaSoumisAValidation($da);
+        });
 
         /** envoi dans docuware */
-        $this->daSoumissionValidationService->fusionAndCopyToDW($da->getNumeroDemandeAppro());
+        $suivi->etape('Fusion et DocuWare', function () use ($da) {
+            $this->daSoumissionValidationService->fusionAndCopyToDW($da->getNumeroDemandeAppro());
+        });
 
-        $this->emailDaService->envoyerMailValidationDa($da, $resultatExport);
+        $suivi->etape('Mail de validation', function () use ($da, $resultatExport) {
+            $this->emailDaService->envoyerMailValidationDa($da, $resultatExport);
+        });
 
         /** NOTIFICATION */
         $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'La demande a été validée avec succès.']);

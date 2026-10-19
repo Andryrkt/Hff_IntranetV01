@@ -23,6 +23,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\ddp\DemandePaiementRepository;
 use App\Repository\admin\ddp\TypeDemandeRepository;
 use App\Service\historiqueOperation\HistoriqueOperationDDPService;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
+use App\Service\fichier\ConversionPdfService;
 
 /**
  * @Route("/compta/demande-de-paiement")
@@ -85,22 +87,30 @@ class EditDemandePaiementController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // suivi étape par étape de la modification (admin > historique > suivi des opérations)
+            $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_DDP_MODIFICATION, (string) $numDdp);
             $data = $form->getData(); //recupération des donnnées
 
             $numeroversion = $this->autoIncrement($this->ddpRepository->findNumeroVersionMax($numDdp));
             /** ENREGISTREMENT DU FICHIER */
-            $nomDesFichiers = $this->enregistrementFichier($form, $numDdp, $numeroversion);
+            $nomDesFichiers = $suivi->etape('Fichiers joints', function () use ($form, $numDdp, $numeroversion) {
+                return $this->enregistrementFichier($form, $numDdp, $numeroversion);
+            });
 
             // $numCdes = $this->recuperationCdeFacEtNonFac($demandePaiement->getTypeDemandeId()->getId());
-            $numCdes = $this->demandePaiementModel->getCommandeReceptionnee($data->getNumeroFournisseur());
-            $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
-            $numFacString = TableauEnStringService::TableauEnString(',', $data->getNumeroFacture());
-            $numeroCommandes = $this->demandePaiementModel->getNumCommande($data->getNumeroFournisseur(), $numCdesString, $numFacString);
+            $numeroCommandes = $suivi->etape('Récupération des commandes (IPS)', function () use ($data) {
+                $numCdes = $this->demandePaiementModel->getCommandeReceptionnee($data->getNumeroFournisseur());
+                $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
+                $numFacString = TableauEnStringService::TableauEnString(',', $data->getNumeroFacture());
+                return $this->demandePaiementModel->getNumCommande($data->getNumeroFournisseur(), $numCdesString, $numFacString);
+            });
 
             if ($id == 2) {
                 $data->setNumeroCommande($numeroCommandes);
             }
-            $nomDufichierCde = $this->recupCdeDw($data, $numDdp, $numeroversion);
+            $nomDufichierCde = $suivi->etape('Récupération des commandes (DocuWare)', function () use ($data, $numDdp, $numeroversion) {
+                return $this->recupCdeDw($data, $numDdp, $numeroversion);
+            });
             /** TRAITEMENT FICHIER  AUTRE DOCUMENT ET BC client externe / BC client magasin*/
             if ($data->getPieceJoint04() != null) {
                 $data->setEstAutreDoc(true)
@@ -121,25 +131,37 @@ class EditDemandePaiementController extends Controller
             /** AJOUT DES INFO NECESSAIRE  A L'ENTITE DDP */
             $this->ajoutDesInfoNecessaire($data, $numDdp, $demandePaiement->getTypeDemandeId()->getId(), $nomDesFichiers, $numeroversion, $nomDufichierCde);
             /** ENREGISTREMENT DANS BD */
-            $this->EnregistrementBdDdp($data); // enregistrement des données dans la table demande_paiement
-            $this->EnregistrementBdDdpl($data, $numeroversion); // enregistrement des données dans la table demande_paiement_ligne
-            $this->enregisterDdpF($data, $numeroversion); // enregistrement des données dans la table doc_demande_paiement
-            $this->enregistrementBdHistoriqueStatut($data); // enregistrement des données dans la table historique_statut_ddp
+            $suivi->etape('Base de données', function () use ($data, $numeroversion) {
+                $this->EnregistrementBdDdp($data); // enregistrement des données dans la table demande_paiement
+                $this->EnregistrementBdDdpl($data, $numeroversion); // enregistrement des données dans la table demande_paiement_ligne
+                $this->enregisterDdpF($data, $numeroversion); // enregistrement des données dans la table doc_demande_paiement
+                $this->enregistrementBdHistoriqueStatut($data); // enregistrement des données dans la table historique_statut_ddp
+            });
             /** COPIER LES FICHIERS */
             if ($demandePaiement->getTypeDemandeId()->getId() == 2) {
-                $this->copierFichierDistant($data, $numDdp, $numeroversion);
+                $suivi->etape('Copie des fichiers distants', function () use ($data, $numDdp, $numeroversion) {
+                    $this->copierFichierDistant($data, $numDdp, $numeroversion);
+                });
             }
             /** GENERATION DE PDF */
             $nomPageDeGarde = $numDdp . '.pdf';
             $cheminEtNom = $this->cheminDeBase . '/' . $numDdp . '/' . $nomPageDeGarde;
-            $this->generatePdfDdp->genererPDF($data, $cheminEtNom);
+            $suivi->etape('Page de garde', function () use ($data, $cheminEtNom) {
+                $this->generatePdfDdp->genererPDF($data, $cheminEtNom);
+            });
             /** FUSION DES PDF */
             $nomFichierAvecChemin = $this->addPrefixToElementArray($data->getLesFichiers(), $this->cheminDeBase . '/' . $numDdp . '/');
-            $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemin);
+            $fichierConvertir = $suivi->etape('Conversion', function () use ($nomFichierAvecChemin) {
+                return $this->ConvertirLesPdf($nomFichierAvecChemin);
+            });
             $tousLesFichersAvecChemin = $this->traitementDeFichier->insertFileAtPosition($fichierConvertir, $cheminEtNom, 0);
-            $this->traitementDeFichier->fusionFichers($tousLesFichersAvecChemin, $cheminEtNom);
+            $suivi->etape('Fusion', function () use ($tousLesFichersAvecChemin, $cheminEtNom) {
+                $this->traitementDeFichier->fusionFichers($tousLesFichersAvecChemin, $cheminEtNom);
+            });
             /** ENVOYER DANS DW */
-            $this->generatePdfDdp->copyToDwDdp($nomPageDeGarde, $numDdp, $numeroversion);
+            $suivi->etape('DocuWare', function () use ($nomPageDeGarde, $numDdp, $numeroversion) {
+                $this->generatePdfDdp->copyToDwDdp($nomPageDeGarde, $numDdp, $numeroversion);
+            });
             /** HISTORISATION */
             $this->historiqueOperation->sendNotificationSoumission('Le document a été modifié avec succès', $numDdp, 'ddp_liste', true);
         }
@@ -359,46 +381,8 @@ class EditDemandePaiementController extends Controller
 
     private function ConvertirLesPdf(array $tousLesFichersAvecChemin)
     {
-        $tousLesFichiers = [];
-        foreach ($tousLesFichersAvecChemin as $filePath) {
-            $tousLesFichiers[] = $this->convertPdfWithGhostscript($filePath);
-        }
-
-        return $tousLesFichiers;
-    }
-
-
-    private function convertPdfWithGhostscript($filePath)
-    {
-        $gsPath = 'C:\Program Files\gs\gs10.05.0\bin\gswin64c.exe'; // Modifier selon l'OS
-        $tempFile = $filePath . "_temp.pdf";
-
-        // Vérifier si le fichier existe et est accessible
-        if (!file_exists($filePath)) {
-            throw new Exception("Fichier introuvable : $filePath");
-        }
-
-        if (!is_readable($filePath)) {
-            throw new Exception("Le fichier PDF ne peut pas être lu : $filePath");
-        }
-
-        // Commande Ghostscript
-        $command = "\"$gsPath\" -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -o \"$tempFile\" \"$filePath\"";
-        // echo "Commande exécutée : $command<br>";
-
-        exec($command, $output, $returnVar);
-
-        if ($returnVar !== 0) {
-            echo "Sortie Ghostscript : " . implode("\n", $output);
-            throw new Exception("Erreur lors de la conversion du PDF avec Ghostscript");
-        }
-
-        // Remplacement du fichier
-        if (!rename($tempFile, $filePath)) {
-            throw new Exception("Impossible de remplacer l'ancien fichier PDF.");
-        }
-
-        return $filePath;
+        // conversion Ghostscript seulement pour les fichiers que FPDI ne sait pas lire (voir ConversionPdfService)
+        return (new ConversionPdfService())->convertirLesPdf($tousLesFichersAvecChemin);
     }
 
     /**

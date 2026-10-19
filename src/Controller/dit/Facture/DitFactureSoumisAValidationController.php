@@ -20,6 +20,7 @@ use App\Service\genererPdf\GenererPdfFactureAValidation;
 use App\Controller\Traits\dit\DitFactureSoumisAValidationtrait;
 use App\Repository\dit\DitRepository;
 use App\Service\historiqueOperation\HistoriqueOperationFACService;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -81,6 +82,8 @@ class DitFactureSoumisAValidationController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // suivi étape par étape de la soumission (admin > historique > suivi des soumissions)
+            $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_FACTURE, $numOrBaseDonner[0]['numor']);
 
             $originalName = $form->get("pieceJoint01")->getData()->getClientOriginalName();
             $typeFacVente = [200, 201, 202, 203, 204, 205, 206, 207, 208, 209];
@@ -128,39 +131,57 @@ class DitFactureSoumisAValidationController extends Controller
             // } 
             else {
                 $dataForm = $form->getData();
-                $numeroSoumission = $this->ditFactureSoumiAValidationModel->recupNumeroSoumission($dataForm->getNumeroOR(), $codeSociete);
+                $suivi->setNumeroDocument($numFac);
 
-                $this->ajoutInfoEntityDitFactur($this->ditFactureSoumiAValidation, $numDit, $dataForm, $numeroSoumission, $codeSociete);
+                $factureSoumisAValidation = $suivi->etape('Récupération des données facture (IPS)', function () use ($dataForm, $numDit, $codeSociete) {
+                    $numeroSoumission = $this->ditFactureSoumiAValidationModel->recupNumeroSoumission($dataForm->getNumeroOR(), $codeSociete);
 
-                $factureSoumisAValidation = $this->ditFactureSoumisAValidation($numDit, $dataForm, $this->ditFactureSoumiAValidationModel, $numeroSoumission, $this->getEntityManager(), $this->ditFactureSoumiAValidation);
+                    $this->ajoutInfoEntityDitFactur($this->ditFactureSoumiAValidation, $numDit, $dataForm, $numeroSoumission, $codeSociete);
 
-                $estRi = $this->conditionSurInfoFacture($this->ditFactureSoumiAValidationModel, $dataForm, $this->ditFactureSoumiAValidation, $this->getSecurityService()->getCodeAgenceUser(), $codeSociete);
+                    return $this->ditFactureSoumisAValidation($numDit, $dataForm, $this->ditFactureSoumiAValidationModel, $numeroSoumission, $this->getEntityManager(), $this->ditFactureSoumiAValidation);
+                });
+
+                $estRi = $suivi->etape('Contrôle des RI', function () use ($dataForm, $codeSociete) {
+                    return $this->conditionSurInfoFacture($this->ditFactureSoumiAValidationModel, $dataForm, $this->ditFactureSoumiAValidation, $this->getSecurityService()->getCodeAgenceUser(), $codeSociete);
+                });
 
                 if ($estRi && $numOrBaseDonner[0]['numor'] != '41328173') {
                     $message = "La facture ne correspond pas ou correspond partiellement à un rapport d'intervention.";
                     $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
                 } else {
                     $interneExterne = $this->ditRepository->findInterneExterne($numDit, $codeSociete);
-                    
+
                     /** CREATION PDF */
-                    $pathPageDeGarde = $this->enregistrerPdf($dataForm, $numDit, $factureSoumisAValidation, $interneExterne, $codeSociete);
-                    
-                    $pathFichiers = $this->enregistrerFichiers($form, $numFac, $this->ditFactureSoumiAValidation->getNumeroSoumission(), $interneExterne);
-                    
+                    $pathPageDeGarde = $this->enregistrerPdf($dataForm, $numDit, $factureSoumisAValidation, $interneExterne, $codeSociete, $suivi);
+
+                    $pathFichiers = $suivi->etape('Fichiers joints', function () use ($form, $numFac, $interneExterne) {
+                        return $this->enregistrerFichiers($form, $numFac, $this->ditFactureSoumiAValidation->getNumeroSoumission(), $interneExterne);
+                    });
+
 
                     if ($interneExterne === 'INTERNE') {
                         $ficherAfusioner = $this->fileUploaderService->insertFileAtPosition($pathFichiers, $pathPageDeGarde, 0);
-                        $fichierConvertie = $this->ConvertirLesPdf($ficherAfusioner);
-                        $this->fusionPdf->mergePdfs($fichierConvertie, $pathPageDeGarde);
-                        $this->genererPdfFacture->copyToDwFactureSoumis($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
+                        $fichierConvertie = $suivi->etape('Conversion', function () use ($ficherAfusioner) {
+                            return $this->ConvertirLesPdf($ficherAfusioner);
+                        });
+                        $suivi->etape('Fusion', function () use ($fichierConvertie, $pathPageDeGarde) {
+                            $this->fusionPdf->mergePdfs($fichierConvertie, $pathPageDeGarde);
+                        });
+                        $suivi->etape('DocuWare', function () use ($numFac) {
+                            $this->genererPdfFacture->copyToDwFactureSoumis($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
+                        });
                     } else {
-                        $this->genererPdfFacture->copyToDwFacture($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
-                        $this->genererPdfFacture->copyToDwFactureFichier($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac, $pathFichiers); //d'après le demande de Antsa le 22/08/2025
+                        $suivi->etape('DocuWare', function () use ($numFac, $pathFichiers) {
+                            $this->genererPdfFacture->copyToDwFacture($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
+                            $this->genererPdfFacture->copyToDwFactureFichier($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac, $pathFichiers); //d'après le demande de Antsa le 22/08/2025
+                        });
                     }
 
                     /** ENVOIE des DONNEE dans BASE DE DONNEE */
                     // Persist les entités liées
-                    $this->ajoutDataFactureAValidation($factureSoumisAValidation);
+                    $suivi->etape('Base de données', function () use ($factureSoumisAValidation) {
+                        $this->ajoutDataFactureAValidation($factureSoumisAValidation);
+                    });
 
                     $this->historiqueOperation->sendNotificationSoumission('Le document de controle a été généré et soumis pour validation', $dataForm->getNumeroFact(), 'dit_index', true);
                 }
@@ -177,17 +198,26 @@ class DitFactureSoumisAValidationController extends Controller
     }
 
 
-    public function enregistrerPdf($dataForm, string $numDit, $factureSoumisAValidation, string $interneExterne, string $codeSociete)
+    public function enregistrerPdf($dataForm, string $numDit, $factureSoumisAValidation, string $interneExterne, string $codeSociete, SuiviOperationService $suivi)
     {
-        $orSoumisFact = $this->ditFactureSoumiAValidationModel->recupOrSoumisValidation($this->ditFactureSoumiAValidation->getNumeroOR(), $dataForm->getNumeroFact(), $codeSociete);
-        $numDevis = $this->ditModel->recupererNumdevis($this->ditFactureSoumiAValidation->getNumeroOR(), $codeSociete);
-        $statut = $this->affectationStatutFac($this->getEntityManager(), $numDit, $dataForm, $this->ditFactureSoumiAValidationModel, $this->ditFactureSoumiAValidation, $codeSociete);
-        $montantPdf = $this->montantpdf($factureSoumisAValidation, $statut, $orSoumisFact);
-        $estFactureConformAOr = $this->estFactureConformAOr($factureSoumisAValidation, $codeSociete);
-        $etatOr = $this->etatOr($dataForm, $this->ditFactureSoumiAValidationModel, $codeSociete);
-        $this->modificationEtatFacturDit($etatOr, $numDit, $codeSociete);
+        [$numDevis, $montantPdf, $estFactureConformAOr, $etatOr] = $suivi->etape('Calcul des montants (IPS)', function () use ($dataForm, $numDit, $factureSoumisAValidation, $codeSociete) {
+            $orSoumisFact = $this->ditFactureSoumiAValidationModel->recupOrSoumisValidation($this->ditFactureSoumiAValidation->getNumeroOR(), $dataForm->getNumeroFact(), $codeSociete);
+            $numDevis = $this->ditModel->recupererNumdevis($this->ditFactureSoumiAValidation->getNumeroOR(), $codeSociete);
+            $statut = $this->affectationStatutFac($this->getEntityManager(), $numDit, $dataForm, $this->ditFactureSoumiAValidationModel, $this->ditFactureSoumiAValidation, $codeSociete);
+            $montantPdf = $this->montantpdf($factureSoumisAValidation, $statut, $orSoumisFact);
+            $estFactureConformAOr = $this->estFactureConformAOr($factureSoumisAValidation, $codeSociete);
+            $etatOr = $this->etatOr($dataForm, $this->ditFactureSoumiAValidationModel, $codeSociete);
 
-        return $this->genererPdfFacture->GenererPdfFactureSoumisAValidation($this->ditFactureSoumiAValidation, $numDevis, $montantPdf, $etatOr, $this->nomUtilisateur()['mailUtilisateur'], $interneExterne, $estFactureConformAOr);
+            return [$numDevis, $montantPdf, $estFactureConformAOr, $etatOr];
+        });
+
+        $suivi->etape('Mise à jour DIT (état facturation)', function () use ($etatOr, $numDit, $codeSociete) {
+            $this->modificationEtatFacturDit($etatOr, $numDit, $codeSociete);
+        });
+
+        return $suivi->etape('Page de garde', function () use ($numDevis, $montantPdf, $etatOr, $interneExterne, $estFactureConformAOr) {
+            return $this->genererPdfFacture->GenererPdfFactureSoumisAValidation($this->ditFactureSoumiAValidation, $numDevis, $montantPdf, $etatOr, $this->nomUtilisateur()['mailUtilisateur'], $interneExterne, $estFactureConformAOr);
+        });
     }
 
     private function estFactureConformAOr(array $factureSoumisAValidation, string $codeSociete): string

@@ -16,6 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationDOMService;
 use App\Model\dom\DomModel;
 use App\Service\FusionPdf;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
  * @Route("/rh/ordre-de-mission")
@@ -73,6 +74,8 @@ class DomTropPercuController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // suivi étape par étape de l'enregistrement (admin > historique > suivi des opérations)
+            $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_DOM_TROP_PERCU, (string) $dom->getNumeroOrdreMission());
             $domForm = $form->getData();
 
             $mode = $form->get('mode')->getData();
@@ -90,8 +93,10 @@ class DomTropPercuController extends Controller
                 ->setNumeroOrdreMissionTp($dom->getNumeroOrdreMission())
                 ->setNombreJourTp($dom->getNombreJour())
             ;
-            $this->getEntityManager()->persist($domTp);
-            $this->getEntityManager()->flush();
+            $suivi->etape('Base de données (lien trop perçu)', function () use ($domTp) {
+                $this->getEntityManager()->persist($domTp);
+                $this->getEntityManager()->flush();
+            });
 
             $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, $this->getEntityManager(), $this->fusionPdf, $user, true);
 

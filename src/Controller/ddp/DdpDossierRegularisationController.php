@@ -17,6 +17,8 @@ use App\Repository\ddp\DemandePaiementRepository;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Repository\admin\ddp\DocDemandePaiementRepository;
 use App\Service\historiqueOperation\HistoriqueOperationDDPService;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
+use App\Service\fichier\ConversionPdfService;
 
 /**
  * @Route("/compta/demande-de-paiement")
@@ -53,36 +55,55 @@ class DdpDossierRegularisationController extends Controller
         // dd($Ddp);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $numDdr = $this->autoDecrementDDP('DDR'); // decrementation du numero DDP
+            // suivi étape par étape de l'enregistrement (admin > historique > suivi des opérations)
+            $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_DDP_REGULARISATION, (string) $numDdp);
 
-            $this->modificationDernierIdApp($numDdr); // modification du dernière id dans la table applications
+            $numDdr = $suivi->etape('Numérotation', function () {
+                $numDdr = $this->autoDecrementDDP('DDR'); // decrementation du numero DDP
+
+                $this->modificationDernierIdApp($numDdr); // modification du dernière id dans la table applications
+                return $numDdr;
+            });
+            $suivi->setNumeroDocument($numDdr);
             $fileUploaderService = new FileUploaderService($this->cheminDeBase);
 
             /** Uplode le fichier */
             /** @var UploadedFile|null $file */
             $file = $form->get('pieceJoint01')->getData();
-            if ($file instanceof \Symfony\Component\HttpFoundation\File\UploadedFile) {
-                $fileName = $this->moveFichierUploder($file, $numDdp, $fileUploaderService);
-                $this->modificationBdDoc($numDdp, $numDdr);
-                $this->enregistrementUpload($numDdp, $fileName, $numDdr);
-            } else {
+            $fileName = $suivi->etape('Fichier joint et base de données', function () use ($file, $numDdp, $fileUploaderService, $numDdr) {
+                if ($file instanceof \Symfony\Component\HttpFoundation\File\UploadedFile) {
+                    $fileName = $this->moveFichierUploder($file, $numDdp, $fileUploaderService);
+                    $this->modificationBdDoc($numDdp, $numDdr);
+                    $this->enregistrementUpload($numDdp, $fileName, $numDdr);
+                    return $fileName;
+                }
                 throw new \Exception('Le fichier n\'est pas valide');
-            }
+            });
             /**GENERETE PDF (page de garde) */
             $nomPageDeGarde = $numDdr . '.pdf';
             $cheminEtNom = $this->cheminDeBase . '/' . $numDdp . '_Regul/' . $nomPageDeGarde;
             // $cheminEtNom = $this->cheminDeBase . '/' . $nomPageDeGarde;
-            $this->generatePdfDdr->genererPDF($Ddp, $this->getUserMail(), $numDdr, $cheminEtNom);
+            $suivi->etape('Page de garde', function () use ($Ddp, $numDdr, $cheminEtNom) {
+                $this->generatePdfDdr->genererPDF($Ddp, $this->getUserMail(), $numDdr, $cheminEtNom);
+            });
             /** FUSIONER LES PDFS */
             $cheminDesFichierFinale = $this->recupCheminTousLesFichier($numDdp, $fileName, $cheminEtNom);
-            $fichierConvertir = $this->ConvertirLesPdf($cheminDesFichierFinale);
+            $fichierConvertir = $suivi->etape('Conversion', function () use ($cheminDesFichierFinale) {
+                return $this->ConvertirLesPdf($cheminDesFichierFinale);
+            });
             $cheminEtNomFichierFusioner = $this->cheminDeBase . '/' . $numDdp . '_Regul/' . $numDdr . '.pdf';
-            $fileUploaderService->fusionFichers($fichierConvertir, $cheminEtNomFichierFusioner);
+            $suivi->etape('Fusion', function () use ($fileUploaderService, $fichierConvertir, $cheminEtNomFichierFusioner) {
+                $fileUploaderService->fusionFichers($fichierConvertir, $cheminEtNomFichierFusioner);
+            });
 
             /** Copie du fichier fusionner dans DW */
-            $this->copyDocuware($cheminEtNomFichierFusioner, $numDdr);
+            $suivi->etape('DocuWare', function () use ($cheminEtNomFichierFusioner, $numDdr) {
+                $this->copyDocuware($cheminEtNomFichierFusioner, $numDdr);
+            });
             /** modifier le statut de regularisation */
-            $this->modificationStatutDossierRegul($numDdp);
+            $suivi->etape('Mise à jour du statut de régularisation', function () use ($numDdp) {
+                $this->modificationStatutDossierRegul($numDdp);
+            });
             /** enregistrer dans l'historique */
             $this->historiqueOperation->sendNotificationSoumission('Les documents de régularisation a été stockée avec succès', $numDdr, 'ddp_liste', true);
         }
@@ -115,7 +136,10 @@ class DdpDossierRegularisationController extends Controller
     {
         $cheminDeFichier = $cheminEtNomFichierFusioner;
         $destinationFinal = $this->baseCheminDocuware . 'DEMANDE_DE_REGULARISATION/' . $numDdr . '.pdf';
-        copy($cheminDeFichier, $destinationFinal);
+        error_clear_last();
+        $succes = copy($cheminDeFichier, $destinationFinal);
+        // copie enregistrée dans le suivi des opérations (étape en échec si la copie échoue)
+        SuiviOperationService::copieDocuware($cheminDeFichier, $destinationFinal, $succes, 1, $succes ? null : (error_get_last()['message'] ?? 'La copie a échoué'));
     }
 
     private function modificationBdDoc(string $numDdp, string $numDdr): void
@@ -239,46 +263,8 @@ class DdpDossierRegularisationController extends Controller
 
     private function ConvertirLesPdf(array $tousLesFichersAvecChemin)
     {
-        $tousLesFichiers = [];
-        foreach ($tousLesFichersAvecChemin as $filePath) {
-            $tousLesFichiers[] = $this->convertPdfWithGhostscript($filePath);
-        }
-
-        return $tousLesFichiers;
-    }
-
-
-    private function convertPdfWithGhostscript($filePath)
-    {
-        $gsPath = 'C:\Program Files\gs\gs10.05.0\bin\gswin64c.exe'; // Modifier selon l'OS
-        $tempFile = $filePath . "_temp.pdf";
-
-        // Vérifier si le fichier existe et est accessible
-        if (!file_exists($filePath)) {
-            throw new Exception("Fichier introuvable : $filePath");
-        }
-
-        if (!is_readable($filePath)) {
-            throw new Exception("Le fichier PDF ne peut pas être lu : $filePath");
-        }
-
-        // Commande Ghostscript
-        $command = "\"$gsPath\" -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -o \"$tempFile\" \"$filePath\"";
-        // echo "Commande exécutée : $command<br>";
-
-        exec($command, $output, $returnVar);
-
-        if ($returnVar !== 0) {
-            echo "Sortie Ghostscript : " . implode("\n", $output);
-            throw new Exception("Erreur lors de la conversion du PDF avec Ghostscript");
-        }
-
-        // Remplacement du fichier
-        if (!rename($tempFile, $filePath)) {
-            throw new Exception("Impossible de remplacer l'ancien fichier PDF.");
-        }
-
-        return $filePath;
+        // conversion Ghostscript seulement pour les fichiers que FPDI ne sait pas lire (voir ConversionPdfService)
+        return (new ConversionPdfService())->convertirLesPdf($tousLesFichersAvecChemin);
     }
 
 

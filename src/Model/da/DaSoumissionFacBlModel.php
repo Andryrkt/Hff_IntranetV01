@@ -22,14 +22,25 @@ class DaSoumissionFacBlModel extends Model
     }
 
 
+    /**
+     * Récupère les références / désignations des lignes de commande fournisseur
+     * concernées par une livraison (frn_llf -> frn_cdl).
+     */
     public function getRefDesiFrnCdl($numeroLivraison, string $codeSociete)
     {
-        $statement = " SELECT TRIM(fcdl_refp) as reference
+        $statement = " SELECT DISTINCT TRIM(fcdl_refp) as reference
                 ,TRIM(fcdl_desi) as designation
                 ,fllf_numliv as numero_livraison
-            from informix.frn_cdl
-            left join Informix.frn_llf on fllf_numcde = fcdl_numcde and fcdl_soc='$codeSociete'
+            from informix.frn_llf
+            inner join informix.frn_cdl
+                on fcdl_numcde = fllf_numcde
+                and fcdl_refp = fllf_refp
+                and fcdl_constp = fllf_constp
+                and fcdl_succ = fllf_succ
+                and fcdl_soc = fllf_soc
+                and fcdl_ligne = fllf_ligne
             where fllf_numliv = '$numeroLivraison'
+            and fllf_soc = '$codeSociete'
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -38,17 +49,59 @@ class DaSoumissionFacBlModel extends Model
         return $data;
     }
 
-    public function getRefDesiSavLor($numeroLivraison, string $codeSociete)
+    /**
+     * Récupère les références / désignations des lignes d'OR (sav_lor) concernées par une livraison.
+     * NB : slor_natcm indique la nature du numéro porté par slor_numcf :
+     *  - 'C' : numéro de commande fournisseur (article pas encore réceptionné)
+     *  - 'L' : numéro de livraison (IPS le remplace à la réception)
+     */
+    public function getRefDesiSavLor($numeroCde, $numeroLivraison, string $codeSociete)
     {
-        $statement = " SELECT slor_numcf as numero_livraison 
-                ,TRIM(slor_refp) as reference 
-                ,TRIM(slor_desi) as designation 
-                from Informix.sav_lor 
-                where slor_numcf ='$numeroLivraison' and slor_soc='$codeSociete'
+        $statement = " SELECT slor_numcf as numero_livraison
+                ,TRIM(slor_refp) as reference
+                ,TRIM(slor_desi) as designation
+                from Informix.sav_lor
+                where slor_soc = '$codeSociete'
+                and (
+                    (slor_natcm = 'C' and slor_numcf = '$numeroCde')
+                    or (slor_natcm = 'L' and slor_numcf = '$numeroLivraison')
+                )
         ";
 
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data;
+    }
+
+    /**
+     * Diagnostic d'une livraison quand aucun article livré n'a été retrouvé :
+     * nombre de lignes IPS (livraison, commande, lignes d'OR réceptionnées sur la livraison) et références.
+     */
+    public function getDiagnosticLivraison(string $numeroLivraison, string $numeroCde, string $codeSociete): array
+    {
+        $statement = " SELECT
+                (SELECT COUNT(*) FROM informix.frn_llf WHERE fllf_numliv = '$numeroLivraison') as nb_lignes_livraison,
+                (SELECT COUNT(*) FROM informix.frn_llf WHERE fllf_numliv = '$numeroLivraison' AND fllf_soc = '$codeSociete') as nb_lignes_livraison_societe,
+                (SELECT COUNT(*) FROM informix.frn_llf WHERE fllf_numliv = '$numeroLivraison' AND fllf_numcde = '$numeroCde') as nb_lignes_livraison_cde,
+                (SELECT COUNT(*) FROM informix.frn_cdl WHERE fcdl_numcde = '$numeroCde' AND fcdl_soc = '$codeSociete') as nb_lignes_cde,
+                (SELECT COUNT(*) FROM informix.sav_lor WHERE slor_numcf = '$numeroLivraison' AND slor_soc = '$codeSociete') as nb_lignes_or
+            FROM systables WHERE tabid = 1
+        ";
+        $result = $this->connect->executeQuery($statement);
+        $data   = $this->convertirEnUtf8($this->connect->fetchResults($result))[0] ?? [];
+
+        $statement = " SELECT DISTINCT TRIM(fllf_constp) || ' ' || TRIM(fllf_refp) as article
+            FROM informix.frn_llf WHERE fllf_numliv = '$numeroLivraison'
+        ";
+        $result = $this->connect->executeQuery($statement);
+        $data['articles_livres'] = array_column($this->convertirEnUtf8($this->connect->fetchResults($result)), 'article');
+
+        $statement = " SELECT DISTINCT TRIM(slor_constp) || ' ' || TRIM(slor_refp) as article
+            FROM informix.sav_lor WHERE slor_numcf = '$numeroLivraison' AND slor_soc = '$codeSociete'
+        ";
+        $result = $this->connect->executeQuery($statement);
+        $data['articles_or'] = array_column($this->convertirEnUtf8($this->connect->fetchResults($result)), 'article');
 
         return $data;
     }
