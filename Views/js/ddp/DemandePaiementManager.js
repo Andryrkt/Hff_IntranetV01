@@ -352,6 +352,15 @@ export class DemandePaiementManager {
 
       this.recupFichier(facturesCorrespondantes);
 
+      // Factures (n° et montant) par commande, pour le tableau des montants par commande
+      this.facturesParCommande = new Map();
+      facturesCorrespondantes.forEach((f) => {
+        if (!this.facturesParCommande.has(f.Numero_PO)) {
+          this.facturesParCommande.set(f.Numero_PO, []);
+        }
+        this.facturesParCommande.get(f.Numero_PO).push(f);
+      });
+
       // Le select ne contient que les commandes des factures choisies, toutes
       // sélectionnées ; un seul "change" déclenche le chargement des PDF.
       const selectCommande = this.elements.numCommandeInput;
@@ -986,12 +995,64 @@ export class DemandePaiementManager {
         input.value = formatNumberSpecial(input.value);
       });
 
+      // une commande peut correspondre à plusieurs factures : une ligne par facture dans la cellule
+      const factures = this.facturesParCommande?.get(numCde) || [];
       const tr = montantsCommandeBody.insertRow();
       tr.insertCell().textContent = numCde;
+      const celluleFacture = tr.insertCell();
+      const celluleMontant = tr.insertCell();
+      celluleMontant.className = "text-end";
+      factures.forEach((f) => {
+        celluleFacture.appendChild(document.createElement("div")).textContent =
+          f.Numero_Facture;
+        celluleMontant.appendChild(document.createElement("div")).textContent =
+          formatNumberSpecial(Number(f.Montant_Facture || 0).toFixed(2));
+      });
+      const celluleDdpa = tr.insertCell();
+      celluleDdpa.className = "text-end";
+      const celluleSolde = tr.insertCell();
+      celluleSolde.className = "text-end";
+      const celluleDdp = tr.insertCell();
+      celluleDdp.className = "text-center fw-bold";
       tr.insertCell().appendChild(input);
+
+      this.chargerSituationAvance(numCde).then((situation) => {
+        if (!situation) return;
+        const format = (montant) =>
+          formatNumberSpecial(Number(montant || 0).toFixed(2));
+        celluleDdpa.textContent = `${format(situation.ratioDdpa)}%`;
+        celluleSolde.textContent = format(situation.soldeAvance);
+        celluleDdp.textContent = situation.ddpAGenerer;
+      });
     });
 
     tableauMontantsCommande.classList.toggle("d-none", numCdes.length === 0);
+  }
+
+  /**
+   * Situation des DDPA d'une commande (ratio DDPA, solde avance, DDP à
+   * générer), mise en cache : le tableau est reconstruit à chaque changement.
+   */
+  chargerSituationAvance(numCde) {
+    this.situationsAvance ??= new Map();
+    if (!this.situationsAvance.has(numCde)) {
+      const url = this.config.urls.situationAvanceCommande.replace(
+        ":numCde",
+        encodeURIComponent(numCde),
+      );
+      this.situationsAvance.set(
+        numCde,
+        this.fetchManager.get(url).catch((error) => {
+          console.error(
+            "Erreur lors de la récupération de la situation avance :",
+            error,
+          );
+          this.situationsAvance.delete(numCde);
+          return null;
+        }),
+      );
+    }
+    return this.situationsAvance.get(numCde);
   }
 
   getNumCdesSelectionnees() {

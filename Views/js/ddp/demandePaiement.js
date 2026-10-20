@@ -48,6 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
       montantFacture:
         "api/montant-facture/:numFournisseur/:facturesString/:typeId",
       montantCommandeHt: "api/montant-commande-ht/:numCde",
+      situationAvanceCommande: "api/situation-avance-commande/:numCde",
       listeDoc: "api/liste-doc/:numero",
       recupererFichier: `${baseUrl}/api/recuperer-fichier`,
       fichiersCommandeFournisseur: "api/fichiers-commande-fournisseur/:numeroCommande",

@@ -10,6 +10,7 @@ error_reporting(E_ALL);
 use App\Constants\ddp\TypeDemandePaiementConstants;
 use App\Controller\Controller;
 use App\Controller\Traits\ddp\DdpTrait;
+use App\Entity\admin\ddp\TypeDemande;
 use App\Entity\ddp\DemandePaiement;
 use App\Entity\dw\DwCommande;
 use App\Entity\dw\DwBcClientNegoce;
@@ -222,6 +223,36 @@ class InfoFournisseurApi extends Controller
             'ratioDejaValide'   => $ratioDejaValide,
             'commandeSoldee'    => $ratioAvanceValide >= 100 - 0.01,
             'historique'        => $this->historiqueDdpCommande($numCde),
+        ]);
+    }
+
+    /**
+     * Paiement après arrivage : situation des demandes de paiement à l'avance
+     * d'une commande (ratio DDPA, solde avance) et type de DDP à générer :
+     * BAP si 0 % DDPA, DDPR si 100 %, DDPL entre les deux.
+     *
+     * @Route("/api/situation-avance-commande/{numCde}", name="api_situation_avance_commande")
+     */
+    public function situationAvanceCommande(string $numCde)
+    {
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
+        $this->libererSession();
+
+        $situation = $this->demandePaiementRepository->getSituationAvanceParCommande($numCde, $codeSociete);
+        $ratio = $situation['ratioDdpa'];
+        if ($ratio <= 0.01) {
+            $typeId = TypeDemandePaiementConstants::ID_BON_A_PAYER;
+        } elseif ($ratio >= 100 - 0.01) {
+            $typeId = TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_REGULE;
+        } else {
+            $typeId = TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE;
+        }
+        $typeDemande = $this->getEntityManager()->getRepository(TypeDemande::class)->find($typeId);
+
+        header("Content-type:application/json");
+        echo json_encode($situation + [
+            'ddpAGenerer' => $typeDemande ? $typeDemande->getCode() : '',
         ]);
     }
 

@@ -7,6 +7,7 @@ use App\Constants\ddp\TypeDemandePaiementConstants;
 use App\Dto\Da\ddp\BapSearchDto;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\ddp\DemandePaiement;
+use App\Entity\ddp\DemandePaiementCommande;
 use App\Service\TableauEnStringService;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query;
@@ -372,6 +373,61 @@ class DemandePaiementRepository extends EntityRepository
         }
 
         return $cumul;
+    }
+
+    /**
+     * Situation des demandes de paiement à l'avance (DDPA) validées d'une commande :
+     * - ratioDdpa : cumul des % des DDPA (0 sans DDPA) ;
+     * - soldeAvance : montant total du commande (dernière DDPA, 0 sans DDPA)
+     *   - (somme des montants facture proforma des DDPA + montant commande déjà payé
+     *   par les demandes validées de type différent de l'avance).
+     *
+     * @return array{ratioDdpa: float, soldeAvance: float}
+     */
+    public function getSituationAvanceParCommande(string $numeroCde, string $codeSociete): array
+    {
+        $ratioDdpa = 0.0;
+        $sommeProforma = 0.0;
+        $montantTotalCommande = 0.0;
+
+        $ddpas = $this->ddpValideParCommandeQueryBuilder($numeroCde, $codeSociete, TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE)
+            ->orderBy('d.numeroDdp', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        /** @var DemandePaiement $ddpa */
+        foreach ($ddpas as $ddpa) {
+            $ratioDdpa += $ddpa->getRatioMontantTotalCommande();
+            // montant à payer d'une DDPA = montant facture proforma
+            $sommeProforma += (float) $ddpa->getMontantAPayers();
+            $montantTotalCommande = (float) $ddpa->getMontantTotalCommande() ?: $montantTotalCommande;
+        }
+
+        $montantDejaPaye = (float) $this->getEntityManager()->createQueryBuilder()
+            ->select('SUM(c.montantCommandeAPayer)')
+            ->from(DemandePaiementCommande::class, 'c')
+            ->join('c.demandePaiement', 'd')
+            ->where('c.numeroCommande = :numCde')
+            ->andWhere('d.statut IN (:statutsValides)')
+            ->andWhere('d.codeSociete = :codeSociete')
+            ->andWhere('IDENTITY(d.typeDemandeId) <> :typeAvance')
+            ->andWhere('d.numeroVersion = (
+                SELECT MAX(d2.numeroVersion) FROM ' . DemandePaiement::class . ' d2
+                WHERE d2.numeroDdp = d.numeroDdp
+            )')
+            ->setParameters([
+                'numCde'         => $numeroCde,
+                'statutsValides' => [StatutConstants::VALIDE, StatutConstants::TRANSMIS_COMPTA],
+                'codeSociete'    => $codeSociete,
+                'typeAvance'     => TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE,
+            ])
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return [
+            'ratioDdpa'   => $ratioDdpa,
+            'soldeAvance' => $montantTotalCommande - ($sommeProforma + $montantDejaPaye),
+        ];
     }
 
     /**
