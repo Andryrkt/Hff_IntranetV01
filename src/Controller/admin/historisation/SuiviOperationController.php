@@ -14,6 +14,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class SuiviOperationController extends Controller
 {
+    private const LIMITES_POSSIBLES = [50, 100, 200, 500];
+
     /**
      * @Route("/admin/suivi-operation", name="suivi_operation_index")
      */
@@ -28,12 +30,16 @@ class SuiviOperationController extends Controller
         $idHistorique      = $request->query->getInt('historique') ?: null;
         $dateDebut         = $this->creerDate($request->query->get('date_debut'));
         $dateFin           = $this->creerDate($request->query->get('date_fin'));
+        // valeurs imposées : la limite est injectée dans le TOP de la requête des modifications en base
+        $limite            = in_array($request->query->getInt('limite'), self::LIMITES_POSSIBLES, true) ? $request->query->getInt('limite') : 100;
 
         $repository = $this->getEntityManager()->getRepository(HistoriqueOperationEtape::class);
 
         return $this->render('admin/historisation/suivi-operation/index.html.twig', [
-            'suivis'            => $repository->rechercherSuivis($recherche, $typeOperation, $problemeSeulement, $dateDebut, $dateFin, $idHistorique, $nonLuSeulement),
-            'modificationsBdd'  => $repository->rechercherModificationsBdd($recherche, $dateDebut, $dateFin),
+            'suivis'            => $repository->rechercherSuivis($recherche, $typeOperation, $problemeSeulement, $dateDebut, $dateFin, $idHistorique, $nonLuSeulement, $limite),
+            'modificationsBdd'  => $repository->rechercherModificationsBdd($recherche, $dateDebut, $dateFin, $limite),
+            'limite'            => $limite,
+            'limitesPossibles'  => self::LIMITES_POSSIBLES,
             'typesOperation'   => SuiviOperationService::LIBELLES_TYPE,
             'recherche'         => $recherche,
             'typeOperation'    => $typeOperation,
