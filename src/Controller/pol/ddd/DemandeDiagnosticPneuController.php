@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\lienGenerique;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 
 /**
@@ -93,6 +94,8 @@ class DemandeDiagnosticPneuController extends Controller
             /** @var DemandeDiagnosticPneu $demande */
             $demande = $form->getData();
             $uploadedFiles = $form->get('piecesJointes')->getData();
+            // suivi étape par étape de l'enregistrement (admin > historique > suivi des opérations)
+            SuiviOperationService::demarrer(SuiviOperationService::TYPE_DDD);
             // ---- Sauvegarde via une méthode interne ----
             try {
                 $this->saveDemande($demande, $uploadedFiles);
@@ -109,33 +112,54 @@ class DemandeDiagnosticPneuController extends Controller
     private function saveDemande(DemandeDiagnosticPneu $demande,  $uploadedFiles): void
     {
         $em = $this->getEntityManager();
-        $em->beginTransaction();
         try {
-            // Génération du numéro de demande
-            $numero = $this->demandeDiagnosticPneuModel->genererNumeroDemande($em);
-            $demande->setNumeroDemande($numero);
+            // l'étape est ouverte avant la transaction : un rollback n'efface pas le suivi
+            $numero = SuiviOperationService::suivre('Numérotation et base de données', function () use ($em, $demande) {
+                $em->beginTransaction();
+                try {
+                    // Génération du numéro de demande
+                    $numero = $this->demandeDiagnosticPneuModel->genererNumeroDemande($em);
+                    $demande->setNumeroDemande($numero);
 
-            // ---- Gestion des pièces jointes ---- 
-            $ligne = 1;
-            foreach ($demande->getDiagnosticPneus() as $pneu) {
-                $pneu->setNumeroLigne($ligne++);
-                $pneu->setDemande($demande);
-                $pneu->setNumeroDemande($numero);
+                    // ---- Gestion des pièces jointes ----
+                    $ligne = 1;
+                    foreach ($demande->getDiagnosticPneus() as $pneu) {
+                        $pneu->setNumeroLigne($ligne++);
+                        $pneu->setDemande($demande);
+                        $pneu->setNumeroDemande($numero);
+                    }
+                    $em->persist($demande);
+                    $em->flush();
+                    $em->commit();
+                } catch (\Exception $e) {
+                    $em->rollback();
+                    throw $e;
+                }
+
+                return $numero;
+            });
+            if (SuiviOperationService::courant() !== null) {
+                SuiviOperationService::courant()->setNumeroDocument((string) $numero);
             }
-            $em->persist($demande);
-            $em->flush();
-            $em->commit();
 
             if ($uploadedFiles) {
-                $this->handlePiecesJointes($uploadedFiles, $demande);
+                SuiviOperationService::suivre('Pièces jointes', function () use ($uploadedFiles, $demande) {
+                    $this->handlePiecesJointes($uploadedFiles, $demande);
+                });
             }
 
             // Envoye mail au atelier
-            $this->envoyerMailAtelier($demande);
+            SuiviOperationService::suivre("Mail à l'atelier", function () use ($demande) {
+                $this->envoyerMailAtelier($demande);
+            });
             // Historique (à décommenter après validation)
             $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $demande->getNumeroDemande(), 'demande_diagnostic_pneu_liste', true);
         } catch (\Exception $e) {
-            $em->rollback();
+            // la transaction a déjà été annulée si l'erreur vient de l'enregistrement ;
+            // après le commit (pièces jointes, mail) il n'y a plus de transaction à annuler
+            if ($em->getConnection()->isTransactionActive()) {
+                $em->rollback();
+            }
             $this->historiqueOperation->sendNotificationCreation($e->getMessage(), '-', 'demande_diagnostic_pneu_liste');
             throw new \RuntimeException('Erreur lors de la sauvegarde : ' . $e->getMessage(), 0, $e);
         }

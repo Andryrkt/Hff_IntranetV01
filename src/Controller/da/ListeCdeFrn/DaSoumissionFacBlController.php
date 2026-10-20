@@ -9,6 +9,7 @@ use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDto;
 use App\Entity\da\DaSoumissionFacBl;
 use App\Factory\da\CdeFrnDto\DaSoumissionFacBlFactory;
 use App\Form\da\DaSoumissionFacBlType;
+use App\Service\da\CdeFrn\FacBl\ControleSoumissionFacBlService;
 use App\Service\da\CdeFrn\FacBl\TraitementSoumissionBAPService;
 use App\Service\da\CdeFrn\FacBl\TraitementSoumissionDDPLService;
 use App\Service\da\CdeFrn\FacBl\TraitementSoumissionfacBlService;
@@ -17,6 +18,7 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
  * @Route("/demande-appro")
@@ -28,17 +30,20 @@ class DaSoumissionFacBlController extends Controller
     private TraitementSoumissionDDPLService $traitementSoumissionDDPLService;
     private TraitementSoumissionBAPService $traitementSoumissionBAPService;
     private TraitementSoumissionfacBlService $traitementSoumissionfacBlService;
+    private ControleSoumissionFacBlService $controleSoumissionFacBlService;
 
     public function __construct(
         DaSoumissionFacBlFactory $daSoumissionFacBlFactory,
         TraitementSoumissionDDPLService $traitementSoumissionDDPLService,
         TraitementSoumissionBAPService $traitementSoumissionBAPService,
-        TraitementSoumissionfacBlService $traitementSoumissionfacBlService
+        TraitementSoumissionfacBlService $traitementSoumissionfacBlService,
+        ControleSoumissionFacBlService $controleSoumissionFacBlService
     ) {
         $this->daSoumissionFacBlFactory = $daSoumissionFacBlFactory;
         $this->traitementSoumissionDDPLService = $traitementSoumissionDDPLService;
         $this->traitementSoumissionBAPService = $traitementSoumissionBAPService;
         $this->traitementSoumissionfacBlService = $traitementSoumissionfacBlService;
+        $this->controleSoumissionFacBlService = $controleSoumissionFacBlService;
     }
 
     /**
@@ -98,6 +103,8 @@ class DaSoumissionFacBlController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var DaSoumissionFacBlDto $dto */
             $dto = $form->getData();
+            // suivi étape par étape de la soumission (admin > historique > suivi des opérations)
+            SuiviOperationService::demarrer(SuiviOperationService::TYPE_DA_FAC_BL, $dto->numeroCde);
 
             if (!$dto->soumissionDdpAFaire && ($dto->typeDdp === 'regul' || $dto->typeDdp === 'ddpl')) {
                 $sucess = $this->traitementSoumissionDDPLService->traitementSoumissionDDPL($form, $dto);
@@ -108,6 +115,9 @@ class DaSoumissionFacBlController extends Controller
             }
 
             if ($sucess) {
+                /** CONTRÔLE DE LA MISE À JOUR DA dans le suivi (ALERTE si est_facture_bl_soumis n'a pas été mis à jour) */
+                $this->controleSoumissionFacBlService->controler($dto);
+
                 /** HISTORISATION */
                 $message = 'Le document est soumis pour validation';
                 $criteria = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn');

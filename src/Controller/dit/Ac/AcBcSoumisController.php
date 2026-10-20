@@ -22,6 +22,8 @@ use App\Repository\dit\BcSoumisRepository;
 use App\Repository\dit\DitDevisSoumisAValidationRepository;
 use App\Repository\dit\DitRepository;
 use App\Service\historiqueOperation\HistoriqueOperationBCService;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
+use App\Service\fichier\ConversionPdfService;
 
 /**
  * @Route("/atelier/demande-intervention")
@@ -81,42 +83,64 @@ class AcBcSoumisController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $acSoumis = $this->initialisation($devis, $numDit, $codeSociete);
-            $numBc = $acSoumis->getNumeroBc(); // recupère le numero bon de commande
-            $numDevis = $acSoumis->getNumeroDevis(); // recupère le numero devis
-            $numClient = $this->ditRepository->findNumClient($numDit, $codeSociete); //recupère le numero cline
-            $numeroVersionMax = $this->bcRepository->findNumeroVersionMax($numBc, $codeSociete); // récupération de la version maximal du numero version
-            // ajouter les données nécessaire pour l'enregistrement dans la table bc_soumis
-            $bcSoumis = $this->ajoutDonneeBc($acSoumis, $numeroVersionMax);
+            // suivi étape par étape de la soumission (admin > historique > suivi des opérations)
+            $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_AC_BC);
+
+            [$acSoumis, $bcSoumis, $numBc, $numDevis, $numClient] = $suivi->etape('Préparation des données', function () use ($devis, $numDit, $codeSociete) {
+                $acSoumis = $this->initialisation($devis, $numDit, $codeSociete);
+                $numBc = $acSoumis->getNumeroBc(); // recupère le numero bon de commande
+                $numDevis = $acSoumis->getNumeroDevis(); // recupère le numero devis
+                $numClient = $this->ditRepository->findNumClient($numDit, $codeSociete); //recupère le numero cline
+                $numeroVersionMax = $this->bcRepository->findNumeroVersionMax($numBc, $codeSociete); // récupération de la version maximal du numero version
+                // ajouter les données nécessaire pour l'enregistrement dans la table bc_soumis
+                $bcSoumis = $this->ajoutDonneeBc($acSoumis, $numeroVersionMax);
+
+                return [$acSoumis, $bcSoumis, $numBc, $numDevis, $numClient];
+            });
+            $suivi->setNumeroDocument((string) $numBc);
 
             /** CREATION , FUSION, ENVOIE DW du PDF */
             $acSoumis->setNumeroVersion($bcSoumis->getNumVersion());
             $numClientBcDevis = $numClient . '_' . $numDevis;
             $numeroVersionMaxDit = $this->bcRepository->findNumeroVersionMaxParDit($numDit, $codeSociete) + 1;
-            $suffix = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis, $codeSociete)[0]['retour'];
+            $suffix = $suivi->etape('Constructeur', function () use ($numDevis, $codeSociete) {
+                return $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis, $codeSociete)[0]['retour'];
+            });
             $nomFichier = 'bc_' . $numClientBcDevis . '-' . $numeroVersionMaxDit . '#' . $suffix . '.pdf';
 
             //crée le pdf
-            $this->genererPdfAc->genererPdfAc($acSoumis, $numClientBcDevis, $numeroVersionMaxDit, $nomFichier);
+            $suivi->etape('Page de garde', function () use ($acSoumis, $numClientBcDevis, $numeroVersionMaxDit, $nomFichier) {
+                $this->genererPdfAc->genererPdfAc($acSoumis, $numClientBcDevis, $numeroVersionMaxDit, $nomFichier);
+            });
 
             //fusionne le pdf
             $chemin = $_ENV['BASE_PATH_FICHIER']  . '/dit/ac_bc/';
             $fileUploader = new FileUploaderService($chemin);
             $file = $form->get('pieceJoint01')->getData();
 
-            $uploadedFilePath = $fileUploader->uploadFileSansName($file, $nomFichier);
+            $uploadedFilePath = $suivi->etape('Fichier joint', function () use ($fileUploader, $file, $nomFichier) {
+                return $fileUploader->uploadFileSansName($file, $nomFichier);
+            });
             $uploadedFiles = $fileUploader->insertFileAtPosition([$uploadedFilePath], $chemin . $nomFichier, count([$uploadedFilePath]));
 
-            $this->ConvertirLesPdf($uploadedFiles); // très important pour les pdf externe
+            $suivi->etape('Conversion', function () use ($uploadedFiles) {
+                $this->ConvertirLesPdf($uploadedFiles); // très important pour les pdf externe
+            });
 
-            $fileUploader->fusionFichers($uploadedFiles,  $chemin . $nomFichier);
+            $suivi->etape('Fusion', function () use ($fileUploader, $uploadedFiles, $chemin, $nomFichier) {
+                $fileUploader->fusionFichers($uploadedFiles,  $chemin . $nomFichier);
+            });
 
             //envoie le pdf dans docuware
-            $this->genererPdfAc->copyToDWAcSoumis($nomFichier); // copier le fichier dans docuware
+            $suivi->etape('DocuWare', function () use ($nomFichier) {
+                $this->genererPdfAc->copyToDWAcSoumis($nomFichier); // copier le fichier dans docuware
+            });
 
             /** Envoie des information du bc dans le table bc_soumis */
             $bcSoumis->setNomFichier($nomFichier);
-            $this->envoieBcDansBd($bcSoumis);
+            $suivi->etape('Base de données', function () use ($bcSoumis) {
+                $this->envoieBcDansBd($bcSoumis);
+            });
 
             $message = 'Le bon de commande et l\'accusé de reception  ont été soumis avec succès';
             $this->historiqueOperation->sendNotificationCreation($message, $numBc, 'dit_index', true);
@@ -135,46 +159,8 @@ class AcBcSoumisController extends Controller
 
     private function ConvertirLesPdf(array $tousLesFichersAvecChemin)
     {
-        $tousLesFichiers = [];
-        foreach ($tousLesFichersAvecChemin as $filePath) {
-            $tousLesFichiers[] = $this->convertPdfWithGhostscript($filePath);
-        }
-
-
-        return $tousLesFichiers;
-    }
-
-    private function convertPdfWithGhostscript($filePath)
-    {
-        $gsPath = 'C:\Program Files\gs\gs10.05.0\bin\gswin64c.exe'; // Modifier selon l'OS
-        $tempFile = $filePath . "_temp.pdf";
-
-        // Vérifier si le fichier existe et est accessible
-        if (!file_exists($filePath)) {
-            throw new Exception("Fichier introuvable : $filePath");
-        }
-
-        if (!is_readable($filePath)) {
-            throw new Exception("Le fichier PDF ne peut pas être lu : $filePath");
-        }
-
-        // Commande Ghostscript
-        $command = "\"$gsPath\" -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -o \"$tempFile\" \"$filePath\"";
-        // echo "Commande exécutée : $command<br>";
-
-        exec($command, $output, $returnVar);
-
-        if ($returnVar !== 0) {
-            echo "Sortie Ghostscript : " . implode("\n", $output);
-            throw new Exception("Erreur lors de la conversion du PDF avec Ghostscript");
-        }
-
-        // Remplacement du fichier
-        if (!rename($tempFile, $filePath)) {
-            throw new Exception("Impossible de remplacer l'ancien fichier PDF.");
-        }
-
-        return $filePath;
+        // conversion Ghostscript seulement pour les fichiers que FPDI ne sait pas lire (voir ConversionPdfService)
+        return (new ConversionPdfService())->convertirLesPdf($tousLesFichersAvecChemin);
     }
     // private function pieceGererMagasinConstructeur($numDevis)
     // {

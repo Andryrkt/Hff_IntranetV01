@@ -15,6 +15,7 @@ use App\Service\da\DaConsumptionHistory;
 use App\Service\da\DocRattacheService;
 use App\Service\Admin\UrlIdCipher;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
  * @Route("/demande-appro")
@@ -87,25 +88,49 @@ class DaValidationReapproMensuelController extends Controller
         if ($formReappro->isSubmitted() && $formReappro->isValid()) {
             // ✅ Récupérer les valeurs des champs caché
             $observation = $formReappro->getData()->getObservation();
+            $refus = $request->request->has('refuser');
+            // suivi étape par étape de la validation / du refus (admin > historique > suivi des opérations)
+            $suivi = SuiviOperationService::demarrer(
+                $refus ? SuiviOperationService::TYPE_DA_REFUS_REAPPRO_MENSUEL : SuiviOperationService::TYPE_DA_VALIDATION_REAPPRO_MENSUEL,
+                $demandeAppro->getNumeroDemandeAppro()
+            );
 
-            if ($observation) $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $observation);
+            if ($observation) {
+                $suivi->etape('Observation', function () use ($demandeAppro, $observation) {
+                    $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $observation);
+                });
+            }
 
-            if ($request->request->has('refuser')) {
-                $this->refuserDemande($demandeAppro);
+            if ($refus) {
+                $suivi->etape('Refus (base de données)', function () use ($demandeAppro) {
+                    $this->refuserDemande($demandeAppro);
+                });
 
-                $this->emailDaService->envoyerMailValidationReappro($demandeAppro, $observation ?? '-', $this->getUser(), false);
+                $suivi->etape('Mail de refus', function () use ($demandeAppro, $observation) {
+                    $this->emailDaService->envoyerMailValidationReappro($demandeAppro, $observation ?? '-', $this->getUser(), false);
+                });
 
                 $notification = [
                     'type'    => 'success',
                     'message' => 'La demande de réappro a été refusé avec succès.',
                 ];
             } elseif ($request->request->has('valider')) {
-                $this->validerDemande($demandeAppro);
-                $this->creationPDFReappro($demandeAppro, $observations, $monthsList, $dataHistoriqueConsommation);
-                $this->copyPDFToDW($demandeAppro->getNumeroDemandeAppro());
-                $this->ajouterDansDaSoumisAValidation($demandeAppro);
+                $suivi->etape('Validation (base de données)', function () use ($demandeAppro) {
+                    $this->validerDemande($demandeAppro);
+                });
+                $suivi->etape('PDF de la DA', function () use ($demandeAppro, $observations, $monthsList, $dataHistoriqueConsommation) {
+                    $this->creationPDFReappro($demandeAppro, $observations, $monthsList, $dataHistoriqueConsommation);
+                });
+                $suivi->etape('DocuWare', function () use ($demandeAppro) {
+                    $this->copyPDFToDW($demandeAppro->getNumeroDemandeAppro());
+                });
+                $suivi->etape('Base de données (DA soumise à validation)', function () use ($demandeAppro) {
+                    $this->ajouterDansDaSoumisAValidation($demandeAppro);
+                });
 
-                $this->emailDaService->envoyerMailValidationReappro($demandeAppro, $observation ?? '-', $this->getUser());
+                $suivi->etape('Mail de validation', function () use ($demandeAppro, $observation) {
+                    $this->emailDaService->envoyerMailValidationReappro($demandeAppro, $observation ?? '-', $this->getUser());
+                });
 
                 $notification = [
                     'type'    => 'success',

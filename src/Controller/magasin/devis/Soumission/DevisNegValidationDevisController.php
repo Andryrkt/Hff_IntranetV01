@@ -17,6 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\PdfConversionTrait;
 use App\Service\fichier\TraitementDeFichier;
 use App\Service\genererPdf\magasin\devis\GeneratePdfDeviMagasinVp;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
  * @Route("/magasin/dematerialisation")
@@ -78,30 +79,46 @@ class DevisNegValidationDevisController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $dto = $form->getData();
+            // suivi étape par étape de la soumission (admin > historique > suivi des opérations)
+            $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_DEVIS_NEG_VALIDATION, $dto->numeroDevis);
 
-            $dto = ValidationDevisFactory::CreateBeforeSoumission($dto, $this->getUserName(), $this->getUserMail());
+            $dto = $suivi->etape('Préparation des données', function () use ($dto) {
+                return ValidationDevisFactory::CreateBeforeSoumission($dto, $this->getUserName(), $this->getUserMail());
+            });
 
-            if ((new ValidationSoumissionValidationDevis())->validateSubmittedFile($form, $dto->remoteUrlCourt, $dto->numeroDevis)) return;
+            if ($suivi->etape('Contrôle du fichier', function () use ($form, $dto) {
+                return (new ValidationSoumissionValidationDevis())->validateSubmittedFile($form, $dto->remoteUrlCourt, $dto->numeroDevis);
+            })) return;
 
-            /** 
+            /**
              * Enregistrement de fichier uploder
-             * @var array $nomEtCheminFichiersEnregistrer 
+             * @var array $nomEtCheminFichiersEnregistrer
              * @var string $nomAvecCheminFichier
              * @var string $nomFichier
              */
-            [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $dto->numeroDevis, $dto->numeroVersion, $dto->suffix, explode('@', $dto->userMail)[0], $dto->remoteUrlCourt);
+            [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier] = $suivi->etape('Fichiers joints', function () use ($form, $dto) {
+                return $this->enregistrementFichier($form, $dto->numeroDevis, $dto->numeroVersion, $dto->suffix, explode('@', $dto->userMail)[0], $dto->remoteUrlCourt);
+            });
 
             /** @var array $nomEtCheminFichierConvertie fusions des fichiers */
-            $nomEtCheminFichierConvertie = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
-            $this->traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);
+            $nomEtCheminFichierConvertie = $suivi->etape('Conversion', function () use ($nomEtCheminFichiersEnregistrer) {
+                return $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
+            });
+            $suivi->etape('Fusion', function () use ($nomEtCheminFichierConvertie, $nomAvecCheminFichier) {
+                $this->traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);
+            });
 
             // Enregistrement de la soumission en base de données
             $soumissionModel = new SoumissionModel();
-            $soumissionModel->enregistrerSoumissionValidationDevis($dto, $nomFichier);
+            $suivi->etape('Base de données', function () use ($soumissionModel, $dto, $nomFichier) {
+                $soumissionModel->enregistrerSoumissionValidationDevis($dto, $nomFichier);
+            });
 
             // copier des fichiers uploder dans DOCUWARE
             $generatePdfDevisMagasin = new GeneratePdfDeviMagasinVp();
-            $generatePdfDevisMagasin->copyToDWDevisMagasin($nomFichier, $dto->numeroDevis);
+            $suivi->etape('DocuWare', function () use ($generatePdfDevisMagasin, $nomFichier, $dto) {
+                $generatePdfDevisMagasin->copyToDWDevisMagasin($nomFichier, $dto->numeroDevis);
+            });
 
             //HISTORISATION DE L'OPERATION
             $message = "la validation du devis numero : " . $dto->numeroDevis . " a été envoyée avec succès .";

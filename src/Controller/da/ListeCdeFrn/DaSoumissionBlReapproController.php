@@ -18,6 +18,8 @@ use App\Factory\da\CdeFrnDto\DaSoumissionBlReapproFactory;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
 use Symfony\Component\Form\FormInterface;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
+use App\Service\fichier\ConversionPdfService;
 
 /**
  * @Route("/demande-appro")
@@ -63,25 +65,39 @@ class DaSoumissionBlReapproController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $dto = $form->getData();
+            // suivi étape par étape de la soumission (admin > historique > suivi des opérations)
+            $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_DA_BL_REAPPRO, $numCde);
 
             /** ENREGISTREMENT DE FICHIER */
-            $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
+            $nomDeFichiers = $suivi->etape('Fichiers joints', function () use ($form, $numCde, $numDa) {
+                return $this->enregistrementFichier($form, $numCde, $numDa);
+            });
 
             /** FUSION DES PDF */
             $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
-            $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemins);
+            $fichierConvertir = $suivi->etape('Conversion', function () use ($nomFichierAvecChemins) {
+                return $this->ConvertirLesPdf($nomFichierAvecChemins);
+            });
             $nomPdfFusionner =  'BlReappro_' . $numCde . '#' . $numDa . '_' . $dto->numeroFactureReappro . '.pdf';
             $nomAvecCheminPdfFusionner = $this->cheminDeBase . $numDa . '/' . $nomPdfFusionner;
-            $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
+            $suivi->etape('Fusion', function () use ($fichierConvertir, $nomAvecCheminPdfFusionner) {
+                $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
+            });
 
             /** COPIER DANS DW */
-            $this->generatePdf->copyToDWBLReappro($nomPdfFusionner, $numDa);
+            $suivi->etape('DocuWare', function () use ($nomPdfFusionner, $numDa) {
+                $this->generatePdf->copyToDWBLReappro($nomPdfFusionner, $numDa);
+            });
 
             /** modification du table da_valider */
-            $this->modificationDaAfficher($numDa, $numCde, $codeSociete);
+            $suivi->etape('Mise à jour DA', function () use ($numDa, $numCde, $codeSociete) {
+                $this->modificationDaAfficher($numDa, $numCde, $codeSociete);
+            });
 
             /** creation de ligne dans le table da_soumission_facture_bl */
-            $this->creationFacBl($dto, $nomPdfFusionner);
+            $suivi->etape('Base de données', function () use ($dto, $nomPdfFusionner) {
+                $this->creationFacBl($dto, $nomPdfFusionner);
+            });
 
             /** HISTORISATION */
             $message = 'Le document est soumis pour validation';
@@ -207,45 +223,7 @@ class DaSoumissionBlReapproController extends Controller
 
     private function ConvertirLesPdf(array $tousLesFichersAvecChemin)
     {
-        $tousLesFichiers = [];
-        foreach ($tousLesFichersAvecChemin as $filePath) {
-            $tousLesFichiers[] = $this->convertPdfWithGhostscript($filePath);
-        }
-
-        return $tousLesFichiers;
-    }
-
-
-    private function convertPdfWithGhostscript($filePath)
-    {
-        $gsPath = 'C:\Program Files\gs\gs10.05.0\bin\gswin64c.exe'; // Modifier selon l'OS
-        $tempFile = $filePath . "_temp.pdf";
-
-        // Vérifier si le fichier existe et est accessible
-        if (!file_exists($filePath)) {
-            throw new Exception("Fichier introuvable : $filePath");
-        }
-
-        if (!is_readable($filePath)) {
-            throw new Exception("Le fichier PDF ne peut pas être lu : $filePath");
-        }
-
-        // Commande Ghostscript
-        $command = "\"$gsPath\" -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -o \"$tempFile\" \"$filePath\"";
-        // echo "Commande exécutée : $command<br>";
-
-        exec($command, $output, $returnVar);
-
-        if ($returnVar !== 0) {
-            echo "Sortie Ghostscript : " . implode("\n", $output);
-            throw new Exception("Erreur lors de la conversion du PDF avec Ghostscript");
-        }
-
-        // Remplacement du fichier
-        if (!rename($tempFile, $filePath)) {
-            throw new Exception("Impossible de remplacer l'ancien fichier PDF.");
-        }
-
-        return $filePath;
+        // conversion Ghostscript seulement pour les fichiers que FPDI ne sait pas lire (voir ConversionPdfService)
+        return (new ConversionPdfService())->convertirLesPdf($tousLesFichersAvecChemin);
     }
 }

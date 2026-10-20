@@ -16,6 +16,7 @@ use App\Controller\Traits\magasin\devis\DevisMagasinTrait;
 use App\Form\magasin\devis\DevisMagasinEnvoyerAuClientType;
 use App\Service\magasin\devis\DevisMagasinEnvoyerAuClientValidatorService;
 use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
  * @Route("/pol")
@@ -89,15 +90,19 @@ class DevisMagasinPolEnvoyerAuClientController extends Controller
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
+            // suivi étape par étape de l'enregistrement (admin > historique > suivi des opérations)
+            $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_DEVIS_POL_ENVOI_CLIENT, $numeroDevis);
 
-            $numeroVersionMax = $this->getEntityManager()->getRepository(DevisMagasin::class)->getNumeroVersionMax($numeroDevis, $codeSociete);
-            $devisMagasin = $this->getEntityManager()->getRepository(DevisMagasin::class)->findOneBy(['numeroDevis' => $numeroDevis, 'numeroVersion' => $numeroVersionMax, 'codeSociete' => $codeSociete]);
-            $devisMagasin->setDateEnvoiDevisAuClient($data['dateEnvoiDevisAuClient']);
-            $devisMagasin->setStatutDw(DevisMagasin::STATUT_ENVOYER_CLIENT);
-            $devisMagasin->setStatutBc(BcMagasin::STATUT_EN_ATTENTE_BC);
-            $devisMagasin->setDatePointage(new \DateTime());
-            $this->getEntityManager()->persist($devisMagasin);
-            $this->getEntityManager()->flush();
+            $suivi->etape('Base de données', function () use ($data, $numeroDevis, $codeSociete) {
+                $numeroVersionMax = $this->getEntityManager()->getRepository(DevisMagasin::class)->getNumeroVersionMax($numeroDevis, $codeSociete);
+                $devisMagasin = $this->getEntityManager()->getRepository(DevisMagasin::class)->findOneBy(['numeroDevis' => $numeroDevis, 'numeroVersion' => $numeroVersionMax, 'codeSociete' => $codeSociete]);
+                $devisMagasin->setDateEnvoiDevisAuClient($data['dateEnvoiDevisAuClient']);
+                $devisMagasin->setStatutDw(DevisMagasin::STATUT_ENVOYER_CLIENT);
+                $devisMagasin->setStatutBc(BcMagasin::STATUT_EN_ATTENTE_BC);
+                $devisMagasin->setDatePointage(new \DateTime());
+                $this->getEntityManager()->persist($devisMagasin);
+                $this->getEntityManager()->flush();
+            });
 
             //HISTORISATION DE L'OPERATION
             $message = "Pointage enregistré avec succès .";

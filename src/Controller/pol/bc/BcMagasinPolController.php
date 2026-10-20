@@ -26,6 +26,7 @@ use App\Service\genererPdf\magasin\bc\GeneratePdfBcMagasin;
 use App\Service\magasin\devis\Fichier\DevisMagasinGenererNameFileService;
 use App\Service\historiqueOperation\magasin\bc\HistoriqueOperationBcMagasinService;
 use DateTime;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
  * @Route("/pol")
@@ -89,10 +90,14 @@ class BcMagasinPolController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var BcMagasinDto $dto */
             $dto = $form->getData();
+            // suivi étape par étape de la soumission (admin > historique > suivi des opérations)
+            $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_BC_POL, $numeroDevis);
 
             // recupération montant devis
             $bcMagasinModel = new BcMagasinModel();
-            $montantDevis  = $bcMagasinModel->getMontantDevis($numeroDevis)[0] ?? 0.00;
+            $montantDevis  = $suivi->etape('Récupération du montant du devis (IPS)', function () use ($bcMagasinModel, $numeroDevis) {
+                return $bcMagasinModel->getMontantDevis($numeroDevis)[0] ?? 0.00;
+            });
 
             // recuperation de numero version
             $numeroVersionMax = $this->getEntityManager()->getRepository(BcMagasin::class)->getNumeroVersionMax($numeroDevis);
@@ -102,10 +107,14 @@ class BcMagasinPolController extends Controller
             $this->traitementDesFichiers($form, $numeroDevis, $dto, $montantDevis, $numeroVersion);
 
             // Enregistrement des données dans la base de données
-            $this->enregistrementDonnees($dto, (float) $montantDevis, $numeroVersion);
+            $suivi->etape('Base de données', function () use ($dto, $montantDevis, $numeroVersion) {
+                $this->enregistrementDonnees($dto, (float) $montantDevis, $numeroVersion);
+            });
 
             //modification du statu bc dans la table devis_soumis_a_validation_neg
-            $this->modificationStatutBCDansDevisMagasin($numeroDevis, $dto->dateBc, $codeSociete);
+            $suivi->etape('Mise à jour du devis', function () use ($numeroDevis, $dto, $codeSociete) {
+                $this->modificationStatutBCDansDevisMagasin($numeroDevis, $dto->dateBc, $codeSociete);
+            });
 
             // historique du document
             $message = 'Le bon de commande a été soumis avec succès.';
@@ -123,17 +132,21 @@ class BcMagasinPolController extends Controller
          * @var string $nomAvecCheminFichier (page de garde)
          * @var string $nomFichier (page de garde)
          */
-        [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $numeroDevis, $numeroVersion);
+        [$nomEtCheminFichiersEnregistrer, $nomFichierEnregistrer, $nomAvecCheminFichier, $nomFichier] = SuiviOperationService::suivre('Fichiers joints', function () use ($form, $numeroDevis, $numeroVersion) {
+            return $this->enregistrementFichier($form, $numeroDevis, $numeroVersion);
+        });
 
         // 2. creation de page de garde
         $generatePdf = new GeneratePdfBcMagasin();
         // 2.1 recupération des information utile pour le page de garde et ajout dans le devis magasin
-        $listeDevisMagasinModel = new ListeDevisMagasinModel();
-        $clientAndModePaiement = $listeDevisMagasinModel->getClientAndModePaiement($numeroDevis);
-        $dto->codeClient = $clientAndModePaiement[0]['code_client'];
-        $dto->nomClient = $clientAndModePaiement[0]['nom_client'];
-        $dto->modePayement = $clientAndModePaiement[0]['mode_paiement'];
-        $generatePdf->generer($this->getUser(), $dto, $nomAvecCheminFichier, (float) $montantDevis);
+        SuiviOperationService::suivre('Page de garde', function () use ($generatePdf, $numeroDevis, $dto, $nomAvecCheminFichier, $montantDevis) {
+            $listeDevisMagasinModel = new ListeDevisMagasinModel();
+            $clientAndModePaiement = $listeDevisMagasinModel->getClientAndModePaiement($numeroDevis);
+            $dto->codeClient = $clientAndModePaiement[0]['code_client'];
+            $dto->nomClient = $clientAndModePaiement[0]['nom_client'];
+            $dto->modePayement = $clientAndModePaiement[0]['mode_paiement'];
+            $generatePdf->generer($this->getUser(), $dto, $nomAvecCheminFichier, (float) $montantDevis);
+        });
 
 
 
@@ -142,11 +155,17 @@ class BcMagasinPolController extends Controller
         $nomEtCheminFichiersEnregistrer = $traitementDeFichier->insertFileAtPosition($nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, count($nomEtCheminFichiersEnregistrer));
 
         // 4. fusion du page de garde et des pieces jointes (conversion avant la fusion)
-        $nomEtCheminFichierConvertie = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
-        $traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);
+        $nomEtCheminFichierConvertie = SuiviOperationService::suivre('Conversion', function () use ($nomEtCheminFichiersEnregistrer) {
+            return $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
+        });
+        SuiviOperationService::suivre('Fusion', function () use ($traitementDeFichier, $nomEtCheminFichierConvertie, $nomAvecCheminFichier) {
+            $traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);
+        });
 
         // 5. copie du pdf fusioné dans DW
-        $generatePdf->copyToDWBcMagasin($nomFichier, $numeroDevis);
+        SuiviOperationService::suivre('DocuWare', function () use ($generatePdf, $nomFichier, $numeroDevis) {
+            $generatePdf->copyToDWBcMagasin($nomFichier, $numeroDevis);
+        });
     }
 
     private function enregistrementDonnees(BcMagasinDto $dto, ?float $montantDevis, $numeroVersionMax): void

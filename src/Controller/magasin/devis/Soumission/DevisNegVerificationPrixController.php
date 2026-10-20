@@ -19,6 +19,7 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
  * @Route("/magasin/dematerialisation")
@@ -77,50 +78,72 @@ class DevisNegVerificationPrixController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $dto = $form->getData();
+            // suivi étape par étape de la soumission (admin > historique > suivi des opérations)
+            $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_DEVIS_NEG_VERIFICATION_PRIX, $dto->numeroDevis);
 
-            $dto = VerificationPrixFactory::CreateBeforeSoumission($dto, $this->getUserName(), $this->getUserMail());
+            $dto = $suivi->etape('Préparation des données', function () use ($dto) {
+                return VerificationPrixFactory::CreateBeforeSoumission($dto, $this->getUserName(), $this->getUserMail());
+            });
 
-            if ((new ValidationSoumissionVerificationPrix())->validateSubmittedFile($form, $dto->remoteUrlCourt, $dto->numeroDevis)) return;
+            if ($suivi->etape('Contrôle du fichier', function () use ($form, $dto) {
+                return (new ValidationSoumissionVerificationPrix())->validateSubmittedFile($form, $dto->remoteUrlCourt, $dto->numeroDevis);
+            })) return;
 
-            /** 
+            /**
              * Enregistrement de fichier excel
-             * @var array $nomEtCheminFichiersEnregistrerExcel 
+             * @var array $nomEtCheminFichiersEnregistrerExcel
              * @var string $nomAvecCheminFichierExcel
              * @var string $nomFichierExcel
              */
-            [$nomEtCheminFichiersEnregistrerExcel, $nomAvecCheminFichierExcel, $nomFichierExcel] = $this->enregistrementFichierExcel($form, $dto->numeroDevis);
+            [$nomEtCheminFichiersEnregistrerExcel, $nomAvecCheminFichierExcel, $nomFichierExcel] = $suivi->etape('Fichier Excel', function () use ($form, $dto) {
+                return $this->enregistrementFichierExcel($form, $dto->numeroDevis);
+            });
 
-            /** 
+            /**
              * Enregistrement de fichier uploder
-             * @var array $nomEtCheminFichiersEnregistrer 
+             * @var array $nomEtCheminFichiersEnregistrer
              * @var string $nomAvecCheminFichier
              * @var string $nomFichier
              */
-            [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $dto->numeroDevis, $dto->numeroVersion, $dto->suffix, explode('@', $dto->userMail)[0], $dto->remoteUrlCourt);
+            [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier] = $suivi->etape('Fichiers joints', function () use ($form, $dto) {
+                return $this->enregistrementFichier($form, $dto->numeroDevis, $dto->numeroVersion, $dto->suffix, explode('@', $dto->userMail)[0], $dto->remoteUrlCourt);
+            });
 
-            // creation du page de garde 
+            // creation du page de garde
             $generatePdfDevisMagasin = new GeneratePdfDeviMagasinVp();
-            $generatePdfDevisMagasin->genererPdf($dto, $nomAvecCheminFichier);
+            $suivi->etape('Page de garde', function () use ($generatePdfDevisMagasin, $dto, $nomAvecCheminFichier) {
+                $generatePdfDevisMagasin->genererPdf($dto, $nomAvecCheminFichier);
+            });
             //insertion de la page de garde à la position 0
             $traitementDeFichier = new TraitementDeFichier();
             $nomEtCheminFichiersEnregistrer = $traitementDeFichier->insertFileAtPosition($nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, 0);
             /** @var array fusions des fichiers */
-            $nomEtCheminFichierConvertie = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
-            $traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);
+            $nomEtCheminFichierConvertie = $suivi->etape('Conversion', function () use ($nomEtCheminFichiersEnregistrer) {
+                return $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
+            });
+            $suivi->etape('Fusion', function () use ($traitementDeFichier, $nomEtCheminFichierConvertie, $nomAvecCheminFichier) {
+                $traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);
+            });
 
             // Enregistrement de la soumission en base de données
             $soumissionModel = new SoumissionModel();
-            $soumissionModel->enregistrerSoumission($dto, $nomFichier, $nomFichierExcel);
+            $suivi->etape('Base de données', function () use ($soumissionModel, $dto, $nomFichier, $nomFichierExcel) {
+                $soumissionModel->enregistrerSoumission($dto, $nomFichier, $nomFichierExcel);
+            });
 
             //envoie du fichier dans DW
-            $generatePdfDevisMagasin->copyToDWDevisVpMagasin($nomFichier, $dto->numeroDevis);
+            $suivi->etape('DocuWare', function () use ($generatePdfDevisMagasin, $nomFichier, $dto) {
+                $generatePdfDevisMagasin->copyToDWDevisVpMagasin($nomFichier, $dto->numeroDevis);
+            });
 
             //envoie de mail au PM
             if (!empty($nomAvecCheminFichierExcel) && !empty($nomFichierExcel) && $this->estValidationPm($dto)) {
-                $this->envoyerMailDevisMagasin($dto->numeroDevis, [
-                    'filePath' => $nomAvecCheminFichierExcel,
-                    'fileName' => $nomFichierExcel,
-                ]);
+                $suivi->etape('Mail au PM', function () use ($dto, $nomAvecCheminFichierExcel, $nomFichierExcel) {
+                    $this->envoyerMailDevisMagasin($dto->numeroDevis, [
+                        'filePath' => $nomAvecCheminFichierExcel,
+                        'fileName' => $nomFichierExcel,
+                    ]);
+                });
             }
 
             //HISTORISATION DE L'OPERATION

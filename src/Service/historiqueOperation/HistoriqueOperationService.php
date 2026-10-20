@@ -6,6 +6,7 @@ use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\admin\utilisateur\User;
 use App\Service\SessionManagerService;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 use App\Entity\admin\historisation\documentOperation\TypeDocument;
 use App\Entity\admin\historisation\documentOperation\TypeOperation;
 use App\Entity\admin\historisation\documentOperation\HistoriqueOperationDocument;
@@ -86,6 +87,15 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
         // Sauvegarder dans la base de données
         $this->em->persist($historique);
         $this->em->flush();
+
+        // rattacher le suivi étape par étape de l'opération en cours (s'il y en a un)
+        $suivi = SuiviOperationService::courant();
+        if ($suivi !== null) {
+            if (!$statutOperation) {
+                $suivi->echecOperation((string) $libelleOperation);
+            }
+            $suivi->lierHistorique($historique->getId());
+        }
     }
 
     /**
