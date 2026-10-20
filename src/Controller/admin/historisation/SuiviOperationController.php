@@ -47,7 +47,9 @@ class SuiviOperationController extends Controller
     /**
      * Marque une opération (toutes ses étapes) comme lue ou non lue
      *
-     * @Route("/admin/suivi-operation/{idSuivi}/lu", name="suivi_operation_marquer_lu", methods={"POST"})
+     * Préfixe api_ : contrôle de session uniquement (pas de permission par route), l'accès admin est vérifié ici
+     *
+     * @Route("/api/admin/suivi-operation/{idSuivi}/lu", name="api_suivi_operation_marquer_lu", methods={"POST"})
      */
     public function marquerLu(Request $request, string $idSuivi)
     {
