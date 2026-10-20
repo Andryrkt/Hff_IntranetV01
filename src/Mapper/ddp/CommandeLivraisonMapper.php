@@ -24,6 +24,8 @@ class CommandeLivraisonMapper
                     ->setNumeroCommande($numeroCommande)
                     ->setNumeroLivraison($dto->numeroLivraison ?? null)
                     ->setNumeroFacture($numeroFacture)
+                    // montant total du commande : uniquement saisi sur DdpDto (magasin)
+                    ->setMontantTotalCommande($dto instanceof DdpDto ? $dto->montantCommande($numeroCommande) : null)
                 ;
             }
         } else {

@@ -10,6 +10,7 @@ use App\Form\common\RibType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
@@ -71,6 +72,7 @@ class DdpType extends AbstractType
         ;
 
         $this->addMontantFactureProforma($builder, $options);
+        $this->addMontantTotalCommande($builder, $options);
         $this->addNumeroCommande($builder, $options);
         $this->addNumeroFacture($builder, $options);
         $this->addFournisseur($builder);
@@ -97,6 +99,34 @@ class DdpType extends AbstractType
                         'message' => 'Le montant facture proforma est obligatoire.',
                     ]),
                 ],
+            ]
+        );
+    }
+
+    /**
+     * Montant total de la commande : uniquement pour la demande de paiement après arrivage
+     */
+    public function addMontantTotalCommande(FormBuilderInterface $builder, array $options)
+    {
+        if ($options['data']->typeDdp->getId() !== TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE) {
+            return;
+        }
+
+        // une entrée par commande sélectionnée, clé = numéro de commande (lignes ajoutées par le JS)
+        $builder->add(
+            'montantsCommande',
+            CollectionType::class,
+            [
+                'label' => false,
+                'entry_type' => TextType::class,
+                'entry_options' => [
+                    'constraints' => [
+                        new NotBlank([
+                            'message' => 'Le montant du commande à payer est obligatoire.',
+                        ]),
+                    ],
+                ],
+                'allow_add' => true,
             ]
         );
     }

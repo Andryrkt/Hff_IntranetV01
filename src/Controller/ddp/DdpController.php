@@ -86,6 +86,16 @@ class DdpController extends Controller
                 return;
             }
 
+            // après arrivage : un montant total doit être saisi pour chaque commande
+            if ($dto->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE) {
+                foreach ($dto->numeroCommande as $numCde) {
+                    if ($dto->montantCommande($numCde) === null) {
+                        $form->addError(new FormError("Le montant du commande à payer $numCde est obligatoire."));
+                        return;
+                    }
+                }
+            }
+
             $erreurMontant = $this->erreurMontant($dto);
             if ($erreurMontant !== null) {
                 $form->get('montantAPayer')->addError(new FormError($erreurMontant));

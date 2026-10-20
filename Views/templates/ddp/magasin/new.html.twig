@@ -103,6 +103,23 @@
 						{# liste des fichiers #}
 					</div>
 				</div>
+				{% if form.montantsCommande is defined %}
+					{# Lignes (une par commande sélectionnée) ajoutées par DemandePaiementManager.js #}
+					{% do form.montantsCommande.setRendered %}
+					<div class="row d-none" id="tableauMontantsCommande">
+						<div class="col-12 col-md-8">
+							<table class="table table-sm">
+								<thead class="table-dark align-middle">
+									<tr>
+										<th>N° commande</th>
+										<th>Montant du commande à payer *</th>
+									</tr>
+								</thead>
+								<tbody id="montantsCommandeBody"></tbody>
+							</table>
+						</div>
+					</div>
+				{% endif %}
 				<div class="row">
 					<div class="col-12 col-md-4">
 						{{ form_row(form.montantAPayer) }}

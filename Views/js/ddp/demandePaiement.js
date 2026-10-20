@@ -13,6 +13,8 @@ document.addEventListener("DOMContentLoaded", function () {
       numFactureInput: "#demande_paiement_numeroFacture",
       montantInput: "#demande_paiement_montantAPayer",
       montantProformaInput: "#demande_paiement_montantFactureProforma",
+      tableauMontantsCommande: "#tableauMontantsCommande",
+      montantsCommandeBody: "#montantsCommandeBody",
       suggestionNumFournisseur: "#suggestion-num-fournisseur",
       loaderNumFournisseur: "#loader-num-fournisseur",
       suggestionNomFournisseur: "#suggestion-nom-fournisseur",

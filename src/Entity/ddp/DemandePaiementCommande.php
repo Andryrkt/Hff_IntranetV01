@@ -49,6 +49,11 @@ class DemandePaiementCommande
     private ?string $client = null;
 
     /**
+     * @ORM\Column(type="float", scale="2", name="montant_commande_a_payer", nullable=true)
+     */
+    private ?float $montantTotalCommande = null;
+
+    /**
      * @ORM\ManyToOne(targetEntity=DemandePaiement::class, inversedBy="demandePaiementCommandes")
      * @ORM\JoinColumn(name="demandePaiementId", referencedColumnName="id")
      */
@@ -148,6 +153,24 @@ class DemandePaiementCommande
     public function setDemandePaiement(?DemandePaiement $demandePaiement): self
     {
         $this->demandePaiement = $demandePaiement;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of montantTotalCommande
+     */
+    public function getMontantTotalCommande(): ?float
+    {
+        return $this->montantTotalCommande;
+    }
+
+    /**
+     * Set the value of montantTotalCommande
+     */
+    public function setMontantTotalCommande(?float $montantTotalCommande): self
+    {
+        $this->montantTotalCommande = $montantTotalCommande;
 
         return $this;
     }

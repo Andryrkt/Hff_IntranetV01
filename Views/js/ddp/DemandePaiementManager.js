@@ -118,6 +118,7 @@ export class DemandePaiementManager {
       if (this.typeId == 1 && this.config.urls.montantCommandeHt) {
         this.chargerMontantCommandeHt();
       }
+      this.afficherTableauMontantsCommande();
     });
 
     if (this.elements.agenceDebiteurInput) {
@@ -988,6 +989,43 @@ export class DemandePaiementManager {
    * Commandes sélectionnées, toujours sous forme de tableau : le champ est en
    * sélection simple pour les demandes de paiement à l'avance (typeId 1).
    */
+  /**
+   * Paiement après arrivage : une ligne par commande sélectionnée où
+   * l'utilisateur saisit le montant total de la commande
+   * (champ demande_paiement[montantsCommande][numCde]).
+   */
+  afficherTableauMontantsCommande() {
+    const { tableauMontantsCommande, montantsCommandeBody } = this.elements;
+    if (!tableauMontantsCommande || !montantsCommandeBody) return;
+
+    // Conserve les montants déjà saisis pour les commandes encore sélectionnées
+    const saisis = {};
+    montantsCommandeBody.querySelectorAll("input").forEach((input) => {
+      saisis[input.dataset.numCde] = input.value;
+    });
+
+    const numCdes = this.getNumCdesSelectionnees();
+    montantsCommandeBody.innerHTML = "";
+    numCdes.forEach((numCde) => {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "form-control form-control-sm";
+      input.name = `demande_paiement[montantsCommande][${numCde}]`;
+      input.required = true;
+      input.dataset.numCde = numCde;
+      input.value = saisis[numCde] ?? "";
+      input.addEventListener("input", () => {
+        input.value = formatNumberSpecial(input.value);
+      });
+
+      const tr = montantsCommandeBody.insertRow();
+      tr.insertCell().textContent = numCde;
+      tr.insertCell().appendChild(input);
+    });
+
+    tableauMontantsCommande.classList.toggle("d-none", numCdes.length === 0);
+  }
+
   getNumCdesSelectionnees() {
     return [].concat($(this.elements.numCommandeInput).val() || []).filter(Boolean);
   }

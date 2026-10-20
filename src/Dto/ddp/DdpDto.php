@@ -16,6 +16,7 @@ class DdpDto
     public ?string $montantFactureProforma = null; // * montant indiqué sur la facture proforma du fournisseur
     // numéro de la commande
     public array $numeroCommande = [];
+    public array $montantsCommande = []; // * [numeroCommande => montant total du commande] saisi par l'utilisateur (après arrivage)
     // numéro de la facture
     public array $numeroFacture = [];
     // fournisseur
@@ -102,6 +103,18 @@ class DdpDto
             return null;
         }
         return self::montantEnFloat($this->montantFactureProforma);
+    }
+
+    /**
+     * Montant total saisi pour une commande, en float (null si non renseigné)
+     */
+    public function montantCommande(?string $numeroCommande): ?float
+    {
+        $montant = $this->montantsCommande[$numeroCommande] ?? null;
+        if ($montant === null || trim($montant) === '') {
+            return null;
+        }
+        return self::montantEnFloat($montant);
     }
 
     /**
