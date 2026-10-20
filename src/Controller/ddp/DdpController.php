@@ -125,17 +125,13 @@ class DdpController extends Controller
     /**
      * Vérifie le montant saisi par l'utilisateur, miroir de la vérification
      * déjà faite côté front (DemandePaiementManager.js::verifierMontant) :
-     * - à l'avance : supérieur à 0 et au plus le montant HT de la commande sélectionnée ;
+     * - à l'avance : pas de contrôle (montant libre) ;
      * - après arrivage : égal au montant calculé des factures sélectionnées.
      *
      * @return string|null message d'erreur, null si le montant est correct
      */
     private function erreurMontant(DdpDto $dto): ?string
     {
-        if ($dto->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE) {
-            return $this->erreurMontantAvance($dto);
-        }
-
         $montantAttendu = $this->montantAttendu($dto);
 
         if ($montantAttendu === null || abs($dto->montantAPayer() - $montantAttendu) < 0.01) {
@@ -159,48 +155,15 @@ class DdpController extends Controller
         }
 
         $numCde = (string) $dto->numeroCommande[0];
-        $montantCommandeHt = (float) $this->demandePaiementModel->getMontantCde($numCde, $dto->codeSociete)['montant_total_cde_ht'];
-        $montantAvanceValide = $this->getEntityManager()
+        // cumul des % (montant à payer / montant total du commande) des demandes à l'avance validées
+        $ratioAvanceValide = $this->getEntityManager()
             ->getRepository(DemandePaiement::class)
-            ->getSommeMontantDdpValideParCommande($numCde, $dto->codeSociete, TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE);
+            ->getCumulRatioDdpValideParCommande($numCde, $dto->codeSociete, TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE);
 
-        if ($montantCommandeHt > 0 && $montantAvanceValide >= $montantCommandeHt - 0.01) {
+        if ($ratioAvanceValide >= 100 - 0.01) {
             return sprintf(
                 'La commande %s est déjà payée à 100 %% par des demandes de paiement à l\'avance validées : une nouvelle demande de paiement à l\'avance n\'est pas possible.',
                 $numCde
-            );
-        }
-
-        return null;
-    }
-
-    private function erreurMontantAvance(DdpDto $dto): ?string
-    {
-        $montantSaisi = $dto->montantAPayer();
-
-        if ($montantSaisi <= 0) {
-            return 'Le montant à payer doit être supérieur à 0.';
-        }
-
-        if (empty($dto->numeroCommande)) {
-            return null;
-        }
-
-        $numCde = (string) $dto->numeroCommande[0];
-        $montantCommandeHt = $this->demandePaiementModel->getMontantCde($numCde, $dto->codeSociete)['montant_total_cde_ht'];
-        // Plusieurs demandes possibles sur une même commande : le plafond est le
-        // montant HT diminué des demandes de paiement déjà validées.
-        $montantDejaValide = $this->getEntityManager()
-            ->getRepository(DemandePaiement::class)
-            ->getSommeMontantDdpValideParCommande($numCde, $dto->codeSociete);
-        $montantRestant = $montantCommandeHt - $montantDejaValide;
-
-        if ($montantSaisi - $montantRestant > 0.01) {
-            return sprintf(
-                'Le montant à payer ne peut pas dépasser le montant restant de la commande (%s = montant HT %s - déjà validé %s).',
-                number_format($montantRestant, 2, ',', ' '),
-                number_format($montantCommandeHt, 2, ',', ' '),
-                number_format($montantDejaValide, 2, ',', ' ')
             );
         }
 
@@ -300,11 +263,17 @@ class DdpController extends Controller
     }
 
     /**
-     * Pourcentage du montant à payer par rapport au montant HT total des
-     * commandes de la demande (une seule pour le paiement à l'avance).
+     * Pourcentage du montant à payer par rapport :
+     * - à l'avance : au montant total du commande saisi ;
+     * - après arrivage : au montant HT total des commandes de la demande.
      */
     private function ratioMontantPayer(DdpDto $dto): float
     {
+        if ($dto->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE) {
+            $montantTotalCommande = (float) $dto->montantTotalCommande();
+            return $montantTotalCommande > 0 ? round($dto->montantAPayer() / $montantTotalCommande * 100, 2) : 0.0;
+        }
+
         $montantTotalHt = 0.0;
         foreach (array_unique($dto->numeroCommande) as $numCde) {
             $montantTotalHt += $this->demandePaiementModel->getMontantCde((string) $numCde, $dto->codeSociete)['montant_total_cde_ht'];

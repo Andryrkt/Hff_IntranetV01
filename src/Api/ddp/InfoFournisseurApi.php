@@ -210,24 +210,26 @@ class InfoFournisseurApi extends Controller
         $montantHt = (float) $this->demandePaiementModel()->getMontantCde($numCde, $codeSociete)['montant_total_cde_ht'];
         // Demandes de paiement déjà validées pour cette commande
         $montantDejaValide = $this->demandePaiementRepository->getSommeMontantDdpValideParCommande($numCde, $codeSociete);
-        // Commande déjà payée à 100 % par des demandes de paiement à l'avance validées
-        $montantAvanceValide = $this->demandePaiementRepository->getSommeMontantDdpValideParCommande($numCde, $codeSociete, TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE);
+        // % (montant à payer / montant total du commande) déjà validés, toutes demandes et à l'avance seules
+        $ratioDejaValide = $this->demandePaiementRepository->getCumulRatioDdpValideParCommande($numCde, $codeSociete);
+        $ratioAvanceValide = $this->demandePaiementRepository->getCumulRatioDdpValideParCommande($numCde, $codeSociete, TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE);
 
         header("Content-type:application/json");
         echo json_encode([
             'montantHt'         => $montantHt,
             'montantDejaValide' => $montantDejaValide,
             'montantRestant'    => $montantHt - $montantDejaValide,
-            'commandeSoldee'    => $montantHt > 0 && $montantAvanceValide >= $montantHt - 0.01,
-            'historique'        => $this->historiqueDdpCommande($numCde, $montantHt),
+            'ratioDejaValide'   => $ratioDejaValide,
+            'commandeSoldee'    => $ratioAvanceValide >= 100 - 0.01,
+            'historique'        => $this->historiqueDdpCommande($numCde),
         ]);
     }
 
     /**
      * Historique des demandes de paiement (hors refusées) d'une commande, avec
-     * pour chacune son pourcentage du montant HT de la commande et le cumul.
+     * pour chacune son pourcentage (montant à payer / montant total du commande) et le cumul.
      */
-    private function historiqueDdpCommande(string $numCde, float $montantHt): array
+    private function historiqueDdpCommande(string $numCde): array
     {
         $historique = [];
         $cumul = 0.0;
@@ -235,7 +237,7 @@ class InfoFournisseurApi extends Controller
         /** @var DemandePaiement $ddp */
         foreach ($this->demandePaiementRepository->getDdpSelonNumCde($numCde) as $ddp) {
             $montant = (float) $ddp->getMontantAPayers();
-            $ratio = $montantHt > 0 ? $montant / $montantHt * 100 : 0.0;
+            $ratio = $ddp->getRatioMontantTotalCommande();
             $cumul += $ratio;
 
             $historique[] = [

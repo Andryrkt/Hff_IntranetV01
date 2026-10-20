@@ -351,8 +351,35 @@ class DemandePaiementRepository extends EntityRepository
      */
     public function getSommeMontantDdpValideParCommande(string $numeroCde, string $codeSociete, ?int $typeDemandeId = null): float
     {
-        $queryBuilder = $this->createQueryBuilder('d')
+        $result = $this->ddpValideParCommandeQueryBuilder($numeroCde, $codeSociete, $typeDemandeId)
             ->select('SUM(d.montantAPayers)')
+            ->getQuery()
+            ->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);
+
+        return $result !== null ? (float) $result : 0.0;
+    }
+
+    /**
+     * Cumul des pourcentages (montant à payer / montant total du commande) des
+     * demandes de paiement validées d'une commande.
+     */
+    public function getCumulRatioDdpValideParCommande(string $numeroCde, string $codeSociete, ?int $typeDemandeId = null): float
+    {
+        $cumul = 0.0;
+        /** @var DemandePaiement $ddp */
+        foreach ($this->ddpValideParCommandeQueryBuilder($numeroCde, $codeSociete, $typeDemandeId)->getQuery()->getResult() as $ddp) {
+            $cumul += $ddp->getRatioMontantTotalCommande();
+        }
+
+        return $cumul;
+    }
+
+    /**
+     * Demandes de paiement validées (dernière version) d'une commande
+     */
+    private function ddpValideParCommandeQueryBuilder(string $numeroCde, string $codeSociete, ?int $typeDemandeId)
+    {
+        $queryBuilder = $this->createQueryBuilder('d')
             ->where('d.numeroCommande = :numCde')
             ->andWhere('d.statut IN (:statutsValides)')
             ->andWhere('d.codeSociete = :codeSociete')
@@ -372,11 +399,7 @@ class DemandePaiementRepository extends EntityRepository
                 ->setParameter('typeDemandeId', $typeDemandeId);
         }
 
-        $result = $queryBuilder
-            ->getQuery()
-            ->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);
-
-        return $result !== null ? (float) $result : 0.0;
+        return $queryBuilder;
     }
 
     public function getSommeMontantValide(string $numeroCde, string $codeSociete)

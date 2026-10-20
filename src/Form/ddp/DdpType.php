@@ -66,13 +66,15 @@ class DdpType extends AbstractType
                 'montantAPayer',
                 TextType::class,
                 [
-                    'label' => 'Montant à payer *'
+                    'label' => $options['data']->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE
+                        ? 'Montant facture proforma *'
+                        : 'Montant à payer *'
                 ]
             )
         ;
 
-        $this->addMontantFactureProforma($builder, $options);
         $this->addMontantTotalCommande($builder, $options);
+        $this->addMontantsCommande($builder, $options);
         $this->addNumeroCommande($builder, $options);
         $this->addNumeroFacture($builder, $options);
         $this->addFournisseur($builder);
@@ -81,22 +83,22 @@ class DdpType extends AbstractType
     }
 
     /**
-     * Montant facture proforma : uniquement pour la demande de paiement à l'avance
+     * Montant total du commande : uniquement pour la demande de paiement à l'avance
      */
-    public function addMontantFactureProforma(FormBuilderInterface $builder, array $options)
+    public function addMontantTotalCommande(FormBuilderInterface $builder, array $options)
     {
         if ($options['data']->typeDdp->getId() !== TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE) {
             return;
         }
 
         $builder->add(
-            'montantFactureProforma',
+            'montantTotalCommande',
             TextType::class,
             [
-                'label' => 'Montant facture proforma *',
+                'label' => 'Montant total du commande *',
                 'constraints' => [
                     new NotBlank([
-                        'message' => 'Le montant facture proforma est obligatoire.',
+                        'message' => 'Le montant total du commande est obligatoire.',
                     ]),
                 ],
             ]
@@ -104,9 +106,9 @@ class DdpType extends AbstractType
     }
 
     /**
-     * Montant total de la commande : uniquement pour la demande de paiement après arrivage
+     * Montant du commande à payer, par commande : uniquement pour la demande de paiement après arrivage
      */
-    public function addMontantTotalCommande(FormBuilderInterface $builder, array $options)
+    public function addMontantsCommande(FormBuilderInterface $builder, array $options)
     {
         if ($options['data']->typeDdp->getId() !== TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE) {
             return;

@@ -33,12 +33,6 @@ export class DemandePaiementManager {
     // Montant calculé côté serveur (commande/facture sélectionnée), utilisé
     // uniquement pour comparaison : l'utilisateur saisit lui-même le montant.
     this.montantAttendu = null;
-    // Paiement à l'avance (typeId 1) : plafond du montant saisi (qui doit aussi
-    // être > 0) = montant HT de la commande - montant des demandes de paiement
-    // déjà validées pour cette commande.
-    this.montantMaxCommande = null;
-    this.montantHtCommande = null;
-    this.montantDejaValide = 0;
     this.montantIncorrect = false;
     this.messageMontantIncorrect = "";
 
@@ -157,10 +151,10 @@ export class DemandePaiementManager {
       this.verifierMontant();
     });
 
-    if (this.elements.montantProformaInput) {
-      this.elements.montantProformaInput.addEventListener("input", () => {
-        this.elements.montantProformaInput.value = formatNumberSpecial(
-          this.elements.montantProformaInput.value,
+    if (this.elements.montantTotalCommandeInput) {
+      this.elements.montantTotalCommandeInput.addEventListener("input", () => {
+        this.elements.montantTotalCommandeInput.value = formatNumberSpecial(
+          this.elements.montantTotalCommandeInput.value,
         );
       });
     }
@@ -832,14 +826,10 @@ export class DemandePaiementManager {
   }
 
   /**
-   * Paiement à l'avance : le montant saisi doit être supérieur à 0 et ne pas
-   * dépasser le montant restant de la commande sélectionnée (montant HT -
-   * montant déjà demandé).
+   * Paiement à l'avance : le montant saisi n'est pas contrôlé, seule une
+   * commande déjà payée à 100 % bloque la soumission.
    */
   verifierMontantAvance() {
-    const valeur = this.elements.montantInput.value.trim();
-    const montantSaisi = parseMontant(valeur);
-
     this.montantIncorrect = false;
     this.messageMontantIncorrect = "";
 
@@ -847,39 +837,17 @@ export class DemandePaiementManager {
       // Commande déjà payée à 100 % par des demandes de paiement à l'avance validées
       this.montantIncorrect = true;
       this.messageMontantIncorrect = `La commande ${this.getNumCdesSelectionnees()[0]} est déjà payée à 100 % par des demandes de paiement à l'avance validées : une nouvelle demande de paiement à l'avance n'est pas possible.`;
-    } else if (valeur !== "" && !(montantSaisi > 0)) {
-      // !(montantSaisi > 0) couvre aussi une saisie non numérique (NaN)
-      this.montantIncorrect = true;
-      this.messageMontantIncorrect =
-        "Le montant à payer doit être supérieur à 0.";
-    } else if (
-      valeur !== "" &&
-      this.montantMaxCommande !== null &&
-      !isNaN(this.montantMaxCommande) &&
-      montantSaisi - this.montantMaxCommande > 0.01
-    ) {
-      this.montantIncorrect = true;
-      const format = (montant) => formatNumberSpecial(montant.toFixed(2));
-      this.messageMontantIncorrect =
-        this.montantDejaValide > 0
-          ? `Le montant à payer ne peut pas dépasser le montant restant de la commande (${format(this.montantMaxCommande)} = montant HT ${format(this.montantHtCommande)} - déjà validé ${format(this.montantDejaValide)}).`
-          : `Le montant à payer ne peut pas dépasser le montant HT de la commande (${format(this.montantMaxCommande)}).`;
     }
 
     this.mettreAJourEtatSoumission();
   }
 
   /**
-   * Récupère le montant HT de la commande sélectionnée (paiement à l'avance)
-   * et le montant des demandes de paiement déjà validées : le plafond du
-   * montant saisi est leur différence. Affiche aussi l'historique des
-   * demandes de paiement de la commande.
+   * Paiement à l'avance : vérifie si la commande sélectionnée est déjà soldée
+   * et affiche l'historique des demandes de paiement de la commande.
    */
   async chargerMontantCommandeHt() {
     const numCde = this.getNumCdesSelectionnees()[0];
-    this.montantMaxCommande = null;
-    this.montantHtCommande = null;
-    this.montantDejaValide = 0;
     this.commandeSoldee = false;
     this.afficherHistoriqueDdp(null);
 
@@ -893,9 +861,6 @@ export class DemandePaiementManager {
       const resultat = await this.fetchManager.get(url);
       // Ignore la réponse si la sélection a changé entre-temps
       if (this.getNumCdesSelectionnees()[0] !== numCde) return;
-      this.montantHtCommande = parseFloat(resultat.montantHt);
-      this.montantDejaValide = parseFloat(resultat.montantDejaValide) || 0;
-      this.montantMaxCommande = parseFloat(resultat.montantRestant);
       this.commandeSoldee = resultat.commandeSoldee === true;
       this.afficherHistoriqueDdp(numCde, resultat);
     } catch (error) {
@@ -958,8 +923,8 @@ export class DemandePaiementManager {
     );
 
     const montantHt = parseFloat(resultat.montantHt) || 0;
-    const ratio = (montant) =>
-      montantHt > 0 ? `${format((montant / montantHt) * 100)}%` : "";
+    // % (montant à payer / montant total du commande) calculés côté serveur
+    const ratioDejaValide = parseFloat(resultat.ratioDejaValide) || 0;
     const montantDejaValide = parseFloat(resultat.montantDejaValide) || 0;
     const montantRestant = parseFloat(resultat.montantRestant) || 0;
 
@@ -973,14 +938,17 @@ export class DemandePaiementManager {
       { texte: "Total déjà validé", classe: "fw-bold" },
       { colspan: 2 },
       { texte: format(montantDejaValide), classe: "text-end fw-bold" },
-      { texte: ratio(montantDejaValide), classe: "text-end fw-bold" },
+      { texte: `${format(ratioDejaValide)}%`, classe: "text-end fw-bold" },
       { colspan: 2 },
     ]);
     ajouterLigne([
       { texte: "Montant restant à payer", classe: "fw-bold" },
       { colspan: 2 },
       { texte: format(montantRestant), classe: "text-end text-danger fw-bold" },
-      { texte: ratio(montantRestant), classe: "text-end text-danger fw-bold" },
+      {
+        texte: `${format(Math.max(0, 100 - ratioDejaValide))}%`,
+        classe: "text-end text-danger fw-bold",
+      },
       { colspan: 2 },
     ]);
   }

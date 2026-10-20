@@ -125,9 +125,9 @@
 						{{ form_row(form.montantAPayer) }}
 						<div id="montantIncorrectWarning" class="text-danger small mt-1 d-none"></div>
 					</div>
-					{% if form.montantFactureProforma is defined %}
+					{% if form.montantTotalCommande is defined %}
 						<div class="col-12 col-md-4">
-							{{ form_row(form.montantFactureProforma) }}
+							{{ form_row(form.montantTotalCommande) }}
 						</div>
 					{% endif %}
 				</div>
