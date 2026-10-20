@@ -345,9 +345,13 @@ class DemandePaiementRepository extends EntityRepository
      * compta) pour une commande, à l'avance comme après arrivage. Seule la
      * dernière version de chaque demande est prise en compte.
      */
-    public function getSommeMontantDdpValideParCommande(string $numeroCde, string $codeSociete): float
+    /**
+     * Somme des montants des demandes de paiement validées d'une commande
+     * (dernière version de chaque DDP), éventuellement limitée à un type de demande.
+     */
+    public function getSommeMontantDdpValideParCommande(string $numeroCde, string $codeSociete, ?int $typeDemandeId = null): float
     {
-        $result = $this->createQueryBuilder('d')
+        $queryBuilder = $this->createQueryBuilder('d')
             ->select('SUM(d.montantAPayers)')
             ->where('d.numeroCommande = :numCde')
             ->andWhere('d.statut IN (:statutsValides)')
@@ -360,7 +364,15 @@ class DemandePaiementRepository extends EntityRepository
                 'numCde'         => $numeroCde,
                 'statutsValides' => [StatutConstants::VALIDE, StatutConstants::TRANSMIS_COMPTA],
                 'codeSociete'    => $codeSociete,
-            ])
+            ]);
+
+        if ($typeDemandeId !== null) {
+            $queryBuilder
+                ->andWhere('IDENTITY(d.typeDemandeId) = :typeDemandeId')
+                ->setParameter('typeDemandeId', $typeDemandeId);
+        }
+
+        $result = $queryBuilder
             ->getQuery()
             ->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);
 

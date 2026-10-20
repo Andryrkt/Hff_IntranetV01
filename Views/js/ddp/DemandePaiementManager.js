@@ -842,8 +842,12 @@ export class DemandePaiementManager {
     this.montantIncorrect = false;
     this.messageMontantIncorrect = "";
 
-    // !(montantSaisi > 0) couvre aussi une saisie non numérique (NaN)
-    if (valeur !== "" && !(montantSaisi > 0)) {
+    if (this.commandeSoldee) {
+      // Commande déjà payée à 100 % par des demandes de paiement à l'avance validées
+      this.montantIncorrect = true;
+      this.messageMontantIncorrect = `La commande ${this.getNumCdesSelectionnees()[0]} est déjà payée à 100 % par des demandes de paiement à l'avance validées : une nouvelle demande de paiement à l'avance n'est pas possible.`;
+    } else if (valeur !== "" && !(montantSaisi > 0)) {
+      // !(montantSaisi > 0) couvre aussi une saisie non numérique (NaN)
       this.montantIncorrect = true;
       this.messageMontantIncorrect =
         "Le montant à payer doit être supérieur à 0.";
@@ -875,6 +879,7 @@ export class DemandePaiementManager {
     this.montantMaxCommande = null;
     this.montantHtCommande = null;
     this.montantDejaValide = 0;
+    this.commandeSoldee = false;
     this.afficherHistoriqueDdp(null);
 
     if (!numCde) {
@@ -890,6 +895,7 @@ export class DemandePaiementManager {
       this.montantHtCommande = parseFloat(resultat.montantHt);
       this.montantDejaValide = parseFloat(resultat.montantDejaValide) || 0;
       this.montantMaxCommande = parseFloat(resultat.montantRestant);
+      this.commandeSoldee = resultat.commandeSoldee === true;
       this.afficherHistoriqueDdp(numCde, resultat);
     } catch (error) {
       console.error(

@@ -80,6 +80,12 @@ class DdpController extends Controller
             /** @var DdpDto $dto */
             $dto = $form->getData();
 
+            $erreurCommandeSoldee = $this->erreurCommandeSoldee($dto);
+            if ($erreurCommandeSoldee !== null) {
+                $form->addError(new FormError($erreurCommandeSoldee));
+                return;
+            }
+
             $erreurMontant = $this->erreurMontant($dto);
             if ($erreurMontant !== null) {
                 $form->get('montantAPayer')->addError(new FormError($erreurMontant));
@@ -127,6 +133,35 @@ class DdpController extends Controller
         }
 
         return 'Le montant saisi ne correspond pas au montant calculé pour la/les commande(s)/facture(s) sélectionnée(s).';
+    }
+
+    /**
+     * Paiement à l'avance : bloque la soumission si la commande sélectionnée est
+     * déjà payée à 100 % par des demandes de paiement à l'avance validées.
+     * Miroir de la vérification front (DemandePaiementManager.js::verifierMontantAvance).
+     *
+     * @return string|null message d'erreur, null si la soumission est autorisée
+     */
+    private function erreurCommandeSoldee(DdpDto $dto): ?string
+    {
+        if ($dto->typeDdp->getId() !== TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE || empty($dto->numeroCommande)) {
+            return null;
+        }
+
+        $numCde = (string) $dto->numeroCommande[0];
+        $montantCommandeHt = (float) $this->demandePaiementModel->getMontantCde($numCde, $dto->codeSociete)['montant_total_cde_ht'];
+        $montantAvanceValide = $this->getEntityManager()
+            ->getRepository(DemandePaiement::class)
+            ->getSommeMontantDdpValideParCommande($numCde, $dto->codeSociete, TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE);
+
+        if ($montantCommandeHt > 0 && $montantAvanceValide >= $montantCommandeHt - 0.01) {
+            return sprintf(
+                'La commande %s est déjà payée à 100 %% par des demandes de paiement à l\'avance validées : une nouvelle demande de paiement à l\'avance n\'est pas possible.',
+                $numCde
+            );
+        }
+
+        return null;
     }
 
     private function erreurMontantAvance(DdpDto $dto): ?string

@@ -210,12 +210,15 @@ class InfoFournisseurApi extends Controller
         $montantHt = (float) $this->demandePaiementModel()->getMontantCde($numCde, $codeSociete)['montant_total_cde_ht'];
         // Demandes de paiement déjà validées pour cette commande
         $montantDejaValide = $this->demandePaiementRepository->getSommeMontantDdpValideParCommande($numCde, $codeSociete);
+        // Commande déjà payée à 100 % par des demandes de paiement à l'avance validées
+        $montantAvanceValide = $this->demandePaiementRepository->getSommeMontantDdpValideParCommande($numCde, $codeSociete, TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE);
 
         header("Content-type:application/json");
         echo json_encode([
             'montantHt'         => $montantHt,
             'montantDejaValide' => $montantDejaValide,
             'montantRestant'    => $montantHt - $montantDejaValide,
+            'commandeSoldee'    => $montantHt > 0 && $montantAvanceValide >= $montantHt - 0.01,
             'historique'        => $this->historiqueDdpCommande($numCde, $montantHt),
         ]);
     }

@@ -16,6 +16,7 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class DdpType extends AbstractType
 {
@@ -90,8 +91,12 @@ class DdpType extends AbstractType
             'montantFactureProforma',
             TextType::class,
             [
-                'label' => 'Montant facture proforma',
-                'required' => false
+                'label' => 'Montant facture proforma *',
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'Le montant facture proforma est obligatoire.',
+                    ]),
+                ],
             ]
         );
     }
