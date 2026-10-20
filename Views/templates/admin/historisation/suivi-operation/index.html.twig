@@ -113,7 +113,7 @@
 										{% if suivi.statut != 'SUCCES' %}
 											<button type="button"
 												class="btn btn-sm py-0 ms-1 btn-marquer-lu {{ premiere.estLu ? 'btn-outline-success' : 'btn-outline-danger' }}"
-												data-url="{{ path('suivi_operation_marquer_lu', {idSuivi: suivi.idSuivi}) }}"
+												data-url="{{ path('api_suivi_operation_marquer_lu', {idSuivi: suivi.idSuivi}) }}"
 												data-lu="{{ premiere.estLu ? 1 : 0 }}"
 												title="{{ premiere.estLu ? 'Lu par ' ~ (premiere.luPar ?: '-') ~ (premiere.dateLecture ? ' le ' ~ premiere.dateLecture|date('d/m/Y H:i') : '') ~ ' — cliquer pour marquer non lu' : 'Cliquer pour marquer comme lu' }}">
 												<i class="fas {{ premiere.estLu ? 'fa-envelope-open' : 'fa-envelope' }}"></i>
@@ -199,8 +199,11 @@
 						headers: { 'Content-Type': 'application/json' },
 						body: JSON.stringify({ lu: lu })
 					});
-					if (!reponse.ok) throw new Error((await reponse.json()).message || reponse.statusText);
-					const data = await reponse.json();
+					// la réponse peut être une page HTML (erreur 403 / 500, session expirée...)
+					const data = await reponse.json().catch(function () { return {}; });
+					if (!reponse.ok || typeof data.lu === 'undefined') {
+						throw new Error(data.message || ('erreur ' + reponse.status));
+					}
 
 					bouton.dataset.lu = data.lu ? '1' : '0';
 					bouton.classList.toggle('btn-outline-success', data.lu);
