@@ -33,6 +33,7 @@ class SuiviOperationController extends Controller
 
         return $this->render('admin/historisation/suivi-operation/index.html.twig', [
             'suivis'            => $repository->rechercherSuivis($recherche, $typeOperation, $problemeSeulement, $dateDebut, $dateFin, $idHistorique, $nonLuSeulement),
+            'modificationsBdd'  => $repository->rechercherModificationsBdd($recherche, $dateDebut, $dateFin),
             'typesOperation'   => SuiviOperationService::LIBELLES_TYPE,
             'recherche'         => $recherche,
             'typeOperation'    => $typeOperation,
