@@ -81,7 +81,7 @@
 						<span class="badge bg-info text-dark">Opération liée à l'opération n° {{ idHistorique }} de l'historique</span>
 					</p>
 				{% endif %}
-				<p class="text-muted small mb-2">{{ suivis|length }} opération(s) affichée(s) (200 maximum, les plus récentes en premier). Cliquez sur une ligne pour voir le détail des étapes.</p>
+				<p class="text-muted small mb-2">{{ suivis|length }} opération(s) affichée(s) (100 maximum, les plus récentes en premier). Cliquez sur une ligne pour voir le détail des étapes.</p>
 
 				<div class="table-responsive">
 					<table class="table table-sm table-bordered align-middle">
@@ -179,6 +179,53 @@
 						</tbody>
 					</table>
 				</div>
+			</div>
+		</div>
+
+		<div class="card mt-3">
+			<div class="card-body">
+				<h3 class="perso-titre mb-2">MODIFICATIONS EN BASE DE DONNÉES</h3>
+				{% if modificationsBdd is null %}
+					<p class="text-muted small mb-0">Traçage non installé sur cette base (script sql/historisation/audit_demande_intervention.sql).</p>
+				{% else %}
+					<p class="text-muted small mb-2">Changements tracés directement par SQL Server, y compris ceux faits hors de l'intranet (moulinette...). Mêmes filtres que ci-dessus (recherche, dates) ; {{ modificationsBdd|length }} modification(s) affichée(s) (100 maximum, les plus récentes en premier).</p>
+					<div class="table-responsive">
+						<table class="table table-sm table-bordered table-hover align-middle">
+							<thead class="table-dark">
+								<tr>
+									<th>Date</th>
+									<th>Table</th>
+									<th>Référence</th>
+									<th>Colonne</th>
+									<th>Ancienne valeur</th>
+									<th>Nouvelle valeur</th>
+									<th>Login SQL</th>
+									<th>Poste</th>
+									<th>Programme</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for modif in modificationsBdd %}
+									<tr>
+										<td class="text-nowrap">{{ modif.date_modification|date('d/m/Y H:i:s') }}</td>
+										<td>{{ modif.nom_table }}</td>
+										<td>{{ modif.reference ?: '-' }}</td>
+										<td>{{ modif.colonne }}</td>
+										<td>{{ modif.ancienne_valeur ?? 'NULL' }}{% if modif.ancien_libelle %} <small class="text-muted">({{ modif.ancien_libelle }})</small>{% endif %}</td>
+										<td class="fw-bold">{{ modif.nouvelle_valeur ?? 'NULL' }}{% if modif.nouveau_libelle %} <small class="text-muted fw-normal">({{ modif.nouveau_libelle }})</small>{% endif %}</td>
+										<td>{{ modif.login_sql }}</td>
+										<td>{{ modif.poste ?: '-' }}</td>
+										<td><small>{{ modif.programme ?: '-' }}</small></td>
+									</tr>
+								{% else %}
+									<tr>
+										<td colspan="9" class="text-center text-muted">Aucune modification tracée.</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				{% endif %}
 			</div>
 		</div>
 	</div>

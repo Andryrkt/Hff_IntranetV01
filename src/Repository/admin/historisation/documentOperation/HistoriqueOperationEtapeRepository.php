@@ -19,7 +19,54 @@ class HistoriqueOperationEtapeRepository extends EntityRepository
      *
      * @return array<int, array{idSuivi: string, statut: string, etapes: HistoriqueOperationEtape[]}>
      */
-    public function rechercherSuivis(?string $recherche, ?string $typeOperation, bool $problemeSeulement, ?\DateTimeInterface $dateDebut, ?\DateTimeInterface $dateFin, ?int $idHistorique = null, bool $nonLuSeulement = false, int $limit = 200): array
+    /**
+     * Modifications tracées par trigger SQL Server (table audit_modification_bdd, voir sql/historisation/audit_demande_intervention.sql) :
+     * elles couvrent aussi les écritures faites hors de l'intranet (moulinette, SSMS...), les plus récentes en premier.
+     *
+     * @param string|null $recherche n° DIT, n° OR (actuel de la DIT ou ancienne / nouvelle valeur) ou valeur modifiée
+     *
+     * @return array<int, array<string, mixed>>|null null si la table d'audit n'existe pas sur cette base
+     */
+    public function rechercherModificationsBdd(?string $recherche, ?\DateTimeInterface $dateDebut, ?\DateTimeInterface $dateFin, int $limit = 100): ?array
+    {
+        $connexion = $this->getEntityManager()->getConnection();
+        if (!$connexion->fetchOne("SELECT OBJECT_ID('dbo.audit_modification_bdd', 'U')")) {
+            return null;
+        }
+
+        $conditions = [];
+        $params = [];
+        if ($recherche !== null && trim($recherche) !== '') {
+            $conditions[] = '(a.reference LIKE :recherche OR di.numero_or LIKE :recherche OR a.ancienne_valeur LIKE :recherche OR a.nouvelle_valeur LIKE :recherche)';
+            $params['recherche'] = '%' . trim($recherche) . '%';
+        }
+        if ($dateDebut) {
+            $conditions[] = 'a.date_modification >= :dateDebut';
+            $params['dateDebut'] = $dateDebut->format('Y-m-d 00:00:00');
+        }
+        if ($dateFin) {
+            $conditions[] = 'a.date_modification <= :dateFin';
+            $params['dateFin'] = $dateFin->format('Y-m-d 23:59:59');
+        }
+
+        // libellé des statuts DIT, pour afficher "AFFECTEE SECTION" plutôt que 51
+        $sql = sprintf(
+            "SELECT TOP %d a.date_modification, a.nom_table, a.reference, a.colonne, a.ancienne_valeur, a.nouvelle_valeur,
+                    a.login_sql, a.poste, a.programme, sa.Description AS ancien_libelle, sn.Description AS nouveau_libelle
+             FROM audit_modification_bdd a
+                LEFT JOIN demande_intervention di ON a.nom_table = 'demande_intervention' AND di.id = a.id_ligne
+                LEFT JOIN Statut_demande sa ON a.colonne = 'id_statut_demande' AND CAST(sa.ID_Statut_Demande AS NVARCHAR(255)) = a.ancienne_valeur
+                LEFT JOIN Statut_demande sn ON a.colonne = 'id_statut_demande' AND CAST(sn.ID_Statut_Demande AS NVARCHAR(255)) = a.nouvelle_valeur
+             %s
+             ORDER BY a.date_modification DESC, a.id DESC",
+            $limit,
+            $conditions ? 'WHERE ' . implode(' AND ', $conditions) : ''
+        );
+
+        return $connexion->fetchAllAssociative($sql, $params);
+    }
+
+    public function rechercherSuivis(?string $recherche, ?string $typeOperation, bool $problemeSeulement, ?\DateTimeInterface $dateDebut, ?\DateTimeInterface $dateFin, ?int $idHistorique = null, bool $nonLuSeulement = false, int $limit = 100): array
     {
         $qb = $this->createQueryBuilder('e')
             ->select('e.idSuivi, MIN(e.dateDebut) AS HIDDEN debut')
