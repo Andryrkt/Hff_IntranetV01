@@ -91,6 +91,21 @@ class HistoriqueOperationEtape
      */
     private ?string $url = null;
 
+    /**
+     * @ORM\Column(type="boolean", name="est_lu", options={"default": 0})
+     */
+    private bool $estLu = false;
+
+    /**
+     * @ORM\Column(type="string", length=100, name="lu_par", nullable=true)
+     */
+    private ?string $luPar = null;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_lecture", nullable=true)
+     */
+    private ?\DateTimeInterface $dateLecture = null;
+
     public function getId()
     {
         return $this->id;
@@ -164,5 +179,20 @@ class HistoriqueOperationEtape
     public function getUrl(): ?string
     {
         return $this->url;
+    }
+
+    public function getEstLu(): bool
+    {
+        return $this->estLu;
+    }
+
+    public function getLuPar(): ?string
+    {
+        return $this->luPar;
+    }
+
+    public function getDateLecture(): ?\DateTimeInterface
+    {
+        return $this->dateLecture;
     }
 }

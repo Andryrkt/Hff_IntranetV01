@@ -15,10 +15,11 @@ class HistoriqueOperationEtapeRepository extends EntityRepository
      * @param string|null $typeOperation  une des constantes SuiviOperationService::TYPE_*
      * @param bool        $problemeSeulement ne garder que les opérations avec une étape en échec, interrompue ou jamais terminée
      * @param int|null    $idHistorique    opération rattachée à cette ligne de l'historique des opérations
+     * @param bool        $nonLuSeulement  ne garder que les opérations en problème pas encore marquées comme lues
      *
      * @return array<int, array{idSuivi: string, statut: string, etapes: HistoriqueOperationEtape[]}>
      */
-    public function rechercherSuivis(?string $recherche, ?string $typeOperation, bool $problemeSeulement, ?\DateTimeInterface $dateDebut, ?\DateTimeInterface $dateFin, ?int $idHistorique = null, int $limit = 200): array
+    public function rechercherSuivis(?string $recherche, ?string $typeOperation, bool $problemeSeulement, ?\DateTimeInterface $dateDebut, ?\DateTimeInterface $dateFin, ?int $idHistorique = null, bool $nonLuSeulement = false, int $limit = 200): array
     {
         $qb = $this->createQueryBuilder('e')
             ->select('e.idSuivi, MIN(e.dateDebut) AS HIDDEN debut')
@@ -42,9 +43,13 @@ class HistoriqueOperationEtapeRepository extends EntityRepository
         if ($dateFin) {
             $qb->andWhere('e.dateDebut <= :dateFin')->setParameter('dateFin', $dateFin->format('Y-m-d 23:59:59'));
         }
-        if ($problemeSeulement) {
+        // une opération non lue n'a de sens que si elle est en problème
+        if ($problemeSeulement || $nonLuSeulement) {
             $qb->having('SUM(CASE WHEN e.statut <> :succes THEN 1 ELSE 0 END) > 0')
                 ->setParameter('succes', SuiviOperationService::STATUT_SUCCES);
+        }
+        if ($nonLuSeulement) {
+            $qb->andWhere('e.estLu = :nonLu')->setParameter('nonLu', false);
         }
 
         $idsSuivi = array_column($qb->getQuery()->getScalarResult(), 'idSuivi');
@@ -76,6 +81,27 @@ class HistoriqueOperationEtapeRepository extends EntityRepository
         }
 
         return $resultat;
+    }
+
+    /**
+     * Marque toutes les étapes d'une opération comme lues (ou non lues)
+     *
+     * @return int nombre d'étapes mises à jour
+     */
+    public function marquerLu(string $idSuivi, bool $lu, ?string $utilisateur): int
+    {
+        return $this->createQueryBuilder('e')
+            ->update()
+            ->set('e.estLu', ':lu')
+            ->set('e.luPar', ':luPar')
+            ->set('e.dateLecture', ':dateLecture')
+            ->where('e.idSuivi = :idSuivi')
+            ->setParameter('lu', $lu)
+            ->setParameter('luPar', $lu ? $utilisateur : null)
+            ->setParameter('dateLecture', $lu ? new \DateTime() : null)
+            ->setParameter('idSuivi', $idSuivi)
+            ->getQuery()
+            ->execute();
     }
 
     /**
