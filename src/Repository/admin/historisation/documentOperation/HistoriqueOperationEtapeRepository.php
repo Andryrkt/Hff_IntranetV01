@@ -23,7 +23,7 @@ class HistoriqueOperationEtapeRepository extends EntityRepository
      * Modifications tracées par trigger SQL Server (table audit_modification_bdd, voir sql/historisation/audit_demande_intervention.sql) :
      * elles couvrent aussi les écritures faites hors de l'intranet (moulinette, SSMS...), les plus récentes en premier.
      *
-     * @param string|null $recherche n° DIT, n° OR (actuel de la DIT ou ancienne / nouvelle valeur) ou valeur modifiée
+     * @param string|null $recherche n° DIT, n° DA, n° OR (actuel de la DIT / de la DA ou ancienne / nouvelle valeur) ou valeur modifiée
      *
      * @return array<int, array<string, mixed>>|null null si la table d'audit n'existe pas sur cette base
      */
@@ -37,7 +37,8 @@ class HistoriqueOperationEtapeRepository extends EntityRepository
         $conditions = [];
         $params = [];
         if ($recherche !== null && trim($recherche) !== '') {
-            $conditions[] = '(a.reference LIKE :recherche OR di.numero_or LIKE :recherche OR a.ancienne_valeur LIKE :recherche OR a.nouvelle_valeur LIKE :recherche)';
+            $conditions[] = '(a.reference LIKE :recherche OR di.numero_or LIKE :recherche OR da.numero_or LIKE :recherche OR da.numero_demande_dit LIKE :recherche'
+                . ' OR a.ancienne_valeur LIKE :recherche OR a.nouvelle_valeur LIKE :recherche)';
             $params['recherche'] = '%' . trim($recherche) . '%';
         }
         if ($dateDebut) {
@@ -52,9 +53,11 @@ class HistoriqueOperationEtapeRepository extends EntityRepository
         // libellé des statuts DIT, pour afficher "AFFECTEE SECTION" plutôt que 51
         $sql = sprintf(
             "SELECT TOP %d a.date_modification, a.nom_table, a.reference, a.colonne, a.ancienne_valeur, a.nouvelle_valeur,
-                    a.login_sql, a.poste, a.programme, sa.Description AS ancien_libelle, sn.Description AS nouveau_libelle
+                    a.login_sql, a.poste, a.programme, sa.Description AS ancien_libelle, sn.Description AS nouveau_libelle,
+                    da.art_refp, da.numero_version
              FROM audit_modification_bdd a
                 LEFT JOIN demande_intervention di ON a.nom_table = 'demande_intervention' AND di.id = a.id_ligne
+                LEFT JOIN da_afficher da ON a.nom_table = 'da_afficher' AND da.id = a.id_ligne
                 LEFT JOIN Statut_demande sa ON a.colonne = 'id_statut_demande' AND CAST(sa.ID_Statut_Demande AS NVARCHAR(255)) = a.ancienne_valeur
                 LEFT JOIN Statut_demande sn ON a.colonne = 'id_statut_demande' AND CAST(sn.ID_Statut_Demande AS NVARCHAR(255)) = a.nouvelle_valeur
              %s
