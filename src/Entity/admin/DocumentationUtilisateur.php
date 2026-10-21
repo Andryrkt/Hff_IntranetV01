@@ -36,6 +36,27 @@ class DocumentationUtilisateur
     private ?string $contenu = null;
 
     /**
+     * Rubrique du sommaire (mêmes intitulés que le menu principal : Compta, Magasin...)
+     *
+     * @ORM\Column(type="string", length=50, nullable=true)
+     */
+    private ?string $rubrique = null;
+
+    /**
+     * Ordre d'affichage dans la rubrique
+     *
+     * @ORM\Column(type="integer")
+     */
+    private int $ordre = 0;
+
+    /**
+     * Brouillon (false) visible des seuls administrateurs
+     *
+     * @ORM\Column(type="boolean")
+     */
+    private bool $publie = false;
+
+    /**
      * @ORM\Column(type="datetime", name="date_modification", nullable=true)
      */
     private ?\DateTime $dateModification = null;
@@ -80,6 +101,42 @@ class DocumentationUtilisateur
     public function setContenu(?string $contenu): self
     {
         $this->contenu = $contenu;
+
+        return $this;
+    }
+
+    public function getRubrique(): ?string
+    {
+        return $this->rubrique;
+    }
+
+    public function setRubrique(?string $rubrique): self
+    {
+        $this->rubrique = $rubrique;
+
+        return $this;
+    }
+
+    public function getOrdre(): int
+    {
+        return $this->ordre;
+    }
+
+    public function setOrdre(?int $ordre): self
+    {
+        $this->ordre = (int) $ordre;
+
+        return $this;
+    }
+
+    public function isPublie(): bool
+    {
+        return $this->publie;
+    }
+
+    public function setPublie(bool $publie): self
+    {
+        $this->publie = $publie;
 
         return $this;
     }

@@ -13,7 +13,12 @@
 
 		{{ form_start(form) }}
 		{{ form_errors(form) }}
-		{{ form_row(form.titre) }}
+		<div class="row">
+			<div class="col-12 col-md-6">{{ form_row(form.titre) }}</div>
+			<div class="col-6 col-md-3">{{ form_row(form.rubrique) }}</div>
+			<div class="col-6 col-md-1">{{ form_row(form.ordre) }}</div>
+			<div class="col-12 col-md-2 d-flex align-items-end">{{ form_row(form.publie) }}</div>
+		</div>
 		{{ form_row(form.contenu) }}
 		<div class="d-flex justify-content-end mt-2">
 			<button type="submit" class="btn bouton">
@@ -37,8 +42,8 @@
 				language_url: "https://cdn.jsdelivr.net/npm/tinymce-i18n@26.9.28/langs7/fr_FR.js",
 				height: 500,
 				menubar: false,
-				plugins: "lists link table code",
-				toolbar: "undo redo | blocks | bold italic underline | bullist numlist | link table | removeformat code"
+				plugins: "lists link table code fullscreen",
+				toolbar: "undo redo | blocks | bold italic underline | bullist numlist | link table | removeformat code | fullscreen"
 			});
 		});
 	</script>

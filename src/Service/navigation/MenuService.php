@@ -2,6 +2,7 @@
 
 namespace App\Service\navigation;
 
+use App\Entity\admin\utilisateur\Profil;
 use App\Service\navigation\MenuGroupe;
 use App\Service\UserData\UserDataService;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -370,7 +371,7 @@ class MenuService
         foreach ($groupes as $groupe) {
             $linksAccessibles = array_values(array_filter(
                 $groupe['links'],
-                fn(array $link) => $this->hasAccesRoute($link['route'])
+                fn(array $link) => $this->hasAccesRoute($link['route']) || (($link['admin'] ?? false) && $this->estProfilAdmin())
             ));
 
             if (!empty($linksAccessibles)) {
@@ -485,6 +486,17 @@ class MenuService
     private function hasAccesRoute(string $route): bool
     {
         return $this->userDataService->peutVoir($route);
+    }
+
+    /**
+     * Profil en cours de construction (et non celui de la session : le menu est
+     * mis en cache par profil, parfois reconstruit pour un autre profil) = HFF-ADMIN
+     */
+    private function estProfilAdmin(): bool
+    {
+        $profil = $this->userDataService->getProfil();
+
+        return $profil !== null && $profil->getDesignation() === Profil::HFF_ADMIN;
     }
 
     // =========================================================================

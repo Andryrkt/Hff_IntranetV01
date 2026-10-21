@@ -6,6 +6,9 @@
 {% endblock %}
 
 {% block content %}
+	<div class="text-end me-3">
+		{% include 'partials/_lienGuide.html.twig' with {slug: 'bon-de-caisse'} %}
+	</div>
 	<div class="container mt-6">
 		<h3 class="perso-titre">
 			Liste des Bons de Caisse
