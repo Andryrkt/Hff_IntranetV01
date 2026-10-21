@@ -30,6 +30,7 @@ class DemandePaiementCommandeMapper
                 ->setClient($dto->appro ? 'appro' : 'magasin')
                 // montant du commande à payer : uniquement saisi sur DdpDto (magasin)
                 ->setMontantCommandeAPayer($dto instanceof DdpDto ? $dto->montantCommande($numeroCommande) : null)
+                ->setSoldeAvance($dto instanceof DdpDto ? ($dto->soldesAvance[$numeroCommande] ?? null) : null)
             ;
 
             // l'objet demande paiement pour la liaison du table demande_paiement_commande avec le table demande_paiement

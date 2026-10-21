@@ -378,11 +378,12 @@ class DemandePaiementRepository extends EntityRepository
     /**
      * Situation des demandes de paiement à l'avance (DDPA) validées d'une commande :
      * - ratioDdpa : cumul des % des DDPA (0 sans DDPA) ;
-     * - soldeAvance : montant total du commande (dernière DDPA, 0 sans DDPA)
+     * - typeDdpAGenerer : BAP (0 % DDPA), DDPR (100 %), DDPL (entre les deux) ;
+     * - soldeAvance (DDPL uniquement, 0 sinon) : montant total du commande (dernière DDPA)
      *   - (somme des montants facture proforma des DDPA + montant commande déjà payé
      *   par les demandes validées de type différent de l'avance).
      *
-     * @return array{ratioDdpa: float, soldeAvance: float}
+     * @return array{ratioDdpa: float, typeDdpAGenerer: int, soldeAvance: float}
      */
     public function getSituationAvanceParCommande(string $numeroCde, string $codeSociete): array
     {
@@ -401,6 +402,13 @@ class DemandePaiementRepository extends EntityRepository
             // montant à payer d'une DDPA = montant facture proforma
             $sommeProforma += (float) $ddpa->getMontantAPayers();
             $montantTotalCommande = (float) $ddpa->getMontantTotalCommande() ?: $montantTotalCommande;
+        }
+
+        if ($ratioDdpa <= 0.01) {
+            return ['ratioDdpa' => $ratioDdpa, 'typeDdpAGenerer' => TypeDemandePaiementConstants::ID_BON_A_PAYER, 'soldeAvance' => 0.0];
+        }
+        if ($ratioDdpa >= 100 - 0.01) {
+            return ['ratioDdpa' => $ratioDdpa, 'typeDdpAGenerer' => TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_REGULE, 'soldeAvance' => 0.0];
         }
 
         $montantDejaPaye = (float) $this->getEntityManager()->createQueryBuilder()
@@ -425,8 +433,9 @@ class DemandePaiementRepository extends EntityRepository
             ->getSingleScalarResult();
 
         return [
-            'ratioDdpa'   => $ratioDdpa,
-            'soldeAvance' => $montantTotalCommande - ($sommeProforma + $montantDejaPaye),
+            'ratioDdpa'       => $ratioDdpa,
+            'typeDdpAGenerer' => TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE,
+            'soldeAvance'     => $montantTotalCommande - ($sommeProforma + $montantDejaPaye),
         ];
     }
 

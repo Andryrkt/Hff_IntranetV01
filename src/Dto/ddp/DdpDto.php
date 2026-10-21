@@ -17,6 +17,8 @@ class DdpDto
     // numéro de la commande
     public array $numeroCommande = [];
     public array $montantsCommande = []; // * [numeroCommande => montant du commande à payer] saisi par l'utilisateur (après arrivage)
+    public array $soldesAvance = []; // [numeroCommande => solde avance] calculé à la soumission (après arrivage)
+    public array $donneesBapMagasin = []; // données de la page de garde BAP MAGASIN (voir DdpController::donneesBapMagasin)
     // numéro de la facture
     public array $numeroFacture = [];
     // fournisseur

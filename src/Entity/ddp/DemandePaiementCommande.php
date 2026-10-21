@@ -54,6 +54,11 @@ class DemandePaiementCommande
     private ?float $montantCommandeAPayer = null;
 
     /**
+     * @ORM\Column(type="float", scale="2", name="solde_avance", nullable=true)
+     */
+    private ?float $soldeAvance = null;
+
+    /**
      * @ORM\ManyToOne(targetEntity=DemandePaiement::class, inversedBy="demandePaiementCommandes")
      * @ORM\JoinColumn(name="demandePaiementId", referencedColumnName="id")
      */
@@ -171,6 +176,24 @@ class DemandePaiementCommande
     public function setMontantCommandeAPayer(?float $montantCommandeAPayer): self
     {
         $this->montantCommandeAPayer = $montantCommandeAPayer;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of soldeAvance
+     */
+    public function getSoldeAvance(): ?float
+    {
+        return $this->soldeAvance;
+    }
+
+    /**
+     * Set the value of soldeAvance
+     */
+    public function setSoldeAvance(?float $soldeAvance): self
+    {
+        $this->soldeAvance = $soldeAvance;
 
         return $this;
     }

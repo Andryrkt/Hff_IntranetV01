@@ -92,6 +92,26 @@ class DemandePaiementModel extends Model
         return $this->retournerResultGcot04FiltreSurColonne($sql, 'Numero_PO', $numCdesString);
     }
 
+    /**
+     * Commandes (Numero_PO) et montant de chacune des factures GCOT données
+     *
+     * @param string $numFacString factures au format 'FAC1','FAC2'
+     * @return array<array{Numero_Facture: string, Montant_Facture: float, Numero_PO: string}>
+     */
+    public function getCommandesParFacture(string $numFacString): array
+    {
+        $sql = "SELECT DISTINCT
+                TRZT_Facture.Numero_Facture,
+                TRZT_Facture.Montant_FOB as Montant_Facture,
+                GCOT_Facture_Ligne.Numero_PO
+            from TRZT_Facture
+            INNER JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
+            INNER JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
+            where TRZT_Facture.Numero_Facture in ({$numFacString})";
+
+        return $this->retournerResultGcot04($sql);
+    }
+
     public function getMontantFacGcot(string $numeroFournisseur, string  $numCdesString, string $numfacture): array
     {
         $sql = "SELECT sum(montant_fob) as montantfacture  from TRZT_Facture where Numero_Facture in ({$numfacture})";

@@ -240,15 +240,7 @@ class InfoFournisseurApi extends Controller
         $this->libererSession();
 
         $situation = $this->demandePaiementRepository->getSituationAvanceParCommande($numCde, $codeSociete);
-        $ratio = $situation['ratioDdpa'];
-        if ($ratio <= 0.01) {
-            $typeId = TypeDemandePaiementConstants::ID_BON_A_PAYER;
-        } elseif ($ratio >= 100 - 0.01) {
-            $typeId = TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_REGULE;
-        } else {
-            $typeId = TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE;
-        }
-        $typeDemande = $this->getEntityManager()->getRepository(TypeDemande::class)->find($typeId);
+        $typeDemande = $this->getEntityManager()->getRepository(TypeDemande::class)->find($situation['typeDdpAGenerer']);
 
         header("Content-type:application/json");
         echo json_encode($situation + [
