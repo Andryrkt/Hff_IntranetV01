@@ -70,7 +70,7 @@
 								{{ row.numeroDdp }}
 							{% endif %}
 						</td>
-						<td class="text-start">{{ row.typeDemande }}</td>
+						<td class="text-start">{{ row.typeDemande ? row.typeDemande.libelle : "-" }}</td>
 						<td class="text-start">{{ row.fournisseur }}</td>
 						<td class="text-center">{{ row.numeroCommande }}</td>
 						<td class="text-center">{{ row.numeroLivraison }}</td>

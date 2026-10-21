@@ -16,10 +16,10 @@ class DdpRecapMapper
             $ddpRecapDto->typeDemande = $dto->typeDemande->getLibelle();
             $ddpRecapDto->numeroFacture = $dto->numeroFacture;
             $ddpRecapDto->numeroFactureIps = $dto->numeroFactureIps;
-            $ddpRecapDto->montant = $dto->montantAPayer;
+            $ddpRecapDto->montant = $dto->montantAPayer();
             $ddpRecapDto->statut = $dto->statut;
             $ddpRecapDto->emetteur = $dto->demandeur;
-            $ddpRecapDto->ratio = (float) number_format(($dto->montantAPayer / $totalMontantCommande) * 100, 2);
+            $ddpRecapDto->ratio = (float) number_format(($ddpRecapDto->montant / $totalMontantCommande) * 100, 2);
             $ddpRecapDtoList[] = $ddpRecapDto;
         }
 

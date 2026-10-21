@@ -108,7 +108,7 @@ class BonApayerController extends Controller
                 $dto->numeroCla ?? "-",
                 $dto->numeroDemandeAppro ?? "-",
                 $dto->numeroDdp ?? "-",
-                $dto->typeDemande,
+                $dto->typeDemande ? $dto->typeDemande->getLibelle() : "-",
                 $dto->getFournisseur(),
                 $dto->numeroCommande ?? "-",
                 $dto->numeroLivraison ?? "-",

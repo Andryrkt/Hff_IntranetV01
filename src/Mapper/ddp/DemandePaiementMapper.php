@@ -74,7 +74,7 @@ class DemandePaiementMapper
             $dto->numeroCla            = $ddp->getNumeroCla();
             $dto->numeroDemandeAppro   = $ddp->getNumeroDemandeAppro();
             $dto->numeroDdp            = $ddp->getNumeroDdp();
-            $dto->typeDemande          = $ddp->getTypeDemandeId() ? $ddp->getTypeDemandeId()->getLibelle() : "-";
+            $dto->typeDemande          = $ddp->getTypeDemandeId();
             $dto->numeroFournisseur    = $ddp->getNumeroFournisseur();
             $dto->beneficiaire         = $ddp->getBeneficiaire();
             $dto->numeroCommande       = $ddp->getNumeroCommande();
