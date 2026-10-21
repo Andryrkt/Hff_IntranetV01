@@ -8,7 +8,7 @@ use Doctrine\DBAL\Logging\SQLLogger;
  * Enregistre les requêtes SQL (SQL Server, connexion Doctrine) exécutées pendant une opération suivie,
  * avec leur durée, pour les rattacher aux étapes du suivi (voir SuiviOperationService).
  *
- * Seul le texte SQL est conservé (les valeurs restent des "?"). Les requêtes du suivi lui-même ne sont pas
+ * Le texte SQL est conservé avec les valeurs liées aux "?" (affichées dans l'ordre). Les requêtes du suivi lui-même ne sont pas
  * retenues. Un logger déjà installé continue d'être appelé.
  */
 class CollecteurRequetesSql implements SQLLogger
@@ -21,6 +21,7 @@ class CollecteurRequetesSql implements SQLLogger
     /** @var array<int, array{sql: string, duree: float, source?: string}> source : "SQL" (SQL Server, par défaut) ou "IPS" */
     private array $requetes = [];
     private ?string $sqlEnCours = null;
+    private array $paramsEnCours = [];
     private float $debut = 0.0;
 
     public function __construct(?SQLLogger $loggerPrecedent = null)
@@ -31,6 +32,7 @@ class CollecteurRequetesSql implements SQLLogger
     public function startQuery($sql, ?array $params = null, ?array $types = null)
     {
         $this->sqlEnCours = $sql;
+        $this->paramsEnCours = $params ?? [];
         $this->debut = microtime(true);
 
         if ($this->loggerPrecedent !== null) {
@@ -41,7 +43,7 @@ class CollecteurRequetesSql implements SQLLogger
     public function stopQuery()
     {
         if ($this->sqlEnCours !== null && $this->estARetenir($this->sqlEnCours) && count($this->requetes) < self::NOMBRE_MAX) {
-            $this->requetes[] = ['sql' => $this->sqlEnCours, 'duree' => (microtime(true) - $this->debut) * 1000];
+            $this->requetes[] = ['sql' => $this->sqlEnCours, 'duree' => (microtime(true) - $this->debut) * 1000, 'params' => $this->paramsEnCours];
         }
         $this->sqlEnCours = null;
 
@@ -146,10 +148,43 @@ class CollecteurRequetesSql implements SQLLogger
         $lignes = ['Requêtes :'];
         foreach ($requetes as $i => $requete) {
             $sql = preg_replace('/\s+/', ' ', trim($requete['sql']));
-            $lignes[] = sprintf('%d. [%s %d ms] %s', $i + 1, $requete['source'] ?? 'SQL', round($requete['duree']), mb_strlen($sql) > 400 ? mb_substr($sql, 0, 400) . '...' : $sql);
+            $lignes[] = sprintf('%d. [%s %d ms] %s', $i + 1, $requete['source'] ?? 'SQL', round($requete['duree']), mb_strlen($sql) > 400 ? mb_substr($sql, 0, 400) . '...' : $sql)
+                . (empty($requete['params']) ? '' : ' ⇐ valeurs : ' . implode(', ', array_map([self::class, 'formaterValeur'], $requete['params'])));
         }
 
         return implode("\n", $lignes);
+    }
+
+    /**
+     * Valeur d'un paramètre lié, lisible et courte, dans l'ordre des "?"
+     */
+    private static function formaterValeur($valeur): string
+    {
+        if ($valeur === null) {
+            return 'NULL';
+        }
+        if (is_bool($valeur)) {
+            return $valeur ? '1' : '0';
+        }
+        if (is_int($valeur) || is_float($valeur)) {
+            return (string) $valeur;
+        }
+        if ($valeur instanceof \DateTimeInterface) {
+            return "'" . $valeur->format('Y-m-d H:i:s') . "'";
+        }
+        if (is_array($valeur)) {
+            return '(' . implode(', ', array_map([self::class, 'formaterValeur'], $valeur)) . ')';
+        }
+        if (is_object($valeur) && !method_exists($valeur, '__toString')) {
+            return get_class($valeur);
+        }
+        $texte = (string) $valeur;
+        // même raison que pour les requêtes IPS : un texte non UTF-8 empêcherait l'enregistrement du suivi
+        if (!mb_check_encoding($texte, 'UTF-8')) {
+            $texte = mb_convert_encoding($texte, 'UTF-8', 'ISO-8859-1');
+        }
+
+        return "'" . (mb_strlen($texte) > 100 ? mb_substr($texte, 0, 100) . '...' : $texte) . "'";
     }
 
     /**
