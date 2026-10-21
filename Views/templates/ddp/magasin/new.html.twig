@@ -27,6 +27,12 @@
 					<div class=" col-12 col-md-1">
 						<a href="{{ path("profil_acceuil") }}" class="tablinks p-2 btn btn-outline-warning" style="text-decoration: none;color:black">Retour</a>
 					</div>
+					<div class="col-12">
+						<a href="{{ path('doc_utilisateur_show', {'slug': 'ddp-magasin'}) }}" target="_blank" class="small">
+							<i class="fas fa-question-circle"></i>
+							Guide d'utilisation
+						</a>
+					</div>
 				</div>
 				{% if id_type == 1 %}
 					{# Historique des demandes de paiement de la commande sélectionnée (rempli par DemandePaiementManager.js) #}

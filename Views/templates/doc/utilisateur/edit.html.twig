@@ -1,0 +1,45 @@
+{% extends 'baseTemplate.html.twig' %}
+
+{% block title %}
+	Modifier la documentation
+{% endblock %}
+
+{% block content %}
+	<div class="container mt-6">
+		<a href="{{ path('doc_utilisateur_show', {'slug': slug}) }}">&larr; Retour à la documentation</a>
+		<hr>
+
+		<h3 class="perso-titre">Modifier la documentation « {{ slug }} »</h3>
+
+		{{ form_start(form) }}
+		{{ form_errors(form) }}
+		{{ form_row(form.titre) }}
+		{{ form_row(form.contenu) }}
+		<div class="d-flex justify-content-end mt-2">
+			<button type="submit" class="btn bouton">
+				<i class="fas fa-save"></i>
+				Enregistrer
+			</button>
+		</div>
+		{{ form_end(form) }}
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	{# TinyMCE auto-hébergé depuis jsDelivr, sous licence GPL (license_key "gpl") #}
+	<script src="https://cdn.jsdelivr.net/npm/tinymce@7.9.3/tinymce.min.js"></script>
+	<script>
+		document.addEventListener("DOMContentLoaded", function () {
+			tinymce.init({
+				selector: "#form_contenu",
+				license_key: "gpl",
+				language: "fr_FR",
+				language_url: "https://cdn.jsdelivr.net/npm/tinymce-i18n@26.9.28/langs7/fr_FR.js",
+				height: 500,
+				menubar: false,
+				plugins: "lists link table code",
+				toolbar: "undo redo | blocks | bold italic underline | bullist numlist | link table | removeformat code"
+			});
+		});
+	</script>
+{% endblock %}
