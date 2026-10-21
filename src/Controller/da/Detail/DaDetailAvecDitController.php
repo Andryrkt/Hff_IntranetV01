@@ -2,21 +2,22 @@
 
 namespace App\Controller\da\Detail;
 
-
-use App\Constants\da\StatutDaConstant;
+use App\Model\dit\DitModel;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
-use App\Form\da\DaObservationType;
-use App\Controller\Traits\lienGenerique;
-use App\Controller\Traits\da\DaAfficherTrait;
-use App\Controller\Traits\da\detail\DaDetailAvecDitTrait;
-use App\Entity\dit\DemandeIntervention;
 use App\Model\da\DaAfficherModel;
-use App\Model\dit\DitModel;
+use App\Form\da\DaObservationType;
+use App\Service\Admin\UrlIdCipher;
+use App\Service\da\DaDetailService;
 use App\Service\da\DaTimelineService;
 use App\Service\da\DocRattacheService;
-use App\Service\Admin\UrlIdCipher;
+use App\Constants\da\StatutDaConstant;
+use App\Entity\dit\DemandeIntervention;
+use App\Service\da\DaObservationService;
+use Doctrine\ORM\EntityManagerInterface;
+use App\Service\UserData\UserDataService;
+use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
@@ -26,21 +27,29 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException;
  */
 class DaDetailAvecDitController extends Controller
 {
-	use lienGenerique;
-	use DaAfficherTrait;
-	use DaDetailAvecDitTrait;
+	private UserDataService $userDataService;
+	private DemandeApproRepository $demandeApproRepository;
 
 	private DocRattacheService $docRattacheService;
 	private DaTimelineService $daTimelineService;
+	private DaObservationService $daObservationService;
+	private DaDetailService $daDetailService;
 	private UrlIdCipher $urlIdCipher;
 
-	public function __construct(DocRattacheService $docRattacheService, DaTimelineService $daTimelineService)
-	{
-		parent::__construct();
-
-		$this->initDaDetailAvecDitTrait();
+	public function __construct(
+		EntityManagerInterface $em,
+		DocRattacheService $docRattacheService,
+		DaTimelineService $daTimelineService,
+		DaObservationService $daObservationService,
+		DaDetailService $daDetailService,
+		UserDataService $userDataService
+	) {
+		$this->userDataService = $userDataService;
+		$this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
+		$this->daDetailService = $daDetailService;
 		$this->docRattacheService = $docRattacheService;
 		$this->daTimelineService = $daTimelineService;
+		$this->daObservationService = $daObservationService;
 		$this->urlIdCipher = new UrlIdCipher;
 	}
 
@@ -65,14 +74,14 @@ class DaDetailAvecDitController extends Controller
 
 		$this->traitementFormulaire($formObservation, $request, $demandeAppro);
 
-		$observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()], ['dateCreation' => 'ASC']);
+		$observations = $this->daObservationService->getObservations($demandeAppro->getNumeroDemandeAppro());
 
 		$fichiers = $this->docRattacheService->getAllAttachedFiles($demandeAppro);
 
 		$statutEtAction = (new DaAfficherModel)->getStatutEtActionAffichage($demandeAppro->getNumeroDemandeAppro(), "{$demandeAppro->getAgenceServiceEmetteur()} — {$demandeAppro->getDemandeur()}");
 		$statutDa = $statutEtAction['statutDa'] ?? "";
 
-		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL(), $statutDa);
+		$demandeApproLPrepared = $this->daDetailService->prepareDataForDisplayDetail($demandeAppro->getDAL(), $statutDa, 'da_delete_line_avec_dit');
 		$timeLineData = $this->daTimelineService->getTimelineData($demandeAppro);
 		$resolvedSlug = $this->urlIdCipher->resolveSlugDemandeAppro($request->query->get('redirect'), $this->getUrlGenerator());
 
@@ -88,7 +97,7 @@ class DaDetailAvecDitController extends Controller
 			'numSerie'          		=> $dataModel[0]['num_serie'],
 			'numParc'           		=> $dataModel[0]['num_parc'],
 			'fichiers'            		=> $fichiers,
-			'connectedUser'     		=> $this->getUser(),
+			'connectedUser'     		=> $this->userDataService->getUser(),
 			'statutDa'          		=> $statutDa,
 			'classStatutDa'    		    => $statutEtAction['classStatutDa'],
 			'action'      		        => $statutEtAction['action'],
@@ -107,25 +116,9 @@ class DaDetailAvecDitController extends Controller
 		$form->handleRequest($request);
 
 		if ($form->isSubmitted() && $form->isValid()) {
-			/** @var DaObservation $daObservation daObservation correspondant au donnée du form */
-			$daObservation = $form->getData();
+			$notification = $this->daDetailService->envoyerObservation($demandeAppro, $form->getData(), $this->estAppro());
 
-			$this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $daObservation->getFileNames());
-
-			if ($this->estAppro() && $daObservation->getStatutChange()) {
-				$this->appliquerChangementStatut($demandeAppro, StatutDaConstant::STATUT_AUTORISER_EMETTEUR);
-
-				$this->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro());
-			}
-
-			$notification = [
-				'type' => 'success',
-				'message' => 'Votre observation a été enregistré avec succès.',
-			];
-
-			$this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estAppro());
-
-			$this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+			$this->getSessionService()->set('notification', $notification);
 			return $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
 		}
 	}

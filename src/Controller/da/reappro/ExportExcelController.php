@@ -4,7 +4,7 @@ namespace App\Controller\da\reappro;
 
 use App\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\da\reappro\ReportingIpsTrait;
+use App\Service\da\reappro\ReportingIpsService;
 use App\Service\ExcelService;
 
 /**
@@ -12,7 +12,12 @@ use App\Service\ExcelService;
  */
 class ExportExcelController extends Controller
 {
-    use ReportingIpsTrait;
+    private ReportingIpsService $reportingIpsService;
+
+    public function __construct(ReportingIpsService $reportingIpsService)
+    {
+        $this->reportingIpsService = $reportingIpsService;
+    }
 
     /**
      * @Route("/reappro-export-excel", name = "export_reappro_excel")
@@ -24,7 +29,7 @@ class ExportExcelController extends Controller
 
         $criterias = $this->getSessionService()->get('criterias_reporting_ips');
 
-        $reportingIpsData = $this->getData($criterias, $codeSociete);
+        $reportingIpsData = $this->reportingIpsService->getData($criterias, $codeSociete);
 
         $data = [];
         // En-tête du tableau d'excel

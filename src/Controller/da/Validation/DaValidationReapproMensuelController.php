@@ -2,18 +2,23 @@
 
 namespace App\Controller\da\Validation;
 
+use App\Service\UserData\UserDataService;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Form\da\DaObservationType;
 use App\Form\da\DaObservationValidationType;
-use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\da\validation\DaValidationReapproTrait;
+use App\Repository\da\DemandeApproRepository;
+use App\Service\da\EmailDaService;
+use App\Service\da\DaValidationService;
+use App\Service\da\DaSoumissionValidationService;
 use App\Service\da\DaConsumptionHistory;
+use App\Service\da\DaObservationService;
 use App\Service\da\DocRattacheService;
 use App\Service\Admin\UrlIdCipher;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
@@ -22,17 +27,32 @@ use App\Service\historiqueOperation\suivi\SuiviOperationService;
  */
 class DaValidationReapproMensuelController extends Controller
 {
-    use DaAfficherTrait;
-    use DaValidationReapproTrait;
+    private UserDataService $userDataService;
+    private DemandeApproRepository $demandeApproRepository;
+    private EmailDaService $emailDaService;
+
     private DocRattacheService $docRattacheService;
     private UrlIdCipher $urlIdCipher;
+    private DaObservationService $daObservationService;
+    private DaValidationService $daValidationService;
+    private DaSoumissionValidationService $daSoumissionValidationService;
 
-    public function __construct(DocRattacheService $docRattacheService)
-    {
-        parent::__construct();
-
-        $this->initDaValidationReapproTrait();
+    public function __construct(
+        EntityManagerInterface $em,
+        DocRattacheService $docRattacheService,
+        DaObservationService $daObservationService,
+        DaValidationService $daValidationService,
+        DaSoumissionValidationService $daSoumissionValidationService,
+        EmailDaService $emailDaService,
+        UserDataService $userDataService
+    ) {
+        $this->userDataService = $userDataService;
+        $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
+        $this->emailDaService = $emailDaService;
+        $this->daValidationService = $daValidationService;
+        $this->daSoumissionValidationService = $daSoumissionValidationService;
         $this->docRattacheService = $docRattacheService;
+        $this->daObservationService = $daObservationService;
         $this->urlIdCipher = new UrlIdCipher;
     }
 
@@ -57,7 +77,7 @@ class DaValidationReapproMensuelController extends Controller
         $monthsList = $daConsumptionHistory->getMonthsList($dateRange['start'], $dateRange['end']);
         $dataHistoriqueConsommation = $daConsumptionHistory->getHistoriqueConsommation($demandeAppro, $dateRange, $monthsList);
 
-        $observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()], ['dateCreation' => 'ASC']);
+        $observations = $this->daObservationService->getObservations($demandeAppro->getNumeroDemandeAppro());
 
         //========================================== Traitement du formulaire en général ===================================================//
         $this->traitementFormulaire($formReappro, $formObservation, $request, $demandeAppro, $observations, $monthsList, $dataHistoriqueConsommation);
@@ -77,7 +97,7 @@ class DaValidationReapproMensuelController extends Controller
             'observations'    => $observations,
             'dataHistorique'  => $dataHistoriqueConsommation,
             'monthsList'      => $monthsList,
-            'connectedUser'   => $this->getUser(),
+            'connectedUser'   => $this->userDataService->getUser(),
         ]);
     }
 
@@ -97,17 +117,17 @@ class DaValidationReapproMensuelController extends Controller
 
             if ($observation) {
                 $suivi->etape('Observation', function () use ($demandeAppro, $observation) {
-                    $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $observation);
+                    $this->daObservationService->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $observation);
                 });
             }
 
             if ($refus) {
                 $suivi->etape('Refus (base de données)', function () use ($demandeAppro) {
-                    $this->refuserDemande($demandeAppro);
+                    $this->daValidationService->refuserDemandeReappro($demandeAppro);
                 });
 
                 $suivi->etape('Mail de refus', function () use ($demandeAppro, $observation) {
-                    $this->emailDaService->envoyerMailValidationReappro($demandeAppro, $observation ?? '-', $this->getUser(), false);
+                    $this->emailDaService->envoyerMailValidationReappro($demandeAppro, $observation ?? '-', false);
                 });
 
                 $notification = [
@@ -116,20 +136,20 @@ class DaValidationReapproMensuelController extends Controller
                 ];
             } elseif ($request->request->has('valider')) {
                 $suivi->etape('Validation (base de données)', function () use ($demandeAppro) {
-                    $this->validerDemande($demandeAppro);
+                    $this->daValidationService->validerDemandeReappro($demandeAppro);
                 });
                 $suivi->etape('PDF de la DA', function () use ($demandeAppro, $observations, $monthsList, $dataHistoriqueConsommation) {
-                    $this->creationPDFReappro($demandeAppro, $observations, $monthsList, $dataHistoriqueConsommation);
+                    $this->daSoumissionValidationService->creationPDFReappro($demandeAppro, $observations, $monthsList, $dataHistoriqueConsommation);
                 });
                 $suivi->etape('DocuWare', function () use ($demandeAppro) {
-                    $this->copyPDFToDW($demandeAppro->getNumeroDemandeAppro());
+                    $this->daSoumissionValidationService->copyPDFToDW($demandeAppro->getNumeroDemandeAppro());
                 });
                 $suivi->etape('Base de données (DA soumise à validation)', function () use ($demandeAppro) {
-                    $this->ajouterDansDaSoumisAValidation($demandeAppro);
+                    $this->daSoumissionValidationService->ajouterDansDaSoumisAValidation($demandeAppro);
                 });
 
                 $suivi->etape('Mail de validation', function () use ($demandeAppro, $observation) {
-                    $this->emailDaService->envoyerMailValidationReappro($demandeAppro, $observation ?? '-', $this->getUser());
+                    $this->emailDaService->envoyerMailValidationReappro($demandeAppro, $observation ?? '-');
                 });
 
                 $notification = [
@@ -154,9 +174,9 @@ class DaValidationReapproMensuelController extends Controller
 
     private function traitementEnvoiObservation(DaObservation $daObservation, DemandeAppro $demandeAppro)
     {
-        $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $daObservation->getFileNames());
+        $this->daObservationService->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $daObservation->getObservation(), $daObservation->getFileNames());
 
-        $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->getUser(), $this->estAppro());
+        $this->emailDaService->envoyerMailObservationDa($demandeAppro, $daObservation->getObservation(), $this->estAppro());
 
         $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre observation a été enregistré avec succès.']);
         return $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);

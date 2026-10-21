@@ -17,10 +17,11 @@ class DemandePaiementDto
     public string $demandeur;
     public int $numeroVersion = 0;
     public ?TypeDemande $typeDemande = null;
+    public ?string $codeTypeDemande = null;
     public ?\DateTime $dateDemande = null;
     public bool $estChangementDeRib = false;
     public ?string $numeroCla = null;
-    public ?\DateTime $dateSoumissionCompta = null;
+    public ?string $dateSoumissionCompta = null;
     public ?string $codeAgence = null;
     public ?string $codeService = null;
     public bool $ddpSoumissioncde = false;
@@ -162,8 +163,14 @@ class DemandePaiementDto
         return StatutConstants::getCssClass($this->statut);
     }
 
-    public function estStatutATransmettre(): bool
+    public function getFournisseur(): string
     {
-        return in_array($this->statut, StatutConstants::STATUT_A_TRANSMETTRE);
+        return "{$this->numeroFournisseur} - {$this->beneficiaire}";
+    }
+
+    public function getEnableCheckBox(): string
+    {
+        if (in_array($this->statut, StatutConstants::STATUT_A_TRANSMETTRE)) return "";
+        else return "disabled";
     }
 }
