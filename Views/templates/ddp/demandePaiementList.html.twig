@@ -11,10 +11,9 @@
 
 {% import "macroForm.html.twig" as macroForm %}
 
+{% set guideSlug = 'ddp-consultation' %}
+
 {% block content %}
-	<div class="text-end me-3">
-		{% include 'partials/_lienGuide.html.twig' with {slug: 'ddp-consultation'} %}
-	</div>
 	<div class="sticky-header-titre">
 		<div class="container">
 			{% include "/ddp/shared/_formulaireRecherche.html.twig" %}

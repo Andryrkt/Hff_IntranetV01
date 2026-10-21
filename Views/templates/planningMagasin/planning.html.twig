@@ -14,10 +14,9 @@
 	{% include "/shared/_overlay.html.twig" %}
 {% endblock %}
 
+{% set guideSlug = 'magasin-plannings' %}
+
 {% block content %}
-	<div class="text-end me-3">
-		{% include 'partials/_lienGuide.html.twig' with {slug: 'magasin-plannings'} %}
-	</div>
 	<div class="sticky-header-titre">
 		<div class="container">
 			{% include "/planningMagasin/_formulaire.html.twig" %}

@@ -5,10 +5,9 @@
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/inventaire/liste.css?v={{ App.browserHash }}"/>
 {% endblock %}
 
+{% set guideSlug = 'magasin-inventaire' %}
+
 {% block content %}
-	<div class="text-end me-3">
-		{% include 'partials/_lienGuide.html.twig' with {slug: 'magasin-inventaire'} %}
-	</div>
 	<div class="sticky-header-titre">
 		<div class="container">
 			{% include '/inventaire/_detailFormulaire.html.twig' %}

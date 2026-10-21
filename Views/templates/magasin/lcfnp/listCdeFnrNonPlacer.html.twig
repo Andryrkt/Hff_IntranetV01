@@ -5,10 +5,9 @@
 	<link href="{{ App.base_path }}/Views/css/dit/news.css?v={{ App.browserHash }}" rel="stylesheet"/>
 {% endblock %}
 {% import "macroForm.html.twig" as macroForm %}
+{% set guideSlug = 'magasin-cmd-non-placees' %}
+
 {% block content %}
-	<div class="text-end me-3">
-		{% include 'partials/_lienGuide.html.twig' with {slug: 'magasin-cmd-non-placees'} %}
-	</div>
 	<div id="conteneur" data-page-type="liste_cde_fnr_non_place">
 		<div class="container mb-3">
 			<h3 class="perso-titre">

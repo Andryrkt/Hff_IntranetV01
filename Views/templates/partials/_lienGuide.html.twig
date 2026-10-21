@@ -1,6 +1,7 @@
 {#
-	Bouton « Guide d'utilisation » d'un écran :
-	{% include 'partials/_lienGuide.html.twig' with {slug: 'identifiant-du-guide'} %}
+	Bouton « Guide d'utilisation » d'un écran, affiché dans le fil d'Ariane :
+	déclarer dans le template de l'écran, hors des blocs :
+	{% set guideSlug = 'identifiant-du-guide' %}
 	- utilisateur : visible seulement si le guide est publié ;
 	- administrateur : toujours visible (guide, brouillon, ou « Créer le guide »).
 #}

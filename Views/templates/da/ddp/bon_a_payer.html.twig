@@ -14,12 +14,10 @@
 	{% include "/shared/_overlay.html.twig" %}
 {% endblock %}
 
+{# écran partagé avec l'appro : guide magasin uniquement #}
+{% set guideSlug = appro ? null : 'magasin-consultation-facture' %}
+
 {% block content %}
-	{% if not appro %}
-		<div class="text-end me-3">
-			{% include 'partials/_lienGuide.html.twig' with {slug: 'magasin-consultation-facture'} %}
-		</div>
-	{% endif %}
 	<div class="sticky-header-titre">
 		<div class="container">
 			{% include "/da/ddp/_formulaire_recherche.html.twig" %}
