@@ -73,9 +73,9 @@ class DdpFactory
      *                            découpé en plusieurs DDP) : ses fichiers téléversés sont
      *                            copiés, un fichier téléversé ne pouvant être déplacé qu'une fois
      */
-    public function apresSoumission(FormInterface $form, DdpDto $dto, ?DdpDto $source = null): DdpDto
+    public function apresSoumission(FormInterface $form, DdpDto $dto, ?DdpDto $source = null, bool $estBap = false): DdpDto
     {
-        $dto->numeroDdp = $this->numeroGenerateur->genererNumeroDdp();
+        $dto->numeroDdp = $estBap ? $this->numeroGenerateur->genererNumeroBap() : $this->numeroGenerateur->genererNumeroDdp();
         $dto->dateDemande = new \DateTime();
         // RIB connus du fournisseur, pour signaler un RIB mis à jour sur le PDF
         if (!empty($dto->numeroFournisseur)) {
@@ -396,7 +396,7 @@ class DdpFactory
      * @param array $numeroFacture
      * @return string[]
      */
-    private function recuperationNumCommande(string $numeroFournisseur, array $numeroFacture): array
+    public function recuperationNumCommande(string $numeroFournisseur, array $numeroFacture): array
     {
         $numCdes = $this->ddpModel->getCommandeReceptionnee($numeroFournisseur);
         $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);

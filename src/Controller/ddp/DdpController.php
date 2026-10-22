@@ -93,6 +93,8 @@ class DdpController extends Controller
 
             // après arrivage : un montant total doit être saisi pour chaque commande
             if ($dto->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE) {
+                // le select n° commande est disabled côté front donc non posté : commandes déduites des factures
+                $dto->numeroCommande = $this->ddpFactory->recuperationNumCommande($dto->numeroFournisseur, $dto->numeroFacture);
                 foreach ($dto->numeroCommande as $numCde) {
                     if ($dto->montantCommande($numCde) === null) {
                         $form->addError(new FormError("Le montant du commande à payer $numCde est obligatoire."));
@@ -128,7 +130,7 @@ class DdpController extends Controller
      * Après arrivage : les commandes sont regroupées selon leur situation
      * (DemandePaiementRepository::getSituationAvanceParCommande) et une demande
      * de paiement est générée par groupe :
-     * - BAP (aucune DDPA validée) : PDF BAP MAGASIN ;
+     * - BAP (aucune DDPA soumis) : PDF BAP MAGASIN ;
      * - DDPR (DDPA à 100 %) / DDPL (DDPA entre 0 et 100 %) : PDF DDP.
      */
     private function soumissionApresArrivage(FormInterface $form, DdpDto $dto): void
@@ -136,6 +138,10 @@ class DdpController extends Controller
         $groupes = $this->groupesParSituation($dto);
         if (is_string($groupes)) {
             $form->addError(new FormError($groupes));
+            return;
+        }
+        if (empty($groupes)) {
+            $form->addError(new FormError('Aucune commande trouvée pour la/les facture(s) sélectionnée(s).'));
             return;
         }
 
@@ -151,7 +157,7 @@ class DdpController extends Controller
             $dtoGroupe->montantAPayer = number_format($groupe['montantFactures'], 2, ',', '');
 
             // typeDdp encore "après arrivage" ici : apresSoumission() en dépend (commandes, fichiers distants)
-            $dtoGroupe = $this->ddpFactory->apresSoumission($form, $dtoGroupe, $source);
+            $dtoGroupe = $this->ddpFactory->apresSoumission($form, $dtoGroupe, $source, $typeId === TypeDemandePaiementConstants::ID_BON_A_PAYER);
             $dtoGroupe->typeDdp = $this->getEntityManager()->getRepository(TypeDemande::class)->find($typeId);
             $dtoGroupe->statut = [
                 TypeDemandePaiementConstants::ID_BON_A_PAYER              => StatutConstants::BAP_A_TRANSMETTRE,
@@ -378,7 +384,11 @@ class DdpController extends Controller
         // fusion des PDF : page de garde DDP + TOUS les fichiers du dossier DDP
         $this->fusionDesPdf($this->cheminsFichiersAFusionner($dto), [], $nomAvecCheminFichier);
         // envoi du PDF final dans DOCUWARE
-        $generatePdfDdp->copyToDwDdp($nomFichier, $dto->numeroDdp);
+        if ($dto->typeDdp->getId() === TypeDemandePaiementConstants::ID_BON_A_PAYER) {
+            $generatePdfDdp->copyToDWBapDa($nomAvecCheminFichier, $nomFichier, 'BAP');
+        } else {
+            $generatePdfDdp->copyToDwDdp($nomFichier, $dto->numeroDdp);
+        }
 
         return $nomFichier;
     }

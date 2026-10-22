@@ -4,7 +4,6 @@ namespace App\Service\genererPdf\bap;
 
 use App\Controller\Traits\FormatageTrait;
 use App\Dto\ddp\DdpDto;
-use App\Service\genererPdf\da\PdfTableHistoriqueLivraisonBAP;
 use App\Service\genererPdf\GeneratePdf;
 use TCPDF;
 
@@ -15,9 +14,6 @@ use TCPDF;
  */
 class GenererPdfBapMagasin extends GeneratePdf
 {
-    private const LARGEUR_GAUCHE = 0.6;
-    private const LARGEUR_DROITE = 0.4;
-
     use FormatageTrait;
 
     /**
@@ -37,12 +33,12 @@ class GenererPdfBapMagasin extends GeneratePdf
         $this->renderHeader($pdf, $dto);
         $w100 = $this->getUsableWidth($pdf);
 
-        foreach ($dto->donneesBapMagasin['commandes'] ?? [] as $numCde => $commande) {
-            $this->renderInfoBcEtValidation($pdf, $w100, (string) $numCde, $commande['infoBc'] ?? [], $commande['validation'] ?? null);
-            $this->renderHistoriqueLivraison($pdf, $commande['livraisons'] ?? [], $dto->devise ?? '');
-            $this->renderHistoriqueDdp($pdf, $commande['ddps'] ?? [], $dto->devise ?? '');
-        }
-        $this->renderFactures($pdf, $dto->donneesBapMagasin['factures'] ?? [], $dto->devise ?? '');
+        $commandes = $dto->donneesBapMagasin['commandes'] ?? [];
+        $devise = $dto->devise ?? '';
+        $this->renderResumeBc($pdf, $w100, $commandes);
+        $this->renderHistoriqueLivraison($pdf, $commandes, $devise);
+        $this->renderHistoriqueDdp($pdf, $commandes, $devise);
+        $this->renderFactures($pdf, $dto->donneesBapMagasin['factures'] ?? [], $devise);
         $this->renderMontantBap($pdf, $dto);
 
         $directory = dirname($cheminDeFichier);
@@ -77,86 +73,102 @@ class GenererPdfBapMagasin extends GeneratePdf
         $pdf->Ln(7);
     }
 
-    private function renderInfoBcEtValidation(TCPDF $pdf, int $w100, string $numCde, array $infoBC, ?array $validation): void
+    /**
+     * Fournisseur (commun à toutes les commandes) puis une ligne par BC avec son information de validation
+     */
+    private function renderResumeBc(TCPDF $pdf, int $w100, array $commandes): void
     {
         $pdf->ln(2);
-        $this->renderSectionTitle($pdf, "RESUME DU BC $numCde", $w100 * self::LARGEUR_GAUCHE - 3, 0);
-        $this->renderSectionTitle($pdf, 'INFORMATION VALIDATION BC', $w100 * self::LARGEUR_DROITE);
+        $this->renderSectionTitle($pdf, 'RESUME DES BC', 0);
+        $infoFrn = $commandes ? (reset($commandes)['infoBc'] ?? []) : [];
+        $this->addInfoLine($pdf, 'Nom fournisseur', (string) ($infoFrn['nom_fournisseur'] ?? '-'), $w100);
+        $this->addInfoLine($pdf, 'N° fournisseur', (string) ($infoFrn['num_fournisseur'] ?? '-'), $w100);
 
-        $dateSoumission = $validation['dateSoumission'] ?? null;
-        $lignes = [
-            ['Nom fournisseur', substr($infoBC["nom_fournisseur"] ?? "-", 0, 33), 'Statut', $validation['statut'] ?? "Non soumis à validation"],
-            ['N° fournisseur', $infoBC["num_fournisseur"] ?? "-", 'Date soumission', $dateSoumission instanceof \DateTimeInterface ? $dateSoumission->format('d/m/Y') : "-"],
-            ['N° commande', $infoBC["num_cde"] ?? $numCde, 'Version', isset($validation['version']) ? (string) $validation['version'] : "-"],
-            ['Référence commande', $infoBC["libelle_cde"] ?? "-", '', ''],
-            ['Date commande', !empty($infoBC["date_cde"]) ? date("d/m/Y", strtotime($infoBC["date_cde"])) : "-", '', ''],
-            ['Succursale', $infoBC["succ_cde"] ?? "-", '', ''],
-            ['Service', $infoBC["serv_cde"] ?? "-", '', ''],
-            ['Opérateur', $infoBC["nom_ope"] ?? "-", '', ''],
-            ['Montant HT', $this->formaterPrix($infoBC["mtn_cde"] ?? 0) . " " . ($infoBC["devise"] ?? ""), '', ''],
-            ['Montant TTC', $this->formaterPrix($infoBC["ttc_cde"] ?? 0) . " " . ($infoBC["devise"] ?? ""), '', ''],
-            ['Nature de l’achat', $infoBC["type_cde"] ?? "-", '', ''],
-        ];
+        $lignes = [];
+        foreach ($commandes as $numCde => $commande) {
+            $infoBC = $commande['infoBc'] ?? [];
+            $validation = $commande['validation'] ?? null;
+            $dateSoumission = $validation['dateSoumission'] ?? null;
+            $devise = $infoBC['devise'] ?? '';
+            $lignes[] = [
+                ['center', '9%', $infoBC['num_cde'] ?? $numCde],
+                ['left', '15%', $infoBC['libelle_cde'] ?? '-'],
+                ['center', '9%', !empty($infoBC['date_cde']) ? date('d/m/Y', strtotime($infoBC['date_cde'])) : '-'],
+                ['center', '8%', ($infoBC['succ_cde'] ?? '-') . ' / ' . ($infoBC['serv_cde'] ?? '-')],
+                ['center', '8%', $infoBC['nom_ope'] ?? '-'],
+                ['center', '6%', $infoBC['type_cde'] ?? '-'],
+                ['right', '12%', $this->formaterPrix($infoBC['mtn_cde'] ?? 0) . " $devise"],
+                ['right', '12%', $this->formaterPrix($infoBC['ttc_cde'] ?? 0) . " $devise"],
+                ['left', '13%', ($validation['statut'] ?? 'Non soumis à validation') . (isset($validation['version']) ? " (v{$validation['version']})" : '')],
+                ['center', '8%', $dateSoumission instanceof \DateTimeInterface ? $dateSoumission->format('d/m/Y') : '-'],
+            ];
+        }
 
-        foreach ($lignes as [$labelGauche, $valeurGauche, $labelDroite, $valeurDroite]) {
-            $this->addInfoLine($pdf, $labelGauche, (string) $valeurGauche, $w100 * self::LARGEUR_GAUCHE - 6, 35, $labelDroite === '' ? 1 : 0);
-            if ($labelDroite !== '') {
-                $this->addInfoLine($pdf, $labelDroite, (string) $valeurDroite, $w100 * self::LARGEUR_DROITE, 27, 1);
+        $this->renderTable($pdf, null, 'Aucune commande', ['N° cde', 'Référence', 'Date cde', 'Succ / Serv', 'Opérateur', 'Nature', 'Montant HT', 'Montant TTC', 'Statut validation', 'Date soumis.'], $lignes);
+    }
+
+    private function renderHistoriqueLivraison(TCPDF $pdf, array $commandes, string $devise): void
+    {
+        $lignes = [];
+        foreach ($commandes as $numCde => $commande) {
+            foreach ($commande['livraisons'] ?? [] as $livraison) {
+                $lignes[] = [
+                    ['center', '12%', $numCde],
+                    ['center', '13%', $livraison['num_liv'] ?? ''],
+                    ['center', '15%', $livraison['numero_facture_ips'] ?? ''],
+                    ['left', '22%', $livraison['ref_fac_bl'] ?? ''],
+                    ['center', '15%', !empty($livraison['date_clot']) ? date('d/m/Y', strtotime($livraison['date_clot'])) : '-'],
+                    ['right', '23%', $this->formaterPrix($livraison['montant_fac_bl'] ?? 0)],
+                ];
             }
         }
+
+        $this->renderTable($pdf, 'RECAPITULATIF DES LIVRAISONS', 'Aucune livraison', ['N° commande', 'N° Livraison IPS', 'N° Facture IPS', 'Référence', 'Date livraison IPS', "Montant ($devise)"], $lignes);
     }
 
-    private function renderHistoriqueLivraison(TCPDF $pdf, array $historiqueLivraison, string $devise): void
+    private function renderHistoriqueDdp(TCPDF $pdf, array $commandes, string $devise): void
     {
-        $pdf->ln(2);
-        $this->renderSectionTitle($pdf, "RECAPITULATIF DES LIVRAISONS", 0);
-        if (empty($historiqueLivraison)) {
-            $pdf->Cell(0, 6, "Aucune livraison", 0, 1);
-            $pdf->Ln(2);
-        } else {
-            $pdf->writeHTML((new PdfTableHistoriqueLivraisonBAP())->generateTable($historiqueLivraison, $devise));
-        }
-    }
-
-    private function renderHistoriqueDdp(TCPDF $pdf, array $ddps, string $devise): void
-    {
-        $pdf->ln(2);
-        $this->renderSectionTitle($pdf, "RECAPITULATIF DES DEMANDES DE PAIEMENT", 0);
-        if (empty($ddps)) {
-            $pdf->Cell(0, 6, "Aucune demande de paiement", 0, 1);
-            $pdf->Ln(2);
-            return;
+        $lignes = [];
+        foreach ($commandes as $numCde => $commande) {
+            foreach ($commande['ddps'] ?? [] as $ddp) {
+                $lignes[] = [
+                    ['center', '11%', $numCde],
+                    ['center', '10%', $ddp['date']],
+                    ['center', '14%', $ddp['numero']],
+                    ['left', '24%', $ddp['type']],
+                    ['center', '8%', $this->formaterPrix($ddp['ratio'])],
+                    ['right', '14%', $this->formaterPrix($ddp['montant'])],
+                    ['left', '19%', $ddp['statut']],
+                ];
+            }
         }
 
-        $lignes = array_map(fn($ddp) => [
-            ['center', '12%', $ddp['date']],
-            ['center', '15%', $ddp['numero']],
-            ['left', '28%', $ddp['type']],
-            ['center', '10%', $this->formaterPrix($ddp['ratio'])],
-            ['right', '15%', $this->formaterPrix($ddp['montant'])],
-            ['left', '20%', $ddp['statut']],
-        ], $ddps);
-
-        $pdf->writeHTML($this->tableHtml(['Date', 'Numéro', 'Type', '%', "Montant ($devise)", 'Statut'], $lignes));
+        $this->renderTable($pdf, 'RECAPITULATIF DES DEMANDES DE PAIEMENT', 'Aucune demande de paiement', ['N° commande', 'Date', 'Numéro', 'Type', '%', "Montant ($devise)", 'Statut'], $lignes);
     }
 
     private function renderFactures(TCPDF $pdf, array $factures, string $devise): void
     {
-        $pdf->ln(2);
-        $this->renderSectionTitle($pdf, "INFO FACTURE FOURNISSEUR", 0);
-        if (empty($factures)) {
-            $pdf->Cell(0, 6, "Aucune facture", 0, 1);
-            $pdf->Ln(2);
-            return;
-        }
-
         $lignes = array_map(fn($facture) => [
             ['left', '40%', $facture['Numero_Facture'] ?? ''],
             ['left', '30%', $facture['Numero_PO'] ?? ''],
             ['right', '30%', $this->formaterPrix($facture['Montant_Facture'] ?? 0)],
         ], $factures);
 
-        $pdf->writeHTML($this->tableHtml(['N° facture', 'N° commande', "Montant facture ($devise)"], $lignes));
+        $this->renderTable($pdf, 'INFO FACTURE FOURNISSEUR', 'Aucune facture', ['N° facture', 'N° commande', "Montant facture ($devise)"], $lignes);
+    }
+
+    private function renderTable(TCPDF $pdf, ?string $titre, string $messageVide, array $entetes, array $lignes): void
+    {
+        if ($titre !== null) {
+            $pdf->ln(2);
+            $this->renderSectionTitle($pdf, $titre, 0);
+        }
+        if (empty($lignes)) {
+            $pdf->Cell(0, 6, $messageVide, 0, 1);
+            $pdf->Ln(2);
+            return;
+        }
+        $pdf->writeHTML($this->tableHtml($entetes, $lignes));
     }
 
     private function renderMontantBap(TCPDF $pdf, DdpDto $dto): void
