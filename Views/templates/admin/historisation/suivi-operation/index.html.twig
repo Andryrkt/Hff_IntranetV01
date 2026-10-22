@@ -239,6 +239,56 @@
 				{% endif %}
 			</div>
 		</div>
+
+		<div class="card mt-3">
+			<div class="card-body">
+				<h3 class="perso-titre mb-2">SURVEILLANCE DOCUWARE</h3>
+				{% if surveillanceDocuware is null %}
+					<p class="text-muted small mb-0">Table surveillance_docuware absente sur cette base.</p>
+				{% else %}
+					<p class="text-muted small mb-2">Fichiers déposés (Created) puis récupérés par DocuWare (Deleted) dans les dossiers surveillés. Un dépôt non récupéré reste en orange. Mêmes filtres que ci-dessus (recherche sur le nom de fichier ou le dossier, dates, lignes) ; {{ surveillanceDocuware|length }} évènement(s) affiché(s) ({{ limite }} maximum, les plus récents en premier).</p>
+					<div class="table-responsive">
+						<table class="table table-sm table-bordered table-hover align-middle">
+							<thead class="table-dark">
+								<tr>
+									<th>Date</th>
+									<th>Source</th>
+									<th>Évènement</th>
+									<th>Dossier</th>
+									<th>Fichier</th>
+									<th>Taille</th>
+									<th>État</th>
+									<th>Message</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for evt in surveillanceDocuware %}
+									{% set enAttente = evt.evenement == 'Created' and not evt.recupere %}
+									<tr class="{{ enAttente ? 'table-warning' : '' }}">
+										<td class="text-nowrap">{{ evt.date_evt|date('d/m/Y H:i:s') }}</td>
+										<td>{{ evt.source }}</td>
+										<td>{{ evt.evenement }}</td>
+										<td>{{ evt.sous_dossier }}</td>
+										<td title="{{ evt.chemin }}{% if evt.ancien_chemin %} (ancien : {{ evt.ancien_chemin }}){% endif %}">{{ evt.nom_fichier }}</td>
+										<td class="text-end text-nowrap">{{ evt.taille is not null ? evt.taille|number_format(0, ',', ' ') ~ ' o' : '-' }}</td>
+										<td>
+											{% if evt.evenement == 'Created' %}
+												{% if evt.recupere %}<span class="badge bg-success">Récupéré</span>{% else %}<span class="badge bg-warning text-dark">En attente</span>{% endif %}
+											{% else %}-{% endif %}
+										</td>
+										<td><small>{{ evt.message ?: '-' }}</small></td>
+									</tr>
+								{% else %}
+									<tr>
+										<td colspan="8" class="text-center text-muted">Aucun évènement.</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				{% endif %}
+			</div>
+		</div>
 	</div>
 {% endblock %}
 
