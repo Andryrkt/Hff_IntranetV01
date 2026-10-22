@@ -335,7 +335,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         $this->pdf->SetTextColor(...self::INK);
         $this->pdf->MultiCell(0, 0, $this->dto->getAllValidatedOR(), 0, "L");
 
-        $this->pdf->Ln(3);
+        $this->pdf->Ln(10);
 
         $this->pdf->SetFont(self::FONT, 'B', self::MAIN_TEXT_SIZE);
         $this->pdf->SetTextColor(...self::ACCENT);
