@@ -69,6 +69,47 @@ class HistoriqueOperationEtapeRepository extends EntityRepository
         return $connexion->fetchAllAssociative($sql, $params);
     }
 
+    /**
+     * Évènements du watcher sur les dossiers DocuWare (null si la table n'existe pas sur cette base)
+     */
+    public function rechercherSurveillanceDocuware(?string $recherche, ?\DateTimeInterface $dateDebut, ?\DateTimeInterface $dateFin, int $limit = 100): ?array
+    {
+        $connexion = $this->getEntityManager()->getConnection();
+        if (!$connexion->fetchOne("SELECT OBJECT_ID('dbo.surveillance_docuware', 'U')")) {
+            return null;
+        }
+
+        $conditions = [];
+        $params = [];
+        if ($recherche !== null && trim($recherche) !== '') {
+            $conditions[] = '(s.nom_fichier LIKE :recherche OR s.sous_dossier LIKE :recherche)';
+            $params['recherche'] = '%' . trim($recherche) . '%';
+        }
+        if ($dateDebut) {
+            $conditions[] = 's.date_evt >= :dateDebut';
+            $params['dateDebut'] = $dateDebut->format('Y-m-d 00:00:00');
+        }
+        if ($dateFin) {
+            $conditions[] = 's.date_evt <= :dateFin';
+            $params['dateFin'] = $dateFin->format('Y-m-d 23:59:59');
+        }
+
+        // un fichier "Created" puis "Deleted" au même chemin = récupéré par DocuWare ; sinon il attend encore dans le dossier
+        $sql = sprintf(
+            "SELECT TOP %d s.id, s.date_evt, s.source, s.evenement, s.sous_dossier, s.nom_fichier, s.chemin, s.ancien_chemin, s.taille, s.message,
+                    CASE WHEN s.evenement = 'Created' AND EXISTS (
+                        SELECT 1 FROM surveillance_docuware d WHERE d.chemin = s.chemin AND d.evenement = 'Deleted' AND d.date_evt >= s.date_evt
+                    ) THEN 1 ELSE 0 END AS recupere
+             FROM surveillance_docuware s
+             %s
+             ORDER BY s.date_evt DESC, s.id DESC",
+            $limit,
+            $conditions ? 'WHERE ' . implode(' AND ', $conditions) : ''
+        );
+
+        return $connexion->fetchAllAssociative($sql, $params);
+    }
+
     public function rechercherSuivis(?string $recherche, ?string $typeOperation, bool $problemeSeulement, ?\DateTimeInterface $dateDebut, ?\DateTimeInterface $dateFin, ?int $idHistorique = null, bool $nonLuSeulement = false, int $limit = 100): array
     {
         $qb = $this->createQueryBuilder('e')
