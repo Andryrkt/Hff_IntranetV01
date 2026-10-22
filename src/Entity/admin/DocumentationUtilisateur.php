@@ -66,6 +66,13 @@ class DocumentationUtilisateur
      */
     private ?string $modifiePar = null;
 
+    /**
+     * Dernière mise à jour annoncée aux utilisateurs (bandeau), null = jamais
+     *
+     * @ORM\Column(type="datetime", name="date_annonce", nullable=true)
+     */
+    private ?\DateTime $dateAnnonce = null;
+
     public function __construct(string $slug)
     {
         $this->slug = $slug;
@@ -158,6 +165,21 @@ class DocumentationUtilisateur
     {
         $this->dateModification = new \DateTime();
         $this->modifiePar = $utilisateur;
+
+        return $this;
+    }
+
+    public function getDateAnnonce(): ?\DateTime
+    {
+        return $this->dateAnnonce;
+    }
+
+    /**
+     * Annonce la mise à jour : le bandeau réapparaît chez tous les utilisateurs
+     */
+    public function annoncer(): self
+    {
+        $this->dateAnnonce = new \DateTime();
 
         return $this;
     }

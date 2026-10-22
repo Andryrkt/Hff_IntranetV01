@@ -1,5 +1,5 @@
 {#
-	Bouton « Guide d'utilisation » d'un écran, affiché dans le fil d'Ariane :
+	Bouton « Guide d'utilisation » d'un écran (icône seule, à droite du fil d'Ariane) :
 	déclarer dans le template de l'écran, hors des blocs :
 	{% set guideSlug = 'identifiant-du-guide' %}
 	- utilisateur : visible seulement si le guide est publié ;
@@ -7,20 +7,20 @@
 #}
 {% set guide = guide_utilisateur(slug) %}
 {% if guide and guide.publie %}
-	<a href="{{ path('doc_utilisateur_show', {'slug': slug}) }}" target="_blank" class="small">
+	{% set label = "Guide d'utilisation" %}
+	<a href="{{ path('doc_utilisateur_show', {'slug': slug}) }}" target="_blank" class="fs-4" title="{{ label }}" aria-label="{{ label }}">
 		<i class="fas fa-question-circle"></i>
-		Guide d'utilisation
 	</a>
 {% elseif App.connectedUser.isAdmin %}
 	{% if guide %}
-		<a href="{{ path('doc_utilisateur_show', {'slug': slug}) }}" target="_blank" class="small text-secondary">
+		{% set label = "Guide d'utilisation (brouillon)" %}
+		<a href="{{ path('doc_utilisateur_show', {'slug': slug}) }}" target="_blank" class="fs-4 text-secondary" title="{{ label }}" aria-label="{{ label }}">
 			<i class="fas fa-question-circle"></i>
-			Guide d'utilisation (brouillon)
 		</a>
 	{% else %}
-		<a href="{{ path('doc_utilisateur_edit', {'slug': slug}) }}" target="_blank" class="small text-secondary">
+		{% set label = "Créer le guide « " ~ slug ~ " »" %}
+		<a href="{{ path('doc_utilisateur_edit', {'slug': slug}) }}" target="_blank" class="fs-4 text-secondary" title="{{ label }}" aria-label="{{ label }}">
 			<i class="fas fa-plus-circle"></i>
-			Créer le guide « {{ slug }} »
 		</a>
 	{% endif %}
 {% endif %}

@@ -19,6 +19,13 @@
 			<div class="col-6 col-md-1">{{ form_row(form.ordre) }}</div>
 			<div class="col-12 col-md-2 d-flex align-items-end">{{ form_row(form.publie) }}</div>
 		</div>
+		<div class="mb-2">
+			{{ form_row(form.annoncer) }}
+			<small class="text-muted">
+				Affiche un bandeau « Guide mis à jour » aux utilisateurs (guide publié uniquement).
+				{% if documentation.dateAnnonce %}Dernière annonce : {{ documentation.dateAnnonce|date('d/m/Y H:i') }}.{% endif %}
+			</small>
+		</div>
 		{{ form_row(form.contenu) }}
 		<div class="d-flex justify-content-end mt-2">
 			<button type="submit" class="btn bouton">

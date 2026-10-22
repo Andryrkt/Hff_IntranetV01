@@ -89,6 +89,7 @@ class DocumentationUtilisateurController extends Controller
             ])
             ->add('ordre', IntegerType::class, ['label' => 'Ordre dans la rubrique', 'required' => false, 'data' => $documentation->getOrdre()])
             ->add('publie', CheckboxType::class, ['label' => 'Publié (visible de tous)', 'required' => false, 'data' => $documentation->isPublie()])
+            ->add('annoncer', CheckboxType::class, ['label' => 'Annoncer la mise à jour aux utilisateurs', 'required' => false])
             ->add('contenu', TextareaType::class, ['label' => false, 'required' => false, 'data' => $documentation->getContenu()])
             ->getForm();
 
@@ -101,6 +102,11 @@ class DocumentationUtilisateurController extends Controller
                 ->setPublie((bool) $form->get('publie')->getData())
                 ->setContenu($this->nettoyerHtml((string) $form->get('contenu')->getData()))
                 ->marquerModifie($this->getUserName());
+
+            // un brouillon n'est pas annoncé : les utilisateurs ne peuvent pas l'ouvrir
+            if ($form->get('annoncer')->getData() && $documentation->isPublie()) {
+                $documentation->annoncer();
+            }
 
             $this->getEntityManager()->persist($documentation);
             $this->getEntityManager()->flush();
