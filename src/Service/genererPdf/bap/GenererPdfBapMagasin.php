@@ -195,7 +195,7 @@ class GenererPdfBapMagasin extends GeneratePdf
      */
     private function tableHtml(array $entetes, array $lignes): string
     {
-        $html = '<table border="0" cellpadding="2" cellspacing="0" style="font-size: 9px;"><thead><tr style="background-color: #D3D3D3; font-weight: bold;">';
+        $html = '<table border="0" cellpadding="2" cellspacing="0" style="font-size: 7px;"><thead><tr style="background-color: #D3D3D3; font-weight: bold;">';
         foreach ($entetes as $i => $entete) {
             [$align, $largeur] = $lignes[0][$i];
             $html .= sprintf('<th align="%s" style="width:%s;">%s</th>', $align, $largeur, htmlspecialchars($entete));
@@ -227,8 +227,8 @@ class GenererPdfBapMagasin extends GeneratePdf
 
     private function renderSectionTitle(TCPDF $pdf, string $title, int $width, int $endline = 1): void
     {
-        $pdf->setFont('helvetica', 'B', 9);
+        $pdf->setFont('helvetica', 'B', 8);
         $pdf->Cell($width, 6, $title, 0, $endline);
-        $pdf->setFont('helvetica', '', 9);
+        $pdf->setFont('helvetica', '', 8);
     }
 }
