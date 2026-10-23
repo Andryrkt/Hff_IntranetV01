@@ -21,6 +21,7 @@ class DdpDto
     public array $donneesBapMagasin = []; // données de la page de garde BAP MAGASIN (voir DdpController::donneesBapMagasin)
     // numéro de la facture
     public array $numeroFacture = [];
+    public array $lignesFactures = []; // couples facture/commande (DemandePaiementModel::getCommandesParFacture, après arrivage)
     // fournisseur
     public ?string $numeroFournisseur = null;
     public ?string $beneficiaire = null; // * nom du fournisseur 

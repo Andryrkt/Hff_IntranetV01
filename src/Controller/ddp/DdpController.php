@@ -151,6 +151,7 @@ class DdpController extends Controller
             $dtoGroupe = clone $dto;
             $dtoGroupe->numeroCommande = $groupe['commandes'];
             $dtoGroupe->numeroFacture = $groupe['factures'];
+            $dtoGroupe->lignesFactures = $groupe['lignesFactures'];
             $dtoGroupe->montantsCommande = array_intersect_key($dto->montantsCommande, array_flip($groupe['commandes']));
             $dtoGroupe->soldesAvance = $groupe['soldes'];
             // montant à payer de la DDP = montant des factures du groupe
