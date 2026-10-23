@@ -8,6 +8,9 @@ use Doctrine\ORM\EntityRepository;
 
 class HistoriqueOperationEtapeRepository extends EntityRepository
 {
+    // au-delà, une étape restée EN_COURS est considérée comme interrompue
+    private const DELAI_EN_COURS_MINUTES = 10;
+
     /**
      * Recherche les opérations suivies, les plus récentes en premier, avec leurs étapes dans l'ordre.
      *
@@ -210,8 +213,18 @@ class HistoriqueOperationEtapeRepository extends EntityRepository
         if (in_array(SuiviOperationService::STATUT_ECHEC, $statuts, true)) {
             return SuiviOperationService::STATUT_ECHEC;
         }
-        if (in_array(SuiviOperationService::STATUT_INTERROMPU, $statuts, true) || in_array(SuiviOperationService::STATUT_EN_COURS, $statuts, true)) {
+        if (in_array(SuiviOperationService::STATUT_INTERROMPU, $statuts, true)) {
             return SuiviOperationService::STATUT_INTERROMPU;
+        }
+        // une étape non terminée est encore en cours tant qu'elle est récente, sinon le script s'est arrêté sans la fermer
+        // dates enregistrées en heure de Madagascar (SuiviOperationService::formaterDate) : comparaison en texte, indépendante du fuseau PHP
+        $limite = (new \DateTime('-' . self::DELAI_EN_COURS_MINUTES . ' minutes', new \DateTimeZone('Indian/Antananarivo')))->format('Y-m-d H:i:s');
+        foreach ($etapes as $etape) {
+            if ($etape->getStatut() === SuiviOperationService::STATUT_EN_COURS) {
+                return $etape->getDateDebut()->format('Y-m-d H:i:s') > $limite
+                    ? SuiviOperationService::STATUT_EN_COURS
+                    : SuiviOperationService::STATUT_INTERROMPU;
+            }
         }
         if (in_array(SuiviOperationService::STATUT_ALERTE, $statuts, true)) {
             return SuiviOperationService::STATUT_ALERTE;
