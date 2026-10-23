@@ -400,9 +400,12 @@ export class DemandePaiementManager {
   }
 
   async recupFichier(cdeFacCorrespondantes) {
+    // Une réponse arrivée après un changement de facture plus récent est ignorée,
+    // sinon elle réafficherait les fichiers d'une facture retirée.
+    const requete = (this.recupFichierRequete = (this.recupFichierRequete || 0) + 1);
     const numerosDossier = [
       ...new Set(cdeFacCorrespondantes.map((f) => f.Numero_Dossier_Douane)),
-    ];
+    ].filter(Boolean);
 
     // Récupération en parallèle (au lieu d'un enchaînement séquentiel) :
     // avec plusieurs dossiers, attendre chaque appel l'un après l'autre
@@ -421,10 +424,15 @@ export class DemandePaiementManager {
         }
       }),
     );
+    if (requete !== this.recupFichierRequete) return;
     const dossiers = resultats.flat();
 
+    this.afficherFichiersFacture(dossiers, cdeFacCorrespondantes.length > 0);
+
     const liste = this.elements.fileList;
+    if (!liste) return;
     liste.innerHTML = "";
+    liste.classList.toggle("d-none", dossiers.length === 0);
 
     dossiers.forEach((fichier) => {
       const nom = this.nomFichier(fichier.Nom_Fichier);
@@ -443,6 +451,33 @@ export class DemandePaiementManager {
 
       li.appendChild(a);
       liste.appendChild(li);
+    });
+  }
+
+  /**
+   * Affiche, dans l'onglet "Facture", un sous-onglet par fichier du dossier
+   * douane (PDV, LTA, HAWB) des factures sélectionnées.
+   */
+  afficherFichiersFacture(dossiers, factureSelectionnee) {
+    const subTabsNav = this.elements.factureSubTabs;
+    const subTabsContent = this.elements.factureSubTabContent;
+    if (!subTabsNav || !subTabsContent) return;
+
+    subTabsNav.innerHTML = "";
+    subTabsContent.innerHTML = "";
+    subTabsNav.classList.toggle("d-none", dossiers.length <= 1);
+
+    if (dossiers.length === 0) {
+      subTabsContent.innerHTML = `<p class="text-muted mb-0">${
+        factureSelectionnee ? "Aucun fichier trouvé pour la/les facture(s) sélectionnée(s)." : "Aucune facture sélectionnée."
+      }</p>`;
+      return;
+    }
+
+    dossiers.forEach((fichier, index) => {
+      const nom = fichier.Nom_Fichier.split("\\").pop();
+      const pane = this.ajouterSousOnglet(subTabsNav, subTabsContent, `facture-fichier-${index}`, nom, index === 0);
+      this.afficherPdfDw(pane, nom, fichier.Nom_Fichier, this.config.urls.recupererFichier);
     });
   }
 
@@ -723,7 +758,7 @@ export class DemandePaiementManager {
    * Télécharge (en blob) puis affiche un PDF DocuWare (chemin relatif à
    * BASE_PATH_FICHIER), précédé de sa légende. Retourne false si introuvable.
    */
-  async afficherPdfDw(container, legendeTexte, path) {
+  async afficherPdfDw(container, legendeTexte, path, urlFichier = this.config.urls.telechargerFichierCommandeDw) {
     const legende = document.createElement("p");
     legende.className = "mb-2 fw-bold";
     legende.textContent = legendeTexte;
@@ -735,7 +770,7 @@ export class DemandePaiementManager {
     try {
       const baseUrl = window.location.origin;
       const encodedPath = encodeURIComponent(path);
-      const fileUrl = `${baseUrl}${this.config.urls.telechargerFichierCommandeDw}?path=${encodedPath}`;
+      const fileUrl = `${baseUrl}${urlFichier}?path=${encodedPath}`;
 
       const response = await fetch(fileUrl);
       if (!response.ok) throw new Error(await response.text());

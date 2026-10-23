@@ -21,6 +21,8 @@ document.addEventListener("DOMContentLoaded", function () {
       fileList: "#liste_fichiers",
       commandeValideeSubTabs: "#commandeValideeSubTabs",
       commandeValideeSubTabContent: "#commandeValideeSubTabContent",
+      factureSubTabs: "#factureSubTabs",
+      factureSubTabContent: "#factureSubTabContent",
       orValideSubTabs: "#orValideSubTabs",
       orValideSubTabContent: "#orValideSubTabContent",
       bcClientDwFiles: "#bcClientDwFiles",

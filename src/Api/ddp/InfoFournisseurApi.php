@@ -316,36 +316,29 @@ class InfoFournisseurApi extends Controller
     {
         $this->libererSession();
 
-        ini_set('display_errors', 1);
-        error_reporting(E_ALL);
-
-        $path = urldecode($request->query->get('path'));
         $basePath = '\\\\192.168.0.15\\GCOT_DATA\\TRANSIT';
-        $chemin = $basePath . DIRECTORY_SEPARATOR . $path;
+        // Nom_Fichier (GCOT_Gestion_Document) est un chemin UNC complet ; on accepte aussi un chemin relatif
+        $path = (string) $request->query->get('path', '');
+        if (stripos($path, $basePath) === 0) {
+            $path = substr($path, strlen($basePath));
+        }
 
-        header('Content-Type: application/json');
+        $baseReel = realpath($basePath);
+        $cheminReel = $baseReel !== false
+            ? realpath($baseReel . DIRECTORY_SEPARATOR . ltrim($path, '/\\'))
+            : false;
 
-        if (!file_exists($chemin)) {
-            echo json_encode([
-                'success' => false,
-                'message' => "❌ Fichier introuvable : $chemin"
-            ]);
+        // refus de tout chemin hors du dossier TRANSIT (../, autre partage...)
+        if ($baseReel === false || $cheminReel === false || stripos($cheminReel, $baseReel) !== 0 || !is_file($cheminReel) || !is_readable($cheminReel)) {
+            http_response_code(404);
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Fichier introuvable']);
             exit;
         }
 
-        if (!is_readable($chemin)) {
-            echo json_encode([
-                'success' => false,
-                'message' => "🚫 Fichier non lisible : $chemin"
-            ]);
-            exit;
-        }
-
-        echo json_encode([
-            'success' => true,
-            'message' => "✅ Fichier accessible",
-            'chemin' => $chemin
-        ]);
+        header('Content-Type: ' . (mime_content_type($cheminReel) ?: 'application/octet-stream'));
+        header('Content-Length: ' . filesize($cheminReel));
+        readfile($cheminReel);
         exit;
     }
 
