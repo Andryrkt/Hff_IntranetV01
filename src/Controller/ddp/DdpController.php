@@ -294,13 +294,20 @@ class DdpController extends Controller
     /**
      * Vérifie le montant saisi par l'utilisateur, miroir de la vérification
      * déjà faite côté front (DemandePaiementManager.js::verifierMontant) :
-     * - à l'avance : pas de contrôle (montant libre) ;
+     * - à l'avance : montant facture proforma plafonné ;
      * - après arrivage : égal au montant calculé des factures sélectionnées.
      *
      * @return string|null message d'erreur, null si le montant est correct
      */
     private function erreurMontant(DdpDto $dto): ?string
     {
+        if (
+            $dto->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE
+            && $dto->montantAPayer() > TypeDemandePaiementConstants::PLAFOND_MONTANT_PROFORMA
+        ) {
+            return 'Le montant facture proforma ne doit pas dépasser ' . number_format(TypeDemandePaiementConstants::PLAFOND_MONTANT_PROFORMA, 0, ',', ' ') . '.';
+        }
+
         $montantAttendu = $this->montantAttendu($dto);
 
         if ($montantAttendu === null || abs($dto->montantAPayer() - $montantAttendu) < 0.01) {

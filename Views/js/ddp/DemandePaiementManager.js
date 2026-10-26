@@ -870,14 +870,21 @@ export class DemandePaiementManager {
   }
 
   /**
-   * Paiement à l'avance : le montant saisi n'est pas contrôlé, seule une
-   * commande déjà payée à 100 % bloque la soumission.
+   * Paiement à l'avance : bloque la soumission si le montant dépasse le plafond
+   * (data-plafond, formulaire magasin uniquement) ou si la commande est déjà payée à 100 %.
    */
   verifierMontantAvance() {
     this.montantIncorrect = false;
     this.messageMontantIncorrect = "";
 
-    if (this.commandeSoldee) {
+    const plafond = parseFloat(this.elements.montantInput.dataset.plafond);
+    if (
+      !isNaN(plafond) &&
+      parseMontant(this.elements.montantInput.value) > plafond
+    ) {
+      this.montantIncorrect = true;
+      this.messageMontantIncorrect = `Le montant facture proforma ne doit pas dépasser ${plafond.toLocaleString("fr-FR")}.`;
+    } else if (this.commandeSoldee) {
       // Commande déjà payée à 100 % par des demandes de paiement à l'avance validées
       this.montantIncorrect = true;
       this.messageMontantIncorrect = `La commande ${this.getNumCdesSelectionnees()[0]} est déjà payée à 100 % par des demandes de paiement à l'avance validées : une nouvelle demande de paiement à l'avance n'est pas possible.`;

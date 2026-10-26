@@ -68,7 +68,10 @@ class DdpType extends AbstractType
                 [
                     'label' => $options['data']->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE
                         ? 'Montant facture proforma *'
-                        : 'Montant à payer *'
+                        : 'Montant à payer *',
+                    'attr' => $options['data']->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE
+                        ? ['data-plafond' => TypeDemandePaiementConstants::PLAFOND_MONTANT_PROFORMA]
+                        : [],
                 ]
             )
         ;
