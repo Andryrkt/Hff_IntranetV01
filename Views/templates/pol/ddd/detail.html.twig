@@ -36,7 +36,7 @@
     <div class="card shadow-sm piece-card" style="width: 200px;" data-file="{{ piece }}">
         <div class="card-body p-2 d-flex align-items-center">
             <i class="fas {{ iconClass }} fa-2x me-2"></i>
-            <div class="flex-grow-1 text-truncate me-1"  title="{{ fileName }}">
+            <div class="flex-grow-1 text-truncate me-1" title="{{ fileName }}">
                 {{ fileName|length > 12 ? fileName|slice(0, 12) ~ '…' : fileName }}
             </div>
             <a href="/Upload/ddd/{{ demande.numeroDemande }}/{{ piece }}" target="_blank" class="btn btn-sm btn-outline-primary me-1" title="Télécharger / ouvrir">
@@ -69,13 +69,11 @@
                         </span>
                     </div>
                 </div>
-                {% include "/partials/_notification.html.twig" %}
-
                 {# ========================= #}
                 {# Informations générales    #}
                 {# ========================= #}
 
-                {{ macroForm.sousTitre('Informations générales', {class:'sousTitre'}) }}
+                {{ macroForm.sousTitre('Informations générales', {class: 'sousTitre'}) }}
 
                 <div class="row">
 
@@ -97,7 +95,7 @@
                 {# Matériel                  #}
                 {# ========================= #}
 
-                {{ macroForm.sousTitre('Information matériel', {class:'sousTitre'}) }}
+                {{ macroForm.sousTitre('Information matériel', {class: 'sousTitre'}) }}
 
                 <div class="row">
                     <div class="col-md-4">
@@ -141,7 +139,7 @@
                 {# Pneus                    #}
                 {# ========================= #}
 
-                {{ macroForm.sousTitre('Informations pneus', {class:'sousTitre'}) }}
+                {{ macroForm.sousTitre('Informations pneus', {class: 'sousTitre'}) }}
 
                 <div class="row">
                     <div class="col-md-4">
@@ -161,7 +159,7 @@
                 {# Motifs généraux           #}
                 {# ========================= #}
 
-                {{ macroForm.sousTitre('Motifs généraux', {class:'sousTitre'}) }}
+                {{ macroForm.sousTitre('Motifs généraux', {class: 'sousTitre'}) }}
                 <div class="row mt-2">
                     <div class="col-12">
                         {% if demande.motifs %}
@@ -183,9 +181,9 @@
                 {# Diagnostic pneus modifiable #}
                 {# ========================= #}
 
-                {{ macroForm.sousTitre('Pneu(s) à diagnostiquer', {class:'sousTitre'}) }}
+                {{ macroForm.sousTitre('Pneu(s) à diagnostiquer', {class: 'sousTitre'}) }}
 
-                {{ form_start(form ,{ 'attr': { 'id': 'diagnosticForm' } }) }}
+                {{ form_start(form, {'attr': {'id': 'diagnosticForm'}}) }}
 
                 <div class="table-responsive mt-2">
                     <table class="table table-bordered ">
@@ -208,8 +206,8 @@
                                     <td>{{ pneu.coteDim }}</td>
                                     <td>{{ pneu.positionMachine|replace({'_': ' '})|capitalize }}</td>
                                     <td>{{ pneu.motifChantier }}</td>
-                                    <td>{{ form_widget(form.diagnosticPneus[loop.index0].diagnostic, { attr: { class: 'form-select' } }) }}</td>
-                                    <td>{{ form_widget(form.diagnosticPneus[loop.index0].observationAtelier, { attr: { rows: 2, class: 'form-control' } }) }}</td>
+                                    <td>{{ form_widget(form.diagnosticPneus[loop.index0].diagnostic, {attr: {class: 'form-select'}}) }}</td>
+                                    <td>{{ form_widget(form.diagnosticPneus[loop.index0].observationAtelier, {attr: {rows: 2, class: 'form-control'}}) }}</td>
                                 </tr>
                             {% else %}
                                 <tr class="no-data"><td colspan="7">Aucun pneu enregistré.</td></tr>
@@ -251,11 +249,11 @@
                 {# Inside the form, after the fields #}
                 <div class="d-flex justify-content-end gap-2 mt-4">
                     {% if not isReadOnly and isAllowed %}
-                        <button type="submit" class="btn btn-primary" name="enregistrer"  id="bouton-enregistrer-diagnostic-pneu">
+                        <button type="submit" class="btn btn-primary" name="enregistrer" id="bouton-enregistrer-diagnostic-pneu">
                             <i class="fas fa-save"></i>
                             ENREGISTRER
                         </button>
-                        {% if allFilled  %}
+                        {% if allFilled %}
                             <button type="submit" class="btn btn-success" name="valider" id="bouton-valider-diagnostic-pneu">
                                 <i class="fas fa-check"></i>
                                 VALIDER
@@ -273,7 +271,7 @@
                 {# Observation               #}
                 {# ========================= #}
 
-                {{ macroForm.sousTitre('Observation', {class:'sousTitre'}) }}
+                {{ macroForm.sousTitre('Observation', {class: 'sousTitre'}) }}
                 <div class="row">
                     <div class="col-12">
                         <p class="form-control-plaintext">{{ demande.observation ?: '-' }}</p>
@@ -284,7 +282,7 @@
                 {# Pieces jointes            #}
                 {# ========================= #}
 
-                {{ macroForm.sousTitre('Pièces jointes', {class:'sousTitre'}) }}
+                {{ macroForm.sousTitre('Pièces jointes', {class: 'sousTitre'}) }}
                 <div class="row mt-2">
                     <div class="col-12">
                         {% if demande.piecesJointes %}
@@ -306,9 +304,11 @@
                         <i class="fas fa-arrow-left"></i> Retour à la liste
                     </a>
                     {% if isAllowedDIT and demande.statut == 'traitee atelier' %}
-                        <a href="{{ path('api_demande_diagnostic_pneu_cloturer', {numeroDemande: demande.numeroDemande}) }}"
+                        <a
+                            href="{{ path('api_demande_diagnostic_pneu_cloturer', {numeroDemande: demande.numeroDemande}) }}"
                             class="btn btn-success"
-                            id="bouton-cloturer-diagnostic-pneu">
+                            id="bouton-cloturer-diagnostic-pneu"
+                        >
                             <i class="fas fa-check-circle"></i> Créer un DIT pour clôturer
                         </a>
                     {% endif %}

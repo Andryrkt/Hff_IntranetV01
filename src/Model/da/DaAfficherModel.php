@@ -257,4 +257,70 @@ class DaAfficherModel extends Model
 
         return $donnees;
     }
+
+    /**
+     * Vrai si une ligne de DA ou une observation de la DA a des pièces jointes.
+     */
+    public function aPiecesJointes(string $numDa): bool
+    {
+        $numDa = str_replace("'", "''", $numDa);
+        $sql = "SELECT TOP 1 1 AS ok FROM Demande_Appro_L
+                WHERE numero_demande_appro = '$numDa'
+                AND file_names IS NOT NULL AND CAST(file_names AS VARCHAR(MAX)) <> '[]'
+                UNION ALL
+                SELECT TOP 1 1 FROM da_observation
+                WHERE numero_da = '$numDa'
+                AND file_names IS NOT NULL AND CAST(file_names AS VARCHAR(MAX)) <> '[]'";
+
+        return (bool) odbc_fetch_array($this->connexion->query($sql));
+    }
+
+    public function countObservations(string $numDa): int
+    {
+        $numDa = str_replace("'", "''", $numDa);
+        $result = $this->connexion->query("SELECT COUNT(*) AS nb FROM da_observation WHERE numero_da = '$numDa'");
+        $row = odbc_fetch_array($result);
+
+        return (int) ($row['nb'] ?? 0);
+    }
+
+    public function checkLivraisonPartielle(string $numDa, string $numCde): bool
+    {
+        $sql = "SELECT DISTINCT
+                    dabc.numero_livraison 
+                FROM da_soumission_facture_bl dabc
+                WHERE dabc.numero_demande_appro = '$numDa'
+                AND dabc.numero_cde = '$numCde'
+                AND dabc.code_societe = 'HF'";
+
+        $allLivraisonSoumis = array_column($this->retournerResult28($sql), 'numero_livraison');
+
+        if (empty($allLivraisonSoumis)) return false;
+
+        $conditionNumLivraison = "AND fllf_numliv IN ('" . implode("', '", $allLivraisonSoumis) . "')";
+        $statement = "SELECT
+                        CASE 
+                            WHEN c.qte_commandee IS NULL THEN TRIM('inconnu')
+                            WHEN c.qte_commandee = NVL(l.qte_livree, 0) THEN TRIM('tous_livre')
+                            ELSE TRIM('partiel_livre') 
+                        END AS statut
+                    FROM (
+                        SELECT SUM(fcdl_qte) AS qte_commandee
+                        FROM Informix.frn_cdl
+                        WHERE fcdl_numcde = '$numCde'
+                            AND fcdl_soc  = 'HF'
+                    ) c,
+                    (
+                        SELECT SUM(fllf_qteliv) AS qte_livree
+                        FROM Informix.frn_llf
+                        WHERE fllf_numcde = '$numCde'
+                            AND fllf_soc    = 'HF'
+                            $conditionNumLivraison
+                    ) l";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+
+        return ($data[0]['statut'] ?? "-") === 'partiel_livre';
+    }
 }

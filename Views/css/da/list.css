@@ -88,7 +88,6 @@
 
 /* Animation de disparition progressive */
 @keyframes fade {
-
   0%,
   100% {
     opacity: 0.2;
@@ -159,11 +158,11 @@
   * CSS pour table hover
   **=============================*/
 
-.table-hover>tbody>tr:hover {
+.table-hover > tbody > tr:hover {
   transform: scale(1.0025);
 }
 
-.modal .table-hover>tbody>tr:hover {
+.modal .table-hover > tbody > tr:hover {
   transform: none;
   cursor: pointer;
 }
@@ -181,7 +180,7 @@
 
 /* Trait fin pour les sous-niveaux (niveaux 2, 3, …)        */
 .sub-separator td,
-tr.sub-separator>td {
+tr.sub-separator > td {
   border-top: 2px solid #000;
   /* même couleur que la bande pleine */
 }
@@ -215,4 +214,61 @@ tr.sub-separator>td {
 .modal-dialog.custom-width {
   max-width: 60%;
   /* Ajustez le pourcentage selon vos besoins */
+}
+/* Conteneur de l'icône du type de DA : même taille que le fond de l'icône, repère des badges */
+.da-type {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--da-shape-size);
+  height: var(--da-shape-size);
+  font-size: 0.875rem; /* même base que .fa-layers.custom */
+  vertical-align: middle;
+}
+
+/* Indicateurs (observations / pièces jointes) : chacun dans son coin, comme .fa-layers-text */
+.da-badge {
+  position: absolute;
+  top: -0.85em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 12px;
+  height: 12px;
+  padding: 2px 3px 0;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 8px !important;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  z-index: 1;
+  box-shadow: 0 0 0 1.5px #fff; /* anneau blanc : détache le badge du fond */
+  transition: background-color 150ms ease;
+}
+
+.da-badge-pj {
+  right: -0.6em;
+  background: #6d28d9; /* violet, contraste 7,1:1 */
+  padding: 0 3px;
+}
+
+.da-badge-pj .fa-paperclip {
+  font-size: 7px;
+}
+
+.da-badge-obs {
+  left: -0.6em;
+  background: #c62828; /* contraste 5,6:1 */
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .da-badge-pj:hover {
+    background: #5b21b6;
+  }
+
+  .da-badge-obs:hover {
+    background: #a32020;
+  }
 }

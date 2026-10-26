@@ -2,16 +2,16 @@
 
 namespace App\Controller\da\Creation;
 
-use App\Constants\da\StatutDaConstant;
-use App\Constants\admin\ApplicationConstant;
 use App\Controller\Controller;
-use App\Controller\Traits\da\creation\DaNewReapproMensuelTrait;
 use App\Entity\da\DemandeAppro;
-use App\Entity\da\DemandeApproL;
-use App\Form\da\DemandeApproReapproMensuelFormType;
+use App\Service\da\DaCreationService;
+use App\Service\da\DaEnregistrementService;
+use Doctrine\ORM\EntityManagerInterface;
+use App\Constants\admin\ApplicationConstant;
+use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
-use App\Service\application\ApplicationService;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Form\da\DemandeApproReapproMensuelFormType;
 use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
@@ -19,12 +19,18 @@ use App\Service\historiqueOperation\suivi\SuiviOperationService;
  */
 class DaNewReApproMensuelController extends Controller
 {
-    use DaNewReapproMensuelTrait;
+    private DemandeApproRepository $demandeApproRepository;
+    private DaCreationService $daCreationService;
+    private DaEnregistrementService $daEnregistrementService;
 
-    public function __construct()
-    {
-        parent::__construct();
-        $this->initDaNewReapproMensuelTrait();
+    public function __construct(
+        EntityManagerInterface $em,
+        DaCreationService $daCreationService,
+        DaEnregistrementService $daEnregistrementService
+    ) {
+        $this->daCreationService       = $daCreationService;
+        $this->daEnregistrementService = $daEnregistrementService;
+        $this->demandeApproRepository  = $em->getRepository(DemandeAppro::class);
     }
 
     /**
@@ -35,8 +41,8 @@ class DaNewReApproMensuelController extends Controller
         // Code Société de l'utilisateur
         $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
-        $demandeAppro     = $id === 0 ? $this->initialisationDemandeApproReapproMensuel($codeSociete) : $this->demandeApproRepository->find($id);
-        $this->generateDemandApproLinesFromReappros($demandeAppro);
+        $demandeAppro     = $id === 0 ? $this->daCreationService->initialisationDemandeApproReapproMensuel($codeSociete) : $this->demandeApproRepository->find($id);
+        $this->daCreationService->generateDemandApproLinesFromReappros($demandeAppro);
 
         $form = $this->getFormFactory()->createBuilder(DemandeApproReapproMensuelFormType::class, $demandeAppro, [
             'em' => $this->getEntityManager()
@@ -49,12 +55,6 @@ class DaNewReApproMensuelController extends Controller
         ]);
     }
 
-    private function gererAgenceServiceDebiteur(DemandeAppro $demandeAppro)
-    {
-        $demandeAppro->setAgenceDebiteur($demandeAppro->getDebiteur()['agence'])
-            ->setServiceDebiteur($demandeAppro->getDebiteur()['service'])
-            ->setAgenceServiceDebiteur($demandeAppro->getAgenceDebiteur()->getCodeAgence() . '-' . $demandeAppro->getServiceDebiteur()->getCodeService());
-    }
     private function traitementFormReappro($form, Request $request): void
     {
         $form->handleRequest($request);
@@ -78,74 +78,22 @@ class DaNewReApproMensuelController extends Controller
                     : $demandeAppro->getNumeroDemandeAppro();
                 $suivi->setNumeroDocument($numDa);
 
-                $suivi->etape('Agence / service débiteur', function () use ($demandeAppro) {
-                    $this->gererAgenceServiceDebiteur($demandeAppro);
+                $notification = $suivi->etape('Enregistrement de la DA', function () use ($demandeAppro, $numDa, $firstCreation, $request) {
+                    return $this->daEnregistrementService->enregistrerDaReapproMensuel($demandeAppro, $numDa, $firstCreation, $this->getButtonName($request));
                 });
 
-                // Récupérer le nom du bouton cliqué
-                $clickedButtonName = $this->getButtonName($request);
-                $statutDa = StatutDaConstant::STATUT_DAL[$clickedButtonName];
-
-                $demandeAppro
-                    ->setNumeroDemandeAppro($numDa)
-                    ->setNumeroDemandeApproMere($numDa)
-                    ->setDetailDal($demandeAppro->getDetailDal() ?? '-')
-                    ->setStatutDal($statutDa);
-
-                /** @var DemandeApproL $dal */
-                $suivi->etape('Lignes de DA', function () use ($demandeAppro, $numDa, $statutDa) {
-                    foreach ($demandeAppro->getDAL() as $dal) {
-                        if ($dal->getQteDem()) {
-                            $dal
-                                ->setNumeroDemandeAppro($numDa)
-                                ->setDemandeAppro($demandeAppro)
-                                ->setDateFinSouhaite($demandeAppro->getDateFinSouhaite())
-                                ->setJoursDispo($this->getJoursRestants($dal))
-                                ->setStatutDal($statutDa);
-                            $this->getEntityManager()->persist($dal);
-                        } else {
-                            $demandeAppro->removeDAL($dal); // ne pas persister les DAL avec qteDem vide
-                            $this->getEntityManager()->remove($dal);
-                        }
-                    }
-                });
-
-                // si c'est la première création, on met à jour la colonne dernière_id dans la table applications
-                if ($firstCreation) {
-                    /** Modifie la colonne dernière_id dans la table applications */
-                    $suivi->etape('Mise à jour du dernier numéro', function () use ($numDa) {
-                        $applicationService = new ApplicationService($this->getEntityManager());
-                        $applicationService->mettreAJourDerniereIdApplication('DAP', $numDa);
-                    });
-                }
-
-                /** Ajout de demande appro dans la base de donnée (table: Demande_Appro) */
-                $suivi->etape('Base de données', function () use ($demandeAppro) {
-                    $this->getEntityManager()->persist($demandeAppro);
-                    $this->getEntityManager()->flush();
-                });
-
-                /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
-                if ($demandeAppro->getObservation()) {
-                    $suivi->etape('Observation', function () use ($demandeAppro) {
-                        $this->insertionObservation($demandeAppro->getNumeroDemandeAppro(), $demandeAppro->getObservation());
-                    });
-                }
-
-                // ajout des données dans la table DaAfficher
-                $suivi->etape('Mise à jour da_afficher', function () use ($demandeAppro, $firstCreation) {
-                    $this->ajouterDaDansTableAffichage($demandeAppro, $firstCreation);
-                });
-
-                if ($clickedButtonName === "soumissionAppro") {
-                    $suivi->etape('Mail de création', function () use ($demandeAppro) {
-                        $this->emailDaService->envoyerMailCreationDa($demandeAppro, $this->getUser());
-                    });
-                }
-
-                $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
+                $this->getSessionService()->set('notification', $notification);
                 $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
             }
         }
+    }
+
+    /** Nom du bouton cliqué : enregistrerBrouillon, soumissionAppro ou chaine vide */
+    private function getButtonName(Request $request): string
+    {
+        foreach (['enregistrerBrouillon', 'soumissionAppro'] as $button) {
+            if ($request->request->has($button)) return $button;
+        }
+        return '';
     }
 }

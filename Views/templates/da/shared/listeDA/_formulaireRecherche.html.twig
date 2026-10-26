@@ -20,22 +20,22 @@
                         {{ form_row(form.afficherCloturees) }}
                     </div>
                     <div class="col-12 col-md-2">
-                        {{ form_row(form.statutDA)}}
-                        {{ form_row(form.statutOR)}}
-                        {{ form_row(form.statutBC)}}
+                        {{ form_row(form.statutDA) }}
+                        {{ form_row(form.statutOR) }}
+                        {{ form_row(form.statutBC) }}
                     </div>
                     <div class="col-12 col-md-2">
-                        {{ macroForm.agence_service_change(form.agenceEmetteur, form.serviceEmetteur, 'spinner-service-emetteur', 'service-container-emetteur')}}
+                        {{ macroForm.agence_service_change(form.agenceEmetteur, form.serviceEmetteur, 'spinner-service-emetteur', 'service-container-emetteur') }}
                         {{ form_row(form.demandeur) }}
                     </div>
                     <div class="col-12 col-md-2">
-                        {{ macroForm.agence_service_change(form.agenceDebiteur, form.serviceDebiteur, 'spinner-service-debiteur', 'service-container-debiteur')}}
-                        {{ form_row(form.typeAchat)}}
+                        {{ macroForm.agence_service_change(form.agenceDebiteur, form.serviceDebiteur, 'spinner-service-debiteur', 'service-container-debiteur') }}
+                        {{ form_row(form.typeAchat) }}
                     </div>
                     <div class="col-12 col-md-2">
                         {{ form_row(form.dateDebutCreation) }}
                         {{ form_row(form.dateFinCreation) }}
-                        {{ form_label(form.niveauUrgence, '<a href="#" data-bs-toggle="modal" data-bs-target="#niveauUrgence" >Niveau d\'urgence</a>', { 'label_html': true }) }}
+                        {{ form_label(form.niveauUrgence, '<a href="#" data-bs-toggle="modal" data-bs-target="#niveauUrgence" >Niveau d\'urgence</a>', {'label_html': true}) }}
                         {{ form_widget(form.niveauUrgence, {'attr': {'class': 'mb-3'}}) }}
                     </div>
                     <div class="col-12 col-md-2">
@@ -86,4 +86,12 @@
             <small style="color: {{ da.color }};" class="px-2"> : {{ da.label }}</small>
         </div>
     {% endfor %}
+    <div class="mb-2 {{ afficherNonDispo ? '' : 'd-none' }}">
+        <label for="action_non_dispo">Action sur articles non disponibles</label>
+        <select id="action_non_dispo" name="" class="form-select">
+            <option value="">-- Choisir l'action à faire --</option>
+            <option value="delete">Supprimer définitivement</option>
+            <option value="create">Générer une nouvelle DA</option>
+        </select>
+    </div>
 </div>
