@@ -473,18 +473,29 @@ class DemandePaiementModel extends Model
         return $data;
     }
 
-    public function getNumeroFactureIps(string $numeroCommande): ?string
+    /**
+     * @param string|null $numeroCommande une ou plusieurs commandes séparées par ";" (ex : "26221200;26221500")
+     * @return string|null numéros de facture IPS séparés par ";"
+     */
+    public function getNumeroFactureIps(?string $numeroCommande): ?string
     {
-        $statement = "  SELECT FIRST 1 fllf_numfac 
+        // fllf_numcde est numérique : on ne garde que les numéros valides
+        $numCdes = array_filter(array_map('trim', explode(';', (string) $numeroCommande)), 'ctype_digit');
+        if (empty($numCdes)) {
+            return null;
+        }
+
+        $statement = "  SELECT DISTINCT fllf_numfac
                         from informix.frn_llf
-                        where fllf_numcde ='$numeroCommande'
+                        where fllf_numcde IN (" . implode(',', $numCdes) . ")
         ";
 
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+        $numFacs = array_filter(array_map('trim', array_column($data, 'fllf_numfac')));
 
-        return array_column($data, 'fllf_numfac')[0] ?? null;
+        return empty($numFacs) ? null : implode(';', $numFacs);
     }
 
     public function getFilePathDdp(string $numeroDdp, string $table, string $columnName): string
