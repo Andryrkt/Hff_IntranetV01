@@ -17,6 +17,11 @@
 	<div class="sticky-header-titre">
 		<div class="container">
 			{% include "/ddp/shared/_formulaireRecherche.html.twig" %}
+			{# même query string que la recherche : l'export applique les filtres de l'utilisateur #}
+			<a href="{{ path('ddp_export_excel') ~ (App.request.queryString ? '?' ~ App.request.queryString : '') }}" class="btn btn-sm bg-success text-white my-2 fw-bold afficher-overlay">
+				<i class="fas fa-table"></i>
+				Excel
+			</a>
 		</div>
 	</div>
 	<div class="container-fluid">
@@ -102,9 +107,10 @@
 						<td class="text-center {{ item.styleStatut }}">{{ item.statut }}</td>
 						<td class="text-center">{{ item.statutDossierRegul }}</td>
 						<td>{{ item.motif }}</td>
-						<td>{{ item.numeroFactureIps }}</td>
-						<td>{{ item.numeroFacture }}</td>
-						<td>{{ item.numeroCommande }}</td>
+						{# valeurs multiples séparées par ";" : une par ligne pour ne pas élargir le tableau #}
+						<td>{{  item.numeroFactureIps|e|replace({';': '<br>'})|raw  }}</td>
+						<td>{{  item.numeroFacture|e|replace({';': '<br>'})|raw  }}</td>
+						<td>{{  item.numeroCommande|e|replace({';': '<br>'})|raw  }}</td>
 						<td>
 							<ul>
 								{% for numCde in item.numeroDossierDouane %}

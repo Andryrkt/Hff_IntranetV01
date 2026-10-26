@@ -568,7 +568,11 @@ class DemandePaiementModel extends Model
         return $data;
     }
 
-    public function getNumeroFactureIps(string $numeroCommande): ?string
+    /**
+     * @param string|null $numeroCommande une ou plusieurs commandes séparées par ";" (ex : "26221200;26221500")
+     * @return string|null numéros de facture IPS séparés par ";"
+     */
+    public function getNumeroFactureIps(?string $numeroCommande): ?string
     {
         $numeroCommandes = array_filter(explode(';', $numeroCommande), fn($valeur) => $valeur !== '');
 
@@ -586,8 +590,9 @@ class DemandePaiementModel extends Model
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+        $numFacs = array_filter(array_map('trim', array_column($data, 'fllf_numfac')));
 
-        return array_column($data, 'fllf_numfac')[0] ?? null;
+        return empty($numFacs) ? null : implode(';', $numFacs);
     }
 
     public function getFilePathDdp(string $numeroDdp, string $table, string $columnName): string
