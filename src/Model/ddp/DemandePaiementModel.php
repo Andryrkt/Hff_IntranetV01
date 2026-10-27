@@ -348,11 +348,12 @@ class DemandePaiementModel extends Model
         return $this->retournerResultGcot04FiltreSurColonne($sql, 'Numero_PO', $numCdesString, ['Numero_Dossier_Douane']);
     }
 
-    public function getFactureNonReglee(string $numeroFournisseur)
+    public function getFactureNonReglee(string $numeroFournisseur, string $codeSociete = 'HF'): array
     {
         $statement = " SELECT 'PDV_'||''||trim(tecr_nopiec) as facture_non_lettree
                         FROM trs_ecr 
                         WHERE tecr_nocpp = '{$numeroFournisseur}'
+                        and tecr_codsoc = '{$codeSociete}'
                         and tecr_codjou = 'Achmag'
         ";
         $result = $this->connect->executeQuery($statement);

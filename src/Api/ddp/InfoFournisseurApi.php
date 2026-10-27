@@ -84,7 +84,7 @@ class InfoFournisseurApi extends Controller
 
         echo json_encode($results);
     }
-    
+
 
     /**
      * @Route("/api/num-cde-frn/{numeroFournisseur}/{typeId}", name="api_num_cde_frn")
@@ -111,14 +111,14 @@ class InfoFournisseurApi extends Controller
         )));
         $numCdeValides = implode(',', array_map(fn($el) => "'" . $el . "'", $numCdeValidesListe));
 
-        // Commandes réceptionnées dans IPS (type 1 : limitées aux commandes validées)
+        // Commandes réceptionnées dans IPS 
         $numCdesAvecLivraison = $this->demandePaiementModel()->getCommandeReceptionnee($numeroFournisseur, $codeSociete, $typeId, $numCdeValides);
 
         if ($typeId === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE) {
             // Après arrivage : commandes réceptionnées
             $numCdes = $numCdesAvecLivraison;
         } else {
-            // À l'avance : commandes validées qui ne sont PAS encore réceptionnées
+            // À l'avance (type 1) : commandes validées dans DOCUWARE qui ne sont PAS encore réceptionnées
             $numCdes = array_values(array_diff(
                 $numCdeValidesListe,
                 array_map(fn($el) => trim((string) $el), $numCdesAvecLivraison)
@@ -132,7 +132,7 @@ class InfoFournisseurApi extends Controller
         $listeGcot = [];
         if ($typeId === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE) {
             $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
-            $numFacs = $this->demandePaiementModel()->getFactureNonReglee($numeroFournisseur);
+            $numFacs = $this->demandePaiementModel()->getFactureNonReglee($numeroFournisseur, $codeSociete);
             $numFacString = TableauEnStringService::TableauEnString(',', $numFacs);
             $listeGcot = $this->demandePaiementModel()->findListeGcot($numeroFournisseur, $numCdesString, $numFacString);
         }
