@@ -16,6 +16,8 @@ class DaAfficherDto
     public $numeroDemandeAppro;
     public $daTypeIcon;
     public $allIcons;
+    public bool $aPiecesJointes = false;
+    public int $nbObservations = 0;
     public $niveauUrgence;
     public $dateFinSouhaite;
     public $artConstp;
@@ -34,7 +36,7 @@ class DaAfficherDto
     public $datype;
     public $daViaOR;
     public $daDirect;
-    public $daReappro;
+    public $daReapproMensuel;
     public $daParent;
     // Demandeur
     public $demandeur;

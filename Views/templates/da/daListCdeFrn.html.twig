@@ -7,7 +7,6 @@
 {% block stylesheets %}
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v={{ App.browserHash }}">
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/list.css?v={{ App.browserHash }}">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/list-cde-frn.css?v={{ App.browserHash }}">
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/style.css?v={{ App.browserHash }}">
 {% endblock %}
 
@@ -15,7 +14,6 @@
 	<div class="container-fluid">
 		<div class="sticky-header-titre">
 			<div class="container">
-				{% include "/partials/_notification.html.twig" %}
 				{% include "/da/shared/cdeFrn/_formulaireRecherche.html.twig" %}
 				{% include "/da/shared/cdeFrn/_pagination.html.twig" %}
 			</div>
@@ -69,6 +67,7 @@
 							<a href="{{ row.urlDetail }}" target="_blank">{{ row.numeroDemandeAppro }}</a>
 						</td>
 						<td class="text-center" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ row.numeroDemandeAppro }}">
+							{% include "/da/shared/listeDA/_indicateursDa.html.twig" %}
 							{{ row.daTypeIcon|raw }}
 						</td>
 						<td class="text-center">{{ row.numeroDemandeDit }}</td>
@@ -108,13 +107,13 @@
 						<td class="text-center fw-bold {{ row.styleStatutCompta }}">
 							{% if row.statutCompta %}
 								<a {% for attr, val in row.ddpCloture %} {{ attr }}="{{ val }}" {% endfor %}>
-									{{row.statutCompta}}
+									{{ row.statutCompta }}
 								</a>
 							{% else %}
 								-
 							{% endif %}
 						</td>
-						<td class="text-center">{{ row.demandeur}}</td>
+						<td class="text-center">{{ row.demandeur }}</td>
 					</tr>
 				{% else %}
 					<tr>
@@ -138,20 +137,24 @@
 {% block javascript %}
 	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v={{ App.browserHash }}"></script>
 	<script src="{{ App.base_path }}/Views/js/da/listeCdeFrn/listCdefrn.js?v={{ App.browserHash }}" type="module"></script>
-	<script src="{{ App.base_path }}/Views/js/da/listeCdeFrn/daNonDispo.js?v={{ App.browserHash }}" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/da/main/daNonDispo.js?v={{ App.browserHash }}" type="module"></script>
 	<script>
 		// Optimisation : Délégation des tooltips pour ne pas surcharger le chargement initial
-document.addEventListener('mouseover', function (e) {
-const target = e.target.closest('[data-bs-toggle="tooltip"]');
-if (target && !bootstrap.Tooltip.getInstance(target)) {
-const tooltip = new bootstrap.Tooltip(target);
-tooltip.show();
+		document.addEventListener("mouseover", function (e) {
+			const target = e.target.closest('[data-bs-toggle="tooltip"]');
+			if (target && !bootstrap.Tooltip.getInstance(target)) {
+				const tooltip = new bootstrap.Tooltip(target);
+				tooltip.show();
 
-// Correction : On force la fermeture quand on quitte l'élément
-target.addEventListener('mouseleave', () => {
-tooltip.hide();
-}, {once: true});
-}
-});
+				// Correction : On force la fermeture quand on quitte l'élément
+				target.addEventListener(
+					"mouseleave",
+					() => {
+						tooltip.hide();
+					},
+					{ once: true },
+				);
+			}
+		});
 	</script>
 {% endblock %}

@@ -4,11 +4,16 @@ namespace App\Controller\da\Validation;
 
 use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
-use App\Controller\Traits\da\DaAfficherTrait;
+use App\Service\da\DaAfficherService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\da\validation\DaValidationDirectTrait;
+use App\Repository\da\DemandeApproLRepository;
+use App\Entity\da\DemandeApproL;
+use App\Service\da\EmailDaService;
+use App\Service\da\DaValidationService;
+use App\Service\da\DaSoumissionValidationService;
 use App\Entity\da\DemandeAppro;
+use Doctrine\ORM\EntityManagerInterface;
 use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
@@ -16,14 +21,25 @@ use App\Service\historiqueOperation\suivi\SuiviOperationService;
  */
 class DaValidationDirectController extends Controller
 {
-    use DaAfficherTrait;
-    use DaValidationDirectTrait;
+    private DemandeApproLRepository $demandeApproLRepository;
+    private EmailDaService $emailDaService;
 
-    public function __construct()
-    {
-        parent::__construct();
+    private DaAfficherService $daAfficherService;
+    private DaValidationService $daValidationService;
+    private DaSoumissionValidationService $daSoumissionValidationService;
 
-        $this->initDaValidationDirectTrait();
+    public function __construct(
+        EntityManagerInterface $em,
+        DaAfficherService $daAfficherService,
+        DaValidationService $daValidationService,
+        DaSoumissionValidationService $daSoumissionValidationService,
+        EmailDaService $emailDaService
+    ) {
+        $this->demandeApproLRepository = $em->getRepository(DemandeApproL::class);
+        $this->emailDaService = $emailDaService;
+        $this->daValidationService = $daValidationService;
+        $this->daSoumissionValidationService = $daSoumissionValidationService;
+        $this->daAfficherService = $daAfficherService;
     }
 
     /**
@@ -41,33 +57,33 @@ class DaValidationDirectController extends Controller
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
 
         $da = $suivi->etape('Validation des lignes (base de données)', function () use ($numDa, $numeroVersionMax, $prixUnitaire, $refsValide) {
-            return $this->validerDemandeApproAvecLignes($numDa, $numeroVersionMax, $prixUnitaire, $refsValide);
+            return $this->daValidationService->validerDemandeApproAvecLignes($numDa, $numeroVersionMax, $prixUnitaire, $refsValide);
         });
 
         /** CREATION EXCEL ET PDF */
         $resultatExport = $suivi->etape('Bon d\'achat (Excel et PDF)', function () use ($numDa, $numeroVersionMax) {
-            return $this->exporterDaDirectEnExcelEtPdf($numDa, $numeroVersionMax);
+            return $this->daValidationService->exporterDaDirectEnExcelEtPdf($numDa, $numeroVersionMax);
         });
 
         /** Ajout nom fichier du bon d'achat (excel) */
         $da->setNomFichierBav($resultatExport['fileName']);
 
         $suivi->etape('Mise à jour da_afficher', function () use ($da) {
-            $this->ajouterDansTableAffichageParNumDa($da->getNumeroDemandeAppro(), true, StatutDaConstant::STATUT_DW_A_VALIDE); // enregistrer dans la table Da Afficher
+            $this->daAfficherService->ajouterDansTableAffichageParNumDa($da->getNumeroDemandeAppro(), true, StatutDaConstant::STATUT_DW_A_VALIDE); // enregistrer dans la table Da Afficher
         });
 
         // ajout des données dans la table DaSoumisAValidation
         $suivi->etape('Base de données (DA soumise à validation)', function () use ($da) {
-            $this->ajouterDansDaSoumisAValidation($da);
+            $this->daSoumissionValidationService->ajouterDansDaSoumisAValidation($da);
         });
 
         /** envoi dans docuware */
         $suivi->etape('Fusion et DocuWare', function () use ($da) {
-            $this->fusionAndCopyToDW($da->getNumeroDemandeAppro());
+            $this->daSoumissionValidationService->fusionAndCopyToDW($da->getNumeroDemandeAppro());
         });
 
         $suivi->etape('Mail de validation', function () use ($da, $resultatExport) {
-            $this->emailDaService->envoyerMailValidationDa($da, $this->getUser(), $resultatExport);
+            $this->emailDaService->envoyerMailValidationDa($da, $resultatExport);
         });
 
         /** NOTIFICATION */

@@ -10,10 +10,12 @@ use App\Entity\da\DemandeAppro;
 use App\Entity\dw\DwBcAppro;
 use App\Factory\da\CdeFrnDto\DaSoumissionFacBlFactory;
 use App\Mapper\Da\ListCdeFrn\DaSoumissionFacBlMapper;
+use App\Model\da\DaAfficherModel;
 use App\Model\da\DaSoumissionFacBlModel;
 use App\Repository\da\DaSoumissionFacBlRepository;
 use App\Repository\da\DemandeApproRepository;
 use App\Repository\dw\DwBcApproRepository;
+use App\Service\da\EmailDaService;
 use App\Service\fichier\TraitementDeFichier;
 use App\Service\genererPdf\GeneratePdf;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
@@ -34,6 +36,7 @@ class TraitementSoumissionfacBlService
     private GeneratePdf $generatePdf;
     private DaSoumissionFacBlModel $daSoumissionFacBlModel;
     private TraitementDeFichier $traitementDeFichier;
+    private EmailDaService $emailDaService;
     private string $cheminDeBase;
     private DemandeApproRepository $demandeApproRepository;
     private DwBcApproRepository $dwBcApproRepository;
@@ -45,7 +48,8 @@ class TraitementSoumissionfacBlService
         DaSoumissionFacBlMapper $daSoumissionfacBlMapper,
         GeneratePdf $generatePdf,
         DaSoumissionFacBlModel $daSoumissionFacBlModel,
-        TraitementDeFichier $traitementDeFichier
+        TraitementDeFichier $traitementDeFichier,
+        EmailDaService $emailDaService
     ) {
         $this->entityManager               = $entityManager;
         $this->historiqueOperation         = $historiqueOperation;
@@ -55,6 +59,7 @@ class TraitementSoumissionfacBlService
         $this->generatePdf                 = $generatePdf;
         $this->daSoumissionFacBlModel      = $daSoumissionFacBlModel;
         $this->traitementDeFichier         = $traitementDeFichier;
+        $this->emailDaService              = $emailDaService;
         $this->cheminDeBase                = ($_ENV['BASE_PATH_FICHIER'] ?? '') . '/da/';
         $this->demandeApproRepository      = $this->entityManager->getRepository(DemandeAppro::class);
         $this->dwBcApproRepository         = $this->entityManager->getRepository(DwBcAppro::class);
@@ -304,6 +309,15 @@ class TraitementSoumissionfacBlService
 
         if ($nbLignesMaj === 0 || !empty($articlesNonTrouves)) {
             error_log("[est_facture_bl_soumis] DA $numDa / CDE $numCde / LIV $numLiv : $nbLignesMaj ligne(s) mise(s) à jour sur " . count($articlesLivres) . " article(s) livré(s). Non trouvé(s) : " . implode(' | ', $articlesNonTrouves));
+        }
+    }
+
+    public function notifierApproLivraisonPartielle(DaSoumissionFacBlDto $dto)
+    {
+        $isLivraisonPartielle = (new DaAfficherModel)->checkLivraisonPartielle($dto->numeroDemandeAppro, $dto->numeroCde);
+
+        if ($isLivraisonPartielle) {
+            $this->emailDaService->notifierApproLivraisonPartielle($dto->numeroDemandeAppro, $dto->numeroCde);
         }
     }
 }

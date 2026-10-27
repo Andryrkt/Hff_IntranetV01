@@ -5,7 +5,6 @@ imports:
   - { resource: "services/services_framework.yaml" }
   - { resource: "services/services_twig.yaml" }
   - { resource: "services/services_admin.yaml" }
-  - { resource: "services/services_da.yaml" }
   - { resource: "services/services_dit.yaml" }
   - { resource: "services/services_ddp.yaml" }
   - { resource: "services/services_navigation.yaml" }

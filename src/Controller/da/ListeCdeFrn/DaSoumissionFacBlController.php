@@ -3,6 +3,7 @@
 namespace App\Controller\da\ListeCdeFrn;
 
 
+use App\Service\UserData\UserDataService;
 use App\Constants\ddp\StatutConstants;
 use App\Controller\Controller;
 use App\Dto\Da\ListeCdeFrn\DaSoumissionFacBlDto;
@@ -25,6 +26,7 @@ use App\Service\historiqueOperation\suivi\SuiviOperationService;
  */
 class DaSoumissionFacBlController extends Controller
 {
+    private UserDataService $userDataService;
 
     private DaSoumissionFacBlFactory $daSoumissionFacBlFactory;
     private TraitementSoumissionDDPLService $traitementSoumissionDDPLService;
@@ -37,11 +39,13 @@ class DaSoumissionFacBlController extends Controller
         TraitementSoumissionDDPLService $traitementSoumissionDDPLService,
         TraitementSoumissionBAPService $traitementSoumissionBAPService,
         TraitementSoumissionfacBlService $traitementSoumissionfacBlService,
+        UserDataService $userDataService,
         ControleSoumissionFacBlService $controleSoumissionFacBlService
     ) {
-        $this->daSoumissionFacBlFactory = $daSoumissionFacBlFactory;
-        $this->traitementSoumissionDDPLService = $traitementSoumissionDDPLService;
-        $this->traitementSoumissionBAPService = $traitementSoumissionBAPService;
+        $this->userDataService = $userDataService;
+        $this->daSoumissionFacBlFactory         = $daSoumissionFacBlFactory;
+        $this->traitementSoumissionDDPLService  = $traitementSoumissionDDPLService;
+        $this->traitementSoumissionBAPService   = $traitementSoumissionBAPService;
         $this->traitementSoumissionfacBlService = $traitementSoumissionfacBlService;
         $this->controleSoumissionFacBlService = $controleSoumissionFacBlService;
     }
@@ -109,7 +113,7 @@ class DaSoumissionFacBlController extends Controller
             if (!$dto->soumissionDdpAFaire && ($dto->typeDdp === 'regul' || $dto->typeDdp === 'ddpl')) {
                 $sucess = $this->traitementSoumissionDDPLService->traitementSoumissionDDPL($form, $dto);
             } elseif (!$dto->soumissionDdpAFaire && $dto->typeDdp === 'bap') {
-                $sucess = $this->traitementSoumissionBAPService->traitementSoumissionBAP($form, $dto, $this->getUserMail());
+                $sucess = $this->traitementSoumissionBAPService->traitementSoumissionBAP($form, $dto, $this->userDataService->getUserMail());
             } else {
                 $sucess = $this->traitementSoumissionfacBlService->traitementSoumissionFacBl($form, $dto);
             }
@@ -117,6 +121,8 @@ class DaSoumissionFacBlController extends Controller
             if ($sucess) {
                 /** CONTRÔLE DE LA MISE À JOUR DA dans le suivi (ALERTE si est_facture_bl_soumis n'a pas été mis à jour) */
                 $this->controleSoumissionFacBlService->controler($dto);
+
+                $this->traitementSoumissionfacBlService->notifierApproLivraisonPartielle($dto);
 
                 /** HISTORISATION */
                 $message = 'Le document est soumis pour validation';

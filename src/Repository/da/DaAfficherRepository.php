@@ -340,7 +340,7 @@ class DaAfficherRepository extends EntityRepository
         $filterService->applyDynamicFilters($qb, 'd', $criteria, true);
         $filterService->applyStatutsFilters($qb, 'd', $criteria, true);
         $filterService->applyDateFilters($qb, 'd', $criteria, true);
-        $filterService->applyAgencyServiceFilters($qb, 'd', $criteria);
+        $this->getAgenceServiceFilterService()->applyAgencyServiceFilters($qb, 'd', $criteria);
 
         // ------------------------------------------------------------------
         // COUNT optimisé (COUNT(d.id) est plus rapide que DISTINCT)
@@ -524,7 +524,7 @@ class DaAfficherRepository extends EntityRepository
         // 3. Appliquer les filtres métier via le service
         $filterService = $this->getFilterService();
         $filterService->applyDynamicFilters($qb, "d", $criteria);
-        $filterService->applyAgencyServiceFilters($qb, "d", $criteria);
+        $this->getAgenceServiceFilterService()->applyAgencyServiceFilters($qb, "d", $criteria);
         $filterService->applyDateFilters($qb, "d", $criteria);
         $filterService->applyStatutsFilters($qb, "d", $criteria);
 
@@ -609,6 +609,12 @@ class DaAfficherRepository extends EntityRepository
         return $container->get(\App\Service\da\DaFilterService::class);
     }
 
+    private function getAgenceServiceFilterService(): \App\Service\da\DaAgenceServiceFilterService
+    {
+        global $container;
+        return $container->get(\App\Service\da\DaAgenceServiceFilterService::class);
+    }
+
 
     public function getNbrDaAfficherValider(string $numeroOr, string $codeSociete): int
     {
@@ -687,7 +693,7 @@ class DaAfficherRepository extends EntityRepository
 
         $filterService = $this->getFilterService();
         $filterService->applyDynamicFilters($qb, 'd', $criteria);
-        $filterService->applyAgencyServiceFilters($qb, 'd', $criteria);
+        $this->getAgenceServiceFilterService()->applyAgencyServiceFilters($qb, 'd', $criteria);
         $filterService->applyDateFilters($qb, 'd', $criteria);
         $filterService->applyStatutsFilters($qb, 'd', $criteria);
 
