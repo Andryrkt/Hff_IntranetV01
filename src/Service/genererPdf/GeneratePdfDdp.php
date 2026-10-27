@@ -343,6 +343,16 @@ class GeneratePdfDdp extends GeneratePdf
         $pdf->Cell($usable_width - 100, 10, $dto->montantAPayer, 1, 0); // TO DO: valeur de "Montant à payer" (remplacer '' par sa valeur)
         $pdf->Cell(30, 10, $dto->devise, 1, 1); // TO DO: valeur de "Devise" (remplacer '' par sa valeur)
 
+        // Après arrivage (DDPR / DDPL) : solde avance de chaque commande
+        if (!empty($dto->soldesAvance)) {
+            $soldes = [];
+            foreach ($dto->soldesAvance as $numCde => $solde) {
+                $soldes[] = $numCde . ' : ' . number_format((float) $solde, 2, ',', ' ');
+            }
+            $pdf->Cell(50, 10, 'Solde avance ', 1, 0);
+            $pdf->MultiCell($usable_width - 50, 10, implode(' ; ', $soldes), 1, 'L', 0, 1);
+        }
+
         $pdf->Ln(5);
 
         $pdf->SetFont('helvetica', 'B', 12);

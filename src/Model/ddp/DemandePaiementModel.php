@@ -76,6 +76,7 @@ class DemandePaiementModel extends Model
             TRZT_Dossier_Douane.Numero_LTA, 
             TRZT_Dossier_Douane.Numero_HAWB,
             TRZT_Facture.Numero_Facture, 
+            TRZT_Facture.Montant_FOB as Montant_Facture,
             GCOT_Facture_Ligne.Numero_PO
             from TRZT_Dossier_Douane
             INNER JOIN TRZT_Facture on TRZT_Dossier_Douane.Numero_Dossier_Douane = TRZT_Facture.Numero_Dossier_Douane
@@ -83,12 +84,32 @@ class DemandePaiementModel extends Model
             INNER JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
             where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%'
             and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
-            group by TRZT_Dossier_Douane.Code_Fournisseur, TRZT_Dossier_Douane.Libelle_Fournisseur,TRZT_Dossier_Douane.Numero_Dossier_Douane, TRZT_Dossier_Douane.Numero_LTA, TRZT_Dossier_Douane.Numero_HAWB,TRZT_Facture.Numero_Facture, GCOT_Facture_Ligne.Numero_PO
+            group by TRZT_Dossier_Douane.Code_Fournisseur, TRZT_Dossier_Douane.Libelle_Fournisseur,TRZT_Dossier_Douane.Numero_Dossier_Douane, TRZT_Dossier_Douane.Numero_LTA, TRZT_Dossier_Douane.Numero_HAWB,TRZT_Facture.Numero_Facture, TRZT_Facture.Montant_FOB, GCOT_Facture_Ligne.Numero_PO
             order by TRZT_Dossier_Douane.Code_Fournisseur, TRZT_Dossier_Douane.Libelle_Fournisseur,TRZT_Dossier_Douane.Numero_Dossier_Douane, TRZT_Dossier_Douane.Numero_LTA, TRZT_Dossier_Douane.Numero_HAWB,TRZT_Facture.Numero_Facture, GCOT_Facture_Ligne.Numero_PO
             OPTION (RECOMPILE)
             ";
 
         return $this->retournerResultGcot04FiltreSurColonne($sql, 'Numero_PO', $numCdesString);
+    }
+
+    /**
+     * Commandes (Numero_PO) et montant de chacune des factures GCOT données
+     *
+     * @param string $numFacString factures au format 'FAC1','FAC2'
+     * @return array<array{Numero_Facture: string, Montant_Facture: float, Numero_PO: string}>
+     */
+    public function getCommandesParFacture(string $numFacString): array
+    {
+        $sql = "SELECT DISTINCT
+                TRZT_Facture.Numero_Facture,
+                TRZT_Facture.Montant_FOB as Montant_Facture,
+                GCOT_Facture_Ligne.Numero_PO
+            from TRZT_Facture
+            INNER JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
+            INNER JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
+            where TRZT_Facture.Numero_Facture in ({$numFacString})";
+
+        return $this->retournerResultGcot04($sql);
     }
 
     public function getMontantFacGcot(string $numeroFournisseur, string  $numCdesString, string $numfacture): array
@@ -547,7 +568,11 @@ class DemandePaiementModel extends Model
         return $data;
     }
 
-    public function getNumeroFactureIps(string $numeroCommande): ?string
+    /**
+     * @param string|null $numeroCommande une ou plusieurs commandes séparées par ";" (ex : "26221200;26221500")
+     * @return string|null numéros de facture IPS séparés par ";"
+     */
+    public function getNumeroFactureIps(?string $numeroCommande): ?string
     {
         $numeroCommandes = array_filter(explode(';', $numeroCommande), fn($valeur) => $valeur !== '');
 
@@ -565,8 +590,9 @@ class DemandePaiementModel extends Model
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+        $numFacs = array_filter(array_map('trim', array_column($data, 'fllf_numfac')));
 
-        return array_column($data, 'fllf_numfac')[0] ?? null;
+        return empty($numFacs) ? null : implode(';', $numFacs);
     }
 
     public function getFilePathDdp(string $numeroDdp, string $table, string $columnName): string

@@ -10,12 +10,14 @@ use App\Form\common\RibType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class DdpType extends AbstractType
 {
@@ -64,12 +66,18 @@ class DdpType extends AbstractType
                 'montantAPayer',
                 TextType::class,
                 [
-                    'label' => 'Montant à payer *'
+                    'label' => $options['data']->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE
+                        ? 'Montant facture proforma *'
+                        : 'Montant à payer *',
+                    'attr' => $options['data']->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE
+                        ? ['data-plafond' => TypeDemandePaiementConstants::PLAFOND_MONTANT_PROFORMA]
+                        : [],
                 ]
             )
         ;
 
-        $this->addMontantFactureProforma($builder, $options);
+        $this->addMontantTotalCommande($builder, $options);
+        $this->addMontantsCommande($builder, $options);
         $this->addNumeroCommande($builder, $options);
         $this->addNumeroFacture($builder, $options);
         $this->addFournisseur($builder);
@@ -78,20 +86,52 @@ class DdpType extends AbstractType
     }
 
     /**
-     * Montant facture proforma : uniquement pour la demande de paiement à l'avance
+     * Montant total du commande : uniquement pour la demande de paiement à l'avance
      */
-    public function addMontantFactureProforma(FormBuilderInterface $builder, array $options)
+    public function addMontantTotalCommande(FormBuilderInterface $builder, array $options)
     {
         if ($options['data']->typeDdp->getId() !== TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE) {
             return;
         }
 
         $builder->add(
-            'montantFactureProforma',
+            'montantTotalCommande',
             TextType::class,
             [
-                'label' => 'Montant facture proforma',
-                'required' => false
+                'label' => 'Montant total du commande *',
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'Le montant total du commande est obligatoire.',
+                    ]),
+                ],
+            ]
+        );
+    }
+
+    /**
+     * Montant du commande à payer, par commande : uniquement pour la demande de paiement après arrivage
+     */
+    public function addMontantsCommande(FormBuilderInterface $builder, array $options)
+    {
+        if ($options['data']->typeDdp->getId() !== TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE) {
+            return;
+        }
+
+        // une entrée par commande sélectionnée, clé = numéro de commande (lignes ajoutées par le JS)
+        $builder->add(
+            'montantsCommande',
+            CollectionType::class,
+            [
+                'label' => false,
+                'entry_type' => TextType::class,
+                'entry_options' => [
+                    'constraints' => [
+                        new NotBlank([
+                            'message' => 'Le montant du commande à payer est obligatoire.',
+                        ]),
+                    ],
+                ],
+                'allow_add' => true,
             ]
         );
     }

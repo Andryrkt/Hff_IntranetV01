@@ -117,9 +117,9 @@ class DemandePaiement
     private ?float $montantAPayers = 0.00;
 
     /**
-     * @ORM\Column(type="float", scale="2", name="montant_facture_proforma", nullable=true)
+     * @ORM\Column(type="float", scale="2", name="montant_total_commande", nullable=true)
      */
-    private ?float $montantFactureProforma = null;
+    private ?float $montantTotalCommande = null;
 
 
     /**
@@ -1310,19 +1310,31 @@ class DemandePaiement
     }
 
     /**
-     * Get the value of montantFactureProforma
+     * Get the value of montantTotalCommande
      */
-    public function getMontantFactureProforma(): ?float
+    public function getMontantTotalCommande(): ?float
     {
-        return $this->montantFactureProforma;
+        return $this->montantTotalCommande;
     }
 
     /**
-     * Set the value of montantFactureProforma
+     * Pourcentage du montant à payer (montant facture proforma) par rapport au
+     * montant total du commande (paiement à l'avance).
+     * 0 si le montant total du commande n'est pas renseigné (anciennes demandes, après arrivage).
      */
-    public function setMontantFactureProforma(?float $montantFactureProforma): self
+    public function getRatioMontantTotalCommande(): float
     {
-        $this->montantFactureProforma = $montantFactureProforma === null ? null : round($montantFactureProforma, 2);
+        return $this->montantTotalCommande > 0
+            ? (float) $this->montantAPayers / $this->montantTotalCommande * 100
+            : 0.0;
+    }
+
+    /**
+     * Set the value of montantTotalCommande
+     */
+    public function setMontantTotalCommande(?float $montantTotalCommande): self
+    {
+        $this->montantTotalCommande = $montantTotalCommande === null ? null : round($montantTotalCommande, 2);
 
         return $this;
     }

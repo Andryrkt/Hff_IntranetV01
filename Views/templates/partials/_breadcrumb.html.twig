@@ -61,5 +61,11 @@
 				<li class="breadcrumb-separator"></li>
 			{% endif %}
 		{% endfor %}
+		{# bouton « Guide d'utilisation » : l'écran déclare {% set guideSlug = '...' %} hors des blocs #}
+		{% if guideSlug is defined and guideSlug %}
+			<li class="ms-auto">
+				{% include 'partials/_lienGuide.html.twig' with {slug: guideSlug} %}
+			</li>
+		{% endif %}
 	</ol>
 </nav>

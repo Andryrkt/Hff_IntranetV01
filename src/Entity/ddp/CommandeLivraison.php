@@ -42,6 +42,11 @@ class CommandeLivraison
     private ?string $numero_facture = null;
 
     /**
+     * @ORM\Column(type="float", scale="2", name="montant_commande_a_payer", nullable=true)
+     */
+    private ?float $montantCommandeAPayer = null;
+
+    /**
      * @ORM\ManyToOne(targetEntity=DemandePaiement::class, inversedBy="commandeLivraisons")
      * @ORM\JoinColumn(name="demandePaiementId", referencedColumnName="id")
      */
@@ -132,6 +137,24 @@ class CommandeLivraison
     public function setDemandePaiement(?DemandePaiement $demandePaiement): self
     {
         $this->demandePaiement = $demandePaiement;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of montantCommandeAPayer
+     */
+    public function getMontantCommandeAPayer(): ?float
+    {
+        return $this->montantCommandeAPayer;
+    }
+
+    /**
+     * Set the value of montantCommandeAPayer
+     */
+    public function setMontantCommandeAPayer(?float $montantCommandeAPayer): self
+    {
+        $this->montantCommandeAPayer = $montantCommandeAPayer;
 
         return $this;
     }

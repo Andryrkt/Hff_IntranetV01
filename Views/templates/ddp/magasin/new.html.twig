@@ -9,6 +9,8 @@
 
 {% import "macroForm.html.twig" as macroForm %}
 
+{% set guideSlug = 'ddp-magasin' %}
+
 {% block content %}
 	<div class="container-fluid mt-6">
 		<div class="row">
@@ -98,19 +100,38 @@
 					<div
 						class="col-12 col-md-4"
 					>
-						{# <p><b>Listes des fichiers</b></p> #}
-						<ul id="liste_fichiers" class="d-none"></ul>
-						{# liste des fichiers #}
 					</div>
 				</div>
+				{% if form.montantsCommande is defined %}
+					{# Lignes (une par commande sélectionnée) ajoutées par DemandePaiementManager.js #}
+					{% do form.montantsCommande.setRendered %}
+					<div class="row d-none" id="tableauMontantsCommande">
+						<div class="col-12 table-responsive">
+							<table class="table table-sm">
+								<thead class="table-dark align-middle">
+									<tr>
+										<th>N° commande</th>
+										<th>N° facture</th>
+										<th class="text-end">Montant facture</th>
+										<th class="text-end">DDPA</th>
+										<th class="text-end">Solde avance</th>
+										<th class="text-center">DDP à générer</th>
+										<th>Montant du commande à payer *</th>
+									</tr>
+								</thead>
+								<tbody id="montantsCommandeBody"></tbody>
+							</table>
+						</div>
+					</div>
+				{% endif %}
 				<div class="row">
 					<div class="col-12 col-md-4">
 						{{ form_row(form.montantAPayer) }}
 						<div id="montantIncorrectWarning" class="text-danger small mt-1 d-none"></div>
 					</div>
-					{% if form.montantFactureProforma is defined %}
+					{% if form.montantTotalCommande is defined %}
 						<div class="col-12 col-md-4">
-							{{ form_row(form.montantFactureProforma) }}
+							{{ form_row(form.montantTotalCommande) }}
 						</div>
 					{% endif %}
 				</div>
@@ -181,11 +202,16 @@
 					<!-- Onglets
 						 Les numéros 1 à 4 correspondent aux zones de dépôt pieceJoint01 à pieceJoint04 :
 						 file_upload_Utils.js cible "#tab{N}-tab" et "#file-list-{N}" avec ce numéro.
-						 0 = commande fournisseur validée, 5 = OR validé, 6 = facture fournisseur validée. -->
+						 0 = commande fournisseur validée, 5 = OR validé, 6 = facture fournisseur validée, 7 = facture (dossier douane). -->
 					<ul class="nav nav-tabs" id="pdfTabs" role="tablist">
 						<li class="nav-item" role="presentation">
 							<button class="nav-link active" id="tab0-tab" data-bs-toggle="tab" data-bs-target="#tab0" type="button" role="tab">
 								commande fournisseur validée
+							</button>
+						</li>
+						<li class="nav-item" role="presentation">
+							<button class="nav-link" id="tab7-tab" data-bs-toggle="tab" data-bs-target="#tab7" type="button" role="tab">
+								Facture
 							</button>
 						</li>
 						<li class="nav-item" role="presentation">
@@ -234,6 +260,16 @@
 							<div id="file-list-0" class="mt-3">
 								<ul class="nav nav-pills mb-2 d-none" id="commandeValideeSubTabs" role="tablist"></ul>
 								<div class="tab-content" id="commandeValideeSubTabContent"></div>
+							</div>
+						</div>
+
+						<!-- Tab 7 : fichiers du dossier douane (PDV, LTA, HAWB) des factures sélectionnées -->
+						<div class="tab-pane fade" id="tab7" role="tabpanel" aria-labelledby="tab7-tab">
+							<div class="mt-3">
+								<ul class="nav nav-pills mb-2 d-none" id="factureSubTabs" role="tablist"></ul>
+								<div class="tab-content" id="factureSubTabContent">
+									<p class="text-muted mb-0">Aucune facture sélectionnée.</p>
+								</div>
 							</div>
 						</div>
 

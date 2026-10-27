@@ -33,12 +33,6 @@ export class DemandePaiementManager {
     // Montant calculé côté serveur (commande/facture sélectionnée), utilisé
     // uniquement pour comparaison : l'utilisateur saisit lui-même le montant.
     this.montantAttendu = null;
-    // Paiement à l'avance (typeId 1) : plafond du montant saisi (qui doit aussi
-    // être > 0) = montant HT de la commande - montant des demandes de paiement
-    // déjà validées pour cette commande.
-    this.montantMaxCommande = null;
-    this.montantHtCommande = null;
-    this.montantDejaValide = 0;
     this.montantIncorrect = false;
     this.messageMontantIncorrect = "";
 
@@ -118,6 +112,7 @@ export class DemandePaiementManager {
       if (this.typeId == 1 && this.config.urls.montantCommandeHt) {
         this.chargerMontantCommandeHt();
       }
+      this.afficherTableauMontantsCommande();
     });
 
     if (this.elements.agenceDebiteurInput) {
@@ -156,10 +151,10 @@ export class DemandePaiementManager {
       this.verifierMontant();
     });
 
-    if (this.elements.montantProformaInput) {
-      this.elements.montantProformaInput.addEventListener("input", () => {
-        this.elements.montantProformaInput.value = formatNumberSpecial(
-          this.elements.montantProformaInput.value,
+    if (this.elements.montantTotalCommandeInput) {
+      this.elements.montantTotalCommandeInput.addEventListener("input", () => {
+        this.elements.montantTotalCommandeInput.value = formatNumberSpecial(
+          this.elements.montantTotalCommandeInput.value,
         );
       });
     }
@@ -357,6 +352,15 @@ export class DemandePaiementManager {
 
       this.recupFichier(facturesCorrespondantes);
 
+      // Factures (n° et montant) par commande, pour le tableau des montants par commande
+      this.facturesParCommande = new Map();
+      facturesCorrespondantes.forEach((f) => {
+        if (!this.facturesParCommande.has(f.Numero_PO)) {
+          this.facturesParCommande.set(f.Numero_PO, []);
+        }
+        this.facturesParCommande.get(f.Numero_PO).push(f);
+      });
+
       // Le select ne contient que les commandes des factures choisies, toutes
       // sélectionnées ; un seul "change" déclenche le chargement des PDF.
       const selectCommande = this.elements.numCommandeInput;
@@ -396,9 +400,12 @@ export class DemandePaiementManager {
   }
 
   async recupFichier(cdeFacCorrespondantes) {
+    // Une réponse arrivée après un changement de facture plus récent est ignorée,
+    // sinon elle réafficherait les fichiers d'une facture retirée.
+    const requete = (this.recupFichierRequete = (this.recupFichierRequete || 0) + 1);
     const numerosDossier = [
       ...new Set(cdeFacCorrespondantes.map((f) => f.Numero_Dossier_Douane)),
-    ];
+    ].filter(Boolean);
 
     // Récupération en parallèle (au lieu d'un enchaînement séquentiel) :
     // avec plusieurs dossiers, attendre chaque appel l'un après l'autre
@@ -417,10 +424,15 @@ export class DemandePaiementManager {
         }
       }),
     );
+    if (requete !== this.recupFichierRequete) return;
     const dossiers = resultats.flat();
 
+    this.afficherFichiersFacture(dossiers, cdeFacCorrespondantes.length > 0);
+
     const liste = this.elements.fileList;
+    if (!liste) return;
     liste.innerHTML = "";
+    liste.classList.toggle("d-none", dossiers.length === 0);
 
     dossiers.forEach((fichier) => {
       const nom = this.nomFichier(fichier.Nom_Fichier);
@@ -439,6 +451,33 @@ export class DemandePaiementManager {
 
       li.appendChild(a);
       liste.appendChild(li);
+    });
+  }
+
+  /**
+   * Affiche, dans l'onglet "Facture", un sous-onglet par fichier du dossier
+   * douane (PDV, LTA, HAWB) des factures sélectionnées.
+   */
+  afficherFichiersFacture(dossiers, factureSelectionnee) {
+    const subTabsNav = this.elements.factureSubTabs;
+    const subTabsContent = this.elements.factureSubTabContent;
+    if (!subTabsNav || !subTabsContent) return;
+
+    subTabsNav.innerHTML = "";
+    subTabsContent.innerHTML = "";
+    subTabsNav.classList.toggle("d-none", dossiers.length <= 1);
+
+    if (dossiers.length === 0) {
+      subTabsContent.innerHTML = `<p class="text-muted mb-0">${
+        factureSelectionnee ? "Aucun fichier trouvé pour la/les facture(s) sélectionnée(s)." : "Aucune facture sélectionnée."
+      }</p>`;
+      return;
+    }
+
+    dossiers.forEach((fichier, index) => {
+      const nom = fichier.Nom_Fichier.split("\\").pop();
+      const pane = this.ajouterSousOnglet(subTabsNav, subTabsContent, `facture-fichier-${index}`, nom, index === 0);
+      this.afficherPdfDw(pane, nom, fichier.Nom_Fichier, this.config.urls.recupererFichier);
     });
   }
 
@@ -719,7 +758,7 @@ export class DemandePaiementManager {
    * Télécharge (en blob) puis affiche un PDF DocuWare (chemin relatif à
    * BASE_PATH_FICHIER), précédé de sa légende. Retourne false si introuvable.
    */
-  async afficherPdfDw(container, legendeTexte, path) {
+  async afficherPdfDw(container, legendeTexte, path, urlFichier = this.config.urls.telechargerFichierCommandeDw) {
     const legende = document.createElement("p");
     legende.className = "mb-2 fw-bold";
     legende.textContent = legendeTexte;
@@ -731,7 +770,7 @@ export class DemandePaiementManager {
     try {
       const baseUrl = window.location.origin;
       const encodedPath = encodeURIComponent(path);
-      const fileUrl = `${baseUrl}${this.config.urls.telechargerFichierCommandeDw}?path=${encodedPath}`;
+      const fileUrl = `${baseUrl}${urlFichier}?path=${encodedPath}`;
 
       const response = await fetch(fileUrl);
       if (!response.ok) throw new Error(await response.text());
@@ -831,50 +870,36 @@ export class DemandePaiementManager {
   }
 
   /**
-   * Paiement à l'avance : le montant saisi doit être supérieur à 0 et ne pas
-   * dépasser le montant restant de la commande sélectionnée (montant HT -
-   * montant déjà demandé).
+   * Paiement à l'avance : bloque la soumission si le montant dépasse le plafond
+   * (data-plafond, formulaire magasin uniquement) ou si la commande est déjà payée à 100 %.
    */
   verifierMontantAvance() {
-    const valeur = this.elements.montantInput.value.trim();
-    const montantSaisi = parseMontant(valeur);
-
     this.montantIncorrect = false;
     this.messageMontantIncorrect = "";
 
-    // !(montantSaisi > 0) couvre aussi une saisie non numérique (NaN)
-    if (valeur !== "" && !(montantSaisi > 0)) {
-      this.montantIncorrect = true;
-      this.messageMontantIncorrect =
-        "Le montant à payer doit être supérieur à 0.";
-    } else if (
-      valeur !== "" &&
-      this.montantMaxCommande !== null &&
-      !isNaN(this.montantMaxCommande) &&
-      montantSaisi - this.montantMaxCommande > 0.01
+    const plafond = parseFloat(this.elements.montantInput.dataset.plafond);
+    if (
+      !isNaN(plafond) &&
+      parseMontant(this.elements.montantInput.value) > plafond
     ) {
       this.montantIncorrect = true;
-      const format = (montant) => formatNumberSpecial(montant.toFixed(2));
-      this.messageMontantIncorrect =
-        this.montantDejaValide > 0
-          ? `Le montant à payer ne peut pas dépasser le montant restant de la commande (${format(this.montantMaxCommande)} = montant HT ${format(this.montantHtCommande)} - déjà validé ${format(this.montantDejaValide)}).`
-          : `Le montant à payer ne peut pas dépasser le montant HT de la commande (${format(this.montantMaxCommande)}).`;
+      this.messageMontantIncorrect = `Le montant facture proforma ne doit pas dépasser ${plafond.toLocaleString("fr-FR")}.`;
+    } else if (this.commandeSoldee) {
+      // Commande déjà payée à 100 % par des demandes de paiement à l'avance validées
+      this.montantIncorrect = true;
+      this.messageMontantIncorrect = `La commande ${this.getNumCdesSelectionnees()[0]} est déjà payée à 100 % par des demandes de paiement à l'avance validées : une nouvelle demande de paiement à l'avance n'est pas possible.`;
     }
 
     this.mettreAJourEtatSoumission();
   }
 
   /**
-   * Récupère le montant HT de la commande sélectionnée (paiement à l'avance)
-   * et le montant des demandes de paiement déjà validées : le plafond du
-   * montant saisi est leur différence. Affiche aussi l'historique des
-   * demandes de paiement de la commande.
+   * Paiement à l'avance : vérifie si la commande sélectionnée est déjà soldée
+   * et affiche l'historique des demandes de paiement de la commande.
    */
   async chargerMontantCommandeHt() {
     const numCde = this.getNumCdesSelectionnees()[0];
-    this.montantMaxCommande = null;
-    this.montantHtCommande = null;
-    this.montantDejaValide = 0;
+    this.commandeSoldee = false;
     this.afficherHistoriqueDdp(null);
 
     if (!numCde) {
@@ -887,9 +912,7 @@ export class DemandePaiementManager {
       const resultat = await this.fetchManager.get(url);
       // Ignore la réponse si la sélection a changé entre-temps
       if (this.getNumCdesSelectionnees()[0] !== numCde) return;
-      this.montantHtCommande = parseFloat(resultat.montantHt);
-      this.montantDejaValide = parseFloat(resultat.montantDejaValide) || 0;
-      this.montantMaxCommande = parseFloat(resultat.montantRestant);
+      this.commandeSoldee = resultat.commandeSoldee === true;
       this.afficherHistoriqueDdp(numCde, resultat);
     } catch (error) {
       console.error(
@@ -951,8 +974,8 @@ export class DemandePaiementManager {
     );
 
     const montantHt = parseFloat(resultat.montantHt) || 0;
-    const ratio = (montant) =>
-      montantHt > 0 ? `${format((montant / montantHt) * 100)}%` : "";
+    // % (montant à payer / montant total du commande) calculés côté serveur
+    const ratioDejaValide = parseFloat(resultat.ratioDejaValide) || 0;
     const montantDejaValide = parseFloat(resultat.montantDejaValide) || 0;
     const montantRestant = parseFloat(resultat.montantRestant) || 0;
 
@@ -966,14 +989,17 @@ export class DemandePaiementManager {
       { texte: "Total déjà validé", classe: "fw-bold" },
       { colspan: 2 },
       { texte: format(montantDejaValide), classe: "text-end fw-bold" },
-      { texte: ratio(montantDejaValide), classe: "text-end fw-bold" },
+      { texte: `${format(ratioDejaValide)}%`, classe: "text-end fw-bold" },
       { colspan: 2 },
     ]);
     ajouterLigne([
       { texte: "Montant restant à payer", classe: "fw-bold" },
       { colspan: 2 },
       { texte: format(montantRestant), classe: "text-end text-danger fw-bold" },
-      { texte: ratio(montantRestant), classe: "text-end text-danger fw-bold" },
+      {
+        texte: `${format(Math.max(0, 100 - ratioDejaValide))}%`,
+        classe: "text-end text-danger fw-bold",
+      },
       { colspan: 2 },
     ]);
   }
@@ -982,6 +1008,95 @@ export class DemandePaiementManager {
    * Commandes sélectionnées, toujours sous forme de tableau : le champ est en
    * sélection simple pour les demandes de paiement à l'avance (typeId 1).
    */
+  /**
+   * Paiement après arrivage : une ligne par commande sélectionnée où
+   * l'utilisateur saisit le montant total de la commande
+   * (champ demande_paiement[montantsCommande][numCde]).
+   */
+  afficherTableauMontantsCommande() {
+    const { tableauMontantsCommande, montantsCommandeBody } = this.elements;
+    if (!tableauMontantsCommande || !montantsCommandeBody) return;
+
+    // Conserve les montants déjà saisis pour les commandes encore sélectionnées
+    const saisis = {};
+    montantsCommandeBody.querySelectorAll("input").forEach((input) => {
+      saisis[input.dataset.numCde] = input.value;
+    });
+
+    const numCdes = this.getNumCdesSelectionnees();
+    montantsCommandeBody.innerHTML = "";
+    numCdes.forEach((numCde) => {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "form-control form-control-sm";
+      input.name = `demande_paiement[montantsCommande][${numCde}]`;
+      input.required = true;
+      input.dataset.numCde = numCde;
+      input.value = saisis[numCde] ?? "";
+      input.addEventListener("input", () => {
+        input.value = formatNumberSpecial(input.value);
+      });
+
+      // une commande peut correspondre à plusieurs factures : une ligne par facture dans la cellule
+      const factures = this.facturesParCommande?.get(numCde) || [];
+      const tr = montantsCommandeBody.insertRow();
+      tr.insertCell().textContent = numCde;
+      const celluleFacture = tr.insertCell();
+      const celluleMontant = tr.insertCell();
+      celluleMontant.className = "text-end";
+      factures.forEach((f) => {
+        celluleFacture.appendChild(document.createElement("div")).textContent =
+          f.Numero_Facture;
+        celluleMontant.appendChild(document.createElement("div")).textContent =
+          formatNumberSpecial(Number(f.Montant_Facture || 0).toFixed(2));
+      });
+      const celluleDdpa = tr.insertCell();
+      celluleDdpa.className = "text-end";
+      const celluleSolde = tr.insertCell();
+      celluleSolde.className = "text-end";
+      const celluleDdp = tr.insertCell();
+      celluleDdp.className = "text-center fw-bold";
+      tr.insertCell().appendChild(input);
+
+      this.chargerSituationAvance(numCde).then((situation) => {
+        if (!situation) return;
+        const format = (montant) =>
+          formatNumberSpecial(Number(montant || 0).toFixed(2));
+        celluleDdpa.textContent = `${format(situation.ratioDdpa)}%`;
+        celluleSolde.textContent = format(situation.soldeAvance);
+        celluleDdp.textContent = situation.ddpAGenerer;
+      });
+    });
+
+    tableauMontantsCommande.classList.toggle("d-none", numCdes.length === 0);
+  }
+
+  /**
+   * Situation des DDPA d'une commande (ratio DDPA, solde avance, DDP à
+   * générer), mise en cache : le tableau est reconstruit à chaque changement.
+   */
+  chargerSituationAvance(numCde) {
+    this.situationsAvance ??= new Map();
+    if (!this.situationsAvance.has(numCde)) {
+      const url = this.config.urls.situationAvanceCommande.replace(
+        ":numCde",
+        encodeURIComponent(numCde),
+      );
+      this.situationsAvance.set(
+        numCde,
+        this.fetchManager.get(url).catch((error) => {
+          console.error(
+            "Erreur lors de la récupération de la situation avance :",
+            error,
+          );
+          this.situationsAvance.delete(numCde);
+          return null;
+        }),
+      );
+    }
+    return this.situationsAvance.get(numCde);
+  }
+
   getNumCdesSelectionnees() {
     return [].concat($(this.elements.numCommandeInput).val() || []).filter(Boolean);
   }

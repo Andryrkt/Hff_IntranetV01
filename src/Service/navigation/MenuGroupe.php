@@ -483,6 +483,14 @@ class MenuGroupe
                     ['label' => 'Toutes les catégories', 'icon' => 'fa-list', 'route' => 'tki_all_categorie_index'],
                 ],
             ],
+            [
+                'header' => 'Documentation',
+                'icon'   => 'fa-book',
+                'links'  => [
+                    // 'admin' : visible pour le profil HFF-ADMIN sans déclaration de page/droit
+                    ['label' => 'Documentation utilisateur', 'icon' => 'fa-book-open', 'route' => 'doc_utilisateur_index', 'admin' => true],
+                ],
+            ],
         ];
     }
 }

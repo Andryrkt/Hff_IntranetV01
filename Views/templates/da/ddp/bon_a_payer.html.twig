@@ -14,8 +14,11 @@
 	{% include "/shared/_overlay.html.twig" %}
 {% endblock %}
 
+{# écran partagé avec l'appro : guide magasin uniquement #}
+{% set guideSlug = appro ? null : 'magasin-consultation-facture' %}
+
 {% block content %}
-	<div class="sticky-header-titre">
+	<div class="sticky-header-titre" data-table-mt="70">
 		<div class="container">
 			{% include "/da/ddp/_formulaire_recherche.html.twig" %}
 		</div>
@@ -72,9 +75,9 @@
 						</td>
 						<td class="text-start">{{ row.typeDemande ? row.typeDemande.libelle : "-" }}</td>
 						<td class="text-start">{{ row.fournisseur }}</td>
-						<td class="text-center">{{ row.numeroCommande }}</td>
+						<td class="text-center">{{ row.numeroCommande|replace({';': '; '}) }}</td>
 						<td class="text-center">{{ row.numeroLivraison }}</td>
-						<td class="text-center">{{ row.numeroFacture }}</td>
+						<td class="text-center">{{ row.numeroFacture|replace({';': '; '}) }}</td>
 						<td class="text-center fw-bold {{ row.styleStatut }}">{{ row.statut }}</td>
 						<td class="text-center">{{ row.dateSoumissionCompta }}</td>
 						<td class="text-end">{{ row.montantAPayer }}</td>
@@ -89,7 +92,8 @@
 			<div class="modal-content">
 				<div class="modal-header">
 					<h5 class="modal-title" id="pdfModalLabel">DDP/BAP - PDF</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					<button type="button" class="btn btn-sm btn-outline-secondary ms-auto me-2" title="Plein écran" aria-label="Plein écran" onclick="this.closest('.modal-content').querySelector('iframe').requestFullscreen()"><i class="fas fa-expand"></i></button>
+					<button type="button" class="btn-close ms-0" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body">
 					<div class="pdf-spinner" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none;">

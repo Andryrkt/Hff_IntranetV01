@@ -1,0 +1,41 @@
+{% extends 'baseTemplate.html.twig' %}
+
+{% block title %}
+	{{ documentation ? documentation.titre : 'Documentation' }}
+{% endblock %}
+
+{% block content %}
+	<div class="container mt-6">
+		<div class="d-flex justify-content-between align-items-center">
+			<a href="{{ path('doc_utilisateur_index') }}">&larr; Toute la documentation</a>
+			{% if estAdmin %}
+				<a href="{{ path('doc_utilisateur_edit', {'slug': slug}) }}" class="btn btn-outline-warning btn-sm">
+					<i class="fas fa-edit"></i>
+					Modifier
+				</a>
+			{% endif %}
+		</div>
+		<hr>
+
+		{% if documentation %}
+			<div class="doc-content">
+				<h1>
+					{{ documentation.titre }}
+					{% if not documentation.publie %}
+						<span class="badge bg-secondary fs-6 align-middle">brouillon, visible des administrateurs uniquement</span>
+					{% endif %}
+				</h1>
+				{% if documentation.dateModification %}
+					<p class="text-muted small">
+						Mis à jour le {{ documentation.dateModification|date('d/m/Y H:i') }}
+						{% if documentation.modifiePar %}par {{ documentation.modifiePar }}{% endif %}
+					</p>
+				{% endif %}
+				{# contenu saisi par un administrateur, nettoyé à l'enregistrement (DocumentationUtilisateurController::nettoyerHtml) #}
+				{{ documentation.contenu|raw }}
+			</div>
+		{% else %}
+			<p class="text-muted">Aucune documentation n'est encore disponible pour cette page.</p>
+		{% endif %}
+	</div>
+{% endblock %}

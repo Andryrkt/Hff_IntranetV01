@@ -1,0 +1,47 @@
+{% extends 'baseTemplate.html.twig' %}
+
+{% block title %}
+	Documentation utilisateur
+{% endblock %}
+
+{% block content %}
+	<div class="container mt-6">
+		<h3 class="perso-titre">Documentation utilisateur</h3>
+
+		{% if estAdmin %}
+			<form method="get" action="{{ path('doc_utilisateur_index') }}" class="d-flex gap-2 align-items-end my-3">
+				<div>
+					<label for="nouveau" class="form-label small mb-0">Identifiant du nouveau guide (minuscules, chiffres, tirets)</label>
+					<input type="text" id="nouveau" name="nouveau" class="form-control form-control-sm" pattern="[a-z0-9-]+" placeholder="ex : bon-de-caisse" required>
+				</div>
+				<button type="submit" class="btn btn-outline-warning btn-sm">
+					<i class="fas fa-plus"></i>
+					Nouveau guide
+				</button>
+			</form>
+		{% endif %}
+
+		<p>
+			<a href="{{ App.base_path_fichier }}/documentation/Guide utilisateur intranet.pdf" target="_blank">
+				<i class="fas fa-file-pdf"></i>
+				Guide utilisateur intranet (PDF)
+			</a>
+		</p>
+
+		{% for rubrique, guides in guidesParRubrique %}
+			<h5 class="mt-4">{{ rubrique }}</h5>
+			<ul class="list-unstyled ms-3">
+				{% for guide in guides %}
+					<li class="mb-1">
+						<a href="{{ path('doc_utilisateur_show', {'slug': guide.slug}) }}">{{ guide.titre }}</a>
+						{% if not guide.publie %}
+							<span class="badge bg-secondary">brouillon</span>
+						{% endif %}
+					</li>
+				{% endfor %}
+			</ul>
+		{% else %}
+			<p class="text-muted">Aucun guide n'est encore disponible.</p>
+		{% endfor %}
+	</div>
+{% endblock %}

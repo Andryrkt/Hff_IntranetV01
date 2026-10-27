@@ -20,7 +20,9 @@ class SecurityService
     private UserDataService $dataService;
 
     // ─── Routes publiques (pas de contrôle d'accès) ──────────────────────────
-    private const ROUTES_SEMI_PRIVEES = ['choix_societe', 'sso_annuaire'];
+    // connecté suffit, sans droit de page : la documentation est lisible par tous
+    // (la modification est réservée aux admins dans DocumentationUtilisateurController)
+    private const ROUTES_SEMI_PRIVEES = ['choix_societe', 'sso_annuaire', 'doc_utilisateur_index', 'doc_utilisateur_show', 'doc_utilisateur_edit'];
     private const ROUTE_ACCUEIL = 'profil_acceuil';
     private const ROUTES_PUBLIQUES = ['security_signin', 'auth_deconnexion', 'sso_connect'];
     private const PREFIXES_API = ['api_'];

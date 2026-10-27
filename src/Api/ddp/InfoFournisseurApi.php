@@ -10,6 +10,7 @@ error_reporting(E_ALL);
 use App\Constants\ddp\TypeDemandePaiementConstants;
 use App\Controller\Controller;
 use App\Controller\Traits\ddp\DdpTrait;
+use App\Entity\admin\ddp\TypeDemande;
 use App\Entity\ddp\DemandePaiement;
 use App\Entity\dw\DwCommande;
 use App\Entity\dw\DwBcClientNegoce;
@@ -210,21 +211,48 @@ class InfoFournisseurApi extends Controller
         $montantHt = (float) $this->demandePaiementModel()->getMontantCde($numCde, $codeSociete)['montant_total_cde_ht'];
         // Demandes de paiement déjà validées pour cette commande
         $montantDejaValide = $this->demandePaiementRepository->getSommeMontantDdpValideParCommande($numCde, $codeSociete);
+        // % (montant à payer / montant total du commande) déjà validés, toutes demandes et à l'avance seules
+        $ratioDejaValide = $this->demandePaiementRepository->getCumulRatioDdpValideParCommande($numCde, $codeSociete);
+        $ratioAvanceValide = $this->demandePaiementRepository->getCumulRatioDdpValideParCommande($numCde, $codeSociete, TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE);
 
         header("Content-type:application/json");
         echo json_encode([
             'montantHt'         => $montantHt,
             'montantDejaValide' => $montantDejaValide,
             'montantRestant'    => $montantHt - $montantDejaValide,
-            'historique'        => $this->historiqueDdpCommande($numCde, $montantHt),
+            'ratioDejaValide'   => $ratioDejaValide,
+            'commandeSoldee'    => $ratioAvanceValide >= 100 - 0.01,
+            'historique'        => $this->historiqueDdpCommande($numCde),
+        ]);
+    }
+
+    /**
+     * Paiement après arrivage : situation des demandes de paiement à l'avance
+     * d'une commande (ratio DDPA, solde avance) et type de DDP à générer :
+     * BAP si 0 % DDPA, DDPR si 100 %, DDPL entre les deux.
+     *
+     * @Route("/api/situation-avance-commande/{numCde}", name="api_situation_avance_commande")
+     */
+    public function situationAvanceCommande(string $numCde)
+    {
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
+        $this->libererSession();
+
+        $situation = $this->demandePaiementRepository->getSituationAvanceParCommande($numCde, $codeSociete);
+        $typeDemande = $this->getEntityManager()->getRepository(TypeDemande::class)->find($situation['typeDdpAGenerer']);
+
+        header("Content-type:application/json");
+        echo json_encode($situation + [
+            'ddpAGenerer' => $typeDemande ? $typeDemande->getCode() : '',
         ]);
     }
 
     /**
      * Historique des demandes de paiement (hors refusées) d'une commande, avec
-     * pour chacune son pourcentage du montant HT de la commande et le cumul.
+     * pour chacune son pourcentage (montant à payer / montant total du commande) et le cumul.
      */
-    private function historiqueDdpCommande(string $numCde, float $montantHt): array
+    private function historiqueDdpCommande(string $numCde): array
     {
         $historique = [];
         $cumul = 0.0;
@@ -232,7 +260,7 @@ class InfoFournisseurApi extends Controller
         /** @var DemandePaiement $ddp */
         foreach ($this->demandePaiementRepository->getDdpSelonNumCde($numCde) as $ddp) {
             $montant = (float) $ddp->getMontantAPayers();
-            $ratio = $montantHt > 0 ? $montant / $montantHt * 100 : 0.0;
+            $ratio = $ddp->getRatioMontantTotalCommande();
             $cumul += $ratio;
 
             $historique[] = [
@@ -288,36 +316,29 @@ class InfoFournisseurApi extends Controller
     {
         $this->libererSession();
 
-        ini_set('display_errors', 1);
-        error_reporting(E_ALL);
-
-        $path = urldecode($request->query->get('path'));
         $basePath = '\\\\192.168.0.15\\GCOT_DATA\\TRANSIT';
-        $chemin = $basePath . DIRECTORY_SEPARATOR . $path;
+        // Nom_Fichier (GCOT_Gestion_Document) est un chemin UNC complet ; on accepte aussi un chemin relatif
+        $path = (string) $request->query->get('path', '');
+        if (stripos($path, $basePath) === 0) {
+            $path = substr($path, strlen($basePath));
+        }
 
-        header('Content-Type: application/json');
+        $baseReel = realpath($basePath);
+        $cheminReel = $baseReel !== false
+            ? realpath($baseReel . DIRECTORY_SEPARATOR . ltrim($path, '/\\'))
+            : false;
 
-        if (!file_exists($chemin)) {
-            echo json_encode([
-                'success' => false,
-                'message' => "❌ Fichier introuvable : $chemin"
-            ]);
+        // refus de tout chemin hors du dossier TRANSIT (../, autre partage...)
+        if ($baseReel === false || $cheminReel === false || stripos($cheminReel, $baseReel) !== 0 || !is_file($cheminReel) || !is_readable($cheminReel)) {
+            http_response_code(404);
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Fichier introuvable']);
             exit;
         }
 
-        if (!is_readable($chemin)) {
-            echo json_encode([
-                'success' => false,
-                'message' => "🚫 Fichier non lisible : $chemin"
-            ]);
-            exit;
-        }
-
-        echo json_encode([
-            'success' => true,
-            'message' => "✅ Fichier accessible",
-            'chemin' => $chemin
-        ]);
+        header('Content-Type: ' . (mime_content_type($cheminReel) ?: 'application/octet-stream'));
+        header('Content-Length: ' . filesize($cheminReel));
+        readfile($cheminReel);
         exit;
     }
 

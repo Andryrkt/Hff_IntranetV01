@@ -137,14 +137,18 @@ class DevisNegVerificationPrixController extends Controller
             });
 
             //envoie de mail au PM
-            if (!empty($nomAvecCheminFichierExcel) && !empty($nomFichierExcel) && $this->estValidationPm($dto)) {
-                $suivi->etape('Mail au PM', function () use ($dto, $nomAvecCheminFichierExcel, $nomFichierExcel) {
+            $suivi->etape('Mail au PM', function () use ($dto, $nomAvecCheminFichierExcel, $nomFichierExcel) {
+                if (empty($nomAvecCheminFichierExcel) || empty($nomFichierExcel)) {
+                    SuiviOperationService::noter("Mail non envoyé : aucun fichier Excel joint");
+                } elseif (!$this->estValidationPm($dto)) {
+                    SuiviOperationService::noter("Mail non envoyé : devis autovalidé, sans vérification PM (constructeur : " . ($dto->constructeur ?: 'inconnu') . ")");
+                } else {
                     $this->envoyerMailDevisMagasin($dto->numeroDevis, [
                         'filePath' => $nomAvecCheminFichierExcel,
                         'fileName' => $nomFichierExcel,
                     ]);
-                });
-            }
+                }
+            });
 
             //HISTORISATION DE L'OPERATION
             $message = "la vérification de prix du devis numero : " . $dto->numeroDevis . " a été envoyée avec succès .";

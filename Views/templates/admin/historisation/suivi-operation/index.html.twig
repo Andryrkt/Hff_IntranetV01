@@ -30,7 +30,8 @@
 	} %}
 	{% set classesLigne = {
 		'SUCCES': '',
-		'ALERTE': 'ligne-alerte'
+		'ALERTE': 'ligne-alerte',
+		'EN_COURS': ''
 	} %}
 
 	<div class="container-fluid">
@@ -39,7 +40,7 @@
 				<h3 class="perso-titre mb-3">SUIVI DES OPÉRATIONS ÉTAPE PAR ÉTAPE</h3>
 
 				<form method="get" action="{{ path('suivi_operation_index') }}" class="row g-2 align-items-end mb-3">
-					<div class="col-12 col-md-3">
+					<div class="col-12 col-md-2">
 						<label for="recherche" class="form-label mb-0">N° document ou utilisateur</label>
 						<input type="text" id="recherche" name="recherche" value="{{ recherche }}" class="form-control form-control-sm">
 					</div>
@@ -61,9 +62,21 @@
 						<input type="date" id="date_fin" name="date_fin" value="{{ dateFin ? dateFin|date('Y-m-d') : '' }}" class="form-control form-control-sm">
 					</div>
 					<div class="col-6 col-md-1">
+						<label for="limite" class="form-label mb-0">Lignes</label>
+						<select id="limite" name="limite" class="form-select form-select-sm">
+							{% for nombre in limitesPossibles %}
+								<option value="{{ nombre }}" {{ limite == nombre ? 'selected' : '' }}>{{ nombre }}</option>
+							{% endfor %}
+						</select>
+					</div>
+					<div class="col-6 col-md-1">
 						<div class="form-check">
 							<input type="checkbox" id="probleme" name="probleme" value="1" class="form-check-input" {{ problemeSeulement ? 'checked' : '' }}>
 							<label for="probleme" class="form-check-label">Problèmes uniquement</label>
+						</div>
+						<div class="form-check">
+							<input type="checkbox" id="non_lu" name="non_lu" value="1" class="form-check-input" {{ nonLuSeulement ? 'checked' : '' }}>
+							<label for="non_lu" class="form-check-label">Non lus uniquement</label>
 						</div>
 					</div>
 					<div class="col-12 col-md-2 d-flex gap-2">
@@ -77,7 +90,7 @@
 						<span class="badge bg-info text-dark">Opération liée à l'opération n° {{ idHistorique }} de l'historique</span>
 					</p>
 				{% endif %}
-				<p class="text-muted small mb-2">{{ suivis|length }} opération(s) affichée(s) (200 maximum, les plus récentes en premier). Cliquez sur une ligne pour voir le détail des étapes.</p>
+				<p class="text-muted small mb-2">{{ suivis|length }} opération(s) affichée(s) ({{ limite }} maximum, les plus récentes en premier). Cliquez sur une ligne pour voir le détail des étapes.</p>
 
 				<div class="table-responsive">
 					<table class="table table-sm table-bordered align-middle">
@@ -104,7 +117,19 @@
 									<td>{{ typesOperation[premiere.typeOperation] ?? premiere.typeOperation }}</td>
 									<td>{{ premiere.numeroDocument ?: '-' }}</td>
 									<td>{{ premiere.utilisateur ?: '-' }}</td>
-									<td><span class="badge {{ classesStatut[suivi.statut] }}">{{ libellesStatut[suivi.statut] }}</span></td>
+									<td class="text-nowrap">
+										<span class="badge {{ classesStatut[suivi.statut] }}">{{ suivi.statut == 'EN_COURS' ? 'EN COURS' : libellesStatut[suivi.statut] }}</span>
+										{% if suivi.statut not in ['SUCCES', 'EN_COURS'] %}
+											<button type="button"
+												class="btn btn-sm py-0 ms-1 btn-marquer-lu {{ premiere.estLu ? 'btn-outline-success' : 'btn-outline-danger' }}"
+												data-url="{{ path('api_suivi_operation_marquer_lu', {idSuivi: suivi.idSuivi}) }}"
+												data-lu="{{ premiere.estLu ? 1 : 0 }}"
+												title="{{ premiere.estLu ? 'Lu par ' ~ (premiere.luPar ?: '-') ~ (premiere.dateLecture ? ' le ' ~ premiere.dateLecture|date('d/m/Y H:i') : '') ~ ' — cliquer pour marquer non lu' : 'Cliquer pour marquer comme lu' }}">
+												<i class="fas {{ premiere.estLu ? 'fa-envelope-open' : 'fa-envelope' }}"></i>
+												<span class="libelle-lu">{{ premiere.estLu ? 'Lu' : 'Non lu' }}</span>
+											</button>
+										{% endif %}
+									</td>
 									<td>
 										{% for etape in suivi.etapes %}
 											<span class="badge {{ classesStatut[etape.statut] ?? 'bg-secondary' }}" title="{{ etape.message }}">{{ etape.etape }}</span>
@@ -165,5 +190,144 @@
 				</div>
 			</div>
 		</div>
+
+		<div class="card mt-3">
+			<div class="card-body">
+				<h3 class="perso-titre mb-2">MODIFICATIONS EN BASE DE DONNÉES</h3>
+				{% if modificationsBdd is null %}
+					<p class="text-muted small mb-0">Traçage non installé sur cette base (script sql/historisation/audit_demande_intervention.sql).</p>
+				{% else %}
+					<p class="text-muted small mb-2">Changements tracés directement par SQL Server, y compris ceux faits hors de l'intranet (moulinette...). Mêmes filtres que ci-dessus (recherche, dates, lignes) ; {{ modificationsBdd|length }} modification(s) affichée(s) ({{ limite }} maximum, les plus récentes en premier).</p>
+					<div class="table-responsive">
+						<table class="table table-sm table-bordered table-hover align-middle">
+							<thead class="table-dark">
+								<tr>
+									<th>Date</th>
+									<th>Table</th>
+									<th>Référence</th>
+									<th>Colonne</th>
+									<th>Ancienne valeur</th>
+									<th>Nouvelle valeur</th>
+									<th>Login SQL</th>
+									<th>Poste</th>
+									<th>Programme</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for modif in modificationsBdd %}
+									<tr>
+										<td class="text-nowrap">{{ modif.date_modification|date('d/m/Y H:i:s') }}</td>
+										<td>{{ modif.nom_table }}</td>
+										<td>
+											{{ modif.reference ?: '-' }}
+											{% if modif.art_refp %}<br><small class="text-muted">{{ modif.art_refp }} (v{{ modif.numero_version }})</small>{% endif %}
+										</td>
+										<td>{{ modif.colonne }}</td>
+										<td>{{ modif.ancienne_valeur ?? 'NULL' }}{% if modif.ancien_libelle %} <small class="text-muted">({{ modif.ancien_libelle }})</small>{% endif %}</td>
+										<td class="fw-bold">{{ modif.nouvelle_valeur ?? 'NULL' }}{% if modif.nouveau_libelle %} <small class="text-muted fw-normal">({{ modif.nouveau_libelle }})</small>{% endif %}</td>
+										<td>{{ modif.login_sql }}</td>
+										<td>{{ modif.poste ?: '-' }}</td>
+										<td><small>{{ modif.programme ?: '-' }}</small></td>
+									</tr>
+								{% else %}
+									<tr>
+										<td colspan="9" class="text-center text-muted">Aucune modification tracée.</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				{% endif %}
+			</div>
+		</div>
+
+		<div class="card mt-3">
+			<div class="card-body">
+				<h3 class="perso-titre mb-2">SURVEILLANCE DOCUWARE</h3>
+				{% if surveillanceDocuware is null %}
+					<p class="text-muted small mb-0">Table surveillance_docuware absente sur cette base.</p>
+				{% else %}
+					<p class="text-muted small mb-2">Fichiers déposés (Created) puis récupérés par DocuWare (Deleted) dans les dossiers surveillés. Un dépôt non récupéré reste en orange. Mêmes filtres que ci-dessus (recherche sur le nom de fichier ou le dossier, dates, lignes) ; {{ surveillanceDocuware|length }} évènement(s) affiché(s) ({{ limite }} maximum, les plus récents en premier).</p>
+					<div class="table-responsive">
+						<table class="table table-sm table-bordered table-hover align-middle">
+							<thead class="table-dark">
+								<tr>
+									<th>Date</th>
+									<th>Source</th>
+									<th>Évènement</th>
+									<th>Dossier</th>
+									<th>Fichier</th>
+									<th>Taille</th>
+									<th>État</th>
+									<th>Message</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for evt in surveillanceDocuware %}
+									{% set enAttente = evt.evenement == 'Created' and not evt.recupere %}
+									<tr class="{{ enAttente ? 'table-warning' : '' }}">
+										<td class="text-nowrap">{{ evt.date_evt|date('d/m/Y H:i:s') }}</td>
+										<td>{{ evt.source }}</td>
+										<td>{{ evt.evenement }}</td>
+										<td>{{ evt.sous_dossier }}</td>
+										<td title="{{ evt.chemin }}{% if evt.ancien_chemin %} (ancien : {{ evt.ancien_chemin }}){% endif %}">{{ evt.nom_fichier }}</td>
+										<td class="text-end text-nowrap">{{ evt.taille is not null ? evt.taille|number_format(0, ',', ' ') ~ ' o' : '-' }}</td>
+										<td>
+											{% if evt.evenement == 'Created' %}
+												{% if evt.recupere %}<span class="badge bg-success">Récupéré</span>{% else %}<span class="badge bg-warning text-dark">En attente</span>{% endif %}
+											{% else %}-{% endif %}
+										</td>
+										<td><small>{{ evt.message ?: '-' }}</small></td>
+									</tr>
+								{% else %}
+									<tr>
+										<td colspan="8" class="text-center text-muted">Aucun évènement.</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				{% endif %}
+			</div>
+		</div>
 	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script>
+		document.querySelectorAll('.btn-marquer-lu').forEach(function (bouton) {
+			bouton.addEventListener('click', async function (event) {
+				// ne pas déplier / replier le détail de la ligne
+				event.stopPropagation();
+
+				const lu = bouton.dataset.lu !== '1';
+				bouton.disabled = true;
+				try {
+					const reponse = await fetch(bouton.dataset.url, {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ lu: lu })
+					});
+					// la réponse peut être une page HTML (erreur 403 / 500, session expirée...)
+					const data = await reponse.json().catch(function () { return {}; });
+					if (!reponse.ok || typeof data.lu === 'undefined') {
+						throw new Error(data.message || ('erreur ' + reponse.status));
+					}
+
+					bouton.dataset.lu = data.lu ? '1' : '0';
+					bouton.classList.toggle('btn-outline-success', data.lu);
+					bouton.classList.toggle('btn-outline-danger', !data.lu);
+					bouton.querySelector('i').className = 'fas ' + (data.lu ? 'fa-envelope-open' : 'fa-envelope');
+					bouton.querySelector('.libelle-lu').textContent = data.lu ? 'Lu' : 'Non lu';
+					bouton.title = data.lu
+						? 'Lu par ' + (data.luPar || '-') + ' le ' + data.dateLecture + ' — cliquer pour marquer non lu'
+						: 'Cliquer pour marquer comme lu';
+				} catch (erreur) {
+					alert('Impossible de modifier le statut de lecture : ' + erreur.message);
+				} finally {
+					bouton.disabled = false;
+				}
+			});
+		});
+	</script>
 {% endblock %}

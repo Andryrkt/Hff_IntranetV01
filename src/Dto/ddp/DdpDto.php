@@ -12,12 +12,16 @@ class DdpDto
     // pour le forulaire =====================
     public ?string $contact = null;
     public ?string $motif = null;
-    public ?string $montantAPayer = null; // * montant qu'il faut payer au fournisseur
-    public ?string $montantFactureProforma = null; // * montant indiqué sur la facture proforma du fournisseur
+    public ?string $montantAPayer = null; // * montant qu'il faut payer au fournisseur (à l'avance : montant facture proforma)
+    public ?string $montantTotalCommande = null; // * montant total du commande (à l'avance)
     // numéro de la commande
     public array $numeroCommande = [];
+    public array $montantsCommande = []; // * [numeroCommande => montant du commande à payer] saisi par l'utilisateur (après arrivage)
+    public array $soldesAvance = []; // [numeroCommande => solde avance] calculé à la soumission (après arrivage)
+    public array $donneesBapMagasin = []; // données de la page de garde BAP MAGASIN (voir DdpController::donneesBapMagasin)
     // numéro de la facture
     public array $numeroFacture = [];
+    public array $lignesFactures = []; // couples facture/commande (DemandePaiementModel::getCommandesParFacture, après arrivage)
     // fournisseur
     public ?string $numeroFournisseur = null;
     public ?string $beneficiaire = null; // * nom du fournisseur 
@@ -94,14 +98,26 @@ class DdpDto
     }
 
     /**
-     * Transformation du montant facture proforma en float (null si non renseigné)
+     * Transformation du montant total du commande en float (null si non renseigné)
      */
-    public function montantFactureProforma(): ?float
+    public function montantTotalCommande(): ?float
     {
-        if ($this->montantFactureProforma === null || trim($this->montantFactureProforma) === '') {
+        if ($this->montantTotalCommande === null || trim($this->montantTotalCommande) === '') {
             return null;
         }
-        return self::montantEnFloat($this->montantFactureProforma);
+        return self::montantEnFloat($this->montantTotalCommande);
+    }
+
+    /**
+     * Montant total saisi pour une commande, en float (null si non renseigné)
+     */
+    public function montantCommande(?string $numeroCommande): ?float
+    {
+        $montant = $this->montantsCommande[$numeroCommande] ?? null;
+        if ($montant === null || trim($montant) === '') {
+            return null;
+        }
+        return self::montantEnFloat($montant);
     }
 
     /**

@@ -1,0 +1,47 @@
+{#
+	Bandeau « Guide mis à jour » : guides dont l'administrateur a coché
+	« Annoncer la mise à jour » (doc/utilisateur/edit). Masqué par JS une fois
+	fermé ou le guide ouvert, jusqu'à la prochaine annonce.
+	shortcut: « déjà vu » gardé dans le navigateur (localStorage), le bandeau
+	revient sur un autre poste ; passer par une table utilisateur/guide si gênant.
+#}
+{% if App.connectedUser %}
+	{% set annonces = guides_annonces() %}
+	{% if annonces is not empty %}
+		<div id="annonces-guides" class="container-fluid" data-utilisateur="{{ App.connectedUser.lastname ~ '.' ~ App.connectedUser.firstname }}">
+			{% for guide in annonces %}
+				<div class="alert alert-info alert-dismissible py-2 mb-2 d-none" role="status" data-slug="{{ guide.slug }}" data-annonce="{{ guide.dateAnnonce|date('U') }}">
+					<i class="fas fa-book-open me-1"></i>
+					Le guide <a href="{{ path('doc_utilisateur_show', {'slug': guide.slug}) }}" target="_blank" class="alert-link">{{ guide.titre }}</a>
+					a été mis à jour le {{ guide.dateAnnonce|date('d/m/Y') }}.
+					<button type="button" class="btn-close py-2" data-bs-dismiss="alert" aria-label="Fermer"></button>
+				</div>
+			{% endfor %}
+		</div>
+		<script>
+			(function () {
+				var bloc = document.getElementById("annonces-guides");
+				bloc.querySelectorAll("[data-slug]").forEach(function (annonce) {
+					var cle = "guide-vu:" + bloc.dataset.utilisateur + ":" + annonce.dataset.slug;
+					var marquerVu = function () {
+						try { localStorage.setItem(cle, annonce.dataset.annonce); } catch (e) {}
+					};
+					var vu = null;
+					try { vu = localStorage.getItem(cle); } catch (e) {}
+
+					// le guide lui-même est ouvert : l'annonce est lue
+					if (location.pathname.endsWith("/doc/utilisateur/" + annonce.dataset.slug)) {
+						marquerVu();
+						return;
+					}
+					if (vu === annonce.dataset.annonce) {
+						return;
+					}
+					annonce.classList.remove("d-none");
+					annonce.querySelector("a").addEventListener("click", marquerVu);
+					annonce.querySelector(".btn-close").addEventListener("click", marquerVu);
+				});
+			})();
+		</script>
+	{% endif %}
+{% endif %}

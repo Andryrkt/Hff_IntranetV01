@@ -11,10 +11,17 @@
 
 {% import "macroForm.html.twig" as macroForm %}
 
+{% set guideSlug = 'ddp-consultation' %}
+
 {% block content %}
 	<div class="sticky-header-titre">
 		<div class="container">
 			{% include "/ddp/shared/_formulaireRecherche.html.twig" %}
+			{# même query string que la recherche : l'export applique les filtres de l'utilisateur #}
+			<a href="{{ path('ddp_export_excel') ~ (App.request.queryString ? '?' ~ App.request.queryString : '') }}" class="btn btn-sm bg-success text-white my-2 fw-bold afficher-overlay">
+				<i class="fas fa-table"></i>
+				Excel
+			</a>
 		</div>
 	</div>
 	<div class="container-fluid">
@@ -100,9 +107,10 @@
 						<td class="text-center {{ item.styleStatut }}">{{ item.statut }}</td>
 						<td class="text-center">{{ item.statutDossierRegul }}</td>
 						<td>{{ item.motif }}</td>
-						<td>{{ item.numeroFactureIps }}</td>
-						<td>{{ item.numeroFacture }}</td>
-						<td>{{ item.numeroCommande }}</td>
+						{# valeurs multiples séparées par ";" : une par ligne pour ne pas élargir le tableau #}
+						<td>{{  item.numeroFactureIps|e|replace({';': '<br>'})|raw  }}</td>
+						<td>{{  item.numeroFacture|e|replace({';': '<br>'})|raw  }}</td>
+						<td>{{  item.numeroCommande|e|replace({';': '<br>'})|raw  }}</td>
 						<td>
 							<ul>
 								{% for numCde in item.numeroDossierDouane %}
@@ -127,7 +135,8 @@
 			<div class="modal-content">
 				<div class="modal-header">
 					<h5 class="modal-title" id="pdfModalLabel">DDP/BAP - PDF</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					<button type="button" class="btn btn-sm btn-outline-secondary ms-auto me-2" title="Plein écran" aria-label="Plein écran" onclick="this.closest('.modal-content').querySelector('iframe').requestFullscreen()"><i class="fas fa-expand"></i></button>
+					<button type="button" class="btn-close ms-0" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body">
 					<div class="pdf-spinner" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none;">
