@@ -301,23 +301,46 @@ class DemandePaiementModel extends Model
     }
 
     /**
-     * Montant réceptionné par commande pour les factures fournisseur données
-     * (n° de facture externe sans "/" ni préfixe PDV_).
+     * Livraisons (avec montant réceptionné) par commande pour les factures fournisseur données.
      *
-     * @return array<string, float> [numCde => montant]
+     * @param string[] $numCdes
+     * @param string[] $numFactures n° de facture du select (préfixe "PDV_", absent de ffac_facext)
+     * @return array<array{numero_commande: string, numero_livraison: string, montant: float}>
      */
-    public function getMontantCommandeReceptionnee(string $numeroFournisseur, string $numCdesString, string $numFacExtString, string $codeSociete = 'HF'): array
+    public function getLivraisonsReceptionnees(string $numeroFournisseur, array $numCdes, array $numFactures, string $codeSociete = 'HF'): array
     {
-        $statement = " SELECT fllf_numcde, SUM(fllf_qteliv * fllf_achnet) as montant_commande_receptionner
+        $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
+        $numFacExtString = TableauEnStringService::TableauEnString(',', array_map(fn($f) => preg_replace('/^PDV_/', '', trim($f)), $numFactures));
+
+        $statement = " SELECT fllf_numcde as numero_commande, fllf_numliv as numero_livraison, SUM(fllf_qteliv * fllf_achnet) as montant
                         from Informix.frn_llf
                         where fllf_numcde in ({$numCdesString})
-                        and fllf_numfac in (select ffac_numfac from Informix.frn_fac where ffac_numfou = '{$numeroFournisseur}' and REPLACE(ffac_facext, '/', '') in ({$numFacExtString}))
+                        and fllf_numfac in (select ffac_numfac from Informix.frn_fac where ffac_numfou = '{$numeroFournisseur}' and REPLACE(ffac_facext, '/', '') in ({$numFacExtString}) and ffac_soc = '{$codeSociete}')
                         and fllf_soc = '{$codeSociete}'
-                        group by fllf_numcde
+                        group by fllf_numcde, fllf_numliv
         ";
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
-        return array_map('floatval', array_column($this->convertirEnUtf8($data), 'montant_commande_receptionner', 'fllf_numcde'));
+
+        return array_map(fn($ligne) => [
+            'numero_commande'  => trim((string) $ligne['numero_commande']),
+            'numero_livraison' => trim((string) $ligne['numero_livraison']),
+            'montant'          => (float) $ligne['montant'],
+        ], $this->convertirEnUtf8($data));
+    }
+
+    /**
+     * Montant réceptionné par commande pour les factures fournisseur données
+     *
+     * @return array<string, float> [numCde => montant]
+     */
+    public function getMontantCommandeReceptionnee(string $numeroFournisseur, array $numCdes, array $numFactures, string $codeSociete = 'HF'): array
+    {
+        $montants = [];
+        foreach ($this->getLivraisonsReceptionnees($numeroFournisseur, $numCdes, $numFactures, $codeSociete) as $ligne) {
+            $montants[$ligne['numero_commande']] = ($montants[$ligne['numero_commande']] ?? 0) + $ligne['montant'];
+        }
+        return $montants;
     }
 
     public function getModePaiement()

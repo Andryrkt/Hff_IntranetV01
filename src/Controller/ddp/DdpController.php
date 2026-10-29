@@ -145,6 +145,10 @@ class DdpController extends Controller
             return;
         }
 
+        foreach ($this->demandePaiementModel->getLivraisonsReceptionnees($dto->numeroFournisseur, $dto->numeroCommande, $dto->numeroFacture, $dto->codeSociete) as $ligne) {
+            $dto->livraisonsParCommande[$ligne['numero_commande']][] = $ligne['numero_livraison'];
+        }
+
         $numerosDdp = [];
         $source = null;
         foreach ($groupes as $typeId => $groupe) {

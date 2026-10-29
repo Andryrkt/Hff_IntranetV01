@@ -186,13 +186,10 @@ class InfoFournisseurApi extends Controller
 
         $this->libererSession();
 
-        // les factures du select sont préfixées "PDV_", absent de ffac_facext
-        $facExt = array_map(fn($f) => preg_replace('/^PDV_/', '', $f), explode(',', $numFactures));
-
         $montants = $this->demandePaiementModel()->getMontantCommandeReceptionnee(
             $numeroFournisseur,
-            TableauEnStringService::TableauEnString(',', explode(',', $numCdes)),
-            TableauEnStringService::TableauEnString(',', $facExt),
+            explode(',', $numCdes),
+            explode(',', $numFactures),
             $codeSociete
         );
 

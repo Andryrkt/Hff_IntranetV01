@@ -10,36 +10,41 @@ use App\Entity\ddp\DemandePaiement;
 class CommandeLivraisonMapper
 {
     /**
+     * Une ligne par commande (et par livraison quand elles sont connues : après arrivage)
+     *
      * @param DemandePaiementDto|DdpDto $dto
      * @param DemandePaiement|null $demandePaiement
-     * @return CommandeLivraison
+     * @return CommandeLivraison[]
      */
-    public static function map($dto, ?DemandePaiement $demandePaiement = null): CommandeLivraison
+    public static function map($dto, ?DemandePaiement $demandePaiement = null): array
     {
-        $commandeLivraison = new CommandeLivraison();
+        $commandesLivraisons = [];
         if (is_array($dto->numeroCommande) || is_array($dto->numeroFacture)) {
             $numeroFacture = is_array($dto->numeroFacture) ? implode(';', $dto->numeroFacture) : $dto->numeroFacture;
-            foreach ($dto->numeroCommande as $numeroCommande) {
-                $commandeLivraison
-                    ->setNumeroCommande($numeroCommande)
-                    ->setNumeroLivraison($dto->numeroLivraison ?? null)
-                    ->setNumeroFacture($numeroFacture)
-                    // montant du commande à payer : uniquement saisi sur DdpDto (magasin)
-                    ->setMontantCommandeAPayer($dto instanceof DdpDto ? $dto->montantCommande($numeroCommande) : null)
-                ;
+            foreach ((array) $dto->numeroCommande as $numeroCommande) {
+                $livraisons = ($dto instanceof DdpDto ? $dto->livraisonsParCommande[$numeroCommande] ?? [] : []) ?: [$dto->numeroLivraison ?? null];
+                foreach ($livraisons as $numeroLivraison) {
+                    $commandesLivraisons[] = (new CommandeLivraison())
+                        ->setNumeroCommande($numeroCommande)
+                        ->setNumeroLivraison($numeroLivraison)
+                        ->setNumeroFacture($numeroFacture)
+                        // montant du commande à payer : uniquement saisi sur DdpDto (magasin)
+                        ->setMontantCommandeAPayer($dto instanceof DdpDto ? $dto->montantCommande($numeroCommande) : null);
+                }
             }
         } else {
-            $commandeLivraison
+            $commandesLivraisons[] = (new CommandeLivraison())
                 ->setNumeroCommande($dto->numeroCommande)
                 ->setNumeroLivraison($dto->numeroLivraison ?? null)
-                ->setNumeroFacture($dto->numeroFacture)
-            ;
+                ->setNumeroFacture($dto->numeroFacture);
         }
 
         if ($demandePaiement !== null) {
-            $commandeLivraison->setDemandePaiement($demandePaiement);
+            foreach ($commandesLivraisons as $commandeLivraison) {
+                $commandeLivraison->setDemandePaiement($demandePaiement);
+            }
         }
 
-        return $commandeLivraison;
+        return $commandesLivraisons;
     }
 }
