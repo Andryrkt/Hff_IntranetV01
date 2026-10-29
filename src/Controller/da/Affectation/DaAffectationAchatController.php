@@ -113,6 +113,13 @@ class DaAffectationAchatController extends Controller
     {
 
         $daParentLines = $daParent->getDemandeApproParentLines();
+
+        $lineConstpVide = $daParentLines->filter(function (DemandeApproParentLine $dapl) {
+            return $dapl->getArtConstp() === "-";
+        });
+
+        if (!empty($lineConstpVide)) $this->getSessionService()->set('notification', ['type' => 'error', 'message' => 'Certain(s) article(s) ont des constructeurs non définis. Veuillez vérifier les articles concernées']);
+
         $allDaDirect = $daParentLines->filter(function (DemandeApproParentLine $dapl) {
             return !$dapl->getArticleStocke();
         });
