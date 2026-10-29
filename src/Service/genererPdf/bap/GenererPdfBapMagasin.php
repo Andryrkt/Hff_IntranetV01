@@ -18,7 +18,7 @@ class GenererPdfBapMagasin extends GeneratePdf
 
     /**
      * @param DdpDto $dto $dto->donneesBapMagasin = [
-     *     'commandes' => [numCde => ['infoBc' => array, 'validation' => ?array{statut, dateSoumission, version},
+     *     'commandes' => [numCde => ['infoBc' => array,
      *                                'livraisons' => array, 'ddps' => array<array{date, numero, type, montant, ratio, statut}>]],
      *     'factures'  => array<array{Numero_Facture, Montant_Facture, Numero_PO}>,
      * ]
@@ -35,10 +35,9 @@ class GenererPdfBapMagasin extends GeneratePdf
 
         $commandes = $dto->donneesBapMagasin['commandes'] ?? [];
         $devise = $dto->devise ?? '';
-        $this->renderResumeBc($pdf, $w100, $commandes);
+        $this->renderResumeBc($pdf, $w100, $dto, $commandes, $dto->donneesBapMagasin['factures'] ?? []);
         $this->renderHistoriqueLivraison($pdf, $commandes, $devise);
         $this->renderHistoriqueDdp($pdf, $commandes, $devise);
-        $this->renderFactures($pdf, $dto->donneesBapMagasin['factures'] ?? [], $devise);
         $this->renderMontantBap($pdf, $dto);
 
         $directory = dirname($cheminDeFichier);
@@ -74,9 +73,10 @@ class GenererPdfBapMagasin extends GeneratePdf
     }
 
     /**
-     * Fournisseur (commun à toutes les commandes) puis une ligne par BC avec son information de validation
+     * Fournisseur (commun à toutes les commandes) puis une ligne par BC, comme le
+     * tableau des montants par commande du formulaire après arrivage
      */
-    private function renderResumeBc(TCPDF $pdf, int $w100, array $commandes): void
+    private function renderResumeBc(TCPDF $pdf, int $w100, DdpDto $dto, array $commandes, array $factures): void
     {
         $pdf->ln(2);
         $this->renderSectionTitle($pdf, 'RESUME DES BC', 0);
@@ -84,27 +84,21 @@ class GenererPdfBapMagasin extends GeneratePdf
         $this->addInfoLine($pdf, 'Nom fournisseur', (string) ($infoFrn['nom_fournisseur'] ?? '-'), $w100);
         $this->addInfoLine($pdf, 'N° fournisseur', (string) ($infoFrn['num_fournisseur'] ?? '-'), $w100);
 
+        $devise = $dto->devise ?? '';
         $lignes = [];
-        foreach ($commandes as $numCde => $commande) {
-            $infoBC = $commande['infoBc'] ?? [];
-            $validation = $commande['validation'] ?? null;
-            $dateSoumission = $validation['dateSoumission'] ?? null;
-            $devise = $infoBC['devise'] ?? '';
+        foreach (array_keys($commandes) as $numCde) {
+            $numFacs = array_unique(array_map(
+                fn($f) => trim((string) $f['Numero_Facture']),
+                array_filter($factures, fn($f) => trim((string) ($f['Numero_PO'] ?? '')) === (string) $numCde)
+            ));
             $lignes[] = [
-                ['center', '9%', $infoBC['num_cde'] ?? $numCde],
-                ['left', '15%', $infoBC['libelle_cde'] ?? '-'],
-                ['center', '9%', !empty($infoBC['date_cde']) ? date('d/m/Y', strtotime($infoBC['date_cde'])) : '-'],
-                ['center', '8%', ($infoBC['succ_cde'] ?? '-') . ' / ' . ($infoBC['serv_cde'] ?? '-')],
-                ['center', '8%', $infoBC['nom_ope'] ?? '-'],
-                ['center', '6%', $infoBC['type_cde'] ?? '-'],
-                ['right', '12%', $this->formaterPrix($infoBC['mtn_cde'] ?? 0) . " $devise"],
-                ['right', '12%', $this->formaterPrix($infoBC['ttc_cde'] ?? 0) . " $devise"],
-                ['left', '13%', ($validation['statut'] ?? 'Non soumis à validation') . (isset($validation['version']) ? " (v{$validation['version']})" : '')],
-                ['center', '8%', $dateSoumission instanceof \DateTimeInterface ? $dateSoumission->format('d/m/Y') : '-'],
+                ['center', '25%', $numCde],
+                ['left', '40%', implode(', ', $numFacs) ?: '-'],
+                ['right', '35%', $this->formaterPrix($dto->montantCommande((string) $numCde) ?? 0) . " $devise"],
             ];
         }
 
-        $this->renderTable($pdf, null, 'Aucune commande', ['N° cde', 'Référence', 'Date cde', 'Succ / Serv', 'Opérateur', 'Nature', 'Montant HT', 'Montant TTC', 'Statut validation', 'Date soumis.'], $lignes);
+        $this->renderTable($pdf, null, 'Aucune commande', ['N° commande', 'N° facture', 'Montant du commande à payer'], $lignes);
     }
 
     private function renderHistoriqueLivraison(TCPDF $pdf, array $commandes, string $devise): void
@@ -146,17 +140,6 @@ class GenererPdfBapMagasin extends GeneratePdf
         $this->renderTable($pdf, 'RECAPITULATIF DES DEMANDES DE PAIEMENT', 'Aucune demande de paiement', ['N° commande', 'Date', 'Numéro', 'Type', '%', "Montant ($devise)", 'Statut'], $lignes);
     }
 
-    private function renderFactures(TCPDF $pdf, array $factures, string $devise): void
-    {
-        $lignes = array_map(fn($facture) => [
-            ['left', '40%', $facture['Numero_Facture'] ?? ''],
-            ['left', '30%', $facture['Numero_PO'] ?? ''],
-            ['right', '30%', $this->formaterPrix($facture['Montant_Facture'] ?? 0)],
-        ], $factures);
-
-        $this->renderTable($pdf, 'INFO FACTURE FOURNISSEUR', 'Aucune facture', ['N° facture', 'N° commande', "Montant facture ($devise)"], $lignes);
-    }
-
     private function renderTable(TCPDF $pdf, ?string $titre, string $messageVide, array $entetes, array $lignes): void
     {
         if ($titre !== null) {
@@ -174,19 +157,12 @@ class GenererPdfBapMagasin extends GeneratePdf
     private function renderMontantBap(TCPDF $pdf, DdpDto $dto): void
     {
         $pdf->ln(2);
-        // Montant de la BAP avec le pourcentage à payer en rouge
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
         $pdf->Cell(30, 6, 'MONTANT BAP : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
 
         $pdf->setFont('helvetica', '', 10);
-        $pdf->SetTextColor(255, 0, 0);
-        $pdf->Cell(20, 6, '(' . number_format($dto->ratioMontantPayer, 2, ',', '') . '%)', 0, 0, 'R', false, '', 0, false, 'T', 'M');
-
-        $pdf->SetTextColor(0, 0, 0);
         $pdf->Cell(0, 6, number_format($dto->montantAPayer(), 2, ',', '.') . ' ' . $dto->devise, 0, 1, 'L', false, '', 0, false, 'T', 'M');
-
-        $pdf->Cell(0, 6, 'Solde avance : ' . number_format(array_sum($dto->soldesAvance), 2, ',', '.') . ' ' . $dto->devise, 0, 1, 'L');
     }
 
     /**
