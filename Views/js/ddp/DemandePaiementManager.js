@@ -160,8 +160,29 @@ export class DemandePaiementManager {
     }
   }
 
-  async fetchFournisseurs() {
-    return await this.fetchManager.get(this.config.urls.fournisseurs);
+  /**
+   * Liste partagée par les deux autocomplétions (une seule requête) ; fournisseur
+   * et bénéficiaire restent bloqués tant qu'elle charge.
+   */
+  fetchFournisseurs() {
+    if (!this.fournisseursPromise) {
+      const champs = [this.elements.numFrnInput, this.elements.beneficiaireInput];
+      const bloquer = (enChargement) => {
+        champs.forEach((champ) => champ && (champ.readOnly = enChargement));
+        if (this.elements.loaderNumFournisseur) {
+          this.elements.loaderNumFournisseur.style.display = enChargement ? "block" : "none";
+        }
+      };
+      bloquer(true);
+      this.fournisseursPromise = this.fetchManager
+        .get(this.config.urls.fournisseurs)
+        .catch((error) => {
+          this.fournisseursPromise = null; // permet un nouvel essai
+          throw error;
+        })
+        .finally(() => bloquer(false));
+    }
+    return this.fournisseursPromise;
   }
 
   displayFournisseur(item) {
@@ -360,6 +381,7 @@ export class DemandePaiementManager {
         }
         this.facturesParCommande.get(f.Numero_PO).push(f);
       });
+      this.chargerMontantsReceptionnes(numFournisseur, numerosPO, numFacs);
 
       // Le select ne contient que les commandes des factures choisies, toutes
       // sélectionnées ; un seul "change" déclenche le chargement des PDF.
@@ -853,7 +875,15 @@ export class DemandePaiementManager {
       return;
     }
 
-    if (this.montantAttendu === null || isNaN(this.montantAttendu)) {
+    // après arrivage : le montant à payer doit égaler la somme des montants du commande à payer
+    const inputsCommande = [
+      ...(this.elements.montantsCommandeBody?.querySelectorAll("input") || []),
+    ];
+    const montantAttendu = inputsCommande.length
+      ? inputsCommande.reduce((somme, input) => somme + (parseMontant(input.value) || 0), 0)
+      : this.montantAttendu;
+
+    if (montantAttendu === null || isNaN(montantAttendu)) {
       this.montantIncorrect = false;
       this.mettreAJourEtatSoumission();
       return;
@@ -861,10 +891,10 @@ export class DemandePaiementManager {
 
     const montantSaisi = parseMontant(this.elements.montantInput.value);
     this.montantIncorrect =
-      isNaN(montantSaisi) ||
-      Math.abs(montantSaisi - this.montantAttendu) > 0.01;
-    this.messageMontantIncorrect =
-      "Le montant saisi ne correspond pas au montant de la/les commande(s)/facture(s) sélectionnée(s).";
+      isNaN(montantSaisi) || Math.abs(montantSaisi - montantAttendu) > 0.01;
+    this.messageMontantIncorrect = inputsCommande.length
+      ? "Le montant à payer doit être égal à la somme des montants du commande à payer."
+      : "Le montant saisi ne correspond pas au montant de la/les commande(s)/facture(s) sélectionnée(s).";
 
     this.mettreAJourEtatSoumission();
   }
@@ -1032,9 +1062,10 @@ export class DemandePaiementManager {
       input.name = `demande_paiement[montantsCommande][${numCde}]`;
       input.required = true;
       input.dataset.numCde = numCde;
-      input.value = saisis[numCde] ?? "";
+      input.value = saisis[numCde] ?? this.montantsReceptionnes?.[numCde] ?? "";
       input.addEventListener("input", () => {
         input.value = formatNumberSpecial(input.value);
+        this.verifierMontant();
       });
 
       // une commande peut correspondre à plusieurs factures : une ligne par facture dans la cellule
@@ -1042,33 +1073,71 @@ export class DemandePaiementManager {
       const tr = montantsCommandeBody.insertRow();
       tr.insertCell().textContent = numCde;
       const celluleFacture = tr.insertCell();
-      const celluleMontant = tr.insertCell();
-      celluleMontant.className = "text-end";
       factures.forEach((f) => {
         celluleFacture.appendChild(document.createElement("div")).textContent =
           f.Numero_Facture;
-        celluleMontant.appendChild(document.createElement("div")).textContent =
-          formatNumberSpecial(Number(f.Montant_Facture || 0).toFixed(2));
       });
+      tr.insertCell().appendChild(input);
       const celluleDdpa = tr.insertCell();
       celluleDdpa.className = "text-end";
       const celluleSolde = tr.insertCell();
       celluleSolde.className = "text-end";
       const celluleDdp = tr.insertCell();
       celluleDdp.className = "text-center fw-bold";
-      tr.insertCell().appendChild(input);
 
       this.chargerSituationAvance(numCde).then((situation) => {
         if (!situation) return;
         const format = (montant) =>
           formatNumberSpecial(Number(montant || 0).toFixed(2));
-        celluleDdpa.textContent = `${format(situation.ratioDdpa)}%`;
+        celluleDdpa.textContent = format(situation.montantProforma);
         celluleSolde.textContent = format(situation.soldeAvance);
         celluleDdp.textContent = situation.ddpAGenerer;
       });
     });
 
     tableauMontantsCommande.classList.toggle("d-none", numCdes.length === 0);
+    this.verifierMontant();
+  }
+
+  /**
+   * Montant réceptionné par commande (factures sélectionnées) : pré-remplit
+   * les champs "Montant du commande à payer" encore vides, modifiables ensuite.
+   */
+  async chargerMontantsReceptionnes(numFournisseur, numCdes, numFacs) {
+    this.montantsReceptionnes = {};
+    const url = this.config.urls.montantCommandeReceptionnee;
+    if (!url || numCdes.length === 0 || numFacs.length === 0) return;
+
+    const requete = (this.montantsReceptionnesRequete =
+      (this.montantsReceptionnesRequete || 0) + 1);
+    try {
+      const montants = await this.fetchManager.get(
+        url
+          .replace(":numFournisseur", encodeURIComponent(numFournisseur))
+          .replace(":numCdes", encodeURIComponent(numCdes.join(",")))
+          .replace(":facturesString", encodeURIComponent(numFacs.join(","))),
+      );
+      // réponse d'une sélection de factures dépassée
+      if (requete !== this.montantsReceptionnesRequete) return;
+
+      Object.entries(montants || {}).forEach(([numCde, montant]) => {
+        this.montantsReceptionnes[numCde.trim()] = formatNumberSpecial(
+          Number(montant || 0).toFixed(2),
+        );
+      });
+      this.elements.montantsCommandeBody
+        ?.querySelectorAll("input")
+        .forEach((input) => {
+          const montant = this.montantsReceptionnes[input.dataset.numCde];
+          if (input.value === "" && montant !== undefined) input.value = montant;
+        });
+      this.verifierMontant();
+    } catch (error) {
+      console.error(
+        "Erreur lors de la récupération des montants réceptionnés :",
+        error,
+      );
+    }
   }
 
   /**

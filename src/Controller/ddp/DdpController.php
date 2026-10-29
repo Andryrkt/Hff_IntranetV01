@@ -240,13 +240,9 @@ class DdpController extends Controller
     {
         $daModel = new DaModel();
         $repository = $this->getEntityManager()->getRepository(DemandePaiement::class);
-        $cdeFrnRepository = $this->getEntityManager()->getRepository(CdefnrSoumisAValidation::class);
 
         $commandes = [];
         foreach ($dto->numeroCommande as $numCde) {
-            /** @var CdefnrSoumisAValidation|null $validation */
-            $validation = $cdeFrnRepository->findOneBy(['numCdeFournisseur' => $numCde], ['numVersion' => 'DESC']);
-
             $ddps = [];
             /** @var DemandePaiement $ddp */
             foreach ($repository->getDdpSelonNumCde($numCde) as $ddp) {
@@ -262,11 +258,6 @@ class DdpController extends Controller
 
             $commandes[$numCde] = [
                 'infoBc'     => $daModel->getInfoBC((string) $numCde, $dto->codeSociete),
-                'validation' => $validation ? [
-                    'statut'         => $validation->getStatut(),
-                    'dateSoumission' => $validation->getDateHeureSoumission(),
-                    'version'        => $validation->getNumVersion(),
-                ] : null,
                 'livraisons' => $daModel->getHistoriqueLivraison((string) $numCde) ?? [],
                 'ddps'       => $ddps,
             ];
@@ -349,14 +340,12 @@ class DdpController extends Controller
     private function montantAttendu(DdpDto $dto): ?float
     {
         if ($dto->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE) {
-            if (empty($dto->numeroFacture)) {
+            if (empty($dto->numeroCommande)) {
                 return null;
             }
 
-            $numFacString = TableauEnStringService::TableauEnString(',', $dto->numeroFacture);
-            $montants = $this->demandePaiementModel->getMontantFacGcot($dto->numeroFournisseur, '', $numFacString);
-
-            return isset($montants[0]) ? (float) $montants[0] : 0.0;
+            // somme des montants du commande à payer saisis (numeroCommande déjà déduit des factures)
+            return array_sum(array_map(fn($numCde) => (float) $dto->montantCommande($numCde), $dto->numeroCommande));
         }
 
         return null;

@@ -28,3 +28,9 @@ RewriteRule ^taux-de-change/(.*)$ /HffintranetMigr/taux-de-change [L,QSA]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.php [L]
+# Modules JS importés sans ?v= : forcer la revalidation (304 via ETag) pour ne pas garder une ancienne version
+<IfModule mod_headers.c>
+    <FilesMatch "\.js$">
+        Header set Cache-Control "no-cache"
+    </FilesMatch>
+</IfModule>

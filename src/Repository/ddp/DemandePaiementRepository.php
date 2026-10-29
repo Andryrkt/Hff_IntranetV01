@@ -405,10 +405,10 @@ class DemandePaiementRepository extends EntityRepository
         }
 
         if ($ratioDdpa <= 0.01) {
-            return ['ratioDdpa' => $ratioDdpa, 'typeDdpAGenerer' => TypeDemandePaiementConstants::ID_BON_A_PAYER, 'soldeAvance' => 0.0];
+            return ['ratioDdpa' => $ratioDdpa, 'montantProforma' => $sommeProforma, 'typeDdpAGenerer' => TypeDemandePaiementConstants::ID_BON_A_PAYER, 'soldeAvance' => 0.0];
         }
         if ($ratioDdpa >= 100 - 0.01) {
-            return ['ratioDdpa' => $ratioDdpa, 'typeDdpAGenerer' => TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_REGULE, 'soldeAvance' => 0.0];
+            return ['ratioDdpa' => $ratioDdpa, 'montantProforma' => $sommeProforma, 'typeDdpAGenerer' => TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_REGULE, 'soldeAvance' => 0.0];
         }
 
         $montantDejaPaye = (float) $this->getEntityManager()->createQueryBuilder()
@@ -434,6 +434,7 @@ class DemandePaiementRepository extends EntityRepository
 
         return [
             'ratioDdpa'       => $ratioDdpa,
+            'montantProforma' => $sommeProforma,
             'typeDdpAGenerer' => TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE,
             'soldeAvance'     => $montantTotalCommande - ($sommeProforma + $montantDejaPaye),
         ];

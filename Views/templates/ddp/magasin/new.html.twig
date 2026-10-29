@@ -62,7 +62,10 @@
 					<div class="col-12 col-md-2">
 						{{ form_row(form.numeroFournisseur) }}
 						<div id="suggestion-num-fournisseur" class="suggestions-container"></div>
-						<div id="loader-num-fournisseur" class="spinner" style="display: none;">Chargement...</div>
+						<div id="loader-num-fournisseur" class="small text-muted mt-1" style="display: none;">
+							<span class="spinner-border spinner-border-sm text-primary" role="status"></span>
+							Chargement des fournisseurs...
+						</div>
 						{{ form_row(form.modePaiement) }}
 
 					</div>
@@ -112,11 +115,10 @@
 									<tr>
 										<th>N° commande</th>
 										<th>N° facture</th>
-										<th class="text-end">Montant facture</th>
+										<th>Montant du commande à payer *</th>
 										<th class="text-end">DDPA</th>
 										<th class="text-end">Solde avance</th>
 										<th class="text-center">DDP à générer</th>
-										<th>Montant du commande à payer *</th>
 									</tr>
 								</thead>
 								<tbody id="montantsCommandeBody"></tbody>

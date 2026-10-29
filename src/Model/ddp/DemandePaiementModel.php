@@ -84,6 +84,7 @@ class DemandePaiementModel extends Model
             INNER JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
             where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%'
             and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
+            and TRZT_Facture.Numero_Facture in ({$numFacString})
             group by TRZT_Dossier_Douane.Code_Fournisseur, TRZT_Dossier_Douane.Libelle_Fournisseur,TRZT_Dossier_Douane.Numero_Dossier_Douane, TRZT_Dossier_Douane.Numero_LTA, TRZT_Dossier_Douane.Numero_HAWB,TRZT_Facture.Numero_Facture, TRZT_Facture.Montant_FOB, GCOT_Facture_Ligne.Numero_PO
             order by TRZT_Dossier_Douane.Code_Fournisseur, TRZT_Dossier_Douane.Libelle_Fournisseur,TRZT_Dossier_Douane.Numero_Dossier_Douane, TRZT_Dossier_Douane.Numero_LTA, TRZT_Dossier_Douane.Numero_HAWB,TRZT_Facture.Numero_Facture, GCOT_Facture_Ligne.Numero_PO
             OPTION (RECOMPILE)
@@ -299,6 +300,26 @@ class DemandePaiementModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
+    /**
+     * Montant réceptionné par commande pour les factures fournisseur données
+     * (n° de facture externe sans "/" ni préfixe PDV_).
+     *
+     * @return array<string, float> [numCde => montant]
+     */
+    public function getMontantCommandeReceptionnee(string $numeroFournisseur, string $numCdesString, string $numFacExtString, string $codeSociete = 'HF'): array
+    {
+        $statement = " SELECT fllf_numcde, SUM(fllf_qteliv * fllf_achnet) as montant_commande_receptionner
+                        from Informix.frn_llf
+                        where fllf_numcde in ({$numCdesString})
+                        and fllf_numfac in (select ffac_numfac from Informix.frn_fac where ffac_numfou = '{$numeroFournisseur}' and REPLACE(ffac_facext, '/', '') in ({$numFacExtString}))
+                        and fllf_soc = '{$codeSociete}'
+                        group by fllf_numcde
+        ";
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        return array_map('floatval', array_column($this->convertirEnUtf8($data), 'montant_commande_receptionner', 'fllf_numcde'));
+    }
+
     public function getModePaiement()
     {
         $statement = " SELECT TRIM(atab_lib) as atablib 
@@ -348,11 +369,12 @@ class DemandePaiementModel extends Model
         return $this->retournerResultGcot04FiltreSurColonne($sql, 'Numero_PO', $numCdesString, ['Numero_Dossier_Douane']);
     }
 
-    public function getFactureNonReglee(string $numeroFournisseur)
+    public function getFactureNonReglee(string $numeroFournisseur, string $codeSociete = 'HF'): array
     {
         $statement = " SELECT 'PDV_'||''||trim(tecr_nopiec) as facture_non_lettree
-                        FROM trs_ecr 
+                        FROM regix.trs_ecr 
                         WHERE tecr_nocpp = '{$numeroFournisseur}'
+                        and tecr_codsoc = '{$codeSociete}'
                         and tecr_codjou = 'Achmag'
         ";
         $result = $this->connect->executeQuery($statement);
