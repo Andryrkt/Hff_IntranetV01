@@ -875,7 +875,15 @@ export class DemandePaiementManager {
       return;
     }
 
-    if (this.montantAttendu === null || isNaN(this.montantAttendu)) {
+    // après arrivage : le montant à payer doit égaler la somme des montants du commande à payer
+    const inputsCommande = [
+      ...(this.elements.montantsCommandeBody?.querySelectorAll("input") || []),
+    ];
+    const montantAttendu = inputsCommande.length
+      ? inputsCommande.reduce((somme, input) => somme + (parseMontant(input.value) || 0), 0)
+      : this.montantAttendu;
+
+    if (montantAttendu === null || isNaN(montantAttendu)) {
       this.montantIncorrect = false;
       this.mettreAJourEtatSoumission();
       return;
@@ -883,10 +891,10 @@ export class DemandePaiementManager {
 
     const montantSaisi = parseMontant(this.elements.montantInput.value);
     this.montantIncorrect =
-      isNaN(montantSaisi) ||
-      Math.abs(montantSaisi - this.montantAttendu) > 0.01;
-    this.messageMontantIncorrect =
-      "Le montant saisi ne correspond pas au montant de la/les commande(s)/facture(s) sélectionnée(s).";
+      isNaN(montantSaisi) || Math.abs(montantSaisi - montantAttendu) > 0.01;
+    this.messageMontantIncorrect = inputsCommande.length
+      ? "Le montant à payer doit être égal à la somme des montants du commande à payer."
+      : "Le montant saisi ne correspond pas au montant de la/les commande(s)/facture(s) sélectionnée(s).";
 
     this.mettreAJourEtatSoumission();
   }
@@ -1057,6 +1065,7 @@ export class DemandePaiementManager {
       input.value = saisis[numCde] ?? this.montantsReceptionnes?.[numCde] ?? "";
       input.addEventListener("input", () => {
         input.value = formatNumberSpecial(input.value);
+        this.verifierMontant();
       });
 
       // une commande peut correspondre à plusieurs factures : une ligne par facture dans la cellule
@@ -1087,6 +1096,7 @@ export class DemandePaiementManager {
     });
 
     tableauMontantsCommande.classList.toggle("d-none", numCdes.length === 0);
+    this.verifierMontant();
   }
 
   /**
@@ -1121,6 +1131,7 @@ export class DemandePaiementManager {
           const montant = this.montantsReceptionnes[input.dataset.numCde];
           if (input.value === "" && montant !== undefined) input.value = montant;
         });
+      this.verifierMontant();
     } catch (error) {
       console.error(
         "Erreur lors de la récupération des montants réceptionnés :",

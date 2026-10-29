@@ -349,14 +349,12 @@ class DdpController extends Controller
     private function montantAttendu(DdpDto $dto): ?float
     {
         if ($dto->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE) {
-            if (empty($dto->numeroFacture)) {
+            if (empty($dto->numeroCommande)) {
                 return null;
             }
 
-            $numFacString = TableauEnStringService::TableauEnString(',', $dto->numeroFacture);
-            $montants = $this->demandePaiementModel->getMontantFacGcot($dto->numeroFournisseur, '', $numFacString);
-
-            return isset($montants[0]) ? (float) $montants[0] : 0.0;
+            // somme des montants du commande à payer saisis (numeroCommande déjà déduit des factures)
+            return array_sum(array_map(fn($numCde) => (float) $dto->montantCommande($numCde), $dto->numeroCommande));
         }
 
         return null;
