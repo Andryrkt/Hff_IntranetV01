@@ -160,7 +160,6 @@ function setupAutocompleteField(articleStockeList) {
         refp.value = item.reference;
         fields.articleStocke.checked = articleStocke;
         fields.constp.value = item.constp;
-        // fields.desi.value = item.desi;
         fields.prix.value = item.prix_unitaire;
         fields.desi.value = item.constp == "ZDI" ? oldDesi : item.desi;
         if (articleStocke) {
