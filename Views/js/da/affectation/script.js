@@ -43,6 +43,7 @@ function getRelatedFields(element, checkForm = false) {
     prix: getInputLine(element, '[id$="_prixUnitaire"]', checkForm),
     numFrn: getInputLine(element, '[id$="_numeroFournisseur"]', checkForm),
     nomFrn: getInputLine(element, '[id$="_nomFournisseur"]', checkForm),
+    designationInit: getInputLine(element, ".designation-init", checkForm),
   };
 }
 
@@ -128,9 +129,7 @@ function setupAutocompleteField(articleStockeList) {
     let fields = getRelatedFields(refp);
     let suggestionContainer = refp.nextElementSibling;
     let loaderElement = suggestionContainer.nextElementSibling;
-
-    const div = document.querySelector(".text-start.div-disabled");
-    const designationInit = div.textContent;
+    let oldDesi = fields.designationInit.innerText.trim();
 
     if (fields.articleStocke.checked)
       fields.desi.classList.add("non-modifiable");
@@ -163,6 +162,7 @@ function setupAutocompleteField(articleStockeList) {
         fields.constp.value = item.constp;
         // fields.desi.value = item.desi;
         fields.prix.value = item.prix_unitaire;
+        fields.desi.value = item.constp == "ZDI" ? oldDesi : item.desi;
         if (articleStocke) {
           fields.nomFrn.value = item.nom_frn; // changer le fournisseur si article stocké
           fields.numFrn.value = item.num_frn; // changer le fournisseur si article stocké
@@ -181,12 +181,6 @@ function setupAutocompleteField(articleStockeList) {
           }
         } else {
           fields.desi.classList.remove("non-modifiable");
-        }
-
-        if (item.constp === "ZDI") {
-          fields.desi.value = designationInit;
-        } else {
-          fields.desi.value = item.desi;
         }
       },
     });
