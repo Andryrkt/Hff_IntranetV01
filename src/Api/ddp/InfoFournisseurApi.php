@@ -278,7 +278,7 @@ class InfoFournisseurApi extends Controller
         $cumul = 0.0;
 
         /** @var DemandePaiement $ddp */
-        foreach ($this->demandePaiementRepository->getDdpSelonNumCde($numCde) as $ddp) {
+        foreach ($this->demandePaiementRepository->getDdpSelonNumCde($numCde, true) as $ddp) {
             $montant = (float) $ddp->getMontantAPayers();
             $ratio = $ddp->getRatioMontantTotalCommande();
             $cumul += $ratio;

@@ -171,10 +171,20 @@ class DemandePaiementRepository extends EntityRepository
         return $resultat ?? 0;
     }
 
-    public function getDdpSelonNumCde(string $numCde)
+    /**
+     * @param bool $avecMultiCommandes inclut les DDP magasin multi-commandes (d.numeroCommande = "cde1;cde2;..."),
+     *                                 retrouvées par la table demande_paiement_commande
+     */
+    public function getDdpSelonNumCde(string $numCde, bool $avecMultiCommandes = false)
     {
-        $queryBuilder =  $this->createQueryBuilder('d')
-            ->where('d.numeroCommande = :numero')
+        $queryBuilder =  $this->createQueryBuilder('d');
+        $queryBuilder
+            ->where($avecMultiCommandes
+                ? $queryBuilder->expr()->orX(
+                    'd.numeroCommande = :numero',
+                    'EXISTS (SELECT c.id FROM ' . DemandePaiementCommande::class . ' c WHERE c.demandePaiement = d AND c.numeroCommande = :numero)'
+                )
+                : 'd.numeroCommande = :numero')
             ->andWhere('d.statut NOT IN (:statut)')
             ->setParameter('numero', (string) $numCde)
             ->setParameter('statut', StatutConstants::REFUSES_DDP)

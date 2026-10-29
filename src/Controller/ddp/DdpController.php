@@ -249,7 +249,7 @@ class DdpController extends Controller
         foreach ($dto->numeroCommande as $numCde) {
             $ddps = [];
             /** @var DemandePaiement $ddp */
-            foreach ($repository->getDdpSelonNumCde($numCde) as $ddp) {
+            foreach ($repository->getDdpSelonNumCde($numCde, true) as $ddp) {
                 $ddps[] = [
                     'date'    => $ddp->getDateCreation() ? $ddp->getDateCreation()->format('d/m/Y') : '',
                     'numero'  => $ddp->getNumeroDdp(),
