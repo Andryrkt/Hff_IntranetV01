@@ -1072,10 +1072,11 @@ export class DemandePaiementManager {
       const factures = this.facturesParCommande?.get(numCde) || [];
       const tr = montantsCommandeBody.insertRow();
       tr.insertCell().textContent = numCde;
-      const celluleFacture = tr.insertCell();
-      factures.forEach((f) => {
-        celluleFacture.appendChild(document.createElement("div")).textContent =
-          f.Numero_Facture;
+      ["Numero_Facture", "Numero_Dossier_Douane", "Numero_LTA", "Numero_HAWB"].forEach((champ) => {
+        const cellule = tr.insertCell();
+        factures.forEach((f) => {
+          cellule.appendChild(document.createElement("div")).textContent = f[champ] ?? "";
+        });
       });
       tr.insertCell().appendChild(input);
       const celluleDdpa = tr.insertCell();

@@ -97,15 +97,19 @@ class DemandePaiementModel extends Model
      * Commandes (Numero_PO) et montant de chacune des factures GCOT données
      *
      * @param string $numFacString factures au format 'FAC1','FAC2'
-     * @return array<array{Numero_Facture: string, Montant_Facture: float, Numero_PO: string}>
+     * @return array<array{Numero_Facture: string, Montant_Facture: float, Numero_PO: string, Numero_Dossier_Douane: ?string, Numero_LTA: ?string, Numero_HAWB: ?string}>
      */
     public function getCommandesParFacture(string $numFacString): array
     {
         $sql = "SELECT DISTINCT
                 TRZT_Facture.Numero_Facture,
                 TRZT_Facture.Montant_FOB as Montant_Facture,
-                GCOT_Facture_Ligne.Numero_PO
+                GCOT_Facture_Ligne.Numero_PO,
+                TRZT_Dossier_Douane.Numero_Dossier_Douane,
+                TRZT_Dossier_Douane.Numero_LTA,
+                TRZT_Dossier_Douane.Numero_HAWB
             from TRZT_Facture
+            LEFT JOIN TRZT_Dossier_Douane on TRZT_Dossier_Douane.Numero_Dossier_Douane = TRZT_Facture.Numero_Dossier_Douane
             INNER JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
             INNER JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
             where TRZT_Facture.Numero_Facture in ({$numFacString})";
