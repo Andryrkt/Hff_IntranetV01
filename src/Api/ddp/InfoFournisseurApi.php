@@ -178,6 +178,29 @@ class InfoFournisseurApi extends Controller
     }
 
     /**
+     * @Route("/api/montant-commande-receptionnee/{numeroFournisseur}/{numCdes}/{numFactures}", name="api_montant_commande_receptionnee")
+     */
+    public function montantCommandeReceptionnee(string $numeroFournisseur, string $numCdes, string $numFactures)
+    {
+        $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+
+        $this->libererSession();
+
+        // les factures du select sont préfixées "PDV_", absent de ffac_facext
+        $facExt = array_map(fn($f) => preg_replace('/^PDV_/', '', $f), explode(',', $numFactures));
+
+        $montants = $this->demandePaiementModel()->getMontantCommandeReceptionnee(
+            $numeroFournisseur,
+            TableauEnStringService::TableauEnString(',', explode(',', $numCdes)),
+            TableauEnStringService::TableauEnString(',', $facExt),
+            $codeSociete
+        );
+
+        header("Content-type:application/json");
+        echo json_encode((object) $montants);
+    }
+
+    /**
      * @Route("/api/montant-commande/{numCde}", name="api_montant_commande")
      */
     public function montantCommande(string $numCde)
