@@ -516,6 +516,7 @@ class DemandePaiementModel extends Model
         $sql = "SELECT
                     dp.numero_demande_paiement AS numero_ddp,
                     dp.date_creation,
+                    dp.numero_commande,
                     td.code_type_demande AS code_type,
                     CASE td.code_type_demande
                         WHEN 'BAP' THEN (
@@ -548,9 +549,10 @@ class DemandePaiementModel extends Model
 
         while ($result = odbc_fetch_array($resultStmt)) {
             $data[] = [
-                'numero_ddp' => $result['numero_ddp'],
-                'code_type'  => $result['code_type'],
-                'path'       => $result['path'],
+                'numero_ddp'      => $result['numero_ddp'],
+                'numero_commande' => $result['numero_commande'],
+                'code_type'       => $result['code_type'],
+                'path'            => $result['path'],
             ];
         }
 

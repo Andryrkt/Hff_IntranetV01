@@ -5,36 +5,42 @@ document.addEventListener("DOMContentLoaded", () => {
   // Récupérer tous les éléments .file-item
   const fileItems = document.querySelectorAll(".file-item");
 
+  // Types liés à un BC (via data-related-num-bc) et classe CSS de surlignage associée
+  const RELATED_CLASS = { FACBL: "related-fac-bl", DDP: "related-ddp" };
+  const ALL_RELATED_CLASSES = Object.values(RELATED_CLASS);
+  const norm = (value) => (value ?? "").trim().toUpperCase();
+
   // Regrouper par type pour un accès rapide
-  const fileItemsByType = { BC: [], FACBL: [] };
+  const fileItemsByType = { BC: [], FACBL: [], DDP: [] };
   fileItems.forEach((item) => {
     const type = item.dataset.docLabelType;
     if (type in fileItemsByType) fileItemsByType[type].push(item);
   });
 
-  // Construire les relations BC → FACBL et FACBL → BC
-  const bcToFacbl = new Map(); // one to many
-  fileItemsByType.BC.forEach((bc) => {
-    const fileName = bc.querySelector("small").innerText;
-    const relatedFacbls = fileItemsByType.FACBL.filter(
-      (facbl) => facbl.dataset.relatedNumBc === fileName
-    );
-    bcToFacbl.set(fileName, relatedFacbls);
-  });
+  // Construire les relations BC → (FACBL | DDP) et (FACBL | DDP) → BC
+  const bcByNum = new Map(); // numéro BC normalisé → élément BC
+  fileItemsByType.BC.forEach((bc) =>
+    bcByNum.set(norm(bc.querySelector("small").innerText), bc)
+  );
 
-  const facblToBc = new Map(); // one to one
-  fileItemsByType.FACBL.forEach((facbl) => {
-    const relatedNumBc = facbl.dataset.relatedNumBc;
-    const relatedBc = fileItemsByType.BC.find(
-      (bc) => bc.querySelector("small").innerText === relatedNumBc
-    );
-    if (relatedBc) facblToBc.set(facbl, relatedBc);
+  const bcToChildren = new Map(); // one to many : numéro BC normalisé → [FACBL|DDP]
+  const childToBc = new Map(); // one to one : FACBL|DDP → BC
+  Object.keys(RELATED_CLASS).forEach((type) => {
+    fileItemsByType[type].forEach((child) => {
+      const num = norm(child.dataset.relatedNumBc);
+      if (!num) return;
+      if (!bcToChildren.has(num)) bcToChildren.set(num, []);
+      bcToChildren.get(num).push(child);
+      if (bcByNum.has(num)) childToBc.set(child, bcByNum.get(num));
+    });
   });
 
   // Éléments concernés pour toggle related
-  const relatedFileItems = Array.from(fileItems).filter((item) =>
-    ["BC", "FACBL"].includes(item.dataset.docLabelType)
-  );
+  const relatedFileItems = [
+    ...fileItemsByType.BC,
+    ...fileItemsByType.FACBL,
+    ...fileItemsByType.DDP,
+  ];
 
   // Gestion du clic sur un fichier
   fileItems.forEach((fileItem) => {
@@ -148,26 +154,28 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function toggleRelatedItem(selectedItem, docLabelType, fileName) {
-    if (!["BC", "FACBL"].includes(docLabelType)) return;
+    if (!["BC", ...Object.keys(RELATED_CLASS)].includes(docLabelType)) return;
 
     // Retirer l'effet des éléments liés
     relatedFileItems.forEach((item) => {
-      item.classList.remove("related");
-      item.closest(".list-file-item")?.classList.remove("related");
+      item.classList.remove(...ALL_RELATED_CLASSES);
+      item.closest(".list-file-item")?.classList.remove(...ALL_RELATED_CLASSES);
     });
 
+    const highlight = (item, cssClass) => {
+      item.classList.add(cssClass);
+      item.closest(".list-file-item")?.classList.add(cssClass);
+    };
+
     if (docLabelType === "BC") {
-      const relatedFacbls = bcToFacbl.get(fileName) || []; // Chercher les FACBL liés au BC
-      relatedFacbls.forEach((item) => {
-        item.classList.add("related");
-        item.closest(".list-file-item")?.classList.add("related");
-      });
-    } else if (docLabelType === "FACBL") {
-      const relatedBc = facblToBc.get(selectedItem); // Chercher le BC lié au FACBL
-      if (relatedBc) {
-        relatedBc.classList.add("related");
-        relatedBc.closest(".list-file-item")?.classList.add("related");
-      }
+      // FACBL et DDP liés au BC, chacun dans la couleur de son type
+      (bcToChildren.get(norm(fileName)) || []).forEach((child) =>
+        highlight(child, RELATED_CLASS[child.dataset.docLabelType])
+      );
+    } else {
+      // BC lié au FACBL / DDP, dans la couleur du type cliqué
+      const relatedBc = childToBc.get(selectedItem);
+      if (relatedBc) highlight(relatedBc, RELATED_CLASS[docLabelType]);
     }
   }
 });

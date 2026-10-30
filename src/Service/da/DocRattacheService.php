@@ -59,7 +59,7 @@ class DocRattacheService
 
             // Construire le résultat
             $result[] = [
-                'labeltype'  => $config['labelType'],
+                'labelType'  => $config['labelType'],
                 'type'       => $config['type'],
                 'icon'       => $config['icon'],
                 'colorClass' => $config['colorClass'],
@@ -165,8 +165,8 @@ class DocRattacheService
                 'colorClass'      => 'border-left-facbl',
                 'service'         => 'daDocumentService',
                 'method'          => 'getAllDdpPath',
-                'normalizer'      => 'normalizePathsMultipleFiles',
-                'normalizerParam' => 'numeroDdp',
+                'normalizer'      => 'normalizePathsDdp',
+                'normalizerParam' => NULL,
             ],
         ];
     }
@@ -221,6 +221,26 @@ class DocRattacheService
             return [
                 'nom'   => $doc['nomFichierScannee'] ?? $doc['idFacBl'],
                 'numBC' => $doc['numeroBc'],
+                'path'  => $doc['path']
+            ];
+        }, $allDocs);
+    }
+
+    /**
+     * Normaliser les chemins des DDP (avec le BC lié via `numero_commande`)
+     *
+     * @param array $allDocs
+     *
+     * @return array
+     */
+    private function normalizePathsDdp(array $allDocs): array
+    {
+        if (empty($allDocs)) return [];
+
+        return array_map(function ($doc) {
+            return [
+                'nom'   => $doc['numeroDdp'],
+                'numBC' => $doc['numeroCommande'] ?? null,
                 'path'  => $doc['path']
             ];
         }, $allDocs);

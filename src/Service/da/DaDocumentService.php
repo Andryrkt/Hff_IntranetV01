@@ -134,8 +134,9 @@ class DaDocumentService
 
             if ($this->fileCheckerService->checkFileExists("$basePathFichier/$path")) {
                 $items[] = [
-                    'numeroDdp' => $numeroDdp,
-                    'path'      => "{$shortBasePathFichier}/{$path}",
+                    'numeroDdp'      => $numeroDdp,
+                    'numeroCommande' => $ddp['numero_commande'],
+                    'path'           => "{$shortBasePathFichier}/{$path}",
                 ];
             }
         }
