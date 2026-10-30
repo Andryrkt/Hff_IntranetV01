@@ -41,19 +41,18 @@ final class CdeFrnSoumissionService
      * @param string $numCde      Le numéro de commande.
      * @param string $userMail    L'email de l'utilisateur.
      * @param string $codeSociete Le code de la société.
+     * @param string $commentaire Le commentaire de l'utilisateur
      *
      * @return CdeFrnSoumisAValidationDTO|null Le DTO contenant les informations de la commande.
      */
-    public function generatePdfForSubmission(string $numCde, string $userMail, string $codeSociete): ?CdeFrnSoumisAValidationDTO
+    public function generatePdfForSubmission(string $numCde, string $userMail, string $codeSociete, string $commentaire): ?CdeFrnSoumisAValidationDTO
     {
         // 1. Récupération des données du document
-        $commandeSoumissionDto = $this->cdeSoumissionModel->findInfoCommande($numCde, $userMail, $codeSociete);
+        $commandeSoumissionDto = $this->cdeSoumissionModel->findInfoCommande($numCde, $userMail, $commentaire, $codeSociete);
 
         if ($commandeSoumissionDto === null) return null;
-
         // 2. Création du DTO pour la soumission à validation
         $cdeFrnSoumisAValidationDTO = $this->factory->hydrate($commandeSoumissionDto);
-
         // 3. Génération du PDF
         (new GeneratePdfCdeMagasin($commandeSoumissionDto))->generate($cdeFrnSoumisAValidationDTO->urlPDFLong);
 

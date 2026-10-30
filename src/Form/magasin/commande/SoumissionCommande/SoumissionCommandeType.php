@@ -3,12 +3,13 @@
 namespace App\Form\magasin\Commande\SoumissionCommande;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\File;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\FileType;
 
 class SoumissionCommandeType extends AbstractType
 {
@@ -16,7 +17,7 @@ class SoumissionCommandeType extends AbstractType
     {
         $builder
             ->add('numCmde', TextType::class, [
-                'label' => 'Veuillez rentrer un numero de commande * :',
+                'label' => 'Nume de commande * :',
                 'required' => false,
             ])
             ->add('piecesJointesPdf', FileType::class, [
@@ -33,6 +34,10 @@ class SoumissionCommandeType extends AbstractType
                         ]),
                     ]),
                 ],
+            ])
+            ->add('commentaire', TextareaType::class, [
+                'label'    => 'Mettre les commentaires :',
+                'required' => false,
             ])
             ->add('generationToken', HiddenType::class);
     }

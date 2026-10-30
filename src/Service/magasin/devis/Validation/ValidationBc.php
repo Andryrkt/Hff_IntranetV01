@@ -48,8 +48,16 @@ class ValidationBc
             return true; // Validation failed
         }
 
+        return false; // Validation passed
+    }
 
-
+    public function ValidateBcApresSoumission(BcDto $bcDto): bool
+    {
+        if (str_contains((string) $bcDto->numeroBc, ';')) {
+            $message = 'Le numéro BC client ne doit pas contenir le caractère ";".';
+            $this->sendNotificationDevisMagasin($message, $bcDto->numeroDevis, false);
+            return true; // Validation failed
+        }
 
         return false; // Validation passed
     }

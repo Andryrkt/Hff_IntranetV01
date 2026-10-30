@@ -16,6 +16,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const badgeCmde = document.getElementById("badge-cmde");
   const badgePj = document.getElementById("badge-pj");
   const numCdeInput = document.getElementById("soumission_commande_numCmde");
+  const commentaireInput = document.getElementById(
+    "soumission_commande_commentaire"
+  );
   const hiddenGenerationToken = document.getElementById(
     "soumission_commande_generationToken"
   );
@@ -100,7 +103,9 @@ document.addEventListener("DOMContentLoaded", function () {
   });
   btnGenererPdf.addEventListener("click", async function () {
     viewerContainer.classList.add("d-none");
+    iframe.src = "about:blank";
     const numCde = numCdeInput.value.trim();
+    const commentaire = commentaireInput.value.trim();
     if (!numCde) {
       Swal.fire({
         icon: "warning",
@@ -121,7 +126,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const response = await apiManager.post(
         API_ENDPOINTS.generatePdfCdeFrnMag,
-        { numCde }
+        { numCde, commentaire }
       );
       const dto = response.data;
       if (!dto) throw new Error("Aucune information de commande reçue");

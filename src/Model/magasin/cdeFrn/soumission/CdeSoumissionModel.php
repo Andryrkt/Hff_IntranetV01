@@ -73,10 +73,11 @@ class CdeSoumissionModel extends Model
      * @param string $numCde       numéro de la commande
      * @param string $userMail     email de l'utilisateur
      * @param string $codeSociete  code société
+     * @param string $commentaire  commentaire de l'utilisateur 
      * 
      * @return ?CommandeSoumissionDTO
      */
-    public function findInfoCommande(string $numCde, string $userMail, string $codeSociete = 'HF'): ?CommandeSoumissionDTO
+    public function findInfoCommande(string $numCde, string $userMail, string $commentaire, string $codeSociete = 'HF'): ?CommandeSoumissionDTO
     {
         $startDate = (new \DateTime('first day of -6 months'))->format("Ym");
         $endDate   = (new \DateTime('last day of last month'))->format("Ym");
@@ -214,7 +215,7 @@ class CdeSoumissionModel extends Model
         $detailsParPiece = $this->findLignesSavEtVenteNegoceParPieces($numCde, $pairs);
         $allValidatedPO  = $this->findAllValidatedPO($numCde, $codeSociete);
 
-        return (new CommandeSoumissionFactory)->hydrate($data, $detailsParPiece["lignesParPiece"], $detailsParPiece["ordresReparationValides"], $allValidatedPO, $userMail);
+        return (new CommandeSoumissionFactory)->hydrate($data, $detailsParPiece["lignesParPiece"], $detailsParPiece["ordresReparationValides"], $allValidatedPO, $userMail, $commentaire);
     }
 
     /**
@@ -293,12 +294,15 @@ class CdeSoumissionModel extends Model
             nent_numcde       AS num_doc, 
             nent_numcli       AS num_cli, 
             TRIM(nent_nomcli) AS nom_cli,
-            TRIM('VTE NEG')   AS rmq, 
+            CASE 
+                WHEN nent_natop = 'DIR' THEN 'VTE NEG'
+                ELSE nent_natop
+            END               AS rmq, 
             CASE 
                 WHEN nent_delai IS NOT NULL 
                 THEN TO_CHAR(nent_delai, '%Y-%m-%d') 
                 ELSE NULL 
-            END AS datepla
+            END               AS datepla
         FROM {$this->ipsNegEnt}
         JOIN {$this->ipsNegLig}
             ON nent_numcde = nlig_numcde

@@ -14,6 +14,8 @@ class CdeFrnSoumisAValidationDTO
     public ?string    $token               = null;
     public bool       $pdfDeposerDw        = false;
     public ?\DateTime $dateDepotDw         = null;
+    /** Commentaire utilisateur (retours ligne normalisés en "\n") */
+    public ?string    $commentaire  = null;
 
     /** @var list<CdeFrnSoumisAValidationLigneDTO> */
     public array      $lignes              = [];

@@ -58,6 +58,11 @@ class CdefnrSoumisAValidation
      */
     private ?\DateTime $dateDepotDw = null;
 
+    /**
+     * @ORM\Column(type="text", name="commentaire", nullable=true)
+     */
+    private ?string $commentaire = null;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -211,6 +216,23 @@ class CdefnrSoumisAValidation
     {
         $this->dateDepotDw = $dateDepotDw;
 
+        return $this;
+    }
+
+
+    /**
+     * Get the value of commentaire
+     */
+    public function getCommentaire(): ?string
+    {
+        return $this->commentaire;
+    }
+    /**
+     * Set the value of commentaire
+     */
+    public function setCommentaire(?string $commentaire): self
+    {
+        $this->commentaire = $commentaire;
         return $this;
     }
 }

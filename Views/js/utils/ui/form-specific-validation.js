@@ -37,10 +37,25 @@ export async function validateSpecificForm(form, formSelector) {
     case "da-soumission-fac-bl":
       return validateDaSoumissionFacBlForm(form);
 
+    case "bc-neg-soumission":
+      return validateBcNegForm(form);
+
     default:
       // Validation par défaut si le formulaire n'est pas reconnu
       return { isValid: true, message: "" };
   }
+}
+
+// Le caractère ";" est interdit dans le numéro BC (séparateur à l'affichage)
+function validateBcNegForm(form) {
+  const numeroBc = form.querySelector("#bc_numeroBc");
+  const isValid = !(numeroBc && numeroBc.value.includes(";"));
+
+  return {
+    isValid,
+    message: 'Le numéro BC client ne doit pas contenir le caractère ";".',
+    title: "Attention !",
+  };
 }
 
 function validateDemandePaiementDaForm(form) {

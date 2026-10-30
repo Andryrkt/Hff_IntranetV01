@@ -19,23 +19,22 @@ class GeneratePdfCdeMagasin extends GeneratePdf
     private const MARGIN_TOP       = 7.5;
     private const MARGIN_BOTTOM    = 7.5;
 
-    private const TITLE_SIZE         = 10.0;
+    private const TITLE_SIZE         = 16.0;
     private const MAIN_TEXT_SIZE     = 7.2;
     private const SUB_TEXT_SIZE      = 6.7;
 
     private const MAIN_TEXT_HEIGHT = 5.3;
-    private const MAIN_ROW_HEIGHT  = 6.5;
-    private const SUB_ROW_HEIGHT   = 5.75;
-    private const TITLE_HEIGHT     = 7.5;
+    private const MAIN_ROW_HEIGHT  = 7;
+    private const SUB_ROW_HEIGHT   = 6;
+    private const TITLE_HEIGHT     = 9;
 
-    private const TEXT_COLOR        = [50, 50, 50];
-    private const TEXT_HEADER_COLOR = [240, 240, 240];
-    private const HEADER_COLOR      = [50, 50, 50];
-    private const ROW_COLOR         = [200, 200, 200];
-    private const DOTTED_LINE_COLOR = [50, 50, 50];
-
-    /** @var array{numCdeLbl:int|float,numCde:int|float,typeCdeLbl:int|float,typeCde:int|float,delaiExpLbl:int|float,frnLbl:int|float,numFrn:int|float,nomFrn:int|float,responsableLbl:int|float} $headerWidth */
-    private array $headerWidth = [];
+    // Palette : bleu ardoise + neutres
+    private const ACCENT = [30, 41, 59];
+    private const INK    = [15, 23, 42];
+    private const MUTED  = [100, 116, 139];
+    private const LINE   = [226, 232, 240];
+    private const ZEBRA  = [245, 247, 250];
+    private const WHITE  = [255, 255, 255];
 
     /** @var array{img1X:int|float,img1Y:int|float,img1W:int|float,img1H:int|float,img2X:int|float,img2Y:int|float,img2W:int|float,img2H:int|float} $imgConfig */
     private array $imgConfig = [];
@@ -77,7 +76,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         $this->dto = $dto;
         $this->pdf = $this->initPDF();
 
-        $this->defineHeaderConfig();
+        $this->defineImgConfig();
         $this->defineMainRowWidths();
         $this->defineSubRowWidths();
         $this->defineFooterWidths();
@@ -115,53 +114,49 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         $this->pdf->Image("{$this->basePathAssets}/info_HFF_1.png", $this->imgConfig['img1X'], $this->imgConfig['img1Y'], $this->imgConfig['img1W'], $this->imgConfig['img1H'], "PNG");
         $this->pdf->Image("{$this->basePathAssets}/info_HFF_2.png", $this->imgConfig['img2X'], $this->imgConfig['img2Y'], $this->imgConfig['img2W'], $this->imgConfig['img2H'], "PNG");
 
+        $this->pdf->SetTextColor(...self::ACCENT);
         $this->pdf->SetFont(self::FONT, "B", self::TITLE_SIZE);
-        $this->pdf->Cell(0, self::TITLE_HEIGHT, "Cde Fournisseur", 0, 1);
+        $this->pdf->Cell(0, self::TITLE_HEIGHT, "Cde Fournisseur", 0, 0);
 
-        $this->pdf->setFont(self::FONT, "I", self::MAIN_TEXT_SIZE);
-        $this->cellUnderline($this->headerWidth['numCdeLbl'], self::MAIN_TEXT_HEIGHT, "No Commande:", 0, 0);
+        // Responsable sur la même ligne, aligné à droite
+        $this->pdf->SetTextColor(...self::MUTED);
+        $this->pdf->SetFont(self::FONT, "B", self::MAIN_TEXT_SIZE);
+        $this->pdf->SetX(self::MARGIN_LEFT);
+        $this->pdf->Cell(0, self::TITLE_HEIGHT, $this->dto->responsable, 0, 1, 'R');
 
-        $this->pdf->setFont(self::FONT, "B", self::MAIN_TEXT_SIZE);
-        $this->pdf->Cell($this->headerWidth['numCde'], self::MAIN_TEXT_HEIGHT, $this->dto->numeroCommande, 0, 0);
-        $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, $this->dto->getDateCdeFormatted(), 0, 1);
+        $this->pdf->Ln(1);
 
-        $this->pdf->setFont(self::FONT, "I", self::MAIN_TEXT_SIZE);
-        $this->cellUnderline($this->headerWidth['typeCdeLbl'], self::MAIN_TEXT_HEIGHT, "Type Commande:", 0, 0);
+        $this->info(26, "N° commande :", true);
+        $this->info(24, $this->dto->numeroCommande, false, true);
+        $this->info(0, $this->dto->getDateCdeFormatted(), false, false, 'L', 1);
 
-        $this->pdf->setFont(self::FONT, "", self::MAIN_TEXT_SIZE);
-        $this->pdf->Cell($this->headerWidth['typeCde'], self::MAIN_TEXT_HEIGHT, $this->dto->typeCde, 0, 0);
+        $this->info(26, "Type commande :", true);
+        $this->info(24, $this->dto->typeCde);
+        $this->info(30, "Délai d'expédition :", true);
+        $this->info(0, $this->dto->getDelaiExpedition(), false, false, 'L', 1);
 
-        $this->pdf->setFont(self::FONT, "I", self::MAIN_TEXT_SIZE);
-        $this->cellUnderline($this->headerWidth['delaiExpLbl'], self::MAIN_TEXT_HEIGHT, "Délai d'expédition:", 0, 0);
-
-        $this->pdf->setFont(self::FONT, "", self::MAIN_TEXT_SIZE);
-        $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, $this->dto->getDelaiExpedition(), 0, 1);
-
-        $this->pdf->setFont(self::FONT, "I", self::MAIN_TEXT_SIZE);
-        $this->cellUnderline($this->headerWidth['frnLbl'], self::MAIN_TEXT_HEIGHT, "Fournisseur:", 0, 0);
-
-        $this->pdf->setFont(self::FONT, "B", self::MAIN_TEXT_SIZE);
-        $this->pdf->Cell($this->headerWidth['numFrn'], self::MAIN_TEXT_HEIGHT, $this->dto->numFrn, 0, 0);
-        $this->pdf->MultiCell($this->headerWidth['nomFrn'], self::MAIN_TEXT_HEIGHT, $this->dto->nomFrn, 0, 'L');
-
-        $this->pdf->setFont(self::FONT, "I", self::MAIN_TEXT_SIZE);
-        $this->cellUnderline($this->headerWidth['responsableLbl'], self::MAIN_TEXT_HEIGHT, "Responsable:", 0, 0);
-
-        $this->pdf->setFont(self::FONT, "", self::MAIN_TEXT_SIZE);
-        $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, $this->dto->responsable, 0, 0);
-
-        $this->pdf->setFont(self::FONT, "B", self::MAIN_TEXT_SIZE);
-        $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, $this->dto->getAgenceService(), 0, 1, 'R');
+        $this->info(26, "Fournisseur :", true);
+        $this->info(24, $this->dto->numFrn, false, true);
+        $this->info(70, $this->dto->nomFrn, false, true);
+        $this->info(0, $this->dto->getAgenceService(), false, true, 'R', 1);
     }
 
-    /** 
+    /** Cellule de l'entête : libellé gris ou valeur sombre (gras optionnel) */
+    private function info(float $w, string $txt, bool $label = false, bool $bold = false, string $align = 'L', int $ln = 0): void
+    {
+        $this->pdf->SetFont(self::FONT, $label ? "I" : ($bold ? "B" : ""), self::MAIN_TEXT_SIZE);
+        $this->pdf->SetTextColor(...($label ? self::MUTED : self::INK));
+        $this->pdf->Cell($w, self::MAIN_TEXT_HEIGHT, $txt, 0, $ln, $align);
+    }
+
+    /**
      * Méthode pour construire le tableau de lignes de commande
-     * 
+     *
      * @return void
      */
     private function renderTable(): void
     {
-        $this->pdf->Ln(3);
+        $this->pdf->Ln(2);
 
         $this->renderTableHeader();
 
@@ -176,7 +171,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
 
             // 3. Couleur de fond alternée
             $fill = ($rowIndex % 2 == 1);
-            $this->pdf->SetFillColor(...self::ROW_COLOR);
+            $this->pdf->SetFillColor(...self::ZEBRA);
 
             // 4. Dessiner la ligne principale
             $this->renderMainRow($ligneDto, $fill);
@@ -186,22 +181,18 @@ class GeneratePdfCdeMagasin extends GeneratePdf
                 $this->renderSubRow($detailDto, $fill);
             }
 
-            // 6. Dessiner la ligne de séparation entre les lignes principales
-            $x = $this->pdf->GetX();
-            $y = $this->pdf->GetY();
-
-            $this->pdf->Line($x, $y, $this->pdf->getPageWidth() - self::MARGIN_LEFT, $y);
-
             $rowIndex++;
         }
+
+        $this->pdf->SetTextColor(...self::INK);
     }
 
     private function renderTableHeader(): void
     {
         $this->pdf->SetFont(self::FONT, "B", self::MAIN_TEXT_SIZE);
-        $this->pdf->SetFillColor(...self::HEADER_COLOR);
-        $this->pdf->SetTextColor(...self::TEXT_HEADER_COLOR);
-        $this->pdf->SetDrawColor(...self::HEADER_COLOR);
+        $this->pdf->SetFillColor(...self::ACCENT);
+        $this->pdf->SetTextColor(...self::WHITE);
+        $this->pdf->SetDrawColor(...self::ACCENT);
 
         $headerHeight = $this->calculateHeaderHeight();
         $x = $this->pdf->GetX();
@@ -212,7 +203,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
             $align = in_array($key, ['coutUnit', 'coutTotal']) ? 'R' : 'C';
 
             // MultiCell avec fond, mais sans avancer X automatiquement
-            $this->pdf->MultiCell($width, $headerHeight, $label, 1, $align, true, 0, null, null, true, 0, false, true, $headerHeight, 'M');
+            $this->pdf->MultiCell($width, $headerHeight, $label, 0, $align, true, 0, null, null, true, 0, false, true, $headerHeight, 'M');
 
             $x += $width;
             $this->pdf->SetXY($x, $y);
@@ -221,15 +212,16 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         $this->pdf->SetXY(self::MARGIN_LEFT, $y + $headerHeight);
 
         // Reset couleurs pour les lignes de données
-        $this->pdf->SetTextColor(...self::TEXT_COLOR);
-        $this->pdf->SetDrawColor(...self::TEXT_COLOR);
-        $this->pdf->SetFont(self::FONT, "", self::MAIN_ROW_HEIGHT);
+        $this->pdf->SetTextColor(...self::INK);
+        $this->pdf->SetDrawColor(...self::LINE);
+        $this->pdf->SetFont(self::FONT, "", self::MAIN_TEXT_SIZE);
     }
 
     private function renderMainRow(CommandeSoumissionLigneDTO $ligneDto, bool $fill): void
     {
         $this->pdf->SetFont(self::FONT, "B", self::MAIN_TEXT_SIZE);
-        $this->pdf->SetFillColor(...self::ROW_COLOR);
+        $this->pdf->SetFillColor(...self::ZEBRA);
+        $this->pdf->SetTextColor(...self::INK);
 
         $this->pdf->Cell($this->mainRowWidths['noLigne'],     self::MAIN_ROW_HEIGHT, $ligneDto->numLine,           0, 0, 'C', $fill);
         $this->pdf->Cell($this->mainRowWidths['cst'],         self::MAIN_ROW_HEIGHT, $ligneDto->const,             0, 0, 'C', $fill);
@@ -254,24 +246,24 @@ class GeneratePdfCdeMagasin extends GeneratePdf
     private function renderSubRow(CommandeSoumissionDetailDTO $detailDto, bool $fill): void
     {
         $this->pdf->SetFont(self::FONT, "", self::SUB_TEXT_SIZE);
-        $this->pdf->SetFillColor(...self::ROW_COLOR);
+        $this->pdf->SetFillColor(...self::ZEBRA);
+        $this->pdf->SetTextColor(...self::MUTED);
 
         $x = $this->pdf->GetX();
         $y = $this->pdf->GetY();
 
-        // Ligne pointillée séparant ce détail du suivant (sous la cellule texte)
-        $this->drawDottedSeparator(
+        // Filet fin séparant ce détail du suivant (sous la cellule texte)
+        $this->drawHairline(
             $x + $this->subRowWidths['empty'] + $this->subRowWidths['refClientLabel'],
             $y,
-            $this->pdf->getPageWidth() - self::MARGIN_LEFT,
-            $fill
+            $this->pdf->getPageWidth() - self::MARGIN_LEFT
         );
 
-        // Cellule vide (avec bordure normale, comme le reste du tableau)
+        // Cellule vide
         $this->pdf->Cell($this->subRowWidths['empty'], self::SUB_ROW_HEIGHT, '', 0, 0, 'L', $fill);
 
         $this->pdf->SetFont(self::FONT, "I", self::SUB_TEXT_SIZE);
-        $this->cellUnderline($this->subRowWidths['refClientLabel'], self::SUB_ROW_HEIGHT, "Référence client:", 0, 0, 'L', $fill);
+        $this->pdf->Cell($this->subRowWidths['refClientLabel'], self::SUB_ROW_HEIGHT, "Référence client:", 0, 0, 'L', $fill);
 
         $this->pdf->Cell($this->subRowWidths['rmqClient'],    self::SUB_ROW_HEIGHT, $detailDto->rmqClient,                  0, 0, 'R', $fill);
         $this->pdf->Cell($this->subRowWidths['numDoc'],       self::SUB_ROW_HEIGHT, "- {$detailDto->numDoc}",               0, 0, 'L', $fill);
@@ -287,42 +279,82 @@ class GeneratePdfCdeMagasin extends GeneratePdf
 
         $this->pdf->Ln(3);
 
-        $this->pdf->SetFont(self::FONT, 'B', self::MAIN_TEXT_SIZE);
-        $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, 'Total Poids [Kg]', 0, 1, 'R');
+        $this->pdf->SetFont(self::FONT, '', 6.2);
+        $this->pdf->SetTextColor(...self::MUTED);
+        $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, 'TOTAL POIDS [KG]', 0, 1, 'R');
+        $this->pdf->SetFont(self::FONT, 'B', self::MAIN_TEXT_SIZE + 1);
+        $this->pdf->SetTextColor(...self::INK);
         $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, $this->dto->getPoidsTotal(), 0, 1, 'R');
 
-        $this->pdf->Cell($this->footerWidths["empty1"]);
-        $this->cellUnderline($this->footerWidths["signature"], self::MAIN_TEXT_HEIGHT, "X", 0, 0, '', false, true);
+        $x0 = $this->pdf->GetX();
+        $y0 = $this->pdf->GetY() + 2;
+        $hh = self::MAIN_TEXT_HEIGHT;
 
-        $this->pdf->Cell($this->footerWidths["empty2"]);
-
-        $this->pdf->SetFont(self::FONT, 'I', self::MAIN_TEXT_SIZE);
-        $this->pdf->Cell($this->footerWidths["mttTotalLabel"], self::MAIN_TEXT_HEIGHT, "Total commande HT : ", 0, 0);
+        // Signature : "X" suivi d'un trait, libellé dessous
+        $sigX = $x0 + $this->footerWidths["empty1"];
+        $this->pdf->SetXY($sigX, $y0 + 1);
         $this->pdf->SetFont(self::FONT, 'B', self::MAIN_TEXT_SIZE);
-        $this->pdf->Cell($this->footerWidths["mttTotal"], self::MAIN_TEXT_HEIGHT, $this->dto->getMontantTotal(), 0, 1, 'R');
+        $this->pdf->SetTextColor(...self::INK);
+        $this->pdf->Cell(6, 7, "X");
+        $this->pdf->SetLineStyle(['width' => 0.2, 'dash' => 0, 'color' => self::MUTED]);
+        $this->pdf->Line($sigX + 6, $y0 + 7, $sigX + $this->footerWidths["signature"], $y0 + 7);
+        $this->pdf->SetXY($sigX, $y0 + 8.5);
+        $this->pdf->SetFont(self::FONT, 'I', self::MAIN_TEXT_SIZE);
+        $this->pdf->SetTextColor(...self::MUTED);
+        $this->pdf->Cell($this->footerWidths["signature"], $hh, "Signature");
 
-        $this->pdf->Cell($this->footerWidths["empty1"]);
-        $this->pdf->SetFont(self::FONT, '', self::MAIN_TEXT_SIZE);
-        $this->pdf->Cell($this->footerWidths["signature"], self::MAIN_TEXT_HEIGHT, "Signature");
+        // Total : encadré par deux filets
+        $totW = $this->footerWidths["mttTotalLabel"] + $this->footerWidths["mttTotal"];
+        $totX = $sigX + $this->footerWidths["signature"] + $this->footerWidths["empty2"];
+        $this->pdf->SetLineStyle(['width' => 0.4, 'dash' => 0, 'color' => self::ACCENT]);
+        $this->pdf->Line($totX, $y0, $totX + $totW, $y0);
+        $this->pdf->Line($totX, $y0 + 8, $totX + $totW, $y0 + 8);
 
-        $this->pdf->Cell($this->footerWidths["empty2"]);
-        $this->pdf->Cell($this->footerWidths["mttTotalLabel"] + $this->footerWidths["mttTotal"], self::MAIN_TEXT_HEIGHT, "Montant en {$this->dto->devise}", 0, 1, 'C');
+        $this->pdf->SetXY($totX, $y0 + 1);
+        $this->pdf->SetFont(self::FONT, 'I', self::MAIN_TEXT_SIZE);
+        $this->pdf->Cell($this->footerWidths["mttTotalLabel"], 6, "Total commande HT :");
+        $this->pdf->SetFont(self::FONT, 'B', 10);
+        $this->pdf->SetTextColor(...self::INK);
+        $this->pdf->Cell($this->footerWidths["mttTotal"], 6, $this->dto->getMontantTotal(), 0, 0, 'R');
 
+        $this->pdf->SetXY($totX, $y0 + 8.5);
+        $this->pdf->SetFont(self::FONT, 'I', self::MAIN_TEXT_SIZE);
+        $this->pdf->SetTextColor(...self::MUTED);
+        $this->pdf->Cell($totW, $hh, "Montant en {$this->dto->devise}", 0, 0, 'C');
+
+        $this->pdf->SetXY(self::MARGIN_LEFT, $y0 + 8.5 + $hh);
         $this->drawFooterSeparator($this->pdf->GetX(), $this->pdf->GetY() + 1.5, $this->pdf->GetPageWidth() - self::MARGIN_LEFT);
 
         $this->pdf->SetFont(self::FONT, 'B', self::MAIN_TEXT_SIZE);
-        $this->cellUnderline($this->footerWidths["docRattacheesLabel"], self::MAIN_TEXT_HEIGHT, "Documents OR rattachés (OR validé) :", 0, 1, '', false, true);
+        $this->pdf->SetTextColor(...self::ACCENT);
+        $this->pdf->SetFont(self::FONT, 'B', self::MAIN_TEXT_SIZE);
+        $this->pdf->SetTextColor(...self::ACCENT);
+        $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, "Documents OR rattachés (OR validé) :", 0, 1);
 
+        $y1 = $this->pdf->GetY();
         $this->pdf->SetFont(self::FONT, '', self::MAIN_TEXT_SIZE);
+        $this->pdf->SetTextColor(...self::INK);
         $this->pdf->MultiCell(0, 0, $this->dto->getAllValidatedOR(), 0, "L");
 
-        $this->pdf->Ln(3);
+        $this->pdf->setY($y1 + $hh * 2.5);
 
         $this->pdf->SetFont(self::FONT, 'B', self::MAIN_TEXT_SIZE);
-        $this->cellUnderline($this->footerWidths["docRattacheesLabel"], self::MAIN_TEXT_HEIGHT, "Documents PO rattachés (PO validé) :", 0, 1, '', false, true);
+        $this->pdf->SetTextColor(...self::ACCENT);
+        $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, "Documents PO rattachés (PO validé) :", 0, 1);
+
+        $y2 = $this->pdf->GetY();
+        $this->pdf->SetFont(self::FONT, '', self::MAIN_TEXT_SIZE);
+        $this->pdf->SetTextColor(...self::INK);
+        $this->pdf->MultiCell(0, 0, $this->dto->getAllValidatedPO(), 0, "L");
+
+        $this->pdf->setY($y2 + $hh * 2.5);
+        $this->pdf->SetFont(self::FONT, 'B', self::MAIN_TEXT_SIZE);
+        $this->pdf->SetTextColor(...self::ACCENT);
+        $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, "Commentaire :", 0, 1);
 
         $this->pdf->SetFont(self::FONT, '', self::MAIN_TEXT_SIZE);
-        $this->pdf->MultiCell(0, 0, $this->dto->getAllValidatedPO(), 0, "L");
+        $this->pdf->SetTextColor(...self::INK);
+        $this->pdf->MultiCell(0, 4, $this->dto->commentaire, 0, "L");
     }
 
     /** Footer de chaque page : date de génération à gauche, "Page X / Y" au centre */
@@ -336,8 +368,8 @@ class GeneratePdfCdeMagasin extends GeneratePdf
             $this->pdf->setPage($i);
             $this->pdf->SetAutoPageBreak(false);
             $this->pdf->SetFont(self::FONT, "", self::SUB_TEXT_SIZE);
-            $this->pdf->SetTextColor(...self::TEXT_COLOR);
-            $this->pdf->SetLineStyle(['width' => 0.1, 'dash' => 0, 'color' => self::TEXT_COLOR]);
+            $this->pdf->SetTextColor(...self::MUTED);
+            $this->pdf->SetLineStyle(['width' => 0.1, 'dash' => 0, 'color' => self::LINE]);
 
             $this->pdf->Line(self::MARGIN_LEFT / 2, $y, $this->pdf->getPageWidth() - self::MARGIN_RIGHT / 2, $y);
 
@@ -367,9 +399,10 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         $this->pdf->SetFont(self::FONT, '', self::MAIN_TEXT_SIZE);
         $w100 = $this->getUsableWidth();
 
-        // Ln(3) x3 + 2 lignes poids + 2 lignes signature + séparateur (Ln 3 inclus) + 2 titres OR/PO
-        return 3 + 3 + 3
-            + 4 * self::MAIN_TEXT_HEIGHT
+        // Ln(3) x2 + 2 lignes poids + signature/total (8.5 + libellés) + séparateur (4.5) + 2 titres OR/PO
+        return 3 + 3
+            + 2 * self::MAIN_TEXT_HEIGHT
+            + 2 + 8.5 + self::MAIN_TEXT_HEIGHT + 4.5
             + 2 * self::MAIN_TEXT_HEIGHT
             + $this->pdf->getStringHeight($w100, $this->dto->getAllValidatedOR())
             + $this->pdf->getStringHeight($w100, $this->dto->getAllValidatedPO());
@@ -398,37 +431,23 @@ class GeneratePdfCdeMagasin extends GeneratePdf
     private function newPage(): void
     {
         $this->pdf->AddPage();
-        $this->renderHeader($this->dto);
+        $this->renderHeader();
         $this->pdf->Ln(3);
         $this->renderTableHeader();
     }
 
-    /** 
-     * Définir les largeurs des colonnes sur l'entête de la page
-     *
-     * @return void
-     */
-    private function defineHeaderConfig(): void
+    /** Positions et tailles des logos de l'entête */
+    private function defineImgConfig(): void
     {
         $w100 = $this->getUsableWidth();
 
-        $this->headerWidth['numCdeLbl']          =
-            $this->headerWidth['typeCdeLbl']     =
-            $this->headerWidth['typeCde']        =
-            $this->headerWidth['delaiExpLbl']    =
-            $this->headerWidth['frnLbl']         =
-            $this->headerWidth['responsableLbl'] = 24;
-
-        $this->headerWidth['numCde'] = $this->headerWidth['numFrn'] = 15;
-        $this->headerWidth['nomFrn'] = 45;
-
         $this->imgConfig['img1W'] = 44.852;
         $this->imgConfig['img1H'] = $this->imgConfig['img1W'] * 434 / 1039;
-        $this->imgConfig['img1X'] = $w100 / 2;
+        $this->imgConfig['img1X'] = $w100 / 2 + 10;
 
         $this->imgConfig['img2W'] = 25.588;
         $this->imgConfig['img2H'] = $this->imgConfig['img2W'] * 223 / 460;
-        $this->imgConfig['img2X'] = $w100 - $this->imgConfig['img2W'] + 5;
+        $this->imgConfig['img2X'] = self::MARGIN_LEFT + $w100 - $this->imgConfig['img2W'];
 
         $this->imgConfig['img1Y'] = $this->imgConfig['img2Y'] = self::MARGIN_TOP + 7;
     }
@@ -508,71 +527,22 @@ class GeneratePdfCdeMagasin extends GeneratePdf
     }
 
     /**
-     * Trace une ligne horizontale en pointillés entre deux sous-lignes de détail.
+     * Trace un filet fin entre deux sous-lignes de détail.
      */
-    private function drawDottedSeparator(float $xStart, float $y, float $xEnd, bool $fill): void
+    private function drawHairline(float $xStart, float $y, float $xEnd): void
     {
-        $this->pdf->SetLineStyle([
-            'width' => $fill ? 0.5 : 0.1,
-            'dash'  => 2.25,
-            'color' => self::DOTTED_LINE_COLOR,
-        ]);
-
+        $this->pdf->SetLineStyle(['width' => 0.1, 'dash' => 0, 'color' => self::LINE]);
         $this->pdf->Line($xStart, $y, $xEnd, $y);
-
-        // Reset au style de ligne normal (plein) pour la suite du tableau
-        $this->pdf->SetLineStyle([
-            'width' => 0.1,
-            'dash'  => 0,
-            'color' => self::TEXT_COLOR,
-        ]);
     }
 
-    /** 
+    /**
      * Trace une ligne de séparation dans le footer
      */
     private function drawFooterSeparator(float $xStart, float $y, float $xEnd): void
     {
-        $this->pdf->SetLineStyle([
-            'width' => 0.7,
-            'dash'  => 0,
-            'color' => self::TEXT_COLOR,
-        ]);
-
+        $this->pdf->SetLineStyle(['width' => 0.4, 'dash' => 0, 'color' => self::ACCENT]);
         $this->pdf->Line($xStart, $y, $xEnd, $y);
         $this->pdf->Ln(3);
-
-        // Reset au style de ligne normal (plein) pour la suite du tableau
-        $this->pdf->SetLineStyle([
-            'width' => 0.1,
-            'dash'  => 0,
-            'color' => self::TEXT_COLOR,
-        ]);
-    }
-
-    /**
-     * Affiche une Cell classique et dessine un trait fin en dessous du texte,
-     * pour simuler un soulignement (non supporté nativement par TCPDF sur Cell()).
-     */
-    private function cellUnderline(float $w, float $h, string $txt, $border = 0, int $ln = 0, string $align = '', bool $fill = false, bool $hasLongUnderline = false): void
-    {
-        $x = $this->pdf->GetX() + 1; // + décalage
-        $y = $this->pdf->GetY();
-
-        $this->pdf->Cell($w, $h, $txt, $border, 0, $align, $fill);
-
-        // Largeur réelle du texte pour ne souligner que le texte, pas toute la cellule
-        $textWidth = $hasLongUnderline ? $w : $this->pdf->GetStringWidth($txt);
-
-        $lineY = $y + $h - ($hasLongUnderline ? 1 : 1.35); // légèrement au-dessus du bas de la cellule
-        $lineXStart = $x;
-        $lineXEnd = $x + $textWidth;
-
-        $this->pdf->Line($lineXStart, $lineY, $lineXEnd, $lineY);
-
-        // Repositionner le curseur comme le ferait Cell() avec $ln=0
-        if ($ln == 0)      $this->pdf->SetXY($x + $w - 1, $y);
-        elseif ($ln == 1)  $this->pdf->SetXY(self::MARGIN_LEFT, $y + $h);
-        elseif ($ln == 2)  $this->pdf->SetXY($x - 1, $y + $h);
+        $this->pdf->SetLineStyle(['width' => 0.1, 'dash' => 0, 'color' => self::LINE]);
     }
 }
