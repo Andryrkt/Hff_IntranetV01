@@ -16,8 +16,11 @@ document.addEventListener("DOMContentLoaded", function () {
   const badgeCmde = document.getElementById("badge-cmde");
   const badgePj = document.getElementById("badge-pj");
   const numCdeInput = document.getElementById("soumission_commande_numCmde");
+  const commentaireInput = document.getElementById(
+    "soumission_commande_commentaire",
+  );
   const hiddenGenerationToken = document.getElementById(
-    "soumission_commande_generationToken"
+    "soumission_commande_generationToken",
   );
 
   // ─── Helpers UI ───
@@ -44,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   document.getElementById("file-summary-2").addEventListener("click", () => {
     bootstrap.Tab.getOrCreateInstance(
-      document.getElementById("tab2-tab")
+      document.getElementById("tab2-tab"),
     ).show();
     document
       .getElementById("file-viewer")
@@ -101,6 +104,7 @@ document.addEventListener("DOMContentLoaded", function () {
   btnGenererPdf.addEventListener("click", async function () {
     viewerContainer.classList.add("d-none");
     const numCde = numCdeInput.value.trim();
+    const commentaire = commentaireInput.value.trim();
     if (!numCde) {
       Swal.fire({
         icon: "warning",
@@ -116,12 +120,12 @@ document.addEventListener("DOMContentLoaded", function () {
       setBtnState("loading");
       displayOverlay(
         true,
-        "Veuillez patienter pendant la génération de PDF s'il vous plaît!"
+        "Veuillez patienter pendant la génération de PDF s'il vous plaît!",
       );
 
       const response = await apiManager.post(
         API_ENDPOINTS.generatePdfCdeFrnMag,
-        { numCde }
+        { numCde, commentaire },
       );
       const dto = response.data;
       if (!dto) throw new Error("Aucune information de commande reçue");
@@ -187,7 +191,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (result.isConfirmed) {
         displayOverlay(
           true,
-          "Veuillez patienter pendant la soumission de la commande s'il vous plaît!"
+          "Veuillez patienter pendant la soumission de la commande s'il vous plaît!",
         );
         const hiddenValidateBtn = document.createElement("input");
         hiddenValidateBtn.type = "hidden";

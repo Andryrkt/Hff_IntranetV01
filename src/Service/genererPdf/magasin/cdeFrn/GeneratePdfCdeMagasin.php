@@ -12,6 +12,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
 {
     private TCPDF  $pdf;
     private CommandeSoumissionDTO $dto;
+    private string $commentaire = '';
     private const FONT             = 'helvetica';
 
     private const MARGIN_RIGHT     = 7.5;
@@ -82,8 +83,10 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         $this->defineFooterWidths();
     }
 
-    public function generate(string $filePath): void
+    public function generate(string $filePath, ?string $commentaire = null): void
     {
+        $this->commentaire = (string) $commentaire;
+
         $this->renderHeader();
 
         $this->renderTable();
@@ -337,6 +340,8 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         $this->pdf->MultiCell(0, 0, $this->dto->getAllValidatedOR(), 0, "L");
 
         $this->pdf->setY($y1 + $hh * 2.5);
+
+        $y2 = $this->pdf->GetY();
         $this->pdf->SetFont(self::FONT, 'B', self::MAIN_TEXT_SIZE);
         $this->pdf->SetTextColor(...self::ACCENT);
         $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, "Documents PO rattachés (PO validé) :", 0, 1);
@@ -344,6 +349,15 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         $this->pdf->SetFont(self::FONT, '', self::MAIN_TEXT_SIZE);
         $this->pdf->SetTextColor(...self::INK);
         $this->pdf->MultiCell(0, 0, $this->dto->getAllValidatedPO(), 0, "L");
+
+        $this->pdf->setY($y2 + $hh * 2.5);
+        $this->pdf->SetFont(self::FONT, 'B', self::MAIN_TEXT_SIZE);
+        $this->pdf->SetTextColor(...self::ACCENT);
+        $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, "Commentaire :", 0, 1);
+
+        $this->pdf->SetFont(self::FONT, '', self::MAIN_TEXT_SIZE);
+        $this->pdf->SetTextColor(...self::INK);
+        $this->pdf->MultiCell(0, 4, $this->commentaire, 0, "L");
     }
 
     /** Footer de chaque page : date de génération à gauche, "Page X / Y" au centre */
