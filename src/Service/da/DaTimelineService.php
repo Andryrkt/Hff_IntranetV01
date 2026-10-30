@@ -36,7 +36,7 @@ class DaTimelineService
         $allDatas = $this->daAfficherModel->getDaLifecycleSteps($numeroDa);
         if (empty($allDatas)) return ['DA' => [], 'OR' => [], 'BC' => []];
 
-        $timelineDa = $this->buildTimelineDA($allDatas, $daTypeId, $demandeur, $agenceServiceEmetteur);
+        $timelineDa = $this->buildTimelineDA($allDatas, $numeroDa, $daTypeId, $demandeur, $agenceServiceEmetteur);
         $lastDataDA = end($timelineDa);
         $isDaViaOR = $daTypeId === DemandeAppro::TYPE_DA_AVEC_DIT;
         [$numeroOr, $timelineOR] = $isDaViaOR ? $this->buildTimelineOR($allDatas, $lastDataDA) : ["", []];
@@ -59,13 +59,14 @@ class DaTimelineService
 
     /**
      * @param array<int,array{statutDal:string,dateCreation:\DateTime,dateDemande:\DateTime,numeroOr:string|null,statutOr:string|null,dateMajStatutOr:\DateTime|null}> $allDatas
+     * @param string $numeroDa
      * @param int $daTypeId
      * @param string|null $demandeur
      * @param string|null $agenceServiceEmetteur
      *
      * @return array<int,array{statut:string,dotClass:string,date:string,nbrJours:string,action:string}>
      */
-    private function buildTimelineDA(array $allDatas, int $daTypeId, ?string $demandeur, ?string $agenceServiceEmetteur): array
+    private function buildTimelineDA(array $allDatas, string $numeroDa, int $daTypeId, ?string $demandeur, ?string $agenceServiceEmetteur): array
     {
         $tabTemp = [];
         $acteur  = "{$agenceServiceEmetteur} — {$demandeur}";
@@ -95,10 +96,25 @@ class DaTimelineService
             }
         }
 
+        if ($daTypeId === DemandeAppro::TYPE_DA_DIRECT) {
+            $statutsOr   = array_filter(array_column($allDatas, 'statutOr'));
+            $statutOr    = end($statutsOr);
+            $dateValidee = $statutOr ? $this->daAfficherModel->getDateValidationDaDirect($numeroDa) : null;
+
+            if ($dateValidee) {
+                $tabTemp[] = [
+                    'statut'   => $statutOr,
+                    'dotClass' => StatutOrConstant::getCssClassOr($statutOr),
+                    'date'     => $dateValidee,
+                    'action'   => '',
+                ];
+            }
+        }
+
         return $this->construireEtapesAvecDurees($tabTemp, true);
     }
 
-    /** 
+    /**
      * @param array<int,array{statutDal:string,dateCreation:\DateTime,dateDemande:\DateTime,numeroOr:string|null,statutOr:string|null,dateMajStatutOr:\DateTime|null}> $allDatas
      * @param array{statut:string,dotClass:string,date:string,nbrJours:string} $lastDataDA
      * 

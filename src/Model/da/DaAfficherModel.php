@@ -110,6 +110,21 @@ class DaAfficherModel extends Model
     }
 
     /**
+     * Récupère la date de validation (dernière version) d'une DA directe dans DW_DA_Direct.
+     */
+    public function getDateValidationDaDirect(string $numDa): ?\DateTime
+    {
+        $sql = "SELECT TOP 1 date_validation_da 
+                FROM DW_DA_Direct 
+                WHERE numero_da_dir = '$numDa' 
+                ORDER BY id_da_dir DESC";
+
+        $row = odbc_fetch_array($this->connexion->query($sql));
+
+        return $row && $row['date_validation_da'] ? new \DateTime($row['date_validation_da']) : null;
+    }
+
+    /**
      * Récupère, pour chaque numéro de BC de la dernière version d'une DA, les étapes clés
      * du cycle de vie du BC (génération IPS, validation DW, envoi fournisseur Intranet, réception, livraison) en une seule requête groupée.
      *
