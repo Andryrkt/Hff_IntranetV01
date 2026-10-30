@@ -338,11 +338,11 @@ class GeneratePdfCdeMagasin extends GeneratePdf
 
         $this->pdf->setY($y1 + $hh * 2.5);
 
-        $y2 = $this->pdf->GetY();
         $this->pdf->SetFont(self::FONT, 'B', self::MAIN_TEXT_SIZE);
         $this->pdf->SetTextColor(...self::ACCENT);
         $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, "Documents PO rattachés (PO validé) :", 0, 1);
 
+        $y2 = $this->pdf->GetY();
         $this->pdf->SetFont(self::FONT, '', self::MAIN_TEXT_SIZE);
         $this->pdf->SetTextColor(...self::INK);
         $this->pdf->MultiCell(0, 0, $this->dto->getAllValidatedPO(), 0, "L");

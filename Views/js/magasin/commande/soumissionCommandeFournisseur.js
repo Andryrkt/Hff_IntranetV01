@@ -103,6 +103,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
   btnGenererPdf.addEventListener("click", async function () {
     viewerContainer.classList.add("d-none");
+    iframe.src = "about:blank";
     const numCde = numCdeInput.value.trim();
     const commentaire = commentaireInput.value.trim();
     if (!numCde) {
