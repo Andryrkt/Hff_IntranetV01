@@ -84,7 +84,8 @@ class DemandePaiementModel extends Model
             INNER JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
             where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%'
             and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
-            and TRZT_Facture.Numero_Facture in ({$numFacString})
+            and TRZT_Facture.Numero_Facture not in ({$numFacString})
+            and GCOT_Facture_Ligne.Numero_PO in ({$numCdesString})
             group by TRZT_Dossier_Douane.Code_Fournisseur, TRZT_Dossier_Douane.Libelle_Fournisseur,TRZT_Dossier_Douane.Numero_Dossier_Douane, TRZT_Dossier_Douane.Numero_LTA, TRZT_Dossier_Douane.Numero_HAWB,TRZT_Facture.Numero_Facture, TRZT_Facture.Montant_FOB, GCOT_Facture_Ligne.Numero_PO
             order by TRZT_Dossier_Douane.Code_Fournisseur, TRZT_Dossier_Douane.Libelle_Fournisseur,TRZT_Dossier_Douane.Numero_Dossier_Douane, TRZT_Dossier_Douane.Numero_LTA, TRZT_Dossier_Douane.Numero_HAWB,TRZT_Facture.Numero_Facture, GCOT_Facture_Ligne.Numero_PO
             OPTION (RECOMPILE)
