@@ -41,19 +41,20 @@ final class CdeFrnSoumissionService
      * @param string $numCde      Le numéro de commande.
      * @param string $userMail    L'email de l'utilisateur.
      * @param string $codeSociete Le code de la société.
+     * @param string $commentaire Le commentaire de l'utilisateur
      *
      * @return CdeFrnSoumisAValidationDTO|null Le DTO contenant les informations de la commande.
      */
-    public function generatePdfForSubmission(string $numCde, string $userMail, string $codeSociete, string $commentaire = ''): ?CdeFrnSoumisAValidationDTO
+    public function generatePdfForSubmission(string $numCde, string $userMail, string $codeSociete, string $commentaire = '-'): ?CdeFrnSoumisAValidationDTO
     {
         // 1. Récupération des données du document
-        $commandeSoumissionDto = $this->cdeSoumissionModel->findInfoCommande($numCde, $userMail, $codeSociete);
+        $commandeSoumissionDto = $this->cdeSoumissionModel->findInfoCommande($numCde, $userMail, $codeSociete, $commentaire);
 
         if ($commandeSoumissionDto === null) return null;
         // 2. Création du DTO pour la soumission à validation
-        $cdeFrnSoumisAValidationDTO = $this->factory->hydrate($commandeSoumissionDto, $commentaire);
+        $cdeFrnSoumisAValidationDTO = $this->factory->hydrate($commandeSoumissionDto);
         // 3. Génération du PDF
-        (new GeneratePdfCdeMagasin($commandeSoumissionDto))->generate($cdeFrnSoumisAValidationDTO->urlPDFLong, $cdeFrnSoumisAValidationDTO->commentaire);
+        (new GeneratePdfCdeMagasin($commandeSoumissionDto))->generate($cdeFrnSoumisAValidationDTO->urlPDFLong);
 
         // 4. Sauvegarder token
         $cdeFrnSoumisAValidationDTO->token = $this->store->save($userMail, $cdeFrnSoumisAValidationDTO);
@@ -64,7 +65,7 @@ final class CdeFrnSoumissionService
     /**
      * @param \Symfony\Component\HttpFoundation\File\UploadedFile[] $piecesJointes PDF à fusionner après le PDF généré
      */
-    public function soumettre(string $userMail, ?string $numCdeSaisi, ?string $token, ?string $commentaire, array $piecesJointes = [])
+    public function soumettre(string $userMail, ?string $numCdeSaisi, ?string $token, array $piecesJointes = [])
     {
         $numCdeSaisi = trim((string) $numCdeSaisi);
         try {

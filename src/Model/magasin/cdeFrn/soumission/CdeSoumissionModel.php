@@ -73,10 +73,11 @@ class CdeSoumissionModel extends Model
      * @param string $numCde       numéro de la commande
      * @param string $userMail     email de l'utilisateur
      * @param string $codeSociete  code société
+     * @param string $commentaire  commentaire de l'utilisateur 
      * 
      * @return ?CommandeSoumissionDTO
      */
-    public function findInfoCommande(string $numCde, string $userMail, string $codeSociete = 'HF'): ?CommandeSoumissionDTO
+    public function findInfoCommande(string $numCde, string $userMail, string $codeSociete = 'HF', string $commentaire = "-"): ?CommandeSoumissionDTO
     {
         $startDate = (new \DateTime('first day of -6 months'))->format("Ym");
         $endDate   = (new \DateTime('last day of last month'))->format("Ym");
@@ -214,7 +215,7 @@ class CdeSoumissionModel extends Model
         $detailsParPiece = $this->findLignesSavEtVenteNegoceParPieces($numCde, $pairs);
         $allValidatedPO  = $this->findAllValidatedPO($numCde, $codeSociete);
 
-        return (new CommandeSoumissionFactory)->hydrate($data, $detailsParPiece["lignesParPiece"], $detailsParPiece["ordresReparationValides"], $allValidatedPO, $userMail);
+        return (new CommandeSoumissionFactory)->hydrate($data, $detailsParPiece["lignesParPiece"], $detailsParPiece["ordresReparationValides"], $allValidatedPO, $userMail, $commentaire);
     }
 
     /**

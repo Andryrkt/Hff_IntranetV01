@@ -14,6 +14,7 @@ class CommandeSoumissionDTO
     public ?string    $responsable     = null;
     public ?string    $libelleAgence   = null;
     public ?string    $libelleService  = null;
+    public string     $commentaire     = "-";
     public float      $poidsTotal      = 0.00;
     public float      $montantTotal    = 0.00;
     public array      $allValidatedOR  = [];

@@ -12,7 +12,6 @@ class GeneratePdfCdeMagasin extends GeneratePdf
 {
     private TCPDF  $pdf;
     private CommandeSoumissionDTO $dto;
-    private string $commentaire = '';
     private const FONT             = 'helvetica';
 
     private const MARGIN_RIGHT     = 7.5;
@@ -83,10 +82,8 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         $this->defineFooterWidths();
     }
 
-    public function generate(string $filePath, ?string $commentaire = null): void
+    public function generate(string $filePath): void
     {
-        $this->commentaire = (string) $commentaire;
-
         $this->renderHeader();
 
         $this->renderTable();
@@ -357,7 +354,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
 
         $this->pdf->SetFont(self::FONT, '', self::MAIN_TEXT_SIZE);
         $this->pdf->SetTextColor(...self::INK);
-        $this->pdf->MultiCell(0, 4, $this->commentaire, 0, "L");
+        $this->pdf->MultiCell(0, 4, $this->dto->commentaire, 0, "L");
     }
 
     /** Footer de chaque page : date de génération à gauche, "Page X / Y" au centre */
@@ -434,7 +431,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
     private function newPage(): void
     {
         $this->pdf->AddPage();
-        $this->renderHeader($this->dto);
+        $this->renderHeader();
         $this->pdf->Ln(3);
         $this->renderTableHeader();
     }

@@ -34,7 +34,7 @@ class SoumissionCommandeController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             $formData = $form->getData();
 
-            $this->cdeFrnSoumissionService->soumettre($this->getUserMail(), $formData["numCmde"], $formData["generationToken"],  $formData["commentaire"], $formData["piecesJointesPdf"] ?? []);
+            $this->cdeFrnSoumissionService->soumettre($this->getUserMail(), $formData["numCmde"], $formData["generationToken"], $formData["piecesJointesPdf"] ?? []);
         }
 
         $this->logUserVisit('generer_commande_fournisseur');

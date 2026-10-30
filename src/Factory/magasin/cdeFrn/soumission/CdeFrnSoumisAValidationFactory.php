@@ -25,7 +25,7 @@ final class CdeFrnSoumisAValidationFactory
      * 
      * @return CdeFrnSoumisAValidationDTO DTO de cde frn soumis à validation
      */
-    public function hydrate(CommandeSoumissionDTO $commandeSoumissionDTO, string $commentaire): CdeFrnSoumisAValidationDTO
+    public function hydrate(CommandeSoumissionDTO $commandeSoumissionDTO): CdeFrnSoumisAValidationDTO
     {
         $numCde = $commandeSoumissionDTO->numeroCommande;
         $dto = new CdeFrnSoumisAValidationDTO();
@@ -38,8 +38,6 @@ final class CdeFrnSoumisAValidationFactory
         $urlsPDF          = $this->getUrlPDF($numCde);
         $dto->urlPDFCourt = $urlsPDF['urlPDFCourt'];
         $dto->urlPDFLong  = $urlsPDF['urlPDFLong'];
-
-        $dto->commentaire  = $commentaire;
 
         foreach ($commandeSoumissionDTO->allValidatedOR as $validatedOR) {
             $dto->lignes[] = $this->hydrateLigne($dto, $validatedOR, "OR");
