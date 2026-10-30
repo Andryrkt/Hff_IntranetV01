@@ -354,7 +354,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
 
         $this->pdf->SetFont(self::FONT, '', self::MAIN_TEXT_SIZE);
         $this->pdf->SetTextColor(...self::INK);
-        $this->pdf->MultiCell(0, 4, $this->dto->commentaire, 0, "L");
+        $this->pdf->MultiCell(0, 0, $this->dto->commentaire, 0, "L");
     }
 
     /** Footer de chaque page : date de génération à gauche, "Page X / Y" au centre */
@@ -399,13 +399,17 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         $this->pdf->SetFont(self::FONT, '', self::MAIN_TEXT_SIZE);
         $w100 = $this->getUsableWidth();
 
-        // Ln(3) x2 + 2 lignes poids + signature/total (8.5 + libellés) + séparateur (4.5) + 2 titres OR/PO
-        return 3 + 3
-            + 2 * self::MAIN_TEXT_HEIGHT
-            + 2 + 8.5 + self::MAIN_TEXT_HEIGHT + 4.5
-            + 2 * self::MAIN_TEXT_HEIGHT
-            + $this->pdf->getStringHeight($w100, $this->dto->getAllValidatedOR())
-            + $this->pdf->getStringHeight($w100, $this->dto->getAllValidatedPO());
+        $hh = self::MAIN_TEXT_HEIGHT;
+
+        // Ln(3) + 2 lignes poids + signature/total (2 + 8.5 + libellé) + séparateur Ln(3)
+        // + bloc OR (titre + 2.5hh) + bloc PO (titre + 2.5hh) + titre commentaire + commentaire
+        return 3
+            + 2 * $hh
+            + 2 + 8.5 + $hh + 3
+            + $hh + 2.5 * $hh
+            + $hh + 2.5 * $hh
+            + $hh
+            + $this->pdf->getStringHeight($w100, $this->dto->commentaire);
     }
 
     private function calculateHeaderHeight(): float
