@@ -77,7 +77,7 @@ class CdeSoumissionModel extends Model
      * 
      * @return ?CommandeSoumissionDTO
      */
-    public function findInfoCommande(string $numCde, string $userMail, string $codeSociete = 'HF', string $commentaire = "-"): ?CommandeSoumissionDTO
+    public function findInfoCommande(string $numCde, string $userMail, string $commentaire, string $codeSociete = 'HF'): ?CommandeSoumissionDTO
     {
         $startDate = (new \DateTime('first day of -6 months'))->format("Ym");
         $endDate   = (new \DateTime('last day of last month'))->format("Ym");

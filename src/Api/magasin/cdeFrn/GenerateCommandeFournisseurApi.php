@@ -23,8 +23,8 @@ class GenerateCommandeFournisseurApi extends Controller
     public function generatePdfCmdeFournisseur(Request $request): JsonResponse
     {
         $numCde = (string) (json_decode($request->getContent(), true)['numCde'] ?? '');
-        $commentaire = (string) (json_decode($request->getContent(), true)['commentaire'] ?? '');
-        $commentaire = str_replace(["\r\n", "\r"], "\n", $commentaire);
+        $commentaire = (string) (json_decode($request->getContent(), true)['commentaire'] ?? '-');
+        $commentaire = str_replace(["\r\n", "\r"], "\n", empty($commentaire) ? "-" : $commentaire);
 
         // 1. Validation basique de l'input
         if (empty($numCde) || !preg_match('/^\d{7,8}$/', $numCde)) {
