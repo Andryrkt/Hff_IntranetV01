@@ -295,6 +295,8 @@ class DaTimelineService
     {
         $nbEtapes = count($etapes);
         $timeline = [];
+        // Dates ramenées à minuit : le tri compare des jours, pas des heures
+        $etapes = array_map(fn($e) => ['date' => (clone $e['date'])->setTime(0, 0, 0)] + $e, $etapes);
         usort($etapes, fn($a, $b) => $a['date'] <=> $b['date']);
 
         foreach ($etapes as $index => $etape) {
