@@ -126,14 +126,13 @@ class PlanningModel extends Model
         if ($criteria->getOrBackOrder() == true) {
             $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in (" . $back . ") ";
         } else {
-            if (!empty($lesOrValides)) {
-                if ($criteria->getOrNonValiderDw() == true) {
-                    $vOrvalDw = "AND seor_numor ||'-'||sitv_interv not in (" . $touslesOrItvSoumis . ") ";
-                } else {
-                    $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('" . $lesOrValides . "') ";
-                }
+            if ($criteria->getOrNonValiderDw() == true) {
+                $vOrvalDw = "AND seor_numor ||'-'||sitv_interv not in (" . $touslesOrItvSoumis . ") ";
+            } elseif (!empty($lesOrValides)) {
+                $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('" . $lesOrValides . "') ";
             } else {
-                $vOrvalDw = " --AND seor_numor ||'-'||sitv_interv in ('')";
+                // aucun OR validé (ex. filtre sur un OR non soumis) : ne rien afficher, comme le planning détaillé
+                $vOrvalDw = " AND seor_numor ||'-'||sitv_interv in ('')";
             }
         }
 

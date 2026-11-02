@@ -88,7 +88,8 @@ class PlanningController extends Controller
             $back = $this->planningModel->backOrderPlanning($orSansItv, $criteria, $tousLesOrSoumis);
             $backString = is_array($back) ? TableauEnStringService::orEnString($back) : '';
 
-            $data = $this->planningModel->recuperationMaterielplanifier($criteria, $orAvecItv, $backString, $touslesOrItvSoumis);
+            $criteriaSql = $this->limiterAuxMoisAffiches($criteria, $criteria->getMonths() == null ? 3 : $criteria->getMonths());
+            $data = $this->planningModel->recuperationMaterielplanifier($criteriaSql, $orAvecItv, $backString, $touslesOrItvSoumis);
         } else {
             $data = [];
             $back = [];
