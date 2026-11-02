@@ -86,10 +86,8 @@ SELECT 'ddp-magasin-apres-arrivage', N'Demande de paiement magasin – après ar
 <tr><td>N° commande</td><td>La commande liée aux factures choisies</td><td>Non</td></tr>
 <tr><td>N° facture</td><td>La ou les factures de cette commande, une par ligne</td><td>Non</td></tr>
 <tr><td>N° dossier douane, N° LTA, N° HAWB</td><td>Les références du dossier de douane de chaque facture</td><td>Non</td></tr>
-<tr><td>Montant du commande à payer *</td><td>Le montant à payer pour cette commande</td><td><strong>Oui</strong></td></tr>
-<tr><td>DDPA</td><td>Le montant des proformas des demandes à l''avance validées sur la commande</td><td>Non</td></tr>
 <tr><td>Solde avance</td><td>Ce qui reste de l''avance sur la commande (voir section suivante)</td><td>Non</td></tr>
-<tr><td>DDP à générer</td><td>Le document qui sera créé : BAP, DPR (DDPR) ou DPL (DDPL)</td><td>Non</td></tr>
+<tr><td>Montant du commande à payer *</td><td>Le montant à payer pour cette commande</td><td><strong>Oui</strong></td></tr>
 </tbody>
 </table>
 
@@ -147,7 +145,7 @@ SELECT 'ddp-magasin-apres-arrivage', N'Demande de paiement magasin – après ar
 </table>
 <p><strong>Pourquoi ai-je reçu plusieurs numéros de demande pour une seule saisie ?</strong> Vos factures couvraient des commandes de situations différentes. Une demande est créée par type de document ; tous les numéros s''affichent dans le message de confirmation.</p>
 <p><strong>Une demande à l''avance en attente de validation compte-t-elle ?</strong> Non. Seules les DDPA validées (statut Validé ou Transmis compta) entrent dans le % DDPA. Tant qu''elle n''est pas validée, la commande part en BAP.</p>
-<p><strong>Puis-je choisir moi-même BAP, DDPR ou DDPL ?</strong> Non. Le type dépend uniquement des acomptes validés sur la commande ; la colonne « DDP à générer » l''annonce avant l''enregistrement.</p>
+<p><strong>Puis-je choisir moi-même BAP, DDPR ou DDPL ?</strong> Non. Le type dépend uniquement des acomptes validés sur la commande ; il apparaît dans la liste Consultation facture après l''enregistrement.</p>
 ', GETDATE(), 'script separation guide'
 FROM documentation_utilisateur WHERE slug = 'ddp-magasin';
 
@@ -155,6 +153,17 @@ FROM documentation_utilisateur WHERE slug = 'ddp-magasin';
 IF EXISTS (SELECT 1 FROM documentation_utilisateur WHERE slug = 'ddp-magasin-avance')
     AND EXISTS (SELECT 1 FROM documentation_utilisateur WHERE slug = 'ddp-magasin-apres-arrivage')
     UPDATE documentation_utilisateur SET publie = 0 WHERE slug = 'ddp-magasin';
+
+-- Page après arrivage déjà créée : colonnes DDPA et DDP à générer retirées du tableau,
+-- solde avance placé avant le montant du commande à payer.
+UPDATE documentation_utilisateur
+SET contenu = REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(contenu,
+        N'<tr><td>DDPA</td><td>Le montant des proformas des demandes à l''avance validées sur la commande</td><td>Non</td></tr>', N''),
+        N'<tr><td>DDP à générer</td><td>Le document qui sera créé : BAP, DPR (DDPR) ou DPL (DDPL)</td><td>Non</td></tr>', N''),
+        N'<tr><td>Solde avance</td><td>Ce qui reste de l''avance sur la commande (voir section suivante)</td><td>Non</td></tr>', N''),
+        N'<tr><td>Montant du commande à payer *</td>', N'<tr><td>Solde avance</td><td>Ce qui reste de l''avance sur la commande (voir section suivante)</td><td>Non</td></tr><tr><td>Montant du commande à payer *</td>'),
+        N' ; la colonne « DDP à générer » l''annonce avant l''enregistrement.', N' ; il apparaît dans la liste Consultation facture après l''enregistrement.')
+WHERE slug = 'ddp-magasin-apres-arrivage';
 
 -- Consultation facture : écran de transmission indiqué par les deux pages ci-dessus.
 -- Publication et ajout des DDPA, qui peuvent aussi être transmises depuis cet écran.

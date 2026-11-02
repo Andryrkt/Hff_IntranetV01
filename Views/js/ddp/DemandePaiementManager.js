@@ -1078,21 +1078,15 @@ export class DemandePaiementManager {
           cellule.appendChild(document.createElement("div")).textContent = f[champ] ?? "";
         });
       });
-      tr.insertCell().appendChild(input);
-      const celluleDdpa = tr.insertCell();
-      celluleDdpa.className = "text-end";
       const celluleSolde = tr.insertCell();
       celluleSolde.className = "text-end";
-      const celluleDdp = tr.insertCell();
-      celluleDdp.className = "text-center fw-bold";
+      tr.insertCell().appendChild(input);
 
       this.chargerSituationAvance(numCde).then((situation) => {
         if (!situation) return;
-        const format = (montant) =>
-          formatNumberSpecial(Number(montant || 0).toFixed(2));
-        celluleDdpa.textContent = format(situation.montantProforma);
-        celluleSolde.textContent = format(situation.soldeAvance);
-        celluleDdp.textContent = situation.ddpAGenerer;
+        celluleSolde.textContent = formatNumberSpecial(
+          Number(situation.soldeAvance || 0).toFixed(2),
+        );
       });
     });
 

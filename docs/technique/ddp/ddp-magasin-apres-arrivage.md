@@ -50,7 +50,7 @@ Routes principales : `new_ddp` (`/ddp/new/2`) et `da_bon_a_payer` (`/demande-app
 ### 3.1 Saisie et enregistrement
 
 1. L'utilisateur choisit un fournisseur. Le front charge ses factures GCOT liées à des commandes réceptionnées dans IPS.
-2. Il choisit une ou plusieurs factures. Les commandes correspondantes s'affichent dans un tableau, avec le montant à payer pré-rempli depuis le montant réceptionné IPS (modifiable).
+2. Il choisit une ou plusieurs factures. Les commandes correspondantes s'affichent dans un tableau, avec leur solde avance et le montant à payer pré-rempli depuis le montant réceptionné IPS (modifiable). Le type de document à créer n'est pas affiché.
 3. Il saisit le montant à payer global, qui doit égaler la somme du tableau.
 4. Le serveur **redéduit les commandes depuis les factures**, car le select est désactivé et n'est pas posté.
 5. `groupesParSituation()` classe chaque commande (RG-AA-05) et rattache chaque facture au groupe de ses commandes (RG-AA-06).
@@ -75,7 +75,7 @@ Depuis la consultation, l'utilisateur coche des demandes `… à transmettre`, p
 | RG-AA-02 | Commandes déduites des factures | ✔ | ✔ |
 | RG-AA-03 | Montant du commande à payer obligatoire pour chaque commande | ✔ | ✔ |
 | RG-AA-04 | Montant à payer = somme des montants du commande à payer (± 0,01) | ✔ | ✔ |
-| RG-AA-05 | Classement selon le cumul des % DDPA validées : ≤ 0,01 → BAP ; ≥ 99,99 → DDPR ; sinon → DDPL | ✔ (aperçu) | ✔ |
+| RG-AA-05 | Classement selon le cumul des % DDPA validées : ≤ 0,01 → BAP ; ≥ 99,99 → DDPR ; sinon → DDPL | – | ✔ |
 | RG-AA-06 | Une facture dont les commandes tombent dans des groupes différents bloque toute la soumission | ✘ | ✔ |
 | RG-AA-07 | Une demande par groupe ; son `montant_a_payer` = somme des montants FOB de ses factures | – | ✔ |
 | RG-AA-08 | Solde avance (DDPL, sinon 0) = total commande de la dernière DDPA − (somme des proformas DDPA + `montant_commande_a_payer` des demandes validées non DDPA) | ✔ (aperçu) | ✔ |
@@ -157,7 +157,7 @@ Les statuts `Refusé`, `Refusé Compta` et `Réfusé par Chef de Service` sont e
 |---|---|
 | `GET /api/info-fournisseur-ddp` | Fournisseurs (autocomplétion) |
 | `GET /api/num-cde-frn/{fournisseur}/2` | Commandes réceptionnées et liste GCOT |
-| `GET /api/situation-avance-commande/{numCde}` | % DDPA, proformas, solde, document à générer |
+| `GET /api/situation-avance-commande/{numCde}` | Solde avance du tableau (renvoie aussi % DDPA, proformas et document à générer, non affichés) |
 | `GET /api/montant-commande-receptionnee/{fournisseur}/{cdes}/{factures}` | Pré-remplissage du tableau |
 | `GET /api/montant-facture/{fournisseur}/{factures}/2` | Total FOB des factures |
 | `GET /api/liste-doc/{dossier}`, `/api/recuperer-fichier` | Documents du dossier de douane |
@@ -196,7 +196,7 @@ Constats issus de la lecture du code ; aucun n'a été reproduit en exécution. 
 | P-AA-02 | Le montant saisi est contrôlé puis remplacé par le total FOB (section 4) | Saisie de 1 000 et factures à 950 : la demande est enregistrée à 950 alors que le tableau du PDF affiche 1 000 | |
 | P-AA-03 | `DdpLigneMapper` met le total de la demande dans `montant_facture` de chaque ligne | Une demande de 3 lignes à 900 donne 2 700 si on additionne la colonne | |
 | P-AA-04 | Le serveur accepte les factures postées (`choices` = valeurs soumises) ; RG-AA-01 et RG-AA-09 ne sont appliquées que côté front | Une requête forgée peut soumettre une facture exclue de la liste ou une commande sans PDF | |
-| P-AA-05 | Le DTO garde la société `HF` à la soumission, alors que l'API utilise la société de l'utilisateur | Pour un utilisateur d'une autre société, le document annoncé par l'aperçu peut différer du document créé | |
+| P-AA-05 | Le DTO garde la société `HF` à la soumission, alors que l'API utilise la société de l'utilisateur | Pour un utilisateur d'une autre société, le solde affiché peut différer de celui enregistré, et le document créé peut ne pas correspondre à ses acomptes | |
 | P-AA-06 | Les filtres de la consultation comparent `numero_commande` et `numero_facture` à une valeur exacte, alors que ces champs peuvent contenir `a;b` | Recherche par commande ou facture sans résultat pour une demande multiple | |
 
 ### Robustesse
