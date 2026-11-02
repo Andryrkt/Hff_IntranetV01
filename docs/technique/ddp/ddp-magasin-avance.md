@@ -62,6 +62,17 @@ Si aucun numéro de demande n'est reçu, le serveur répond par une erreur, sans
 2. chaque demande passe à `Soumis à validation`, avec `numero_cla`, `date_soumission_compta`, `deposer_dw` et `date_depot_dw` renseignés ;
 3. le PDF est copié dans DocuWare sous le nom `{numéro}#{CLA}.pdf`.
 
+### 3.3 Suivi étape par étape
+
+Écran **Admin › Historique › Suivi des opérations** (`SuiviOperationService`, table `historique_operation_etape`). Chaque étape y figure avec son statut, sa durée, ses requêtes et son erreur éventuelle. Les contrôles qui refusent le formulaire avant ces étapes n'y figurent pas.
+
+| Opération | Type | N° document | Étapes |
+|---|---|---|---|
+| Enregistrement | `DDP` | Numéro `DDP` | Numéro et fichiers joints ; Base de données ; Page de garde ; Fusion |
+| Transmission | `DDP_TRANSMISSION` | Numéro `CLA` | Numéro CLA ; une étape « Transmission {numéro} » par demande, avec la copie DocuWare ; Base de données |
+
+Une copie DocuWare échouée ne bloque pas la transmission (P-AV-09), mais passe son étape en échec dans ce suivi.
+
 ## 4. Règles de gestion
 
 « Front » et « Serveur » indiquent où la règle est réellement appliquée. Une règle appliquée uniquement côté front peut être contournée par une requête forgée.
@@ -203,3 +214,15 @@ Constats issus de la lecture du code ; aucun n'a été reproduit en exécution. 
 ## 11. Hors périmètre
 
 Ces éléments utilisent en partie les mêmes tables, mais ne sont pas décrits ici : paiement après arrivage (fiche liée), demande de paiement DA/appro (`DemandePaiementDaController`), `DemandePaiementController`, modification (`EditDemandePaiementController`), dossier de régularisation (`DdpDossierRegularisationController`), liste compta (`DdpListeController`).
+
+## 12. Historique de suivi
+
+Évolutions du module et décisions. À compléter à chaque changement.
+
+| Date | Commit | Changement ou décision | Réf. |
+|---|---|---|---|
+| 02/11/2026 | `691972555` | Création de cette fiche | |
+| 02/11/2026 | `8f7a527aa` | Transmission : numéros de demande rétablis sur les cases à cocher ; une transmission vide renvoie une erreur et ne consomme plus de numéro `CLA` | section 3.2 |
+| 02/11/2026 | `2663a8df0` | Montant total de la commande remonté d'IPS ; colonne `montant_total_commande` ajoutée à `demande_paiement_ligne` et `demande_paiement_commande` | RG-AV-04 |
+| 02/11/2026 | `30f4c35c9` | **Décision :** montant total non modifiable, enregistrement bloqué s'il est introuvable dans IPS ou nul ; le % de la DDPA se calcule sur ce montant | RG-AV-04, RG-AV-05 |
+| 02/11/2026 | à commiter | Suivi étape par étape ajouté à l'enregistrement et à la transmission | section 3.3 |

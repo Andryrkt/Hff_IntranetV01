@@ -1231,12 +1231,14 @@ export class DemandePaiementManager {
 
     const inputs = [...this.elements.montantsCommandeBody.querySelectorAll("input")];
     const total = inputs.reduce((somme, input) => somme + (parseFloat(input.dataset.montantAPayer) || 0), 0);
-    champ.value = inputs.length ? formatNumberSpecial(total.toFixed(2)) : "";
+    // Aucun montant réceptionné connu : ne pas afficher un total ni un % à 0
+    const aUnMontant = inputs.some((input) => input.value !== "");
+    champ.value = aUnMontant ? formatNumberSpecial(total.toFixed(2)) : "";
 
     const totalCommandes = inputs.reduce((somme, input) => somme + (parseFloat(input.dataset.montantTotal) || 0), 0);
     const totalReceptionne = inputs.reduce((somme, input) => somme + (parseMontant(input.value) || 0), 0);
-    this.afficherPourcentageLibelle(this.elements.montantInput, this.pourcentage(totalReceptionne, totalCommandes));
-    this.afficherPourcentageLibelle(champ, this.pourcentage(total, totalCommandes));
+    this.afficherPourcentageLibelle(this.elements.montantInput, aUnMontant ? this.pourcentage(totalReceptionne, totalCommandes) : "");
+    this.afficherPourcentageLibelle(champ, aUnMontant ? this.pourcentage(total, totalCommandes) : "");
   }
 
   /**

@@ -1,4 +1,4 @@
-import { DemandePaiementManager } from "./DemandePaiementManager.js?v=20261102k";
+import { DemandePaiementManager } from "./DemandePaiementManager.js?v=20261102l";
 import { baseUrl } from "../utils/config.js";
 
 document.addEventListener("DOMContentLoaded", function () {

@@ -20,6 +20,7 @@ use App\Service\dataPdf\ordreReparation\Recapitulation;
 use App\Service\fichier\TraitementDeFichier;
 use App\Service\genererPdf\ddp\GeneratePdfDdpDa;
 use App\Service\genererPdf\GeneratePdf;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 use DateTime;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -67,47 +68,21 @@ class DdpApiController extends Controller
 
             /** @var DemandePaiement[] $ddps */
             $ddps = $demandePaiementRepository->findDdpByNumeroDdp($ddpNumbers);
-            $numeroCla = $this->genererNumeroCla();
+
+            // suivi étape par étape de la transmission (admin > historique > suivi des opérations)
+            $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_DDP_TRANSMISSION);
+            $numeroCla = $suivi->etape('Numéro CLA', fn() => $this->genererNumeroCla());
+            $suivi->setNumeroDocument($numeroCla);
 
             foreach ($ddps as $ddp) {
-                // modification du statut de demande de paiement
-                $ddp
-                    ->setStatut(StatutConstants::SOUMIS_A_VALIDATION)
-                    ->setDateSoumissionCompta(new DateTime())
-                    ->setNumeroCla($numeroCla)
-                    ->setDeposerDw(true)
-                    ->setDateDepotDw(new \DateTime())
-                ;
-                $this->getEntityManager()->persist($ddp);
-
-                // Page de garde DA + fusion des PJ uniquement pour les DDP appro
-                if ($appro) {
-                    $nomCompletFichier = $this->genererPageDeGarde($validationInfo[$ddp->getNumeroCommande()] ?? [], $ddp);
-
-                    $this->fusionDesPdf($ddp->getNumeroCommande(), $nomCompletFichier);
-                }
-
-                /** copie du fichier DDP dans DW */
-                if ($appro) {
-                    // PDF tout juste régénéré (page de garde + PJ)
-                    $bapFullpath = (new FileCheckerService())->getFullPath($ddp->getNumeroDdp());
-                } else {
-                    // même résolution de chemin que la liste (chemin DW en BDD, sinon ddp/{numDdp}/{numDdp}.pdf)
-                    $fileInfo = (new DemandePaiementFileService())->getFileInfo($ddp->getNumeroDdp(), $ddp->getTypeDemandeId()->getCode());
-                    $bapFullpath = $fileInfo['exists'] ? $fileInfo['path'] : null;
-                }
-
-                if (empty($bapFullpath)) {
-                    throw new \Exception("Le fichier PDF pour la demande {$ddp->getNumeroDdp()} est introuvable sur le serveur.");
-                }
-
-                $fileNameForDW = $ddp->getNumeroDdp() . '#' . $numeroCla . '.pdf';
-                $generatePdf = new GeneratePdf();
-
-                $generatePdf->copyToDWBapDa($bapFullpath, $fileNameForDW, $ddp->getTypeDemandeId()->getCode());
+                $suivi->etape('Transmission ' . $ddp->getNumeroDdp(), function () use ($ddp, $appro, $validationInfo, $numeroCla) {
+                    $this->transmettreDemande($ddp, $appro, $validationInfo, $numeroCla);
+                });
             }
 
-            $this->getEntityManager()->flush();
+            $suivi->etape('Base de données', function () {
+                $this->getEntityManager()->flush();
+            });
 
             return new JsonResponse([
                 'success' => true,
@@ -123,6 +98,45 @@ class DdpApiController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    private function transmettreDemande(DemandePaiement $ddp, bool $appro, array $validationInfo, string $numeroCla): void
+    {
+        // modification du statut de demande de paiement
+        $ddp
+            ->setStatut(StatutConstants::SOUMIS_A_VALIDATION)
+            ->setDateSoumissionCompta(new DateTime())
+            ->setNumeroCla($numeroCla)
+            ->setDeposerDw(true)
+            ->setDateDepotDw(new \DateTime())
+        ;
+        $this->getEntityManager()->persist($ddp);
+
+        // Page de garde DA + fusion des PJ uniquement pour les DDP appro
+        if ($appro) {
+            $nomCompletFichier = $this->genererPageDeGarde($validationInfo[$ddp->getNumeroCommande()] ?? [], $ddp);
+
+            $this->fusionDesPdf($ddp->getNumeroCommande(), $nomCompletFichier);
+        }
+
+        /** copie du fichier DDP dans DW */
+        if ($appro) {
+            // PDF tout juste régénéré (page de garde + PJ)
+            $bapFullpath = (new FileCheckerService())->getFullPath($ddp->getNumeroDdp());
+        } else {
+            // même résolution de chemin que la liste (chemin DW en BDD, sinon ddp/{numDdp}/{numDdp}.pdf)
+            $fileInfo = (new DemandePaiementFileService())->getFileInfo($ddp->getNumeroDdp(), $ddp->getTypeDemandeId()->getCode());
+            $bapFullpath = $fileInfo['exists'] ? $fileInfo['path'] : null;
+        }
+
+        if (empty($bapFullpath)) {
+            throw new \Exception("Le fichier PDF pour la demande {$ddp->getNumeroDdp()} est introuvable sur le serveur.");
+        }
+
+        $fileNameForDW = $ddp->getNumeroDdp() . '#' . $numeroCla . '.pdf';
+        $generatePdf = new GeneratePdf();
+
+        $generatePdf->copyToDWBapDa($bapFullpath, $fileNameForDW, $ddp->getTypeDemandeId()->getCode());
     }
 
     private function genererNumeroCla(): string

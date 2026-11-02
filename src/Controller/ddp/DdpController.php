@@ -20,6 +20,7 @@ use App\Service\ddp\Magasin\DdpService;
 use App\Service\fichier\TraitementDeFichier;
 use App\Service\genererPdf\GeneratePdfDdp;
 use App\Service\historiqueOperation\HistoriqueOperationDDPService;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 use App\Service\TableauEnStringService;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -126,16 +127,33 @@ class DdpController extends Controller
                 return;
             }
 
-            $dto = $this->ddpFactory->apresSoumission($form, $dto);
+            // suivi étape par étape de l'enregistrement (admin > historique > suivi des opérations)
+            $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_DDP);
+            $dto = $this->numeroEtFichiers($suivi, $form, $dto);
 
-            // Enregistrement dans BD
-            $this->enregistrementSurBd($dto);
-            // Enregistrement des fichiers, generation du PDF et fusion des fichiers
-            $this->traitementDeFichier($dto);
+            $this->enregistrementEtPdf($suivi, $dto);
 
             /** HISTORISATION */
             $this->notificationSoumission($dto->numeroDdp);
         }
+    }
+
+    private function numeroEtFichiers(SuiviOperationService $suivi, FormInterface $form, DdpDto $dto): DdpDto
+    {
+        $dto = $suivi->etape('Numéro et fichiers joints', fn() => $this->ddpFactory->apresSoumission($form, $dto));
+        $suivi->setNumeroDocument((string) $dto->numeroDdp);
+
+        return $dto;
+    }
+
+    private function enregistrementEtPdf(SuiviOperationService $suivi, DdpDto $dto): void
+    {
+        // Enregistrement dans BD
+        $suivi->etape('Base de données', function () use ($dto) {
+            $this->enregistrementSurBd($dto);
+        });
+        // Enregistrement des fichiers, generation du PDF et fusion des fichiers
+        $this->traitementDeFichier($dto);
     }
 
     /**
@@ -150,23 +168,30 @@ class DdpController extends Controller
             return;
         }
 
-        $repository = $this->getEntityManager()->getRepository(DemandePaiement::class);
-        foreach (array_unique($dto->numeroCommande) as $numCde) {
-            $numCde = (string) $numCde;
-            $situation = $repository->getSituationAvanceParCommande($numCde, $dto->codeSociete);
-            $dto->soldesAvance[$numCde] = $situation['soldeAvance'];
-            $dto->montantsTotalCommande[$numCde] = $this->demandePaiementModel->getMontantTotalCommande((string) $dto->numeroFournisseur, $numCde);
-            if ($situation['typeDdpAGenerer'] === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_REGULE) {
-                $dto->commandesRegule[] = $numCde;
-            }
-        }
+        // suivi étape par étape de l'enregistrement (admin > historique > suivi des opérations)
+        $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_DDP);
 
-        $dto->lignesFactures = $this->demandePaiementModel->getCommandesParFacture(
-            TableauEnStringService::TableauEnString(',', $dto->numeroFacture)
-        );
-        foreach ($this->demandePaiementModel->getLivraisonsReceptionnees($dto->numeroFournisseur, $dto->numeroCommande, $dto->numeroFacture, $dto->codeSociete) as $ligne) {
-            $dto->livraisonsParCommande[$ligne['numero_commande']][] = $ligne['numero_livraison'];
-        }
+        $suivi->etape('Soldes et montants des commandes', function () use ($dto) {
+            $repository = $this->getEntityManager()->getRepository(DemandePaiement::class);
+            foreach (array_unique($dto->numeroCommande) as $numCde) {
+                $numCde = (string) $numCde;
+                $situation = $repository->getSituationAvanceParCommande($numCde, $dto->codeSociete);
+                $dto->soldesAvance[$numCde] = $situation['soldeAvance'];
+                $dto->montantsTotalCommande[$numCde] = $this->demandePaiementModel->getMontantTotalCommande((string) $dto->numeroFournisseur, $numCde);
+                if ($situation['typeDdpAGenerer'] === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_REGULE) {
+                    $dto->commandesRegule[] = $numCde;
+                }
+            }
+        });
+
+        $suivi->etape('Factures et livraisons', function () use ($dto) {
+            $dto->lignesFactures = $this->demandePaiementModel->getCommandesParFacture(
+                TableauEnStringService::TableauEnString(',', $dto->numeroFacture)
+            );
+            foreach ($this->demandePaiementModel->getLivraisonsReceptionnees($dto->numeroFournisseur, $dto->numeroCommande, $dto->numeroFacture, $dto->codeSociete) as $ligne) {
+                $dto->livraisonsParCommande[$ligne['numero_commande']][] = $ligne['numero_livraison'];
+            }
+        });
 
         // montant à payer de la DDP = somme des montants du commande à payer
         $dto->montantAPayer = number_format(
@@ -176,11 +201,10 @@ class DdpController extends Controller
             ''
         );
 
-        $dto = $this->ddpFactory->apresSoumission($form, $dto);
-        $dto->donneesPageDeGarde = $this->donneesPageDeGarde($dto);
+        $dto = $this->numeroEtFichiers($suivi, $form, $dto);
+        $dto->donneesPageDeGarde = $suivi->etape('Données de la page de garde', fn() => $this->donneesPageDeGarde($dto));
 
-        $this->enregistrementSurBd($dto);
-        $this->traitementDeFichier($dto);
+        $this->enregistrementEtPdf($suivi, $dto);
 
         $this->notificationSoumission($dto->numeroDdp);
     }
@@ -328,10 +352,14 @@ class DdpController extends Controller
         // fichiers distants copiés (192.168.0.15) + fichiers téléversés + fichiers de commande DW
         $dto->lesFichiers = $dto->getToutesLesNomFichiers();
         // generation de la page de garde DDP
-        $this->pageDeGarde($dto, $nomAvecCheminFichier);
+        SuiviOperationService::suivre('Page de garde', function () use ($dto, $nomAvecCheminFichier) {
+            $this->pageDeGarde($dto, $nomAvecCheminFichier);
+        });
         // fusion des PDF : page de garde DDP + TOUS les fichiers du dossier DDP
         // (dépôt dans DOCUWARE à la transmission : DdpApiController::transmettreBap)
-        $this->fusionDesPdf($this->cheminsFichiersAFusionner($dto), [], $nomAvecCheminFichier);
+        SuiviOperationService::suivre('Fusion', function () use ($dto, $nomAvecCheminFichier) {
+            $this->fusionDesPdf($this->cheminsFichiersAFusionner($dto), [], $nomAvecCheminFichier);
+        });
 
         return $nomFichier;
     }

@@ -65,6 +65,17 @@ Si aucun numéro de demande n'est reçu, le serveur répond par une erreur, sans
 2. chaque demande passe à `Soumis à validation`, avec `numero_cla`, `date_soumission_compta`, `deposer_dw` et `date_depot_dw` renseignés ;
 3. le PDF est copié dans DocuWare sous le nom `{numéro}#{CLA}.pdf`.
 
+### 3.3 Suivi étape par étape
+
+Écran **Admin › Historique › Suivi des opérations** (`SuiviOperationService`, table `historique_operation_etape`). Chaque étape y figure avec son statut, sa durée, ses requêtes et son erreur éventuelle. Les contrôles qui refusent le formulaire avant ces étapes n'y figurent pas.
+
+| Opération | Type | N° document | Étapes |
+|---|---|---|---|
+| Enregistrement | `DDP` | Numéro `DDP` | Soldes et montants des commandes ; Factures et livraisons ; Numéro et fichiers joints ; Données de la page de garde ; Base de données ; Page de garde ; Fusion |
+| Transmission | `DDP_TRANSMISSION` | Numéro `CLA` | Numéro CLA ; une étape « Transmission {numéro} » par demande, avec la copie DocuWare ; Base de données |
+
+Une copie DocuWare échouée ne bloque pas la transmission (P-AA-09), mais passe son étape en échec dans ce suivi.
+
 ## 4. Règles de gestion
 
 « Front » et « Serveur » indiquent où la règle est réellement appliquée. Une règle appliquée uniquement côté front peut être contournée par une requête forgée.
@@ -203,7 +214,7 @@ Constats issus de la lecture du code ; aucun n'a été reproduit en exécution. 
 | P-AA-20 | Le solde avance additionne tout le réceptionné validé (RG-AA-08) et pouvait devenir négatif | Solde 500 et réceptionné 800 : 300 à payer, puis solde à -300 une fois validé. Une réception de 100 aurait donné 400 à payer au lieu de 100 | Solde ramené à 0 |
 | P-AA-21 | Une commande payée à 100 % a un solde avance forcé à 0, donc son montant à payer égalait tout le réceptionné | Commande de 1 000 déjà payée à 100 % par acomptes : elle aurait été demandée à 1 000 | Montant à payer de 0 (`DdpDto::$commandesRegule`) |
 | P-AA-22 | Le magasin ne crée plus que des DDPL : tout part dans `DEMANDE_DE_PAIEMENT`, plus rien dans `BON A PAYER` ni `DEMANDE_DE_REGULARISATION` | Le circuit de validation DocuWare et la moulinette reçoivent un seul type de document : à confirmer avec leurs responsables, notamment pour le statut `BAP à valider par Dir Admin` | |
-| P-AA-23 | Le montant réceptionné est cherché avec le numéro de facture GCOT. Si ce numéro diffère dans IPS, la commande n'a aucun montant. Cas vu : `PDV_2311825` dans GCOT, référence `23111825` sur la livraison 26437759 dans IPS (cause probable, à confirmer) | La commande 26249166 reste sans montant, et la demande ne peut pas être enregistrée tant que le numéro n'est pas corrigé | Enregistrement bloqué, pas de montant compté à 0 |
+| P-AA-23 | Le montant réceptionné est cherché avec le numéro de facture GCOT sans `PDV_`, comparé exactement à `frn_fac.ffac_facext`. Une facture écrite autrement dans IPS ne donne aucun montant. Cas vérifié : `PDV_11916226B` (788,25) dans GCOT correspond à ` 11916226` dans IPS (facture 26732026, espace devant, sans `B`), avec les mêmes 5 commandes et le même total. Autre cas, non expliqué : `PDV_2311825` lie la commande 26249166 dans GCOT, mais `2311825` ne la contient pas dans IPS | Toutes les commandes de la facture restent sans montant, et la demande ne peut pas être enregistrée | Enregistrement bloqué, pas de montant compté à 0. Données non corrigées. **Adaptation du code reportée** : si le numéro exact est introuvable, chercher dans IPS sans la lettre finale et sans tenir compte des espaces, et n'accepter le résultat que si son total égale le montant GCOT au centime près. Sans ce contrôle, deux factures peuvent être mélangées : `11916226` et ` 11916226` sont deux factures différentes dans IPS. Correspondance vérifiée sur cette seule facture, à confirmer avec la personne qui saisit les factures dans IPS |
 | P-AA-03 | `DdpLigneMapper` met le total de la demande dans `montant_facture` de chaque ligne | Une demande de 3 lignes à 900 donne 2 700 si on additionne la colonne | |
 | P-AA-04 | Le serveur accepte les factures postées (`choices` = valeurs soumises) ; RG-AA-01 et RG-AA-09 ne sont appliquées que côté front | Une requête forgée peut soumettre une facture exclue de la liste ou une commande sans PDF | |
 | P-AA-05 | Le DTO garde la société `HF` à la soumission, alors que l'API utilise la société de l'utilisateur | Pour un utilisateur d'une autre société, le solde affiché peut différer de celui enregistré | |
@@ -240,3 +251,20 @@ Constats issus de la lecture du code ; aucun n'a été reproduit en exécution. 
 ## 11. Hors périmètre
 
 Ces éléments utilisent en partie les mêmes tables, mais ne sont pas décrits ici : paiement à l'avance (fiche liée), demande de paiement DA/appro (`DemandePaiementDaController`), `DemandePaiementController`, modification (`EditDemandePaiementController`), dossier de régularisation (`DdpDossierRegularisationController`), liste compta (`DdpListeController`).
+
+## 12. Historique de suivi
+
+Évolutions du module et décisions. À compléter à chaque changement.
+
+| Date | Commit | Changement ou décision | Réf. |
+|---|---|---|---|
+| 02/11/2026 | `691972555` | Création de cette fiche | |
+| 02/11/2026 | `f0c870b84` | Colonnes « DDPA » et « DDP à générer » retirées du tableau du formulaire | |
+| 02/11/2026 | `1ac4076cb` | Montant réceptionné séparé du montant à payer (colonne `montant_commande_receptionner`), solde avance restant, montant total à payer, solde ramené à 0, montant à payer de 0 pour une commande payée à 100 % | RG-AA-13, RG-AA-14, P-AA-20, P-AA-21 |
+| 02/11/2026 | `f97e61542` | Une saisie crée une seule demande DDPL et une seule page de garde ; page BAP MAGASIN supprimée. PDF : soldes dans « Résumé des BC », une ligne par livraison, unités dans l'entête | RG-AA-06, P-AA-22 |
+| 02/11/2026 | `8f7a527aa` | Transmission : numéros de demande rétablis sur les cases à cocher ; une transmission vide renvoie une erreur et ne consomme plus de numéro `CLA` | section 3.2 |
+| 02/11/2026 | `2663a8df0` | Colonne `montant_total_commande` ajoutée à `demande_paiement_ligne` et `demande_paiement_commande` | section 9 |
+| 02/11/2026 | `30f4c35c9` | Montant réceptionné lu dans IPS, non modifiable, enregistrement bloqué s'il est introuvable ; % en rouge sur le formulaire et le PDF | RG-AA-03, RG-AA-15, RG-AA-16 |
+| 02/11/2026 | à commiter | Total à payer et % laissés vides quand aucun montant réceptionné n'est connu | |
+| 02/11/2026 | à commiter | Suivi étape par étape ajouté à l'enregistrement et à la transmission | section 3.3 |
+| 02/11/2026 | – | **Décision :** factures écrites différemment dans GCOT et IPS : pas de correction des données, adaptation du code reportée, enregistrement bloqué en attendant | P-AA-23 |
