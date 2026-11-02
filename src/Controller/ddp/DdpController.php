@@ -118,7 +118,7 @@ class DdpController extends Controller
 
             // Enregistrement dans BD
             $this->enregistrementSurBd($dto);
-            // Enregistrement des fichiers, generation du PDF, fusion des fichiers et envoi dans DOCUWARE
+            // Enregistrement des fichiers, generation du PDF et fusion des fichiers
             $this->traitementDeFichier($dto);
 
             /** HISTORISATION */
@@ -381,15 +381,10 @@ class DdpController extends Controller
         // fichiers distants copiés (192.168.0.15) + fichiers téléversés + fichiers de commande DW
         $dto->lesFichiers = $dto->getToutesLesNomFichiers();
         // generation de la page de garde DDP
-        $generatePdfDdp = $this->pageDeGarde($dto, $nomAvecCheminFichier);
+        $this->pageDeGarde($dto, $nomAvecCheminFichier);
         // fusion des PDF : page de garde DDP + TOUS les fichiers du dossier DDP
+        // (dépôt dans DOCUWARE à la transmission : DdpApiController::transmettreBap)
         $this->fusionDesPdf($this->cheminsFichiersAFusionner($dto), [], $nomAvecCheminFichier);
-        // envoi du PDF final dans DOCUWARE
-        if ($dto->typeDdp->getId() === TypeDemandePaiementConstants::ID_BON_A_PAYER) {
-            $generatePdfDdp->copyToDWBapDa($nomAvecCheminFichier, $nomFichier, 'BAP');
-        } else {
-            $generatePdfDdp->copyToDwDdp($nomFichier, $dto->numeroDdp);
-        }
 
         return $nomFichier;
     }
@@ -429,17 +424,13 @@ class DdpController extends Controller
 
     /**
      * Page de garde : BAP MAGASIN pour un bon à payer, DDP sinon
-     *
-     * @return GeneratePdfDdp|GenererPdfBapMagasin
      */
-    private function pageDeGarde(DdpDto $dto, string $cheminEtNom)
+    private function pageDeGarde(DdpDto $dto, string $cheminEtNom): void
     {
         $generatePdfDdp = $dto->typeDdp->getId() === TypeDemandePaiementConstants::ID_BON_A_PAYER
             ? new GenererPdfBapMagasin()
             : new GeneratePdfDdp();
         $generatePdfDdp->genererPdfDto($dto, $cheminEtNom);
-
-        return $generatePdfDdp;
     }
 
     /**

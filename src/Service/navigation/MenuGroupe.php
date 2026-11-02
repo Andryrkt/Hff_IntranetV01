@@ -489,6 +489,7 @@ class MenuGroupe
                 'links'  => [
                     // 'admin' : visible pour le profil HFF-ADMIN sans déclaration de page/droit
                     ['label' => 'Documentation utilisateur', 'icon' => 'fa-book-open', 'route' => 'doc_utilisateur_index', 'admin' => true],
+                    ['label' => 'Documentation technique', 'icon' => 'fa-code', 'route' => 'app_doc_tech_index', 'admin' => true],
                 ],
             ],
         ];

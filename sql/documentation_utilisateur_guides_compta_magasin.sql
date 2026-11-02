@@ -192,13 +192,13 @@ VALUES ('magasin-cmd-non-placees', N'Liste des commandes fournisseur non placée
 
 IF NOT EXISTS (SELECT 1 FROM documentation_utilisateur WHERE slug = 'magasin-consultation-facture')
 INSERT INTO documentation_utilisateur (slug, titre, rubrique, ordre, publie, contenu, date_modification, modifie_par)
-VALUES ('magasin-consultation-facture', N'Consultation facture et transmission en validation', 'Magasin', 9, 0, N'
-<p>Menu <strong>Magasin › Consultation facture</strong>. Cet écran liste les demandes de paiement magasin (BAP, DDPL, DDPR…) et sert à les <strong>transmettre en validation</strong> dans DocuWare.</p>
+VALUES ('magasin-consultation-facture', N'Consultation facture et transmission en validation', 'Magasin', 9, 1, N'
+<p>Menu <strong>Magasin › Consultation facture</strong>. Cet écran liste les demandes de paiement magasin (DDPA, BAP, DDPL, DDPR…) et sert à les <strong>transmettre en validation</strong> dans DocuWare.</p>
 <h2>Rechercher</h2>
 <p>Filtres : numéro DA, numéro de commande, numéro de livraison IPS, numéro DDP, facture BL, fournisseur, numéro CLA, et <strong>A traiter</strong> pour n’afficher que les demandes à transmettre.</p>
 <h2>Transmettre en validation</h2>
 <ol>
-<li>Cochez les demandes à transmettre. Seules celles au statut « … à transmettre » (BAP, DDPL ou DDPR à transmettre) peuvent être cochées.</li>
+<li>Cochez les demandes à transmettre. Seules celles au statut « … à transmettre » (DDPA, BAP, DDPL ou DDPR à transmettre) peuvent être cochées.</li>
 <li>Cliquez sur <strong>Transmettre à validation</strong>.</li>
 <li>Les demandes cochées reçoivent un même numéro CLA, passent au statut « Soumis à validation », et leur PDF est déposé dans DocuWare.</li>
 </ol>

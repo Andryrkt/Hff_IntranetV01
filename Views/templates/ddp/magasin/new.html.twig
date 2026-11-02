@@ -9,7 +9,7 @@
 
 {% import "macroForm.html.twig" as macroForm %}
 
-{% set guideSlug = 'ddp-magasin' %}
+{% set guideSlug = id_type == 1 ? 'ddp-magasin-avance' : 'ddp-magasin-apres-arrivage' %}
 
 {% block content %}
 	<div class="container-fluid mt-6">
@@ -190,7 +190,7 @@
 					<div class="row d-none" id="tableau_dossier"></div>
 
 					<div class="d-flex justify-content-end">
-						<button type="submit" id="submitDdpButton" class="btn bouton mt-2" data-confirmation data-form="#myForm" data-confirmation-message="Confirmez-vous l'envoi ?" data-confirmation-text="Vous êtes en train de soumettre une demande de paiement à validation dans DocuWare" data-warning-message="Merci de ne pas fermer la page pendant le traitement.">
+						<button type="submit" id="submitDdpButton" class="btn bouton mt-2" data-confirmation data-form="#myForm" data-confirmation-message="Confirmez-vous l'envoi ?" data-confirmation-text="Vous êtes en train d'enregistrer une demande de paiement. Elle devra ensuite être transmise en validation depuis la consultation des factures." data-warning-message="Merci de ne pas fermer la page pendant le traitement.">
 							<i class="fas fa-save"></i>
 							Enregistrer
 						</button>

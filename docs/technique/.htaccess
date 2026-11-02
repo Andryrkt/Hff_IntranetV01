@@ -1,0 +1,3 @@
+# Documentation réservée aux administrateurs : lecture uniquement via /doc/technique
+RewriteEngine On
+RewriteRule ^ - [F]
