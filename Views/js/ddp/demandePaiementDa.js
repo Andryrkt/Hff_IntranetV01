@@ -1,4 +1,4 @@
-import { DemandePaiementManager } from "./DemandePaiementManager.js?v=20261102f";
+import { DemandePaiementManager } from "./DemandePaiementManager.js?v=20261102h";
 import { formaterNombre } from "../utils/formatNumberUtils.js";
 import { setupConfirmationButtons } from "../utils/ui/boutonConfirmUtils.js";
 import { baseUrl } from "../utils/config.js";

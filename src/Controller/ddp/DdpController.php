@@ -363,7 +363,7 @@ class DdpController extends Controller
 
     /**
      * Pourcentage du montant à payer par rapport :
-     * - à l'avance : au montant total du commande saisi ;
+     * - à l'avance : au montant total du commande du formulaire (remonté d'IPS, modifiable) ;
      * - après arrivage : au montant HT total des commandes de la demande.
      */
     private function ratioMontantPayer(DdpDto $dto): float

@@ -543,6 +543,23 @@ class DemandePaiementModel extends Model
     }
 
 
+    /**
+     * Montant total d'une commande dans IPS (null si le couple fournisseur/commande n'existe pas)
+     */
+    public function getMontantTotalCommande(string $numeroFournisseur, string $numCde): ?float
+    {
+        $statement = " SELECT fcde_mtn as montant_total_commande
+                from Informix.frn_cde
+                where fcde_numfou = '" . (int) $numeroFournisseur . "'
+                and fcde_numcde = '" . (int) $numCde . "'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+
+        return empty($data) ? null : (float) $data[0]['montant_total_commande'];
+    }
+
     public function recupInfoComamnde(string $numCde, string $numeroFournisseur)
     {
         $statement = " SELECT 

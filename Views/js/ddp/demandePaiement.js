@@ -1,4 +1,4 @@
-import { DemandePaiementManager } from "./DemandePaiementManager.js?v=20261102f";
+import { DemandePaiementManager } from "./DemandePaiementManager.js?v=20261102h";
 import { baseUrl } from "../utils/config.js";
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -51,6 +51,7 @@ document.addEventListener("DOMContentLoaded", function () {
       montantFacture:
         "api/montant-facture/:numFournisseur/:facturesString/:typeId",
       montantCommandeHt: "api/montant-commande-ht/:numCde",
+      montantTotalCommande: "api/montant-total-commande/:numFournisseur/:numCde",
       situationAvanceCommande: "api/situation-avance-commande/:numCde",
       montantCommandeReceptionnee:
         "api/montant-commande-receptionnee/:numFournisseur/:numCdes/:facturesString",

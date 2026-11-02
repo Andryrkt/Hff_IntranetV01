@@ -247,6 +247,21 @@ class InfoFournisseurApi extends Controller
     }
 
     /**
+     * Paiement à l'avance : montant total de la commande dans IPS, affiché dans le formulaire.
+     *
+     * @Route("/api/montant-total-commande/{numeroFournisseur}/{numCde}", name="api_montant_total_commande", requirements={"numeroFournisseur"="\d+", "numCde"="\d+"})
+     */
+    public function montantTotalCommande(string $numeroFournisseur, string $numCde)
+    {
+        $this->libererSession();
+
+        header("Content-type:application/json");
+        echo json_encode([
+            'montantTotalCommande' => $this->demandePaiementModel()->getMontantTotalCommande($numeroFournisseur, $numCde),
+        ]);
+    }
+
+    /**
      * Paiement après arrivage : situation des demandes de paiement à l'avance
      * d'une commande (ratio DDPA, solde avance) et type de DDP à générer :
      * BAP si 0 % DDPA, DDPR si 100 %, DDPL entre les deux.

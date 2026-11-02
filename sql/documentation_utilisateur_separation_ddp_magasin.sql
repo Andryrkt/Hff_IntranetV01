@@ -22,7 +22,7 @@ SELECT 'ddp-magasin-avance', N'Demande de paiement magasin – à l''avance', ru
 <li><strong>N° commande</strong> : choisissez la commande. Seules les commandes validées et pas encore réceptionnées apparaissent.</li>
 <li>L''<strong>historique des demandes de paiement</strong> de cette commande s''affiche en haut : demandes déjà faites, % de chacune, cumul, total déjà validé et reste.</li>
 <li><strong>Montant facture proforma *</strong> : le montant à payer au fournisseur, tel qu''il figure sur la proforma.</li>
-<li><strong>Montant total du commande *</strong> : le montant total de la commande.</li>
+<li><strong>Montant total du commande *</strong> : rempli automatiquement depuis IPS dès que vous choisissez la commande. Vous pouvez le modifier ; le pourcentage payé se calcule sur le montant affiché à l''enregistrement.</li>
 <li><strong>Pièces jointes</strong> : la proforma facture fournisseur et le RIB fournisseur sont attendus ; les autres documents sont facultatifs. Les BC client rattachés à la commande s''affichent dans leur onglet ; leur dépôt manuel est désactivé.</li>
 <li>Cliquez sur <strong>Enregistrer</strong> et confirmez.</li>
 </ol>
@@ -43,7 +43,7 @@ SELECT 'ddp-magasin-avance', N'Demande de paiement magasin – à l''avance', ru
 <tbody>
 <tr><td>La commande X est déjà payée à 100 % par des demandes de paiement à l''avance validées</td><td>La commande est déjà soldée par acomptes</td><td>Ne pas faire de nouvel acompte ; utiliser le paiement après arrivage à la réception</td></tr>
 <tr><td>Le montant facture proforma ne doit pas dépasser 20 000</td><td>Le plafond est dépassé</td><td>Saisir un montant inférieur ou égal au plafond</td></tr>
-<tr><td>Le montant total du commande est obligatoire</td><td>Champ vide</td><td>Saisir le montant total de la commande</td></tr>
+<tr><td>Le montant total du commande est obligatoire</td><td>Champ vide (montant absent d''IPS ou effacé)</td><td>Saisir le montant total de la commande</td></tr>
 <tr><td>Bouton Enregistrer grisé et message rouge sous la commande</td><td>Le PDF de la commande fournisseur validée est introuvable</td><td>Vérifier que la commande est bien validée et déposée dans DocuWare</td></tr>
 </tbody>
 </table>

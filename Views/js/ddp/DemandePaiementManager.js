@@ -931,6 +931,7 @@ export class DemandePaiementManager {
     const numCde = this.getNumCdesSelectionnees()[0];
     this.commandeSoldee = false;
     this.afficherHistoriqueDdp(null);
+    this.chargerMontantTotalCommande(numCde);
 
     if (!numCde) {
       this.verifierMontant();
@@ -952,6 +953,36 @@ export class DemandePaiementManager {
     }
 
     this.verifierMontant();
+  }
+
+  /**
+   * Paiement à l'avance (formulaire magasin) : pré-remplit le montant total de la
+   * commande depuis IPS, modifiable ensuite par l'utilisateur.
+   */
+  async chargerMontantTotalCommande(numCde) {
+    const champ = this.elements.montantTotalCommandeInput;
+    if (!champ) return;
+
+    champ.value = "";
+    if (!numCde) return;
+
+    try {
+      const url = this.config.urls.montantTotalCommande
+        .replace(":numFournisseur", this.elements.numFrnInput.value)
+        .replace(":numCde", numCde);
+      const { montantTotalCommande } = await this.fetchManager.get(url);
+      // Ignore la réponse si la sélection a changé entre-temps
+      if (this.getNumCdesSelectionnees()[0] !== numCde) return;
+      // Ne remplace pas une saisie faite pendant le chargement
+      if (montantTotalCommande !== null && champ.value === "") {
+        champ.value = formatNumberSpecial(Number(montantTotalCommande).toFixed(2));
+      }
+    } catch (error) {
+      console.error(
+        "Erreur lors de la récupération du montant total de la commande :",
+        error,
+      );
+    }
   }
 
   /**

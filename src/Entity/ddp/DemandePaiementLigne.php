@@ -69,6 +69,11 @@ class DemandePaiementLigne
      */
     private ?float $montantCommandeReceptionner = null;
 
+    /**
+     * @ORM\Column(type="float", scale="2", name="montant_total_commande", nullable=true)
+     */
+    private ?float $montantTotalCommande = null;
+
 
     /**===========================================================================
      * GETTER & SETTER
@@ -231,6 +236,24 @@ class DemandePaiementLigne
     public function setRatioMontantPayer($ratioMontantPayer): self
     {
         $this->ratioMontantPayer = $ratioMontantPayer;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of montantTotalCommande
+     */
+    public function getMontantTotalCommande(): ?float
+    {
+        return $this->montantTotalCommande;
+    }
+
+    /**
+     * Set the value of montantTotalCommande
+     */
+    public function setMontantTotalCommande(?float $montantTotalCommande): self
+    {
+        $this->montantTotalCommande = $montantTotalCommande;
 
         return $this;
     }
