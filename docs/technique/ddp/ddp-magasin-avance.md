@@ -21,7 +21,7 @@ Payer un acompte au fournisseur, sur facture proforma, pour une commande validé
 |---|---|---|---|---|
 | 1 | `DPA` | `ID_DEMANDE_PAIEMENT_A_L_AVANCE` | **DDPA** | DDP |
 
-Les DDPA validées déterminent ensuite le document créé après arrivage : BAP, DDPL ou DDPR (voir la fiche liée).
+Les DDPA validées sont ensuite déduites du montant à payer après arrivage (voir la fiche liée).
 
 ## 2. Composants
 

@@ -2,6 +2,7 @@
 
 namespace App\Service\genererPdf;
 
+use App\Controller\Traits\FormatageTrait;
 use App\Dto\ddp\DdpDto;
 use App\Entity\ddp\DemandePaiement;
 use App\Traits\ChaineCaractereTrait;
@@ -10,6 +11,7 @@ use TCPDF;
 class GeneratePdfDdp extends GeneratePdf
 {
     use ChaineCaractereTrait;
+    use FormatageTrait;
 
     /**
      * Genere le PDF DEMANDE DE PAIEMENT (DDP)
@@ -340,25 +342,8 @@ class GeneratePdfDdp extends GeneratePdf
         $pdf->Cell(70, 10, $dto->modePaiement, 1, 0);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell($usable_width - 100, 10, $dto->montantAPayer, 1, 0); // TO DO: valeur de "Montant à payer" (remplacer '' par sa valeur)
+        $pdf->Cell($usable_width - 100, 10, $this->formaterPrix($dto->montantAPayer()), 1, 0, 'R'); // TO DO: valeur de "Montant à payer" (remplacer '' par sa valeur)
         $pdf->Cell(30, 10, $dto->devise, 1, 1); // TO DO: valeur de "Devise" (remplacer '' par sa valeur)
-
-        // Après arrivage (DDPR / DDPL) : solde avance de chaque commande
-        if (!empty($dto->soldesAvance)) {
-            $soldes = [];
-            foreach ($dto->soldesAvance as $numCde => $solde) {
-                $soldes[] = $numCde . ' : ' . number_format((float) $solde, 2, ',', ' ');
-            }
-            $pdf->Cell(50, 10, 'Solde avance ', 1, 0);
-            $pdf->MultiCell($usable_width - 50, 10, implode(' ; ', $soldes), 1, 'L', 0, 1);
-
-            $montantsAPayer = [];
-            foreach (array_keys($dto->soldesAvance) as $numCde) {
-                $montantsAPayer[] = $numCde . ' : ' . number_format((float) $dto->montantCommandeAPayer((string) $numCde), 2, ',', ' ');
-            }
-            $pdf->Cell(50, 10, 'Montant cde à payer ', 1, 0);
-            $pdf->MultiCell($usable_width - 50, 10, implode(' ; ', $montantsAPayer), 1, 'L', 0, 1);
-        }
 
         $pdf->Ln(5);
 
@@ -378,12 +363,134 @@ class GeneratePdfDdp extends GeneratePdf
         $pdf->SetFont('helvetica', '', 12);
         $pdf->MultiCell(0, 10, implode(";", $dto->numeroDossierDouane), 0, 'L', 0, 1);
 
+        // Après arrivage : résumé des BC, livraisons et demandes de paiement déjà faites
+        if (!empty($dto->donneesPageDeGarde)) {
+            $commandes = $dto->donneesPageDeGarde['commandes'] ?? [];
+            $devise = $dto->devise ?? '';
+            $this->renderResumeBc($pdf, $dto, $commandes, $dto->donneesPageDeGarde['factures'] ?? []);
+            $this->renderHistoriqueLivraison($pdf, $commandes, $devise);
+            $this->renderHistoriqueDdp($pdf, $commandes, $devise);
+        }
+
         // génération de fichier: à changer plus tard
         $directory = dirname($cheminDeFichier);
         if (!is_dir($directory)) {
             mkdir($directory, 0777, true);
         }
         $pdf->Output($cheminDeFichier, 'F');
+    }
+
+    /**
+     * Après arrivage : une ligne par BC, comme le tableau des montants par commande du formulaire
+     */
+    private function renderResumeBc(TCPDF $pdf, DdpDto $dto, array $commandes, array $factures): void
+    {
+        $devise = $dto->devise ?? '';
+        $lignes = [];
+        foreach (array_keys($commandes) as $numCde) {
+            $facturesCde = array_filter($factures, fn($f) => trim((string) ($f['Numero_PO'] ?? '')) === (string) $numCde);
+            // valeurs distinctes d'une colonne des factures de la commande
+            $valeurs = fn(string $champ) => implode(', ', array_unique(array_filter(array_map(fn($f) => trim((string) ($f[$champ] ?? '')), $facturesCde)))) ?: '-';
+            $lignes[] = [
+                ['center', '9%', $numCde],
+                ['left', '11%', $valeurs('Numero_Facture')],
+                ['left', '9%', $valeurs('Numero_Dossier_Douane')],
+                ['left', '11%', $valeurs('Numero_LTA')],
+                ['left', '10%', $valeurs('Numero_HAWB')],
+                ['right', '12%', $this->formaterPrix($dto->soldesAvance[$numCde] ?? 0)],
+                ['right', '13%', $this->formaterPrix($dto->montantCommande((string) $numCde) ?? 0)],
+                ['right', '12%', $this->formaterPrix($dto->montantCommandeAPayer((string) $numCde) ?? 0)],
+                ['right', '13%', $this->formaterPrix($dto->soldeAvanceRestant((string) $numCde) ?? 0)],
+            ];
+        }
+
+        $this->renderTable($pdf, 'RESUME DES BC', 'Aucune commande', ['N° commande', 'N° facture', 'N° dossier douane', 'N° LTA', 'N° HAWB', "Solde avance ($devise)", "Montant du commande réceptionné ($devise)", "Montant du commande à payer ($devise)", "Solde avance restant ($devise)"], $lignes);
+    }
+
+    private function renderHistoriqueLivraison(TCPDF $pdf, array $commandes, string $devise): void
+    {
+        // une livraison peut couvrir plusieurs commandes et plusieurs factures : une ligne par livraison
+        $livraisons = [];
+        foreach ($commandes as $numCde => $commande) {
+            foreach ($commande['livraisons'] ?? [] as $livraison) {
+                $numLiv = (string) ($livraison['num_liv'] ?? '');
+                $livraisons[$numLiv] = $livraisons[$numLiv] ?? ['commandes' => [], 'factures' => [], 'reference' => $livraison['ref_fac_bl'] ?? '', 'date' => $livraison['date_clot'] ?? null, 'montant' => 0.0];
+                $livraisons[$numLiv]['commandes'][(string) $numCde] = true;
+                $livraisons[$numLiv]['factures'][(string) ($livraison['numero_facture_ips'] ?? '')] = true;
+                $livraisons[$numLiv]['montant'] += (float) ($livraison['montant_fac_bl'] ?? 0);
+            }
+        }
+        ksort($livraisons);
+
+        $lignes = [];
+        foreach ($livraisons as $numLiv => $livraison) {
+            $lignes[] = [
+                ['center', '12%', $numLiv],
+                ['center', '24%', implode(', ', array_keys($livraison['commandes']))],
+                ['center', '15%', implode(', ', array_keys($livraison['factures']))],
+                ['left', '17%', $livraison['reference']],
+                ['center', '13%', !empty($livraison['date']) ? date('d/m/Y', strtotime($livraison['date'])) : '-'],
+                ['right', '19%', $this->formaterPrix($livraison['montant'])],
+            ];
+        }
+
+        $this->renderTable($pdf, 'RECAPITULATIF DES LIVRAISONS', 'Aucune livraison', ['N° Livraison IPS', 'N° commande', 'N° Facture IPS', 'Référence', 'Date livraison IPS', "Montant ($devise)"], $lignes);
+    }
+
+    private function renderHistoriqueDdp(TCPDF $pdf, array $commandes, string $devise): void
+    {
+        $lignes = [];
+        foreach ($commandes as $numCde => $commande) {
+            foreach ($commande['ddps'] ?? [] as $ddp) {
+                $lignes[] = [
+                    ['center', '11%', $numCde],
+                    ['center', '10%', $ddp['date']],
+                    ['center', '14%', $ddp['numero']],
+                    ['left', '24%', $ddp['type']],
+                    ['center', '8%', $this->formaterPrix($ddp['ratio'])],
+                    ['right', '14%', $this->formaterPrix($ddp['montant'])],
+                    ['left', '19%', $ddp['statut']],
+                ];
+            }
+        }
+
+        $this->renderTable($pdf, 'RECAPITULATIF DES DEMANDES DE PAIEMENT DEJA ENREGISTREES', 'Aucune demande de paiement', ['N° commande', 'Date', 'Numéro DDP', 'Type', '%', "Montant ($devise)", 'Statut'], $lignes);
+    }
+
+    private function renderTable(TCPDF $pdf, string $titre, string $messageVide, array $entetes, array $lignes): void
+    {
+        $pdf->Ln(2);
+        $pdf->SetFont('helvetica', 'B', 8);
+        $pdf->Cell(0, 6, $titre, 0, 1);
+        $pdf->SetFont('helvetica', '', 8);
+        if (empty($lignes)) {
+            $pdf->Cell(0, 6, $messageVide, 0, 1);
+            return;
+        }
+        $pdf->writeHTML($this->tableHtml($entetes, $lignes));
+    }
+
+    /**
+     * @param string[] $entetes
+     * @param array<array<array{0: string, 1: string, 2: string}>> $lignes cellules [alignement, largeur, valeur]
+     */
+    private function tableHtml(array $entetes, array $lignes): string
+    {
+        $html = '<table border="0" cellpadding="2" cellspacing="0" style="font-size: 7px;"><thead><tr style="background-color: #D3D3D3; font-weight: bold;">';
+        foreach ($entetes as $i => $entete) {
+            [$align, $largeur] = $lignes[0][$i];
+            $html .= sprintf('<th align="%s" style="width:%s;">%s</th>', $align, $largeur, htmlspecialchars($entete));
+        }
+        $html .= '</tr></thead><tbody>';
+        foreach ($lignes as $ligne) {
+            $html .= '<tr>';
+            foreach ($ligne as [$align, $largeur, $valeur]) {
+                $html .= sprintf('<td align="%s" style="width:%s;">%s</td>', $align, $largeur, htmlspecialchars((string) $valeur));
+            }
+            $html .= '</tr>';
+        }
+
+        return $html . '</tbody></table>';
     }
 
     /**

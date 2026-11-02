@@ -1091,7 +1091,7 @@ export class DemandePaiementManager {
           Number(situation.soldeAvance || 0).toFixed(2),
         );
         input.dataset.soldeAvance = situation.soldeAvance;
-        // type 3 = DDPR : rien de plus à payer (DdpDto::$estRegule)
+        // type 3 = commande déjà payée à 100 % par les DDPA : rien de plus à payer (DdpDto::$commandesRegule)
         input.dataset.regule = situation.typeDdpAGenerer === 3 ? "1" : "";
         this.afficherMontantCommandeAPayer(input);
       });

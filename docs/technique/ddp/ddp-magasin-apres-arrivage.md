@@ -1,12 +1,12 @@
 ---
 title: Demande de paiement magasin – après arrivage
 category: Demande de paiement
-description: BAP, DDPL et DDPR, paiement sur factures fournisseur après réception, de la saisie à la transmission en validation.
+description: DDPL, paiement sur factures fournisseur après réception, de la saisie à la transmission en validation.
 ---
 
 | | |
 |---|---|
-| **Code décrit** | branche `feature/ddp-neg`, commit `2e3069de7` (02/11/2026), plus le retrait du dépôt DocuWare à la soumission, non commité à cette date |
+| **Code décrit** | branche `feature/ddp-neg`, commit `2e3069de7` (02/11/2026), plus les modifications non commitées du 02/11/2026 (dépôt DocuWare à la transmission, montants, demande unique) |
 | **État du code** | pas encore sur `main` ; 13 fichiers du module diffèrent aussi de `dev` |
 | **Guide utilisateur** | page `ddp-magasin-apres-arrivage` de la table `documentation_utilisateur` |
 | **Fiche liée** | Demande de paiement magasin – à l'avance |
@@ -17,27 +17,25 @@ description: BAP, DDPL et DDPR, paiement sur factures fournisseur après récept
 
 Payer le fournisseur une fois la marchandise arrivée, à partir de ses factures. L'utilisateur remplit un formulaire dans l'intranet. L'application génère et enregistre un PDF. La demande est ensuite transmise en validation depuis l'écran de consultation, et c'est à ce moment que le PDF est déposé dans DocuWare.
 
-**Formulaire et document sont deux notions distinctes.** Ce formulaire ne crée pas forcément un seul document : chaque commande reçoit le type qui correspond à ses acomptes (DDPA) validés.
+**Une saisie crée une seule demande**, avec un seul numéro et une seule page de garde, quels que soient le nombre de factures et de commandes. Les acomptes (DDPA) validés n'influencent que les montants, commande par commande.
 
-| ID type | Code en base | Constante | Document | Quand | Page de garde |
-|---|---|---|---|---|---|
-| 2 | `DPL` | `ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE` | **DDPL** | DDPA validées entre 0 et 100 % | DDP |
-| 3 | `DPR` | `ID_DEMANDE_PAIEMENT_REGULE` | **DDPR** | DDPA validées à 100 % | DDP |
-| 4 | `BAP` | `ID_BON_A_PAYER` | **BAP** | Aucune DDPA validée | BAP MAGASIN |
+| ID type | Code en base | Constante | Document | Page de garde |
+|---|---|---|---|---|
+| 2 | `DPL` | `ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE` | **DDPL** | DDP |
 
-L'ID 2 sert à la fois de type de formulaire et de type de document (DDPL).
+Le formulaire ne crée plus de BAP (type 4) ni de DDPR (type 3). Les demandes de ces types déjà enregistrées restent consultables et transmissibles. Leur ancienne page de garde BAP MAGASIN n'existe plus dans le code, mais leurs PDF déjà générés restent en place.
 
 ## 2. Composants
 
 | Rôle | Fichier |
 |---|---|
-| Contrôleur (soumission, regroupement, fichiers) | [DdpController](../../../src/Controller/ddp/DdpController.php) |
+| Contrôleur (soumission, fichiers) | [DdpController](../../../src/Controller/ddp/DdpController.php) |
 | Initialisation du DTO, numéro, copie des fichiers | [DdpFactory](../../../src/Factory/ddp/DdpFactory.php) |
 | Formulaire et DTO | [DdpType](../../../src/Form/ddp/DdpType.php), [DdpDto](../../../src/Dto/ddp/DdpDto.php) |
 | Situation d'avance d'une commande | [DemandePaiementRepository](../../../src/Repository/ddp/DemandePaiementRepository.php) `::getSituationAvanceParCommande` |
 | Persistance | [Service/ddp/Magasin](../../../src/Service/ddp/Magasin/), [Mapper/ddp/Magasin](../../../src/Mapper/ddp/Magasin/), `DemandePaiementCommandeMapper`, `CommandeLivraisonMapper` |
 | Requêtes IPS et GCOT | [DdpModel](../../../src/Model/ddp/DdpModel.php), [DemandePaiementModel](../../../src/Model/ddp/DemandePaiementModel.php) |
-| Pages de garde | [GeneratePdfDdp](../../../src/Service/genererPdf/GeneratePdfDdp.php), [GenererPdfBapMagasin](../../../src/Service/genererPdf/bap/GenererPdfBapMagasin.php) |
+| Page de garde | [GeneratePdfDdp](../../../src/Service/genererPdf/GeneratePdfDdp.php) |
 | API du formulaire | [InfoFournisseurApi](../../../src/Api/ddp/InfoFournisseurApi.php) |
 | Consultation et transmission | [BonApayerController](../../../src/Controller/da/ddp/BonApayerController.php), [DdpApiController](../../../src/Api/ddp/DdpApiController.php) |
 | Vue et front | [magasin/new.html.twig](../../../Views/templates/ddp/magasin/new.html.twig), [DemandePaiementManager.js](../../../Views/js/ddp/DemandePaiementManager.js) |
@@ -50,12 +48,12 @@ Routes principales : `new_ddp` (`/ddp/new/2`) et `da_bon_a_payer` (`/demande-app
 ### 3.1 Saisie et enregistrement
 
 1. L'utilisateur choisit un fournisseur. Le front charge ses factures GCOT liées à des commandes réceptionnées dans IPS.
-2. Il choisit une ou plusieurs factures. Les commandes correspondantes s'affichent dans un tableau, avec leur solde avance, le montant du commande réceptionné pré-rempli depuis IPS (modifiable) et le montant du commande à payer calculé (RG-AA-13). Le type de document à créer n'est pas affiché.
+2. Il choisit une ou plusieurs factures. Les commandes correspondantes s'affichent dans un tableau, avec leur solde avance, le montant du commande réceptionné pré-rempli depuis IPS (modifiable) et le montant du commande à payer calculé (RG-AA-13).
 3. Il saisit le montant total réceptionné, qui doit égaler la somme des montants réceptionnés du tableau. Le champ « Montant total à payer », non modifiable, affiche la somme des montants à payer.
 4. Le serveur **redéduit les commandes depuis les factures**, car le select est désactivé et n'est pas posté.
-5. `groupesParSituation()` classe chaque commande (RG-AA-05) et rattache chaque facture au groupe de ses commandes (RG-AA-06).
-6. Pour **chaque groupe**, le serveur clone le DTO, génère un numéro (`BAP` ou `DDP`), enregistre les données, puis génère et fusionne le PDF. Les fichiers téléversés sont déplacés pour le premier groupe, puis copiés pour les suivants (`copieFichiersSource`).
-7. La confirmation liste tous les numéros créés et redirige vers la consultation.
+5. Le serveur calcule le solde avance et le montant à payer de chaque commande (RG-AA-05, RG-AA-08, RG-AA-13), puis le montant de la demande (RG-AA-07).
+6. Il génère un numéro `DDP`, enregistre les données, puis génère et fusionne le PDF.
+7. La demande a le statut `DDPL à transmettre`, et l'utilisateur est redirigé vers la consultation.
 
 ### 3.2 Transmission en validation
 
@@ -75,16 +73,16 @@ Depuis la consultation, l'utilisateur coche des demandes `… à transmettre`, p
 | RG-AA-02 | Commandes déduites des factures | ✔ | ✔ |
 | RG-AA-03 | Montant du commande réceptionné obligatoire pour chaque commande | ✔ | ✔ |
 | RG-AA-04 | Montant total réceptionné = somme des montants du commande réceptionnés (± 0,01) | ✔ | ✔ |
-| RG-AA-05 | Classement selon le cumul des % DDPA validées : ≤ 0,01 → BAP ; ≥ 99,99 → DDPR ; sinon → DDPL | – | ✔ |
-| RG-AA-06 | Une facture dont les commandes tombent dans des groupes différents bloque toute la soumission | ✘ | ✔ |
-| RG-AA-07 | Une demande par groupe ; son `montant_a_payer` = somme des montants du commande à payer de ses commandes | – | ✔ |
-| RG-AA-08 | Solde avance (DDPL, sinon 0) = total commande de la dernière DDPA − (somme des proformas DDPA + `montant_commande_receptionner` des demandes validées non DDPA), ramené à 0 s'il est négatif | ✔ (aperçu) | ✔ |
+| RG-AA-05 | Situation de chaque commande selon le cumul des % DDPA validées : ≤ 0,01 → aucun acompte ; ≥ 99,99 → payée à 100 % ; sinon → payée en partie. Cette situation ne détermine que les montants | ✔ (aperçu) | ✔ |
+| RG-AA-06 | Une saisie crée une seule demande, de type 2, quelles que soient les situations de ses commandes | – | ✔ |
+| RG-AA-07 | `montant_a_payer` de la demande = somme des montants du commande à payer de ses commandes | – | ✔ |
+| RG-AA-08 | Solde avance (commande payée en partie, sinon 0) = total commande de la dernière DDPA − (somme des proformas DDPA + `montant_commande_receptionner` des demandes validées non DDPA), ramené à 0 s'il est négatif | ✔ (aperçu) | ✔ |
 | RG-AA-09 | PDF de commande DocuWare introuvable → bouton Enregistrer désactivé | ✔ | ✘ |
 | RG-AA-10 | Pièces jointes : PDF, 5 Mo maximum, sans obligation de présence côté serveur ; PJ03 désactivée | ✔ | ✔ |
-| RG-AA-11 | RIB différent de ceux connus dans IPS (`fou_bqe`) → mention « RIB mis à jour » sur la page DDP (pas sur la page BAP MAGASIN) | – | ✔ |
+| RG-AA-11 | RIB différent de ceux connus dans IPS (`fou_bqe`) → mention « RIB mis à jour » sur la page de garde | – | ✔ |
 | RG-AA-12 | Valeurs fixes : agence `01`, service `NEG`, société `HF` | – | ✔ |
-| RG-AA-13 | Montant du commande à payer : 0 pour une DDPR, ou si solde avance > 0 et montant réceptionné ≤ solde avance ; sinon montant réceptionné − solde avance | ✔ (aperçu) | ✔ |
-| RG-AA-14 | Solde avance restant (affiché, non enregistré) : solde avance − montant réceptionné si solde avance > 0 et montant réceptionné ≤ solde avance ; sinon 0 | ✔ | ✘ |
+| RG-AA-13 | Montant du commande à payer : 0 pour une commande payée à 100 %, ou si solde avance > 0 et montant réceptionné ≤ solde avance ; sinon montant réceptionné − solde avance | ✔ (aperçu) | ✔ |
+| RG-AA-14 | Solde avance restant (affiché et imprimé, non enregistré) : solde avance − montant réceptionné si solde avance > 0 et montant réceptionné ≤ solde avance ; sinon 0 | ✔ | ✔ |
 
 **« Validée »** signifie toujours : statut `Validé` ou `Transmis compta`, sur la dernière version de la demande.
 
@@ -94,17 +92,17 @@ Cinq montants coexistent et peuvent différer :
 
 | Montant | Origine | Stockage | Usage |
 |---|---|---|---|
-| Montant du commande réceptionné | Pré-rempli depuis IPS, modifiable | `montant_commande_receptionner` (`demande_paiement_ligne`, `demande_paiement_commande`, `commande_livraison`) | Contrôle RG-AA-04, solde avance, tableau du PDF BAP |
+| Montant du commande réceptionné | Pré-rempli depuis IPS, modifiable | `montant_commande_receptionner` (`demande_paiement_ligne`, `demande_paiement_commande`, `commande_livraison`) | Contrôle RG-AA-04, solde avance, tableau « Résumé des BC » du PDF |
 | Montant total réceptionné | Saisie | Non stocké | Contrôle RG-AA-04 uniquement |
-| Montant du commande à payer | Calculé par le serveur à la soumission, aperçu à l'écran (RG-AA-13) | `montant_commande_a_payer` (mêmes tables) | Imprimé sur les pages de garde BAP MAGASIN et DDP |
-| Montant total à payer | Somme des montants du commande à payer, aperçu à l'écran pour toute la saisie | `demande_paiement.montant_a_payer`, par groupe | Montant de chaque demande, « Montant à payer » et « MONTANT BAP » des PDF |
-| Solde avance restant | Calculé à l'écran (RG-AA-14) | Non stocké | Affichage uniquement |
+| Montant du commande à payer | Calculé par le serveur à la soumission, aperçu à l'écran (RG-AA-13) | `montant_commande_a_payer` (mêmes tables) | Tableau « Résumé des BC » du PDF |
+| Montant total à payer | Somme des montants du commande à payer, aperçu à l'écran | `demande_paiement.montant_a_payer` | Montant de la demande, « Montant à payer » du PDF |
+| Solde avance restant | Calculé à l'écran et à la génération du PDF (RG-AA-14) | Non stocké | Écran, tableau « Résumé des BC » du PDF |
 
 ## 5. Statuts
 
 | Statut | Écrit par |
 |---|---|
-| `BAP à transmettre`, `DDPL à transmettre`, `DDPR à transmettre` | Soumission du formulaire |
+| `DDPL à transmettre` | Soumission du formulaire |
 | `Soumis à validation` | Transmission (`DdpApiController::transmettreBap`) |
 | `Validé`, `Transmis compta`, `Refusé`, `Refusé Compta`, `Réfusé par Chef de Service`, `A valider comptabilité`, `BAP à valider par Dir Admin` | Une **moulinette** externe pour le passage à `Validé` ou refusé. Aucun code de `src/` n'écrit ces statuts, ils y sont seulement lus |
 
@@ -138,6 +136,8 @@ Les statuts `Refusé`, `Refusé Compta` et `Réfusé par Chef de Service` sont e
 
 **Dossier de travail** : `{BASE_PATH_FICHIER}/ddp/{numéro}/`.
 
+**Page de garde** : page DDP, suivie des tableaux « Résumé des BC », « Récapitulatif des livraisons » (une ligne par livraison, montants des commandes additionnés) et « Récapitulatif des demandes de paiement déjà enregistrées » (`DdpController::donneesPageDeGarde`, lu avant l'enregistrement de la nouvelle demande).
+
 **PDF final** : `{numéro}.pdf`, composé dans cet ordre de la page de garde, des fichiers du dossier de douane, des fichiers téléversés et des PDF de commande DocuWare. Un fichier absent est ignoré et tracé dans `error_log`.
 
 | Champ | Contenu | Nom enregistré |
@@ -147,13 +147,7 @@ Les statuts `Refusé`, `Refusé Compta` et `Réfusé par Chef de Service` sont e
 | `pieceJoint03` | BC client (champ désactivé) | `BC_{numéro}_{index}.pdf` |
 | `pieceJoint04` | Autres documents | `AUTRES FICHIERS_{numéro}.pdf` |
 
-**Dépôt DocuWare** : uniquement à la transmission, comme le flux appro. La soumission ne dépose rien.
-
-| Type | Dossier | Nom |
-|---|---|---|
-| BAP | `BON A PAYER` | `{numéro}#{CLA}.pdf` |
-| DDPR (`DPR`) | `DEMANDE_DE_REGULARISATION` | `{numéro}#{CLA}.pdf` |
-| DDPL | `DEMANDE_DE_PAIEMENT` | `{numéro}#{CLA}.pdf` |
+**Dépôt DocuWare** : uniquement à la transmission, comme le flux appro, dans `DEMANDE_DE_PAIEMENT/{numéro}#{CLA}.pdf`. La soumission ne dépose rien.
 
 ## 8. API du formulaire
 
@@ -161,7 +155,7 @@ Les statuts `Refusé`, `Refusé Compta` et `Réfusé par Chef de Service` sont e
 |---|---|
 | `GET /api/info-fournisseur-ddp` | Fournisseurs (autocomplétion) |
 | `GET /api/num-cde-frn/{fournisseur}/2` | Commandes réceptionnées et liste GCOT |
-| `GET /api/situation-avance-commande/{numCde}` | Solde avance du tableau (renvoie aussi % DDPA, proformas et document à générer, non affichés) |
+| `GET /api/situation-avance-commande/{numCde}` | Solde avance et situation de la commande pour le tableau (`typeDdpAGenerer` désigne la situation, plus le document créé) |
 | `GET /api/montant-commande-receptionnee/{fournisseur}/{cdes}/{factures}` | Pré-remplissage du tableau |
 | `GET /api/montant-facture/{fournisseur}/{factures}/2` | Total FOB des factures |
 | `GET /api/liste-doc/{dossier}`, `/api/recuperer-fichier` | Documents du dossier de douane |
@@ -182,8 +176,8 @@ Les requêtes IPS et GCOT peuvent durer plusieurs dizaines de secondes pour un g
 
 **Prérequis** :
 
-- applications `DDP`, `BAP` et `CLA` présentes dans la table des applications (compteurs de numéros) ;
-- types 2 à 4 présents dans `type_demande` ;
+- applications `DDP` et `CLA` présentes dans la table des applications (compteurs de numéros) ;
+- type 2 présent dans `type_demande` ;
 - variable d'environnement `BASE_PATH_FICHIER` ;
 - accès du serveur web à `\\192.168.0.15\GCOT_DATA\TRANSIT` et au dossier DocuWare.
 
@@ -197,20 +191,21 @@ Constats issus de la lecture du code ; aucun n'a été reproduit en exécution. 
 
 | Réf. | Constat | Conséquence concrète | Décision |
 |---|---|---|---|
-| P-AA-01 | Le classement (RG-AA-05) ne compte que les DDPA **validées** ; le guide utilisateur annonce ce comportement | Une commande avec une DDPA en cours passe en BAP sans déduction de l'acompte | |
+| P-AA-01 | La situation (RG-AA-05) ne compte que les DDPA **validées** ; le guide utilisateur annonce ce comportement | Une commande avec une DDPA en cours n'a aucune déduction de l'acompte | |
 | P-AA-02 | Le montant de la demande est le total à payer : il vaut 0 quand le solde avance couvre tout le réceptionné | Solde 500 et réceptionné 300 : une demande à 0 est créée et transmise en validation | Une demande à 0 passe toujours en validation |
 | P-AA-20 | Le solde avance additionne tout le réceptionné validé (RG-AA-08) et pouvait devenir négatif | Solde 500 et réceptionné 800 : 300 à payer, puis solde à -300 une fois validé. Une réception de 100 aurait donné 400 à payer au lieu de 100 | Solde ramené à 0 |
-| P-AA-21 | Une DDPR a un solde avance forcé à 0 (DDPA validées à 100 %), donc son montant à payer égalait tout le réceptionné | Commande de 1 000 déjà payée à 100 % par acomptes : la DDPR aurait été transmise à 1 000 | Montant à payer de 0 pour une DDPR (`DdpDto::$estRegule`) |
+| P-AA-21 | Une commande payée à 100 % a un solde avance forcé à 0, donc son montant à payer égalait tout le réceptionné | Commande de 1 000 déjà payée à 100 % par acomptes : elle aurait été demandée à 1 000 | Montant à payer de 0 (`DdpDto::$commandesRegule`) |
+| P-AA-22 | Le magasin ne crée plus que des DDPL : tout part dans `DEMANDE_DE_PAIEMENT`, plus rien dans `BON A PAYER` ni `DEMANDE_DE_REGULARISATION` | Le circuit de validation DocuWare et la moulinette reçoivent un seul type de document : à confirmer avec leurs responsables, notamment pour le statut `BAP à valider par Dir Admin` | |
 | P-AA-03 | `DdpLigneMapper` met le total de la demande dans `montant_facture` de chaque ligne | Une demande de 3 lignes à 900 donne 2 700 si on additionne la colonne | |
 | P-AA-04 | Le serveur accepte les factures postées (`choices` = valeurs soumises) ; RG-AA-01 et RG-AA-09 ne sont appliquées que côté front | Une requête forgée peut soumettre une facture exclue de la liste ou une commande sans PDF | |
-| P-AA-05 | Le DTO garde la société `HF` à la soumission, alors que l'API utilise la société de l'utilisateur | Pour un utilisateur d'une autre société, le solde affiché peut différer de celui enregistré, et le document créé peut ne pas correspondre à ses acomptes | |
+| P-AA-05 | Le DTO garde la société `HF` à la soumission, alors que l'API utilise la société de l'utilisateur | Pour un utilisateur d'une autre société, le solde affiché peut différer de celui enregistré | |
 | P-AA-06 | Les filtres de la consultation comparent `numero_commande` et `numero_facture` à une valeur exacte, alors que ces champs peuvent contenir `a;b` | Recherche par commande ou facture sans résultat pour une demande multiple | |
 
 ### Robustesse
 
 | Réf. | Constat | Conséquence concrète | Décision |
 |---|---|---|---|
-| P-AA-07 | Aucune transaction : plusieurs `flush`, puis fichiers, groupe par groupe | Une erreur sur le 2ᵉ groupe laisse le 1ᵉʳ créé. Une nouvelle saisie peut créer un doublon | |
+| P-AA-07 | Aucune transaction : plusieurs `flush`, puis génération des fichiers | Une erreur sur le PDF laisse une demande enregistrée sans son PDF. Une nouvelle saisie peut créer un doublon | |
 | P-AA-08 | Le double dépôt DocuWare (soumission et transmission) a été retiré | Les demandes créées avant cette modification et encore « à transmettre » ont déjà un `{numéro}.pdf` dans DocuWare, et en auront un second à la transmission | Dépôt à la transmission seulement, comme l'appro |
 | P-AA-09 | La transmission ne revérifie pas le statut côté serveur, et une erreur en cours de boucle n'annule pas les copies déjà faites | Une demande déjà traitée peut être repassée à `Soumis à validation` ; des fichiers restent dans DocuWare sans changement de statut | |
 | P-AA-10 | `Validé` et les refus sont posés par une moulinette externe, absente du dépôt. `DdpController` et la transmission n'alimentent pas `historique_statut_ddp` | RG-AA-05 et RG-AA-08 dépendent du passage de la moulinette : tant qu'elle n'a pas tourné, une DDPA déjà validée compte comme non validée (voir P-AA-01). L'historique des statuts reste vide pour la soumission et la transmission | |

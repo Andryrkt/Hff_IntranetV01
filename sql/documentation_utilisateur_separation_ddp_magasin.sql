@@ -56,7 +56,7 @@ SELECT 'ddp-magasin-avance', N'Demande de paiement magasin – à l''avance', ru
 <tr><td>% DDPA</td><td>Montant facture proforma ÷ montant total du commande × 100, cumulé sur les DDPA validées</td></tr>
 </tbody>
 </table>
-<p><strong>Une demande à l''avance en attente de validation compte-t-elle ?</strong> Non. Seules les DDPA validées (statut Validé ou Transmis compta) entrent dans le % DDPA. Tant qu''elle n''est pas validée, elle ne compte ni pour le blocage à 100 %, ni pour le paiement après arrivage, où la commande part en BAP.</p>
+<p><strong>Une demande à l''avance en attente de validation compte-t-elle ?</strong> Non. Seules les DDPA validées (statut Validé ou Transmis compta) entrent dans le % DDPA. Tant qu''elle n''est pas validée, elle ne compte ni pour le blocage à 100 %, ni pour le paiement après arrivage, où son montant n''est pas déduit.</p>
 ', GETDATE(), 'script separation guide'
 FROM documentation_utilisateur WHERE slug = 'ddp-magasin';
 
@@ -66,7 +66,7 @@ SELECT 'ddp-magasin-apres-arrivage', N'Demande de paiement magasin – après ar
 <h2>Présentation</h2>
 <p>La demande de paiement après arrivage sert à payer un fournisseur quand la marchandise est arrivée et que sa facture est dans GCOT. Vous partez des factures, les commandes suivent.</p>
 <p>Elle se remplit dans l''intranet et génère un PDF, puis vous la transmettez en validation dans DocuWare depuis l''écran Consultation facture.</p>
-<p>Le formulaire choisit tout seul le bon type de document (BAP, DDPR ou DDPL) selon les acomptes déjà validés sur chaque commande. Vous n''avez rien à choisir.</p>
+<p>Une saisie crée une seule demande, même si elle couvre plusieurs factures et commandes. Le montant à payer tient compte, commande par commande, des acomptes déjà validés.</p>
 <p>Si la marchandise n''est pas encore arrivée, utilisez plutôt la <a href="ddp-magasin-avance">demande de paiement à l''avance</a>.</p>
 
 <h2>Remplir la demande</h2>
@@ -88,28 +88,27 @@ SELECT 'ddp-magasin-apres-arrivage', N'Demande de paiement magasin – après ar
 <tr><td>N° dossier douane, N° LTA, N° HAWB</td><td>Les références du dossier de douane de chaque facture</td><td>Non</td></tr>
 <tr><td>Solde avance</td><td>Ce qui reste de l''avance sur la commande (voir section suivante)</td><td>Non</td></tr>
 <tr><td>Montant du commande réceptionné *</td><td>Le montant réceptionné pour cette commande, pré-rempli et modifiable</td><td><strong>Oui</strong></td></tr>
-<tr><td>Montant du commande à payer</td><td>Calculé : 0 si le solde avance est supérieur à 0 et couvre le montant réceptionné ; sinon montant réceptionné − solde avance</td><td>Non</td></tr>
+<tr><td>Montant du commande à payer</td><td>Calculé : 0 si le solde avance est supérieur à 0 et couvre le montant réceptionné ; sinon montant réceptionné − solde avance. Toujours 0 si la commande est déjà payée à 100 % par acomptes</td><td>Non</td></tr>
 <tr><td>Solde avance restant</td><td>Calculé : solde avance − montant réceptionné si le solde couvre le montant réceptionné, sinon 0</td><td>Non</td></tr>
 </tbody>
 </table>
 
 <h2>Ce qui est créé à l''enregistrement</h2>
-<p>À l''enregistrement, chaque commande reçoit le document qui correspond aux acomptes déjà validés sur elle.</p>
+<p>Une saisie crée une seule demande de paiement (DDPL) au statut « DDPL à transmettre », avec un seul numéro et une seule page de garde, quels que soient le nombre de factures et de commandes.</p>
+<p>Le montant à payer se calcule commande par commande, selon les acomptes déjà validés :</p>
 <table border="1" cellpadding="4">
-<thead><tr><th>% DDPA validé de la commande</th><th>Document créé</th><th>PDF</th><th>Statut</th><th>Solde avance</th></tr></thead>
+<thead><tr><th>% DDPA validé de la commande</th><th>Solde avance</th><th>Montant du commande à payer</th></tr></thead>
 <tbody>
-<tr><td>0 %</td><td><strong>BAP</strong> – bon à payer</td><td>BAP MAGASIN</td><td>BAP à transmettre</td><td>0</td></tr>
-<tr><td>Entre 0 et 100 %</td><td><strong>DDPL</strong> – après arrivage</td><td>DDP</td><td>DDPL à transmettre</td><td>Calculé</td></tr>
-<tr><td>100 %</td><td><strong>DDPR</strong> – paiement régul</td><td>DDP</td><td>DDPR à transmettre</td><td>0</td></tr>
+<tr><td>0 %</td><td>0</td><td>Le montant réceptionné</td></tr>
+<tr><td>Entre 0 et 100 %</td><td>Calculé</td><td>0 si le solde couvre le montant réceptionné, sinon montant réceptionné − solde avance</td></tr>
+<tr><td>100 %</td><td>0</td><td>0</td></tr>
 </tbody>
 </table>
 <ul>
-<li><strong>Plusieurs situations dans une saisie :</strong> les commandes sont regroupées par type. Une demande est créée par groupe, avec son propre numéro, ses factures, son PDF et une copie de vos pièces jointes.</li>
-<li><strong>Montant à payer d''une demande :</strong> le total des montants du commande à payer de son groupe. Une DDPR a toujours un montant à payer de 0, et une demande à 0 passe quand même en validation.</li>
-<li><strong>PDF :</strong> la page de garde (BAP MAGASIN ou DDP) est fusionnée avec toutes les pièces jointes. Le PDF n''est déposé dans DocuWare qu''à la transmission.</li>
-<li><strong>BAP MAGASIN :</strong> résumé des BC (factures, dossiers de douane, montants), livraisons, demandes de paiement déjà faites et montant BAP.</li>
+<li><strong>Montant à payer de la demande :</strong> le total des montants du commande à payer. Une demande à 0 passe quand même en validation.</li>
+<li><strong>PDF :</strong> la page de garde reprend le résumé des BC, le récapitulatif des livraisons et celui des demandes de paiement déjà faites, puis est fusionnée avec toutes les pièces jointes. Le PDF n''est déposé dans DocuWare qu''à la transmission.</li>
 </ul>
-<p>Pour une DDPL, le solde avance de chaque commande se calcule ainsi :</p>
+<p>Le solde avance de chaque commande se calcule ainsi :</p>
 <p><strong>Solde avance = Montant total du commande − (somme des proformas des DDPA + montant déjà payé)</strong>, ramené à 0 s''il est négatif.</p>
 <p>Le montant total du commande est celui de la DDPA la plus récente ; le montant déjà payé additionne les montants du commande réceptionnés des demandes validées qui ne sont pas des DDPA. Le solde et le montant du commande à payer sont enregistrés et imprimés sur le PDF.</p>
 
@@ -127,7 +126,6 @@ SELECT 'ddp-magasin-apres-arrivage', N'Demande de paiement magasin – après ar
 <tbody>
 <tr><td>Le montant du commande réceptionné X est obligatoire</td><td>Une ligne du tableau est vide</td><td>Saisir un montant sur chaque ligne</td></tr>
 <tr><td>Le montant saisi ne correspond pas au montant calculé pour la/les commande(s)/facture(s) sélectionnée(s)</td><td>Le montant total réceptionné diffère de la somme des montants du commande réceptionnés</td><td>Saisir exactement la somme du tableau</td></tr>
-<tr><td>La facture X concerne des commandes de situations différentes</td><td>Une même facture couvre des commandes qui donneraient des documents différents (ex. une en BAP, une en DDPL)</td><td>Contacter la comptabilité pour traiter cette facture à part</td></tr>
 <tr><td>Bouton Enregistrer grisé et message rouge sous la commande</td><td>Le PDF de la commande fournisseur validée est introuvable</td><td>Vérifier que la commande est bien validée et déposée dans DocuWare</td></tr>
 </tbody>
 </table>
@@ -137,17 +135,13 @@ SELECT 'ddp-magasin-apres-arrivage', N'Demande de paiement magasin – après ar
 <table border="1" cellpadding="4">
 <thead><tr><th>Terme</th><th>Sens</th></tr></thead>
 <tbody>
-<tr><td>BAP</td><td>Bon à payer : paiement après arrivage d''une commande sans acompte validé</td></tr>
-<tr><td>DDPR</td><td>Demande de paiement régul : paiement après arrivage d''une commande déjà payée à 100 % par acomptes</td></tr>
-<tr><td>DDPL</td><td>Demande de paiement après arrivage d''une commande partiellement payée par acomptes</td></tr>
+<tr><td>DDPL</td><td>Demande de paiement après arrivage, créée par ce formulaire</td></tr>
 <tr><td>DDPA</td><td>Demande de paiement à l''avance : acompte sur facture proforma, avant l''arrivée de la marchandise</td></tr>
 <tr><td>% DDPA</td><td>Montant facture proforma ÷ montant total du commande × 100, cumulé sur les DDPA validées</td></tr>
 <tr><td>Solde avance</td><td>Ce qui reste de l''avance sur une commande (calcul dans la section « Ce qui est créé à l''enregistrement »)</td></tr>
 </tbody>
 </table>
-<p><strong>Pourquoi ai-je reçu plusieurs numéros de demande pour une seule saisie ?</strong> Vos factures couvraient des commandes de situations différentes. Une demande est créée par type de document ; tous les numéros s''affichent dans le message de confirmation.</p>
-<p><strong>Une demande à l''avance en attente de validation compte-t-elle ?</strong> Non. Seules les DDPA validées (statut Validé ou Transmis compta) entrent dans le % DDPA. Tant qu''elle n''est pas validée, la commande part en BAP.</p>
-<p><strong>Puis-je choisir moi-même BAP, DDPR ou DDPL ?</strong> Non. Le type dépend uniquement des acomptes validés sur la commande ; il apparaît dans la liste Consultation facture après l''enregistrement.</p>
+<p><strong>Une demande à l''avance en attente de validation compte-t-elle ?</strong> Non. Seules les DDPA validées (statut Validé ou Transmis compta) entrent dans le % DDPA. Tant qu''elle n''est pas validée, son montant n''est pas déduit du montant à payer.</p>
 ', GETDATE(), 'script separation guide'
 FROM documentation_utilisateur WHERE slug = 'ddp-magasin';
 
@@ -155,30 +149,6 @@ FROM documentation_utilisateur WHERE slug = 'ddp-magasin';
 IF EXISTS (SELECT 1 FROM documentation_utilisateur WHERE slug = 'ddp-magasin-avance')
     AND EXISTS (SELECT 1 FROM documentation_utilisateur WHERE slug = 'ddp-magasin-apres-arrivage')
     UPDATE documentation_utilisateur SET publie = 0 WHERE slug = 'ddp-magasin';
-
--- Page après arrivage déjà créée : colonnes DDPA et DDP à générer retirées du tableau,
--- montants renommés, colonne calculée ajoutée, solde avance placé avant les montants.
-DECLARE @g NVARCHAR(MAX) = (SELECT contenu FROM documentation_utilisateur WHERE slug = 'ddp-magasin-apres-arrivage');
-SET @g = REPLACE(@g, N'<tr><td>DDPA</td><td>Le montant des proformas des demandes à l''avance validées sur la commande</td><td>Non</td></tr>', N'');
-SET @g = REPLACE(@g, N'<tr><td>DDP à générer</td><td>Le document qui sera créé : BAP, DPR (DDPR) ou DPL (DDPL)</td><td>Non</td></tr>', N'');
-SET @g = REPLACE(@g, N' ; la colonne « DDP à générer » l''annonce avant l''enregistrement.', N' ; il apparaît dans la liste Consultation facture après l''enregistrement.');
-SET @g = REPLACE(@g, N'vérifiez le <strong>montant du commande à payer</strong>', N'vérifiez le <strong>montant du commande réceptionné</strong>');
-SET @g = REPLACE(@g, N'<strong>Montant à payer *</strong> : il doit être égal à la somme des montants du commande à payer du tableau.', N'<strong>Montant total réceptionné *</strong> : il doit être égal à la somme des montants du commande réceptionnés du tableau.');
-SET @g = REPLACE(@g, N'<tr><td>Montant du commande à payer *</td><td>Le montant à payer pour cette commande</td><td><strong>Oui</strong></td></tr>', N'<tr><td>Montant du commande réceptionné *</td><td>Le montant réceptionné pour cette commande, pré-rempli et modifiable</td><td><strong>Oui</strong></td></tr><tr><td>Montant du commande à payer</td><td>Calculé : 0 si le solde avance est supérieur à 0 et couvre le montant réceptionné ; sinon montant réceptionné − solde avance</td><td>Non</td></tr>');
-SET @g = REPLACE(@g, N'Calculé : 0 si le solde avance est supérieur à 0 et couvre le montant réceptionné ; sinon solde avance − montant réceptionné. Information affichée, non enregistrée', N'Calculé : 0 si le solde avance est supérieur à 0 et couvre le montant réceptionné ; sinon montant réceptionné − solde avance');
-SET @g = REPLACE(@g, N'additionne les montants du commande à payer des demandes', N'additionne les montants du commande réceptionnés des demandes');
-SET @g = REPLACE(@g, N'<td>Le montant du commande à payer X est obligatoire</td>', N'<td>Le montant du commande réceptionné X est obligatoire</td>');
-SET @g = REPLACE(@g, N'<td>Le montant à payer diffère de la somme des montants du commande à payer</td>', N'<td>Le montant total réceptionné diffère de la somme des montants du commande réceptionnés</td>');
-SET @g = REPLACE(@g, N'<tr><td>Solde avance</td><td>Ce qui reste de l''avance sur la commande (voir section suivante)</td><td>Non</td></tr>', N'');
-SET @g = REPLACE(@g, N'<tr><td>Montant du commande réceptionné *</td>', N'<tr><td>Solde avance</td><td>Ce qui reste de l''avance sur la commande (voir section suivante)</td><td>Non</td></tr><tr><td>Montant du commande réceptionné *</td>');
-SET @g = REPLACE(@g, N'<li><strong>Montant total réceptionné *</strong> : il doit être égal à la somme des montants du commande réceptionnés du tableau.</li>', N'<li><strong>Montant total réceptionné *</strong> : il doit être égal à la somme des montants du commande réceptionnés du tableau. Le <strong>montant total à payer</strong>, non modifiable, affiche la somme des montants du commande à payer.</li>');
-SET @g = REPLACE(@g, N'Le solde est enregistré et imprimé sur le PDF.', N'Le solde et le montant du commande à payer sont enregistrés et imprimés sur le PDF.');
-SET @g = REPLACE(@g, N'<li><strong>Montant à payer d''une demande :</strong> le total des factures de son groupe, même s''il diffère du montant saisi.</li>', N'<li><strong>Montant à payer d''une demande :</strong> le total des montants du commande à payer de son groupe.</li>');
-SET @g = REPLACE(@g, N'<tr><td>Solde avance restant</td><td>Calculé : solde avance − montant réceptionné si le solde couvre le montant réceptionné, sinon 0</td><td>Non</td></tr>', N'');
-SET @g = REPLACE(@g, N'<tr><td>Montant du commande à payer</td><td>Calculé : 0 si le solde avance est supérieur à 0 et couvre le montant réceptionné ; sinon montant réceptionné − solde avance</td><td>Non</td></tr>', N'<tr><td>Montant du commande à payer</td><td>Calculé : 0 si le solde avance est supérieur à 0 et couvre le montant réceptionné ; sinon montant réceptionné − solde avance</td><td>Non</td></tr><tr><td>Solde avance restant</td><td>Calculé : solde avance − montant réceptionné si le solde couvre le montant réceptionné, sinon 0</td><td>Non</td></tr>');
-SET @g = REPLACE(@g, N'<li><strong>Montant à payer d''une demande :</strong> le total des montants du commande à payer de son groupe.</li>', N'<li><strong>Montant à payer d''une demande :</strong> le total des montants du commande à payer de son groupe. Une DDPR a toujours un montant à payer de 0, et une demande à 0 passe quand même en validation.</li>');
-SET @g = REPLACE(@g, N'<p><strong>Solde avance = Montant total du commande − (somme des proformas des DDPA + montant déjà payé)</strong></p>', N'<p><strong>Solde avance = Montant total du commande − (somme des proformas des DDPA + montant déjà payé)</strong>, ramené à 0 s''il est négatif.</p>');
-UPDATE documentation_utilisateur SET contenu = @g WHERE slug = 'ddp-magasin-apres-arrivage';
 
 -- Consultation facture : écran de transmission indiqué par les deux pages ci-dessus.
 -- Publication et ajout des DDPA, qui peuvent aussi être transmises depuis cet écran.

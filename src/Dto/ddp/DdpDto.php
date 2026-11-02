@@ -18,8 +18,8 @@ class DdpDto
     public array $numeroCommande = [];
     public array $montantsCommande = []; // * [numeroCommande => montant du commande réceptionné] saisi par l'utilisateur (après arrivage)
     public array $soldesAvance = []; // [numeroCommande => solde avance] calculé à la soumission (après arrivage)
-    public bool $estRegule = false; // DDPR : commandes déjà payées à 100 % par les DDPA, rien de plus à payer
-    public array $donneesBapMagasin = []; // données de la page de garde BAP MAGASIN (voir DdpController::donneesBapMagasin)
+    public array $commandesRegule = []; // commandes déjà payées à 100 % par les DDPA : rien de plus à payer (après arrivage)
+    public array $donneesPageDeGarde = []; // tableaux de la page de garde après arrivage (voir DdpController::donneesPageDeGarde)
     // numéro de la facture
     public array $numeroFacture = [];
     public array $livraisonsParCommande = []; // [numeroCommande => numéros de livraison] des factures sélectionnées (après arrivage)
@@ -123,7 +123,7 @@ class DdpDto
     }
 
     /**
-     * Montant du commande à payer (après arrivage) : 0 pour une DDPR ou si le solde avance couvre le montant
+     * Montant du commande à payer (après arrivage) : 0 pour une commande déjà payée à 100 % par les DDPA ou si le solde avance couvre le montant
      * réceptionné, sinon la part du réceptionné au-delà du solde (null si le réceptionné n'est pas renseigné).
      * Le front en affiche un aperçu : DemandePaiementManager.js::afficherMontantCommandeAPayer
      */
@@ -134,13 +134,30 @@ class DdpDto
             return null;
         }
 
-        if ($this->estRegule) {
+        if (in_array((string) $numeroCommande, $this->commandesRegule, true)) {
             return 0.0;
         }
 
         $solde = (float) ($this->soldesAvance[$numeroCommande] ?? 0);
 
         return $solde > 0 && $receptionne <= $solde ? 0.0 : $receptionne - $solde;
+    }
+
+    /**
+     * Solde avance restant (après arrivage) : solde avance − réceptionné si le solde couvre le montant réceptionné, sinon 0
+     * (null si le réceptionné n'est pas renseigné).
+     * Le front en affiche un aperçu : DemandePaiementManager.js::afficherMontantCommandeAPayer
+     */
+    public function soldeAvanceRestant(?string $numeroCommande): ?float
+    {
+        $receptionne = $this->montantCommande($numeroCommande);
+        if ($receptionne === null) {
+            return null;
+        }
+
+        $solde = (float) ($this->soldesAvance[$numeroCommande] ?? 0);
+
+        return $solde > 0 && $receptionne <= $solde ? $solde - $receptionne : 0.0;
     }
 
     /**
