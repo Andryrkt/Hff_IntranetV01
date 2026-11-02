@@ -6,8 +6,8 @@ description: DDPA, acompte sur facture proforma avant l'arrivée de la marchandi
 
 | | |
 |---|---|
-| **Code décrit** | branche `feature/ddp-neg`, commit `2e3069de7` (02/11/2026), plus le retrait du dépôt DocuWare à la soumission, non commité à cette date |
-| **État du code** | pas encore sur `main` ; 13 fichiers du module diffèrent aussi de `dev` |
+| **Code décrit** | branche `feature/ddp-neg`, commit `30f4c35c9` (02/11/2026) |
+| **État du code** | pas encore sur `main` |
 | **Guide utilisateur** | page `ddp-magasin-avance` de la table `documentation_utilisateur` |
 | **Fiche liée** | Demande de paiement magasin – après arrivage |
 
@@ -48,13 +48,15 @@ Routes principales : `new_ddp` (`/ddp/new/1`) et `da_bon_a_payer` (`/demande-app
 1. L'utilisateur choisit un fournisseur. Le front charge les commandes **validées dans DocuWare** (dernière version) et **non réceptionnées dans IPS**.
 2. Il choisit une seule commande. Le front affiche l'historique de ses demandes et bloque si elle est déjà soldée.
 3. Il saisit le montant proforma, voit le montant total de la commande remonté d'IPS, puis joint ses fichiers.
-4. Le serveur contrôle le blocage à 100 % et le plafond (RG-AV-03, RG-AV-06).
+4. Le serveur relit le montant total dans IPS et bloque s'il est introuvable (RG-AV-04), puis contrôle le blocage à 100 % et le plafond (RG-AV-03, RG-AV-06).
 5. Le serveur génère un numéro `DDP`, enregistre les données, puis génère et fusionne le PDF.
 6. La demande a le statut `DDPA à transmettre`, et l'utilisateur est redirigé vers la consultation.
 
 ### 3.2 Transmission en validation
 
 Depuis la consultation, l'utilisateur coche des demandes `… à transmettre`, puis le front appelle `POST /api/transmettre-bap-compta` :
+
+Si aucun numéro de demande n'est reçu, le serveur répond par une erreur, sans générer de numéro `CLA`. Sinon :
 
 1. un numéro `CLA` commun est généré ;
 2. chaque demande passe à `Soumis à validation`, avec `numero_cla`, `date_soumission_compta`, `deposer_dw` et `date_depot_dw` renseignés ;
@@ -133,6 +135,7 @@ Les statuts `Refusé`, `Refusé Compta` et `Réfusé par Chef de Service` sont e
 | `GET /api/info-fournisseur-ddp` | Fournisseurs (autocomplétion) |
 | `GET /api/num-cde-frn/{fournisseur}/1` | Commandes validées et non réceptionnées |
 | `GET /api/montant-commande-ht/{numCde}` | Montant HT, totaux, historique, `commandeSoldee` |
+| `GET /api/montant-total-commande/{fournisseur}/{numCde}` | Montant total de la commande affiché dans le champ |
 | `GET /api/fichiers-commande-fournisseur/{cdes}`, `/api/fichiers-or-valide/{cdes}`, `/api/fichiers-bc-client/{cdes}`, `/api/telecharger-fichier-commande-dw` | Aperçu des PDF DocuWare |
 | `POST /api/transmettre-bap-compta` | Transmission en validation (écran de consultation) |
 

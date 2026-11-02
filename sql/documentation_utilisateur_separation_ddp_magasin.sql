@@ -22,7 +22,7 @@ SELECT 'ddp-magasin-avance', N'Demande de paiement magasin – à l''avance', ru
 <li><strong>N° commande</strong> : choisissez la commande. Seules les commandes validées et pas encore réceptionnées apparaissent.</li>
 <li>L''<strong>historique des demandes de paiement</strong> de cette commande s''affiche en haut : demandes déjà faites, % de chacune, cumul, total déjà validé et reste.</li>
 <li><strong>Montant facture proforma *</strong> : le montant à payer au fournisseur, tel qu''il figure sur la proforma.</li>
-<li><strong>Montant total du commande *</strong> : rempli automatiquement depuis IPS dès que vous choisissez la commande. Il n''est pas modifiable.</li>
+<li><strong>Montant total du commande *</strong> : rempli automatiquement depuis IPS dès que vous choisissez la commande. Il n''est pas modifiable, et sans montant dans IPS l''enregistrement est bloqué.</li>
 <li><strong>Pièces jointes</strong> : la proforma facture fournisseur et le RIB fournisseur sont attendus ; les autres documents sont facultatifs. Les BC client rattachés à la commande s''affichent dans leur onglet ; leur dépôt manuel est désactivé.</li>
 <li>Cliquez sur <strong>Enregistrer</strong> et confirmez.</li>
 </ol>
@@ -44,6 +44,7 @@ SELECT 'ddp-magasin-avance', N'Demande de paiement magasin – à l''avance', ru
 <tr><td>La commande X est déjà payée à 100 % par des demandes de paiement à l''avance validées</td><td>La commande est déjà soldée par acomptes</td><td>Ne pas faire de nouvel acompte ; utiliser le paiement après arrivage à la réception</td></tr>
 <tr><td>Le montant facture proforma ne doit pas dépasser 20 000</td><td>Le plafond est dépassé</td><td>Saisir un montant inférieur ou égal au plafond</td></tr>
 <tr><td>Le montant total de cette commande est introuvable dans IPS pour ce fournisseur</td><td>La commande n''existe pas pour ce fournisseur dans IPS, ou son montant est nul. L''enregistrement est bloqué</td><td>Vérifier le fournisseur et la commande dans IPS</td></tr>
+<tr><td>Aucune demande DDP/BAP à transmettre n''a été reçue</td><td>La transmission n''a reçu aucun numéro de demande. Rien n''est transmis</td><td>Recharger la page, cocher de nouveau les demandes, puis signaler le problème s''il revient</td></tr>
 <tr><td>Bouton Enregistrer grisé et message rouge sous la commande</td><td>Le PDF de la commande fournisseur validée est introuvable</td><td>Vérifier que la commande est bien validée et déposée dans DocuWare</td></tr>
 </tbody>
 </table>
@@ -75,7 +76,7 @@ SELECT 'ddp-magasin-apres-arrivage', N'Demande de paiement magasin – après ar
 <li><strong>Fournisseur, mode de paiement, devise, motif</strong> : tapez le numéro ou le nom du fournisseur, choisissez-le dans la liste, puis complétez les autres champs.</li>
 <li><strong>N° facture fournisseur</strong> : choisissez une ou plusieurs factures. Les commandes correspondantes sont sélectionnées automatiquement.</li>
 <li>Le <strong>tableau des commandes</strong> apparaît, une ligne par commande (colonnes ci-dessous).</li>
-<li>Dans chaque ligne, vérifiez le <strong>montant du commande réceptionné</strong> : il vient d''IPS et n''est pas modifiable. Le pourcentage en rouge, devant le montant, est sa part du montant total de la commande ; il est aussi imprimé sur le PDF.</li>
+<li>Dans chaque ligne, vérifiez le <strong>montant du commande réceptionné</strong> : il vient d''IPS et n''est pas modifiable. Le pourcentage en rouge, devant le montant, est sa part du montant total de la commande. Si IPS ne trouve aucun montant pour une commande, « - » s''affiche et l''enregistrement est bloqué.</li>
 <li><strong>Montant total réceptionné *</strong> : il doit être égal à la somme des montants du commande réceptionnés du tableau. Le <strong>montant total à payer</strong>, non modifiable, affiche la somme des montants du commande à payer. Le pourcentage en rouge à côté de ces deux libellés est leur part du montant total des commandes.</li>
 <li><strong>Pièces jointes</strong> : le contrôle livraison et le RIB fournisseur sont attendus ; les documents de douane et de commande DocuWare sont ajoutés automatiquement. Les autres documents sont facultatifs.</li>
 <li>Cliquez sur <strong>Enregistrer</strong> et confirmez.</li>
@@ -106,7 +107,7 @@ SELECT 'ddp-magasin-apres-arrivage', N'Demande de paiement magasin – après ar
 </table>
 <ul>
 <li><strong>Montant à payer de la demande :</strong> le total des montants du commande à payer. Une demande à 0 passe quand même en validation.</li>
-<li><strong>PDF :</strong> la page de garde reprend le résumé des BC, le récapitulatif des livraisons et celui des demandes de paiement déjà faites, puis est fusionnée avec toutes les pièces jointes. Le PDF n''est déposé dans DocuWare qu''à la transmission.</li>
+<li><strong>PDF :</strong> la page de garde reprend le résumé des BC, le récapitulatif des livraisons et celui des demandes de paiement déjà enregistrées, puis est fusionnée avec toutes les pièces jointes. Les pourcentages sont imprimés en rouge devant les montants : dans le résumé des BC et dans la case « Montant à payer ». Le PDF n''est déposé dans DocuWare qu''à la transmission.</li>
 </ul>
 <p>Le solde avance de chaque commande se calcule ainsi :</p>
 <p><strong>Solde avance = Montant total du commande − (somme des proformas des DDPA + montant déjà payé)</strong>, ramené à 0 s''il est négatif.</p>
@@ -124,12 +125,13 @@ SELECT 'ddp-magasin-apres-arrivage', N'Demande de paiement magasin – après ar
 <table border="1" cellpadding="4">
 <thead><tr><th>Message</th><th>Cause</th><th>Que faire</th></tr></thead>
 <tbody>
-<tr><td>Le montant réceptionné de la commande X est introuvable dans IPS pour la/les facture(s) sélectionnée(s)</td><td>IPS ne trouve aucune réception de cette commande pour ces factures</td><td>Vérifier le numéro de facture et la réception dans IPS</td></tr>
+<tr><td>Le montant réceptionné de la commande X est introuvable dans IPS pour la/les facture(s) sélectionnée(s)</td><td>IPS ne trouve aucune réception de cette commande pour ces factures. L''enregistrement est bloqué</td><td>Vérifier le numéro de facture dans GCOT et IPS, ainsi que la réception</td></tr>
 <tr><td>Le montant saisi ne correspond pas au montant calculé pour la/les commande(s)/facture(s) sélectionnée(s)</td><td>Le montant total réceptionné diffère de la somme des montants du commande réceptionnés</td><td>Saisir exactement la somme du tableau</td></tr>
 <tr><td>Bouton Enregistrer grisé et message rouge sous la commande</td><td>Le PDF de la commande fournisseur validée est introuvable</td><td>Vérifier que la commande est bien validée et déposée dans DocuWare</td></tr>
+<tr><td>Aucune demande DDP/BAP à transmettre n''a été reçue</td><td>La transmission n''a reçu aucun numéro de demande. Rien n''est transmis</td><td>Recharger la page, cocher de nouveau les demandes, puis signaler le problème s''il revient</td></tr>
 </tbody>
 </table>
-<p>Après une erreur, le formulaire se recharge : resaisissez les montants du tableau des commandes.</p>
+<p>Après une erreur, le formulaire se recharge : vérifiez vos saisies, notamment le montant total réceptionné.</p>
 
 <h2>Glossaire et questions fréquentes</h2>
 <table border="1" cellpadding="4">
