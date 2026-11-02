@@ -39,8 +39,16 @@ class DdpApiController extends Controller
             $appro = (bool) ($data['appro'] ?? false);
             $selectedDdp = $data['selectedDDP'] ?? [];
             $numerosBc = array_unique(array_column($selectedDdp, "numeroCde"));
-            $ddpNumbers = array_column($selectedDdp, "numeroDdp");
+            $ddpNumbers = array_filter(array_column($selectedDdp, "numeroDdp"));
             $ddpNumberString = implode(', ', $ddpNumbers);
+
+            // Avant genererNumeroCla : une transmission vide ne doit pas consommer de numéro
+            if (empty($ddpNumbers)) {
+                return new JsonResponse([
+                    'success' => false,
+                    'message' => 'Aucune demande DDP/BAP à transmettre n\'a été reçue.',
+                ]);
+            }
             // La vérification de validation des BC (DW) ne concerne que les DDP appro
             $result = $appro
                 ? $this->getValidationInfosWithStatus($selectedDdp, $numerosBc)
