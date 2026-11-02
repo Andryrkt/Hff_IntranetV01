@@ -28,8 +28,9 @@ class CommandeLivraisonMapper
                         ->setNumeroCommande($numeroCommande)
                         ->setNumeroLivraison($numeroLivraison)
                         ->setNumeroFacture($numeroFacture)
-                        // montant du commande à payer : uniquement saisi sur DdpDto (magasin)
-                        ->setMontantCommandeAPayer($dto instanceof DdpDto ? $dto->montantCommande($numeroCommande) : null);
+                        // montants du commande : uniquement sur DdpDto (magasin)
+                        ->setMontantCommandeReceptionner($dto instanceof DdpDto ? $dto->montantCommande($numeroCommande) : null)
+                        ->setMontantCommandeAPayer($dto instanceof DdpDto ? $dto->montantCommandeAPayer($numeroCommande) : null);
                 }
             }
         } else {

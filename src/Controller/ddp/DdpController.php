@@ -97,7 +97,7 @@ class DdpController extends Controller
                 $dto->numeroCommande = $this->ddpFactory->recuperationNumCommande($dto->numeroFournisseur, $dto->numeroFacture);
                 foreach ($dto->numeroCommande as $numCde) {
                     if ($dto->montantCommande($numCde) === null) {
-                        $form->addError(new FormError("Le montant du commande à payer $numCde est obligatoire."));
+                        $form->addError(new FormError("Le montant du commande réceptionné $numCde est obligatoire."));
                         return;
                     }
                 }
@@ -158,8 +158,14 @@ class DdpController extends Controller
             $dtoGroupe->lignesFactures = $groupe['lignesFactures'];
             $dtoGroupe->montantsCommande = array_intersect_key($dto->montantsCommande, array_flip($groupe['commandes']));
             $dtoGroupe->soldesAvance = $groupe['soldes'];
-            // montant à payer de la DDP = montant des factures du groupe
-            $dtoGroupe->montantAPayer = number_format($groupe['montantFactures'], 2, ',', '');
+            $dtoGroupe->estRegule = $typeId === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_REGULE;
+            // montant à payer de la DDP = somme des montants du commande à payer du groupe
+            $dtoGroupe->montantAPayer = number_format(
+                array_sum(array_map(fn($numCde) => (float) $dtoGroupe->montantCommandeAPayer((string) $numCde), $groupe['commandes'])),
+                2,
+                ',',
+                ''
+            );
 
             // typeDdp encore "après arrivage" ici : apresSoumission() en dépend (commandes, fichiers distants)
             $dtoGroupe = $this->ddpFactory->apresSoumission($form, $dtoGroupe, $source, $typeId === TypeDemandePaiementConstants::ID_BON_A_PAYER);
@@ -185,7 +191,7 @@ class DdpController extends Controller
     /**
      * Regroupe les commandes de la demande par type de DDP à générer.
      *
-     * @return array<int, array{commandes: string[], factures: string[], soldes: array<string, float>, montantFactures: float, lignesFactures: array}>|string
+     * @return array<int, array{commandes: string[], factures: string[], soldes: array<string, float>, lignesFactures: array}>|string
      *         groupes indexés par id de type de demande, ou message d'erreur
      */
     private function groupesParSituation(DdpDto $dto)
@@ -210,7 +216,6 @@ class DdpController extends Controller
         foreach ($groupes as $typeId => &$groupe) {
             $groupe['factures'] = [];
             $groupe['lignesFactures'] = [];
-            $groupe['montantFactures'] = 0.0;
         }
         unset($groupe);
 
@@ -230,7 +235,6 @@ class DdpController extends Controller
             if (!isset($groupeParFacture[$numFac])) {
                 $groupeParFacture[$numFac] = $typeId;
                 $groupes[$typeId]['factures'][] = $numFac;
-                $groupes[$typeId]['montantFactures'] += (float) $ligne['Montant_Facture'];
             }
         }
 
@@ -348,7 +352,7 @@ class DdpController extends Controller
                 return null;
             }
 
-            // somme des montants du commande à payer saisis (numeroCommande déjà déduit des factures)
+            // somme des montants du commande réceptionnés saisis (numeroCommande déjà déduit des factures)
             return array_sum(array_map(fn($numCde) => (float) $dto->montantCommande($numCde), $dto->numeroCommande));
         }
 

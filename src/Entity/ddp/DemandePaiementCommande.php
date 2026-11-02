@@ -54,6 +54,11 @@ class DemandePaiementCommande
     private ?float $montantCommandeAPayer = null;
 
     /**
+     * @ORM\Column(type="float", scale="2", name="montant_commande_receptionner", nullable=true)
+     */
+    private ?float $montantCommandeReceptionner = null;
+
+    /**
      * @ORM\Column(type="float", scale="2", name="solde_avance", nullable=true)
      */
     private ?float $soldeAvance = null;
@@ -158,6 +163,24 @@ class DemandePaiementCommande
     public function setDemandePaiement(?DemandePaiement $demandePaiement): self
     {
         $this->demandePaiement = $demandePaiement;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of montantCommandeReceptionner
+     */
+    public function getMontantCommandeReceptionner(): ?float
+    {
+        return $this->montantCommandeReceptionner;
+    }
+
+    /**
+     * Set the value of montantCommandeReceptionner
+     */
+    public function setMontantCommandeReceptionner(?float $montantCommandeReceptionner): self
+    {
+        $this->montantCommandeReceptionner = $montantCommandeReceptionner;
 
         return $this;
     }

@@ -391,7 +391,7 @@ class DemandePaiementRepository extends EntityRepository
      * - typeDdpAGenerer : BAP (0 % DDPA), DDPR (100 %), DDPL (entre les deux) ;
      * - soldeAvance (DDPL uniquement, 0 sinon) : montant total du commande (dernière DDPA)
      *   - (somme des montants facture proforma des DDPA + montant commande déjà payé
-     *   par les demandes validées de type différent de l'avance).
+     *   par les demandes validées de type différent de l'avance), ramené à 0 s'il est négatif.
      *
      * @return array{ratioDdpa: float, typeDdpAGenerer: int, soldeAvance: float}
      */
@@ -422,7 +422,7 @@ class DemandePaiementRepository extends EntityRepository
         }
 
         $montantDejaPaye = (float) $this->getEntityManager()->createQueryBuilder()
-            ->select('SUM(c.montantCommandeAPayer)')
+            ->select('SUM(c.montantCommandeReceptionner)')
             ->from(DemandePaiementCommande::class, 'c')
             ->join('c.demandePaiement', 'd')
             ->where('c.numeroCommande = :numCde')
@@ -446,7 +446,7 @@ class DemandePaiementRepository extends EntityRepository
             'ratioDdpa'       => $ratioDdpa,
             'montantProforma' => $sommeProforma,
             'typeDdpAGenerer' => TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE,
-            'soldeAvance'     => $montantTotalCommande - ($sommeProforma + $montantDejaPaye),
+            'soldeAvance'     => max(0.0, $montantTotalCommande - ($sommeProforma + $montantDejaPaye)),
         ];
     }
 

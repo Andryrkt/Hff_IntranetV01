@@ -50,8 +50,8 @@ Routes principales : `new_ddp` (`/ddp/new/2`) et `da_bon_a_payer` (`/demande-app
 ### 3.1 Saisie et enregistrement
 
 1. L'utilisateur choisit un fournisseur. Le front charge ses factures GCOT liées à des commandes réceptionnées dans IPS.
-2. Il choisit une ou plusieurs factures. Les commandes correspondantes s'affichent dans un tableau, avec leur solde avance et le montant à payer pré-rempli depuis le montant réceptionné IPS (modifiable). Le type de document à créer n'est pas affiché.
-3. Il saisit le montant à payer global, qui doit égaler la somme du tableau.
+2. Il choisit une ou plusieurs factures. Les commandes correspondantes s'affichent dans un tableau, avec leur solde avance, le montant du commande réceptionné pré-rempli depuis IPS (modifiable) et le montant du commande à payer calculé (RG-AA-13). Le type de document à créer n'est pas affiché.
+3. Il saisit le montant total réceptionné, qui doit égaler la somme des montants réceptionnés du tableau. Le champ « Montant total à payer », non modifiable, affiche la somme des montants à payer.
 4. Le serveur **redéduit les commandes depuis les factures**, car le select est désactivé et n'est pas posté.
 5. `groupesParSituation()` classe chaque commande (RG-AA-05) et rattache chaque facture au groupe de ses commandes (RG-AA-06).
 6. Pour **chaque groupe**, le serveur clone le DTO, génère un numéro (`BAP` ou `DDP`), enregistre les données, puis génère et fusionne le PDF. Les fichiers téléversés sont déplacés pour le premier groupe, puis copiés pour les suivants (`copieFichiersSource`).
@@ -73,28 +73,32 @@ Depuis la consultation, l'utilisateur coche des demandes `… à transmettre`, p
 |---|---|---|---|
 | RG-AA-01 | Factures proposées = factures GCOT du fournisseur, sur commandes réceptionnées, hors pièces `regix.trs_ecr` du journal `Achmag` | ✔ | ✘ |
 | RG-AA-02 | Commandes déduites des factures | ✔ | ✔ |
-| RG-AA-03 | Montant du commande à payer obligatoire pour chaque commande | ✔ | ✔ |
-| RG-AA-04 | Montant à payer = somme des montants du commande à payer (± 0,01) | ✔ | ✔ |
+| RG-AA-03 | Montant du commande réceptionné obligatoire pour chaque commande | ✔ | ✔ |
+| RG-AA-04 | Montant total réceptionné = somme des montants du commande réceptionnés (± 0,01) | ✔ | ✔ |
 | RG-AA-05 | Classement selon le cumul des % DDPA validées : ≤ 0,01 → BAP ; ≥ 99,99 → DDPR ; sinon → DDPL | – | ✔ |
 | RG-AA-06 | Une facture dont les commandes tombent dans des groupes différents bloque toute la soumission | ✘ | ✔ |
-| RG-AA-07 | Une demande par groupe ; son `montant_a_payer` = somme des montants FOB de ses factures | – | ✔ |
-| RG-AA-08 | Solde avance (DDPL, sinon 0) = total commande de la dernière DDPA − (somme des proformas DDPA + `montant_commande_a_payer` des demandes validées non DDPA) | ✔ (aperçu) | ✔ |
+| RG-AA-07 | Une demande par groupe ; son `montant_a_payer` = somme des montants du commande à payer de ses commandes | – | ✔ |
+| RG-AA-08 | Solde avance (DDPL, sinon 0) = total commande de la dernière DDPA − (somme des proformas DDPA + `montant_commande_receptionner` des demandes validées non DDPA), ramené à 0 s'il est négatif | ✔ (aperçu) | ✔ |
 | RG-AA-09 | PDF de commande DocuWare introuvable → bouton Enregistrer désactivé | ✔ | ✘ |
 | RG-AA-10 | Pièces jointes : PDF, 5 Mo maximum, sans obligation de présence côté serveur ; PJ03 désactivée | ✔ | ✔ |
 | RG-AA-11 | RIB différent de ceux connus dans IPS (`fou_bqe`) → mention « RIB mis à jour » sur la page DDP (pas sur la page BAP MAGASIN) | – | ✔ |
 | RG-AA-12 | Valeurs fixes : agence `01`, service `NEG`, société `HF` | – | ✔ |
+| RG-AA-13 | Montant du commande à payer : 0 pour une DDPR, ou si solde avance > 0 et montant réceptionné ≤ solde avance ; sinon montant réceptionné − solde avance | ✔ (aperçu) | ✔ |
+| RG-AA-14 | Solde avance restant (affiché, non enregistré) : solde avance − montant réceptionné si solde avance > 0 et montant réceptionné ≤ solde avance ; sinon 0 | ✔ | ✘ |
 
 **« Validée »** signifie toujours : statut `Validé` ou `Transmis compta`, sur la dernière version de la demande.
 
-### Les trois montants du formulaire
+### Les montants du formulaire
 
-Trois montants coexistent et peuvent différer :
+Cinq montants coexistent et peuvent différer :
 
 | Montant | Origine | Stockage | Usage |
 |---|---|---|---|
-| Montant du commande à payer | Pré-rempli depuis IPS, modifiable | `montant_commande_a_payer` (`demande_paiement_ligne`, `demande_paiement_commande`, `commande_livraison`) | Contrôle RG-AA-04, solde avance, tableau du PDF BAP |
-| Montant à payer saisi | Saisie | Non stocké | Contrôle RG-AA-04 uniquement |
-| Montant des factures | FOB GCOT (`TRZT_Facture.Montant_FOB`) | `demande_paiement.montant_a_payer` | Montant de la demande, « MONTANT BAP » du PDF |
+| Montant du commande réceptionné | Pré-rempli depuis IPS, modifiable | `montant_commande_receptionner` (`demande_paiement_ligne`, `demande_paiement_commande`, `commande_livraison`) | Contrôle RG-AA-04, solde avance, tableau du PDF BAP |
+| Montant total réceptionné | Saisie | Non stocké | Contrôle RG-AA-04 uniquement |
+| Montant du commande à payer | Calculé par le serveur à la soumission, aperçu à l'écran (RG-AA-13) | `montant_commande_a_payer` (mêmes tables) | Imprimé sur les pages de garde BAP MAGASIN et DDP |
+| Montant total à payer | Somme des montants du commande à payer, aperçu à l'écran pour toute la saisie | `demande_paiement.montant_a_payer`, par groupe | Montant de chaque demande, « Montant à payer » et « MONTANT BAP » des PDF |
+| Solde avance restant | Calculé à l'écran (RG-AA-14) | Non stocké | Affichage uniquement |
 
 ## 5. Statuts
 
@@ -114,7 +118,7 @@ Les statuts `Refusé`, `Refusé Compta` et `Réfusé par Chef de Service` sont e
 |---|---|---|
 | `demande_paiement` | Une ligne par demande | `numero_commande` et `numero_facture` sont des listes séparées par `;`. `montant_total_commande` reste vide |
 | `demande_paiement_ligne` | Une ligne par couple commande/facture | `montant_facture` contient le total de la demande (voir P-AA-03) |
-| `demande_paiement_commande` | Une ligne par commande | `client = 'magasin'`, `montant_commande_a_payer`, `solde_avance`. Permet de retrouver une commande dans une demande multi-commandes |
+| `demande_paiement_commande` | Une ligne par commande | `client = 'magasin'`, `montant_commande_receptionner`, `montant_commande_a_payer`, `solde_avance`. Permet de retrouver une commande dans une demande multi-commandes |
 | `commande_livraison` | Une ligne par commande et livraison | `numero_facture` regroupe les factures de la demande, séparées par `;` |
 | `document_demande_paiement` | Une ligne par fichier joint | Ne contient pas le PDF final |
 | `type_demande` | Types de demande | Référentiel |
@@ -173,6 +177,7 @@ Les requêtes IPS et GCOT peuvent durer plusieurs dizaines de secondes pour un g
 - `alter_demande_paiement_numero_commande.sql` : passe `numero_commande` en `NVARCHAR(MAX)` ;
 - `demande_paiement_ajout_montant_total_commande.sql` : ajoute `montant_total_commande` et supprime `montant_facture_proforma` ;
 - `ddp_ajout_montant_commande_a_payer.sql` : ajoute ou renomme `montant_commande_a_payer` ;
+- `ddp_ajout_montant_commande_receptionner.sql` : ajoute `montant_commande_receptionner`, y copie les montants existants et recalcule `montant_commande_a_payer` ;
 - `demande_paiement_commande_ajout_solde_avance.sql` : ajoute `solde_avance`.
 
 **Prérequis** :
@@ -193,7 +198,9 @@ Constats issus de la lecture du code ; aucun n'a été reproduit en exécution. 
 | Réf. | Constat | Conséquence concrète | Décision |
 |---|---|---|---|
 | P-AA-01 | Le classement (RG-AA-05) ne compte que les DDPA **validées** ; le guide utilisateur annonce ce comportement | Une commande avec une DDPA en cours passe en BAP sans déduction de l'acompte | |
-| P-AA-02 | Le montant saisi est contrôlé puis remplacé par le total FOB (section 4) | Saisie de 1 000 et factures à 950 : la demande est enregistrée à 950 alors que le tableau du PDF affiche 1 000 | |
+| P-AA-02 | Le montant de la demande est le total à payer : il vaut 0 quand le solde avance couvre tout le réceptionné | Solde 500 et réceptionné 300 : une demande à 0 est créée et transmise en validation | Une demande à 0 passe toujours en validation |
+| P-AA-20 | Le solde avance additionne tout le réceptionné validé (RG-AA-08) et pouvait devenir négatif | Solde 500 et réceptionné 800 : 300 à payer, puis solde à -300 une fois validé. Une réception de 100 aurait donné 400 à payer au lieu de 100 | Solde ramené à 0 |
+| P-AA-21 | Une DDPR a un solde avance forcé à 0 (DDPA validées à 100 %), donc son montant à payer égalait tout le réceptionné | Commande de 1 000 déjà payée à 100 % par acomptes : la DDPR aurait été transmise à 1 000 | Montant à payer de 0 pour une DDPR (`DdpDto::$estRegule`) |
 | P-AA-03 | `DdpLigneMapper` met le total de la demande dans `montant_facture` de chaque ligne | Une demande de 3 lignes à 900 donne 2 700 si on additionne la colonne | |
 | P-AA-04 | Le serveur accepte les factures postées (`choices` = valeurs soumises) ; RG-AA-01 et RG-AA-09 ne sont appliquées que côté front | Une requête forgée peut soumettre une facture exclue de la liste ou une commande sans PDF | |
 | P-AA-05 | Le DTO garde la société `HF` à la soumission, alors que l'API utilise la société de l'utilisateur | Pour un utilisateur d'une autre société, le solde affiché peut différer de celui enregistré, et le document créé peut ne pas correspondre à ses acomptes | |

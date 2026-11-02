@@ -16,8 +16,9 @@ class DdpDto
     public ?string $montantTotalCommande = null; // * montant total du commande (à l'avance)
     // numéro de la commande
     public array $numeroCommande = [];
-    public array $montantsCommande = []; // * [numeroCommande => montant du commande à payer] saisi par l'utilisateur (après arrivage)
+    public array $montantsCommande = []; // * [numeroCommande => montant du commande réceptionné] saisi par l'utilisateur (après arrivage)
     public array $soldesAvance = []; // [numeroCommande => solde avance] calculé à la soumission (après arrivage)
+    public bool $estRegule = false; // DDPR : commandes déjà payées à 100 % par les DDPA, rien de plus à payer
     public array $donneesBapMagasin = []; // données de la page de garde BAP MAGASIN (voir DdpController::donneesBapMagasin)
     // numéro de la facture
     public array $numeroFacture = [];
@@ -119,6 +120,27 @@ class DdpDto
             return null;
         }
         return self::montantEnFloat($montant);
+    }
+
+    /**
+     * Montant du commande à payer (après arrivage) : 0 pour une DDPR ou si le solde avance couvre le montant
+     * réceptionné, sinon la part du réceptionné au-delà du solde (null si le réceptionné n'est pas renseigné).
+     * Le front en affiche un aperçu : DemandePaiementManager.js::afficherMontantCommandeAPayer
+     */
+    public function montantCommandeAPayer(?string $numeroCommande): ?float
+    {
+        $receptionne = $this->montantCommande($numeroCommande);
+        if ($receptionne === null) {
+            return null;
+        }
+
+        if ($this->estRegule) {
+            return 0.0;
+        }
+
+        $solde = (float) ($this->soldesAvance[$numeroCommande] ?? 0);
+
+        return $solde > 0 && $receptionne <= $solde ? 0.0 : $receptionne - $solde;
     }
 
     /**

@@ -875,7 +875,7 @@ export class DemandePaiementManager {
       return;
     }
 
-    // après arrivage : le montant à payer doit égaler la somme des montants du commande à payer
+    // après arrivage : le montant total réceptionné doit égaler la somme des montants du commande réceptionnés
     const inputsCommande = [
       ...(this.elements.montantsCommandeBody?.querySelectorAll("input") || []),
     ];
@@ -893,7 +893,7 @@ export class DemandePaiementManager {
     this.montantIncorrect =
       isNaN(montantSaisi) || Math.abs(montantSaisi - montantAttendu) > 0.01;
     this.messageMontantIncorrect = inputsCommande.length
-      ? "Le montant à payer doit être égal à la somme des montants du commande à payer."
+      ? "Le montant total réceptionné doit être égal à la somme des montants du commande réceptionnés."
       : "Le montant saisi ne correspond pas au montant de la/les commande(s)/facture(s) sélectionnée(s).";
 
     this.mettreAJourEtatSoumission();
@@ -1065,6 +1065,7 @@ export class DemandePaiementManager {
       input.value = saisis[numCde] ?? this.montantsReceptionnes?.[numCde] ?? "";
       input.addEventListener("input", () => {
         input.value = formatNumberSpecial(input.value);
+        this.afficherMontantCommandeAPayer(input);
         this.verifierMontant();
       });
 
@@ -1081,22 +1082,67 @@ export class DemandePaiementManager {
       const celluleSolde = tr.insertCell();
       celluleSolde.className = "text-end";
       tr.insertCell().appendChild(input);
+      tr.insertCell().className = "text-end montant-a-payer";
+      tr.insertCell().className = "text-end solde-restant";
 
       this.chargerSituationAvance(numCde).then((situation) => {
         if (!situation) return;
         celluleSolde.textContent = formatNumberSpecial(
           Number(situation.soldeAvance || 0).toFixed(2),
         );
+        input.dataset.soldeAvance = situation.soldeAvance;
+        // type 3 = DDPR : rien de plus à payer (DdpDto::$estRegule)
+        input.dataset.regule = situation.typeDdpAGenerer === 3 ? "1" : "";
+        this.afficherMontantCommandeAPayer(input);
       });
     });
 
     tableauMontantsCommande.classList.toggle("d-none", numCdes.length === 0);
+    this.afficherMontantTotalAPayer();
     this.verifierMontant();
   }
 
   /**
+   * Aperçu du montant enregistré par le serveur (DdpDto::montantCommandeAPayer) et
+   * solde avance restant, dans des cellules et non des champs : verifierMontant()
+   * additionne tous les champs du tableau.
+   */
+  afficherMontantCommandeAPayer(input) {
+    const ligne = input.closest("tr");
+    const cellule = ligne.querySelector(".montant-a-payer");
+    const celluleRestant = ligne.querySelector(".solde-restant");
+    const solde = parseFloat(input.dataset.soldeAvance);
+    const receptionne = parseMontant(input.value);
+    if (isNaN(solde) || isNaN(receptionne)) {
+      cellule.textContent = "";
+      celluleRestant.textContent = "";
+      delete input.dataset.montantAPayer;
+    } else {
+      const couvert = solde > 0 && receptionne <= solde;
+      const montant = couvert || input.dataset.regule === "1" ? 0 : receptionne - solde;
+      const restant = couvert ? solde - receptionne : 0;
+      cellule.textContent = formatNumberSpecial(montant.toFixed(2));
+      celluleRestant.textContent = formatNumberSpecial(restant.toFixed(2));
+      input.dataset.montantAPayer = montant;
+    }
+    this.afficherMontantTotalAPayer();
+  }
+
+  /**
+   * Champ "Montant total à payer" : somme des montants du commande à payer du tableau.
+   */
+  afficherMontantTotalAPayer() {
+    const champ = this.elements.montantTotalAPayerInput;
+    if (!champ) return;
+
+    const inputs = [...this.elements.montantsCommandeBody.querySelectorAll("input")];
+    const total = inputs.reduce((somme, input) => somme + (parseFloat(input.dataset.montantAPayer) || 0), 0);
+    champ.value = inputs.length ? formatNumberSpecial(total.toFixed(2)) : "";
+  }
+
+  /**
    * Montant réceptionné par commande (factures sélectionnées) : pré-remplit
-   * les champs "Montant du commande à payer" encore vides, modifiables ensuite.
+   * les champs "Montant du commande réceptionné" encore vides, modifiables ensuite.
    */
   async chargerMontantsReceptionnes(numFournisseur, numCdes, numFacs) {
     this.montantsReceptionnes = {};
@@ -1125,6 +1171,7 @@ export class DemandePaiementManager {
         .forEach((input) => {
           const montant = this.montantsReceptionnes[input.dataset.numCde];
           if (input.value === "" && montant !== undefined) input.value = montant;
+          this.afficherMontantCommandeAPayer(input);
         });
       this.verifierMontant();
     } catch (error) {

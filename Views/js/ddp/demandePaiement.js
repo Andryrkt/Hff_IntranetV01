@@ -1,4 +1,4 @@
-import { DemandePaiementManager } from "./DemandePaiementManager.js?v=20261102a";
+import { DemandePaiementManager } from "./DemandePaiementManager.js?v=20261102f";
 import { baseUrl } from "../utils/config.js";
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
       montantTotalCommandeInput: "#demande_paiement_montantTotalCommande",
       tableauMontantsCommande: "#tableauMontantsCommande",
       montantsCommandeBody: "#montantsCommandeBody",
+      montantTotalAPayerInput: "#montantTotalAPayer",
       suggestionNumFournisseur: "#suggestion-num-fournisseur",
       loaderNumFournisseur: "#loader-num-fournisseur",
       suggestionNomFournisseur: "#suggestion-nom-fournisseur",

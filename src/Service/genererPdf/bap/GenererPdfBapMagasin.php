@@ -91,16 +91,17 @@ class GenererPdfBapMagasin extends GeneratePdf
             // valeurs distinctes d'une colonne des factures de la commande
             $valeurs = fn(string $champ) => implode(', ', array_unique(array_filter(array_map(fn($f) => trim((string) ($f[$champ] ?? '')), $facturesCde)))) ?: '-';
             $lignes[] = [
-                ['center', '12%', $numCde],
-                ['left', '18%', $valeurs('Numero_Facture')],
-                ['left', '17%', $valeurs('Numero_Dossier_Douane')],
-                ['left', '17%', $valeurs('Numero_LTA')],
-                ['left', '17%', $valeurs('Numero_HAWB')],
-                ['right', '19%', $this->formaterPrix($dto->montantCommande((string) $numCde) ?? 0) . " $devise"],
+                ['center', '11%', $numCde],
+                ['left', '15%', $valeurs('Numero_Facture')],
+                ['left', '14%', $valeurs('Numero_Dossier_Douane')],
+                ['left', '14%', $valeurs('Numero_LTA')],
+                ['left', '14%', $valeurs('Numero_HAWB')],
+                ['right', '16%', $this->formaterPrix($dto->montantCommande((string) $numCde) ?? 0) . " $devise"],
+                ['right', '16%', $this->formaterPrix($dto->montantCommandeAPayer((string) $numCde) ?? 0) . " $devise"],
             ];
         }
 
-        $this->renderTable($pdf, null, 'Aucune commande', ['N° commande', 'N° facture', 'N° dossier douane', 'N° LTA', 'N° HAWB', 'Montant du commande à payer'], $lignes);
+        $this->renderTable($pdf, null, 'Aucune commande', ['N° commande', 'N° facture', 'N° dossier douane', 'N° LTA', 'N° HAWB', 'Montant du commande réceptionné', 'Montant du commande à payer'], $lignes);
     }
 
     private function renderHistoriqueLivraison(TCPDF $pdf, array $commandes, string $devise): void

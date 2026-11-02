@@ -351,6 +351,13 @@ class GeneratePdfDdp extends GeneratePdf
             }
             $pdf->Cell(50, 10, 'Solde avance ', 1, 0);
             $pdf->MultiCell($usable_width - 50, 10, implode(' ; ', $soldes), 1, 'L', 0, 1);
+
+            $montantsAPayer = [];
+            foreach (array_keys($dto->soldesAvance) as $numCde) {
+                $montantsAPayer[] = $numCde . ' : ' . number_format((float) $dto->montantCommandeAPayer((string) $numCde), 2, ',', ' ');
+            }
+            $pdf->Cell(50, 10, 'Montant cde à payer ', 1, 0);
+            $pdf->MultiCell($usable_width - 50, 10, implode(' ; ', $montantsAPayer), 1, 'L', 0, 1);
         }
 
         $pdf->Ln(5);

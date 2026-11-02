@@ -96,8 +96,8 @@ Les statuts `Refusé`, `Refusé Compta` et `Réfusé par Chef de Service` sont e
 | Table | Contenu pour une DDPA |
 |---|---|
 | `demande_paiement` | Une ligne. `montant_a_payer` = montant proforma, `montant_total_commande` = total saisi, `numero_commande` = la commande |
-| `demande_paiement_ligne` | Une ligne. `numero_facture` vaut `-`, `montant_facture` = montant proforma, `ratio_montant_payer` = % de la demande, `montant_commande_a_payer` vide |
-| `demande_paiement_commande` | Une ligne. `client = 'magasin'`, `montant_commande_a_payer` et `solde_avance` vides |
+| `demande_paiement_ligne` | Une ligne. `numero_facture` vaut `-`, `montant_facture` = montant proforma, `ratio_montant_payer` = % de la demande, `montant_commande_receptionner` et `montant_commande_a_payer` vides |
+| `demande_paiement_commande` | Une ligne. `client = 'magasin'`, `montant_commande_receptionner`, `montant_commande_a_payer` et `solde_avance` vides |
 | `document_demande_paiement` | Une ligne par fichier joint. Ne contient pas le PDF final |
 | `type_demande` | Référentiel des types |
 | `dw_commande` | Chemins des PDF de commande DocuWare, en lecture seule ici |
@@ -143,6 +143,7 @@ Les statuts `Refusé`, `Refusé Compta` et `Réfusé par Chef de Service` sont e
 - `alter_demande_paiement_numero_commande.sql` : passe `numero_commande` en `NVARCHAR(MAX)` ;
 - `demande_paiement_ajout_montant_total_commande.sql` : ajoute `montant_total_commande` et supprime `montant_facture_proforma` ;
 - `ddp_ajout_montant_commande_a_payer.sql` : ajoute ou renomme `montant_commande_a_payer` ;
+- `ddp_ajout_montant_commande_receptionner.sql` : ajoute `montant_commande_receptionner`, y copie les montants existants et recalcule `montant_commande_a_payer` ;
 - `demande_paiement_commande_ajout_solde_avance.sql` : ajoute `solde_avance`.
 
 **Prérequis** :

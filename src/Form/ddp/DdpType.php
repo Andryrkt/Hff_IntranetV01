@@ -68,7 +68,7 @@ class DdpType extends AbstractType
                 [
                     'label' => $options['data']->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE
                         ? 'Montant facture proforma *'
-                        : 'Montant à payer *',
+                        : 'Montant total réceptionné *',
                     'attr' => $options['data']->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE
                         ? ['data-plafond' => TypeDemandePaiementConstants::PLAFOND_MONTANT_PROFORMA]
                         : [],
@@ -109,7 +109,7 @@ class DdpType extends AbstractType
     }
 
     /**
-     * Montant du commande à payer, par commande : uniquement pour la demande de paiement après arrivage
+     * Montant du commande réceptionné, par commande : uniquement pour la demande de paiement après arrivage
      */
     public function addMontantsCommande(FormBuilderInterface $builder, array $options)
     {
@@ -127,7 +127,7 @@ class DdpType extends AbstractType
                 'entry_options' => [
                     'constraints' => [
                         new NotBlank([
-                            'message' => 'Le montant du commande à payer est obligatoire.',
+                            'message' => 'Le montant du commande réceptionné est obligatoire.',
                         ]),
                     ],
                 ],
