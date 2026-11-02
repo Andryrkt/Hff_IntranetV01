@@ -14,12 +14,13 @@ class CommandeSoumissionFactory
      * @param string[] $allValidatedOR
      * @param string[] $allValidatedPO
      * @param string $email
+     * @param string $commentaire
      * 
      * @return CommandeSoumissionDTO|null
      *
      * @throws \RuntimeException si les lignes de $data contiennent des valeurs d'en-tête incohérentes
      */
-    public function hydrate(array $data, array $detailsData, array $allValidatedOR, array $allValidatedPO, string $email): ?CommandeSoumissionDTO
+    public function hydrate(array $data, array $detailsData, array $allValidatedOR, array $allValidatedPO, string $email, string $commentaire): ?CommandeSoumissionDTO
     {
         if (empty($data)) return null;
 
@@ -39,6 +40,7 @@ class CommandeSoumissionFactory
         $dto->libelleService  = $headerInfo['service_lib'];
         $dto->allValidatedOR  = $allValidatedOR;
         $dto->allValidatedPO  = $allValidatedPO;
+        $dto->commentaire     = $commentaire;
         $this->hydrateLignes($dto, $data, $detailsData);
 
         return $dto;

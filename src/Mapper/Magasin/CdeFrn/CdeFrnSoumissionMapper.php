@@ -27,7 +27,9 @@ final class CdeFrnSoumissionMapper
             ->setStatut($dto->statut)
             ->setPdfDeposerDw($dto->pdfDeposerDw)
             ->setDateDepotDw($dto->dateDepotDw)
-            ->setDateHeureSoumission(new \DateTime("now", new \DateTimeZone("Indian/Antananarivo")));
+            ->setDateHeureSoumission(new \DateTime("now", new \DateTimeZone("Indian/Antananarivo")))
+            ->setCommentaire($dto->commentaire)
+        ;
 
         return $entity;
     }
