@@ -16,7 +16,8 @@ class DdpDto
     public ?string $montantTotalCommande = null; // * montant total du commande (à l'avance)
     // numéro de la commande
     public array $numeroCommande = [];
-    public array $montantsCommande = []; // * [numeroCommande => montant du commande réceptionné] saisi par l'utilisateur (après arrivage)
+    public array $montantsCommande = []; // [numeroCommande => montant du commande réceptionné] lu dans IPS à la soumission (après arrivage)
+    public array $montantsTotalCommande = []; // [numeroCommande => montant total de la commande] lu dans IPS à la soumission (après arrivage)
     public array $soldesAvance = []; // [numeroCommande => solde avance] calculé à la soumission (après arrivage)
     public array $commandesRegule = []; // commandes déjà payées à 100 % par les DDPA : rien de plus à payer (après arrivage)
     public array $donneesPageDeGarde = []; // tableaux de la page de garde après arrivage (voir DdpController::donneesPageDeGarde)
@@ -111,7 +112,7 @@ class DdpDto
     }
 
     /**
-     * Montant total saisi pour une commande, en float (null si non renseigné)
+     * Montant du commande réceptionné, en float (null si non renseigné)
      */
     public function montantCommande(?string $numeroCommande): ?float
     {

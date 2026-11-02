@@ -82,6 +82,16 @@ class DdpController extends Controller
             /** @var DdpDto $dto */
             $dto = $form->getData();
 
+            // à l'avance : le montant total du commande vient d'IPS, jamais de la valeur postée
+            if ($dto->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE) {
+                $montantTotal = $this->demandePaiementModel->getMontantTotalCommande((string) $dto->numeroFournisseur, (string) ($dto->numeroCommande[0] ?? ''));
+                if ($montantTotal === null || $montantTotal <= 0) {
+                    $form->get('montantTotalCommande')->addError(new FormError('Le montant total de cette commande est introuvable dans IPS pour ce fournisseur.'));
+                    return;
+                }
+                $dto->montantTotalCommande = (string) $montantTotal;
+            }
+
             $erreurCommandeSoldee = $this->erreurCommandeSoldee($dto);
             if ($erreurCommandeSoldee !== null) {
                 $form->addError(new FormError($erreurCommandeSoldee));
@@ -92,9 +102,14 @@ class DdpController extends Controller
             if ($dto->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE) {
                 // le select n° commande est disabled côté front donc non posté : commandes déduites des factures
                 $dto->numeroCommande = $this->ddpFactory->recuperationNumCommande($dto->numeroFournisseur, $dto->numeroFacture);
+                // montant réceptionné : affiché sans saisie, lu dans IPS pour les factures sélectionnées
+                $dto->montantsCommande = array_map(
+                    fn($montant) => number_format((float) $montant, 2, ',', ''),
+                    empty($dto->numeroCommande) ? [] : $this->demandePaiementModel->getMontantCommandeReceptionnee($dto->numeroFournisseur, $dto->numeroCommande, $dto->numeroFacture, $dto->codeSociete)
+                );
                 foreach ($dto->numeroCommande as $numCde) {
                     if ($dto->montantCommande($numCde) === null) {
-                        $form->addError(new FormError("Le montant du commande réceptionné $numCde est obligatoire."));
+                        $form->addError(new FormError("Le montant réceptionné de la commande $numCde est introuvable dans IPS pour la/les facture(s) sélectionnée(s)."));
                         return;
                     }
                 }
@@ -140,6 +155,7 @@ class DdpController extends Controller
             $numCde = (string) $numCde;
             $situation = $repository->getSituationAvanceParCommande($numCde, $dto->codeSociete);
             $dto->soldesAvance[$numCde] = $situation['soldeAvance'];
+            $dto->montantsTotalCommande[$numCde] = $this->demandePaiementModel->getMontantTotalCommande((string) $dto->numeroFournisseur, $numCde);
             if ($situation['typeDdpAGenerer'] === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_REGULE) {
                 $dto->commandesRegule[] = $numCde;
             }
@@ -279,7 +295,7 @@ class DdpController extends Controller
                 return null;
             }
 
-            // somme des montants du commande réceptionnés saisis (numeroCommande déjà déduit des factures)
+            // somme des montants du commande réceptionnés (numeroCommande déjà déduit des factures)
             return array_sum(array_map(fn($numCde) => (float) $dto->montantCommande($numCde), $dto->numeroCommande));
         }
 
@@ -363,7 +379,7 @@ class DdpController extends Controller
 
     /**
      * Pourcentage du montant à payer par rapport :
-     * - à l'avance : au montant total du commande du formulaire (remonté d'IPS, modifiable) ;
+     * - à l'avance : au montant total du commande dans IPS ;
      * - après arrivage : au montant HT total des commandes de la demande.
      */
     private function ratioMontantPayer(DdpDto $dto): float

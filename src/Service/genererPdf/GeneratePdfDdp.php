@@ -342,7 +342,7 @@ class GeneratePdfDdp extends GeneratePdf
         $pdf->Cell(70, 10, $dto->modePaiement, 1, 0);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell($usable_width - 100, 10, $this->formaterPrix($dto->montantAPayer()), 1, 0, 'R'); // TO DO: valeur de "Montant à payer" (remplacer '' par sa valeur)
+        $this->renderMontantAPayer($pdf, $dto, $usable_width - 100);
         $pdf->Cell(30, 10, $dto->devise, 1, 1); // TO DO: valeur de "Devise" (remplacer '' par sa valeur)
 
         $pdf->Ln(5);
@@ -397,14 +397,52 @@ class GeneratePdfDdp extends GeneratePdf
                 ['left', '9%', $valeurs('Numero_Dossier_Douane')],
                 ['left', '11%', $valeurs('Numero_LTA')],
                 ['left', '10%', $valeurs('Numero_HAWB')],
-                ['right', '12%', $this->formaterPrix($dto->soldesAvance[$numCde] ?? 0)],
-                ['right', '13%', $this->formaterPrix($dto->montantCommande((string) $numCde) ?? 0)],
-                ['right', '12%', $this->formaterPrix($dto->montantCommandeAPayer((string) $numCde) ?? 0)],
-                ['right', '13%', $this->formaterPrix($dto->soldeAvanceRestant((string) $numCde) ?? 0)],
+                ['right', '11%', $this->formaterPrix($dto->soldesAvance[$numCde] ?? 0)],
+                ['right', '14%', $this->formaterPrix($dto->montantCommande((string) $numCde) ?? 0), $this->pourcentageCommande($dto, (string) $numCde, $dto->montantCommande((string) $numCde))],
+                ['right', '14%', $this->formaterPrix($dto->montantCommandeAPayer((string) $numCde) ?? 0), $this->pourcentageCommande($dto, (string) $numCde, $dto->montantCommandeAPayer((string) $numCde))],
+                ['right', '11%', $this->formaterPrix($dto->soldeAvanceRestant((string) $numCde) ?? 0)],
             ];
         }
 
         $this->renderTable($pdf, 'RESUME DES BC', 'Aucune commande', ['N° commande', 'N° facture', 'N° dossier douane', 'N° LTA', 'N° HAWB', "Solde avance ($devise)", "Montant du commande réceptionné ($devise)", "Montant du commande à payer ($devise)", "Solde avance restant ($devise)"], $lignes);
+    }
+
+    /**
+     * Case "Montant à payer" : montant aligné à droite, précédé en rouge de sa part du montant total
+     * des commandes (après arrivage). Deux cellules superposées : une Cell n'a qu'une seule couleur.
+     */
+    private function renderMontantAPayer(TCPDF $pdf, DdpDto $dto, float $largeur): void
+    {
+        $x = $pdf->GetX();
+        $y = $pdf->GetY();
+        $montant = $this->formaterPrix($dto->montantAPayer());
+        $pdf->Cell($largeur, 10, $montant, 1, 0, 'R');
+
+        $pourcentage = $this->pourcentage($dto->montantAPayer(), (float) array_sum($dto->montantsTotalCommande));
+        if ($pourcentage !== '') {
+            $pdf->SetXY($x, $y);
+            $pdf->SetTextColor(255, 0, 0);
+            $pdf->Cell($largeur - $pdf->GetStringWidth($montant) - 1, 10, $pourcentage, 0, 0, 'R');
+            $pdf->SetTextColor(0, 0, 0);
+            $pdf->SetXY($x + $largeur, $y);
+        }
+    }
+
+    /**
+     * Part d'une commande dans son montant total IPS.
+     */
+    private function pourcentageCommande(DdpDto $dto, string $numCde, ?float $montant): string
+    {
+        return $this->pourcentage($montant, (float) ($dto->montantsTotalCommande[$numCde] ?? 0));
+    }
+
+    /**
+     * "(0,18 %)", vide si le montant total est inconnu.
+     * Le formulaire affiche le même : DemandePaiementManager.js::pourcentage
+     */
+    private function pourcentage(?float $montant, float $montantTotal): string
+    {
+        return $montantTotal > 0 ? '(' . $this->formaterPrix(($montant ?? 0) / $montantTotal * 100) . ' %)' : '';
     }
 
     private function renderHistoriqueLivraison(TCPDF $pdf, array $commandes, string $devise): void
@@ -472,7 +510,7 @@ class GeneratePdfDdp extends GeneratePdf
 
     /**
      * @param string[] $entetes
-     * @param array<array<array{0: string, 1: string, 2: string}>> $lignes cellules [alignement, largeur, valeur]
+     * @param array<array<array{0: string, 1: string, 2: string, 3?: string}>> $lignes cellules [alignement, largeur, valeur, texte en rouge devant la valeur]
      */
     private function tableHtml(array $entetes, array $lignes): string
     {
@@ -484,8 +522,10 @@ class GeneratePdfDdp extends GeneratePdf
         $html .= '</tr></thead><tbody>';
         foreach ($lignes as $ligne) {
             $html .= '<tr>';
-            foreach ($ligne as [$align, $largeur, $valeur]) {
-                $html .= sprintf('<td align="%s" style="width:%s;">%s</td>', $align, $largeur, htmlspecialchars((string) $valeur));
+            foreach ($ligne as $cellule) {
+                [$align, $largeur, $valeur] = $cellule;
+                $rouge = empty($cellule[3]) ? '' : '<span style="color:#FF0000;">' . htmlspecialchars($cellule[3]) . '</span> ';
+                $html .= sprintf('<td align="%s" style="width:%s;">%s%s</td>', $align, $largeur, $rouge, htmlspecialchars((string) $valeur));
             }
             $html .= '</tr>';
         }

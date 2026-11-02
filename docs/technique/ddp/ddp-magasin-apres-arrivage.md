@@ -48,7 +48,7 @@ Routes principales : `new_ddp` (`/ddp/new/2`) et `da_bon_a_payer` (`/demande-app
 ### 3.1 Saisie et enregistrement
 
 1. L'utilisateur choisit un fournisseur. Le front charge ses factures GCOT liées à des commandes réceptionnées dans IPS.
-2. Il choisit une ou plusieurs factures. Les commandes correspondantes s'affichent dans un tableau, avec leur solde avance, le montant du commande réceptionné pré-rempli depuis IPS (modifiable) et le montant du commande à payer calculé (RG-AA-13).
+2. Il choisit une ou plusieurs factures. Les commandes correspondantes s'affichent dans un tableau, avec leur solde avance, le montant du commande réceptionné lu dans IPS (non modifiable) et le montant du commande à payer calculé (RG-AA-13). Ces deux montants sont précédés de leur % du montant total de la commande (RG-AA-15).
 3. Il saisit le montant total réceptionné, qui doit égaler la somme des montants réceptionnés du tableau. Le champ « Montant total à payer », non modifiable, affiche la somme des montants à payer.
 4. Le serveur **redéduit les commandes depuis les factures**, car le select est désactivé et n'est pas posté.
 5. Le serveur calcule le solde avance et le montant à payer de chaque commande (RG-AA-05, RG-AA-08, RG-AA-13), puis le montant de la demande (RG-AA-07).
@@ -71,7 +71,7 @@ Depuis la consultation, l'utilisateur coche des demandes `… à transmettre`, p
 |---|---|---|---|
 | RG-AA-01 | Factures proposées = factures GCOT du fournisseur, sur commandes réceptionnées, hors pièces `regix.trs_ecr` du journal `Achmag` | ✔ | ✘ |
 | RG-AA-02 | Commandes déduites des factures | ✔ | ✔ |
-| RG-AA-03 | Montant du commande réceptionné obligatoire pour chaque commande | ✔ | ✔ |
+| RG-AA-03 | Montant du commande réceptionné lu dans IPS pour les factures sélectionnées, non modifiable. Le serveur relit IPS et ignore toute valeur postée. Introuvable pour une commande → enregistrement refusé | ✔ | ✔ |
 | RG-AA-04 | Montant total réceptionné = somme des montants du commande réceptionnés (± 0,01) | ✔ | ✔ |
 | RG-AA-05 | Situation de chaque commande selon le cumul des % DDPA validées : ≤ 0,01 → aucun acompte ; ≥ 99,99 → payée à 100 % ; sinon → payée en partie. Cette situation ne détermine que les montants | ✔ (aperçu) | ✔ |
 | RG-AA-06 | Une saisie crée une seule demande, de type 2, quelles que soient les situations de ses commandes | – | ✔ |
@@ -83,6 +83,8 @@ Depuis la consultation, l'utilisateur coche des demandes `… à transmettre`, p
 | RG-AA-12 | Valeurs fixes : agence `01`, service `NEG`, société `HF` | – | ✔ |
 | RG-AA-13 | Montant du commande à payer : 0 pour une commande payée à 100 %, ou si solde avance > 0 et montant réceptionné ≤ solde avance ; sinon montant réceptionné − solde avance | ✔ (aperçu) | ✔ |
 | RG-AA-14 | Solde avance restant (affiché et imprimé, non enregistré) : solde avance − montant réceptionné si solde avance > 0 et montant réceptionné ≤ solde avance ; sinon 0 | ✔ | ✔ |
+| RG-AA-15 | % en rouge et entre parenthèses, devant le montant réceptionné et le montant à payer, dans le tableau du formulaire et le tableau « Résumé des BC » du PDF : montant ÷ montant total de la commande dans IPS (`frn_cde.fcde_mtn`, fournisseur + commande) × 100. Omis si ce total est inconnu ou nul | ✔ | ✔ |
+| RG-AA-16 | % en rouge dans les libellés « Montant total réceptionné » et « Montant total à payer », et devant le montant de la case « Montant à payer » du PDF : somme du tableau ÷ somme des montants totaux connus des commandes × 100 | ✔ | ✔ |
 
 **« Validée »** signifie toujours : statut `Validé` ou `Transmis compta`, sur la dernière version de la demande.
 
@@ -92,7 +94,7 @@ Cinq montants coexistent et peuvent différer :
 
 | Montant | Origine | Stockage | Usage |
 |---|---|---|---|
-| Montant du commande réceptionné | Pré-rempli depuis IPS, modifiable | `montant_commande_receptionner` (`demande_paiement_ligne`, `demande_paiement_commande`, `commande_livraison`) | Contrôle RG-AA-04, solde avance, tableau « Résumé des BC » du PDF |
+| Montant du commande réceptionné | Lu dans IPS, non modifiable | `montant_commande_receptionner` (`demande_paiement_ligne`, `demande_paiement_commande`, `commande_livraison`) | Contrôle RG-AA-04, solde avance, tableau « Résumé des BC » du PDF |
 | Montant total réceptionné | Saisie | Non stocké | Contrôle RG-AA-04 uniquement |
 | Montant du commande à payer | Calculé par le serveur à la soumission, aperçu à l'écran (RG-AA-13) | `montant_commande_a_payer` (mêmes tables) | Tableau « Résumé des BC » du PDF |
 | Montant total à payer | Somme des montants du commande à payer, aperçu à l'écran | `demande_paiement.montant_a_payer` | Montant de la demande, « Montant à payer » du PDF |
@@ -114,7 +116,7 @@ Les statuts `Refusé`, `Refusé Compta` et `Réfusé par Chef de Service` sont e
 
 | Table | Contenu | Particularités |
 |---|---|---|
-| `demande_paiement` | Une ligne par demande | `numero_commande` et `numero_facture` sont des listes séparées par `;`. `montant_total_commande` reste vide |
+| `demande_paiement` | Une ligne par demande | `numero_commande` et `numero_facture` sont des listes séparées par `;`. `montant_total_commande` reste vide : le total est enregistré par commande dans `demande_paiement_ligne` et `demande_paiement_commande` |
 | `demande_paiement_ligne` | Une ligne par couple commande/facture | `montant_facture` contient le total de la demande (voir P-AA-03) |
 | `demande_paiement_commande` | Une ligne par commande | `client = 'magasin'`, `montant_commande_receptionner`, `montant_commande_a_payer`, `solde_avance`. Permet de retrouver une commande dans une demande multi-commandes |
 | `commande_livraison` | Une ligne par commande et livraison | `numero_facture` regroupe les factures de la demande, séparées par `;` |
@@ -170,6 +172,7 @@ Les requêtes IPS et GCOT peuvent durer plusieurs dizaines de secondes pour un g
 
 - `alter_demande_paiement_numero_commande.sql` : passe `numero_commande` en `NVARCHAR(MAX)` ;
 - `demande_paiement_ajout_montant_total_commande.sql` : ajoute `montant_total_commande` et supprime `montant_facture_proforma` ;
+- `ddp_ajout_montant_total_commande.sql` : ajoute `montant_total_commande` à `demande_paiement_ligne` et `demande_paiement_commande` ;
 - `ddp_ajout_montant_commande_a_payer.sql` : ajoute ou renomme `montant_commande_a_payer` ;
 - `ddp_ajout_montant_commande_receptionner.sql` : ajoute `montant_commande_receptionner`, y copie les montants existants et recalcule `montant_commande_a_payer` ;
 - `demande_paiement_commande_ajout_solde_avance.sql` : ajoute `solde_avance`.

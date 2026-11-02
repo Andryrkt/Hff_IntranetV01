@@ -28,7 +28,7 @@ class DdpLigneMapper
                 ->setRatioMontantPayer($dto->ratioMontantPayer)
                 ->setMontantCommandeReceptionner($dto->montantCommande($numCde !== '' ? $numCde : null))
                 ->setMontantCommandeAPayer($dto->montantCommandeAPayer($numCde !== '' ? $numCde : null))
-                ->setMontantTotalCommande($dto->montantTotalCommande());
+                ->setMontantTotalCommande($dto->montantsTotalCommande[$numCde] ?? $dto->montantTotalCommande());
 
             $lignes[] = $ligne;
         }

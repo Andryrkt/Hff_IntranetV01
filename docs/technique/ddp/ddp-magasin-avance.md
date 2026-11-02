@@ -47,7 +47,7 @@ Routes principales : `new_ddp` (`/ddp/new/1`) et `da_bon_a_payer` (`/demande-app
 
 1. L'utilisateur choisit un fournisseur. Le front charge les commandes **validées dans DocuWare** (dernière version) et **non réceptionnées dans IPS**.
 2. Il choisit une seule commande. Le front affiche l'historique de ses demandes et bloque si elle est déjà soldée.
-3. Il saisit le montant proforma, contrôle le montant total de la commande pré-rempli depuis IPS (modifiable), puis joint ses fichiers.
+3. Il saisit le montant proforma, voit le montant total de la commande remonté d'IPS, puis joint ses fichiers.
 4. Le serveur contrôle le blocage à 100 % et le plafond (RG-AV-03, RG-AV-06).
 5. Le serveur génère un numéro `DDP`, enregistre les données, puis génère et fusionne le PDF.
 6. La demande a le statut `DDPA à transmettre`, et l'utilisateur est redirigé vers la consultation.
@@ -69,8 +69,8 @@ Depuis la consultation, l'utilisateur coche des demandes `… à transmettre`, p
 | RG-AV-01 | Commandes proposées = validées DW et non réceptionnées IPS | ✔ | ✘ |
 | RG-AV-02 | Une seule commande par demande | ✔ | ✔ |
 | RG-AV-03 | Montant proforma ≤ 20 000, quelle que soit la devise | ✔ | ✔ |
-| RG-AV-04 | Montant total de la commande obligatoire, pré-rempli depuis IPS (`frn_cde.fcde_mtn`, fournisseur + commande) et modifiable. La valeur du formulaire est enregistrée, sans comparaison avec IPS | ✔ | ✔ |
-| RG-AV-05 | % d'une DDPA = montant proforma ÷ montant total du formulaire × 100 ; 0 si le total est absent | – | ✔ |
+| RG-AV-04 | Montant total de la commande non modifiable, lu dans IPS (`frn_cde.fcde_mtn`, fournisseur + commande) ; introuvable ou nul → enregistrement bloqué. Le serveur relit IPS et ignore la valeur postée | ✔ | ✔ |
+| RG-AV-05 | % d'une DDPA = montant proforma ÷ montant total de la commande × 100 ; 0 si le total est absent | – | ✔ |
 | RG-AV-06 | Demande refusée si le cumul des % des DDPA validées ≥ 99,99 | ✔ | ✔ |
 | RG-AV-07 | PDF de commande DocuWare introuvable → bouton Enregistrer désactivé | ✔ | ✘ |
 | RG-AV-08 | Pièces jointes : PDF, 5 Mo maximum, sans obligation de présence côté serveur ; PJ03 désactivée | ✔ | ✔ |
@@ -95,9 +95,9 @@ Les statuts `Refusé`, `Refusé Compta` et `Réfusé par Chef de Service` sont e
 
 | Table | Contenu pour une DDPA |
 |---|---|
-| `demande_paiement` | Une ligne. `montant_a_payer` = montant proforma, `montant_total_commande` = total du formulaire, `numero_commande` = la commande |
-| `demande_paiement_ligne` | Une ligne. `numero_facture` vaut `-`, `montant_facture` = montant proforma, `ratio_montant_payer` = % de la demande, `montant_total_commande` = total du formulaire, `montant_commande_receptionner` et `montant_commande_a_payer` vides |
-| `demande_paiement_commande` | Une ligne. `client = 'magasin'`, `montant_total_commande` = total du formulaire, `montant_commande_receptionner`, `montant_commande_a_payer` et `solde_avance` vides |
+| `demande_paiement` | Une ligne. `montant_a_payer` = montant proforma, `montant_total_commande` = total IPS, `numero_commande` = la commande |
+| `demande_paiement_ligne` | Une ligne. `numero_facture` vaut `-`, `montant_facture` = montant proforma, `ratio_montant_payer` = % de la demande, `montant_total_commande` = total IPS, `montant_commande_receptionner` et `montant_commande_a_payer` vides |
+| `demande_paiement_commande` | Une ligne. `client = 'magasin'`, `montant_total_commande` = total IPS, `montant_commande_receptionner`, `montant_commande_a_payer` et `solde_avance` vides |
 | `document_demande_paiement` | Une ligne par fichier joint. Ne contient pas le PDF final |
 | `type_demande` | Référentiel des types |
 | `dw_commande` | Chemins des PDF de commande DocuWare, en lecture seule ici |
@@ -169,7 +169,7 @@ Constats issus de la lecture du code ; aucun n'a été reproduit en exécution. 
 | P-AV-03 | Le DTO garde la société `HF` à la soumission, alors que l'API utilise la société de l'utilisateur | Pour un utilisateur d'une autre société, le blocage affiché et le blocage serveur peuvent différer | |
 | P-AV-04 | `getSommeMontantDdpValideParCommande` et `getCumulRatioDdpValideParCommande` comparent `numero_commande = :num`, alors que ce champ peut contenir `cde1;cde2` en après arrivage | Dans l'historique du formulaire, « Total déjà validé » est sous-estimé si la commande figure dans une demande après arrivage multi-commandes | |
 | P-AV-05 | Le plafond de 20 000 ne tient pas compte de la devise | Le même seuil chiffré s'applique à toutes les devises | |
-| P-AV-06 | Le % de l'historique se base sur le total du formulaire, alors que « Montant HT » et « restant » viennent d'IPS, et le total modifié n'est pas contrôlé (RG-AV-04) | Les deux bases peuvent diverger, et un total erroné fausse le % puis le classement après arrivage | |
+| P-AV-06 | Le % de l'historique se base sur le total enregistré à la création de chaque DDPA. Les demandes antérieures à RG-AV-04 gardent leur total saisi, sans contrôle | Sur ces anciennes demandes, un total erroné fausse encore le % puis le classement après arrivage | |
 
 ### Robustesse
 

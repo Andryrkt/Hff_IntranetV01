@@ -32,7 +32,7 @@ class DemandePaiementCommandeMapper
                 ->setMontantCommandeReceptionner($dto instanceof DdpDto ? $dto->montantCommande($numeroCommande) : null)
                 ->setMontantCommandeAPayer($dto instanceof DdpDto ? $dto->montantCommandeAPayer($numeroCommande) : null)
                 ->setSoldeAvance($dto instanceof DdpDto ? ($dto->soldesAvance[$numeroCommande] ?? null) : null)
-                ->setMontantTotalCommande($dto instanceof DdpDto ? $dto->montantTotalCommande() : null)
+                ->setMontantTotalCommande($dto instanceof DdpDto ? ($dto->montantsTotalCommande[$numeroCommande] ?? $dto->montantTotalCommande()) : null)
             ;
 
             // l'objet demande paiement pour la liaison du table demande_paiement_commande avec le table demande_paiement

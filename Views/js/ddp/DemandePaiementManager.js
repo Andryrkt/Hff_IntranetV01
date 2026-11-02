@@ -150,14 +150,6 @@ export class DemandePaiementManager {
       );
       this.verifierMontant();
     });
-
-    if (this.elements.montantTotalCommandeInput) {
-      this.elements.montantTotalCommandeInput.addEventListener("input", () => {
-        this.elements.montantTotalCommandeInput.value = formatNumberSpecial(
-          this.elements.montantTotalCommandeInput.value,
-        );
-      });
-    }
   }
 
   /**
@@ -879,6 +871,14 @@ export class DemandePaiementManager {
     const inputsCommande = [
       ...(this.elements.montantsCommandeBody?.querySelectorAll("input") || []),
     ];
+    const sansMontant = inputsCommande.find((input) => input.value === "");
+    if (sansMontant) {
+      this.montantIncorrect = true;
+      this.messageMontantIncorrect = `Le montant réceptionné de la commande ${sansMontant.dataset.numCde} est introuvable dans IPS pour la/les facture(s) sélectionnée(s).`;
+      this.mettreAJourEtatSoumission();
+      return;
+    }
+
     const montantAttendu = inputsCommande.length
       ? inputsCommande.reduce((somme, input) => somme + (parseMontant(input.value) || 0), 0)
       : this.montantAttendu;
@@ -901,7 +901,8 @@ export class DemandePaiementManager {
 
   /**
    * Paiement à l'avance : bloque la soumission si le montant dépasse le plafond
-   * (data-plafond, formulaire magasin uniquement) ou si la commande est déjà payée à 100 %.
+   * (data-plafond, formulaire magasin uniquement), si la commande est déjà payée à 100 %
+   * ou si son montant total n'est pas remonté d'IPS (formulaire magasin uniquement).
    */
   verifierMontantAvance() {
     this.montantIncorrect = false;
@@ -918,6 +919,12 @@ export class DemandePaiementManager {
       // Commande déjà payée à 100 % par des demandes de paiement à l'avance validées
       this.montantIncorrect = true;
       this.messageMontantIncorrect = `La commande ${this.getNumCdesSelectionnees()[0]} est déjà payée à 100 % par des demandes de paiement à l'avance validées : une nouvelle demande de paiement à l'avance n'est pas possible.`;
+    } else if (
+      this.elements.montantTotalCommandeInput?.value === "" &&
+      this.getNumCdesSelectionnees().length > 0
+    ) {
+      this.montantIncorrect = true;
+      this.messageMontantIncorrect = "Le montant total de cette commande est introuvable dans IPS pour ce fournisseur.";
     }
 
     this.mettreAJourEtatSoumission();
@@ -956,8 +963,8 @@ export class DemandePaiementManager {
   }
 
   /**
-   * Paiement à l'avance (formulaire magasin) : pré-remplit le montant total de la
-   * commande depuis IPS, modifiable ensuite par l'utilisateur.
+   * Paiement à l'avance (formulaire magasin) : montant total de la commande dans IPS.
+   * Affichage seul, le serveur le relit à la soumission (DdpController::traitementDuFormulaire).
    */
   async chargerMontantTotalCommande(numCde) {
     const champ = this.elements.montantTotalCommandeInput;
@@ -966,23 +973,43 @@ export class DemandePaiementManager {
     champ.value = "";
     if (!numCde) return;
 
-    try {
+    const montantTotalCommande = await this.recupererMontantTotalCommande(numCde);
+    // Ignore la réponse si la sélection a changé entre-temps
+    if (this.getNumCdesSelectionnees()[0] !== numCde) return;
+    if (montantTotalCommande > 0) {
+      champ.value = formatNumberSpecial(Number(montantTotalCommande).toFixed(2));
+    }
+    this.verifierMontant();
+  }
+
+  /**
+   * Montant total d'une commande dans IPS, mis en cache par fournisseur et commande
+   * (le tableau du type 2 est reconstruit à chaque changement).
+   */
+  recupererMontantTotalCommande(numCde) {
+    this.montantsTotauxCommande ??= new Map();
+    const numFournisseur = this.elements.numFrnInput.value;
+    const cle = `${numFournisseur}:${numCde}`;
+    if (!this.montantsTotauxCommande.has(cle)) {
       const url = this.config.urls.montantTotalCommande
-        .replace(":numFournisseur", this.elements.numFrnInput.value)
-        .replace(":numCde", numCde);
-      const { montantTotalCommande } = await this.fetchManager.get(url);
-      // Ignore la réponse si la sélection a changé entre-temps
-      if (this.getNumCdesSelectionnees()[0] !== numCde) return;
-      // Ne remplace pas une saisie faite pendant le chargement
-      if (montantTotalCommande !== null && champ.value === "") {
-        champ.value = formatNumberSpecial(Number(montantTotalCommande).toFixed(2));
-      }
-    } catch (error) {
-      console.error(
-        "Erreur lors de la récupération du montant total de la commande :",
-        error,
+        .replace(":numFournisseur", encodeURIComponent(numFournisseur))
+        .replace(":numCde", encodeURIComponent(numCde));
+      this.montantsTotauxCommande.set(
+        cle,
+        this.fetchManager
+          .get(url)
+          .then((resultat) => resultat.montantTotalCommande)
+          .catch((error) => {
+            console.error(
+              "Erreur lors de la récupération du montant total de la commande :",
+              error,
+            );
+            this.montantsTotauxCommande.delete(cle);
+            return null;
+          }),
       );
     }
+    return this.montantsTotauxCommande.get(cle);
   }
 
   /**
@@ -1070,35 +1097,21 @@ export class DemandePaiementManager {
    * sélection simple pour les demandes de paiement à l'avance (typeId 1).
    */
   /**
-   * Paiement après arrivage : une ligne par commande sélectionnée où
-   * l'utilisateur saisit le montant total de la commande
-   * (champ demande_paiement[montantsCommande][numCde]).
+   * Paiement après arrivage : une ligne par commande sélectionnée, avec le montant
+   * réceptionné affiché depuis IPS. Le champ caché n'est pas posté : il garde la
+   * valeur pour les calculs de la page, le serveur relit IPS à la soumission.
    */
   afficherTableauMontantsCommande() {
     const { tableauMontantsCommande, montantsCommandeBody } = this.elements;
     if (!tableauMontantsCommande || !montantsCommandeBody) return;
 
-    // Conserve les montants déjà saisis pour les commandes encore sélectionnées
-    const saisis = {};
-    montantsCommandeBody.querySelectorAll("input").forEach((input) => {
-      saisis[input.dataset.numCde] = input.value;
-    });
-
     const numCdes = this.getNumCdesSelectionnees();
     montantsCommandeBody.innerHTML = "";
     numCdes.forEach((numCde) => {
       const input = document.createElement("input");
-      input.type = "text";
-      input.className = "form-control form-control-sm";
-      input.name = `demande_paiement[montantsCommande][${numCde}]`;
-      input.required = true;
+      input.type = "hidden";
       input.dataset.numCde = numCde;
-      input.value = saisis[numCde] ?? this.montantsReceptionnes?.[numCde] ?? "";
-      input.addEventListener("input", () => {
-        input.value = formatNumberSpecial(input.value);
-        this.afficherMontantCommandeAPayer(input);
-        this.verifierMontant();
-      });
+      input.value = this.montantsReceptionnes?.[numCde] ?? "";
 
       // une commande peut correspondre à plusieurs factures : une ligne par facture dans la cellule
       const factures = this.facturesParCommande?.get(numCde) || [];
@@ -1112,7 +1125,10 @@ export class DemandePaiementManager {
       });
       const celluleSolde = tr.insertCell();
       celluleSolde.className = "text-end";
-      tr.insertCell().appendChild(input);
+      const celluleReceptionne = tr.insertCell();
+      celluleReceptionne.className = "text-end";
+      celluleReceptionne.appendChild(input);
+      celluleReceptionne.appendChild(document.createElement("span")).className = "montant-receptionne";
       tr.insertCell().className = "text-end montant-a-payer";
       tr.insertCell().className = "text-end solde-restant";
 
@@ -1126,6 +1142,11 @@ export class DemandePaiementManager {
         input.dataset.regule = situation.typeDdpAGenerer === 3 ? "1" : "";
         this.afficherMontantCommandeAPayer(input);
       });
+      this.recupererMontantTotalCommande(numCde).then((montantTotal) => {
+        input.dataset.montantTotal = montantTotal ?? "";
+        this.afficherMontantCommandeAPayer(input);
+      });
+      this.afficherMontantCommandeAPayer(input);
     });
 
     tableauMontantsCommande.classList.toggle("d-none", numCdes.length === 0);
@@ -1144,6 +1165,13 @@ export class DemandePaiementManager {
     const celluleRestant = ligne.querySelector(".solde-restant");
     const solde = parseFloat(input.dataset.soldeAvance);
     const receptionne = parseMontant(input.value);
+    const montantTotal = parseFloat(input.dataset.montantTotal);
+    const celluleReceptionne = ligne.querySelector(".montant-receptionne");
+    if (isNaN(receptionne)) {
+      celluleReceptionne.textContent = "-";
+    } else {
+      this.ecrireMontantAvecPourcentage(celluleReceptionne, receptionne, montantTotal);
+    }
     if (isNaN(solde) || isNaN(receptionne)) {
       cellule.textContent = "";
       celluleRestant.textContent = "";
@@ -1152,7 +1180,7 @@ export class DemandePaiementManager {
       const couvert = solde > 0 && receptionne <= solde;
       const montant = couvert || input.dataset.regule === "1" ? 0 : receptionne - solde;
       const restant = couvert ? solde - receptionne : 0;
-      cellule.textContent = formatNumberSpecial(montant.toFixed(2));
+      this.ecrireMontantAvecPourcentage(cellule, montant, montantTotal);
       celluleRestant.textContent = formatNumberSpecial(restant.toFixed(2));
       input.dataset.montantAPayer = montant;
     }
@@ -1160,7 +1188,42 @@ export class DemandePaiementManager {
   }
 
   /**
-   * Champ "Montant total à payer" : somme des montants du commande à payer du tableau.
+   * "(0,18 %)" : part du montant total des commandes, vide si ce total est inconnu.
+   */
+  pourcentage(montant, montantTotal) {
+    return montantTotal > 0
+      ? `(${formatNumberSpecial(((montant / montantTotal) * 100).toFixed(2))} %)`
+      : "";
+  }
+
+  /**
+   * "(0,18 %) 65,82" dans l'élément, avec le pourcentage en rouge.
+   */
+  ecrireMontantAvecPourcentage(element, montant, montantTotal) {
+    const rouge = document.createElement("span");
+    rouge.className = "text-danger";
+    rouge.textContent = this.pourcentage(montant, montantTotal);
+    element.replaceChildren(rouge, ` ${formatNumberSpecial(montant.toFixed(2))}`);
+  }
+
+  /**
+   * Pourcentage en rouge dans le libellé du champ : un champ ne peut pas colorer une partie de sa valeur.
+   */
+  afficherPourcentageLibelle(champ, texte) {
+    const libelle = document.querySelector(`label[for="${champ.id}"]`);
+    if (!libelle) return;
+
+    let rouge = libelle.querySelector(".pourcentage-total");
+    if (!rouge) {
+      rouge = libelle.appendChild(document.createElement("span"));
+      rouge.className = "pourcentage-total text-danger ms-1";
+    }
+    rouge.textContent = texte;
+  }
+
+  /**
+   * Champ "Montant total à payer" : somme des montants du commande à payer du tableau,
+   * et % des deux totaux du formulaire par rapport au montant total des commandes.
    */
   afficherMontantTotalAPayer() {
     const champ = this.elements.montantTotalAPayerInput;
@@ -1169,11 +1232,15 @@ export class DemandePaiementManager {
     const inputs = [...this.elements.montantsCommandeBody.querySelectorAll("input")];
     const total = inputs.reduce((somme, input) => somme + (parseFloat(input.dataset.montantAPayer) || 0), 0);
     champ.value = inputs.length ? formatNumberSpecial(total.toFixed(2)) : "";
+
+    const totalCommandes = inputs.reduce((somme, input) => somme + (parseFloat(input.dataset.montantTotal) || 0), 0);
+    const totalReceptionne = inputs.reduce((somme, input) => somme + (parseMontant(input.value) || 0), 0);
+    this.afficherPourcentageLibelle(this.elements.montantInput, this.pourcentage(totalReceptionne, totalCommandes));
+    this.afficherPourcentageLibelle(champ, this.pourcentage(total, totalCommandes));
   }
 
   /**
-   * Montant réceptionné par commande (factures sélectionnées) : pré-remplit
-   * les champs "Montant du commande réceptionné" encore vides, modifiables ensuite.
+   * Montant réceptionné par commande (factures sélectionnées), affiché dans le tableau.
    */
   async chargerMontantsReceptionnes(numFournisseur, numCdes, numFacs) {
     this.montantsReceptionnes = {};
@@ -1200,8 +1267,7 @@ export class DemandePaiementManager {
       this.elements.montantsCommandeBody
         ?.querySelectorAll("input")
         .forEach((input) => {
-          const montant = this.montantsReceptionnes[input.dataset.numCde];
-          if (input.value === "" && montant !== undefined) input.value = montant;
+          input.value = this.montantsReceptionnes[input.dataset.numCde] ?? "";
           this.afficherMontantCommandeAPayer(input);
         });
       this.verifierMontant();
