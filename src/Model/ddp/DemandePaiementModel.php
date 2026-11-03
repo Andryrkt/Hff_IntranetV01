@@ -518,20 +518,20 @@ class DemandePaiementModel extends Model
                     dp.date_creation,
                     dp.numero_commande,
                     td.code_type_demande AS code_type,
-                    CASE td.code_type_demande
-                        WHEN 'BAP' THEN (
+                    CASE
+                        WHEN td.code_type_demande = 'BAP' THEN (
                             SELECT TOP 1 t1.path
                                 FROM DW_bon_a_payer t1
                                 WHERE t1.numero_bap = dp.numero_demande_paiement
                                 ORDER BY t1.date_derniere_modification DESC, t1.heure_derniere_modification DESC
                         )
-                        WHEN 'DPR' THEN (
+                        WHEN td.code_type_demande = 'DPR' THEN (
                             SELECT TOP 1 t2.path
                                 FROM DW_regularisation_ddp t2
                                 WHERE t2.numero_ddr = dp.numero_demande_paiement
                                 ORDER BY t2.date_derniere_modification DESC, t2.heure_derniere_modification DESC
                         )
-                        WHEN 'DPA' THEN (
+                        WHEN td.code_type_demande IN ('DPA', 'DPL') THEN (
                             SELECT TOP 1 t3.path
                                 FROM DW_demande_de_paiement t3
                                 WHERE t3.numero_ddp = dp.numero_demande_paiement
@@ -592,12 +592,12 @@ class DemandePaiementModel extends Model
                 INNER JOIN type_demande td
                     ON dp.type_demande_id = td.id
                 INNER JOIN dw_max m
-                    ON m.code_type = td.code_type_demande
+                    ON m.code_type = CASE WHEN td.code_type_demande = 'DPL' THEN 'DPA' ELSE td.code_type_demande END
                     AND m.numero = dp.numero_demande_paiement
                 INNER JOIN dw_all dw
                     ON dw.code_type = m.code_type
                     AND dw.numero = m.numero
-                    AND dw.numero_version = m.max_version
+                    AND dw.id_doc = m.max_id
                 WHERE dp.numero_demande_appro = '$numeroDa'
                 ORDER BY dp.date_creation ASC;";
 
