@@ -36,7 +36,7 @@ class DaTimelineService
         $allDatas = $this->daAfficherModel->getDaLifecycleSteps($numeroDa);
         if (empty($allDatas)) return ['DA' => [], 'OR' => [], 'BC' => []];
 
-        $timelineDa = $this->buildTimelineDA($allDatas, $numeroDa, $daTypeId, $demandeur, $agenceServiceEmetteur);
+        [$timelineDa, $estTerminee] = $this->buildTimelineDA($allDatas, $numeroDa, $daTypeId, $demandeur, $agenceServiceEmetteur);
         $lastDataDA = end($timelineDa);
         $isDaViaOR = $daTypeId === DemandeAppro::TYPE_DA_AVEC_DIT;
         [$numeroOr, $timelineOR] = $isDaViaOR ? $this->buildTimelineOR($allDatas, $lastDataDA) : ["", []];
@@ -45,7 +45,7 @@ class DaTimelineService
 
         if (empty($timelineBc)) {
             if ($isDaViaOR && !empty($timelineOR)) $timelineOR = $this->cloturerAvecAujourdhui($timelineOR);
-            else                                   $timelineDa = $this->cloturerAvecAujourdhui($timelineDa);
+            elseif (!$estTerminee)                 $timelineDa = $this->cloturerAvecAujourdhui($timelineDa);
         }
 
         return [
@@ -64,7 +64,7 @@ class DaTimelineService
      * @param string|null $demandeur
      * @param string|null $agenceServiceEmetteur
      *
-     * @return array<int,array{statut:string,dotClass:string,date:string,nbrJours:string,action:string}>
+     * @return array{array<int,array{statut:string,dotClass:string,date:string,nbrJours:string,action:string}>,bool}
      */
     private function buildTimelineDA(array $allDatas, string $numeroDa, int $daTypeId, ?string $demandeur, ?string $agenceServiceEmetteur): array
     {
@@ -96,6 +96,7 @@ class DaTimelineService
             }
         }
 
+        $estTerminee = false;
         if ($daTypeId === DemandeAppro::TYPE_DA_DIRECT) {
             $statutsOr   = array_filter(array_column($allDatas, 'statutOr'));
             $statutOr    = end($statutsOr);
@@ -108,10 +109,12 @@ class DaTimelineService
                     'date'     => $dateValidee,
                     'action'   => '',
                 ];
+
+                $estTerminee = $statutOr === StatutOrConstant::STATUT_DW_REFUSEE;
             }
         }
 
-        return $this->construireEtapesAvecDurees($tabTemp, true);
+        return [$this->construireEtapesAvecDurees($tabTemp, true), $estTerminee];
     }
 
     /**
