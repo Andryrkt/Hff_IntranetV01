@@ -67,7 +67,7 @@ class ClotureTikController extends Controller
             if ($ticket->getIdStatutDemande()->getId() !== 59 && $ticket->getIdStatutDemande()->getId() !== 64) { // statut non cloturé et non refusé
                 return true;
             }
-        } else if ($ticket->getUserId() === $utilisateur->getId() && $ticket->getIdStatutDemande()->getId() === 62) { // si c'est le demandeur et statut résolu
+        } else if ($ticket->getUserId()->getId() === $utilisateur->getId() &&$ticket->getIdStatutDemande()->getId() === 62) { // si c'est le demandeur et statut résolu
             return true;
         }
 

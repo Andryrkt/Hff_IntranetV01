@@ -48,8 +48,9 @@ class DemandeSupportInformatiqueRepository extends EntityRepository
     {
         if (!$option['autorisation']['autoriserIntervenant'] && !$option['autorisation']['autoriserValidateur']) {
             $queryBuilder
+                // le demandeur doit voir ses tickets résolus pour pouvoir les clôturer ou les réouvrir
                 ->andWhere('tki.idStatutDemande NOT IN (:tab)')
-                ->setParameter('tab', ['62', '64'])
+                ->setParameter('tab', ['64'])
             ;
         }
     }
@@ -78,7 +79,7 @@ class DemandeSupportInformatiqueRepository extends EntityRepository
             //filtrer selon le nom d'intervenant
             if (!empty($tikSearch->getNomIntervenant())) {
                 $queryBuilder->andWhere('tki.nomIntervenant = :interv')
-                    ->setParameter('interv', $tikSearch->getNomIntervenant());
+                    ->setParameter('interv', $tikSearch->getNomIntervenant()->getNomUtilisateur());
             }
         }
     }

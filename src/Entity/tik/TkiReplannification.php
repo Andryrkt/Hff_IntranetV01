@@ -50,7 +50,7 @@ class TkiReplannification
     private $newDateFinPlanning;
 
     /**
-     * @ORM\OneToOne(targetEntity=DemandeSupportInformatique::class, inversedBy="replanification", cascade={"persist", "remove"})
+     * @ORM\ManyToOne(targetEntity=DemandeSupportInformatique::class)
      * @ORM\JoinColumn(name="demande_id", referencedColumnName="ID_Demande_Support_Informatique", nullable=true)
      */
     private $demandeSupportInfo;
