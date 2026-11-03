@@ -513,7 +513,7 @@ class DemandePaiementModel extends Model
 
     public function getAllDdpByDa(string $numeroDa): array
     {
-        $sql = "SELECT
+        $sql = "SELECT 
                     dp.numero_demande_paiement AS numero_ddp,
                     dp.date_creation,
                     dp.numero_commande,
@@ -523,19 +523,19 @@ class DemandePaiementModel extends Model
                             SELECT TOP 1 t1.path
                                 FROM DW_bon_a_payer t1
                                 WHERE t1.numero_bap = dp.numero_demande_paiement
-                                ORDER BY t1.numero_version DESC
+                                ORDER BY t1.date_derniere_modification, t1.heure_derniere_modification DESC
                         )
                         WHEN 'DPR' THEN (
                             SELECT TOP 1 t2.path
                                 FROM DW_regularisation_ddp t2
                                 WHERE t2.numero_ddr = dp.numero_demande_paiement
-                                ORDER BY t2.numero_version DESC
+                                ORDER BY t2.date_derniere_modification, t2.heure_derniere_modification DESC
                         )
                         WHEN 'DPA' THEN (
                             SELECT TOP 1 t3.path
                                 FROM DW_demande_de_paiement t3
                                 WHERE t3.numero_ddp = dp.numero_demande_paiement
-                                ORDER BY t3.numero_version DESC
+                                ORDER BY t3.date_derniere_modification, t3.heure_derniere_modification DESC
                         )
                     END AS path
                 FROM demande_paiement dp
