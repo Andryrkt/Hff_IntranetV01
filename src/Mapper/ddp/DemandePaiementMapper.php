@@ -117,7 +117,8 @@ class DemandePaiementMapper
                 $numsLivraisons[] = $livraison->getNumeroLivraison();
             }
         }
-        return $numsLivraisons;
+        // plusieurs commandes peuvent partager la même livraison
+        return array_values(array_unique($numsLivraisons));
     }
 
     private static function getNumeroFactureIps(DemandePaiementDto $dto): ?string

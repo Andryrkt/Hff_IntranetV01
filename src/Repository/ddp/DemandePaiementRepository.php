@@ -171,10 +171,20 @@ class DemandePaiementRepository extends EntityRepository
         return $resultat ?? 0;
     }
 
-    public function getDdpSelonNumCde(string $numCde)
+    /**
+     * @param bool $avecMultiCommandes inclut les DDP magasin multi-commandes (d.numeroCommande = "cde1;cde2;..."),
+     *                                 retrouvées par la table demande_paiement_commande
+     */
+    public function getDdpSelonNumCde(string $numCde, bool $avecMultiCommandes = false)
     {
-        $queryBuilder =  $this->createQueryBuilder('d')
-            ->where('d.numeroCommande = :numero')
+        $queryBuilder =  $this->createQueryBuilder('d');
+        $queryBuilder
+            ->where($avecMultiCommandes
+                ? $queryBuilder->expr()->orX(
+                    'd.numeroCommande = :numero',
+                    'EXISTS (SELECT c.id FROM ' . DemandePaiementCommande::class . ' c WHERE c.demandePaiement = d AND c.numeroCommande = :numero)'
+                )
+                : 'd.numeroCommande = :numero')
             ->andWhere('d.statut NOT IN (:statut)')
             ->setParameter('numero', (string) $numCde)
             ->setParameter('statut', StatutConstants::REFUSES_DDP)
@@ -381,7 +391,7 @@ class DemandePaiementRepository extends EntityRepository
      * - typeDdpAGenerer : BAP (0 % DDPA), DDPR (100 %), DDPL (entre les deux) ;
      * - soldeAvance (DDPL uniquement, 0 sinon) : montant total du commande (dernière DDPA)
      *   - (somme des montants facture proforma des DDPA + montant commande déjà payé
-     *   par les demandes validées de type différent de l'avance).
+     *   par les demandes validées de type différent de l'avance), ramené à 0 s'il est négatif.
      *
      * @return array{ratioDdpa: float, typeDdpAGenerer: int, soldeAvance: float}
      */
@@ -412,7 +422,7 @@ class DemandePaiementRepository extends EntityRepository
         }
 
         $montantDejaPaye = (float) $this->getEntityManager()->createQueryBuilder()
-            ->select('SUM(c.montantCommandeAPayer)')
+            ->select('SUM(c.montantCommandeReceptionner)')
             ->from(DemandePaiementCommande::class, 'c')
             ->join('c.demandePaiement', 'd')
             ->where('c.numeroCommande = :numCde')
@@ -436,7 +446,7 @@ class DemandePaiementRepository extends EntityRepository
             'ratioDdpa'       => $ratioDdpa,
             'montantProforma' => $sommeProforma,
             'typeDdpAGenerer' => TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE,
-            'soldeAvance'     => $montantTotalCommande - ($sommeProforma + $montantDejaPaye),
+            'soldeAvance'     => max(0.0, $montantTotalCommande - ($sommeProforma + $montantDejaPaye)),
         ];
     }
 

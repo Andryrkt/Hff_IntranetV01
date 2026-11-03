@@ -125,11 +125,14 @@ class DaPropositionLigneService
             $dals = $this->demandeApproLRepository->findBy(['numeroLigne' => $refs[$i][0], 'numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax], ['numeroLigne' => 'ASC']);
             $dalrs = $this->demandeApproLRRepository->findBy(['numeroLigne' => $refs[$i][0], 'numLigneTableau' => $refs[$i][1], 'numeroDemandeAppro' => $numDa], ['numeroLigne' => 'ASC']);
 
-            $dals[0]
-                ->setEstValidee($dalrs[0]->getEstValidee())
-                ->setEstModifier($dalrs[0]->getChoix())
-            ;
-            $this->em->persist($dals[0]);
+            if (isset($dalrs[0]) && isset($dals[0])) {
+                $dals[0]
+                    ->setEstValidee($dalrs[0]->getEstValidee())
+                    ->setEstModifier($dalrs[0]->getChoix())
+                ;
+
+                $this->em->persist($dals[0]);
+            }
         }
 
         $this->em->flush();

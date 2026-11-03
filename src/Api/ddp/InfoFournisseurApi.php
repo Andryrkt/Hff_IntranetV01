@@ -186,13 +186,10 @@ class InfoFournisseurApi extends Controller
 
         $this->libererSession();
 
-        // les factures du select sont préfixées "PDV_", absent de ffac_facext
-        $facExt = array_map(fn($f) => preg_replace('/^PDV_/', '', $f), explode(',', $numFactures));
-
         $montants = $this->demandePaiementModel()->getMontantCommandeReceptionnee(
             $numeroFournisseur,
-            TableauEnStringService::TableauEnString(',', explode(',', $numCdes)),
-            TableauEnStringService::TableauEnString(',', $facExt),
+            explode(',', $numCdes),
+            explode(',', $numFactures),
             $codeSociete
         );
 
@@ -250,6 +247,21 @@ class InfoFournisseurApi extends Controller
     }
 
     /**
+     * Paiement à l'avance : montant total de la commande dans IPS, affiché dans le formulaire.
+     *
+     * @Route("/api/montant-total-commande/{numeroFournisseur}/{numCde}", name="api_montant_total_commande", requirements={"numeroFournisseur"="\d+", "numCde"="\d+"})
+     */
+    public function montantTotalCommande(string $numeroFournisseur, string $numCde)
+    {
+        $this->libererSession();
+
+        header("Content-type:application/json");
+        echo json_encode([
+            'montantTotalCommande' => $this->demandePaiementModel()->getMontantTotalCommande($numeroFournisseur, $numCde),
+        ]);
+    }
+
+    /**
      * Paiement après arrivage : situation des demandes de paiement à l'avance
      * d'une commande (ratio DDPA, solde avance) et type de DDP à générer :
      * BAP si 0 % DDPA, DDPR si 100 %, DDPL entre les deux.
@@ -281,7 +293,7 @@ class InfoFournisseurApi extends Controller
         $cumul = 0.0;
 
         /** @var DemandePaiement $ddp */
-        foreach ($this->demandePaiementRepository->getDdpSelonNumCde($numCde) as $ddp) {
+        foreach ($this->demandePaiementRepository->getDdpSelonNumCde($numCde, true) as $ddp) {
             $montant = (float) $ddp->getMontantAPayers();
             $ratio = $ddp->getRatioMontantTotalCommande();
             $cumul += $ratio;

@@ -1,4 +1,4 @@
-import { DemandePaiementManager } from "./DemandePaiementManager.js?v=20261029d";
+import { DemandePaiementManager } from "./DemandePaiementManager.js?v=20261102l";
 import { baseUrl } from "../utils/config.js";
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
       montantTotalCommandeInput: "#demande_paiement_montantTotalCommande",
       tableauMontantsCommande: "#tableauMontantsCommande",
       montantsCommandeBody: "#montantsCommandeBody",
+      montantTotalAPayerInput: "#montantTotalAPayer",
       suggestionNumFournisseur: "#suggestion-num-fournisseur",
       loaderNumFournisseur: "#loader-num-fournisseur",
       suggestionNomFournisseur: "#suggestion-nom-fournisseur",
@@ -50,6 +51,7 @@ document.addEventListener("DOMContentLoaded", function () {
       montantFacture:
         "api/montant-facture/:numFournisseur/:facturesString/:typeId",
       montantCommandeHt: "api/montant-commande-ht/:numCde",
+      montantTotalCommande: "api/montant-total-commande/:numFournisseur/:numCde",
       situationAvanceCommande: "api/situation-avance-commande/:numCde",
       montantCommandeReceptionnee:
         "api/montant-commande-receptionnee/:numFournisseur/:numCdes/:facturesString",

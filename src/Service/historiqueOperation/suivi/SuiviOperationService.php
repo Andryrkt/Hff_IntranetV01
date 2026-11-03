@@ -59,6 +59,7 @@ class SuiviOperationService
     public const TYPE_DDP_MODIFICATION    = 'DDP_MODIFICATION';
     public const TYPE_DDP_DA              = 'DDP_DA';
     public const TYPE_DDP_REGULARISATION  = 'DDP_REGULARISATION';
+    public const TYPE_DDP_TRANSMISSION    = 'DDP_TRANSMISSION';
     public const TYPE_CDE_FOURNISSEUR     = 'CDE_FOURNISSEUR';
     // Magasin, POL, ticketing
     public const TYPE_DEVIS_NEG_VERIFICATION_PRIX = 'DEVIS_NEG_VP';
@@ -114,6 +115,7 @@ class SuiviOperationService
         self::TYPE_DDP_MODIFICATION            => 'Demande de paiement (modification)',
         self::TYPE_DDP_DA                      => 'Demande de paiement DA',
         self::TYPE_DDP_REGULARISATION          => 'Demande de régularisation',
+        self::TYPE_DDP_TRANSMISSION            => 'Demande de paiement (transmission)',
         self::TYPE_CDE_FOURNISSEUR             => 'Commande fournisseur',
         self::TYPE_DEVIS_NEG_VERIFICATION_PRIX => 'Devis négoce - vérification prix',
         self::TYPE_DEVIS_NEG_VALIDATION        => 'Devis négoce - validation',

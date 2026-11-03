@@ -68,22 +68,15 @@ class DdpFactory
         return $dto;
     }
 
-    /**
-     * @param DdpDto|null $source DDP déjà créée lors de la même soumission (après arrivage
-     *                            découpé en plusieurs DDP) : ses fichiers téléversés sont
-     *                            copiés, un fichier téléversé ne pouvant être déplacé qu'une fois
-     */
-    public function apresSoumission(FormInterface $form, DdpDto $dto, ?DdpDto $source = null, bool $estBap = false): DdpDto
+    public function apresSoumission(FormInterface $form, DdpDto $dto): DdpDto
     {
-        $dto->numeroDdp = $estBap ? $this->numeroGenerateur->genererNumeroBap() : $this->numeroGenerateur->genererNumeroDdp();
+        $dto->numeroDdp = $this->numeroGenerateur->genererNumeroDdp();
         $dto->dateDemande = new \DateTime();
         // RIB connus du fournisseur, pour signaler un RIB mis à jour sur le PDF
         if (!empty($dto->numeroFournisseur)) {
             $dto->ribsFournisseurAncien = $this->ddpModel->getRibsFournisseur($dto->numeroFournisseur);
         }
-        [$nomEtCheminFichiersEnregistrer, $nomFichierTelecharger,  $nomAvecCheminFichier, $nomFichier] = $source === null
-            ? $this->enregistrementFichier($form, $dto)
-            : $this->copieFichiersSource($source, $dto);
+        [$nomEtCheminFichiersEnregistrer, $nomFichierTelecharger,  $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $dto);
 
 
         if ($dto->typeDdp->getId() == TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE) {
@@ -360,33 +353,6 @@ class DdpFactory
         $nomAvecCheminFichier = $path . '/' . $nomFichier;
 
         return [$nomEtCheminFichiersEnregistrer, $nomFichierTelecharger,  $nomAvecCheminFichier, $nomFichier];
-    }
-
-    /**
-     * Copie des fichiers téléversés d'une DDP source dans le dossier de la DDP,
-     * le numéro de DDP du nom de fichier étant remplacé par le nouveau.
-     * Même retour que enregistrementFichier().
-     */
-    private function copieFichiersSource(DdpDto $source, DdpDto $dto): array
-    {
-        $nameGenerator = new DdpGeneratorNameService();
-        $path = $_ENV['BASE_PATH_FICHIER'] . '/ddp/' . $dto->numeroDdp . '/';
-        if (!is_dir($path)) mkdir($path, 0777, true);
-
-        $chemins = [];
-        $noms = [];
-        foreach ($source->nomEtCheminFichiersEnregistrer as $cheminSource) {
-            $nom = str_replace($source->numeroDdp, $dto->numeroDdp, basename($cheminSource));
-            if (!copy($cheminSource, $path . $nom)) {
-                throw new \RuntimeException("Impossible de copier le fichier $cheminSource pour la DDP {$dto->numeroDdp}.");
-            }
-            $chemins[] = $path . $nom;
-            $noms[] = $nom;
-        }
-
-        $nomFichier = $nameGenerator->generateNamePrincipal($dto->numeroDdp);
-
-        return [$chemins, $noms, $path . '/' . $nomFichier, $nomFichier];
     }
 
     /**

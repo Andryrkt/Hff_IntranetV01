@@ -9,7 +9,7 @@
 
 {% import "macroForm.html.twig" as macroForm %}
 
-{% set guideSlug = 'ddp-magasin' %}
+{% set guideSlug = id_type == 1 ? 'ddp-magasin-avance' : 'ddp-magasin-apres-arrivage' %}
 
 {% block content %}
 	<div class="container-fluid mt-6">
@@ -115,10 +115,13 @@
 									<tr>
 										<th>N° commande</th>
 										<th>N° facture</th>
-										<th>Montant du commande à payer *</th>
-										<th class="text-end">DDPA</th>
+										<th>N° dossier douane</th>
+										<th>N° LTA</th>
+										<th>N° HAWB</th>
 										<th class="text-end">Solde avance</th>
-										<th class="text-center">DDP à générer</th>
+										<th class="text-end">Montant du commande réceptionné</th>
+										<th class="text-end">Montant du commande à payer</th>
+										<th class="text-end">Solde avance restant</th>
 									</tr>
 								</thead>
 								<tbody id="montantsCommandeBody"></tbody>
@@ -131,6 +134,15 @@
 						{{ form_row(form.montantAPayer) }}
 						<div id="montantIncorrectWarning" class="text-danger small mt-1 d-none"></div>
 					</div>
+					{% if form.montantsCommande is defined %}
+						{# Somme des montants du commande à payer, calculée par DemandePaiementManager.js : affichage seul #}
+						<div class="col-12 col-md-4">
+							<div class="mb-3">
+								<label for="montantTotalAPayer" class="form-label">Montant total à payer</label>
+								<input type="text" id="montantTotalAPayer" class="form-control" readonly>
+							</div>
+						</div>
+					{% endif %}
 					{% if form.montantTotalCommande is defined %}
 						<div class="col-12 col-md-4">
 							{{ form_row(form.montantTotalCommande) }}
@@ -187,7 +199,7 @@
 					<div class="row d-none" id="tableau_dossier"></div>
 
 					<div class="d-flex justify-content-end">
-						<button type="submit" id="submitDdpButton" class="btn bouton mt-2" data-confirmation data-form="#myForm" data-confirmation-message="Confirmez-vous l'envoi ?" data-confirmation-text="Vous êtes en train de soumettre une demande de paiement à validation dans DocuWare" data-warning-message="Merci de ne pas fermer la page pendant le traitement.">
+						<button type="submit" id="submitDdpButton" class="btn bouton mt-2" data-confirmation data-form="#myForm" data-confirmation-message="Confirmez-vous l'envoi ?" data-confirmation-text="Vous êtes en train d'enregistrer une demande de paiement. Elle devra ensuite être transmise en validation depuis la consultation des factures." data-warning-message="Merci de ne pas fermer la page pendant le traitement.">
 							<i class="fas fa-save"></i>
 							Enregistrer
 						</button>

@@ -84,7 +84,8 @@ class DemandePaiementModel extends Model
             INNER JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
             where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%'
             and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
-            and TRZT_Facture.Numero_Facture in ({$numFacString})
+            and TRZT_Facture.Numero_Facture not in ({$numFacString})
+            and GCOT_Facture_Ligne.Numero_PO in ({$numCdesString})
             group by TRZT_Dossier_Douane.Code_Fournisseur, TRZT_Dossier_Douane.Libelle_Fournisseur,TRZT_Dossier_Douane.Numero_Dossier_Douane, TRZT_Dossier_Douane.Numero_LTA, TRZT_Dossier_Douane.Numero_HAWB,TRZT_Facture.Numero_Facture, TRZT_Facture.Montant_FOB, GCOT_Facture_Ligne.Numero_PO
             order by TRZT_Dossier_Douane.Code_Fournisseur, TRZT_Dossier_Douane.Libelle_Fournisseur,TRZT_Dossier_Douane.Numero_Dossier_Douane, TRZT_Dossier_Douane.Numero_LTA, TRZT_Dossier_Douane.Numero_HAWB,TRZT_Facture.Numero_Facture, GCOT_Facture_Ligne.Numero_PO
             OPTION (RECOMPILE)
@@ -97,15 +98,19 @@ class DemandePaiementModel extends Model
      * Commandes (Numero_PO) et montant de chacune des factures GCOT données
      *
      * @param string $numFacString factures au format 'FAC1','FAC2'
-     * @return array<array{Numero_Facture: string, Montant_Facture: float, Numero_PO: string}>
+     * @return array<array{Numero_Facture: string, Montant_Facture: float, Numero_PO: string, Numero_Dossier_Douane: ?string, Numero_LTA: ?string, Numero_HAWB: ?string}>
      */
     public function getCommandesParFacture(string $numFacString): array
     {
         $sql = "SELECT DISTINCT
                 TRZT_Facture.Numero_Facture,
                 TRZT_Facture.Montant_FOB as Montant_Facture,
-                GCOT_Facture_Ligne.Numero_PO
+                GCOT_Facture_Ligne.Numero_PO,
+                TRZT_Dossier_Douane.Numero_Dossier_Douane,
+                TRZT_Dossier_Douane.Numero_LTA,
+                TRZT_Dossier_Douane.Numero_HAWB
             from TRZT_Facture
+            LEFT JOIN TRZT_Dossier_Douane on TRZT_Dossier_Douane.Numero_Dossier_Douane = TRZT_Facture.Numero_Dossier_Douane
             INNER JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
             INNER JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
             where TRZT_Facture.Numero_Facture in ({$numFacString})";
@@ -301,23 +306,46 @@ class DemandePaiementModel extends Model
     }
 
     /**
-     * Montant réceptionné par commande pour les factures fournisseur données
-     * (n° de facture externe sans "/" ni préfixe PDV_).
+     * Livraisons (avec montant réceptionné) par commande pour les factures fournisseur données.
      *
-     * @return array<string, float> [numCde => montant]
+     * @param string[] $numCdes
+     * @param string[] $numFactures n° de facture du select (préfixe "PDV_", absent de ffac_facext)
+     * @return array<array{numero_commande: string, numero_livraison: string, montant: float}>
      */
-    public function getMontantCommandeReceptionnee(string $numeroFournisseur, string $numCdesString, string $numFacExtString, string $codeSociete = 'HF'): array
+    public function getLivraisonsReceptionnees(string $numeroFournisseur, array $numCdes, array $numFactures, string $codeSociete = 'HF'): array
     {
-        $statement = " SELECT fllf_numcde, SUM(fllf_qteliv * fllf_achnet) as montant_commande_receptionner
+        $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
+        $numFacExtString = TableauEnStringService::TableauEnString(',', array_map(fn($f) => preg_replace('/^PDV_/', '', trim($f)), $numFactures));
+
+        $statement = " SELECT fllf_numcde as numero_commande, fllf_numliv as numero_livraison, SUM(fllf_qteliv * fllf_achnet) as montant
                         from Informix.frn_llf
                         where fllf_numcde in ({$numCdesString})
-                        and fllf_numfac in (select ffac_numfac from Informix.frn_fac where ffac_numfou = '{$numeroFournisseur}' and REPLACE(ffac_facext, '/', '') in ({$numFacExtString}))
+                        and fllf_numfac in (select ffac_numfac from Informix.frn_fac where ffac_numfou = '{$numeroFournisseur}' and REPLACE(ffac_facext, '/', '') in ({$numFacExtString}) and ffac_soc = '{$codeSociete}')
                         and fllf_soc = '{$codeSociete}'
-                        group by fllf_numcde
+                        group by fllf_numcde, fllf_numliv
         ";
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
-        return array_map('floatval', array_column($this->convertirEnUtf8($data), 'montant_commande_receptionner', 'fllf_numcde'));
+
+        return array_map(fn($ligne) => [
+            'numero_commande'  => trim((string) $ligne['numero_commande']),
+            'numero_livraison' => trim((string) $ligne['numero_livraison']),
+            'montant'          => (float) $ligne['montant'],
+        ], $this->convertirEnUtf8($data));
+    }
+
+    /**
+     * Montant réceptionné par commande pour les factures fournisseur données
+     *
+     * @return array<string, float> [numCde => montant]
+     */
+    public function getMontantCommandeReceptionnee(string $numeroFournisseur, array $numCdes, array $numFactures, string $codeSociete = 'HF'): array
+    {
+        $montants = [];
+        foreach ($this->getLivraisonsReceptionnees($numeroFournisseur, $numCdes, $numFactures, $codeSociete) as $ligne) {
+            $montants[$ligne['numero_commande']] = ($montants[$ligne['numero_commande']] ?? 0) + $ligne['montant'];
+        }
+        return $montants;
     }
 
     public function getModePaiement()
@@ -514,6 +542,23 @@ class DemandePaiementModel extends Model
         ];
     }
 
+
+    /**
+     * Montant total d'une commande dans IPS (null si le couple fournisseur/commande n'existe pas)
+     */
+    public function getMontantTotalCommande(string $numeroFournisseur, string $numCde): ?float
+    {
+        $statement = " SELECT fcde_mtn as montant_total_commande
+                from Informix.frn_cde
+                where fcde_numfou = '" . (int) $numeroFournisseur . "'
+                and fcde_numcde = '" . (int) $numCde . "'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+
+        return empty($data) ? null : (float) $data[0]['montant_total_commande'];
+    }
 
     public function recupInfoComamnde(string $numCde, string $numeroFournisseur)
     {

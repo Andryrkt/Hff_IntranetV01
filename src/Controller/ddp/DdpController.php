@@ -2,12 +2,10 @@
 
 namespace App\Controller\ddp;
 
-use App\Constants\ddp\StatutConstants;
 use App\Constants\ddp\TypeDemandePaiementConstants;
 use App\Controller\Controller;
 use App\Controller\Traits\PdfConversionTrait;
 use App\Dto\ddp\DdpDto;
-use App\Entity\admin\ddp\TypeDemande;
 use App\Entity\cde\CdefnrSoumisAValidation;
 use App\Entity\ddp\DemandePaiement;
 use App\Factory\ddp\DdpFactory;
@@ -20,9 +18,9 @@ use App\Service\ddp\Magasin\DdpDocService;
 use App\Service\ddp\Magasin\DdpLigneService;
 use App\Service\ddp\Magasin\DdpService;
 use App\Service\fichier\TraitementDeFichier;
-use App\Service\genererPdf\bap\GenererPdfBapMagasin;
 use App\Service\genererPdf\GeneratePdfDdp;
 use App\Service\historiqueOperation\HistoriqueOperationDDPService;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 use App\Service\TableauEnStringService;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -85,6 +83,16 @@ class DdpController extends Controller
             /** @var DdpDto $dto */
             $dto = $form->getData();
 
+            // à l'avance : le montant total du commande vient d'IPS, jamais de la valeur postée
+            if ($dto->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE) {
+                $montantTotal = $this->demandePaiementModel->getMontantTotalCommande((string) $dto->numeroFournisseur, (string) ($dto->numeroCommande[0] ?? ''));
+                if ($montantTotal === null || $montantTotal <= 0) {
+                    $form->get('montantTotalCommande')->addError(new FormError('Le montant total de cette commande est introuvable dans IPS pour ce fournisseur.'));
+                    return;
+                }
+                $dto->montantTotalCommande = (string) $montantTotal;
+            }
+
             $erreurCommandeSoldee = $this->erreurCommandeSoldee($dto);
             if ($erreurCommandeSoldee !== null) {
                 $form->addError(new FormError($erreurCommandeSoldee));
@@ -95,9 +103,14 @@ class DdpController extends Controller
             if ($dto->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE) {
                 // le select n° commande est disabled côté front donc non posté : commandes déduites des factures
                 $dto->numeroCommande = $this->ddpFactory->recuperationNumCommande($dto->numeroFournisseur, $dto->numeroFacture);
+                // montant réceptionné : affiché sans saisie, lu dans IPS pour les factures sélectionnées
+                $dto->montantsCommande = array_map(
+                    fn($montant) => number_format((float) $montant, 2, ',', ''),
+                    empty($dto->numeroCommande) ? [] : $this->demandePaiementModel->getMontantCommandeReceptionnee($dto->numeroFournisseur, $dto->numeroCommande, $dto->numeroFacture, $dto->codeSociete)
+                );
                 foreach ($dto->numeroCommande as $numCde) {
                     if ($dto->montantCommande($numCde) === null) {
-                        $form->addError(new FormError("Le montant du commande à payer $numCde est obligatoire."));
+                        $form->addError(new FormError("Le montant réceptionné de la commande $numCde est introuvable dans IPS pour la/les facture(s) sélectionnée(s)."));
                         return;
                     }
                 }
@@ -114,129 +127,92 @@ class DdpController extends Controller
                 return;
             }
 
-            $dto = $this->ddpFactory->apresSoumission($form, $dto);
+            // suivi étape par étape de l'enregistrement (admin > historique > suivi des opérations)
+            $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_DDP);
+            $dto = $this->numeroEtFichiers($suivi, $form, $dto);
 
-            // Enregistrement dans BD
-            $this->enregistrementSurBd($dto);
-            // Enregistrement des fichiers, generation du PDF, fusion des fichiers et envoi dans DOCUWARE
-            $this->traitementDeFichier($dto);
+            $this->enregistrementEtPdf($suivi, $dto);
 
             /** HISTORISATION */
             $this->notificationSoumission($dto->numeroDdp);
         }
     }
 
+    private function numeroEtFichiers(SuiviOperationService $suivi, FormInterface $form, DdpDto $dto): DdpDto
+    {
+        $dto = $suivi->etape('Numéro et fichiers joints', fn() => $this->ddpFactory->apresSoumission($form, $dto));
+        $suivi->setNumeroDocument((string) $dto->numeroDdp);
+
+        return $dto;
+    }
+
+    private function enregistrementEtPdf(SuiviOperationService $suivi, DdpDto $dto): void
+    {
+        // Enregistrement dans BD
+        $suivi->etape('Base de données', function () use ($dto) {
+            $this->enregistrementSurBd($dto);
+        });
+        // Enregistrement des fichiers, generation du PDF et fusion des fichiers
+        $this->traitementDeFichier($dto);
+    }
+
     /**
-     * Après arrivage : les commandes sont regroupées selon leur situation
-     * (DemandePaiementRepository::getSituationAvanceParCommande) et une demande
-     * de paiement est générée par groupe :
-     * - BAP (aucune DDPA soumis) : PDF BAP MAGASIN ;
-     * - DDPR (DDPA à 100 %) / DDPL (DDPA entre 0 et 100 %) : PDF DDP.
+     * Après arrivage : une seule demande de paiement (type 2) et une seule page de garde
+     * par saisie. Solde avance et montant à payer restent calculés commande par commande
+     * (DemandePaiementRepository::getSituationAvanceParCommande).
      */
     private function soumissionApresArrivage(FormInterface $form, DdpDto $dto): void
     {
-        $groupes = $this->groupesParSituation($dto);
-        if (is_string($groupes)) {
-            $form->addError(new FormError($groupes));
-            return;
-        }
-        if (empty($groupes)) {
+        if (empty($dto->numeroCommande)) {
             $form->addError(new FormError('Aucune commande trouvée pour la/les facture(s) sélectionnée(s).'));
             return;
         }
 
-        $numerosDdp = [];
-        $source = null;
-        foreach ($groupes as $typeId => $groupe) {
-            $dtoGroupe = clone $dto;
-            $dtoGroupe->numeroCommande = $groupe['commandes'];
-            $dtoGroupe->numeroFacture = $groupe['factures'];
-            $dtoGroupe->lignesFactures = $groupe['lignesFactures'];
-            $dtoGroupe->montantsCommande = array_intersect_key($dto->montantsCommande, array_flip($groupe['commandes']));
-            $dtoGroupe->soldesAvance = $groupe['soldes'];
-            // montant à payer de la DDP = montant des factures du groupe
-            $dtoGroupe->montantAPayer = number_format($groupe['montantFactures'], 2, ',', '');
+        // suivi étape par étape de l'enregistrement (admin > historique > suivi des opérations)
+        $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_DDP);
 
-            // typeDdp encore "après arrivage" ici : apresSoumission() en dépend (commandes, fichiers distants)
-            $dtoGroupe = $this->ddpFactory->apresSoumission($form, $dtoGroupe, $source, $typeId === TypeDemandePaiementConstants::ID_BON_A_PAYER);
-            $dtoGroupe->typeDdp = $this->getEntityManager()->getRepository(TypeDemande::class)->find($typeId);
-            $dtoGroupe->statut = [
-                TypeDemandePaiementConstants::ID_BON_A_PAYER              => StatutConstants::BAP_A_TRANSMETTRE,
-                TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_REGULE  => StatutConstants::DDPR_A_TRANSMETTRE,
-            ][$typeId] ?? StatutConstants::DDPL_A_TRANSMETTRE;
-            if ($typeId === TypeDemandePaiementConstants::ID_BON_A_PAYER) {
-                $dtoGroupe->donneesBapMagasin = $this->donneesBapMagasin($dtoGroupe, $groupe['lignesFactures']);
+        $suivi->etape('Soldes et montants des commandes', function () use ($dto) {
+            $repository = $this->getEntityManager()->getRepository(DemandePaiement::class);
+            foreach (array_unique($dto->numeroCommande) as $numCde) {
+                $numCde = (string) $numCde;
+                $situation = $repository->getSituationAvanceParCommande($numCde, $dto->codeSociete);
+                $dto->soldesAvance[$numCde] = $situation['soldeAvance'];
+                $dto->montantsTotalCommande[$numCde] = $this->demandePaiementModel->getMontantTotalCommande((string) $dto->numeroFournisseur, $numCde);
+                if ($situation['typeDdpAGenerer'] === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_REGULE) {
+                    $dto->commandesRegule[] = $numCde;
+                }
             }
+        });
 
-            $this->enregistrementSurBd($dtoGroupe);
-            $this->traitementDeFichier($dtoGroupe);
+        $suivi->etape('Factures et livraisons', function () use ($dto) {
+            $dto->lignesFactures = $this->demandePaiementModel->getCommandesParFacture(
+                TableauEnStringService::TableauEnString(',', $dto->numeroFacture)
+            );
+            foreach ($this->demandePaiementModel->getLivraisonsReceptionnees($dto->numeroFournisseur, $dto->numeroCommande, $dto->numeroFacture, $dto->codeSociete) as $ligne) {
+                $dto->livraisonsParCommande[$ligne['numero_commande']][] = $ligne['numero_livraison'];
+            }
+        });
 
-            $source = $source ?? $dtoGroupe;
-            $numerosDdp[] = $dtoGroupe->numeroDdp;
-        }
-
-        $this->notificationSoumission(implode(', ', $numerosDdp));
-    }
-
-    /**
-     * Regroupe les commandes de la demande par type de DDP à générer.
-     *
-     * @return array<int, array{commandes: string[], factures: string[], soldes: array<string, float>, montantFactures: float, lignesFactures: array}>|string
-     *         groupes indexés par id de type de demande, ou message d'erreur
-     */
-    private function groupesParSituation(DdpDto $dto)
-    {
-        $lignesFactures = $this->demandePaiementModel->getCommandesParFacture(
-            TableauEnStringService::TableauEnString(',', $dto->numeroFacture)
+        // montant à payer de la DDP = somme des montants du commande à payer
+        $dto->montantAPayer = number_format(
+            array_sum(array_map(fn($numCde) => (float) $dto->montantCommandeAPayer((string) $numCde), $dto->numeroCommande)),
+            2,
+            ',',
+            ''
         );
-        $repository = $this->getEntityManager()->getRepository(DemandePaiement::class);
 
-        $groupes = [];
-        $typeParCommande = [];
-        foreach (array_unique($dto->numeroCommande) as $numCde) {
-            $numCde = (string) $numCde;
-            $situation = $repository->getSituationAvanceParCommande($numCde, $dto->codeSociete);
-            $typeId = $situation['typeDdpAGenerer'];
-            $typeParCommande[$numCde] = $typeId;
+        $dto = $this->numeroEtFichiers($suivi, $form, $dto);
+        $dto->donneesPageDeGarde = $suivi->etape('Données de la page de garde', fn() => $this->donneesPageDeGarde($dto));
 
-            $groupes[$typeId]['commandes'][] = $numCde;
-            $groupes[$typeId]['soldes'][$numCde] = $situation['soldeAvance'];
-        }
+        $this->enregistrementEtPdf($suivi, $dto);
 
-        foreach ($groupes as $typeId => &$groupe) {
-            $groupe['factures'] = [];
-            $groupe['lignesFactures'] = [];
-            $groupe['montantFactures'] = 0.0;
-        }
-        unset($groupe);
-
-        // chaque facture rejoint le groupe de ses commandes
-        $groupeParFacture = [];
-        foreach ($lignesFactures as $ligne) {
-            $numFac = trim((string) $ligne['Numero_Facture']);
-            $numCde = trim((string) $ligne['Numero_PO']);
-            if (!isset($typeParCommande[$numCde])) {
-                continue;
-            }
-            $typeId = $typeParCommande[$numCde];
-            if (isset($groupeParFacture[$numFac]) && $groupeParFacture[$numFac] !== $typeId) {
-                return "La facture $numFac concerne des commandes de situations différentes (BAP / DDPR / DDPL) : veuillez la traiter séparément.";
-            }
-            $groupes[$typeId]['lignesFactures'][] = $ligne;
-            if (!isset($groupeParFacture[$numFac])) {
-                $groupeParFacture[$numFac] = $typeId;
-                $groupes[$typeId]['factures'][] = $numFac;
-                $groupes[$typeId]['montantFactures'] += (float) $ligne['Montant_Facture'];
-            }
-        }
-
-        return $groupes;
+        $this->notificationSoumission($dto->numeroDdp);
     }
 
     /**
-     * Données de la page de garde BAP MAGASIN (voir GenererPdfBapMagasin)
+     * Données des tableaux de la page de garde après arrivage (voir GeneratePdfDdp)
      */
-    private function donneesBapMagasin(DdpDto $dto, array $lignesFactures): array
+    private function donneesPageDeGarde(DdpDto $dto): array
     {
         $daModel = new DaModel();
         $repository = $this->getEntityManager()->getRepository(DemandePaiement::class);
@@ -245,7 +221,7 @@ class DdpController extends Controller
         foreach ($dto->numeroCommande as $numCde) {
             $ddps = [];
             /** @var DemandePaiement $ddp */
-            foreach ($repository->getDdpSelonNumCde($numCde) as $ddp) {
+            foreach ($repository->getDdpSelonNumCde($numCde, true) as $ddp) {
                 $ddps[] = [
                     'date'    => $ddp->getDateCreation() ? $ddp->getDateCreation()->format('d/m/Y') : '',
                     'numero'  => $ddp->getNumeroDdp(),
@@ -257,7 +233,6 @@ class DdpController extends Controller
             }
 
             $commandes[$numCde] = [
-                'infoBc'     => $daModel->getInfoBC((string) $numCde, $dto->codeSociete),
                 'livraisons' => $daModel->getHistoriqueLivraison((string) $numCde) ?? [],
                 'ddps'       => $ddps,
             ];
@@ -265,7 +240,7 @@ class DdpController extends Controller
 
         return [
             'commandes' => $commandes,
-            'factures'  => $lignesFactures,
+            'factures'  => $dto->lignesFactures,
         ];
     }
 
@@ -344,7 +319,7 @@ class DdpController extends Controller
                 return null;
             }
 
-            // somme des montants du commande à payer saisis (numeroCommande déjà déduit des factures)
+            // somme des montants du commande réceptionnés (numeroCommande déjà déduit des factures)
             return array_sum(array_map(fn($numCde) => (float) $dto->montantCommande($numCde), $dto->numeroCommande));
         }
 
@@ -377,15 +352,14 @@ class DdpController extends Controller
         // fichiers distants copiés (192.168.0.15) + fichiers téléversés + fichiers de commande DW
         $dto->lesFichiers = $dto->getToutesLesNomFichiers();
         // generation de la page de garde DDP
-        $generatePdfDdp = $this->pageDeGarde($dto, $nomAvecCheminFichier);
+        SuiviOperationService::suivre('Page de garde', function () use ($dto, $nomAvecCheminFichier) {
+            $this->pageDeGarde($dto, $nomAvecCheminFichier);
+        });
         // fusion des PDF : page de garde DDP + TOUS les fichiers du dossier DDP
-        $this->fusionDesPdf($this->cheminsFichiersAFusionner($dto), [], $nomAvecCheminFichier);
-        // envoi du PDF final dans DOCUWARE
-        if ($dto->typeDdp->getId() === TypeDemandePaiementConstants::ID_BON_A_PAYER) {
-            $generatePdfDdp->copyToDWBapDa($nomAvecCheminFichier, $nomFichier, 'BAP');
-        } else {
-            $generatePdfDdp->copyToDwDdp($nomFichier, $dto->numeroDdp);
-        }
+        // (dépôt dans DOCUWARE à la transmission : DdpApiController::transmettreBap)
+        SuiviOperationService::suivre('Fusion', function () use ($dto, $nomAvecCheminFichier) {
+            $this->fusionDesPdf($this->cheminsFichiersAFusionner($dto), [], $nomAvecCheminFichier);
+        });
 
         return $nomFichier;
     }
@@ -424,23 +398,16 @@ class DdpController extends Controller
     }
 
     /**
-     * Page de garde : BAP MAGASIN pour un bon à payer, DDP sinon
-     *
-     * @return GeneratePdfDdp|GenererPdfBapMagasin
+     * Page de garde DDP
      */
-    private function pageDeGarde(DdpDto $dto, string $cheminEtNom)
+    private function pageDeGarde(DdpDto $dto, string $cheminEtNom): void
     {
-        $generatePdfDdp = $dto->typeDdp->getId() === TypeDemandePaiementConstants::ID_BON_A_PAYER
-            ? new GenererPdfBapMagasin()
-            : new GeneratePdfDdp();
-        $generatePdfDdp->genererPdfDto($dto, $cheminEtNom);
-
-        return $generatePdfDdp;
+        (new GeneratePdfDdp())->genererPdfDto($dto, $cheminEtNom);
     }
 
     /**
      * Pourcentage du montant à payer par rapport :
-     * - à l'avance : au montant total du commande saisi ;
+     * - à l'avance : au montant total du commande dans IPS ;
      * - après arrivage : au montant HT total des commandes de la demande.
      */
     private function ratioMontantPayer(DdpDto $dto): float

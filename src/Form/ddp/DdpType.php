@@ -17,7 +17,6 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
 class DdpType extends AbstractType
 {
@@ -68,7 +67,7 @@ class DdpType extends AbstractType
                 [
                     'label' => $options['data']->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE
                         ? 'Montant facture proforma *'
-                        : 'Montant à payer *',
+                        : 'Montant total réceptionné *',
                     'attr' => $options['data']->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE
                         ? ['data-plafond' => TypeDemandePaiementConstants::PLAFOND_MONTANT_PROFORMA]
                         : [],
@@ -86,7 +85,8 @@ class DdpType extends AbstractType
     }
 
     /**
-     * Montant total du commande : uniquement pour la demande de paiement à l'avance
+     * Montant total du commande : uniquement pour la demande de paiement à l'avance.
+     * Remonté d'IPS, non modifiable ; absence bloquée par le serveur (DdpController::traitementDuFormulaire)
      */
     public function addMontantTotalCommande(FormBuilderInterface $builder, array $options)
     {
@@ -99,17 +99,14 @@ class DdpType extends AbstractType
             TextType::class,
             [
                 'label' => 'Montant total du commande *',
-                'constraints' => [
-                    new NotBlank([
-                        'message' => 'Le montant total du commande est obligatoire.',
-                    ]),
-                ],
+                'attr' => ['readonly' => true],
             ]
         );
     }
 
     /**
-     * Montant du commande à payer, par commande : uniquement pour la demande de paiement après arrivage
+     * Montants du commande réceptionnés : uniquement pour la demande de paiement après arrivage.
+     * Affichés par le JS sans être postés : le serveur les lit dans IPS (DdpController::traitementDuFormulaire)
      */
     public function addMontantsCommande(FormBuilderInterface $builder, array $options)
     {
@@ -117,20 +114,12 @@ class DdpType extends AbstractType
             return;
         }
 
-        // une entrée par commande sélectionnée, clé = numéro de commande (lignes ajoutées par le JS)
         $builder->add(
             'montantsCommande',
             CollectionType::class,
             [
                 'label' => false,
                 'entry_type' => TextType::class,
-                'entry_options' => [
-                    'constraints' => [
-                        new NotBlank([
-                            'message' => 'Le montant du commande à payer est obligatoire.',
-                        ]),
-                    ],
-                ],
                 'allow_add' => true,
             ]
         );

@@ -21,8 +21,9 @@ class SecurityService
 
     // ─── Routes publiques (pas de contrôle d'accès) ──────────────────────────
     // connecté suffit, sans droit de page : la documentation est lisible par tous
-    // (la modification est réservée aux admins dans DocumentationUtilisateurController)
-    private const ROUTES_SEMI_PRIVEES = ['choix_societe', 'sso_annuaire', 'doc_utilisateur_index', 'doc_utilisateur_show', 'doc_utilisateur_edit'];
+    // (la modification est réservée aux admins dans DocumentationUtilisateurController,
+    // la documentation technique aux admins dans DocumentationController)
+    private const ROUTES_SEMI_PRIVEES = ['choix_societe', 'sso_annuaire', 'doc_utilisateur_index', 'doc_utilisateur_show', 'doc_utilisateur_edit', 'app_doc_tech_index', 'app_doc_tech_show'];
     private const ROUTE_ACCUEIL = 'profil_acceuil';
     private const ROUTES_PUBLIQUES = ['security_signin', 'auth_deconnexion', 'sso_connect'];
     private const PREFIXES_API = ['api_'];

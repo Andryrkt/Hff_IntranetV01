@@ -41,8 +41,8 @@
 						</a>
 					</li>
 
-					{# Documentation Technique : visible uniquement si la route est accessible #}
-					{% if hasAcces('app_doc_tech_index') %}
+					{# Documentation Technique : réservée aux administrateurs #}
+					{% if estAdmin() %}
 						<li class="me-3">
 							<a class="tech-doc-link" href="{{ path('app_doc_tech_index') }}" role="button">
 								<i class="fas fa-code pe-2"></i>
