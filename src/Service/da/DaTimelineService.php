@@ -4,6 +4,8 @@ namespace App\Service\da;
 
 use App\Entity\da\DemandeAppro;
 use App\Model\da\DaAfficherModel;
+use App\Model\ddp\DemandePaiementModel;
+use App\Constants\ddp\StatutConstants;
 use App\Traits\JoursOuvrablesTrait;
 use App\Constants\da\StatutDaConstant;
 use App\Constants\da\StatutOrConstant;
@@ -14,10 +16,12 @@ class DaTimelineService
 {
     use JoursOuvrablesTrait;
     private DaAfficherModel $daAfficherModel;
+    private DemandePaiementModel $demandePaiementModel;
 
     public function __construct(DaAfficherModel $daAfficherModel)
     {
-        $this->daAfficherModel = $daAfficherModel;
+        $this->daAfficherModel      = $daAfficherModel;
+        $this->demandePaiementModel = new DemandePaiementModel();
     }
 
     /** 
@@ -34,7 +38,7 @@ class DaTimelineService
         $agenceServiceEmetteur = $demandeAppro->getAgenceServiceEmetteur();
 
         $allDatas = $this->daAfficherModel->getDaLifecycleSteps($numeroDa);
-        if (empty($allDatas)) return ['DA' => [], 'OR' => [], 'BC' => []];
+        if (empty($allDatas)) return ['DA' => [], 'OR' => [], 'BC' => [], 'DDP' => []];
 
         [$timelineDa, $estTerminee] = $this->buildTimelineDA($allDatas, $numeroDa, $daTypeId, $demandeur, $agenceServiceEmetteur);
         $lastDataDA = end($timelineDa);
@@ -42,8 +46,9 @@ class DaTimelineService
         [$numeroOr, $timelineOR] = $isDaViaOR ? $this->buildTimelineOR($allDatas, $lastDataDA) : ["", []];
         $lastDataOR = empty($timelineOR) ? $lastDataDA : end($timelineOR);
         $timelineBc = $this->buildTimelineBC($numeroDa, $lastDataOR, $daTypeId);
+        $timelineDdp = $this->buildTimelineDDP($numeroDa);
 
-        if (empty($timelineBc)) {
+        if (empty($timelineBc) && empty($timelineDdp)) {
             if ($isDaViaOR && !empty($timelineOR)) $timelineOR = $this->cloturerAvecAujourdhui($timelineOR);
             elseif (!$estTerminee)                 $timelineDa = $this->cloturerAvecAujourdhui($timelineDa);
         }
@@ -54,7 +59,36 @@ class DaTimelineService
             'DA'       => $timelineDa,
             'OR'       => $timelineOR,
             'BC'       => $timelineBc,
+            'DDP'      => $timelineDdp,
         ];
+    }
+
+    /**
+     * @return array<string,array{type:string,etapes:array<int,array{statut:string,dotClass:string,date:string,nbrJours:string}>}>
+     */
+    private function buildTimelineDDP(string $numeroDa): array
+    {
+        $timeline = [];
+
+        foreach ($this->demandePaiementModel->getDdpLifecycleSteps($numeroDa) as $ddp) {
+            $toDate = fn(?string $d) => $d ? (new \DateTime($d))->setTime(0, 0, 0) : null;
+            $dateCompta = $toDate($ddp['date_validation_compta']);
+
+            $etapes = array_filter([
+                ['statut' => 'Transmission DDP',       'dotClass' => StatutConstants::getCssClass(StatutConstants::TRANSMIS_COMPTA),        'date' => $toDate($ddp['date_transmission_ddp'])],
+                ['statut' => 'Validation Service EM',  'dotClass' => StatutConstants::getCssClass(StatutConstants::A_VALIDER_COMPTABILITE), 'date' => $toDate($ddp['date_validation_ser_em'])],
+                ['statut' => 'Validation Compta',      'dotClass' => StatutConstants::getCssClass(StatutConstants::VALIDE),                 'date' => $dateCompta],
+            ], fn($e) => $e['date'] !== null);
+
+            if (empty($etapes)) continue;
+
+            $timeline[$ddp['numero_ddp']] = [
+                'type'   => $ddp['code_type'],
+                'etapes' => $this->construireEtapesAvecDurees($etapes, $dateCompta !== null),
+            ];
+        }
+
+        return $timeline;
     }
 
     /**
