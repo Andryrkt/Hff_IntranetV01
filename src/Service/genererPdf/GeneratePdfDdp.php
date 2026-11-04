@@ -225,7 +225,7 @@ class GeneratePdfDdp extends GeneratePdf
         $pdf->Cell(
             0,
             10,
-            $dto->numeroDdp . '_' . $dto->numeroVersion,
+            $dto->numeroDdp,
             0,
             1,
             'R'
@@ -409,7 +409,7 @@ class GeneratePdfDdp extends GeneratePdf
 
     /**
      * Case "Montant à payer" : montant aligné à droite, précédé en rouge de sa part du montant total
-     * des commandes (après arrivage). Deux cellules superposées : une Cell n'a qu'une seule couleur.
+     * des commandes (après arrivage) ou du commande (à l'avance). Deux cellules superposées : une Cell n'a qu'une seule couleur.
      */
     private function renderMontantAPayer(TCPDF $pdf, DdpDto $dto, float $largeur): void
     {
@@ -418,7 +418,9 @@ class GeneratePdfDdp extends GeneratePdf
         $montant = $this->formaterPrix($dto->montantAPayer());
         $pdf->Cell($largeur, 10, $montant, 1, 0, 'R');
 
-        $pourcentage = $this->pourcentage($dto->montantAPayer(), (float) array_sum($dto->montantsTotalCommande));
+        // montantsTotalCommande n'est rempli qu'après arrivage ; à l'avance le total est dans montantTotalCommande
+        $montantTotal = $dto->montantsTotalCommande ? array_sum($dto->montantsTotalCommande) : $dto->montantTotalCommande();
+        $pourcentage = $this->pourcentage($dto->montantAPayer(), (float) $montantTotal);
         if ($pourcentage !== '') {
             $pdf->SetXY($x, $y);
             $pdf->SetTextColor(255, 0, 0);
