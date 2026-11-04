@@ -677,28 +677,29 @@ class DemandePaiementModel extends Model
 
     public function getAllDdpByDa(string $numeroDa): array
     {
-        $sql = "SELECT
+        $sql = "SELECT 
                     dp.numero_demande_paiement AS numero_ddp,
                     dp.date_creation,
+                    dp.numero_commande,
                     td.code_type_demande AS code_type,
-                    CASE td.code_type_demande
-                        WHEN 'BAP' THEN (
+                    CASE
+                        WHEN td.code_type_demande = 'BAP' THEN (
                             SELECT TOP 1 t1.path
                                 FROM DW_bon_a_payer t1
                                 WHERE t1.numero_bap = dp.numero_demande_paiement
-                                ORDER BY t1.numero_version DESC
+                                ORDER BY t1.date_derniere_modification DESC, t1.heure_derniere_modification DESC
                         )
-                        WHEN 'DPR' THEN (
+                        WHEN td.code_type_demande = 'DPR' THEN (
                             SELECT TOP 1 t2.path
                                 FROM DW_regularisation_ddp t2
                                 WHERE t2.numero_ddr = dp.numero_demande_paiement
-                                ORDER BY t2.numero_version DESC
+                                ORDER BY t2.date_derniere_modification DESC, t2.heure_derniere_modification DESC
                         )
-                        WHEN 'DPA' THEN (
+                        WHEN td.code_type_demande IN ('DPA', 'DPL') THEN (
                             SELECT TOP 1 t3.path
                                 FROM DW_demande_de_paiement t3
                                 WHERE t3.numero_ddp = dp.numero_demande_paiement
-                                ORDER BY t3.numero_version DESC
+                                ORDER BY t3.date_derniere_modification DESC, t3.heure_derniere_modification DESC
                         )
                     END AS path
                 FROM demande_paiement dp
@@ -712,10 +713,63 @@ class DemandePaiementModel extends Model
 
         while ($result = odbc_fetch_array($resultStmt)) {
             $data[] = [
-                'numero_ddp' => $result['numero_ddp'],
-                'code_type'  => $result['code_type'],
-                'path'       => $result['path'],
+                'numero_ddp'      => $result['numero_ddp'],
+                'numero_commande' => $result['numero_commande'],
+                'code_type'       => $result['code_type'],
+                'path'            => $result['path'],
             ];
+        }
+
+        return $data;
+    }
+
+    /**
+     * Dates des 3 étapes (transmission, validation service EM, validation compta) de chaque DDP d'une DA,
+     * lues dans la dernière version de la table DW correspondant au type de demande.
+     *
+     * @return array<int,array{numero_ddp:string,code_type:string,date_transmission_ddp:?string,date_validation_ser_em:?string,date_validation_compta:?string}>
+     */
+    public function getDdpLifecycleSteps(string $numeroDa): array
+    {
+        $sql = "WITH dw_all AS (
+                    SELECT 'BAP' AS code_type, numero_bap AS numero, id_bap AS id_doc, date_transmission_ddp, date_validation_ser_em, date_validation_compta
+                        FROM DW_bon_a_payer
+                    UNION ALL
+                    SELECT 'DPR', numero_ddr, id_ddr, date_transmission_ddp, date_validation_ser_em, date_validation_compta
+                        FROM DW_regularisation_ddp
+                    UNION ALL
+                    SELECT 'DPA', numero_ddp, id_ddp, date_transmission_ddp, date_validation_ser_em, date_validation_compta
+                        FROM DW_demande_de_paiement
+                ),
+                dw_max AS (
+                    SELECT code_type, numero, MAX(id_doc) AS max_id
+                    FROM dw_all
+                    GROUP BY code_type, numero
+                )
+                SELECT
+                    dp.numero_demande_paiement AS numero_ddp,
+                    td.code_type_demande AS code_type,
+                    dw.date_transmission_ddp,
+                    dw.date_validation_ser_em,
+                    dw.date_validation_compta
+                FROM demande_paiement dp
+                INNER JOIN type_demande td
+                    ON dp.type_demande_id = td.id
+                INNER JOIN dw_max m
+                    ON m.code_type = CASE WHEN td.code_type_demande = 'DPL' THEN 'DPA' ELSE td.code_type_demande END
+                    AND m.numero = dp.numero_demande_paiement
+                INNER JOIN dw_all dw
+                    ON dw.code_type = m.code_type
+                    AND dw.numero = m.numero
+                    AND dw.id_doc = m.max_id
+                WHERE dp.numero_demande_appro = '$numeroDa'
+                ORDER BY dp.date_creation ASC;";
+
+        $resultStmt = $this->connexion->query($sql);
+        $data = [];
+
+        while ($result = odbc_fetch_array($resultStmt)) {
+            $data[] = $result;
         }
 
         return $data;
