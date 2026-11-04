@@ -174,8 +174,10 @@ class DemandePaiementRepository extends EntityRepository
     /**
      * @param bool $avecMultiCommandes inclut les DDP magasin multi-commandes (d.numeroCommande = "cde1;cde2;..."),
      *                                 retrouvées par la table demande_paiement_commande
+     * @param bool $avecRefusees       pour affichage uniquement : inclut les DDP refusées (dernière version de chaque DDP).
+     *                                 Ne pas utiliser pour un calcul de montant : une DDP refusée n'est pas payée
      */
-    public function getDdpSelonNumCde(string $numCde, bool $avecMultiCommandes = false)
+    public function getDdpSelonNumCde(string $numCde, bool $avecMultiCommandes = false, bool $avecRefusees = false)
     {
         $queryBuilder =  $this->createQueryBuilder('d');
         $queryBuilder
@@ -185,11 +187,19 @@ class DemandePaiementRepository extends EntityRepository
                     'EXISTS (SELECT c.id FROM ' . DemandePaiementCommande::class . ' c WHERE c.demandePaiement = d AND c.numeroCommande = :numero)'
                 )
                 : 'd.numeroCommande = :numero')
-            ->andWhere('d.statut NOT IN (:statut)')
             ->setParameter('numero', (string) $numCde)
-            ->setParameter('statut', StatutConstants::REFUSES_DDP)
             ->orderBy('d.numeroDdp', 'ASC');
 
+        if ($avecRefusees) {
+            $queryBuilder->andWhere('d.numeroVersion = (
+                SELECT MAX(d2.numeroVersion) FROM ' . DemandePaiement::class . ' d2
+                WHERE d2.numeroDdp = d.numeroDdp
+            )');
+        } else {
+            $queryBuilder
+                ->andWhere('d.statut NOT IN (:statut)')
+                ->setParameter('statut', StatutConstants::REFUSES_DDP);
+        }
 
         return $queryBuilder->getQuery()
             ->getResult()
