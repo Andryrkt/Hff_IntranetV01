@@ -1,4 +1,4 @@
-import { DemandePaiementManager } from "./DemandePaiementManager.js?v=20261102l";
+import { DemandePaiementManager } from "./DemandePaiementManager.js?v=20261104f";
 import { baseUrl } from "../utils/config.js";
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -30,6 +30,9 @@ document.addEventListener("DOMContentLoaded", function () {
       historiqueDdp: "#historiqueDdp",
       historiqueDdpBody: "#historiqueDdpBody",
       historiqueDdpNumCde: "#historiqueDdpNumCde",
+      historiqueDdpSubTabs: "#historiqueDdpSubTabs",
+      historiqueDdpSubTabContent: "#historiqueDdpSubTabContent",
+      historiqueDdpModele: "#historiqueDdpModele",
       submitButton: "#submitDdpButton",
       pdfIntrouvableWarning: "#pdfCommandeIntrouvableWarning",
       montantIncorrectWarning: "#montantIncorrectWarning",

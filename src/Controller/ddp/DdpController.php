@@ -85,7 +85,14 @@ class DdpController extends Controller
 
             // à l'avance : le montant total du commande vient d'IPS, jamais de la valeur postée
             if ($dto->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE) {
-                $montantTotal = $this->demandePaiementModel->getMontantTotalCommande((string) $dto->numeroFournisseur, (string) ($dto->numeroCommande[0] ?? ''));
+                $numeroProforma = trim((string) $dto->numeroFactureProforma);
+                if ($numeroProforma === '' || mb_strlen($numeroProforma) > 50) {
+                    $form->get('numeroFactureProforma')->addError(new FormError('Le n° facture proforma est obligatoire (50 caractères maximum).'));
+                    return;
+                }
+                $dto->numeroFacture = [$numeroProforma];
+
+                $montantTotal =$this->demandePaiementModel->getMontantTotalCommande((string) $dto->numeroFournisseur, (string) ($dto->numeroCommande[0] ?? ''));
                 if ($montantTotal === null || $montantTotal <= 0) {
                     $form->get('montantTotalCommande')->addError(new FormError('Le montant total de cette commande est introuvable dans IPS pour ce fournisseur.'));
                     return;
@@ -101,6 +108,12 @@ class DdpController extends Controller
 
             // après arrivage : un montant total doit être saisi pour chaque commande
             if ($dto->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE) {
+                $erreurFacture = $this->erreurFactureDejaDemandee($dto);
+                if ($erreurFacture !== null) {
+                    $form->addError(new FormError($erreurFacture));
+                    return;
+                }
+
                 // le select n° commande est disabled côté front donc non posté : commandes déduites des factures
                 $dto->numeroCommande = $this->ddpFactory->recuperationNumCommande($dto->numeroFournisseur, $dto->numeroFacture);
                 // montant réceptionné : affiché sans saisie, lu dans IPS pour les factures sélectionnées
@@ -113,6 +126,12 @@ class DdpController extends Controller
                         $form->addError(new FormError("Le montant réceptionné de la commande $numCde est introuvable dans IPS pour la/les facture(s) sélectionnée(s)."));
                         return;
                     }
+                }
+
+                $erreurDepassement = $this->erreurReceptionDepasseSolde($dto);
+                if ($erreurDepassement !== null) {
+                    $form->addError(new FormError($erreurDepassement));
+                    return;
                 }
             }
 
@@ -307,6 +326,57 @@ class DdpController extends Controller
                 'La commande %s est déjà payée à 100 %% par des demandes de paiement à l\'avance validées : une nouvelle demande de paiement à l\'avance n\'est pas possible.',
                 $numCde
             );
+        }
+
+        return null;
+    }
+
+    /**
+     * Après arrivage : bloque la soumission d'une facture qui a déjà une demande de paiement
+     * non refusée. Le front ne la propose plus (InfoFournisseurApi::numeroCommandeFournisseur).
+     *
+     * @return string|null message d'erreur, null si la soumission est autorisée
+     */
+    private function erreurFactureDejaDemandee(DdpDto $dto): ?string
+    {
+        $ddpParFacture = $this->getEntityManager()
+            ->getRepository(DemandePaiement::class)
+            ->getDdpParFactureNonRefusee((string) $dto->numeroFournisseur, $dto->codeSociete);
+
+        foreach ($dto->numeroFacture as $numFac) {
+            $numeroDdp = $ddpParFacture[trim((string) $numFac)] ?? null;
+            if ($numeroDdp !== null) {
+                return sprintf('La facture %s a déjà une demande de paiement en cours ou validée (%s).', $numFac, $numeroDdp);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Après arrivage : bloque la soumission si le montant réceptionné d'une commande payée
+     * à 100 % par les DDPA dépasse son solde avance.
+     * Miroir de la vérification front (DemandePaiementManager.js::verifierMontant).
+     *
+     * @return string|null message d'erreur, null si la soumission est autorisée
+     */
+    private function erreurReceptionDepasseSolde(DdpDto $dto): ?string
+    {
+        $repository = $this->getEntityManager()->getRepository(DemandePaiement::class);
+
+        foreach (array_unique($dto->numeroCommande) as $numCde) {
+            $numCde = (string) $numCde;
+            $situation = $repository->getSituationAvanceParCommande($numCde, $dto->codeSociete);
+            $receptionne = (float) $dto->montantCommande($numCde);
+
+            if ($situation['typeDdpAGenerer'] === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_REGULE && $receptionne - $situation['soldeAvance'] > 0.01) {
+                return sprintf(
+                    'Le montant réceptionné de la commande %s (%s) dépasse son solde avance (%s).',
+                    $numCde,
+                    number_format($receptionne, 2, ',', ' '),
+                    number_format($situation['soldeAvance'], 2, ',', ' ')
+                );
+            }
         }
 
         return null;

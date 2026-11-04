@@ -47,7 +47,7 @@ Routes principales : `new_ddp` (`/ddp/new/1`) et `da_bon_a_payer` (`/demande-app
 
 1. L'utilisateur choisit un fournisseur. Le front charge les commandes **validées dans DocuWare** (dernière version) et **non réceptionnées dans IPS**.
 2. Il choisit une seule commande. Le front affiche l'historique de ses demandes et bloque si elle est déjà soldée.
-3. Il saisit le montant proforma, voit le montant total de la commande remonté d'IPS, puis joint ses fichiers.
+3. Il saisit le n° et le montant de la facture proforma, voit le montant total de la commande remonté d'IPS, puis joint ses fichiers.
 4. Le serveur relit le montant total dans IPS et bloque s'il est introuvable (RG-AV-04), puis contrôle le blocage à 100 % et le plafond (RG-AV-03, RG-AV-06).
 5. Le serveur génère un numéro `DDP`, enregistre les données, puis génère et fusionne le PDF.
 6. La demande a le statut `DDPA à transmettre`, et l'utilisateur est redirigé vers la consultation.
@@ -89,6 +89,8 @@ Une copie DocuWare échouée ne bloque pas la transmission (P-AV-09), mais passe
 | RG-AV-08 | Pièces jointes : PDF, 5 Mo maximum, sans obligation de présence côté serveur ; PJ03 désactivée | ✔ | ✔ |
 | RG-AV-09 | RIB différent de ceux connus dans IPS (`fou_bqe`) → mention « RIB mis à jour » sur la page de garde | – | ✔ |
 | RG-AV-10 | Valeurs fixes : agence `01`, service `NEG`, société `HF` | – | ✔ |
+| RG-AV-11 | N° facture proforma obligatoire, 50 caractères maximum, enregistré dans `numero_facture` et imprimé sur la page de garde | ✔ | ✔ |
+| RG-AV-12 | Onglet « Historique », ouvert par défaut, avec le montant total de la commande dans le titre : type DDP, numéro, n° facture, date, motif, montant HT, %, % cumul, statut, puis montant HT, total déjà validé et montant restant | ✔ | – |
 
 **« Validée »** signifie toujours : statut `Validé` ou `Transmis compta`, sur la dernière version de la demande.
 
@@ -108,8 +110,8 @@ Les statuts `Refusé`, `Refusé Compta` et `Réfusé par Chef de Service` sont e
 
 | Table | Contenu pour une DDPA |
 |---|---|
-| `demande_paiement` | Une ligne. `montant_a_payer` = montant proforma, `montant_total_commande` = total IPS, `numero_commande` = la commande |
-| `demande_paiement_ligne` | Une ligne. `numero_facture` vaut `-`, `montant_facture` = montant proforma, `ratio_montant_payer` = % de la demande, `montant_total_commande` = total IPS, `montant_commande_receptionner` et `montant_commande_a_payer` vides |
+| `demande_paiement` | Une ligne. `montant_a_payer` = montant proforma, `montant_total_commande` = total IPS, `numero_commande` = la commande, `numero_facture` = n° facture proforma (vide sur les demandes plus anciennes) |
+| `demande_paiement_ligne` | Une ligne. `numero_facture` = n° facture proforma (`-` sur les demandes plus anciennes), `montant_facture` = montant proforma, `ratio_montant_payer` = % de la demande, `montant_total_commande` = total IPS, `montant_commande_receptionner` et `montant_commande_a_payer` vides |
 | `demande_paiement_commande` | Une ligne. `client = 'magasin'`, `montant_total_commande` = total IPS, `montant_commande_receptionner`, `montant_commande_a_payer` et `solde_avance` vides |
 | `document_demande_paiement` | Une ligne par fichier joint. Ne contient pas le PDF final |
 | `type_demande` | Référentiel des types |
@@ -226,3 +228,4 @@ Ces éléments utilisent en partie les mêmes tables, mais ne sont pas décrits 
 | 02/11/2026 | `2663a8df0` | Montant total de la commande remonté d'IPS ; colonne `montant_total_commande` ajoutée à `demande_paiement_ligne` et `demande_paiement_commande` | RG-AV-04 |
 | 02/11/2026 | `30f4c35c9` | **Décision :** montant total non modifiable, enregistrement bloqué s'il est introuvable dans IPS ou nul ; le % de la DDPA se calcule sur ce montant | RG-AV-04, RG-AV-05 |
 | 02/11/2026 | à commiter | Suivi étape par étape ajouté à l'enregistrement et à la transmission | section 3.3 |
+| 04/11/2026 | à commiter | N° facture proforma saisi et enregistré dans `numero_facture` ; historique déplacé dans l'onglet « Historique », avec le montant total dans le titre | RG-AV-11, RG-AV-12 |

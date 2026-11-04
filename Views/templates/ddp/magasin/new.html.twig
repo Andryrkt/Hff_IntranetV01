@@ -30,32 +30,6 @@
 						<a href="{{ path("profil_acceuil") }}" class="tablinks p-2 btn btn-outline-warning" style="text-decoration: none;color:black">Retour</a>
 					</div>
 				</div>
-				{% if id_type == 1 %}
-					{# Historique des demandes de paiement de la commande sélectionnée (rempli par DemandePaiementManager.js) #}
-					<div id="historiqueDdp" class="d-none">
-						<hr>
-						<div class="row">
-							<div class="col-12 col-md-12 bg-Light shadow-lg rounded">
-								<h6 class="fw-bold fs-6">Historique des demandes de paiement déjà effectuées pour la commande <span id="historiqueDdpNumCde"></span></h6>
-								<table class="table">
-									<thead class="table-dark align-middle">
-										<tr>
-											<th class="text-center">Numéro</th>
-											<th class="text-center">Date</th>
-											<th>Motif</th>
-											<th class="text-center">Montant HT</th>
-											<th class="text-center">%</th>
-											<th class="text-center">% Cumul</th>
-											<th class="text-center">Statut</th>
-										</tr>
-									</thead>
-									<tbody id="historiqueDdpBody"></tbody>
-								</table>
-							</div>
-						</div>
-						<hr>
-					</div>
-				{% endif %}
 				{{ form_start(form, {'attr': {'id': 'myForm'}}) }}
 				{{ form_errors(form) }}
 				<div class="row">
@@ -130,6 +104,11 @@
 					</div>
 				{% endif %}
 				<div class="row">
+					{% if form.numeroFactureProforma is defined %}
+						<div class="col-12 col-md-4">
+							{{ form_row(form.numeroFactureProforma) }}
+						</div>
+					{% endif %}
 					<div class="col-12 col-md-4">
 						{{ form_row(form.montantAPayer) }}
 						<div id="montantIncorrectWarning" class="text-danger small mt-1 d-none"></div>
@@ -219,7 +198,12 @@
 						 0 = commande fournisseur validée, 5 = OR validé, 6 = facture fournisseur validée, 7 = facture (dossier douane). -->
 					<ul class="nav nav-tabs" id="pdfTabs" role="tablist">
 						<li class="nav-item" role="presentation">
-							<button class="nav-link active" id="tab0-tab" data-bs-toggle="tab" data-bs-target="#tab0" type="button" role="tab">
+							<button class="nav-link active" id="tabHistorique-tab" data-bs-toggle="tab" data-bs-target="#tabHistorique" type="button" role="tab">
+								Historique
+							</button>
+						</li>
+						<li class="nav-item" role="presentation">
+							<button class="nav-link" id="tab0-tab" data-bs-toggle="tab" data-bs-target="#tab0" type="button" role="tab">
 								commande fournisseur validée
 							</button>
 						</li>
@@ -269,8 +253,44 @@
 						class="tab-content border border-top-0 p-3"
 						id="pdfTabContent"
 					>
+						<!-- Historique des demandes de paiement des commandes sélectionnées (rempli par DemandePaiementManager.js) -->
+						<div class="tab-pane fade show active" id="tabHistorique" role="tabpanel" aria-labelledby="tabHistorique-tab">
+							<div id="historiqueDdp" class="d-none mt-3">
+								{# Après arrivage : un sous-onglet par commande, chacun avec une copie du modèle ci-dessous #}
+								<ul class="nav nav-pills mb-2 d-none" id="historiqueDdpSubTabs" role="tablist"></ul>
+								<div class="tab-content" id="historiqueDdpSubTabContent"></div>
+								<div id="historiqueDdpModele" class="{{ id_type == 1 ? '' : 'd-none' }}">
+									<h6 class="fw-bold fs-6">Historique des demandes de paiement déjà effectuées pour la commande <span id="historiqueDdpNumCde"></span> – Montant total du commande : <span class="historique-montant-total"></span></h6>
+									<div class="table-responsive">
+										<table class="table">
+											<thead class="table-dark align-middle">
+												<tr>
+													<th>Type DDP</th>
+													<th class="text-center">Numéro</th>
+													<th class="text-center">N° facture</th>
+													<th class="text-center">Date</th>
+													<th>Motif</th>
+													{% if id_type == 1 %}
+														<th class="text-center">Montant HT</th>
+													{% else %}
+														<th class="text-center">Solde avance</th>
+														<th class="text-center">Montant réceptionné</th>
+														<th class="text-center">Montant à payer</th>
+													{% endif %}
+													<th class="text-center">%</th>
+													<th class="text-center">% Cumul</th>
+													<th class="text-center">Statut</th>
+												</tr>
+											</thead>
+											<tbody id="historiqueDdpBody"></tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+
 						<!-- Tab 0 : commande fournisseur validée -->
-						<div class="tab-pane fade show active" id="tab0" role="tabpanel" aria-labelledby="tab0-tab">
+						<div class="tab-pane fade" id="tab0" role="tabpanel" aria-labelledby="tab0-tab">
 							<div id="file-list-0" class="mt-3">
 								<ul class="nav nav-pills mb-2 d-none" id="commandeValideeSubTabs" role="tablist"></ul>
 								<div class="tab-content" id="commandeValideeSubTabContent"></div>
