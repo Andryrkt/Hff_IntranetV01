@@ -389,9 +389,8 @@ class DemandePaiementRepository extends EntityRepository
      * Situation des demandes de paiement à l'avance (DDPA) validées d'une commande :
      * - ratioDdpa : cumul des % des DDPA (0 sans DDPA) ;
      * - typeDdpAGenerer : BAP (0 % DDPA), DDPR (100 %), DDPL (entre les deux) ;
-     * - soldeAvance (DDPL uniquement, 0 sinon) : montant total du commande (dernière DDPA)
-     *   - (somme des montants facture proforma des DDPA + montant commande déjà payé
-     *   par les demandes validées de type différent de l'avance), ramené à 0 s'il est négatif.
+     * - soldeAvance (0 sans DDPA) : somme des montants facture proforma des DDPA - réceptionné
+     *   des demandes validées de type différent de l'avance, ramené à 0 s'il est négatif.
      *
      * @return array{ratioDdpa: float, typeDdpAGenerer: int, soldeAvance: float}
      */
@@ -399,7 +398,6 @@ class DemandePaiementRepository extends EntityRepository
     {
         $ratioDdpa = 0.0;
         $sommeProforma = 0.0;
-        $montantTotalCommande = 0.0;
 
         $ddpas = $this->ddpValideParCommandeQueryBuilder($numeroCde, $codeSociete, TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE)
             ->orderBy('d.numeroDdp', 'ASC')
@@ -411,14 +409,10 @@ class DemandePaiementRepository extends EntityRepository
             $ratioDdpa += $ddpa->getRatioMontantTotalCommande();
             // montant à payer d'une DDPA = montant facture proforma
             $sommeProforma += (float) $ddpa->getMontantAPayers();
-            $montantTotalCommande = (float) $ddpa->getMontantTotalCommande() ?: $montantTotalCommande;
         }
 
         if ($ratioDdpa <= 0.01) {
             return ['ratioDdpa' => $ratioDdpa, 'montantProforma' => $sommeProforma, 'typeDdpAGenerer' => TypeDemandePaiementConstants::ID_BON_A_PAYER, 'soldeAvance' => 0.0];
-        }
-        if ($ratioDdpa >= 100 - 0.01) {
-            return ['ratioDdpa' => $ratioDdpa, 'montantProforma' => $sommeProforma, 'typeDdpAGenerer' => TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_REGULE, 'soldeAvance' => 0.0];
         }
 
         $montantDejaPaye = (float) $this->getEntityManager()->createQueryBuilder()
@@ -445,9 +439,48 @@ class DemandePaiementRepository extends EntityRepository
         return [
             'ratioDdpa'       => $ratioDdpa,
             'montantProforma' => $sommeProforma,
-            'typeDdpAGenerer' => TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE,
-            'soldeAvance'     => max(0.0, $montantTotalCommande - ($sommeProforma + $montantDejaPaye)),
+            'typeDdpAGenerer' => $ratioDdpa >= 100 - 0.01 ? TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_REGULE : TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE,
+            'soldeAvance'     => round(max(0.0, $sommeProforma - $montantDejaPaye), 2),
         ];
+    }
+
+    /**
+     * Factures d'un fournisseur ayant déjà une demande de paiement non refusée (dernière
+     * version de chaque demande) : une facture ne se paie qu'une fois, et redevient
+     * disponible si sa demande est refusée.
+     *
+     * @return array<string, string> [numeroFacture => numeroDdp]
+     */
+    public function getDdpParFactureNonRefusee(string $numeroFournisseur, string $codeSociete): array
+    {
+        $demandes = $this->createQueryBuilder('d')
+            ->select('d.numeroDdp, d.numeroFacture')
+            ->where('d.numeroFournisseur = :numFrn')
+            ->andWhere('d.codeSociete = :codeSociete')
+            ->andWhere('d.statut NOT IN (:refuses)')
+            ->andWhere('d.numeroVersion = (
+                SELECT MAX(d2.numeroVersion) FROM ' . DemandePaiement::class . ' d2
+                WHERE d2.numeroDdp = d.numeroDdp
+            )')
+            ->setParameters([
+                'numFrn'      => $numeroFournisseur,
+                'codeSociete' => $codeSociete,
+                'refuses'     => StatutConstants::REFUSES_DDP,
+            ])
+            ->getQuery()
+            ->getArrayResult();
+
+        $ddpParFacture = [];
+        foreach ($demandes as $demande) {
+            // numero_facture : liste séparée par ";" (DdpDto::numeroFactureSansGuillemet)
+            foreach (explode(';', (string) $demande['numeroFacture']) as $numFac) {
+                if (trim($numFac) !== '') {
+                    $ddpParFacture[trim($numFac)] = $demande['numeroDdp'];
+                }
+            }
+        }
+
+        return $ddpParFacture;
     }
 
     /**

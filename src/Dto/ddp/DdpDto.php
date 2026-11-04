@@ -13,6 +13,7 @@ class DdpDto
     public ?string $contact = null;
     public ?string $motif = null;
     public ?string $montantAPayer = null; // * montant qu'il faut payer au fournisseur (à l'avance : montant facture proforma)
+    public ?string $numeroFactureProforma = null; // * n° facture proforma (à l'avance), enregistré comme numeroFacture
     public ?string $montantTotalCommande = null; // * montant total du commande (à l'avance)
     // numéro de la commande
     public array $numeroCommande = [];

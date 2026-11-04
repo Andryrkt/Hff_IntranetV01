@@ -112,6 +112,9 @@ export class DemandePaiementManager {
       if (this.typeId == 1 && this.config.urls.montantCommandeHt) {
         this.chargerMontantCommandeHt();
       }
+      if (this.typeId == 2 && this.config.urls.montantCommandeHt) {
+        this.chargerHistoriquesApresArrivage();
+      }
       this.afficherTableauMontantsCommande();
     });
 
@@ -879,6 +882,19 @@ export class DemandePaiementManager {
       return;
     }
 
+    // commande payée à 100 % : le montant réceptionné ne peut pas dépasser le solde avance (DdpController::erreurReceptionDepasseSolde)
+    const depassement = inputsCommande.find(
+      (input) =>
+        input.dataset.regule === "1" &&
+        parseMontant(input.value) - parseFloat(input.dataset.soldeAvance) > 0.01,
+    );
+    if (depassement) {
+      this.montantIncorrect = true;
+      this.messageMontantIncorrect = `Le montant réceptionné de la commande ${depassement.dataset.numCde} (${depassement.value}) dépasse son solde avance (${formatNumberSpecial(Number(depassement.dataset.soldeAvance).toFixed(2))}).`;
+      this.mettreAJourEtatSoumission();
+      return;
+    }
+
     const montantAttendu = inputsCommande.length
       ? inputsCommande.reduce((somme, input) => somme + (parseMontant(input.value) || 0), 0)
       : this.montantAttendu;
@@ -1027,33 +1043,21 @@ export class DemandePaiementManager {
     if (!numCde || !resultat) return;
 
     if (historiqueDdpNumCde) historiqueDdpNumCde.textContent = numCde;
+    this.afficherMontantTotalHistorique(historiqueDdp, resultat);
 
     const format = (montant) => formatNumberSpecial(Number(montant).toFixed(2));
-    const ajouterLigne = (cellules, className = "") => {
-      const tr = document.createElement("tr");
-      if (className) tr.className = className;
-      cellules.forEach(({ texte = "", classe = "", colspan = 1 }) => {
-        const td = document.createElement("td");
-        td.textContent = texte;
-        if (classe) td.className = classe;
-        if (colspan > 1) td.colSpan = colspan;
-        tr.appendChild(td);
-      });
-      historiqueDdpBody.appendChild(tr);
-    };
+    const ajouterLigne = (cellules) => this.ajouterLigneHistorique(cellules);
 
     const historique = resultat.historique || [];
     if (historique.length === 0) {
       ajouterLigne([
-        { texte: "Aucune donnée disponible", classe: "text-center", colspan: 7 },
+        { texte: "Aucune donnée disponible", classe: "text-center", colspan: 9 },
       ]);
     }
 
     historique.forEach((ddp) =>
       ajouterLigne([
-        { texte: ddp.numeroDdp, classe: "text-center" },
-        { texte: ddp.dateCreation, classe: "text-center" },
-        { texte: ddp.motif },
+        ...this.cellulesDebutHistorique(ddp),
         { texte: format(ddp.montant), classe: "text-end" },
         { texte: `${format(ddp.ratio)}%`, classe: "text-end" },
         { texte: `${format(ddp.cumul)}%`, classe: "text-end" },
@@ -1068,20 +1072,20 @@ export class DemandePaiementManager {
     const montantRestant = parseFloat(resultat.montantRestant) || 0;
 
     ajouterLigne([
-      { texte: "Montant HT de la commande", classe: "fw-bold" },
+      { texte: "Montant HT de la commande", classe: "fw-bold", colspan: 3 },
       { colspan: 2 },
       { texte: format(montantHt), classe: "text-end fw-bold" },
       { colspan: 3 },
     ]);
     ajouterLigne([
-      { texte: "Total déjà validé", classe: "fw-bold" },
+      { texte: "Total déjà validé", classe: "fw-bold", colspan: 3 },
       { colspan: 2 },
       { texte: format(montantDejaValide), classe: "text-end fw-bold" },
       { texte: `${format(ratioDejaValide)}%`, classe: "text-end fw-bold" },
       { colspan: 2 },
     ]);
     ajouterLigne([
-      { texte: "Montant restant à payer", classe: "fw-bold" },
+      { texte: "Montant restant à payer", classe: "fw-bold", colspan: 3 },
       { colspan: 2 },
       { texte: format(montantRestant), classe: "text-end text-danger fw-bold" },
       {
@@ -1090,6 +1094,122 @@ export class DemandePaiementManager {
       },
       { colspan: 2 },
     ]);
+  }
+
+  /**
+   * Premières colonnes d'une ligne d'historique, communes aux deux types de demande.
+   */
+  cellulesDebutHistorique(ddp) {
+    return [
+      { texte: ddp.typeDdp },
+      { texte: ddp.numeroDdp, classe: "text-center" },
+      { texte: ddp.numeroFacture || "-", classe: "text-center" },
+      { texte: ddp.dateCreation, classe: "text-center" },
+      { texte: ddp.motif },
+    ];
+  }
+
+  /**
+   * Montant total de la commande dans le titre de l'historique.
+   */
+  afficherMontantTotalHistorique(conteneur, resultat) {
+    conteneur.querySelector(".historique-montant-total").textContent = resultat
+      ? formatNumberSpecial(Number(resultat.montantHt).toFixed(2))
+      : "-";
+  }
+
+  ajouterLigneHistorique(cellules, tbody = this.elements.historiqueDdpBody) {
+    const tr = document.createElement("tr");
+    cellules.forEach(({ texte = "", classe = "", colspan = 1 }) => {
+      const td = document.createElement("td");
+      td.textContent = texte;
+      if (classe) td.className = classe;
+      if (colspan > 1) td.colSpan = colspan;
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  }
+
+  /**
+   * Paiement après arrivage : historique des demandes de paiement de chaque commande.
+   * Plusieurs réceptions peuvent consommer la même avance : le solde s'explique par les lignes affichées.
+   */
+  async chargerHistoriquesApresArrivage() {
+    const numCdes = this.getNumCdesSelectionnees();
+    this.afficherHistoriqueDdp(null);
+    if (!this.elements.historiqueDdp || numCdes.length === 0) return;
+
+    const resultats = await Promise.all(numCdes.map((numCde) => this.chargerHistoriqueCommande(numCde)));
+    // Ignore la réponse si la sélection a changé entre-temps
+    if (this.getNumCdesSelectionnees().join() !== numCdes.join()) return;
+
+    const { historiqueDdp, historiqueDdpSubTabs, historiqueDdpSubTabContent, historiqueDdpModele } = this.elements;
+    historiqueDdp.classList.remove("d-none");
+    historiqueDdpSubTabs.innerHTML = "";
+    historiqueDdpSubTabContent.innerHTML = "";
+    historiqueDdpSubTabs.classList.toggle("d-none", numCdes.length <= 1);
+
+    numCdes.forEach((numCde, index) => {
+      const pane = this.ajouterSousOnglet(
+        historiqueDdpSubTabs,
+        historiqueDdpSubTabContent,
+        `historique-ddp-${numCde}`,
+        `Commande ${numCde}`,
+        index === 0,
+      );
+      const copie = historiqueDdpModele.cloneNode(true);
+      copie.removeAttribute("id");
+      copie.classList.remove("d-none");
+      const titre = copie.querySelector("#historiqueDdpNumCde");
+      titre.removeAttribute("id");
+      titre.textContent = numCde;
+      this.afficherMontantTotalHistorique(copie, resultats[index]);
+      const tbody = copie.querySelector("#historiqueDdpBody");
+      tbody.removeAttribute("id");
+      pane.appendChild(copie);
+      this.afficherHistoriqueApresArrivage(numCde, resultats[index], tbody);
+    });
+  }
+
+  afficherHistoriqueApresArrivage(numCde, resultat, tbody) {
+    const format = (montant) => formatNumberSpecial(Number(montant).toFixed(2));
+    const ajouterLigne = (cellules) => this.ajouterLigneHistorique(cellules, tbody);
+
+    const historique = resultat?.historique || [];
+    if (historique.length === 0) {
+      ajouterLigne([{ texte: `Aucune donnée disponible pour la commande ${numCde}`, classe: "text-center", colspan: 11 }]);
+    }
+
+    historique.forEach((ddp) =>
+      ajouterLigne([
+        ...this.cellulesDebutHistorique(ddp),
+        { texte: ddp.soldeAvance === null ? "-" : format(ddp.soldeAvance), classe: "text-end text-nowrap" },
+        { texte: ddp.montantReceptionne === null ? "-" : format(ddp.montantReceptionne), classe: "text-end text-nowrap" },
+        { texte: format(ddp.montant), classe: "text-end text-nowrap" },
+        { texte: `${format(ddp.ratio)}%`, classe: "text-end" },
+        { texte: `${format(ddp.cumul)}%`, classe: "text-end" },
+        { texte: ddp.statut, classe: "text-center" },
+      ]),
+    );
+  }
+
+  /**
+   * Historique d'une commande, mis en cache : la sélection peut changer plusieurs fois.
+   */
+  chargerHistoriqueCommande(numCde) {
+    this.historiquesCommande ??= new Map();
+    if (!this.historiquesCommande.has(numCde)) {
+      const url = this.config.urls.montantCommandeHt.replace(":numCde", encodeURIComponent(numCde));
+      this.historiquesCommande.set(
+        numCde,
+        this.fetchManager.get(url).catch((error) => {
+          console.error("Erreur lors de la récupération de l'historique de la commande :", error);
+          this.historiquesCommande.delete(numCde);
+          return null;
+        }),
+      );
+    }
+    return this.historiquesCommande.get(numCde);
   }
 
   /**
@@ -1141,6 +1261,7 @@ export class DemandePaiementManager {
         // type 3 = commande déjà payée à 100 % par les DDPA : rien de plus à payer (DdpDto::$commandesRegule)
         input.dataset.regule = situation.typeDdpAGenerer === 3 ? "1" : "";
         this.afficherMontantCommandeAPayer(input);
+        this.verifierMontant();
       });
       this.recupererMontantTotalCommande(numCde).then((montantTotal) => {
         input.dataset.montantTotal = montantTotal ?? "";

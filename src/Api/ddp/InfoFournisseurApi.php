@@ -12,6 +12,8 @@ use App\Controller\Controller;
 use App\Controller\Traits\ddp\DdpTrait;
 use App\Entity\admin\ddp\TypeDemande;
 use App\Entity\ddp\DemandePaiement;
+use App\Entity\ddp\DemandePaiementCommande;
+use App\Entity\ddp\DemandePaiementLigne;
 use App\Entity\dw\DwCommande;
 use App\Entity\dw\DwBcClientNegoce;
 use App\Model\ddp\DemandePaiementModel;
@@ -135,6 +137,13 @@ class InfoFournisseurApi extends Controller
             $numFacs = $this->demandePaiementModel()->getFactureNonReglee($numeroFournisseur, $codeSociete);
             $numFacString = TableauEnStringService::TableauEnString(',', $numFacs);
             $listeGcot = $this->demandePaiementModel()->findListeGcot($numeroFournisseur, $numCdesString, $numFacString);
+
+            // Filtre PHP et non "NOT IN" : numero_facture vient de valeurs postées, à ne pas concaténer dans le SQL
+            $ddpParFacture = $this->demandePaiementRepository->getDdpParFactureNonRefusee($numeroFournisseur, $codeSociete);
+            $listeGcot = array_values(array_filter(
+                $listeGcot,
+                fn($facture) => !isset($ddpParFacture[trim((string) $facture['Numero_Facture'])])
+            ));
         }
 
         $data = [
@@ -294,22 +303,51 @@ class InfoFournisseurApi extends Controller
 
         /** @var DemandePaiement $ddp */
         foreach ($this->demandePaiementRepository->getDdpSelonNumCde($numCde, true) as $ddp) {
-            $montant = (float) $ddp->getMontantAPayers();
-            $ratio = $ddp->getRatioMontantTotalCommande();
+            // après arrivage : montants propres à la commande, une demande pouvant en couvrir plusieurs
+            /** @var DemandePaiementCommande|false $ligne */
+            $ligne = $ddp->getDemandePaiementCommandes()->filter(
+                fn(DemandePaiementCommande $c) => trim((string) $c->getNumeroCommande()) === trim($numCde) && $c->getMontantCommandeAPayer() !== null
+            )->first();
+
+            $montant = $ligne ? (float) $ligne->getMontantCommandeAPayer() : (float) $ddp->getMontantAPayers();
+            $ratio = $ligne
+                ? ($ligne->getMontantTotalCommande() > 0 ? $montant / $ligne->getMontantTotalCommande() * 100 : 0.0)
+                : $ddp->getRatioMontantTotalCommande();
             $cumul += $ratio;
 
             $historique[] = [
-                'numeroDdp'    => $ddp->getNumeroDdp(),
-                'dateCreation' => $ddp->getDateCreation() ? $ddp->getDateCreation()->format('d/m/Y') : '',
-                'motif'        => $ddp->getMotif(),
-                'montant'      => $montant,
-                'ratio'        => $ratio,
-                'cumul'        => $cumul,
-                'statut'       => $ddp->getStatut(),
+                'numeroDdp'          => $ddp->getNumeroDdp(),
+                'typeDdp'            => $ddp->getTypeDemandeId() ? $ddp->getTypeDemandeId()->getLibelle() : '',
+                'numeroFacture'      => $this->facturesDdpCommande($ddp, $numCde),
+                'dateCreation'       => $ddp->getDateCreation() ? $ddp->getDateCreation()->format('d/m/Y') : '',
+                'motif'              => $ddp->getMotif(),
+                'soldeAvance'       => $ligne ? $ligne->getSoldeAvance() : null,
+                'montantReceptionne' => $ligne ? $ligne->getMontantCommandeReceptionner() : null,
+                'montant'            => $montant,
+                'ratio'              => $ratio,
+                'cumul'              => $cumul,
+                'statut'             => $ddp->getStatut(),
             ];
         }
 
         return $historique;
+    }
+
+    /**
+     * Factures d'une demande pour une commande (une demande peut couvrir plusieurs commandes),
+     * ou toutes celles de la demande si ses lignes n'en indiquent pas.
+     */
+    private function facturesDdpCommande(DemandePaiement $ddp, string $numCde): string
+    {
+        $lignes = $this->getEntityManager()->getRepository(DemandePaiementLigne::class)
+            ->findBy(['numeroDdp' => $ddp->getNumeroDdp(), 'numeroCommande' => $numCde]);
+
+        $factures = array_map(fn(DemandePaiementLigne $ligne) => trim((string) $ligne->getNumeroFacture()), $lignes);
+        $factures = array_filter($factures, fn($facture) => $facture !== '' && $facture !== '-');
+
+        return $factures
+            ? implode(', ', array_unique($factures))
+            : str_replace(';', ', ', trim((string) $ddp->getNumeroFacture()));
     }
 
     private function changeStringToArray(array $input): array

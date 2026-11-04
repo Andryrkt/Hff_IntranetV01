@@ -75,6 +75,7 @@ class DdpType extends AbstractType
             )
         ;
 
+        $this->addNumeroFactureProforma($builder, $options);
         $this->addMontantTotalCommande($builder, $options);
         $this->addMontantsCommande($builder, $options);
         $this->addNumeroCommande($builder, $options);
@@ -82,6 +83,26 @@ class DdpType extends AbstractType
         $this->addFournisseur($builder);
         $this->addAgenceServiceDebiteur($builder, $options);
         $this->addFile($builder);
+    }
+
+    /**
+     * N° facture proforma : uniquement pour la demande de paiement à l'avance.
+     * Enregistré dans numero_facture, varchar(50) (DdpController::traitementDuFormulaire)
+     */
+    public function addNumeroFactureProforma(FormBuilderInterface $builder, array $options)
+    {
+        if ($options['data']->typeDdp->getId() !== TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE) {
+            return;
+        }
+
+        $builder->add(
+            'numeroFactureProforma',
+            TextType::class,
+            [
+                'label' => 'N° facture proforma *',
+                'attr' => ['maxlength' => 50],
+            ]
+        );
     }
 
     /**
