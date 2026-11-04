@@ -75,7 +75,7 @@ class DaTimelineService
             $dateCompta = $toDate($ddp['date_validation_compta']);
 
             $etapes = array_filter([
-                ['statut' => 'Transmission DDP',       'dotClass' => StatutConstants::getCssClass(StatutConstants::TRANSMIS_COMPTA),        'date' => $toDate($ddp['date_transmission_ddp'])],
+                ['statut' => 'Transmission DDP',       'dotClass' => StatutConstants::getCssClass(StatutConstants::SOUMIS_A_VALIDATION),    'date' => $toDate($ddp['date_transmission_ddp'])],
                 ['statut' => 'Validation Service EM',  'dotClass' => StatutConstants::getCssClass(StatutConstants::A_VALIDER_COMPTABILITE), 'date' => $toDate($ddp['date_validation_ser_em'])],
                 ['statut' => 'Validation Compta',      'dotClass' => StatutConstants::getCssClass(StatutConstants::VALIDE),                 'date' => $dateCompta],
             ], fn($e) => $e['date'] !== null);
