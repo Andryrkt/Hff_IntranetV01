@@ -12,7 +12,8 @@ class DemandePaiementModel extends Model
 
     public function recupInfoFournissseur()
     {
-        $statement = " SELECT 
+        // shortcut: MIN ignore les RIB NULL mais choisit arbitrairement entre deux RIB renseignés, à revoir si IPS indique un RIB principal
+        $statement = " SELECT
                     FBSE_NUMFOU AS num_fournisseur,
                     UPPER(MIN(FBSE_NOMFOU)) AS nom_fournisseur,  -- Prend un seul nom fournisseur
                     MIN(fbse_devise) AS devise,                  -- Prend une seule devise
@@ -25,8 +26,8 @@ class DemandePaiementModel extends Model
                         WHEN ffou_modp = 'VI' THEN 'VIREMENT'
                         ELSE ffou_modp
                     END) AS mode_paiement,
-                    TRIM(fbqe_bqcode) ||' '|| TRIM(fbqe_bqguich) ||' '|| TRIM(fbqe_bqcpte) ||' '|| TRIM(fbqe_bqrib) AS rib
-                FROM 
+                    MIN(TRIM(fbqe_bqcode) ||' '|| TRIM(fbqe_bqguich) ||' '|| TRIM(fbqe_bqcpte) ||' '|| TRIM(fbqe_bqrib)) AS rib
+                FROM
                     informix.FRN_BSE
                 JOIN 
                     informix.FRN_FOU ON FBSE_NUMFOU = FFOU_NUMFOU
@@ -35,7 +36,7 @@ class DemandePaiementModel extends Model
                 WHERE 
                     FFOU_SOC = 'HF'
                 GROUP BY 
-                    FBSE_NUMFOU, rib
+                    FBSE_NUMFOU
                 ORDER BY 
                     nom_fournisseur
         ";

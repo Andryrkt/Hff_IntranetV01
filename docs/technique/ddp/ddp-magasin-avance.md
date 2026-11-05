@@ -148,7 +148,7 @@ Les statuts `Refusé`, `Refusé Compta` et `Réfusé par Chef de Service` sont e
 
 | Route | Rôle |
 |---|---|
-| `GET /api/info-fournisseur-ddp` | Fournisseurs (autocomplétion) |
+| `GET /api/info-fournisseur-ddp` | Fournisseurs (autocomplétion), une ligne par fournisseur |
 | `GET /api/num-cde-frn/{fournisseur}/1` | Commandes validées et non réceptionnées, sans DDPA en cours et pas encore soldées |
 | `GET /api/montant-commande-ht/{numCde}` | Montant HT, totaux, historique, `ratioAvanceValide`, `commandeSoldee` |
 | `GET /api/montant-total-commande/{fournisseur}/{numCde}` | Montant total de la commande affiché dans le champ |
@@ -234,5 +234,6 @@ Ces éléments utilisent en partie les mêmes tables, mais ne sont pas décrits 
 | 02/11/2026 | `30f4c35c9` | **Décision :** montant total non modifiable, enregistrement bloqué s'il est introuvable dans IPS ou nul ; le % de la DDPA se calcule sur ce montant | RG-AV-04, RG-AV-05 |
 | 02/11/2026 | à commiter | Suivi étape par étape ajouté à l'enregistrement et à la transmission | section 3.3 |
 | 04/11/2026 | à commiter | N° facture proforma saisi et enregistré dans `numero_facture` ; historique déplacé dans l'onglet « Historique », avec le montant total dans le titre | RG-AV-11, RG-AV-12 |
-| 05/11/2026 | à commiter | **Décision :** une commande n'est plus proposée que si une DDPA est en cours ou si le cumul validé atteint 100 % ; l'avance en plusieurs fois reste possible. Soumission refusée côté serveur sur `new_ddp` si une DDPA est en cours ; guide utilisateur mis à jour | RG-AV-06, RG-AV-13, P-AV-01, P-AV-18, P-AV-19 |
-| 05/11/2026 | à commiter | **Décision :** nouvelle demande refusée, au front et au serveur, si elle fait dépasser 100 % au cumul des DDPA validées | RG-AV-14, P-AV-01 |
+| 05/11/2026 | `0d504bf61` | **Décision :** une commande n'est plus proposée que si une DDPA est en cours ou si le cumul validé atteint 100 % ; l'avance en plusieurs fois reste possible. Soumission refusée côté serveur sur `new_ddp` si une DDPA est en cours ; guide utilisateur mis à jour | RG-AV-06, RG-AV-13, P-AV-01, P-AV-18, P-AV-19 |
+| 05/11/2026 | `0d504bf61` | **Décision :** nouvelle demande refusée, au front et au serveur, si elle fait dépasser 100 % au cumul des DDPA validées | RG-AV-14, P-AV-01 |
+| 05/11/2026 | à commiter | Autocomplétion : une seule ligne par fournisseur, un RIB renseigné étant préféré à un RIB vide ; choix arbitraire entre deux RIB renseignés | section API |

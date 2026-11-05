@@ -172,7 +172,7 @@ Les statuts `Refusé`, `Refusé Compta` et `Réfusé par Chef de Service` sont e
 
 | Route | Rôle |
 |---|---|
-| `GET /api/info-fournisseur-ddp` | Fournisseurs (autocomplétion) |
+| `GET /api/info-fournisseur-ddp` | Fournisseurs (autocomplétion), une ligne par fournisseur |
 | `GET /api/num-cde-frn/{fournisseur}/2` | Commandes réceptionnées et liste GCOT |
 | `GET /api/situation-avance-commande/{numCde}` | Solde avance et situation de la commande pour le tableau (`typeDdpAGenerer` désigne la situation, plus le document créé) |
 | `GET /api/montant-commande-ht/{numCde}` | Montant HT et historique des demandes de la commande |
@@ -279,3 +279,4 @@ Ces éléments utilisent en partie les mêmes tables, mais ne sont pas décrits 
 | 04/11/2026 | à commiter | Facture ayant une demande non refusée retirée de la liste et refusée à l'enregistrement ; le script du guide met à jour les pages existantes | RG-AA-19, P-AA-14, P-AA-26 |
 | 04/11/2026 | à commiter | Historique : colonne n° facture ajoutée, colonnes n° commande et montant total retirées, montant total affiché dans le titre | RG-AA-17 |
 | 04/11/2026 | `c408a4860` | Page de garde : demandes refusées affichées dans le récapitulatif des demandes de paiement, dernière version de chaque demande uniquement ; guide utilisateur mis à jour le 05/11/2026 | section 7 |
+| 05/11/2026 | à commiter | Autocomplétion : une seule ligne par fournisseur, un RIB renseigné étant préféré à un RIB vide ; choix arbitraire entre deux RIB renseignés | section API |
