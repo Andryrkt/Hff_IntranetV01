@@ -1,12 +1,12 @@
 ---
 title: Demande de paiement magasin – après arrivage
 category: Demande de paiement
-description: DDPL, paiement sur factures fournisseur après réception, de la saisie à la transmission en validation.
+description: DDPL, BAP ou DDPR, paiement sur factures fournisseur après réception, de la saisie à la transmission en validation.
 ---
 
 | | |
 |---|---|
-| **Code décrit** | branche `feature/ddp-neg`, commit `30f4c35c9` (02/11/2026) |
+| **Code décrit** | branche `feature/ddp-neg`, commit `b32765e6f` (05/11/2026) |
 | **État du code** | pas encore sur `main` |
 | **Guide utilisateur** | page `ddp-magasin-apres-arrivage` de la table `documentation_utilisateur` |
 | **Fiche liée** | Demande de paiement magasin – à l'avance |
@@ -50,7 +50,7 @@ Routes principales : `new_ddp` (`/ddp/new/2`) et `da_bon_a_payer` (`/demande-app
 ### 3.1 Saisie et enregistrement
 
 1. L'utilisateur choisit un fournisseur. Le front charge ses factures GCOT liées à des commandes réceptionnées dans IPS, dont toutes les commandes sont validées dans DocuWare (RG-AA-20), sans celles qui ont déjà une demande non refusée (RG-AA-19).
-2. Il choisit une ou plusieurs factures. Les commandes correspondantes s'affichent dans un tableau, avec leur solde avance, le montant commande réceptionnée lu dans IPS (non modifiable) et le montant commande à payer calculé (RG-AA-13). Ces deux montants sont précédés de leur % du montant total de la commande (RG-AA-15). L'historique des demandes de paiement de chaque commande s'affiche dans l'onglet « Historique » (RG-AA-17).
+2. Il choisit une ou plusieurs factures. Les commandes correspondantes s'affichent dans un tableau, avec leur solde avance (en gras et en vert), le montant commande réceptionnée lu dans IPS (non modifiable), le montant commande à payer calculé (RG-AA-13) et le montant total du commande. Ces deux montants sont précédés de leur % du montant total de la commande (RG-AA-15). L'historique des demandes de paiement de chaque commande s'affiche dans l'onglet « Historique » (RG-AA-17).
 3. Il saisit le montant total réceptionné, qui doit égaler la somme des montants réceptionnés du tableau. Le champ « Montant total à payer » affiche la somme des montants à payer et reste modifiable (RG-AA-21). Les deux libellés portent leur % (RG-AA-16).
 4. Le serveur **redéduit les commandes depuis les factures**, car le select est désactivé et n'est pas posté, puis **relit dans IPS le montant réceptionné de chaque commande** (RG-AA-03).
 5. Le serveur lit le montant total de chaque commande dans IPS, calcule son solde avance et son montant à payer (RG-AA-05, RG-AA-08, RG-AA-13), puis le montant de la demande (RG-AA-07).
@@ -278,19 +278,21 @@ Ces éléments utilisent en partie les mêmes tables, mais ne sont pas décrits 
 | 02/11/2026 | `8f7a527aa` | Transmission : numéros de demande rétablis sur les cases à cocher ; une transmission vide renvoie une erreur et ne consomme plus de numéro `CLA` | section 3.2 |
 | 02/11/2026 | `2663a8df0` | Colonne `montant_total_commande` ajoutée à `demande_paiement_ligne` et `demande_paiement_commande` | section 9 |
 | 02/11/2026 | `30f4c35c9` | Montant réceptionné lu dans IPS, non modifiable, enregistrement bloqué s'il est introuvable ; % en rouge sur le formulaire et le PDF | RG-AA-03, RG-AA-15, RG-AA-16 |
-| 02/11/2026 | à commiter | Total à payer et % laissés vides quand aucun montant réceptionné n'est connu | |
-| 02/11/2026 | à commiter | Suivi étape par étape ajouté à l'enregistrement et à la transmission | section 3.3 |
+| 02/11/2026 | `0734c25a7` | Total à payer et % laissés vides quand aucun montant réceptionné n'est connu | |
+| 02/11/2026 | `0734c25a7` | Suivi étape par étape ajouté à l'enregistrement et à la transmission | section 3.3 |
 | 02/11/2026 | – | **Décision :** factures écrites différemment dans GCOT et IPS : pas de correction des données, adaptation du code reportée, enregistrement bloqué en attendant | P-AA-23 |
-| 04/11/2026 | à commiter | Solde avance = proformas DDPA − réceptionné validé, pour toute commande avec acompte ; réception supérieure au solde bloquée à 100 % ; historique des demandes de paiement affiché dans un onglet du formulaire | RG-AA-08, RG-AA-17, RG-AA-18, P-AA-21, P-AA-24, P-AA-25 |
-| 04/11/2026 | à commiter | Facture ayant une demande non refusée retirée de la liste et refusée à l'enregistrement ; le script du guide met à jour les pages existantes | RG-AA-19, P-AA-14, P-AA-26 |
-| 04/11/2026 | à commiter | Historique : colonne n° facture ajoutée, colonnes n° commande et montant total retirées, montant total affiché dans le titre | RG-AA-17 |
+| 04/11/2026 | `1aa254809` | Solde avance = proformas DDPA − réceptionné validé, pour toute commande avec acompte ; réception supérieure au solde bloquée à 100 % ; historique des demandes de paiement affiché dans un onglet du formulaire | RG-AA-08, RG-AA-17, RG-AA-18, P-AA-21, P-AA-24, P-AA-25 |
+| 04/11/2026 | `1aa254809` | Facture ayant une demande non refusée retirée de la liste et refusée à l'enregistrement ; le script du guide met à jour les pages existantes | RG-AA-19, P-AA-14, P-AA-26 |
+| 04/11/2026 | `1aa254809` | Historique : colonne n° facture ajoutée, colonnes n° commande et montant total retirées, montant total affiché dans le titre | RG-AA-17 |
 | 04/11/2026 | `c408a4860` | Page de garde : demandes refusées affichées dans le récapitulatif des demandes de paiement, dernière version de chaque demande uniquement ; guide utilisateur mis à jour le 05/11/2026 | section 7 |
-| 05/11/2026 | à commiter | Autocomplétion : une seule ligne par fournisseur, un RIB renseigné étant préféré à un RIB vide ; choix arbitraire entre deux RIB renseignés | section API |
-| 05/11/2026 | à commiter | **Décision :** facture proposée et enregistrable seulement si toutes ses commandes sont validées dans DocuWare, sauf pour le flux DA ; guide utilisateur mis à jour | RG-AA-01, RG-AA-20, P-AA-27 |
-| 05/11/2026 | à commiter | Injection SQL : apostrophes échappées dans `TableauEnString` et `findListeDoc`, numéros de fournisseur et de commande limités aux chiffres | P-AA-11 |
-| 05/11/2026 | à commiter | Tableau du formulaire : « Solde avance restant » remplacé par « Montant total du commande » (écran seulement). Colonnes renommées « Montant commande réceptionnée » et « Montant commande à payer » à l'écran et sur le PDF ; guide utilisateur mis à jour | RG-AA-14 |
+| 05/11/2026 | `5a8e14edf` | Autocomplétion : une seule ligne par fournisseur, un RIB renseigné étant préféré à un RIB vide ; choix arbitraire entre deux RIB renseignés | section API |
+| 05/11/2026 | `04e20887b` | **Décision :** facture proposée et enregistrable seulement si toutes ses commandes sont validées dans DocuWare, sauf pour le flux DA ; guide utilisateur mis à jour | RG-AA-01, RG-AA-20, P-AA-27 |
+| 05/11/2026 | `04e20887b` | Injection SQL : apostrophes échappées dans `TableauEnString` et `findListeDoc`, numéros de fournisseur et de commande limités aux chiffres | P-AA-11 |
+| 05/11/2026 | `b3598551a` | Tableau du formulaire : « Solde avance restant » remplacé par « Montant total du commande » (écran seulement). Colonnes renommées « Montant commande réceptionnée » et « Montant commande à payer » à l'écran et sur le PDF ; guide utilisateur mis à jour | RG-AA-14 |
 | 05/11/2026 | `8a6b39606` | Montant total à payer modifiable et enregistré s'il est saisi ; guide utilisateur mis à jour | RG-AA-21, P-AA-28 |
-| 05/11/2026 | à commiter | **Décision :** saisie libre du montant total à payer. Type décidé à l'enregistrement : DDPR si le montant à payer est à 0, BAP si la somme des soldes avance est à 0, sinon DDPL ; guide utilisateur mis à jour | RG-AA-06, P-AA-22, P-AA-28 |
-| 05/11/2026 | à commiter | Formulaire : onglet « Facture » renommé « Dossier de douane », onglet vide « Facture fournisseur validée » retiré | |
-| 05/11/2026 | à commiter | PDF : colonne « Facture fournisseur » en premier dans « Résumé des BC » (n° facture) et « Récapitulatif des livraisons » (référence) ; colonne % retirée du récapitulatif des demandes de paiement | section 7 |
-| 05/11/2026 | à commiter | Consultation facture : « Facture BL » devient « Facture fournisseur » côté magasin et passe après le numéro CLA (formulaire, liste, Excel) ; filtre « Type » et colonne « Motif » ajoutés ; guide utilisateur mis à jour | |
+| 05/11/2026 | `7b133f6e7` | **Décision :** saisie libre du montant total à payer. Type décidé à l'enregistrement : DDPR si le montant à payer est à 0, BAP si la somme des soldes avance est à 0, sinon DDPL ; guide utilisateur mis à jour | RG-AA-06, P-AA-22, P-AA-28 |
+| 05/11/2026 | `861389052` | Formulaire : onglet « Facture » renommé « Dossier de douane », onglet vide « Facture fournisseur validée » retiré | |
+| 05/11/2026 | `c5dc5262b` | PDF : colonne « Facture fournisseur » en premier dans « Résumé des BC » (n° facture) et « Récapitulatif des livraisons » (référence) ; colonne % retirée du récapitulatif des demandes de paiement | section 7 |
+| 05/11/2026 | `b32765e6f` | Consultation facture : « Facture BL » devient « Facture fournisseur » côté magasin et passe après le numéro CLA (formulaire, liste, Excel) ; filtre « Type » et colonne « Motif » ajoutés ; guide utilisateur mis à jour | |
+| 05/11/2026 | `5e09f90b9` | Tableau du formulaire : montant du solde avance en gras et en vert | |
+| 05/11/2026 | `b32765e6f` | Consultation des demandes de paiement : marge de 70 px au-dessus du tableau, pour ne plus couper la première ligne | |

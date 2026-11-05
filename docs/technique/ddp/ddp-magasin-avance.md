@@ -6,7 +6,7 @@ description: DDPA, acompte sur facture proforma avant l'arrivée de la marchandi
 
 | | |
 |---|---|
-| **Code décrit** | branche `feature/ddp-neg`, commit `30f4c35c9` (02/11/2026) |
+| **Code décrit** | branche `feature/ddp-neg`, commit `b32765e6f` (05/11/2026) |
 | **État du code** | pas encore sur `main` |
 | **Guide utilisateur** | page `ddp-magasin-avance` de la table `documentation_utilisateur` |
 | **Fiche liée** | Demande de paiement magasin – après arrivage |
@@ -232,10 +232,10 @@ Ces éléments utilisent en partie les mêmes tables, mais ne sont pas décrits 
 | 02/11/2026 | `8f7a527aa` | Transmission : numéros de demande rétablis sur les cases à cocher ; une transmission vide renvoie une erreur et ne consomme plus de numéro `CLA` | section 3.2 |
 | 02/11/2026 | `2663a8df0` | Montant total de la commande remonté d'IPS ; colonne `montant_total_commande` ajoutée à `demande_paiement_ligne` et `demande_paiement_commande` | RG-AV-04 |
 | 02/11/2026 | `30f4c35c9` | **Décision :** montant total non modifiable, enregistrement bloqué s'il est introuvable dans IPS ou nul ; le % de la DDPA se calcule sur ce montant | RG-AV-04, RG-AV-05 |
-| 02/11/2026 | à commiter | Suivi étape par étape ajouté à l'enregistrement et à la transmission | section 3.3 |
-| 04/11/2026 | à commiter | N° facture proforma saisi et enregistré dans `numero_facture` ; historique déplacé dans l'onglet « Historique », avec le montant total dans le titre | RG-AV-11, RG-AV-12 |
+| 02/11/2026 | `0734c25a7` | Suivi étape par étape ajouté à l'enregistrement et à la transmission | section 3.3 |
+| 04/11/2026 | `1aa254809` | N° facture proforma saisi et enregistré dans `numero_facture` ; historique déplacé dans l'onglet « Historique », avec le montant total dans le titre | RG-AV-11, RG-AV-12 |
 | 05/11/2026 | `0d504bf61` | **Décision :** une commande n'est plus proposée que si une DDPA est en cours ou si le cumul validé atteint 100 % ; l'avance en plusieurs fois reste possible. Soumission refusée côté serveur sur `new_ddp` si une DDPA est en cours ; guide utilisateur mis à jour | RG-AV-06, RG-AV-13, P-AV-01, P-AV-18, P-AV-19 |
 | 05/11/2026 | `0d504bf61` | **Décision :** nouvelle demande refusée, au front et au serveur, si elle fait dépasser 100 % au cumul des DDPA validées | RG-AV-14, P-AV-01 |
-| 05/11/2026 | à commiter | Autocomplétion : une seule ligne par fournisseur, un RIB renseigné étant préféré à un RIB vide ; choix arbitraire entre deux RIB renseignés | section API |
-| 05/11/2026 | à commiter | Formulaire : onglet « Facture » renommé « Dossier de douane », onglet vide « Facture fournisseur validée » retiré | |
-| 05/11/2026 | à commiter | Consultation facture : « Facture BL » devient « Facture fournisseur » côté magasin et passe après le numéro CLA (formulaire, liste, Excel) ; filtre « Type » et colonne « Motif » ajoutés ; guide utilisateur mis à jour | |
+| 05/11/2026 | `5a8e14edf` | Autocomplétion : une seule ligne par fournisseur, un RIB renseigné étant préféré à un RIB vide ; choix arbitraire entre deux RIB renseignés | section API |
+| 05/11/2026 | `861389052` | Formulaire : onglet « Facture » renommé « Dossier de douane », onglet vide « Facture fournisseur validée » retiré | |
+| 05/11/2026 | `b32765e6f` | Consultation facture : « Facture BL » devient « Facture fournisseur » côté magasin et passe après le numéro CLA (formulaire, liste, Excel) ; filtre « Type » et colonne « Motif » ajoutés ; guide utilisateur mis à jour | |

@@ -90,7 +90,7 @@ SELECT 'ddp-magasin-apres-arrivage', N'Demande de paiement magasin – après ar
 <tr><td>N° commande</td><td>La commande liée aux factures choisies</td><td>Non</td></tr>
 <tr><td>N° facture</td><td>La ou les factures de cette commande, une par ligne</td><td>Non</td></tr>
 <tr><td>N° dossier douane, N° LTA, N° HAWB</td><td>Les références du dossier de douane de chaque facture</td><td>Non</td></tr>
-<tr><td>Solde avance</td><td>Ce qui reste de l''avance sur la commande (voir section suivante)</td><td>Non</td></tr>
+<tr><td>Solde avance</td><td>Ce qui reste de l''avance sur la commande, en gras et en vert (voir section suivante)</td><td>Non</td></tr>
 <tr><td>Montant commande réceptionnée</td><td>Le montant réceptionné pour cette commande dans IPS, précédé de son % du montant total de la commande</td><td>Non</td></tr>
 <tr><td>Montant commande à payer</td><td>Précédé de son % du montant total de la commande. Calculé : 0 si le solde avance est supérieur à 0 et couvre le montant réceptionné ; sinon montant réceptionné − solde avance. Toujours 0 si la commande est déjà payée à 100 % par acomptes</td><td>Non</td></tr>
 <tr><td>Montant total du commande</td><td>Le montant total de la commande dans IPS. « - » s''il est introuvable</td><td>Non</td></tr>
@@ -150,6 +150,7 @@ SELECT 'ddp-magasin-apres-arrivage', N'Demande de paiement magasin – après ar
 </tbody>
 </table>
 <p><strong>Une demande à l''avance en attente de validation compte-t-elle ?</strong> Non. Seules les DDPA validées (statut Validé ou Transmis compta) entrent dans le % DDPA. Tant qu''elle n''est pas validée, son montant n''est pas déduit du montant à payer.</p>
+<p><strong>Pourquoi une facture n''apparaît-elle pas dans la liste ?</strong> Elle a déjà une demande non refusée (cherchez-la dans Consultation facture), l''une de ses commandes n''est pas validée dans DocuWare, ou elle est exclue par le filtre comptable. Elle revient dans la liste si sa demande est refusée ou quand toutes ses commandes sont validées.</p>
 ', GETDATE(), 'script separation guide'
 FROM documentation_utilisateur WHERE slug = 'ddp-magasin';
 
@@ -172,6 +173,20 @@ SET contenu = REPLACE(REPLACE(contenu,
         N'<p>Les colonnes affichent le numéro CLA, la DA, le numéro de demande, le type, le fournisseur, la commande, la livraison, la facture BL, le statut et',
         N'<p>Les colonnes affichent le numéro CLA, la facture fournisseur, la DA, le numéro de demande, le type, le motif, le fournisseur, la commande, la livraison, le statut et')
 WHERE slug = 'magasin-consultation-facture';
+
+UPDATE documentation_utilisateur
+SET contenu = REPLACE(contenu,
+        N'Tant qu''elle n''est pas validée, son montant n''est pas déduit du montant à payer.</p>',
+        N'Tant qu''elle n''est pas validée, son montant n''est pas déduit du montant à payer.</p>
+<p><strong>Pourquoi une facture n''apparaît-elle pas dans la liste ?</strong> Elle a déjà une demande non refusée (cherchez-la dans Consultation facture), l''une de ses commandes n''est pas validée dans DocuWare, ou elle est exclue par le filtre comptable. Elle revient dans la liste si sa demande est refusée ou quand toutes ses commandes sont validées.</p>')
+WHERE slug = 'ddp-magasin-apres-arrivage'
+    AND contenu NOT LIKE N'%Pourquoi une facture n''apparaît-elle pas%';
+
+UPDATE documentation_utilisateur
+SET contenu = REPLACE(contenu,
+        N'<tr><td>Solde avance</td><td>Ce qui reste de l''avance sur la commande (voir section suivante)</td><td>Non</td></tr>',
+        N'<tr><td>Solde avance</td><td>Ce qui reste de l''avance sur la commande, en gras et en vert (voir section suivante)</td><td>Non</td></tr>')
+WHERE slug = 'ddp-magasin-apres-arrivage';
 
 -- Pages déjà créées : les INSERT ci-dessus ne les modifient pas. Chaque REPLACE ne trouve plus rien une fois appliqué.
 UPDATE documentation_utilisateur
