@@ -165,6 +165,14 @@ SET contenu = REPLACE(REPLACE(contenu, N'(BAP, DDPL, DDPR', N'(DDPA, BAP, DDPL, 
     publie = 1
 WHERE slug = 'magasin-consultation-facture';
 
+UPDATE documentation_utilisateur
+SET contenu = REPLACE(REPLACE(contenu,
+        N'<p>Filtres : numéro DA, numéro de commande, numéro de livraison IPS, numéro DDP, facture BL, fournisseur, numéro CLA, et',
+        N'<p>Filtres : numéro CLA, facture fournisseur, type de demande, numéro DA, numéro de commande, numéro de livraison IPS, numéro DDP, fournisseur, et'),
+        N'<p>Les colonnes affichent le numéro CLA, la DA, le numéro de demande, le type, le fournisseur, la commande, la livraison, la facture BL, le statut et',
+        N'<p>Les colonnes affichent le numéro CLA, la facture fournisseur, la DA, le numéro de demande, le type, le motif, le fournisseur, la commande, la livraison, le statut et')
+WHERE slug = 'magasin-consultation-facture';
+
 -- Pages déjà créées : les INSERT ci-dessus ne les modifient pas. Chaque REPLACE ne trouve plus rien une fois appliqué.
 UPDATE documentation_utilisateur
 SET contenu = REPLACE(contenu, N'de cette commande s''affiche en haut : demandes déjà faites,', N'de cette commande s''affiche dans l''onglet « Historique » : demandes déjà faites,')

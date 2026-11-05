@@ -238,3 +238,4 @@ Ces éléments utilisent en partie les mêmes tables, mais ne sont pas décrits 
 | 05/11/2026 | `0d504bf61` | **Décision :** nouvelle demande refusée, au front et au serveur, si elle fait dépasser 100 % au cumul des DDPA validées | RG-AV-14, P-AV-01 |
 | 05/11/2026 | à commiter | Autocomplétion : une seule ligne par fournisseur, un RIB renseigné étant préféré à un RIB vide ; choix arbitraire entre deux RIB renseignés | section API |
 | 05/11/2026 | à commiter | Formulaire : onglet « Facture » renommé « Dossier de douane », onglet vide « Facture fournisseur validée » retiré | |
+| 05/11/2026 | à commiter | Consultation facture : « Facture BL » devient « Facture fournisseur » côté magasin et passe après le numéro CLA (formulaire, liste, Excel) ; filtre « Type » et colonne « Motif » ajoutés ; guide utilisateur mis à jour | |

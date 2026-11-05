@@ -293,3 +293,4 @@ Ces éléments utilisent en partie les mêmes tables, mais ne sont pas décrits 
 | 05/11/2026 | à commiter | **Décision :** saisie libre du montant total à payer. Type décidé à l'enregistrement : DDPR si le montant à payer est à 0, BAP si la somme des soldes avance est à 0, sinon DDPL ; guide utilisateur mis à jour | RG-AA-06, P-AA-22, P-AA-28 |
 | 05/11/2026 | à commiter | Formulaire : onglet « Facture » renommé « Dossier de douane », onglet vide « Facture fournisseur validée » retiré | |
 | 05/11/2026 | à commiter | PDF : colonne « Facture fournisseur » en premier dans « Résumé des BC » (n° facture) et « Récapitulatif des livraisons » (référence) ; colonne % retirée du récapitulatif des demandes de paiement | section 7 |
+| 05/11/2026 | à commiter | Consultation facture : « Facture BL » devient « Facture fournisseur » côté magasin et passe après le numéro CLA (formulaire, liste, Excel) ; filtre « Type » et colonne « Motif » ajoutés ; guide utilisateur mis à jour | |

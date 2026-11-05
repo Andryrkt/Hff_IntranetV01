@@ -6,6 +6,7 @@ use App\Service\ExcelService;
 use App\Controller\Controller;
 use App\Dto\Da\ddp\BapSearchDto;
 use App\Dto\ddp\DemandePaiementDto;
+use App\Entity\admin\ddp\TypeDemande;
 use App\Entity\ddp\DemandePaiement;
 use App\Form\da\ddp\BonApayerType;
 use Doctrine\ORM\EntityManagerInterface;
@@ -35,7 +36,7 @@ class BonApayerController extends Controller
         $bapSearchDto = new BapSearchDto();
 
         // Création du formulaire de recherche
-        $form = $this->getFormFactory()->createBuilder(BonApayerType::class, $bapSearchDto, ['method' => 'GET'])->getForm();
+        $form = $this->getFormFactory()->createBuilder(BonApayerType::class, $bapSearchDto, ['method' => 'GET', 'appro' => $appro])->getForm();
 
         // Traitement du formulaire de recherche
         $form->handleRequest($request);
@@ -66,6 +67,7 @@ class BonApayerController extends Controller
     {
         $requestData = $request->query->all();
         $bapSearchDto = BapSearchDto::fromArray($requestData);
+        $bapSearchDto->typeDemande = empty($requestData['typeDemande']) ? null : $this->getEntityManager()->getRepository(TypeDemande::class)->find((int) $requestData['typeDemande']);
 
         // Récupération des données dans la table demande_paiement
         $ddp = $this->demandePaiementRepository->findByConsultationFactureCriteria($bapSearchDto, $appro);
@@ -74,7 +76,7 @@ class BonApayerController extends Controller
         $dtos = DemandePaiementMapper::mapInverse($ddp, true);
 
         // Génération du tableau des données
-        $data = $this->generateTableData($dtos);
+        $data = $this->generateTableData($dtos, $appro);
 
         // Crée le fichier Excel
         (new ExcelService())->createSpreadsheet($data, "extraction_consultation_facture_" . date('Y-m-d_H-i-s'));
@@ -87,17 +89,18 @@ class BonApayerController extends Controller
      * 
      * @return array
      */
-    private function generateTableData(array $dtos): array
+    private function generateTableData(array $dtos, bool $appro): array
     {
         $data[] = [
             "Numéro CLA",
+            $appro ? "Facture BL" : "Facture fournisseur",
             "Numéro DA",
             "Numéro DDP/BAP",
             "Type DDP",
+            "Motif",
             "Fournisseur",
             "Numéro cde",
             "Numéro livraison",
-            "Facture BL",
             "Statut",
             "Transmise le",
             "Montant DDP",
@@ -106,13 +109,14 @@ class BonApayerController extends Controller
         foreach ($dtos as $dto) {
             $data[] = [
                 $dto->numeroCla ?? "-",
+                $dto->numeroFacture ?? "-",
                 $dto->numeroDemandeAppro ?? "-",
                 $dto->numeroDdp ?? "-",
                 $dto->typeDemande ? $dto->typeDemande->getLibelle() : "-",
+                $dto->motif ?? "-",
                 $dto->getFournisseur(),
                 $dto->numeroCommande ?? "-",
                 $dto->numeroLivraison ?? "-",
-                $dto->numeroFacture ?? "-",
                 $dto->statut,
                 $dto->dateSoumissionCompta ?? "-",
                 $dto->montantAPayer,
