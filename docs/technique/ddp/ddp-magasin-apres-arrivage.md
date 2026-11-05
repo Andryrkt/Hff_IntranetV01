@@ -291,3 +291,4 @@ Ces éléments utilisent en partie les mêmes tables, mais ne sont pas décrits 
 | 05/11/2026 | à commiter | Tableau du formulaire : « Solde avance restant » remplacé par « Montant total du commande » (écran seulement). Colonnes renommées « Montant commande réceptionnée » et « Montant commande à payer » à l'écran et sur le PDF ; guide utilisateur mis à jour | RG-AA-14 |
 | 05/11/2026 | `8a6b39606` | Montant total à payer modifiable et enregistré s'il est saisi ; guide utilisateur mis à jour | RG-AA-21, P-AA-28 |
 | 05/11/2026 | à commiter | **Décision :** saisie libre du montant total à payer. Type décidé à l'enregistrement : DDPR si le montant à payer est à 0, BAP si la somme des soldes avance est à 0, sinon DDPL ; guide utilisateur mis à jour | RG-AA-06, P-AA-22, P-AA-28 |
+| 05/11/2026 | à commiter | Formulaire : onglet « Facture » renommé « Dossier de douane », onglet vide « Facture fournisseur validée » retiré | |
