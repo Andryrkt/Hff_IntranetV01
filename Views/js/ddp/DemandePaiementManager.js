@@ -1254,7 +1254,7 @@ export class DemandePaiementManager {
         });
       });
       const celluleSolde = tr.insertCell();
-      celluleSolde.className = "text-end";
+      celluleSolde.className = "text-end fw-bold text-success";
       const celluleReceptionne = tr.insertCell();
       celluleReceptionne.className = "text-end";
       celluleReceptionne.appendChild(input);
