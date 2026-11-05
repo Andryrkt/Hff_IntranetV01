@@ -98,7 +98,7 @@ SELECT 'ddp-magasin-apres-arrivage', N'Demande de paiement magasin – après ar
 </table>
 
 <h2>Ce qui est créé à l''enregistrement</h2>
-<p>Une saisie crée une seule demande de paiement (DDPL) au statut « DDPL à transmettre », avec un seul numéro et une seule page de garde, quels que soient le nombre de factures et de commandes.</p>
+<p>Une saisie crée une seule demande, avec un seul numéro et une seule page de garde, quels que soient le nombre de factures et de commandes. Son type se décide automatiquement à l''enregistrement : si le montant total à payer est à 0, demande de paiement régule (DDPR) ; sinon, si la somme des soldes avance est à 0, bon à payer (BAP) ; sinon, demande de paiement après arrivage (DDPL). Son statut est alors « DDPR à transmettre », « BAP à transmettre » ou « DDPL à transmettre ».</p>
 <p>Le montant à payer se calcule commande par commande, selon les acomptes déjà validés :</p>
 <table border="1" cellpadding="4">
 <thead><tr><th>% DDPA validé de la commande</th><th>Solde avance</th><th>Montant commande à payer</th></tr></thead>
@@ -143,7 +143,7 @@ SELECT 'ddp-magasin-apres-arrivage', N'Demande de paiement magasin – après ar
 <table border="1" cellpadding="4">
 <thead><tr><th>Terme</th><th>Sens</th></tr></thead>
 <tbody>
-<tr><td>DDPL</td><td>Demande de paiement après arrivage, créée par ce formulaire</td></tr>
+<tr><td>DDPL, DDPR, BAP</td><td>Demande de paiement après arrivage, demande de paiement régule et bon à payer : types attribués par ce formulaire selon les montants</td></tr>
 <tr><td>DDPA</td><td>Demande de paiement à l''avance : acompte sur facture proforma, avant l''arrivée de la marchandise</td></tr>
 <tr><td>% DDPA</td><td>Montant facture proforma ÷ montant total du commande × 100, cumulé sur les DDPA validées</td></tr>
 <tr><td>Solde avance</td><td>Ce qui reste de l''avance sur une commande (calcul dans la section « Ce qui est créé à l''enregistrement »)</td></tr>
@@ -240,6 +240,14 @@ SET contenu = REPLACE(REPLACE(contenu,
         N'</strong> affiche la somme des montants commande à payer. Vous pouvez le modifier : le montant saisi devient le montant de la demande. Videz le champ pour revenir au calcul. Le pourcentage'),
         N'</strong> le total des montants commande à payer. Une demande',
         N'</strong> le total des montants commande à payer, ou le montant que vous avez saisi. Une demande')
+WHERE slug = 'ddp-magasin-apres-arrivage';
+
+UPDATE documentation_utilisateur
+SET contenu = REPLACE(REPLACE(contenu,
+        N'<p>Une saisie crée une seule demande de paiement (DDPL) au statut « DDPL à transmettre », avec un seul numéro et une seule page de garde, quels que soient le nombre de factures et de commandes.</p>',
+        N'<p>Une saisie crée une seule demande, avec un seul numéro et une seule page de garde, quels que soient le nombre de factures et de commandes. Son type se décide automatiquement à l''enregistrement : si le montant total à payer est à 0, demande de paiement régule (DDPR) ; sinon, si la somme des soldes avance est à 0, bon à payer (BAP) ; sinon, demande de paiement après arrivage (DDPL). Son statut est alors « DDPR à transmettre », « BAP à transmettre » ou « DDPL à transmettre ».</p>'),
+        N'<tr><td>DDPL</td><td>Demande de paiement après arrivage, créée par ce formulaire</td></tr>',
+        N'<tr><td>DDPL, DDPR, BAP</td><td>Demande de paiement après arrivage, demande de paiement régule et bon à payer : types attribués par ce formulaire selon les montants</td></tr>')
 WHERE slug = 'ddp-magasin-apres-arrivage';
 
 UPDATE documentation_utilisateur

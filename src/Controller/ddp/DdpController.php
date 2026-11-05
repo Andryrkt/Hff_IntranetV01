@@ -2,10 +2,12 @@
 
 namespace App\Controller\ddp;
 
+use App\Constants\ddp\StatutConstants;
 use App\Constants\ddp\TypeDemandePaiementConstants;
 use App\Controller\Controller;
 use App\Controller\Traits\PdfConversionTrait;
 use App\Dto\ddp\DdpDto;
+use App\Entity\admin\ddp\TypeDemande;
 use App\Entity\cde\CdefnrSoumisAValidation;
 use App\Entity\ddp\DemandePaiement;
 use App\Factory\ddp\DdpFactory;
@@ -239,12 +241,33 @@ class DdpController extends Controller
 
         $dto->montantAPayer = $this->montantAPayerApresArrivage($dto, $montantSaisi);
 
+        // après numeroEtFichiers : DdpFactory::apresSoumission() dépend encore du type 2
         $dto = $this->numeroEtFichiers($suivi, $form, $dto);
+        $this->appliquerTypeSelonMontants($dto);
         $dto->donneesPageDeGarde = $suivi->etape('Données de la page de garde', fn() => $this->donneesPageDeGarde($dto));
 
         $this->enregistrementEtPdf($suivi, $dto);
 
         $this->notificationSoumission($dto->numeroDdp);
+    }
+
+    /**
+     * Après arrivage : montant à payer à 0 → DDPR (prioritaire), somme des soldes avance à 0 → BAP, sinon DDPL.
+     * Le type décide aussi du dossier DocuWare à la transmission (GeneratePdf::copyToDWBapDa).
+     */
+    private function appliquerTypeSelonMontants(DdpDto $dto): void
+    {
+        if ($dto->montantAPayer() < 0.005) {
+            $idType = TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_REGULE;
+            $dto->statut = StatutConstants::DDPR_A_TRANSMETTRE;
+        } elseif (array_sum($dto->soldesAvance) < 0.005) {
+            $idType = TypeDemandePaiementConstants::ID_BON_A_PAYER;
+            $dto->statut = StatutConstants::BAP_A_TRANSMETTRE;
+        } else {
+            return;
+        }
+
+        $dto->typeDdp = $this->getEntityManager()->getRepository(TypeDemande::class)->find($idType);
     }
 
     /**
