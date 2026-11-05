@@ -121,9 +121,12 @@ class InfoFournisseurApi extends Controller
             $numCdes = $numCdesAvecLivraison;
         } else {
             // À l'avance (type 1) : commandes validées dans DOCUWARE qui ne sont PAS encore réceptionnées
+            // sans demande à l'avance en cours et pas encore payées à 100 % par des demandes à l'avance validées
             $numCdes = array_values(array_diff(
                 $numCdeValidesListe,
-                array_map(fn($el) => trim((string) $el), $numCdesAvecLivraison)
+                array_map(fn($el) => trim((string) $el), $numCdesAvecLivraison),
+                $this->demandePaiementRepository->getCommandesAvecDdpAvanceEnCours((string) $numeroFournisseur, $codeSociete),
+                $this->demandePaiementRepository->getCommandesAvanceSoldees((string) $numeroFournisseur, $codeSociete)
             ));
         }
 
@@ -250,6 +253,7 @@ class InfoFournisseurApi extends Controller
             'montantDejaValide' => $montantDejaValide,
             'montantRestant'    => $montantHt - $montantDejaValide,
             'ratioDejaValide'   => $ratioDejaValide,
+            'ratioAvanceValide' => $ratioAvanceValide,
             'commandeSoldee'    => $ratioAvanceValide >= 100 - 0.01,
             'historique'        => $this->historiqueDdpCommande($numCde),
         ]);

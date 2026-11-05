@@ -19,7 +19,7 @@ SELECT 'ddp-magasin-avance', N'Demande de paiement magasin – à l''avance', ru
 <ol>
 <li><strong>Fournisseur</strong> : tapez le numéro ou le nom, puis choisissez dans la liste. Le RIB et les commandes se chargent.</li>
 <li><strong>Mode de paiement, devise, motif</strong> : complétez-les.</li>
-<li><strong>N° commande</strong> : choisissez la commande. Seules les commandes validées et pas encore réceptionnées apparaissent.</li>
+<li><strong>N° commande</strong> : choisissez la commande. Seules les commandes validées et pas encore réceptionnées apparaissent, sans demande à l''avance en cours et pas encore payées à 100 %. Une commande revient dans la liste si sa demande est refusée. Une avance peut se payer en plusieurs fois : une fois la demande validée, la commande est de nouveau proposée tant qu''elle n''est pas payée à 100 %.</li>
 <li>L''<strong>historique des demandes de paiement</strong> de cette commande s''affiche dans l''onglet « Historique » : demandes déjà faites, % de chacune, cumul, total déjà validé et reste.</li>
 <li><strong>N° facture proforma *</strong> : le numéro inscrit sur la proforma (50 caractères maximum). Il est enregistré avec la demande et imprimé sur le PDF.</li>
 <li><strong>Montant facture proforma *</strong> : le montant à payer au fournisseur, tel qu''il figure sur la proforma.</li>
@@ -28,7 +28,7 @@ SELECT 'ddp-magasin-avance', N'Demande de paiement magasin – à l''avance', ru
 <li>Cliquez sur <strong>Enregistrer</strong> et confirmez.</li>
 </ol>
 <p>Le pourcentage payé de la demande vaut montant facture proforma ÷ montant total du commande × 100. Le montant facture proforma ne peut pas dépasser 20 000.</p>
-<p><strong>Blocage :</strong> si les demandes à l''avance déjà validées atteignent 100 % de la commande, l''enregistrement est refusé. La commande est soldée par acomptes ; le reste se traite par une demande après arrivage.</p>
+<p><strong>Blocage :</strong> si les demandes à l''avance déjà validées atteignent 100 % de la commande, l''enregistrement est refusé. La commande est soldée par acomptes ; le reste se traite par une demande après arrivage. L''enregistrement est aussi refusé si votre demande ferait dépasser 100 % à leur cumul : le message indique alors le montant maximum.</p>
 
 <h2>Après l''enregistrement : transmettre en validation</h2>
 <p>L''enregistrement ne lance pas la validation : la demande reste au statut « DDPA à transmettre » tant qu''elle n''est pas transmise.</p>
@@ -43,6 +43,8 @@ SELECT 'ddp-magasin-avance', N'Demande de paiement magasin – à l''avance', ru
 <thead><tr><th>Message</th><th>Cause</th><th>Que faire</th></tr></thead>
 <tbody>
 <tr><td>La commande X est déjà payée à 100 % par des demandes de paiement à l''avance validées</td><td>La commande est déjà soldée par acomptes</td><td>Ne pas faire de nouvel acompte ; utiliser le paiement après arrivage à la réception</td></tr>
+<tr><td>La commande X a déjà une demande de paiement à l''avance en cours</td><td>Une seule demande à l''avance peut être en cours par commande</td><td>Attendre sa validation ou son refus, puis refaire la demande si besoin</td></tr>
+<tr><td>Le montant facture proforma de la commande X porte le cumul des demandes de paiement à l''avance validées à Y % : il ne doit pas dépasser Z</td><td>Avec les demandes déjà validées, cette demande dépasserait 100 % de la commande</td><td>Vérifier la proforma et saisir un montant inférieur ou égal à Z</td></tr>
 <tr><td>Le montant facture proforma ne doit pas dépasser 20 000</td><td>Le plafond est dépassé</td><td>Saisir un montant inférieur ou égal au plafond</td></tr>
 <tr><td>Le montant total de cette commande est introuvable dans IPS pour ce fournisseur</td><td>La commande n''existe pas pour ce fournisseur dans IPS, ou son montant est nul. L''enregistrement est bloqué</td><td>Vérifier le fournisseur et la commande dans IPS</td></tr>
 <tr><td>Aucune demande DDP/BAP à transmettre n''a été reçue</td><td>La transmission n''a reçu aucun numéro de demande. Rien n''est transmis</td><td>Recharger la page, cocher de nouveau les demandes, puis signaler le problème s''il revient</td></tr>
@@ -58,7 +60,7 @@ SELECT 'ddp-magasin-avance', N'Demande de paiement magasin – à l''avance', ru
 <tr><td>% DDPA</td><td>Montant facture proforma ÷ montant total du commande × 100, cumulé sur les DDPA validées</td></tr>
 </tbody>
 </table>
-<p><strong>Une demande à l''avance en attente de validation compte-t-elle ?</strong> Non. Seules les DDPA validées (statut Validé ou Transmis compta) entrent dans le % DDPA. Tant qu''elle n''est pas validée, elle ne compte ni pour le blocage à 100 %, ni pour le paiement après arrivage, où son montant n''est pas déduit.</p>
+<p><strong>Une demande à l''avance en attente de validation compte-t-elle ?</strong> Seules les DDPA validées (statut Validé ou Transmis compta) entrent dans le % DDPA. Tant qu''elle n''est pas validée, elle ne compte ni pour le blocage à 100 %, ni pour le paiement après arrivage, où son montant n''est pas déduit. En revanche, elle empêche de créer une autre demande à l''avance sur la même commande.</p>
 ', GETDATE(), 'script separation guide'
 FROM documentation_utilisateur WHERE slug = 'ddp-magasin';
 
@@ -108,7 +110,7 @@ SELECT 'ddp-magasin-apres-arrivage', N'Demande de paiement magasin – après ar
 </table>
 <ul>
 <li><strong>Montant à payer de la demande :</strong> le total des montants du commande à payer. Une demande à 0 passe quand même en validation.</li>
-<li><strong>PDF :</strong> la page de garde reprend le résumé des BC, le récapitulatif des livraisons et celui des demandes de paiement déjà enregistrées, puis est fusionnée avec toutes les pièces jointes. Les pourcentages sont imprimés en rouge devant les montants : dans le résumé des BC et dans la case « Montant à payer ». Le PDF n''est déposé dans DocuWare qu''à la transmission.</li>
+<li><strong>PDF :</strong> la page de garde reprend le résumé des BC, le récapitulatif des livraisons et celui des demandes de paiement déjà enregistrées (y compris refusées, avec leur statut), puis est fusionnée avec toutes les pièces jointes. Les pourcentages sont imprimés en rouge devant les montants : dans le résumé des BC et dans la case « Montant à payer ». Le PDF n''est déposé dans DocuWare qu''à la transmission.</li>
 </ul>
 <p>Le solde avance de chaque commande se calcule ainsi :</p>
 <p><strong>Solde avance = somme des proformas des DDPA − montant déjà payé</strong>, ramené à 0 s''il est négatif. Une réception non validée ne réduit pas le solde. L''historique des demandes de paiement de chaque commande est affiché dans l''onglet « Historique ».</p>
@@ -176,6 +178,32 @@ WHERE slug = 'ddp-magasin-avance'
     AND contenu NOT LIKE N'%N° facture proforma%';
 
 UPDATE documentation_utilisateur
+SET contenu = REPLACE(REPLACE(contenu,
+        N'Seules les commandes validées et pas encore réceptionnées apparaissent.</li>',
+        N'Seules les commandes validées et pas encore réceptionnées apparaissent, sans demande à l''avance en cours et pas encore payées à 100 %. Une commande revient dans la liste si sa demande est refusée. Une avance peut se payer en plusieurs fois : une fois la demande validée, la commande est de nouveau proposée tant qu''elle n''est pas payée à 100 %.</li>'),
+        N'compte-t-elle ?</strong> Non. Seules les DDPA validées (statut Validé ou Transmis compta) entrent dans le % DDPA. Tant qu''elle n''est pas validée, elle ne compte ni pour le blocage à 100 %, ni pour le paiement après arrivage, où son montant n''est pas déduit.</p>',
+        N'compte-t-elle ?</strong> Seules les DDPA validées (statut Validé ou Transmis compta) entrent dans le % DDPA. Tant qu''elle n''est pas validée, elle ne compte ni pour le blocage à 100 %, ni pour le paiement après arrivage, où son montant n''est pas déduit. En revanche, elle empêche de créer une autre demande à l''avance sur la même commande.</p>')
+WHERE slug = 'ddp-magasin-avance';
+
+UPDATE documentation_utilisateur
+SET contenu = REPLACE(contenu,
+        N'<tr><td>Le montant facture proforma ne doit pas dépasser 20 000</td>',
+        N'<tr><td>La commande X a déjà une demande de paiement à l''avance en cours</td><td>Une seule demande à l''avance peut être en cours par commande</td><td>Attendre sa validation ou son refus, puis refaire la demande si besoin</td></tr>
+<tr><td>Le montant facture proforma ne doit pas dépasser 20 000</td>')
+WHERE slug = 'ddp-magasin-avance'
+    AND contenu NOT LIKE N'%a déjà une demande de paiement à l''avance en cours%';
+
+UPDATE documentation_utilisateur
+SET contenu = REPLACE(REPLACE(contenu,
+        N'le reste se traite par une demande après arrivage.</p>',
+        N'le reste se traite par une demande après arrivage. L''enregistrement est aussi refusé si votre demande ferait dépasser 100 % à leur cumul : le message indique alors le montant maximum.</p>'),
+        N'<tr><td>Le montant facture proforma ne doit pas dépasser 20 000</td>',
+        N'<tr><td>Le montant facture proforma de la commande X porte le cumul des demandes de paiement à l''avance validées à Y % : il ne doit pas dépasser Z</td><td>Avec les demandes déjà validées, cette demande dépasserait 100 % de la commande</td><td>Vérifier la proforma et saisir un montant inférieur ou égal à Z</td></tr>
+<tr><td>Le montant facture proforma ne doit pas dépasser 20 000</td>')
+WHERE slug = 'ddp-magasin-avance'
+    AND contenu NOT LIKE N'%porte le cumul des demandes%';
+
+UPDATE documentation_utilisateur
 SET contenu = REPLACE(REPLACE(REPLACE(REPLACE(contenu,
         N'<tr><td>100 %</td><td>0</td><td>0</td></tr>',
         N'<tr><td>100 %</td><td>Calculé</td><td>0. L''enregistrement est refusé si le montant réceptionné dépasse le solde</td></tr>'),
@@ -185,6 +213,12 @@ SET contenu = REPLACE(REPLACE(REPLACE(REPLACE(contenu,
         N'<p>Le montant déjà payé additionne'),
         N'Les commandes correspondantes sont sélectionnées automatiquement.</li>',
         N'Les commandes correspondantes sont sélectionnées automatiquement. Une facture qui a déjà une demande en cours ou validée n''est plus proposée ; elle revient dans la liste si sa demande est refusée.</li>')
+WHERE slug = 'ddp-magasin-apres-arrivage';
+
+UPDATE documentation_utilisateur
+SET contenu = REPLACE(contenu,
+        N'celui des demandes de paiement déjà enregistrées, puis est fusionnée',
+        N'celui des demandes de paiement déjà enregistrées (y compris refusées, avec leur statut), puis est fusionnée')
 WHERE slug = 'ddp-magasin-apres-arrivage';
 
 UPDATE documentation_utilisateur

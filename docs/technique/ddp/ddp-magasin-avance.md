@@ -31,6 +31,7 @@ Les DDPA validées sont ensuite déduites du montant à payer après arrivage (v
 | Initialisation du DTO, numéro, copie des fichiers | [DdpFactory](../../../src/Factory/ddp/DdpFactory.php) |
 | Formulaire et DTO | [DdpType](../../../src/Form/ddp/DdpType.php), [DdpDto](../../../src/Dto/ddp/DdpDto.php) |
 | Cumul des % validés | [DemandePaiementRepository](../../../src/Repository/ddp/DemandePaiementRepository.php) `::getCumulRatioDdpValideParCommande` |
+| Commandes à ne plus proposer | [DemandePaiementRepository](../../../src/Repository/ddp/DemandePaiementRepository.php) `::getCommandesAvecDdpAvanceEnCours`, `::getCommandesAvanceSoldees` |
 | Persistance | [Service/ddp/Magasin](../../../src/Service/ddp/Magasin/), [Mapper/ddp/Magasin](../../../src/Mapper/ddp/Magasin/), `DemandePaiementCommandeMapper` |
 | Requêtes IPS | [DdpModel](../../../src/Model/ddp/DdpModel.php), [DemandePaiementModel](../../../src/Model/ddp/DemandePaiementModel.php) |
 | Page de garde | [GeneratePdfDdp](../../../src/Service/genererPdf/GeneratePdfDdp.php) |
@@ -45,10 +46,10 @@ Routes principales : `new_ddp` (`/ddp/new/1`) et `da_bon_a_payer` (`/demande-app
 
 ### 3.1 Saisie et enregistrement
 
-1. L'utilisateur choisit un fournisseur. Le front charge les commandes **validées dans DocuWare** (dernière version) et **non réceptionnées dans IPS**.
+1. L'utilisateur choisit un fournisseur. Le front charge les commandes **validées dans DocuWare** (dernière version) et **non réceptionnées dans IPS**, sans celles qui ont une DDPA en cours (RG-AV-13) ou qui sont déjà soldées (RG-AV-06).
 2. Il choisit une seule commande. Le front affiche l'historique de ses demandes et bloque si elle est déjà soldée.
 3. Il saisit le n° et le montant de la facture proforma, voit le montant total de la commande remonté d'IPS, puis joint ses fichiers.
-4. Le serveur relit le montant total dans IPS et bloque s'il est introuvable (RG-AV-04), puis contrôle le blocage à 100 % et le plafond (RG-AV-03, RG-AV-06).
+4. Le serveur relit le montant total dans IPS et bloque s'il est introuvable (RG-AV-04), puis contrôle le blocage à 100 %, le dépassement du cumul, l'absence de DDPA en cours et le plafond (RG-AV-06, RG-AV-14, RG-AV-13, RG-AV-03).
 5. Le serveur génère un numéro `DDP`, enregistre les données, puis génère et fusionne le PDF.
 6. La demande a le statut `DDPA à transmettre`, et l'utilisateur est redirigé vers la consultation.
 
@@ -84,13 +85,15 @@ Une copie DocuWare échouée ne bloque pas la transmission (P-AV-09), mais passe
 | RG-AV-03 | Montant proforma ≤ 20 000, quelle que soit la devise | ✔ | ✔ |
 | RG-AV-04 | Montant total de la commande non modifiable, lu dans IPS (`frn_cde.fcde_mtn`, fournisseur + commande) ; introuvable ou nul → enregistrement bloqué. Le serveur relit IPS et ignore la valeur postée | ✔ | ✔ |
 | RG-AV-05 | % d'une DDPA = montant proforma ÷ montant total de la commande × 100 ; 0 si le total est absent | – | ✔ |
-| RG-AV-06 | Demande refusée si le cumul des % des DDPA validées ≥ 99,99 | ✔ | ✔ |
+| RG-AV-06 | Demande refusée si le cumul des % des DDPA validées ≥ 99,99, et commande plus proposée. En dessous, la commande reste proposée : une avance peut se payer en plusieurs fois, sans dépasser RG-AV-14 | ✔ | ✔ |
 | RG-AV-07 | PDF de commande DocuWare introuvable → bouton Enregistrer désactivé | ✔ | ✘ |
 | RG-AV-08 | Pièces jointes : PDF, 5 Mo maximum, sans obligation de présence côté serveur ; PJ03 désactivée | ✔ | ✔ |
 | RG-AV-09 | RIB différent de ceux connus dans IPS (`fou_bqe`) → mention « RIB mis à jour » sur la page de garde | – | ✔ |
 | RG-AV-10 | Valeurs fixes : agence `01`, service `NEG`, société `HF` | – | ✔ |
 | RG-AV-11 | N° facture proforma obligatoire, 50 caractères maximum, enregistré dans `numero_facture` et imprimé sur la page de garde | ✔ | ✔ |
 | RG-AV-12 | Onglet « Historique », ouvert par défaut, avec le montant total de la commande dans le titre : type DDP, numéro, n° facture, date, motif, montant HT, %, % cumul, statut, puis montant HT, total déjà validé et montant restant | ✔ | – |
+| RG-AV-13 | Une seule DDPA en cours par commande : une commande ayant une DDPA ni validée ni refusée (dernière version, même fournisseur et société) n'est plus proposée, et son enregistrement est refusé. Elle redevient disponible si cette demande est refusée ou validée, sauf si le cumul atteint alors RG-AV-06 | ✔ | ✔ |
+| RG-AV-14 | Demande refusée si le cumul des % des DDPA validées + le % de la nouvelle demande dépasse 100,01. Le message indique le montant maximum. Les DDPA en cours ne comptent pas : RG-AV-13 n'en autorise aucune sur la commande à ce moment | ✔ | ✔ |
 
 **« Validée »** signifie toujours : statut `Validé` ou `Transmis compta`, sur la dernière version de la demande.
 
@@ -146,8 +149,8 @@ Les statuts `Refusé`, `Refusé Compta` et `Réfusé par Chef de Service` sont e
 | Route | Rôle |
 |---|---|
 | `GET /api/info-fournisseur-ddp` | Fournisseurs (autocomplétion) |
-| `GET /api/num-cde-frn/{fournisseur}/1` | Commandes validées et non réceptionnées |
-| `GET /api/montant-commande-ht/{numCde}` | Montant HT, totaux, historique, `commandeSoldee` |
+| `GET /api/num-cde-frn/{fournisseur}/1` | Commandes validées et non réceptionnées, sans DDPA en cours et pas encore soldées |
+| `GET /api/montant-commande-ht/{numCde}` | Montant HT, totaux, historique, `ratioAvanceValide`, `commandeSoldee` |
 | `GET /api/montant-total-commande/{fournisseur}/{numCde}` | Montant total de la commande affiché dans le champ |
 | `GET /api/fichiers-commande-fournisseur/{cdes}`, `/api/fichiers-or-valide/{cdes}`, `/api/fichiers-bc-client/{cdes}`, `/api/telecharger-fichier-commande-dw` | Aperçu des PDF DocuWare |
 | `POST /api/transmettre-bap-compta` | Transmission en validation (écran de consultation) |
@@ -180,12 +183,14 @@ Constats issus de la lecture du code ; aucun n'a été reproduit en exécution. 
 
 | Réf. | Constat | Conséquence concrète | Décision |
 |---|---|---|---|
-| P-AV-01 | Le blocage (RG-AV-06) ne compte que les DDPA **validées** | Deux DDPA en cours sur une même commande peuvent dépasser 100 % | |
+| P-AV-01 | Le blocage (RG-AV-06) ne regardait que le cumul déjà validé, sans y ajouter le montant de la nouvelle demande, et deux DDPA en cours étaient possibles | 88 % validés puis une nouvelle DDPA de 20 % : le cumul atteignait 108 % sans aucun blocage | Une seule DDPA en cours par commande (RG-AV-13) ; nouvelle demande refusée si elle fait dépasser 100 % (RG-AV-14) |
 | P-AV-02 | Le serveur accepte la commande postée (`choices` = valeurs soumises) ; RG-AV-01 et RG-AV-07 ne sont appliquées que côté front | Une requête forgée peut créer une DDPA sur une commande non validée ou sans PDF | |
 | P-AV-03 | Le DTO garde la société `HF` à la soumission, alors que l'API utilise la société de l'utilisateur | Pour un utilisateur d'une autre société, le blocage affiché et le blocage serveur peuvent différer | |
 | P-AV-04 | `getSommeMontantDdpValideParCommande` et `getCumulRatioDdpValideParCommande` comparent `numero_commande = :num`, alors que ce champ peut contenir `cde1;cde2` en après arrivage | Dans l'historique du formulaire, « Total déjà validé » est sous-estimé si la commande figure dans une demande après arrivage multi-commandes | |
 | P-AV-05 | Le plafond de 20 000 ne tient pas compte de la devise | Le même seuil chiffré s'applique à toutes les devises | |
 | P-AV-06 | Le % de l'historique se base sur le total enregistré à la création de chaque DDPA. Les demandes antérieures à RG-AV-04 gardent leur total saisi, sans contrôle | Sur ces anciennes demandes, un total erroné fausse encore le % puis le classement après arrivage | |
+| P-AV-18 | RG-AV-13 n'est contrôlée au serveur que sur `new_ddp`. Le flux DA (`demande_paiement_da`) n'est volontairement pas bloqué, car « Confirmation Demande paiement » y confirme une DDPA déjà en cours. `new_demande_paiement` n'a pas ce contrôle, n'a pas de lien dans le menu, mais reste accessible par son URL. Aucune contrainte en base | Une DDPA peut encore être créée par ces écrans, ou par deux soumissions simultanées, sur une commande ayant déjà une DDPA en cours | Blocage sur `new_ddp` uniquement |
+| P-AV-19 | Une DDPA validée sans montant total (ancienne demande) compte pour 0 % (RG-AV-05), et une DDPA validée multi-commandes n'entre pas dans le cumul | Une commande réellement payée à 100 % peut rester proposée | |
 
 ### Robustesse
 
@@ -229,3 +234,5 @@ Ces éléments utilisent en partie les mêmes tables, mais ne sont pas décrits 
 | 02/11/2026 | `30f4c35c9` | **Décision :** montant total non modifiable, enregistrement bloqué s'il est introuvable dans IPS ou nul ; le % de la DDPA se calcule sur ce montant | RG-AV-04, RG-AV-05 |
 | 02/11/2026 | à commiter | Suivi étape par étape ajouté à l'enregistrement et à la transmission | section 3.3 |
 | 04/11/2026 | à commiter | N° facture proforma saisi et enregistré dans `numero_facture` ; historique déplacé dans l'onglet « Historique », avec le montant total dans le titre | RG-AV-11, RG-AV-12 |
+| 05/11/2026 | à commiter | **Décision :** une commande n'est plus proposée que si une DDPA est en cours ou si le cumul validé atteint 100 % ; l'avance en plusieurs fois reste possible. Soumission refusée côté serveur sur `new_ddp` si une DDPA est en cours ; guide utilisateur mis à jour | RG-AV-06, RG-AV-13, P-AV-01, P-AV-18, P-AV-19 |
+| 05/11/2026 | à commiter | **Décision :** nouvelle demande refusée, au front et au serveur, si elle fait dépasser 100 % au cumul des DDPA validées | RG-AV-14, P-AV-01 |

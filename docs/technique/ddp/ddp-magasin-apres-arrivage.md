@@ -125,7 +125,7 @@ Six montants coexistent et peuvent différer :
 | `Soumis à validation` | Transmission (`DdpApiController::transmettreBap`) |
 | `Validé`, `Transmis compta`, `Refusé`, `Refusé Compta`, `Réfusé par Chef de Service`, `A valider comptabilité`, `BAP à valider par Dir Admin` | Une **moulinette** externe pour le passage à `Validé` ou refusé. Aucun code de `src/` n'écrit ces statuts, ils y sont seulement lus |
 
-Les statuts `Refusé`, `Refusé Compta` et `Réfusé par Chef de Service` sont exclus de l'historique d'une commande (`getDdpSelonNumCde`).
+Les statuts `Refusé`, `Refusé Compta` et `Réfusé par Chef de Service` sont exclus de l'historique d'une commande (`getDdpSelonNumCde`), sauf sur la page de garde (section 7).
 
 ## 6. Données
 
@@ -155,7 +155,7 @@ Les statuts `Refusé`, `Refusé Compta` et `Réfusé par Chef de Service` sont e
 
 **Dossier de travail** : `{BASE_PATH_FICHIER}/ddp/{numéro}/`.
 
-**Page de garde** : page DDP, avec le montant à payer précédé de son % (RG-AA-16), suivie des tableaux « Résumé des BC » (montants précédés de leur %, RG-AA-15), « Récapitulatif des livraisons » (une ligne par livraison, montants des commandes additionnés) et « Récapitulatif des demandes de paiement déjà enregistrées » (`DdpController::donneesPageDeGarde`, lu avant l'enregistrement de la nouvelle demande).
+**Page de garde** : page DDP, avec le montant à payer précédé de son % (RG-AA-16), suivie des tableaux « Résumé des BC » (montants précédés de leur %, RG-AA-15), « Récapitulatif des livraisons » (une ligne par livraison, montants des commandes additionnés) et « Récapitulatif des demandes de paiement déjà enregistrées » (`DdpController::donneesPageDeGarde`, lu avant l'enregistrement de la nouvelle demande). Ce dernier tableau affiche la dernière version de chaque demande, y compris les refusées (`getDdpSelonNumCde` avec `$avecRefusees`, réservé à l'affichage car une demande refusée n'est pas payée).
 
 **PDF final** : `{numéro}.pdf`, composé dans cet ordre de la page de garde, des fichiers du dossier de douane, des fichiers téléversés et des PDF de commande DocuWare. Un fichier absent est ignoré et tracé dans `error_log`.
 
@@ -278,3 +278,4 @@ Ces éléments utilisent en partie les mêmes tables, mais ne sont pas décrits 
 | 04/11/2026 | à commiter | Solde avance = proformas DDPA − réceptionné validé, pour toute commande avec acompte ; réception supérieure au solde bloquée à 100 % ; historique des demandes de paiement affiché dans un onglet du formulaire | RG-AA-08, RG-AA-17, RG-AA-18, P-AA-21, P-AA-24, P-AA-25 |
 | 04/11/2026 | à commiter | Facture ayant une demande non refusée retirée de la liste et refusée à l'enregistrement ; le script du guide met à jour les pages existantes | RG-AA-19, P-AA-14, P-AA-26 |
 | 04/11/2026 | à commiter | Historique : colonne n° facture ajoutée, colonnes n° commande et montant total retirées, montant total affiché dans le titre | RG-AA-17 |
+| 04/11/2026 | `c408a4860` | Page de garde : demandes refusées affichées dans le récapitulatif des demandes de paiement, dernière version de chaque demande uniquement ; guide utilisateur mis à jour le 05/11/2026 | section 7 |

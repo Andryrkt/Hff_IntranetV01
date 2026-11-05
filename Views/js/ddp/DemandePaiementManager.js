@@ -917,13 +917,17 @@ export class DemandePaiementManager {
 
   /**
    * Paiement à l'avance : bloque la soumission si le montant dépasse le plafond
-   * (data-plafond, formulaire magasin uniquement), si la commande est déjà payée à 100 %
+   * (data-plafond, formulaire magasin uniquement), si la commande est déjà payée à 100 %,
+   * si cette demande ferait dépasser 100 % au cumul des demandes validées
    * ou si son montant total n'est pas remonté d'IPS (formulaire magasin uniquement).
    */
   verifierMontantAvance() {
     this.montantIncorrect = false;
     this.messageMontantIncorrect = "";
 
+    const ratioAvanceValide = this.ratioAvanceValide || 0;
+    const montantTotal = parseMontant(this.elements.montantTotalCommandeInput?.value || "");
+    const cumul = ratioAvanceValide + (parseMontant(this.elements.montantInput.value) / montantTotal) * 100;
     const plafond = parseFloat(this.elements.montantInput.dataset.plafond);
     if (
       !isNaN(plafond) &&
@@ -935,6 +939,10 @@ export class DemandePaiementManager {
       // Commande déjà payée à 100 % par des demandes de paiement à l'avance validées
       this.montantIncorrect = true;
       this.messageMontantIncorrect = `La commande ${this.getNumCdesSelectionnees()[0]} est déjà payée à 100 % par des demandes de paiement à l'avance validées : une nouvelle demande de paiement à l'avance n'est pas possible.`;
+    } else if (montantTotal > 0 && cumul > 100 + 0.01) {
+      const montantMaximum = ((100 - ratioAvanceValide) * montantTotal) / 100;
+      this.montantIncorrect = true;
+      this.messageMontantIncorrect = `Le montant facture proforma de la commande ${this.getNumCdesSelectionnees()[0]} porte le cumul des demandes de paiement à l'avance validées à ${formatNumberSpecial(cumul.toFixed(2))} % : il ne doit pas dépasser ${formatNumberSpecial(montantMaximum.toFixed(2))}.`;
     } else if (
       this.elements.montantTotalCommandeInput?.value === "" &&
       this.getNumCdesSelectionnees().length > 0
@@ -953,6 +961,7 @@ export class DemandePaiementManager {
   async chargerMontantCommandeHt() {
     const numCde = this.getNumCdesSelectionnees()[0];
     this.commandeSoldee = false;
+    this.ratioAvanceValide = 0;
     this.afficherHistoriqueDdp(null);
     this.chargerMontantTotalCommande(numCde);
 
@@ -967,6 +976,7 @@ export class DemandePaiementManager {
       // Ignore la réponse si la sélection a changé entre-temps
       if (this.getNumCdesSelectionnees()[0] !== numCde) return;
       this.commandeSoldee = resultat.commandeSoldee === true;
+      this.ratioAvanceValide = Number(resultat.ratioAvanceValide) || 0;
       this.afficherHistoriqueDdp(numCde, resultat);
     } catch (error) {
       console.error(

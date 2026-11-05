@@ -494,6 +494,82 @@ class DemandePaiementRepository extends EntityRepository
     }
 
     /**
+     * Demandes de paiement à l'avance (dernière version) d'un fournisseur
+     */
+    private function ddpAvanceParFournisseurQueryBuilder(string $numeroFournisseur, string $codeSociete)
+    {
+        return $this->createQueryBuilder('d')
+            ->where('d.numeroFournisseur = :numFrn')
+            ->andWhere('d.codeSociete = :codeSociete')
+            ->andWhere('IDENTITY(d.typeDemandeId) = :typeDemandeId')
+            ->andWhere('d.numeroVersion = (
+                SELECT MAX(d2.numeroVersion) FROM ' . DemandePaiement::class . ' d2
+                WHERE d2.numeroDdp = d.numeroDdp
+            )')
+            ->setParameters([
+                'numFrn'        => $numeroFournisseur,
+                'codeSociete'   => $codeSociete,
+                'typeDemandeId' => TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE,
+            ]);
+    }
+
+    /**
+     * Commandes d'un fournisseur déjà payées à 100 % par des demandes de paiement à l'avance
+     * validées (même règle que getCumulRatioDdpValideParCommande, en une seule requête).
+     *
+     * @return string[]
+     */
+    public function getCommandesAvanceSoldees(string $numeroFournisseur, string $codeSociete): array
+    {
+        $ddps = $this->ddpAvanceParFournisseurQueryBuilder($numeroFournisseur, $codeSociete)
+            ->andWhere('d.statut IN (:statutsValides)')
+            ->setParameter('statutsValides', StatutConstants::VALIDES_DDP)
+            ->getQuery()
+            ->getResult();
+
+        $cumulParCommande = [];
+        /** @var DemandePaiement $ddp */
+        foreach ($ddps as $ddp) {
+            $numCde = trim((string) $ddp->getNumeroCommande());
+            // multi-commandes : ratio non réparti par commande, ignoré comme dans getCumulRatioDdpValideParCommande
+            if (strpos($numCde, ';') !== false) {
+                continue;
+            }
+            $cumulParCommande[$numCde] = ($cumulParCommande[$numCde] ?? 0.0) + $ddp->getRatioMontantTotalCommande();
+        }
+
+        return array_map('strval', array_keys(array_filter($cumulParCommande, fn($cumul) => $cumul >= 100 - 0.01)));
+    }
+
+    /**
+     * Commandes d'un fournisseur ayant une demande de paiement à l'avance en cours, ni validée
+     * ni refusée (dernière version de chaque demande).
+     *
+     * @return string[]
+     */
+    public function getCommandesAvecDdpAvanceEnCours(string $numeroFournisseur, string $codeSociete): array
+    {
+        $demandes = $this->ddpAvanceParFournisseurQueryBuilder($numeroFournisseur, $codeSociete)
+            ->select('d.numeroCommande')
+            ->andWhere('d.statut NOT IN (:statutsTermines)')
+            ->setParameter('statutsTermines', array_merge(StatutConstants::REFUSES_DDP, StatutConstants::VALIDES_DDP))
+            ->getQuery()
+            ->getArrayResult();
+
+        $commandes = [];
+        foreach ($demandes as $demande) {
+            // numero_commande : liste séparée par ";" (DdpDto::numeroCommandeSansGuillemet)
+            foreach (explode(';', (string) $demande['numeroCommande']) as $numCde) {
+                if (trim($numCde) !== '') {
+                    $commandes[] = trim($numCde);
+                }
+            }
+        }
+
+        return array_values(array_unique($commandes));
+    }
+
+    /**
      * Demandes de paiement validées (dernière version) d'une commande
      */
     private function ddpValideParCommandeQueryBuilder(string $numeroCde, string $codeSociete, ?int $typeDemandeId)
