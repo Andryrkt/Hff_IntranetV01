@@ -205,7 +205,7 @@ Constats issus de la lecture du code ; aucun n'a été reproduit en exécution. 
 
 | Réf. | Constat | Conséquence concrète | Décision |
 |---|---|---|---|
-| P-AV-11 | `numeroFournisseur` (champ texte et paramètre d'URL) est concaténé dans le SQL IPS (`DdpModel`, `DemandePaiementModel`) | Injection SQL possible | |
+| P-AV-11 | `numeroFournisseur` (champ texte et paramètre d'URL) est concaténé dans le SQL IPS (`DdpModel`, `DemandePaiementModel`) | Injection SQL possible | Corrigé le 05/11/2026 : fournisseur et commande limités aux chiffres (détail dans P-AA-11 de la fiche après arrivage) |
 | P-AV-12 | Les routes API ne vérifient que la connexion, y compris `transmettre-bap-compta` | Tout utilisateur connecté peut transmettre une demande (préfixe `api_` dans `SecurityService`) | |
 | P-AV-13 | `InfoFournisseurApi` active `display_errors` | Détails techniques affichés dans les réponses en cas d'erreur | |
 

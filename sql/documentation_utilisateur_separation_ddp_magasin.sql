@@ -77,7 +77,7 @@ SELECT 'ddp-magasin-apres-arrivage', N'Demande de paiement magasin – après ar
 <p>Menu <strong>Compta › Demande de paiement › Nouvelle demande de paiement après arrivage</strong>.</p>
 <ol>
 <li><strong>Fournisseur, mode de paiement, devise, motif</strong> : tapez le numéro ou le nom du fournisseur, choisissez-le dans la liste, puis complétez les autres champs.</li>
-<li><strong>N° facture fournisseur</strong> : choisissez une ou plusieurs factures. Les commandes correspondantes sont sélectionnées automatiquement. Une facture qui a déjà une demande en cours ou validée n''est plus proposée ; elle revient dans la liste si sa demande est refusée.</li>
+<li><strong>N° facture fournisseur</strong> : choisissez une ou plusieurs factures. Seules sont proposées les factures liées à une commande réceptionnée et dont toutes les commandes sont validées dans DocuWare. Les commandes correspondantes sont sélectionnées automatiquement. Une facture qui a déjà une demande en cours ou validée n''est plus proposée ; elle revient dans la liste si sa demande est refusée.</li>
 <li>Le <strong>tableau des commandes</strong> apparaît, une ligne par commande (colonnes ci-dessous).</li>
 <li>Dans chaque ligne, vérifiez le <strong>montant du commande réceptionné</strong> : il vient d''IPS et n''est pas modifiable. Le pourcentage en rouge, devant le montant, est sa part du montant total de la commande. Si IPS ne trouve aucun montant pour une commande, « - » s''affiche et l''enregistrement est bloqué.</li>
 <li><strong>Montant total réceptionné *</strong> : il doit être égal à la somme des montants du commande réceptionnés du tableau. Le <strong>montant total à payer</strong>, non modifiable, affiche la somme des montants du commande à payer. Le pourcentage en rouge à côté de ces deux libellés est leur part du montant total des commandes.</li>
@@ -132,6 +132,7 @@ SELECT 'ddp-magasin-apres-arrivage', N'Demande de paiement magasin – après ar
 <tr><td>Le montant saisi ne correspond pas au montant calculé pour la/les commande(s)/facture(s) sélectionnée(s)</td><td>Le montant total réceptionné diffère de la somme des montants du commande réceptionnés</td><td>Saisir exactement la somme du tableau</td></tr>
 <tr><td>La facture X a déjà une demande de paiement en cours ou validée (DDP…)</td><td>Une facture ne se paie qu''une fois. Cette demande n''est pas refusée</td><td>Retirer la facture. Si la demande citée est refusée, la facture peut être soumise de nouveau</td></tr>
 <tr><td>Le montant réceptionné de la commande X dépasse son solde avance</td><td>La commande est payée à 100 % par acomptes et cette réception dépasse ce qui reste de l''avance</td><td>Vérifier la réception et les demandes déjà validées dans l''onglet « Historique »</td></tr>
+<tr><td>La facture X est liée à la commande Y, qui n''est pas validée dans DocuWare</td><td>Toutes les commandes d''une facture doivent être validées</td><td>Attendre la validation de la commande Y, puis refaire la demande</td></tr>
 <tr><td>Bouton Enregistrer grisé et message rouge sous la commande</td><td>Le PDF de la commande fournisseur validée est introuvable</td><td>Vérifier que la commande est bien validée et déposée dans DocuWare</td></tr>
 <tr><td>Aucune demande DDP/BAP à transmettre n''a été reçue</td><td>La transmission n''a reçu aucun numéro de demande. Rien n''est transmis</td><td>Recharger la page, cocher de nouveau les demandes, puis signaler le problème s''il revient</td></tr>
 </tbody>
@@ -214,6 +215,20 @@ SET contenu = REPLACE(REPLACE(REPLACE(REPLACE(contenu,
         N'Les commandes correspondantes sont sélectionnées automatiquement.</li>',
         N'Les commandes correspondantes sont sélectionnées automatiquement. Une facture qui a déjà une demande en cours ou validée n''est plus proposée ; elle revient dans la liste si sa demande est refusée.</li>')
 WHERE slug = 'ddp-magasin-apres-arrivage';
+
+UPDATE documentation_utilisateur
+SET contenu = REPLACE(contenu,
+        N'choisissez une ou plusieurs factures. Les commandes correspondantes',
+        N'choisissez une ou plusieurs factures. Seules sont proposées les factures liées à une commande réceptionnée et dont toutes les commandes sont validées dans DocuWare. Les commandes correspondantes')
+WHERE slug = 'ddp-magasin-apres-arrivage';
+
+UPDATE documentation_utilisateur
+SET contenu = REPLACE(contenu,
+        N'<tr><td>Bouton Enregistrer grisé et message rouge sous la commande</td>',
+        N'<tr><td>La facture X est liée à la commande Y, qui n''est pas validée dans DocuWare</td><td>Toutes les commandes d''une facture doivent être validées</td><td>Attendre la validation de la commande Y, puis refaire la demande</td></tr>
+<tr><td>Bouton Enregistrer grisé et message rouge sous la commande</td>')
+WHERE slug = 'ddp-magasin-apres-arrivage'
+    AND contenu NOT LIKE N'%qui n''est pas validée dans DocuWare%';
 
 UPDATE documentation_utilisateur
 SET contenu = REPLACE(contenu,

@@ -47,7 +47,7 @@ Routes principales : `new_ddp` (`/ddp/new/2`) et `da_bon_a_payer` (`/demande-app
 
 ### 3.1 Saisie et enregistrement
 
-1. L'utilisateur choisit un fournisseur. Le front charge ses factures GCOT liées à des commandes réceptionnées dans IPS, sans celles qui ont déjà une demande non refusée (RG-AA-19).
+1. L'utilisateur choisit un fournisseur. Le front charge ses factures GCOT liées à des commandes réceptionnées dans IPS, dont toutes les commandes sont validées dans DocuWare (RG-AA-20), sans celles qui ont déjà une demande non refusée (RG-AA-19).
 2. Il choisit une ou plusieurs factures. Les commandes correspondantes s'affichent dans un tableau, avec leur solde avance, le montant du commande réceptionné lu dans IPS (non modifiable) et le montant du commande à payer calculé (RG-AA-13). Ces deux montants sont précédés de leur % du montant total de la commande (RG-AA-15). L'historique des demandes de paiement de chaque commande s'affiche dans l'onglet « Historique » (RG-AA-17).
 3. Il saisit le montant total réceptionné, qui doit égaler la somme des montants réceptionnés du tableau. Le champ « Montant total à payer », non modifiable, affiche la somme des montants à payer. Les deux libellés portent leur % (RG-AA-16).
 4. Le serveur **redéduit les commandes depuis les factures**, car le select est désactivé et n'est pas posté, puis **relit dans IPS le montant réceptionné de chaque commande** (RG-AA-03).
@@ -82,7 +82,7 @@ Une copie DocuWare échouée ne bloque pas la transmission (P-AA-09), mais passe
 
 | Réf. | Règle | Front | Serveur |
 |---|---|---|---|
-| RG-AA-01 | Factures proposées = factures GCOT du fournisseur, sur commandes réceptionnées, hors pièces `regix.trs_ecr` du journal `Achmag` | ✔ | ✘ |
+| RG-AA-01 | Factures proposées = factures GCOT du fournisseur, sur commandes réceptionnées et validées dans DocuWare (RG-AA-20), hors pièces `regix.trs_ecr` du journal `Achmag` | ✔ | ✘ |
 | RG-AA-02 | Commandes déduites des factures | ✔ | ✔ |
 | RG-AA-03 | Montant du commande réceptionné lu dans IPS pour les factures sélectionnées, non modifiable. Le serveur relit IPS et ignore toute valeur postée. Introuvable pour une commande → enregistrement refusé | ✔ | ✔ |
 | RG-AA-04 | Montant total réceptionné = somme des montants du commande réceptionnés (± 0,01) | ✔ | ✔ |
@@ -101,6 +101,7 @@ Une copie DocuWare échouée ne bloque pas la transmission (P-AA-09), mais passe
 | RG-AA-17 | Onglet « Historique », ouvert par défaut, avant « commande fournisseur validée », avec un sous-onglet par commande s'il y en a plusieurs et le montant total de la commande dans le titre : demandes hors refusées avec type DDP, numéro, n° facture (de la commande, ou n° proforma pour une DDPA), date, motif, solde avance enregistré à la soumission, montant réceptionné, montant à payer, % et % cumul propres à la commande, statut | ✔ | – |
 | RG-AA-18 | Commande payée à 100 % : montant réceptionné supérieur au solde avance (écart > 0,01) → enregistrement refusé | ✔ | ✔ |
 | RG-AA-19 | Une facture ne se paie qu'une fois : une facture ayant une demande non refusée (dernière version, même fournisseur et société, en cours ou validée) n'est plus proposée, et son enregistrement est refusé. Elle redevient disponible si sa demande est refusée | ✔ | ✔ |
+| RG-AA-20 | Toutes les commandes d'une facture doivent être validées dans DocuWare (dernière version au statut « Validée »), y compris celles qui ne sont pas réceptionnées : sinon la facture n'est pas proposée et son enregistrement est refusé | ✔ | ✔ |
 
 **« Validée »** signifie toujours : statut `Validé` ou `Transmis compta`, sur la dernière version de la demande.
 
@@ -173,7 +174,7 @@ Les statuts `Refusé`, `Refusé Compta` et `Réfusé par Chef de Service` sont e
 | Route | Rôle |
 |---|---|
 | `GET /api/info-fournisseur-ddp` | Fournisseurs (autocomplétion), une ligne par fournisseur |
-| `GET /api/num-cde-frn/{fournisseur}/2` | Commandes réceptionnées et liste GCOT |
+| `GET /api/num-cde-frn/{fournisseur}/2` | Commandes réceptionnées et validées dans DocuWare, et liste GCOT. Avec `?flux=da` (flux DA) : commandes réceptionnées, sans RG-AA-20 |
 | `GET /api/situation-avance-commande/{numCde}` | Solde avance et situation de la commande pour le tableau (`typeDdpAGenerer` désigne la situation, plus le document créé) |
 | `GET /api/montant-commande-ht/{numCde}` | Montant HT et historique des demandes de la commande |
 | `GET /api/montant-commande-receptionnee/{fournisseur}/{cdes}/{factures}` | Montants réceptionnés affichés dans le tableau |
@@ -219,6 +220,7 @@ Constats issus de la lecture du code ; aucun n'a été reproduit en exécution. 
 | P-AA-21 | Une commande payée à 100 % avait un solde avance forcé à 0, qui masquait l'avance à consommer | Commande de 22 721,88 payée à 100 % : solde affiché à 0 au lieu de 22 721,88 | Solde réel consommé réception par réception (RG-AA-08) ; montant à payer de 0 (`DdpDto::$commandesRegule`) ; réception supérieure au solde bloquée (RG-AA-18) |
 | P-AA-24 | Seules les réceptions des demandes **validées** réduisent le solde (RG-AA-08) | Tant que la première demande n'est pas validée, une deuxième réception voit le solde entier : solde 22 721,88 et non 22 580,22. Le contrôle RG-AA-18 ne voit pas non plus les réceptions en attente. Deux demandes en attente restent possibles sur des factures différentes d'une même commande, pas sur la même facture (RG-AA-19) | Réceptions validées uniquement |
 | P-AA-26 | Une facture déjà payée restait proposée et pouvait être soumise de nouveau | `PDV_10400386565` validée par DDP26110007 (1 374,66) : solde ramené de 21 347,22 à 19 972,56 pour la même réception | Facture retirée de la liste et refusée côté serveur tant que sa demande n'est pas refusée (RG-AA-19). Pas de contrainte en base : deux soumissions simultanées restent possibles |
+| P-AA-27 | RG-AA-20 masque des factures tant qu'une seule de leurs commandes n'est pas validée, y compris des factures anciennes non réglées. Le flux DA n'est pas concerné (`?flux=da`) ; l'ancien écran et la modification utilisent la même liste filtrée | Une commande en attente bloque le paiement de toute sa facture. Seul `new_ddp` refuse l'enregistrement : `?flux=da` ne change que la liste proposée | Décision du 05/11/2026 : masquer la facture entière plutôt que de la payer en partie, ce qui rendrait le reste impayable (RG-AA-19) |
 | P-AA-25 | Pour une commande payée en partie, le solde valait le reste non payé de la commande, pas l'avance versée | Total 1 000, acompte 300, réception 800 : solde 700 et 100 à payer au lieu de 500 | Même formule pour toutes les commandes avec acompte (RG-AA-08) |
 | P-AA-22 | Le magasin ne crée plus que des DDPL : tout part dans `DEMANDE_DE_PAIEMENT`, plus rien dans `BON A PAYER` ni `DEMANDE_DE_REGULARISATION` | Le circuit de validation DocuWare et la moulinette reçoivent un seul type de document : à confirmer avec leurs responsables, notamment pour le statut `BAP à valider par Dir Admin` | |
 | P-AA-23 | Le montant réceptionné est cherché avec le numéro de facture GCOT sans `PDV_`, comparé exactement à `frn_fac.ffac_facext`. Une facture écrite autrement dans IPS ne donne aucun montant. Cas vérifié : `PDV_11916226B` (788,25) dans GCOT correspond à ` 11916226` dans IPS (facture 26732026, espace devant, sans `B`), avec les mêmes 5 commandes et le même total. Autre cas, non expliqué : `PDV_2311825` lie la commande 26249166 dans GCOT, mais `2311825` ne la contient pas dans IPS | Toutes les commandes de la facture restent sans montant, et la demande ne peut pas être enregistrée | Enregistrement bloqué, pas de montant compté à 0. Données non corrigées. **Adaptation du code reportée** : si le numéro exact est introuvable, chercher dans IPS sans la lettre finale et sans tenir compte des espaces, et n'accepter le résultat que si son total égale le montant GCOT au centime près. Sans ce contrôle, deux factures peuvent être mélangées : `11916226` et ` 11916226` sont deux factures différentes dans IPS. Correspondance vérifiée sur cette seule facture, à confirmer avec la personne qui saisit les factures dans IPS |
@@ -240,7 +242,7 @@ Constats issus de la lecture du code ; aucun n'a été reproduit en exécution. 
 
 | Réf. | Constat | Conséquence concrète | Décision |
 |---|---|---|---|
-| P-AA-11 | `numeroFournisseur` (champ texte et paramètre d'URL) et `numCde` sont concaténés dans le SQL IPS et GCOT (`DdpModel`, `DemandePaiementModel`) | Injection SQL possible | |
+| P-AA-11 | `numeroFournisseur`, `numCde` et les numéros de facture sont concaténés dans le SQL IPS et GCOT (`DdpModel`, `DemandePaiementModel`) | Injection SQL possible | Corrigé le 05/11/2026 : `TableauEnString` échappe les apostrophes ; fournisseur limité aux chiffres (formulaires `DdpType`, `DemandePaiementType`, `DemandePaiementDaType`, routes `InfoFournisseurApi`) ; commande limitée aux chiffres sur `new_ddp` ; `findListeDoc` échappé. La requête reste concaténée, sans paramètres liés. Les commandes postées sur les écrans DA et ancien écran ne sont pas revues |
 | P-AA-12 | Les routes API ne vérifient que la connexion, y compris `transmettre-bap-compta` | Tout utilisateur connecté peut transmettre une demande (préfixe `api_` dans `SecurityService`) | |
 | P-AA-13 | `InfoFournisseurApi` active `display_errors` | Détails techniques affichés dans les réponses en cas d'erreur | |
 
@@ -280,3 +282,5 @@ Ces éléments utilisent en partie les mêmes tables, mais ne sont pas décrits 
 | 04/11/2026 | à commiter | Historique : colonne n° facture ajoutée, colonnes n° commande et montant total retirées, montant total affiché dans le titre | RG-AA-17 |
 | 04/11/2026 | `c408a4860` | Page de garde : demandes refusées affichées dans le récapitulatif des demandes de paiement, dernière version de chaque demande uniquement ; guide utilisateur mis à jour le 05/11/2026 | section 7 |
 | 05/11/2026 | à commiter | Autocomplétion : une seule ligne par fournisseur, un RIB renseigné étant préféré à un RIB vide ; choix arbitraire entre deux RIB renseignés | section API |
+| 05/11/2026 | à commiter | **Décision :** facture proposée et enregistrable seulement si toutes ses commandes sont validées dans DocuWare, sauf pour le flux DA ; guide utilisateur mis à jour | RG-AA-01, RG-AA-20, P-AA-27 |
+| 05/11/2026 | à commiter | Injection SQL : apostrophes échappées dans `TableauEnString` et `findListeDoc`, numéros de fournisseur et de commande limités aux chiffres | P-AA-11 |

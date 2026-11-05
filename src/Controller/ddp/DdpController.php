@@ -83,6 +83,14 @@ class DdpController extends Controller
             /** @var DdpDto $dto */
             $dto = $form->getData();
 
+            // valeurs postées, concaténées dans les requêtes IPS
+            foreach ((array) $dto->numeroCommande as $numCde) {
+                if (trim((string) $numCde) !== '' && !ctype_digit(trim((string) $numCde))) {
+                    $form->addError(new FormError('Le numéro de commande ne doit contenir que des chiffres.'));
+                    return;
+                }
+            }
+
             // à l'avance : le montant total du commande vient d'IPS, jamais de la valeur postée
             if ($dto->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE) {
                 $numeroProforma = trim((string) $dto->numeroFactureProforma);
@@ -117,6 +125,12 @@ class DdpController extends Controller
                 $erreurFacture = $this->erreurFactureDejaDemandee($dto);
                 if ($erreurFacture !== null) {
                     $form->addError(new FormError($erreurFacture));
+                    return;
+                }
+
+                $erreurCommandeNonValidee = $this->erreurCommandeNonValidee($dto);
+                if ($erreurCommandeNonValidee !== null) {
+                    $form->addError(new FormError($erreurCommandeNonValidee));
                     return;
                 }
 
@@ -391,6 +405,30 @@ class DdpController extends Controller
             $numeroDdp = $ddpParFacture[trim((string) $numFac)] ?? null;
             if ($numeroDdp !== null) {
                 return sprintf('La facture %s a déjà une demande de paiement en cours ou validée (%s).', $numFac, $numeroDdp);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Après arrivage : bloque la soumission d'une facture dont une commande n'est pas validée
+     * dans DocuWare. Le front ne la propose plus (InfoFournisseurApi::numeroCommandeFournisseur).
+     *
+     * @return string|null message d'erreur, null si la soumission est autorisée
+     */
+    private function erreurCommandeNonValidee(DdpDto $dto): ?string
+    {
+        $commandesValidees = array_map(
+            fn(CdefnrSoumisAValidation $commande) => trim((string) $commande->getNumCdeFournisseur()),
+            $this->getEntityManager()->getRepository(CdefnrSoumisAValidation::class)->findValideesDerniereVersion((string) $dto->numeroFournisseur)
+        );
+        $facturesNonValidees = $this->demandePaiementModel->getFacturesAvecCommandeHorsListe($dto->numeroFacture, $commandesValidees);
+
+        foreach ($dto->numeroFacture as $numFac) {
+            $numCde = $facturesNonValidees[trim((string) $numFac)] ?? null;
+            if ($numCde !== null) {
+                return sprintf('La facture %s est liée à la commande %s, qui n\'est pas validée dans DocuWare.', $numFac, $numCde);
             }
         }
 

@@ -119,6 +119,32 @@ class DemandePaiementModel extends Model
         return $this->retournerResultGcot04($sql);
     }
 
+    /**
+     * Factures GCOT dont au moins une commande ne fait pas partie des commandes données
+     *
+     * @param string[] $numFactures
+     * @param string[] $numCdes
+     * @return array<string, string> [numéro de facture => première commande hors liste]
+     */
+    public function getFacturesAvecCommandeHorsListe(array $numFactures, array $numCdes): array
+    {
+        $factures = array_unique(array_map(fn($facture) => trim((string) $facture), $numFactures));
+
+        $horsListe = [];
+        // par lots : un IN de plusieurs milliers de valeurs fait échouer SQL Server
+        foreach (array_chunk($factures, 500) as $lot) {
+            foreach ($this->getCommandesParFacture(TableauEnStringService::TableauEnString(',', $lot)) as $ligne) {
+                $numFacture = trim((string) $ligne['Numero_Facture']);
+                $numCde = trim((string) $ligne['Numero_PO']);
+                if ($numCde !== '' && !in_array($numCde, $numCdes, true) && !isset($horsListe[$numFacture])) {
+                    $horsListe[$numFacture] = $numCde;
+                }
+            }
+        }
+
+        return $horsListe;
+    }
+
     public function getMontantFacGcot(string $numeroFournisseur, string  $numCdesString, string $numfacture): array
     {
         $sql = "SELECT sum(montant_fob) as montantfacture  from TRZT_Facture where Numero_Facture in ({$numfacture})";
@@ -208,6 +234,7 @@ class DemandePaiementModel extends Model
 
     public function findListeDoc($numeroDossier)
     {
+        $numeroDossier = str_replace("'", "''", (string) $numeroDossier);
         $sql = " SELECT  Nom_Fichier, Date_Fichier, Numero_PO
             from GCOT_Gestion_Document
             where Numero_PO='{$numeroDossier}'
