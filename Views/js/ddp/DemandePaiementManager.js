@@ -1260,7 +1260,8 @@ export class DemandePaiementManager {
       celluleReceptionne.appendChild(input);
       celluleReceptionne.appendChild(document.createElement("span")).className = "montant-receptionne";
       tr.insertCell().className = "text-end montant-a-payer";
-      tr.insertCell().className = "text-end solde-restant";
+      const celluleTotal = tr.insertCell();
+      celluleTotal.className = "text-end";
 
       this.chargerSituationAvance(numCde).then((situation) => {
         if (!situation) return;
@@ -1275,6 +1276,7 @@ export class DemandePaiementManager {
       });
       this.recupererMontantTotalCommande(numCde).then((montantTotal) => {
         input.dataset.montantTotal = montantTotal ?? "";
+        celluleTotal.textContent = montantTotal > 0 ? formatNumberSpecial(Number(montantTotal).toFixed(2)) : "-";
         this.afficherMontantCommandeAPayer(input);
       });
       this.afficherMontantCommandeAPayer(input);
@@ -1286,14 +1288,13 @@ export class DemandePaiementManager {
   }
 
   /**
-   * Aperçu du montant enregistré par le serveur (DdpDto::montantCommandeAPayer) et
-   * solde avance restant, dans des cellules et non des champs : verifierMontant()
-   * additionne tous les champs du tableau.
+   * Aperçu du montant enregistré par le serveur (DdpDto::montantCommandeAPayer),
+   * dans des cellules et non des champs : verifierMontant() additionne tous les
+   * champs du tableau.
    */
   afficherMontantCommandeAPayer(input) {
     const ligne = input.closest("tr");
     const cellule = ligne.querySelector(".montant-a-payer");
-    const celluleRestant = ligne.querySelector(".solde-restant");
     const solde = parseFloat(input.dataset.soldeAvance);
     const receptionne = parseMontant(input.value);
     const montantTotal = parseFloat(input.dataset.montantTotal);
@@ -1305,14 +1306,11 @@ export class DemandePaiementManager {
     }
     if (isNaN(solde) || isNaN(receptionne)) {
       cellule.textContent = "";
-      celluleRestant.textContent = "";
       delete input.dataset.montantAPayer;
     } else {
       const couvert = solde > 0 && receptionne <= solde;
       const montant = couvert || input.dataset.regule === "1" ? 0 : receptionne - solde;
-      const restant = couvert ? solde - receptionne : 0;
       this.ecrireMontantAvecPourcentage(cellule, montant, montantTotal);
-      celluleRestant.textContent = formatNumberSpecial(restant.toFixed(2));
       input.dataset.montantAPayer = montant;
     }
     this.afficherMontantTotalAPayer();

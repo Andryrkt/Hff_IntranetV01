@@ -79,8 +79,8 @@ SELECT 'ddp-magasin-apres-arrivage', N'Demande de paiement magasin – après ar
 <li><strong>Fournisseur, mode de paiement, devise, motif</strong> : tapez le numéro ou le nom du fournisseur, choisissez-le dans la liste, puis complétez les autres champs.</li>
 <li><strong>N° facture fournisseur</strong> : choisissez une ou plusieurs factures. Seules sont proposées les factures liées à une commande réceptionnée et dont toutes les commandes sont validées dans DocuWare. Les commandes correspondantes sont sélectionnées automatiquement. Une facture qui a déjà une demande en cours ou validée n''est plus proposée ; elle revient dans la liste si sa demande est refusée.</li>
 <li>Le <strong>tableau des commandes</strong> apparaît, une ligne par commande (colonnes ci-dessous).</li>
-<li>Dans chaque ligne, vérifiez le <strong>montant du commande réceptionné</strong> : il vient d''IPS et n''est pas modifiable. Le pourcentage en rouge, devant le montant, est sa part du montant total de la commande. Si IPS ne trouve aucun montant pour une commande, « - » s''affiche et l''enregistrement est bloqué.</li>
-<li><strong>Montant total réceptionné *</strong> : il doit être égal à la somme des montants du commande réceptionnés du tableau. Le <strong>montant total à payer</strong>, non modifiable, affiche la somme des montants du commande à payer. Le pourcentage en rouge à côté de ces deux libellés est leur part du montant total des commandes.</li>
+<li>Dans chaque ligne, vérifiez le <strong>montant commande réceptionnée</strong> : il vient d''IPS et n''est pas modifiable. Le pourcentage en rouge, devant le montant, est sa part du montant total de la commande. Si IPS ne trouve aucun montant pour une commande, « - » s''affiche et l''enregistrement est bloqué.</li>
+<li><strong>Montant total réceptionné *</strong> : il doit être égal à la somme des montants commande réceptionnée du tableau. Le <strong>montant total à payer</strong>, non modifiable, affiche la somme des montants commande à payer. Le pourcentage en rouge à côté de ces deux libellés est leur part du montant total des commandes.</li>
 <li><strong>Pièces jointes</strong> : le contrôle livraison et le RIB fournisseur sont attendus ; les documents de douane et de commande DocuWare sont ajoutés automatiquement. Les autres documents sont facultatifs.</li>
 <li>Cliquez sur <strong>Enregistrer</strong> et confirmez.</li>
 </ol>
@@ -91,9 +91,9 @@ SELECT 'ddp-magasin-apres-arrivage', N'Demande de paiement magasin – après ar
 <tr><td>N° facture</td><td>La ou les factures de cette commande, une par ligne</td><td>Non</td></tr>
 <tr><td>N° dossier douane, N° LTA, N° HAWB</td><td>Les références du dossier de douane de chaque facture</td><td>Non</td></tr>
 <tr><td>Solde avance</td><td>Ce qui reste de l''avance sur la commande (voir section suivante)</td><td>Non</td></tr>
-<tr><td>Montant du commande réceptionné</td><td>Le montant réceptionné pour cette commande dans IPS, précédé de son % du montant total de la commande</td><td>Non</td></tr>
-<tr><td>Montant du commande à payer</td><td>Précédé de son % du montant total de la commande. Calculé : 0 si le solde avance est supérieur à 0 et couvre le montant réceptionné ; sinon montant réceptionné − solde avance. Toujours 0 si la commande est déjà payée à 100 % par acomptes</td><td>Non</td></tr>
-<tr><td>Solde avance restant</td><td>Calculé : solde avance − montant réceptionné si le solde couvre le montant réceptionné, sinon 0</td><td>Non</td></tr>
+<tr><td>Montant commande réceptionnée</td><td>Le montant réceptionné pour cette commande dans IPS, précédé de son % du montant total de la commande</td><td>Non</td></tr>
+<tr><td>Montant commande à payer</td><td>Précédé de son % du montant total de la commande. Calculé : 0 si le solde avance est supérieur à 0 et couvre le montant réceptionné ; sinon montant réceptionné − solde avance. Toujours 0 si la commande est déjà payée à 100 % par acomptes</td><td>Non</td></tr>
+<tr><td>Montant total du commande</td><td>Le montant total de la commande dans IPS. « - » s''il est introuvable</td><td>Non</td></tr>
 </tbody>
 </table>
 
@@ -101,7 +101,7 @@ SELECT 'ddp-magasin-apres-arrivage', N'Demande de paiement magasin – après ar
 <p>Une saisie crée une seule demande de paiement (DDPL) au statut « DDPL à transmettre », avec un seul numéro et une seule page de garde, quels que soient le nombre de factures et de commandes.</p>
 <p>Le montant à payer se calcule commande par commande, selon les acomptes déjà validés :</p>
 <table border="1" cellpadding="4">
-<thead><tr><th>% DDPA validé de la commande</th><th>Solde avance</th><th>Montant du commande à payer</th></tr></thead>
+<thead><tr><th>% DDPA validé de la commande</th><th>Solde avance</th><th>Montant commande à payer</th></tr></thead>
 <tbody>
 <tr><td>0 %</td><td>0</td><td>Le montant réceptionné</td></tr>
 <tr><td>Entre 0 et 100 %</td><td>Calculé</td><td>0 si le solde couvre le montant réceptionné, sinon montant réceptionné − solde avance</td></tr>
@@ -109,12 +109,12 @@ SELECT 'ddp-magasin-apres-arrivage', N'Demande de paiement magasin – après ar
 </tbody>
 </table>
 <ul>
-<li><strong>Montant à payer de la demande :</strong> le total des montants du commande à payer. Une demande à 0 passe quand même en validation.</li>
+<li><strong>Montant à payer de la demande :</strong> le total des montants commande à payer. Une demande à 0 passe quand même en validation.</li>
 <li><strong>PDF :</strong> la page de garde reprend le résumé des BC, le récapitulatif des livraisons et celui des demandes de paiement déjà enregistrées (y compris refusées, avec leur statut), puis est fusionnée avec toutes les pièces jointes. Les pourcentages sont imprimés en rouge devant les montants : dans le résumé des BC et dans la case « Montant à payer ». Le PDF n''est déposé dans DocuWare qu''à la transmission.</li>
 </ul>
 <p>Le solde avance de chaque commande se calcule ainsi :</p>
 <p><strong>Solde avance = somme des proformas des DDPA − montant déjà payé</strong>, ramené à 0 s''il est négatif. Une réception non validée ne réduit pas le solde. L''historique des demandes de paiement de chaque commande est affiché dans l''onglet « Historique ».</p>
-<p>Le montant déjà payé additionne les montants du commande réceptionnés des demandes validées qui ne sont pas des DDPA. Le solde et le montant du commande à payer sont enregistrés et imprimés sur le PDF.</p>
+<p>Le montant déjà payé additionne les montants commande réceptionnée des demandes validées qui ne sont pas des DDPA. Le solde et le montant commande à payer sont enregistrés et imprimés sur le PDF, avec le solde avance restant : solde avance − montant réceptionné si le solde couvre le montant réceptionné, sinon 0.</p>
 
 <h2>Après l''enregistrement : transmettre en validation</h2>
 <p>L''enregistrement ne lance pas la validation : la demande reste au statut « … à transmettre » tant qu''elle n''est pas transmise.</p>
@@ -129,7 +129,7 @@ SELECT 'ddp-magasin-apres-arrivage', N'Demande de paiement magasin – après ar
 <thead><tr><th>Message</th><th>Cause</th><th>Que faire</th></tr></thead>
 <tbody>
 <tr><td>Le montant réceptionné de la commande X est introuvable dans IPS pour la/les facture(s) sélectionnée(s)</td><td>IPS ne trouve aucune réception de cette commande pour ces factures. L''enregistrement est bloqué</td><td>Vérifier le numéro de facture dans GCOT et IPS, ainsi que la réception</td></tr>
-<tr><td>Le montant saisi ne correspond pas au montant calculé pour la/les commande(s)/facture(s) sélectionnée(s)</td><td>Le montant total réceptionné diffère de la somme des montants du commande réceptionnés</td><td>Saisir exactement la somme du tableau</td></tr>
+<tr><td>Le montant saisi ne correspond pas au montant calculé pour la/les commande(s)/facture(s) sélectionnée(s)</td><td>Le montant total réceptionné diffère de la somme des montants commande réceptionnée</td><td>Saisir exactement la somme du tableau</td></tr>
 <tr><td>La facture X a déjà une demande de paiement en cours ou validée (DDP…)</td><td>Une facture ne se paie qu''une fois. Cette demande n''est pas refusée</td><td>Retirer la facture. Si la demande citée est refusée, la facture peut être soumise de nouveau</td></tr>
 <tr><td>Le montant réceptionné de la commande X dépasse son solde avance</td><td>La commande est payée à 100 % par acomptes et cette réception dépasse ce qui reste de l''avance</td><td>Vérifier la réception et les demandes déjà validées dans l''onglet « Historique »</td></tr>
 <tr><td>La facture X est liée à la commande Y, qui n''est pas validée dans DocuWare</td><td>Toutes les commandes d''une facture doivent être validées</td><td>Attendre la validation de la commande Y, puis refaire la demande</td></tr>
@@ -229,6 +229,10 @@ SET contenu = REPLACE(contenu,
 <tr><td>Bouton Enregistrer grisé et message rouge sous la commande</td>')
 WHERE slug = 'ddp-magasin-apres-arrivage'
     AND contenu NOT LIKE N'%qui n''est pas validée dans DocuWare%';
+
+UPDATE documentation_utilisateur
+SET contenu = REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(contenu, N'<tr><td>Solde avance restant</td><td>Calculé : solde avance − montant réceptionné si le solde couvre le montant réceptionné, sinon 0</td><td>Non</td></tr>', N'<tr><td>Montant total du commande</td><td>Le montant total de la commande dans IPS. « - » s''il est introuvable</td><td>Non</td></tr>'), N'Le solde et le montant du commande à payer sont enregistrés et imprimés sur le PDF.', N'Le solde et le montant commande à payer sont enregistrés et imprimés sur le PDF, avec le solde avance restant : solde avance − montant réceptionné si le solde couvre le montant réceptionné, sinon 0.'), N'<strong>montant du commande réceptionné</strong>', N'<strong>montant commande réceptionnée</strong>'), N'<tr><td>Montant du commande réceptionné</td>', N'<tr><td>Montant commande réceptionnée</td>'), N'<tr><td>Montant du commande à payer</td>', N'<tr><td>Montant commande à payer</td>'), N'<th>Montant du commande à payer</th>', N'<th>Montant commande à payer</th>'), N'montants du commande réceptionnés', N'montants commande réceptionnée'), N'montants du commande à payer', N'montants commande à payer'), N'montant du commande réceptionné', N'montant commande réceptionnée'), N'montant du commande à payer', N'montant commande à payer')
+WHERE slug = 'ddp-magasin-apres-arrivage';
 
 UPDATE documentation_utilisateur
 SET contenu = REPLACE(contenu,

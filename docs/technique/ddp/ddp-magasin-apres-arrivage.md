@@ -48,7 +48,7 @@ Routes principales : `new_ddp` (`/ddp/new/2`) et `da_bon_a_payer` (`/demande-app
 ### 3.1 Saisie et enregistrement
 
 1. L'utilisateur choisit un fournisseur. Le front charge ses factures GCOT liées à des commandes réceptionnées dans IPS, dont toutes les commandes sont validées dans DocuWare (RG-AA-20), sans celles qui ont déjà une demande non refusée (RG-AA-19).
-2. Il choisit une ou plusieurs factures. Les commandes correspondantes s'affichent dans un tableau, avec leur solde avance, le montant du commande réceptionné lu dans IPS (non modifiable) et le montant du commande à payer calculé (RG-AA-13). Ces deux montants sont précédés de leur % du montant total de la commande (RG-AA-15). L'historique des demandes de paiement de chaque commande s'affiche dans l'onglet « Historique » (RG-AA-17).
+2. Il choisit une ou plusieurs factures. Les commandes correspondantes s'affichent dans un tableau, avec leur solde avance, le montant commande réceptionnée lu dans IPS (non modifiable) et le montant commande à payer calculé (RG-AA-13). Ces deux montants sont précédés de leur % du montant total de la commande (RG-AA-15). L'historique des demandes de paiement de chaque commande s'affiche dans l'onglet « Historique » (RG-AA-17).
 3. Il saisit le montant total réceptionné, qui doit égaler la somme des montants réceptionnés du tableau. Le champ « Montant total à payer », non modifiable, affiche la somme des montants à payer. Les deux libellés portent leur % (RG-AA-16).
 4. Le serveur **redéduit les commandes depuis les factures**, car le select est désactivé et n'est pas posté, puis **relit dans IPS le montant réceptionné de chaque commande** (RG-AA-03).
 5. Le serveur lit le montant total de chaque commande dans IPS, calcule son solde avance et son montant à payer (RG-AA-05, RG-AA-08, RG-AA-13), puis le montant de la demande (RG-AA-07).
@@ -84,18 +84,18 @@ Une copie DocuWare échouée ne bloque pas la transmission (P-AA-09), mais passe
 |---|---|---|---|
 | RG-AA-01 | Factures proposées = factures GCOT du fournisseur, sur commandes réceptionnées et validées dans DocuWare (RG-AA-20), hors pièces `regix.trs_ecr` du journal `Achmag` | ✔ | ✘ |
 | RG-AA-02 | Commandes déduites des factures | ✔ | ✔ |
-| RG-AA-03 | Montant du commande réceptionné lu dans IPS pour les factures sélectionnées, non modifiable. Le serveur relit IPS et ignore toute valeur postée. Introuvable pour une commande → enregistrement refusé | ✔ | ✔ |
-| RG-AA-04 | Montant total réceptionné = somme des montants du commande réceptionnés (± 0,01) | ✔ | ✔ |
+| RG-AA-03 | Montant commande réceptionnée lu dans IPS pour les factures sélectionnées, non modifiable. Le serveur relit IPS et ignore toute valeur postée. Introuvable pour une commande → enregistrement refusé | ✔ | ✔ |
+| RG-AA-04 | Montant total réceptionné = somme des montants commande réceptionnée (± 0,01) | ✔ | ✔ |
 | RG-AA-05 | Situation de chaque commande selon le cumul des % DDPA validées : ≤ 0,01 → aucun acompte ; ≥ 99,99 → payée à 100 % ; sinon → payée en partie. Cette situation ne détermine que les montants | ✔ (aperçu) | ✔ |
 | RG-AA-06 | Une saisie crée une seule demande, de type 2, quelles que soient les situations de ses commandes | – | ✔ |
-| RG-AA-07 | `montant_a_payer` de la demande = somme des montants du commande à payer de ses commandes | – | ✔ |
+| RG-AA-07 | `montant_a_payer` de la demande = somme des montants commande à payer de ses commandes | – | ✔ |
 | RG-AA-08 | Solde avance (0 sans acompte) = somme des proformas DDPA − `montant_commande_receptionner` des demandes validées non DDPA, ramené à 0 s'il est négatif. Une réception non validée ne réduit pas le solde | ✔ (aperçu) | ✔ |
 | RG-AA-09 | PDF de commande DocuWare introuvable → bouton Enregistrer désactivé | ✔ | ✘ |
 | RG-AA-10 | Pièces jointes : PDF, 5 Mo maximum, sans obligation de présence côté serveur ; PJ03 désactivée | ✔ | ✔ |
 | RG-AA-11 | RIB différent de ceux connus dans IPS (`fou_bqe`) → mention « RIB mis à jour » sur la page de garde | – | ✔ |
 | RG-AA-12 | Valeurs fixes : agence `01`, service `NEG`, société `HF` | – | ✔ |
-| RG-AA-13 | Montant du commande à payer : 0 pour une commande payée à 100 %, ou si solde avance > 0 et montant réceptionné ≤ solde avance ; sinon montant réceptionné − solde avance | ✔ (aperçu) | ✔ |
-| RG-AA-14 | Solde avance restant (affiché et imprimé, non enregistré) : solde avance − montant réceptionné si solde avance > 0 et montant réceptionné ≤ solde avance ; sinon 0 | ✔ | ✔ |
+| RG-AA-13 | Montant commande à payer : 0 pour une commande payée à 100 %, ou si solde avance > 0 et montant réceptionné ≤ solde avance ; sinon montant réceptionné − solde avance | ✔ (aperçu) | ✔ |
+| RG-AA-14 | Solde avance restant (imprimé sur le PDF, non enregistré) : solde avance − montant réceptionné si solde avance > 0 et montant réceptionné ≤ solde avance ; sinon 0. À l'écran, cette colonne est remplacée par le montant total du commande lu dans IPS (« - » s'il est introuvable) | ✔ | ✔ |
 | RG-AA-15 | % en rouge et entre parenthèses, devant le montant réceptionné et le montant à payer, dans le tableau du formulaire et le tableau « Résumé des BC » du PDF : montant ÷ montant total de la commande dans IPS (`frn_cde.fcde_mtn`, fournisseur + commande) × 100. Omis si ce total est inconnu ou nul | ✔ | ✔ |
 | RG-AA-16 | % en rouge dans les libellés « Montant total réceptionné » et « Montant total à payer », et devant le montant de la case « Montant à payer » du PDF : somme du tableau ÷ somme des montants totaux connus des commandes × 100 | ✔ | ✔ |
 | RG-AA-17 | Onglet « Historique », ouvert par défaut, avant « commande fournisseur validée », avec un sous-onglet par commande s'il y en a plusieurs et le montant total de la commande dans le titre : demandes hors refusées avec type DDP, numéro, n° facture (de la commande, ou n° proforma pour une DDPA), date, motif, solde avance enregistré à la soumission, montant réceptionné, montant à payer, % et % cumul propres à la commande, statut | ✔ | – |
@@ -111,12 +111,12 @@ Six montants coexistent et peuvent différer :
 
 | Montant | Origine | Stockage | Usage |
 |---|---|---|---|
-| Montant du commande réceptionné | Lu dans IPS, non modifiable | `montant_commande_receptionner` (`demande_paiement_ligne`, `demande_paiement_commande`, `commande_livraison`) | Contrôle RG-AA-04, solde avance, tableau « Résumé des BC » du PDF |
+| Montant commande réceptionnée | Lu dans IPS, non modifiable | `montant_commande_receptionner` (`demande_paiement_ligne`, `demande_paiement_commande`, `commande_livraison`) | Contrôle RG-AA-04, solde avance, tableau « Résumé des BC » du PDF |
 | Montant total réceptionné | Saisie | Non stocké | Contrôle RG-AA-04 uniquement |
 | Montant total de la commande | Lu dans IPS (`frn_cde.fcde_mtn`, fournisseur + commande), non affiché | `montant_total_commande` (`demande_paiement_ligne`, `demande_paiement_commande`) | Base des % (RG-AA-15, RG-AA-16) |
-| Montant du commande à payer | Calculé par le serveur à la soumission, aperçu à l'écran (RG-AA-13) | `montant_commande_a_payer` (mêmes tables) | Tableau « Résumé des BC » du PDF |
-| Montant total à payer | Somme des montants du commande à payer, aperçu à l'écran | `demande_paiement.montant_a_payer` | Montant de la demande, « Montant à payer » du PDF |
-| Solde avance restant | Calculé à l'écran et à la génération du PDF (RG-AA-14) | Non stocké | Écran, tableau « Résumé des BC » du PDF |
+| Montant commande à payer | Calculé par le serveur à la soumission, aperçu à l'écran (RG-AA-13) | `montant_commande_a_payer` (mêmes tables) | Tableau « Résumé des BC » du PDF |
+| Montant total à payer | Somme des montants commande à payer, aperçu à l'écran | `demande_paiement.montant_a_payer` | Montant de la demande, « Montant à payer » du PDF |
+| Solde avance restant | Calculé à la génération du PDF (RG-AA-14) | Non stocké | Tableau « Résumé des BC » du PDF |
 
 ## 5. Statuts
 
@@ -284,3 +284,4 @@ Ces éléments utilisent en partie les mêmes tables, mais ne sont pas décrits 
 | 05/11/2026 | à commiter | Autocomplétion : une seule ligne par fournisseur, un RIB renseigné étant préféré à un RIB vide ; choix arbitraire entre deux RIB renseignés | section API |
 | 05/11/2026 | à commiter | **Décision :** facture proposée et enregistrable seulement si toutes ses commandes sont validées dans DocuWare, sauf pour le flux DA ; guide utilisateur mis à jour | RG-AA-01, RG-AA-20, P-AA-27 |
 | 05/11/2026 | à commiter | Injection SQL : apostrophes échappées dans `TableauEnString` et `findListeDoc`, numéros de fournisseur et de commande limités aux chiffres | P-AA-11 |
+| 05/11/2026 | à commiter | Tableau du formulaire : « Solde avance restant » remplacé par « Montant total du commande » (écran seulement). Colonnes renommées « Montant commande réceptionnée » et « Montant commande à payer » à l'écran et sur le PDF ; guide utilisateur mis à jour | RG-AA-14 |

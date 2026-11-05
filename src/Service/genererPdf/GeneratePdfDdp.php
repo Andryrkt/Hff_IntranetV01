@@ -404,7 +404,7 @@ class GeneratePdfDdp extends GeneratePdf
             ];
         }
 
-        $this->renderTable($pdf, 'RESUME DES BC', 'Aucune commande', ['N° commande', 'N° facture', 'N° dossier douane', 'N° LTA', 'N° HAWB', "Solde avance ($devise)", "Montant du commande réceptionné ($devise)", "Montant du commande à payer ($devise)", "Solde avance restant ($devise)"], $lignes);
+        $this->renderTable($pdf, 'RESUME DES BC', 'Aucune commande', ['N° commande', 'N° facture', 'N° dossier douane', 'N° LTA', 'N° HAWB', "Solde avance ($devise)", "Montant commande réceptionnée ($devise)", "Montant commande à payer ($devise)","Solde avance restant ($devise)"], $lignes);
     }
 
     /**
