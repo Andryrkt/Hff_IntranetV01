@@ -159,7 +159,7 @@ Les statuts `Refusé`, `Refusé Compta` et `Réfusé par Chef de Service` sont e
 
 **Dossier de travail** : `{BASE_PATH_FICHIER}/ddp/{numéro}/`.
 
-**Page de garde** : page DDP, avec le montant à payer précédé de son % (RG-AA-16), suivie des tableaux « Résumé des BC » (montants précédés de leur %, RG-AA-15), « Récapitulatif des livraisons » (une ligne par livraison, montants des commandes additionnés) et « Récapitulatif des demandes de paiement déjà enregistrées » (`DdpController::donneesPageDeGarde`, lu avant l'enregistrement de la nouvelle demande). Ce dernier tableau affiche la dernière version de chaque demande, y compris les refusées (`getDdpSelonNumCde` avec `$avecRefusees`, réservé à l'affichage car une demande refusée n'est pas payée).
+**Page de garde** : page DDP, avec le montant à payer précédé de son % (RG-AA-16), suivie des tableaux « Résumé des BC » (colonne « Facture fournisseur » en premier, montants précédés de leur %, RG-AA-15), « Récapitulatif des livraisons » (colonne « Facture fournisseur », la référence de livraison, en premier ; une ligne par livraison, montants des commandes additionnés) et « Récapitulatif des demandes de paiement déjà enregistrées », sans colonne % (`DdpController::donneesPageDeGarde`, lu avant l'enregistrement de la nouvelle demande). Ce dernier tableau affiche la dernière version de chaque demande, y compris les refusées (`getDdpSelonNumCde` avec `$avecRefusees`, réservé à l'affichage car une demande refusée n'est pas payée).
 
 **PDF final** : `{numéro}.pdf`, composé dans cet ordre de la page de garde, des fichiers du dossier de douane, des fichiers téléversés et des PDF de commande DocuWare. Un fichier absent est ignoré et tracé dans `error_log`.
 
@@ -292,3 +292,4 @@ Ces éléments utilisent en partie les mêmes tables, mais ne sont pas décrits 
 | 05/11/2026 | `8a6b39606` | Montant total à payer modifiable et enregistré s'il est saisi ; guide utilisateur mis à jour | RG-AA-21, P-AA-28 |
 | 05/11/2026 | à commiter | **Décision :** saisie libre du montant total à payer. Type décidé à l'enregistrement : DDPR si le montant à payer est à 0, BAP si la somme des soldes avance est à 0, sinon DDPL ; guide utilisateur mis à jour | RG-AA-06, P-AA-22, P-AA-28 |
 | 05/11/2026 | à commiter | Formulaire : onglet « Facture » renommé « Dossier de douane », onglet vide « Facture fournisseur validée » retiré | |
+| 05/11/2026 | à commiter | PDF : colonne « Facture fournisseur » en premier dans « Résumé des BC » (n° facture) et « Récapitulatif des livraisons » (référence) ; colonne % retirée du récapitulatif des demandes de paiement | section 7 |

@@ -303,7 +303,6 @@ class DdpController extends Controller
                     'numero'  => $ddp->getNumeroDdp(),
                     'type'    => $ddp->getTypeDemandeId() ? $ddp->getTypeDemandeId()->getLibelle() : '',
                     'montant' => (float) $ddp->getMontantAPayers(),
-                    'ratio'   => $ddp->getRatioMontantTotalCommande(),
                     'statut'  => $ddp->getStatut(),
                 ];
             }
