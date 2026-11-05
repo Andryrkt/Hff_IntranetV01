@@ -153,6 +153,16 @@ export class DemandePaiementManager {
       );
       this.verifierMontant();
     });
+
+    const champTotal = this.elements.montantTotalAPayerInput;
+    if (champTotal) {
+      champTotal.addEventListener("input", () => {
+        champTotal.value = champTotal.value === "" ? "" : formatNumberSpecial(champTotal.value);
+        // Posté seulement s'il est saisi : sinon le serveur garde son propre calcul
+        champTotal.name = champTotal.value === "" ? "" : "montantTotalAPayerSaisi";
+        this.afficherMontantTotalAPayer();
+      });
+    }
   }
 
   /**
@@ -1236,6 +1246,10 @@ export class DemandePaiementManager {
     if (!tableauMontantsCommande || !montantsCommandeBody) return;
 
     const numCdes = this.getNumCdesSelectionnees();
+    // Autres commandes : un montant saisi auparavant ne s'applique plus
+    if (this.elements.montantTotalAPayerInput) {
+      this.elements.montantTotalAPayerInput.name = "";
+    }
     montantsCommandeBody.innerHTML = "";
     numCdes.forEach((numCde) => {
       const input = document.createElement("input");
@@ -1351,8 +1365,8 @@ export class DemandePaiementManager {
   }
 
   /**
-   * Champ "Montant total à payer" : somme des montants du commande à payer du tableau,
-   * et % des deux totaux du formulaire par rapport au montant total des commandes.
+   * Champ "Montant total à payer" : somme des montants commande à payer du tableau, sauf
+   * montant saisi, et % des deux totaux du formulaire par rapport au montant total des commandes.
    */
   afficherMontantTotalAPayer() {
     const champ = this.elements.montantTotalAPayerInput;
@@ -1362,12 +1376,15 @@ export class DemandePaiementManager {
     const total = inputs.reduce((somme, input) => somme + (parseFloat(input.dataset.montantAPayer) || 0), 0);
     // Aucun montant réceptionné connu : ne pas afficher un total ni un % à 0
     const aUnMontant = inputs.some((input) => input.value !== "");
-    champ.value = aUnMontant ? formatNumberSpecial(total.toFixed(2)) : "";
+    const saisi = champ.name !== "";
+    if (!saisi) {
+      champ.value = aUnMontant ? formatNumberSpecial(total.toFixed(2)) : "";
+    }
 
     const totalCommandes = inputs.reduce((somme, input) => somme + (parseFloat(input.dataset.montantTotal) || 0), 0);
     const totalReceptionne = inputs.reduce((somme, input) => somme + (parseMontant(input.value) || 0), 0);
     this.afficherPourcentageLibelle(this.elements.montantInput, aUnMontant ? this.pourcentage(totalReceptionne, totalCommandes) : "");
-    this.afficherPourcentageLibelle(champ, aUnMontant ? this.pourcentage(total, totalCommandes) : "");
+    this.afficherPourcentageLibelle(champ, aUnMontant ? this.pourcentage(saisi ? parseMontant(champ.value) : total, totalCommandes) : "");
   }
 
   /**

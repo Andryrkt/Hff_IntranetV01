@@ -114,11 +114,11 @@
 						<div id="montantIncorrectWarning" class="text-danger small mt-1 d-none"></div>
 					</div>
 					{% if form.montantsCommande is defined %}
-						{# Somme des montants du commande à payer, calculée par DemandePaiementManager.js : affichage seul #}
+						{# Somme des montants commande à payer, calculée par DemandePaiementManager.js. Modifiable : le nom du champ n'est posé qu'à la saisie #}
 						<div class="col-12 col-md-4">
 							<div class="mb-3">
 								<label for="montantTotalAPayer" class="form-label">Montant total à payer</label>
-								<input type="text" id="montantTotalAPayer" class="form-control" readonly>
+								<input type="text" id="montantTotalAPayer" class="form-control">
 							</div>
 						</div>
 					{% endif %}

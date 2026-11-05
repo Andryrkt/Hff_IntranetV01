@@ -162,7 +162,7 @@ class DdpController extends Controller
             }
 
             if ($dto->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE) {
-                $this->soumissionApresArrivage($form, $dto);
+                $this->soumissionApresArrivage($form, $dto, trim((string) $request->request->get('montantTotalAPayerSaisi', '')));
                 return;
             }
 
@@ -200,10 +200,15 @@ class DdpController extends Controller
      * par saisie. Solde avance et montant à payer restent calculés commande par commande
      * (DemandePaiementRepository::getSituationAvanceParCommande).
      */
-    private function soumissionApresArrivage(FormInterface $form, DdpDto $dto): void
+    private function soumissionApresArrivage(FormInterface $form, DdpDto $dto, string $montantSaisi = ''): void
     {
         if (empty($dto->numeroCommande)) {
             $form->addError(new FormError('Aucune commande trouvée pour la/les facture(s) sélectionnée(s).'));
+            return;
+        }
+
+        if ($montantSaisi !== '' && !preg_match('/^\d[\d ]*(,\d*)?$/', $montantSaisi)) {
+            $form->addError(new FormError('Le montant total à payer doit être un nombre positif.'));
             return;
         }
 
@@ -232,13 +237,7 @@ class DdpController extends Controller
             }
         });
 
-        // montant à payer de la DDP = somme des montants du commande à payer
-        $dto->montantAPayer = number_format(
-            array_sum(array_map(fn($numCde) => (float) $dto->montantCommandeAPayer((string) $numCde), $dto->numeroCommande)),
-            2,
-            ',',
-            ''
-        );
+        $dto->montantAPayer = $this->montantAPayerApresArrivage($dto, $montantSaisi);
 
         $dto = $this->numeroEtFichiers($suivi, $form, $dto);
         $dto->donneesPageDeGarde = $suivi->etape('Données de la page de garde', fn() => $this->donneesPageDeGarde($dto));
@@ -246,6 +245,21 @@ class DdpController extends Controller
         $this->enregistrementEtPdf($suivi, $dto);
 
         $this->notificationSoumission($dto->numeroDdp);
+    }
+
+    /**
+     * Montant à payer de la DDP : le montant saisi s'il y en a un, sinon la somme des montants du commande à payer
+     */
+    private function montantAPayerApresArrivage(DdpDto $dto, string $montantSaisi): string
+    {
+        if ($montantSaisi !== '') {
+            $dto->montantAPayer = $montantSaisi;
+            $montant = $dto->montantAPayer();
+        } else {
+            $montant = array_sum(array_map(fn($numCde) => (float) $dto->montantCommandeAPayer((string) $numCde), $dto->numeroCommande));
+        }
+
+        return number_format($montant, 2, ',', '');
     }
 
     /**
