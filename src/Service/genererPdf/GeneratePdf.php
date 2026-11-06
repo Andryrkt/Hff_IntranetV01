@@ -100,8 +100,8 @@ class GeneratePdf
      */
     public function copyInterneToDOCUWARE(string $numDoc, string $codeAgServ)
     {
-        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
-        $cheminDestinationLocal = $this->baseCheminDuFichier . strtolower(substr($NumDom, 0, 3)) . '/' . $NumDom . '_'  . $codeAg_serv . '.pdf';
+        $cheminFichierDistant = $this->basePathDocuWare . '/ORDRE_DE_MISSION/' . $numDoc . '_' . $codeAgServ . '.pdf';
+        $cheminDestinationLocal = $this->basePathFile . '/' . strtolower(substr($numDoc, 0, 3)) . '/' . $numDoc . '_'  . $codeAgServ . '.pdf';
         if ($this->copierEtJournaliser($cheminDestinationLocal, $cheminFichierDistant)) {
             echo "okey";
         } else {
@@ -113,16 +113,16 @@ class GeneratePdf
     // Facture OR
     public function copyToDwFactureSoumis($numeroVersion, $numeroOR)
     {
-        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/factureValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
-        $cheminDestinationLocal = $this->baseCheminDuFichier . 'vfac/factureValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
+        $cheminFichierDistant = $this->basePathDocuWare . '/ORDRE_DE_MISSION/factureValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
+        $cheminDestinationLocal = $this->basePathFile . '/vfac/factureValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
         $this->copierEtJournaliser($cheminDestinationLocal, $cheminFichierDistant);
     }
 
 
     public function copyToDwFacture($numeroVersion, $numeroDoc)
     {
-        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/validation_facture_client_' . $numeroDoc . '_' . $numeroVersion . '.pdf';
-        $cheminDestinationLocal = $this->baseCheminDuFichier . 'vfac/validation_facture_client_' . $numeroDoc . '_' . $numeroVersion . '.pdf';
+        $cheminFichierDistant = $this->basePathDocuWare . '/ORDRE_DE_MISSION/validation_facture_client_' . $numeroDoc . '_' . $numeroVersion . '.pdf';
+        $cheminDestinationLocal = $this->basePathFile . '/vfac/validation_facture_client_' . $numeroDoc . '_' . $numeroVersion . '.pdf';
         $this->copierEtJournaliser($cheminDestinationLocal, $cheminFichierDistant);
     }
 
@@ -146,8 +146,8 @@ class GeneratePdf
 
     public function copyToDWCdeSoumis($fileName)
     {
-        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $fileName;
-        $cheminDestinationLocal = $this->baseCheminDuFichier . 'cde/' . $fileName;
+        $cheminFichierDistant = $this->basePathDocuWare . '/ORDRE_DE_MISSION/' . $fileName;
+        $cheminDestinationLocal = $this->basePathFile . '/cde/' . $fileName;
         if ($this->copierEtJournaliser($cheminDestinationLocal, $cheminFichierDistant)) {
             echo "okey";
         } else {
