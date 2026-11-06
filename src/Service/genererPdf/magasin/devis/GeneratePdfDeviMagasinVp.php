@@ -18,8 +18,8 @@ class GeneratePdfDeviMagasinVp extends GeneratePdf
      */
     public function copyToDWDevisVpMagasin(string $fileName, string $numeroDevis): void
     {
-        $cheminFichierDistant = $this->baseCheminDocuware . 'VERIFICATION_PRIX_MAGASIN/' . $fileName;
-        $cheminDestinationLocal = $this->baseCheminDuFichier . 'magasin/devis/' . $numeroDevis . '/' . $fileName;
+        $cheminFichierDistant = "{$this->basePathDocuWare}/VERIFICATION_PRIX_MAGASIN/{$fileName}";
+        $cheminDestinationLocal = "{$this->basePathFile}/magasin/devis/{$numeroDevis}/{$fileName}";
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 

@@ -50,7 +50,7 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
             ['key' => 'statut', 'label' => 'Statut', 'width' => 40, 'style' => 'font-weight: bold; text-align: center;'],
         ];
 
-        
+
         $html1 = $generator->generateTable($headerConfig1, $montantPdf['avantApresVte'], $montantPdf['totalAvantApresVte']);
         $pdf->writeHTML($html1, true, false, true, false, '');
 
@@ -112,11 +112,7 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
 
         //=====================================================================================================================
 
-        $Dossier = $_ENV['BASE_PATH_FICHIER'].'/dit/dev/';
-
-        $filePath = $nomFichierCtrl;
-
-        $pdf->Output($Dossier .$filePath, 'F');
+        $pdf->Output("{$this->basePathFile}/dit/dev/{$nomFichierCtrl}", 'F');
     }
 
 
@@ -175,7 +171,7 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
         $pdf->writeHTML($html1, true, false, true, false, '');
 
 
-        
+
         // ================================================================================================
         //VARIATION ET MARGE
         $this->addTitle($pdf, 'VARIATION ET MARGE');
@@ -187,7 +183,7 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
             ['key' => 'mttTotalAp', 'label' => 'Mtt ap', 'width' => 60, 'style' => 'font-weight: bold; text-align: right;'],
             ['key' => 'mttEcart', 'label' => 'Mtt écart', 'width' => 60, 'style' => 'font-weight: bold; text-align: right;'],
             ['key' => 'nbecart', 'label' => '% écart', 'width' => 50, 'style' => 'font-weight: bold; text-align: center;'],
-            
+
         ];
         $totals = [];
         $html2 = $generator->generateTable($headerVenteRevient, $montantPdf['variationVenteForfait'], $totals, true);
@@ -216,12 +212,6 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
         $html3 = $generator->generateTable($headerConfig3, $variationPrixRefPiece, $totals, true);
         $pdf->writeHTML($html3, true, false, true, false, '');
 
-
-        $Dossier = $_ENV['BASE_PATH_FICHIER'].'/dit/dev/';
-        
-        $filePath = $Dossier . $nomFichierCtrl;
-        
-        $pdf->Output($filePath, 'F');
-
+        $pdf->Output("{$this->basePathFile}/dit/dev/{$nomFichierCtrl}", 'F');
     }
 }

@@ -12,7 +12,7 @@ import {
   registerLocale,
   setLocale,
   formatNumberSpecial,
-  formaterNombre,
+  parseMontant,
 } from "../utils/formatNumberUtils.js";
 
 export class DemandePaiementManager {
@@ -23,6 +23,18 @@ export class DemandePaiementManager {
     this.isUpdatingCommande = false;
     this.isUpdatingFacture = false;
     this.typeId = null;
+    this.commandesAvecPdfIntrouvable = new Set();
+    // Cache des appels à "api/num-cde-frn/..." (requête coûteuse, identique
+    // pour un couple fournisseur/type donné) : évite de la relancer à chaque
+    // sélection de facture/commande alors que plusieurs écrans en dépendent.
+    this.commandesParFournisseurCache = new Map();
+    // Spinners affichés sous les selects (factures/commandes) pendant le chargement.
+    this.spinnersSelect = new Map();
+    // Montant calculé côté serveur (commande/facture sélectionnée), utilisé
+    // uniquement pour comparaison : l'utilisateur saisit lui-même le montant.
+    this.montantAttendu = null;
+    this.montantIncorrect = false;
+    this.messageMontantIncorrect = "";
 
     this.initElements();
     if (this.elements.numFactureInput) {
@@ -89,24 +101,22 @@ export class DemandePaiementManager {
   }
 
   initEventListeners() {
-    if (this.typeId != 2) {
-      $(this.elements.numCommandeInput).on("change", async () => {
-        const numCdes = $(this.elements.numCommandeInput).val();
-        let numCde = numCdes.length == 0 ? 0 : numCdes.join(",");
+    // Vérification du montant : "après arrivage" (typeId 2) via
+    // changeCommandeSelonFacture(), "à l'avance" (typeId 1) via
+    // chargerMontantCommandeHt().
 
-        try {
-          const url = this.config.urls.montantCommande.replace(
-            ":numCde",
-            numCde,
-          );
-          const montants = await this.fetchManager.get(url);
-          this.elements.montantInput.value =
-            numCdes.length != 0 ? montants[0].montantcde : "";
-        } catch (err) {
-          console.error("Erreur lors de la récupération des montants :", err);
-        }
-      });
-    }
+    $(this.elements.numCommandeInput).on("change", () => {
+      this.chargerFichiersCommandeValidee();
+      this.chargerFichiersOrValide();
+      this.chargerFichiersBcClient();
+      if (this.typeId == 1 && this.config.urls.montantCommandeHt) {
+        this.chargerMontantCommandeHt();
+      }
+      if (this.typeId == 2 && this.config.urls.montantCommandeHt) {
+        this.chargerHistoriquesApresArrivage();
+      }
+      this.afficherTableauMontantsCommande();
+    });
 
     if (this.elements.agenceDebiteurInput) {
       this.elements.agenceDebiteurInput.addEventListener("change", () =>
@@ -141,11 +151,43 @@ export class DemandePaiementManager {
       this.elements.montantInput.value = formatNumberSpecial(
         this.elements.montantInput.value,
       );
+      this.verifierMontant();
     });
+
+    const champTotal = this.elements.montantTotalAPayerInput;
+    if (champTotal) {
+      champTotal.addEventListener("input", () => {
+        champTotal.value = champTotal.value === "" ? "" : formatNumberSpecial(champTotal.value);
+        // Posté seulement s'il est saisi : sinon le serveur garde son propre calcul
+        champTotal.name = champTotal.value === "" ? "" : "montantTotalAPayerSaisi";
+        this.afficherMontantTotalAPayer();
+      });
+    }
   }
 
-  async fetchFournisseurs() {
-    return await this.fetchManager.get(this.config.urls.fournisseurs);
+  /**
+   * Liste partagée par les deux autocomplétions (une seule requête) ; fournisseur
+   * et bénéficiaire restent bloqués tant qu'elle charge.
+   */
+  fetchFournisseurs() {
+    if (!this.fournisseursPromise) {
+      const champs = [this.elements.numFrnInput, this.elements.beneficiaireInput];
+      const bloquer = (enChargement) => {
+        champs.forEach((champ) => champ && (champ.readOnly = enChargement));
+        if (this.elements.loaderNumFournisseur) {
+          this.elements.loaderNumFournisseur.style.display = enChargement ? "block" : "none";
+        }
+      };
+      bloquer(true);
+      this.fournisseursPromise = this.fetchManager
+        .get(this.config.urls.fournisseurs)
+        .catch((error) => {
+          this.fournisseursPromise = null; // permet un nouvel essai
+          throw error;
+        })
+        .finally(() => bloquer(false));
+    }
+    return this.fournisseursPromise;
   }
 
   displayFournisseur(item) {
@@ -156,49 +198,106 @@ export class DemandePaiementManager {
     this.elements.numFrnInput.value = item.num_fournisseur;
     this.elements.beneficiaireInput.value = item.nom_fournisseur;
     this.elements.deviseInput.value = item.devise;
+    // Champ vide (pas "-") quand le RIB est inconnu : le champ est
+    // "required: false", mais RibType valide sa valeur par une regex qui
+    // exige un chiffre au début ; "-" échouait cette validation et
+    // bloquait silencieusement toute la soumission du formulaire.
     this.elements.ribFrnInput.value =
       item.rib && item.rib != 0 && item.rib.trim() !== "XXXXXXXXXXX"
         ? item.rib
-        : "-";
+        : "";
 
     // Déclencher l'événement input pour formater et valider le RIB
-    this.elements.ribFrnInput.dispatchEvent(new Event("input", { bubbles: true }));
+    this.elements.ribFrnInput.dispatchEvent(
+      new Event("input", { bubbles: true }),
+    );
 
     if (this.typeId == 2) {
+      // Pas de chargement de toutes les commandes du fournisseur dans le select
+      // (des milliers pour certains) : le champ est désactivé et n'est rempli
+      // qu'avec les commandes des factures choisies (changeCommandeSelonFacture).
       this.listeFacture(item.num_fournisseur, this.typeId);
-      this.listeCommande2(item.num_fournisseur, this.typeId);
       this.updateCommandesFournisseur(item.num_fournisseur, this.typeId);
 
-      $(this.elements.numFactureInput).on("change", () => {
-        this.changeCommandeSelonFacture(item.num_fournisseur, this.typeId);
-      });
+      // .off() avant .on() : sans cela, chaque sélection de fournisseur
+      // empilait un handler de plus, et un changement de facture relançait
+      // N fois tous les appels (montant, documents, PDF de commande).
+      $(this.elements.numFactureInput)
+        .off("change.ddpFacture")
+        .on("change.ddpFacture", () => {
+          this.changeCommandeSelonFacture(item.num_fournisseur, this.typeId);
+        });
     } else if (this.typeId == 1 && !this.typeDa) {
       this.listeCommande(item.num_fournisseur, this.typeId);
     }
   }
 
-  async listeCommande(numFournisseur, id_type) {
-    try {
+  /**
+   * Récupère (et met en cache par fournisseur/type) le résultat de
+   * "api/num-cde-frn/...", requête coûteuse et identique pour un couple
+   * fournisseur/type donné, réutilisée par plusieurs écrans (factures,
+   * commandes, tableau, changement de facture).
+   */
+  getCommandesFournisseur(numFournisseur, typeId) {
+    const cle = `${numFournisseur}:${typeId}`;
+    if (!this.commandesParFournisseurCache.has(cle)) {
       const url = this.config.urls.commandes
         .replace(":numFournisseur", numFournisseur)
-        .replace(":typeId", id_type);
-      const commandes = await this.fetchManager.get(url);
+        .replace(":typeId", typeId);
+      this.commandesParFournisseurCache.set(cle, this.fetchManager.get(url));
+    }
+    return this.commandesParFournisseurCache.get(cle);
+  }
+
+  async listeCommande(numFournisseur, id_type) {
+    this.toggleChargementSelect(this.elements.numCommandeInput, true);
+    try {
+      const commandes = await this.getCommandesFournisseur(
+        numFournisseur,
+        id_type,
+      );
       this.ajoutDesOptions(this.elements.numCommandeInput, commandes.numCdes);
     } catch (error) {
       console.error("Erreur lors de la récupération des commandes :", error);
+    } finally {
+      this.toggleChargementSelect(this.elements.numCommandeInput, false);
     }
   }
 
-  async listeCommande2(numFournisseur, id_type) {
-    try {
-      const url = this.config.urls.commandes
-        .replace(":numFournisseur", numFournisseur)
-        .replace(":typeId", id_type);
-      const commandes = await this.fetchManager.get(url);
-      const listeCommande = this.transformTab(commandes.listeGcot, "Numero_PO");
-      this.ajoutDesOptions(this.elements.numCommandeInput, listeCommande);
-    } catch (error) {
-      console.error("Erreur lors de la récupération des commandes :", error);
+  /**
+   * Affiche (ou retire) un spinner sous un select2 et le désactive pendant
+   * le chargement de ses options.
+   */
+  toggleChargementSelect(selectElement, enChargement) {
+    if (!selectElement) return;
+
+    const spinnerExistant = this.spinnersSelect.get(selectElement);
+    if (enChargement && !spinnerExistant) {
+      // Mémorise l'état "disabled" d'origine (ex: n° commande désactivé
+      // côté formulaire pour le type 2) pour le restaurer après chargement.
+      selectElement.dataset.disabledInitial = selectElement.disabled
+        ? "1"
+        : "0";
+      const spinner = document.createElement("div");
+      spinner.className =
+        "d-flex align-items-center gap-2 text-muted small mt-1";
+      spinner.innerHTML = `
+        <div class="spinner-border spinner-border-sm text-primary" role="status">
+          <span class="visually-hidden">Chargement...</span>
+        </div>
+        <span>Chargement des données...</span>
+      `;
+      const conteneurSelect2 = $(selectElement).next(".select2-container")[0];
+      (conteneurSelect2 || selectElement).after(spinner);
+      this.spinnersSelect.set(selectElement, spinner);
+      $(selectElement).prop("disabled", true);
+    } else if (!enChargement && spinnerExistant) {
+      spinnerExistant.remove();
+      this.spinnersSelect.delete(selectElement);
+      $(selectElement).prop(
+        "disabled",
+        selectElement.dataset.disabledInitial === "1",
+      );
     }
   }
 
@@ -218,22 +317,36 @@ export class DemandePaiementManager {
 
   ajoutDesOptions(inputElement, data) {
     inputElement.innerHTML = "";
+    // Select simple : option vide pour éviter la sélection automatique de la
+    // première valeur (et permettre le placeholder Select2)
+    if (!inputElement.multiple) {
+      inputElement.appendChild(new Option("", ""));
+    }
     data.forEach((item) => {
       let option = new Option(item.label, item.value);
       inputElement.appendChild(option);
     });
+
+    // Select2 ne rafraîchit son affichage qu'après un événement "change"
+    // explicite sur le <select> sous-jacent : sans ce trigger, les nouvelles
+    // options restent invisibles dans le widget tant qu'aucun autre événement
+    // "change" ne survient (ex: sélection d'une facture).
+    $(inputElement).trigger("change");
   }
 
   async listeFacture(numFournisseur, typeId) {
+    this.toggleChargementSelect(this.elements.numFactureInput, true);
     try {
       this.elements.numFactureInput.innerHTML = "";
       this.elements.numCommandeInput.innerHTML = "";
-      this.elements.montantInput.value = 0;
+      this.elements.montantInput.value = "";
+      this.montantAttendu = null;
+      this.verifierMontant();
 
-      const url = this.config.urls.commandes
-        .replace(":numFournisseur", numFournisseur)
-        .replace(":typeId", typeId);
-      const commandes = await this.fetchManager.get(url);
+      const commandes = await this.getCommandesFournisseur(
+        numFournisseur,
+        typeId,
+      );
       const listeFacture = this.transformTab(
         commandes.listeGcot,
         "Numero_Facture",
@@ -241,6 +354,8 @@ export class DemandePaiementManager {
       this.ajoutDesOptions(this.elements.numFactureInput, listeFacture);
     } catch (error) {
       console.error("Erreur lors de la récupération des factures :", error);
+    } finally {
+      this.toggleChargementSelect(this.elements.numFactureInput, false);
     }
   }
 
@@ -248,12 +363,12 @@ export class DemandePaiementManager {
     if (this.isUpdatingFacture) return;
     this.isUpdatingCommande = true;
 
-    const numFacs = $(this.elements.numFactureInput).val();
+    const numFacs = $(this.elements.numFactureInput).val() || [];
     try {
-      const url = this.config.urls.commandes
-        .replace(":numFournisseur", numFournisseur)
-        .replace(":typeId", typeId);
-      const commandes = await this.fetchManager.get(url);
+      const commandes = await this.getCommandesFournisseur(
+        numFournisseur,
+        typeId,
+      );
       const facturesCorrespondantes = commandes.listeGcot.filter((f) =>
         numFacs.includes(f.Numero_Facture),
       );
@@ -262,7 +377,25 @@ export class DemandePaiementManager {
       ];
 
       this.recupFichier(facturesCorrespondantes);
-      $(this.elements.numCommandeInput).val(numerosPO).trigger("change");
+
+      // Factures (n° et montant) par commande, pour le tableau des montants par commande
+      this.facturesParCommande = new Map();
+      facturesCorrespondantes.forEach((f) => {
+        if (!this.facturesParCommande.has(f.Numero_PO)) {
+          this.facturesParCommande.set(f.Numero_PO, []);
+        }
+        this.facturesParCommande.get(f.Numero_PO).push(f);
+      });
+      this.chargerMontantsReceptionnes(numFournisseur, numerosPO, numFacs);
+
+      // Le select ne contient que les commandes des factures choisies, toutes
+      // sélectionnées ; un seul "change" déclenche le chargement des PDF.
+      const selectCommande = this.elements.numCommandeInput;
+      selectCommande.innerHTML = "";
+      numerosPO.forEach((po) =>
+        selectCommande.appendChild(new Option(po, po, true, true)),
+      );
+      $(selectCommande).trigger("change");
 
       const facturesString = facturesCorrespondantes
         .map((f) => f.Numero_Facture)
@@ -270,7 +403,8 @@ export class DemandePaiementManager {
       if (facturesString === "") {
         // Aucune facture sélectionnée : pas de montant à récupérer
         // (l'URL contiendrait un segment vide et donnerait un 404)
-        this.elements.montantInput.value = 0;
+        this.montantAttendu = null;
+        this.verifierMontant();
         return;
       }
 
@@ -280,7 +414,8 @@ export class DemandePaiementManager {
         .replace(":typeId", typeId);
       const montantFacture = await this.fetchManager.get(montantUrl);
 
-      this.elements.montantInput.value = formaterNombre(montantFacture[0], " ");
+      this.montantAttendu = parseMontant(montantFacture[0]);
+      this.verifierMontant();
     } catch (error) {
       console.error(
         "Erreur lors de la récupération du montant facture :",
@@ -292,26 +427,39 @@ export class DemandePaiementManager {
   }
 
   async recupFichier(cdeFacCorrespondantes) {
+    // Une réponse arrivée après un changement de facture plus récent est ignorée,
+    // sinon elle réafficherait les fichiers d'une facture retirée.
+    const requete = (this.recupFichierRequete = (this.recupFichierRequete || 0) + 1);
     const numerosDossier = [
       ...new Set(cdeFacCorrespondantes.map((f) => f.Numero_Dossier_Douane)),
-    ];
-    let dossiers = [];
+    ].filter(Boolean);
 
-    for (const numero of numerosDossier) {
-      try {
-        const url = this.config.urls.listeDoc.replace(":numero", numero);
-        const docs = await this.fetchManager.get(url);
-        dossiers.push(...docs);
-      } catch (error) {
-        console.error(
-          `Erreur lors de la récupération des fichiers pour le dossier ${numero} :`,
-          error,
-        );
-      }
-    }
+    // Récupération en parallèle (au lieu d'un enchaînement séquentiel) :
+    // avec plusieurs dossiers, attendre chaque appel l'un après l'autre
+    // multipliait le temps d'attente par le nombre de dossiers.
+    const resultats = await Promise.all(
+      numerosDossier.map(async (numero) => {
+        try {
+          const url = this.config.urls.listeDoc.replace(":numero", numero);
+          return await this.fetchManager.get(url);
+        } catch (error) {
+          console.error(
+            `Erreur lors de la récupération des fichiers pour le dossier ${numero} :`,
+            error,
+          );
+          return [];
+        }
+      }),
+    );
+    if (requete !== this.recupFichierRequete) return;
+    const dossiers = resultats.flat();
+
+    this.afficherFichiersFacture(dossiers, cdeFacCorrespondantes.length > 0);
 
     const liste = this.elements.fileList;
+    if (!liste) return;
     liste.innerHTML = "";
+    liste.classList.toggle("d-none", dossiers.length === 0);
 
     dossiers.forEach((fichier) => {
       const nom = this.nomFichier(fichier.Nom_Fichier);
@@ -323,67 +471,9 @@ export class DemandePaiementManager {
       a.textContent = `Ouvrir ${nom}`;
       a.target = "_blank";
 
-      a.onclick = async (e) => {
+      a.onclick = (e) => {
         e.preventDefault();
-        const newWindow = window.open("", "_blank");
-        newWindow.document.write(
-          `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Chargement...</title>
-                <style>
-                    .loader {
-                        border: 5px solid #f3f3f3;
-                        border-top: 5px solid #3498db;
-                        border-radius: 50%;
-                        width: 50px;
-                        height: 50px;
-                        animation: spin 2s linear infinite;
-                        margin: 20% auto;
-                    }
-                    @keyframes spin {
-                        0% { transform: rotate(0deg); }
-                        100% { transform: rotate(360deg); }
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="loader"></div>
-                <p style="text-align: center">Chargement du document...</p>
-            </body>
-            </html>
-        `,
-        );
-
-        try {
-          const response = await fetch(a.href);
-          if (!response.ok) throw new Error(await response.text());
-          const contentType = response.headers.get("content-type");
-          const blob = await response.blob();
-          const blobUrl = URL.createObjectURL(blob);
-
-          if (contentType.includes("pdf")) {
-            newWindow.location.href = blobUrl;
-          } else if (contentType.startsWith("image/")) {
-            newWindow.document.body.innerHTML = `<img src="${blobUrl}" style="max-width: 100%; max-height: 100vh">`;
-          } else {
-            const iframe = document.createElement("iframe");
-            iframe.src = blobUrl;
-            iframe.style = "width:100%; height:100vh; border:none";
-            newWindow.document.body.innerHTML = "";
-            newWindow.document.body.appendChild(iframe);
-          }
-
-          newWindow.onunload = () => URL.revokeObjectURL(blobUrl);
-        } catch (error) {
-          console.error("Erreur:", error);
-          newWindow.document.body.innerHTML = `
-                <h1 style="color: red">Erreur</h1>
-                <p>${error.message}</p>
-                <button onclick="window.close()">Fermer</button>
-            `;
-        }
+        this.ouvrirFichierDansNouvelOnglet(a.href);
       };
 
       li.appendChild(a);
@@ -391,11 +481,1046 @@ export class DemandePaiementManager {
     });
   }
 
+  /**
+   * Affiche, dans l'onglet "Facture", un sous-onglet par fichier du dossier
+   * douane (PDV, LTA, HAWB) des factures sélectionnées.
+   */
+  afficherFichiersFacture(dossiers, factureSelectionnee) {
+    const subTabsNav = this.elements.factureSubTabs;
+    const subTabsContent = this.elements.factureSubTabContent;
+    if (!subTabsNav || !subTabsContent) return;
+
+    subTabsNav.innerHTML = "";
+    subTabsContent.innerHTML = "";
+    subTabsNav.classList.toggle("d-none", dossiers.length <= 1);
+
+    if (dossiers.length === 0) {
+      subTabsContent.innerHTML = `<p class="text-muted mb-0">${
+        factureSelectionnee ? "Aucun fichier trouvé pour la/les facture(s) sélectionnée(s)." : "Aucune facture sélectionnée."
+      }</p>`;
+      return;
+    }
+
+    dossiers.forEach((fichier, index) => {
+      const nom = fichier.Nom_Fichier.split("\\").pop();
+      const pane = this.ajouterSousOnglet(subTabsNav, subTabsContent, `facture-fichier-${index}`, nom, index === 0);
+      this.afficherPdfDw(pane, nom, fichier.Nom_Fichier, this.config.urls.recupererFichier);
+    });
+  }
+
+  /**
+   * Ouvre le fichier pointé par `href` dans un nouvel onglet, avec un loader
+   * pendant le chargement, puis affiche le PDF/image/iframe selon le content-type.
+   */
+  ouvrirFichierDansNouvelOnglet(href) {
+    const newWindow = window.open("", "_blank");
+    newWindow.document.write(
+      `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Chargement...</title>
+            <style>
+                .loader {
+                    border: 5px solid #f3f3f3;
+                    border-top: 5px solid #3498db;
+                    border-radius: 50%;
+                    width: 50px;
+                    height: 50px;
+                    animation: spin 2s linear infinite;
+                    margin: 20% auto;
+                }
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="loader"></div>
+            <p style="text-align: center">Chargement du document...</p>
+        </body>
+        </html>
+    `,
+    );
+
+    (async () => {
+      try {
+        const response = await fetch(href);
+        if (!response.ok) throw new Error(await response.text());
+        const contentType = response.headers.get("content-type");
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+
+        if (contentType.includes("pdf")) {
+          newWindow.location.href = blobUrl;
+        } else if (contentType.startsWith("image/")) {
+          newWindow.document.body.innerHTML = `<img src="${blobUrl}" style="max-width: 100%; max-height: 100vh">`;
+        } else {
+          const iframe = document.createElement("iframe");
+          iframe.src = blobUrl;
+          iframe.style = "width:100%; height:100vh; border:none";
+          newWindow.document.body.innerHTML = "";
+          newWindow.document.body.appendChild(iframe);
+        }
+
+        newWindow.onunload = () => URL.revokeObjectURL(blobUrl);
+      } catch (error) {
+        console.error("Erreur:", error);
+        newWindow.document.body.innerHTML = `
+              <h1 style="color: red">Erreur</h1>
+              <p>${error.message}</p>
+              <button onclick="window.close()">Fermer</button>
+          `;
+      }
+    })();
+  }
+
+  /**
+   * Affiche, dans l'onglet "commande fournisseur validée", un sous-onglet par
+   * commande fournisseur sélectionnée (toujours présent, même sans PDF trouvé).
+   */
+  async chargerFichiersCommandeValidee() {
+    const subTabsNav = this.elements.commandeValideeSubTabs;
+    const subTabsContent = this.elements.commandeValideeSubTabContent;
+    if (!subTabsNav || !subTabsContent) return;
+
+    subTabsNav.innerHTML = "";
+    subTabsContent.innerHTML = "";
+    subTabsNav.classList.add("d-none");
+
+    this.commandesAvecPdfIntrouvable.clear();
+    this.mettreAJourEtatSoumission();
+
+    const numCdes = this.getNumCdesSelectionnees();
+    if (numCdes.length === 0) return;
+
+    subTabsNav.classList.toggle("d-none", numCdes.length <= 1);
+
+    const panesParCommande = new Map();
+    numCdes.forEach((numCde, index) => {
+      const pane = this.ajouterSousOngletCommande(
+        subTabsNav,
+        subTabsContent,
+        numCde,
+        index,
+      );
+      pane.appendChild(this.creerSpinner("Recherche du fichier..."));
+      panesParCommande.set(numCde, pane);
+    });
+
+    try {
+      const url = this.config.urls.fichiersCommandeFournisseur.replace(
+        ":numeroCommande",
+        numCdes.join(","),
+      );
+      const fichiers = await this.fetchManager.get(url);
+
+      numCdes.forEach((numCde) => {
+        const pane = panesParCommande.get(numCde);
+        pane.innerHTML = "";
+
+        const fichiersDeCommande = fichiers.filter(
+          (fichier) => fichier.numeroCde === numCde,
+        );
+
+        if (fichiersDeCommande.length === 0) {
+          this.afficherPdfIntrouvable(pane, numCde);
+          return;
+        }
+
+        fichiersDeCommande.forEach((fichier) =>
+          this.afficherPdfCommandeValidee(pane, fichier),
+        );
+      });
+    } catch (error) {
+      console.error(
+        "Erreur lors de la récupération des fichiers de commande :",
+        error,
+      );
+      numCdes.forEach((numCde) => {
+        const pane = panesParCommande.get(numCde);
+        pane.innerHTML = `<p class="text-danger mb-0">Erreur lors de la récupération des fichiers.</p>`;
+      });
+    }
+  }
+
+  /**
+   * Ajoute un sous-onglet (bouton + panneau vide) pour une commande fournisseur
+   * sélectionnée, et retourne le panneau à remplir.
+   */
+  ajouterSousOngletCommande(subTabsNav, subTabsContent, numCde, index) {
+    return this.ajouterSousOnglet(
+      subTabsNav,
+      subTabsContent,
+      `commande-validee-${numCde}`,
+      `Commande ${numCde}`,
+      index === 0,
+    );
+  }
+
+  /**
+   * Affiche, dans l'onglet "OR validé", un sous-onglet par OR lié aux
+   * commandes fournisseur sélectionnées (fichiers de DW_Ordre_De_Reparation).
+   * Un OR introuvable ne bloque pas la soumission.
+   */
+  async chargerFichiersOrValide() {
+    const subTabsNav = this.elements.orValideSubTabs;
+    const subTabsContent = this.elements.orValideSubTabContent;
+    if (!subTabsNav || !subTabsContent || !this.config.urls.fichiersOrValide)
+      return;
+
+    subTabsNav.innerHTML = "";
+    subTabsContent.innerHTML = "";
+    subTabsNav.classList.add("d-none");
+
+    const numCdes = this.getNumCdesSelectionnees();
+    if (numCdes.length === 0) return;
+
+    // Ignore les réponses d'une sélection précédente
+    const jeton = (this.jetonChargementOr = (this.jetonChargementOr || 0) + 1);
+    subTabsContent.appendChild(this.creerSpinner("Recherche des OR..."));
+
+    try {
+      const url = this.config.urls.fichiersOrValide.replace(
+        ":numeroCommande",
+        numCdes.join(","),
+      );
+      const { numerosOr = [], fichiers = [] } =
+        await this.fetchManager.get(url);
+      if (jeton !== this.jetonChargementOr) return;
+
+      subTabsContent.innerHTML = "";
+
+      if (numerosOr.length === 0) {
+        subTabsContent.innerHTML = `<p class="text-muted mb-0">Aucun OR lié à la/les commande(s) sélectionnée(s).</p>`;
+        return;
+      }
+
+      subTabsNav.classList.toggle("d-none", numerosOr.length <= 1);
+
+      numerosOr.forEach((numeroOr, index) => {
+        const pane = this.ajouterSousOnglet(
+          subTabsNav,
+          subTabsContent,
+          `or-valide-${numeroOr}`,
+          `OR ${numeroOr}`,
+          index === 0,
+        );
+
+        const fichiersDeOr = fichiers.filter((f) => f.numeroOr === numeroOr);
+        if (fichiersDeOr.length === 0) {
+          pane.innerHTML = `<p class="text-danger mb-0">OR ${numeroOr} - Introuvable</p>`;
+          return;
+        }
+
+        fichiersDeOr.forEach((fichier) =>
+          this.afficherPdfCommandeValidee(pane, fichier, false),
+        );
+      });
+    } catch (error) {
+      if (jeton !== this.jetonChargementOr) return;
+      console.error("Erreur lors de la récupération des fichiers OR :", error);
+      subTabsContent.innerHTML = `<p class="text-danger mb-0">Erreur lors de la récupération des fichiers OR.</p>`;
+    }
+  }
+
+  /**
+   * Ajoute un sous-onglet (bouton + panneau vide) et retourne le panneau à remplir.
+   */
+  ajouterSousOnglet(subTabsNav, subTabsContent, tabId, libelle, estActif) {
+
+    const navItem = document.createElement("li");
+    navItem.className = "nav-item";
+    navItem.setAttribute("role", "presentation");
+
+    const navButton = document.createElement("button");
+    navButton.className = `nav-link${estActif ? " active" : ""}`;
+    navButton.id = `${tabId}-tab`;
+    navButton.type = "button";
+    navButton.dataset.bsToggle = "pill";
+    navButton.dataset.bsTarget = `#${tabId}`;
+    navButton.setAttribute("role", "tab");
+    navButton.textContent = libelle;
+    navItem.appendChild(navButton);
+    subTabsNav.appendChild(navItem);
+
+    const pane = document.createElement("div");
+    pane.className = `tab-pane fade${estActif ? " show active" : ""}`;
+    pane.id = tabId;
+    pane.setAttribute("role", "tabpanel");
+    pane.setAttribute("aria-labelledby", `${tabId}-tab`);
+    subTabsContent.appendChild(pane);
+
+    return pane;
+  }
+
+  /**
+   * Affiche le message "Introuvable" pour une commande sans fichier, et
+   * bloque la soumission tant qu'elle reste sélectionnée.
+   */
+  afficherPdfIntrouvable(pane, numCde) {
+    const p = document.createElement("p");
+    p.className = "text-danger mb-0";
+    p.textContent = `Commande ${numCde} - Introuvable`;
+    pane.appendChild(p);
+
+    this.commandesAvecPdfIntrouvable.add(numCde);
+    this.mettreAJourEtatSoumission();
+  }
+
+  /**
+   * Télécharge (en blob) puis affiche un PDF de commande validée, avec un
+   * spinner pendant le chargement effectif du fichier.
+   */
+  async afficherPdfCommandeValidee(container, fichier, bloquerSiIntrouvable = true) {
+    const charge = await this.afficherPdfDw(container, fichier.nomFichier, fichier.path);
+    if (!charge) {
+      this.commandesAvecPdfIntrouvable.add(fichier.numeroCde);
+      this.mettreAJourEtatSoumission();
+    }
+  }
+
+  /**
+   * Télécharge (en blob) puis affiche un PDF DocuWare (chemin relatif à
+   * BASE_PATH_FICHIER), précédé de sa légende. Retourne false si introuvable.
+   */
+  async afficherPdfDw(container, legendeTexte, path, urlFichier = this.config.urls.telechargerFichierCommandeDw) {
+    const legende = document.createElement("p");
+    legende.className = "mb-2 fw-bold";
+    legende.textContent = legendeTexte;
+    container.appendChild(legende);
+
+    const spinner = this.creerSpinner("Chargement du PDF...", "80vh");
+    container.appendChild(spinner);
+
+    try {
+      const baseUrl = window.location.origin;
+      const encodedPath = encodeURIComponent(path);
+      const fileUrl = `${baseUrl}${urlFichier}?path=${encodedPath}`;
+
+      const response = await fetch(fileUrl);
+      if (!response.ok) throw new Error(await response.text());
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
+      const embed = document.createElement("embed");
+      embed.src = blobUrl;
+      embed.type = "application/pdf";
+      embed.width = "100%";
+      embed.style.height = "80vh";
+
+      spinner.replaceWith(embed);
+      return true;
+    } catch (error) {
+      console.error("Erreur lors du chargement du PDF :", error);
+      spinner.innerHTML = `<p class="text-danger mb-0">Introuvable</p>`;
+      return false;
+    }
+  }
+
+  /**
+   * Affiche, dans l'onglet "BC client externe / BC client magasin", les BC
+   * client négoce (DW_BC_Client_Negoce) rattachés aux commandes sélectionnées.
+   * Informatif uniquement : l'absence de BC ne bloque pas la soumission.
+   */
+  async chargerFichiersBcClient() {
+    const container = this.elements.bcClientDwFiles;
+    if (!container || !this.config.urls.fichiersBcClient) return;
+
+    container.innerHTML = "";
+
+    const numCdes = this.getNumCdesSelectionnees();
+    if (numCdes.length === 0) return;
+
+    container.appendChild(this.creerSpinner("Recherche des BC client..."));
+
+    try {
+      const url = this.config.urls.fichiersBcClient.replace(
+        ":numeroCommande",
+        numCdes.join(","),
+      );
+      const fichiers = await this.fetchManager.get(url);
+
+      // Ignore la réponse si la sélection a changé entre-temps
+      if (this.getNumCdesSelectionnees().join(",") !== numCdes.join(",")) return;
+
+      container.innerHTML = "";
+
+      if (fichiers.length === 0) {
+        container.innerHTML = `<p class="text-muted mb-0">Aucun BC client trouvé pour la/les commande(s) ${numCdes.join(", ")}.</p>`;
+        return;
+      }
+
+      fichiers.forEach((fichier) =>
+        this.afficherPdfDw(
+          container,
+          `Commande ${fichier.numeroCde} - BC ${fichier.numeroBccNeg} (${fichier.nomFichier})`,
+          fichier.path,
+        ),
+      );
+    } catch (error) {
+      console.error("Erreur lors de la récupération des BC client :", error);
+      container.innerHTML = `<p class="text-danger mb-0">Erreur lors de la récupération des BC client.</p>`;
+
+      if (bloquerSiIntrouvable) {
+        this.commandesAvecPdfIntrouvable.add(fichier.numeroCde);
+        this.mettreAJourEtatSoumission();
+      }
+    }
+  }
+
+  /**
+   * Compare le montant saisi par l'utilisateur au montant calculé
+   * (commande ou facture sélectionnée) et met à jour l'état de blocage.
+   */
+  verifierMontant() {
+    if (this.typeId == 1) {
+      this.verifierMontantAvance();
+      return;
+    }
+
+    // après arrivage : le montant total réceptionné doit égaler la somme des montants du commande réceptionnés
+    const inputsCommande = [
+      ...(this.elements.montantsCommandeBody?.querySelectorAll("input") || []),
+    ];
+    const sansMontant = inputsCommande.find((input) => input.value === "");
+    if (sansMontant) {
+      this.montantIncorrect = true;
+      this.messageMontantIncorrect = `Le montant réceptionné de la commande ${sansMontant.dataset.numCde} est introuvable dans IPS pour la/les facture(s) sélectionnée(s).`;
+      this.mettreAJourEtatSoumission();
+      return;
+    }
+
+    // commande payée à 100 % : le montant réceptionné ne peut pas dépasser le solde avance (DdpController::erreurReceptionDepasseSolde)
+    const depassement = inputsCommande.find(
+      (input) =>
+        input.dataset.regule === "1" &&
+        parseMontant(input.value) - parseFloat(input.dataset.soldeAvance) > 0.01,
+    );
+    if (depassement) {
+      this.montantIncorrect = true;
+      this.messageMontantIncorrect = `Le montant réceptionné de la commande ${depassement.dataset.numCde} (${depassement.value}) dépasse son solde avance (${formatNumberSpecial(Number(depassement.dataset.soldeAvance).toFixed(2))}).`;
+      this.mettreAJourEtatSoumission();
+      return;
+    }
+
+    const montantAttendu = inputsCommande.length
+      ? inputsCommande.reduce((somme, input) => somme + (parseMontant(input.value) || 0), 0)
+      : this.montantAttendu;
+
+    if (montantAttendu === null || isNaN(montantAttendu)) {
+      this.montantIncorrect = false;
+      this.mettreAJourEtatSoumission();
+      return;
+    }
+
+    const montantSaisi = parseMontant(this.elements.montantInput.value);
+    this.montantIncorrect =
+      isNaN(montantSaisi) || Math.abs(montantSaisi - montantAttendu) > 0.01;
+    this.messageMontantIncorrect = inputsCommande.length
+      ? "Le montant total réceptionné doit être égal à la somme des montants du commande réceptionnés."
+      : "Le montant saisi ne correspond pas au montant de la/les commande(s)/facture(s) sélectionnée(s).";
+
+    this.mettreAJourEtatSoumission();
+  }
+
+  /**
+   * Paiement à l'avance : bloque la soumission si le montant dépasse le plafond
+   * (data-plafond, formulaire magasin uniquement), si la commande est déjà payée à 100 %,
+   * si cette demande ferait dépasser 100 % au cumul des demandes validées
+   * ou si son montant total n'est pas remonté d'IPS (formulaire magasin uniquement).
+   */
+  verifierMontantAvance() {
+    this.montantIncorrect = false;
+    this.messageMontantIncorrect = "";
+
+    const ratioAvanceValide = this.ratioAvanceValide || 0;
+    const montantTotal = parseMontant(this.elements.montantTotalCommandeInput?.value || "");
+    const cumul = ratioAvanceValide + (parseMontant(this.elements.montantInput.value) / montantTotal) * 100;
+    const plafond = parseFloat(this.elements.montantInput.dataset.plafond);
+    if (
+      !isNaN(plafond) &&
+      parseMontant(this.elements.montantInput.value) > plafond
+    ) {
+      this.montantIncorrect = true;
+      this.messageMontantIncorrect = `Le montant facture proforma ne doit pas dépasser ${plafond.toLocaleString("fr-FR")}.`;
+    } else if (this.commandeSoldee) {
+      // Commande déjà payée à 100 % par des demandes de paiement à l'avance validées
+      this.montantIncorrect = true;
+      this.messageMontantIncorrect = `La commande ${this.getNumCdesSelectionnees()[0]} est déjà payée à 100 % par des demandes de paiement à l'avance validées : une nouvelle demande de paiement à l'avance n'est pas possible.`;
+    } else if (montantTotal > 0 && cumul > 100 + 0.01) {
+      const montantMaximum = ((100 - ratioAvanceValide) * montantTotal) / 100;
+      this.montantIncorrect = true;
+      this.messageMontantIncorrect = `Le montant facture proforma de la commande ${this.getNumCdesSelectionnees()[0]} porte le cumul des demandes de paiement à l'avance validées à ${formatNumberSpecial(cumul.toFixed(2))} % : il ne doit pas dépasser ${formatNumberSpecial(montantMaximum.toFixed(2))}.`;
+    } else if (
+      this.elements.montantTotalCommandeInput?.value === "" &&
+      this.getNumCdesSelectionnees().length > 0
+    ) {
+      this.montantIncorrect = true;
+      this.messageMontantIncorrect = "Le montant total de cette commande est introuvable dans IPS pour ce fournisseur.";
+    }
+
+    this.mettreAJourEtatSoumission();
+  }
+
+  /**
+   * Paiement à l'avance : vérifie si la commande sélectionnée est déjà soldée
+   * et affiche l'historique des demandes de paiement de la commande.
+   */
+  async chargerMontantCommandeHt() {
+    const numCde = this.getNumCdesSelectionnees()[0];
+    this.commandeSoldee = false;
+    this.ratioAvanceValide = 0;
+    this.afficherHistoriqueDdp(null);
+    this.chargerMontantTotalCommande(numCde);
+
+    if (!numCde) {
+      this.verifierMontant();
+      return;
+    }
+
+    try {
+      const url = this.config.urls.montantCommandeHt.replace(":numCde", numCde);
+      const resultat = await this.fetchManager.get(url);
+      // Ignore la réponse si la sélection a changé entre-temps
+      if (this.getNumCdesSelectionnees()[0] !== numCde) return;
+      this.commandeSoldee = resultat.commandeSoldee === true;
+      this.ratioAvanceValide = Number(resultat.ratioAvanceValide) || 0;
+      this.afficherHistoriqueDdp(numCde, resultat);
+    } catch (error) {
+      console.error(
+        "Erreur lors de la récupération du montant de la commande :",
+        error,
+      );
+    }
+
+    this.verifierMontant();
+  }
+
+  /**
+   * Paiement à l'avance (formulaire magasin) : montant total de la commande dans IPS.
+   * Affichage seul, le serveur le relit à la soumission (DdpController::traitementDuFormulaire).
+   */
+  async chargerMontantTotalCommande(numCde) {
+    const champ = this.elements.montantTotalCommandeInput;
+    if (!champ) return;
+
+    champ.value = "";
+    if (!numCde) return;
+
+    const montantTotalCommande = await this.recupererMontantTotalCommande(numCde);
+    // Ignore la réponse si la sélection a changé entre-temps
+    if (this.getNumCdesSelectionnees()[0] !== numCde) return;
+    if (montantTotalCommande > 0) {
+      champ.value = formatNumberSpecial(Number(montantTotalCommande).toFixed(2));
+    }
+    this.verifierMontant();
+  }
+
+  /**
+   * Montant total d'une commande dans IPS, mis en cache par fournisseur et commande
+   * (le tableau du type 2 est reconstruit à chaque changement).
+   */
+  recupererMontantTotalCommande(numCde) {
+    this.montantsTotauxCommande ??= new Map();
+    const numFournisseur = this.elements.numFrnInput.value;
+    const cle = `${numFournisseur}:${numCde}`;
+    if (!this.montantsTotauxCommande.has(cle)) {
+      const url = this.config.urls.montantTotalCommande
+        .replace(":numFournisseur", encodeURIComponent(numFournisseur))
+        .replace(":numCde", encodeURIComponent(numCde));
+      this.montantsTotauxCommande.set(
+        cle,
+        this.fetchManager
+          .get(url)
+          .then((resultat) => resultat.montantTotalCommande)
+          .catch((error) => {
+            console.error(
+              "Erreur lors de la récupération du montant total de la commande :",
+              error,
+            );
+            this.montantsTotauxCommande.delete(cle);
+            return null;
+          }),
+      );
+    }
+    return this.montantsTotauxCommande.get(cle);
+  }
+
+  /**
+   * Affiche (ou masque si numCde est null) l'historique des demandes de
+   * paiement de la commande, avec les totaux, en haut du formulaire
+   * (même présentation que la demande de paiement DA).
+   */
+  afficherHistoriqueDdp(numCde, resultat = null) {
+    const { historiqueDdp, historiqueDdpBody, historiqueDdpNumCde } =
+      this.elements;
+    if (!historiqueDdp || !historiqueDdpBody) return;
+
+    historiqueDdpBody.innerHTML = "";
+    historiqueDdp.classList.toggle("d-none", !numCde);
+    if (!numCde || !resultat) return;
+
+    if (historiqueDdpNumCde) historiqueDdpNumCde.textContent = numCde;
+    this.afficherMontantTotalHistorique(historiqueDdp, resultat);
+
+    const format = (montant) => formatNumberSpecial(Number(montant).toFixed(2));
+    const ajouterLigne = (cellules) => this.ajouterLigneHistorique(cellules);
+
+    const historique = resultat.historique || [];
+    if (historique.length === 0) {
+      ajouterLigne([
+        { texte: "Aucune donnée disponible", classe: "text-center", colspan: 9 },
+      ]);
+    }
+
+    historique.forEach((ddp) =>
+      ajouterLigne([
+        ...this.cellulesDebutHistorique(ddp),
+        { texte: format(ddp.montant), classe: "text-end" },
+        { texte: `${format(ddp.ratio)}%`, classe: "text-end" },
+        { texte: `${format(ddp.cumul)}%`, classe: "text-end" },
+        { texte: ddp.statut, classe: "text-center" },
+      ]),
+    );
+
+    const montantHt = parseFloat(resultat.montantHt) || 0;
+    // % (montant à payer / montant total du commande) calculés côté serveur
+    const ratioDejaValide = parseFloat(resultat.ratioDejaValide) || 0;
+    const montantDejaValide = parseFloat(resultat.montantDejaValide) || 0;
+    const montantRestant = parseFloat(resultat.montantRestant) || 0;
+
+    ajouterLigne([
+      { texte: "Montant HT de la commande", classe: "fw-bold", colspan: 3 },
+      { colspan: 2 },
+      { texte: format(montantHt), classe: "text-end fw-bold" },
+      { colspan: 3 },
+    ]);
+    ajouterLigne([
+      { texte: "Total déjà validé", classe: "fw-bold", colspan: 3 },
+      { colspan: 2 },
+      { texte: format(montantDejaValide), classe: "text-end fw-bold" },
+      { texte: `${format(ratioDejaValide)}%`, classe: "text-end fw-bold" },
+      { colspan: 2 },
+    ]);
+    ajouterLigne([
+      { texte: "Montant restant à payer", classe: "fw-bold", colspan: 3 },
+      { colspan: 2 },
+      { texte: format(montantRestant), classe: "text-end text-danger fw-bold" },
+      {
+        texte: `${format(Math.max(0, 100 - ratioDejaValide))}%`,
+        classe: "text-end text-danger fw-bold",
+      },
+      { colspan: 2 },
+    ]);
+  }
+
+  /**
+   * Premières colonnes d'une ligne d'historique, communes aux deux types de demande.
+   */
+  cellulesDebutHistorique(ddp) {
+    return [
+      { texte: ddp.typeDdp },
+      { texte: ddp.numeroDdp, classe: "text-center" },
+      { texte: ddp.numeroFacture || "-", classe: "text-center" },
+      { texte: ddp.dateCreation, classe: "text-center" },
+      { texte: ddp.motif },
+    ];
+  }
+
+  /**
+   * Montant total de la commande dans le titre de l'historique.
+   */
+  afficherMontantTotalHistorique(conteneur, resultat) {
+    conteneur.querySelector(".historique-montant-total").textContent = resultat
+      ? formatNumberSpecial(Number(resultat.montantHt).toFixed(2))
+      : "-";
+  }
+
+  ajouterLigneHistorique(cellules, tbody = this.elements.historiqueDdpBody) {
+    const tr = document.createElement("tr");
+    cellules.forEach(({ texte = "", classe = "", colspan = 1 }) => {
+      const td = document.createElement("td");
+      td.textContent = texte;
+      if (classe) td.className = classe;
+      if (colspan > 1) td.colSpan = colspan;
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  }
+
+  /**
+   * Paiement après arrivage : historique des demandes de paiement de chaque commande.
+   * Plusieurs réceptions peuvent consommer la même avance : le solde s'explique par les lignes affichées.
+   */
+  async chargerHistoriquesApresArrivage() {
+    const numCdes = this.getNumCdesSelectionnees();
+    this.afficherHistoriqueDdp(null);
+    if (!this.elements.historiqueDdp || numCdes.length === 0) return;
+
+    const resultats = await Promise.all(numCdes.map((numCde) => this.chargerHistoriqueCommande(numCde)));
+    // Ignore la réponse si la sélection a changé entre-temps
+    if (this.getNumCdesSelectionnees().join() !== numCdes.join()) return;
+
+    const { historiqueDdp, historiqueDdpSubTabs, historiqueDdpSubTabContent, historiqueDdpModele } = this.elements;
+    historiqueDdp.classList.remove("d-none");
+    historiqueDdpSubTabs.innerHTML = "";
+    historiqueDdpSubTabContent.innerHTML = "";
+    historiqueDdpSubTabs.classList.toggle("d-none", numCdes.length <= 1);
+
+    numCdes.forEach((numCde, index) => {
+      const pane = this.ajouterSousOnglet(
+        historiqueDdpSubTabs,
+        historiqueDdpSubTabContent,
+        `historique-ddp-${numCde}`,
+        `Commande ${numCde}`,
+        index === 0,
+      );
+      const copie = historiqueDdpModele.cloneNode(true);
+      copie.removeAttribute("id");
+      copie.classList.remove("d-none");
+      const titre = copie.querySelector("#historiqueDdpNumCde");
+      titre.removeAttribute("id");
+      titre.textContent = numCde;
+      this.afficherMontantTotalHistorique(copie, resultats[index]);
+      const tbody = copie.querySelector("#historiqueDdpBody");
+      tbody.removeAttribute("id");
+      pane.appendChild(copie);
+      this.afficherHistoriqueApresArrivage(numCde, resultats[index], tbody);
+    });
+  }
+
+  afficherHistoriqueApresArrivage(numCde, resultat, tbody) {
+    const format = (montant) => formatNumberSpecial(Number(montant).toFixed(2));
+    const ajouterLigne = (cellules) => this.ajouterLigneHistorique(cellules, tbody);
+
+    const historique = resultat?.historique || [];
+    if (historique.length === 0) {
+      ajouterLigne([{ texte: `Aucune donnée disponible pour la commande ${numCde}`, classe: "text-center", colspan: 11 }]);
+    }
+
+    historique.forEach((ddp) =>
+      ajouterLigne([
+        ...this.cellulesDebutHistorique(ddp),
+        { texte: ddp.soldeAvance === null ? "-" : format(ddp.soldeAvance), classe: "text-end text-nowrap" },
+        { texte: ddp.montantReceptionne === null ? "-" : format(ddp.montantReceptionne), classe: "text-end text-nowrap" },
+        { texte: format(ddp.montant), classe: "text-end text-nowrap" },
+        { texte: `${format(ddp.ratio)}%`, classe: "text-end" },
+        { texte: `${format(ddp.cumul)}%`, classe: "text-end" },
+        { texte: ddp.statut, classe: "text-center" },
+      ]),
+    );
+  }
+
+  /**
+   * Historique d'une commande, mis en cache : la sélection peut changer plusieurs fois.
+   */
+  chargerHistoriqueCommande(numCde) {
+    this.historiquesCommande ??= new Map();
+    if (!this.historiquesCommande.has(numCde)) {
+      const url = this.config.urls.montantCommandeHt.replace(":numCde", encodeURIComponent(numCde));
+      this.historiquesCommande.set(
+        numCde,
+        this.fetchManager.get(url).catch((error) => {
+          console.error("Erreur lors de la récupération de l'historique de la commande :", error);
+          this.historiquesCommande.delete(numCde);
+          return null;
+        }),
+      );
+    }
+    return this.historiquesCommande.get(numCde);
+  }
+
+  /**
+   * Commandes sélectionnées, toujours sous forme de tableau : le champ est en
+   * sélection simple pour les demandes de paiement à l'avance (typeId 1).
+   */
+  /**
+   * Paiement après arrivage : une ligne par commande sélectionnée, avec le montant
+   * réceptionné affiché depuis IPS. Le champ caché n'est pas posté : il garde la
+   * valeur pour les calculs de la page, le serveur relit IPS à la soumission.
+   */
+  afficherTableauMontantsCommande() {
+    const { tableauMontantsCommande, montantsCommandeBody } = this.elements;
+    if (!tableauMontantsCommande || !montantsCommandeBody) return;
+
+    const numCdes = this.getNumCdesSelectionnees();
+    // Autres commandes : un montant saisi auparavant ne s'applique plus
+    if (this.elements.montantTotalAPayerInput) {
+      this.elements.montantTotalAPayerInput.name = "";
+    }
+    montantsCommandeBody.innerHTML = "";
+    numCdes.forEach((numCde) => {
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.dataset.numCde = numCde;
+      input.value = this.montantsReceptionnes?.[numCde] ?? "";
+
+      // une commande peut correspondre à plusieurs factures : une ligne par facture dans la cellule
+      const factures = this.facturesParCommande?.get(numCde) || [];
+      const tr = montantsCommandeBody.insertRow();
+      tr.insertCell().textContent = numCde;
+      ["Numero_Facture", "Numero_Dossier_Douane", "Numero_LTA", "Numero_HAWB"].forEach((champ) => {
+        const cellule = tr.insertCell();
+        factures.forEach((f) => {
+          cellule.appendChild(document.createElement("div")).textContent = f[champ] ?? "";
+        });
+      });
+      const celluleSolde = tr.insertCell();
+      celluleSolde.className = "text-end fw-bold text-success";
+      const celluleReceptionne = tr.insertCell();
+      celluleReceptionne.className = "text-end";
+      celluleReceptionne.appendChild(input);
+      celluleReceptionne.appendChild(document.createElement("span")).className = "montant-receptionne";
+      tr.insertCell().className = "text-end montant-a-payer";
+      const celluleTotal = tr.insertCell();
+      celluleTotal.className = "text-end";
+
+      this.chargerSituationAvance(numCde).then((situation) => {
+        if (!situation) return;
+        celluleSolde.textContent = formatNumberSpecial(
+          Number(situation.soldeAvance || 0).toFixed(2),
+        );
+        input.dataset.soldeAvance = situation.soldeAvance;
+        // type 3 = commande déjà payée à 100 % par les DDPA : rien de plus à payer (DdpDto::$commandesRegule)
+        input.dataset.regule = situation.typeDdpAGenerer === 3 ? "1" : "";
+        this.afficherMontantCommandeAPayer(input);
+        this.verifierMontant();
+      });
+      this.recupererMontantTotalCommande(numCde).then((montantTotal) => {
+        input.dataset.montantTotal = montantTotal ?? "";
+        celluleTotal.textContent = montantTotal > 0 ? formatNumberSpecial(Number(montantTotal).toFixed(2)) : "-";
+        this.afficherMontantCommandeAPayer(input);
+      });
+      this.afficherMontantCommandeAPayer(input);
+    });
+
+    tableauMontantsCommande.classList.toggle("d-none", numCdes.length === 0);
+    this.afficherMontantTotalAPayer();
+    this.verifierMontant();
+  }
+
+  /**
+   * Aperçu du montant enregistré par le serveur (DdpDto::montantCommandeAPayer),
+   * dans des cellules et non des champs : verifierMontant() additionne tous les
+   * champs du tableau.
+   */
+  afficherMontantCommandeAPayer(input) {
+    const ligne = input.closest("tr");
+    const cellule = ligne.querySelector(".montant-a-payer");
+    const solde = parseFloat(input.dataset.soldeAvance);
+    const receptionne = parseMontant(input.value);
+    const montantTotal = parseFloat(input.dataset.montantTotal);
+    const celluleReceptionne = ligne.querySelector(".montant-receptionne");
+    if (isNaN(receptionne)) {
+      celluleReceptionne.textContent = "-";
+    } else {
+      this.ecrireMontantAvecPourcentage(celluleReceptionne, receptionne, montantTotal);
+    }
+    if (isNaN(solde) || isNaN(receptionne)) {
+      cellule.textContent = "";
+      delete input.dataset.montantAPayer;
+    } else {
+      const couvert = solde > 0 && receptionne <= solde;
+      const montant = couvert || input.dataset.regule === "1" ? 0 : receptionne - solde;
+      this.ecrireMontantAvecPourcentage(cellule, montant, montantTotal);
+      input.dataset.montantAPayer = montant;
+    }
+    this.afficherMontantTotalAPayer();
+  }
+
+  /**
+   * "(0,18 %)" : part du montant total des commandes, vide si ce total est inconnu.
+   */
+  pourcentage(montant, montantTotal) {
+    return montantTotal > 0
+      ? `(${formatNumberSpecial(((montant / montantTotal) * 100).toFixed(2))} %)`
+      : "";
+  }
+
+  /**
+   * "(0,18 %) 65,82" dans l'élément, avec le pourcentage en rouge.
+   */
+  ecrireMontantAvecPourcentage(element, montant, montantTotal) {
+    const rouge = document.createElement("span");
+    rouge.className = "text-danger";
+    rouge.textContent = this.pourcentage(montant, montantTotal);
+    element.replaceChildren(rouge, ` ${formatNumberSpecial(montant.toFixed(2))}`);
+  }
+
+  /**
+   * Pourcentage en rouge dans le libellé du champ : un champ ne peut pas colorer une partie de sa valeur.
+   */
+  afficherPourcentageLibelle(champ, texte) {
+    const libelle = document.querySelector(`label[for="${champ.id}"]`);
+    if (!libelle) return;
+
+    let rouge = libelle.querySelector(".pourcentage-total");
+    if (!rouge) {
+      rouge = libelle.appendChild(document.createElement("span"));
+      rouge.className = "pourcentage-total text-danger ms-1";
+    }
+    rouge.textContent = texte;
+  }
+
+  /**
+   * Champ "Montant total à payer" : somme des montants commande à payer du tableau, sauf
+   * montant saisi, et % des deux totaux du formulaire par rapport au montant total des commandes.
+   */
+  afficherMontantTotalAPayer() {
+    const champ = this.elements.montantTotalAPayerInput;
+    if (!champ) return;
+
+    const inputs = [...this.elements.montantsCommandeBody.querySelectorAll("input")];
+    const total = inputs.reduce((somme, input) => somme + (parseFloat(input.dataset.montantAPayer) || 0), 0);
+    // Aucun montant réceptionné connu : ne pas afficher un total ni un % à 0
+    const aUnMontant = inputs.some((input) => input.value !== "");
+    const saisi = champ.name !== "";
+    if (!saisi) {
+      champ.value = aUnMontant ? formatNumberSpecial(total.toFixed(2)) : "";
+    }
+
+    const totalCommandes = inputs.reduce((somme, input) => somme + (parseFloat(input.dataset.montantTotal) || 0), 0);
+    const totalReceptionne = inputs.reduce((somme, input) => somme + (parseMontant(input.value) || 0), 0);
+    this.afficherPourcentageLibelle(this.elements.montantInput, aUnMontant ? this.pourcentage(totalReceptionne, totalCommandes) : "");
+    this.afficherPourcentageLibelle(champ, aUnMontant ? this.pourcentage(saisi ? parseMontant(champ.value) : total, totalCommandes) : "");
+  }
+
+  /**
+   * Montant réceptionné par commande (factures sélectionnées), affiché dans le tableau.
+   */
+  async chargerMontantsReceptionnes(numFournisseur, numCdes, numFacs) {
+    this.montantsReceptionnes = {};
+    const url = this.config.urls.montantCommandeReceptionnee;
+    if (!url || numCdes.length === 0 || numFacs.length === 0) return;
+
+    const requete = (this.montantsReceptionnesRequete =
+      (this.montantsReceptionnesRequete || 0) + 1);
+    try {
+      const montants = await this.fetchManager.get(
+        url
+          .replace(":numFournisseur", encodeURIComponent(numFournisseur))
+          .replace(":numCdes", encodeURIComponent(numCdes.join(",")))
+          .replace(":facturesString", encodeURIComponent(numFacs.join(","))),
+      );
+      // réponse d'une sélection de factures dépassée
+      if (requete !== this.montantsReceptionnesRequete) return;
+
+      Object.entries(montants || {}).forEach(([numCde, montant]) => {
+        this.montantsReceptionnes[numCde.trim()] = formatNumberSpecial(
+          Number(montant || 0).toFixed(2),
+        );
+      });
+      this.elements.montantsCommandeBody
+        ?.querySelectorAll("input")
+        .forEach((input) => {
+          input.value = this.montantsReceptionnes[input.dataset.numCde] ?? "";
+          this.afficherMontantCommandeAPayer(input);
+        });
+      this.verifierMontant();
+    } catch (error) {
+      console.error(
+        "Erreur lors de la récupération des montants réceptionnés :",
+        error,
+      );
+    }
+  }
+
+  /**
+   * Situation des DDPA d'une commande (ratio DDPA, solde avance, DDP à
+   * générer), mise en cache : le tableau est reconstruit à chaque changement.
+   */
+  chargerSituationAvance(numCde) {
+    this.situationsAvance ??= new Map();
+    if (!this.situationsAvance.has(numCde)) {
+      const url = this.config.urls.situationAvanceCommande.replace(
+        ":numCde",
+        encodeURIComponent(numCde),
+      );
+      this.situationsAvance.set(
+        numCde,
+        this.fetchManager.get(url).catch((error) => {
+          console.error(
+            "Erreur lors de la récupération de la situation avance :",
+            error,
+          );
+          this.situationsAvance.delete(numCde);
+          return null;
+        }),
+      );
+    }
+    return this.situationsAvance.get(numCde);
+  }
+
+  getNumCdesSelectionnees() {
+    return [].concat($(this.elements.numCommandeInput).val() || []).filter(Boolean);
+  }
+
+  /**
+   * Bloque (ou débloque) la soumission du formulaire si la sélection actuelle
+   * de commandes contient une commande dont le PDF est introuvable, ou si le
+   * montant saisi est incorrect.
+   */
+  mettreAJourEtatSoumission() {
+    const numCdesSelectionnees = this.getNumCdesSelectionnees();
+    const commandesProblematiques = numCdesSelectionnees.filter((numCde) =>
+      this.commandesAvecPdfIntrouvable.has(numCde),
+    );
+    const pdfBloque = commandesProblematiques.length > 0;
+
+    if (this.elements.submitButton) {
+      this.elements.submitButton.disabled = pdfBloque || this.montantIncorrect;
+    }
+
+    if (this.elements.pdfIntrouvableWarning) {
+      if (pdfBloque) {
+        this.elements.pdfIntrouvableWarning.textContent =
+          `PDF introuvable pour la/les commande(s) ${commandesProblematiques.join(", ")}. ` +
+          `Désélectionnez-la/les pour pouvoir soumettre le formulaire.`;
+        this.elements.pdfIntrouvableWarning.classList.remove("d-none");
+      } else {
+        this.elements.pdfIntrouvableWarning.textContent = "";
+        this.elements.pdfIntrouvableWarning.classList.add("d-none");
+      }
+    }
+
+    if (this.elements.montantIncorrectWarning) {
+      if (this.montantIncorrect) {
+        this.elements.montantIncorrectWarning.textContent =
+          this.messageMontantIncorrect;
+        this.elements.montantIncorrectWarning.classList.remove("d-none");
+      } else {
+        this.elements.montantIncorrectWarning.textContent = "";
+        this.elements.montantIncorrectWarning.classList.add("d-none");
+      }
+    }
+  }
+
+  /**
+   * Crée un bloc spinner Bootstrap réutilisable avec un message.
+   */
+  creerSpinner(message, height = "") {
+    const wrapper = document.createElement("div");
+    wrapper.className =
+      "d-flex flex-column justify-content-center align-items-center border rounded gap-2 p-3";
+    if (height) wrapper.style.height = height;
+
+    wrapper.innerHTML = `
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+      <span class="text-muted">${message}</span>
+    `;
+
+    return wrapper;
+  }
+
   async updateCommandesFournisseur(numFournisseur, typeId) {
-    const url = this.config.urls.commandes
-      .replace(":numFournisseur", numFournisseur)
-      .replace(":typeId", typeId);
-    const commandes = await this.fetchManager.get(url);
+    const commandes = await this.getCommandesFournisseur(
+      numFournisseur,
+      typeId,
+    );
 
     const $tableauContainer = this.elements.invoiceTableContainer;
     $tableauContainer.innerHTML = "";

@@ -35,14 +35,14 @@
 						</a>
 					</li>
 					<li class="me-3">
-						<a class="guide-link" href="{{ App.base_path_fichier }}/documentation/Guide utilisateur intranet.pdf" target="_blank" role="button">
+						<a class="guide-link" href="{{ path('doc_utilisateur_index') }}" target="_blank" role="button">
 							<i class="fas fa-info pe-2"></i>
 							Guide utilisateur intranet
 						</a>
 					</li>
 
-					{# Documentation Technique : visible uniquement si la route est accessible #}
-					{% if hasAcces('app_doc_tech_index') %}
+					{# Documentation Technique : réservée aux administrateurs #}
+					{% if estAdmin() %}
 						<li class="me-3">
 							<a class="tech-doc-link" href="{{ path('app_doc_tech_index') }}" role="button">
 								<i class="fas fa-code pe-2"></i>

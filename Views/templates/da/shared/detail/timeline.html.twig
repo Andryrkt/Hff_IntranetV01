@@ -85,3 +85,31 @@
 		</div>
 	</div>
 {% endif %}
+
+{% if timelineData.DDP|length > 0 %}
+	<div class="timeline-section">
+		<div class="timeline-section-header">Demandes de paiement</div>
+		<div class="timeline-scroll-wrap">
+			<div class="timeline-scroll-track-top"><div class="timeline-scroll-spacer"></div></div>
+			<div class="timeline-scroll-row">
+				{% for numeroDdp, ddp in timelineData.DDP %}
+					<div class="timeline-block">
+						<div class="timeline-block-title">{{ ddp.type }} n° {{ numeroDdp }}</div>
+						{% for item in ddp.etapes %}
+							<div class="timeline-item {{ item.dotClass ? 'is-done' }}">
+								<div class="timeline-dot {{ item.dotClass ?: 'timeline-dot-empty' }}"></div>
+								<div class="timeline-content">
+									<div class="d-flex flex-row align-items-center gap-4">
+										<div class="timeline-date">{{ item.date }}</div>
+										<div class="timeline-status {{ item.dotClass }}">{{ item.statut }}</div>
+									</div>
+									<div class="timeline-duration mt-3">{{ item.nbrJours }}</div>
+								</div>
+							</div>
+						{% endfor %}
+					</div>
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+{% endif %}

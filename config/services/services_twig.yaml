@@ -20,3 +20,8 @@ services:
 
   App\Twig\DeleteWordExtension:
     tags: ["twig.extension"]
+
+  App\Twig\GuideUtilisateurExtension:
+    arguments:
+      - "@doctrine"
+    tags: ["twig.extension"]

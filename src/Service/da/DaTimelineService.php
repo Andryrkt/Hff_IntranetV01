@@ -4,6 +4,8 @@ namespace App\Service\da;
 
 use App\Entity\da\DemandeAppro;
 use App\Model\da\DaAfficherModel;
+use App\Model\ddp\DemandePaiementModel;
+use App\Constants\ddp\StatutConstants;
 use App\Traits\JoursOuvrablesTrait;
 use App\Constants\da\StatutDaConstant;
 use App\Constants\da\StatutOrConstant;
@@ -14,10 +16,12 @@ class DaTimelineService
 {
     use JoursOuvrablesTrait;
     private DaAfficherModel $daAfficherModel;
+    private DemandePaiementModel $demandePaiementModel;
 
     public function __construct(DaAfficherModel $daAfficherModel)
     {
-        $this->daAfficherModel = $daAfficherModel;
+        $this->daAfficherModel      = $daAfficherModel;
+        $this->demandePaiementModel = new DemandePaiementModel();
     }
 
     /** 
@@ -34,18 +38,19 @@ class DaTimelineService
         $agenceServiceEmetteur = $demandeAppro->getAgenceServiceEmetteur();
 
         $allDatas = $this->daAfficherModel->getDaLifecycleSteps($numeroDa);
-        if (empty($allDatas)) return ['DA' => [], 'OR' => [], 'BC' => []];
+        if (empty($allDatas)) return ['DA' => [], 'OR' => [], 'BC' => [], 'DDP' => []];
 
-        $timelineDa = $this->buildTimelineDA($allDatas, $daTypeId, $demandeur, $agenceServiceEmetteur);
+        [$timelineDa, $estTerminee] = $this->buildTimelineDA($allDatas, $numeroDa, $daTypeId, $demandeur, $agenceServiceEmetteur);
         $lastDataDA = end($timelineDa);
         $isDaViaOR = $daTypeId === DemandeAppro::TYPE_DA_AVEC_DIT;
         [$numeroOr, $timelineOR] = $isDaViaOR ? $this->buildTimelineOR($allDatas, $lastDataDA) : ["", []];
         $lastDataOR = empty($timelineOR) ? $lastDataDA : end($timelineOR);
         $timelineBc = $this->buildTimelineBC($numeroDa, $lastDataOR, $daTypeId);
+        $timelineDdp = $this->buildTimelineDDP($numeroDa);
 
-        if (empty($timelineBc)) {
+        if (empty($timelineBc) && empty($timelineDdp)) {
             if ($isDaViaOR && !empty($timelineOR)) $timelineOR = $this->cloturerAvecAujourdhui($timelineOR);
-            else                                   $timelineDa = $this->cloturerAvecAujourdhui($timelineDa);
+            elseif (!$estTerminee)                 $timelineDa = $this->cloturerAvecAujourdhui($timelineDa);
         }
 
         return [
@@ -54,18 +59,48 @@ class DaTimelineService
             'DA'       => $timelineDa,
             'OR'       => $timelineOR,
             'BC'       => $timelineBc,
+            'DDP'      => $timelineDdp,
         ];
     }
 
     /**
+     * @return array<string,array{type:string,etapes:array<int,array{statut:string,dotClass:string,date:string,nbrJours:string}>}>
+     */
+    private function buildTimelineDDP(string $numeroDa): array
+    {
+        $timeline = [];
+
+        foreach ($this->demandePaiementModel->getDdpLifecycleSteps($numeroDa) as $ddp) {
+            $toDate = fn(?string $d) => $d ? (new \DateTime($d))->setTime(0, 0, 0) : null;
+            $dateCompta = $toDate($ddp['date_validation_compta']);
+
+            $etapes = array_filter([
+                ['statut' => 'Transmission DDP',       'dotClass' => StatutConstants::getCssClass(StatutConstants::SOUMIS_A_VALIDATION),    'date' => $toDate($ddp['date_transmission_ddp'])],
+                ['statut' => 'Validation Service EM',  'dotClass' => StatutConstants::getCssClass(StatutConstants::A_VALIDER_COMPTABILITE), 'date' => $toDate($ddp['date_validation_ser_em'])],
+                ['statut' => 'Validation Compta',      'dotClass' => StatutConstants::getCssClass(StatutConstants::VALIDE),                 'date' => $dateCompta],
+            ], fn($e) => $e['date'] !== null);
+
+            if (empty($etapes)) continue;
+
+            $timeline[$ddp['numero_ddp']] = [
+                'type'   => $ddp['code_type'],
+                'etapes' => $this->construireEtapesAvecDurees($etapes, $dateCompta !== null),
+            ];
+        }
+
+        return $timeline;
+    }
+
+    /**
      * @param array<int,array{statutDal:string,dateCreation:\DateTime,dateDemande:\DateTime,numeroOr:string|null,statutOr:string|null,dateMajStatutOr:\DateTime|null}> $allDatas
+     * @param string $numeroDa
      * @param int $daTypeId
      * @param string|null $demandeur
      * @param string|null $agenceServiceEmetteur
      *
-     * @return array<int,array{statut:string,dotClass:string,date:string,nbrJours:string,action:string}>
+     * @return array{array<int,array{statut:string,dotClass:string,date:string,nbrJours:string,action:string}>,bool}
      */
-    private function buildTimelineDA(array $allDatas, int $daTypeId, ?string $demandeur, ?string $agenceServiceEmetteur): array
+    private function buildTimelineDA(array $allDatas, string $numeroDa, int $daTypeId, ?string $demandeur, ?string $agenceServiceEmetteur): array
     {
         $tabTemp = [];
         $acteur  = "{$agenceServiceEmetteur} — {$demandeur}";
@@ -95,10 +130,28 @@ class DaTimelineService
             }
         }
 
-        return $this->construireEtapesAvecDurees($tabTemp, true);
+        $estTerminee = false;
+        if ($daTypeId === DemandeAppro::TYPE_DA_DIRECT) {
+            $statutsOr   = array_filter(array_column($allDatas, 'statutOr'));
+            $statutOr    = end($statutsOr);
+            $dateValidee = $statutOr ? $this->daAfficherModel->getDateValidationDaDirect($numeroDa) : null;
+
+            if ($dateValidee) {
+                $tabTemp[] = [
+                    'statut'   => $statutOr,
+                    'dotClass' => StatutOrConstant::getCssClassOr($statutOr),
+                    'date'     => $dateValidee,
+                    'action'   => '',
+                ];
+
+                $estTerminee = $statutOr === StatutOrConstant::STATUT_DW_REFUSEE;
+            }
+        }
+
+        return [$this->construireEtapesAvecDurees($tabTemp, true), $estTerminee];
     }
 
-    /** 
+    /**
      * @param array<int,array{statutDal:string,dateCreation:\DateTime,dateDemande:\DateTime,numeroOr:string|null,statutOr:string|null,dateMajStatutOr:\DateTime|null}> $allDatas
      * @param array{statut:string,dotClass:string,date:string,nbrJours:string} $lastDataDA
      * 
@@ -279,6 +332,8 @@ class DaTimelineService
     {
         $nbEtapes = count($etapes);
         $timeline = [];
+        // Dates ramenées à minuit : le tri compare des jours, pas des heures
+        $etapes = array_map(fn($e) => ['date' => (clone $e['date'])->setTime(0, 0, 0)] + $e, $etapes);
         usort($etapes, fn($a, $b) => $a['date'] <=> $b['date']);
 
         foreach ($etapes as $index => $etape) {

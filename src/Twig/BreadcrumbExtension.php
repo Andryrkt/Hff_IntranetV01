@@ -37,6 +37,7 @@ class BreadcrumbExtension extends AbstractExtension
             new TwigFunction('breadcrumbs',     [$this, 'generateBreadcrumbs']),
             new TwigFunction('navigationAdmin', [$this, 'generateNavigationAdmin']),
             new TwigFunction('hasAcces',        [$this, 'hasAcces']),
+            new TwigFunction('estAdmin',        [$this->securityService, 'estAdmin']),
             new TwigFunction('renderMenuModals', [$this, 'renderMenuModals'], ['is_safe' => ['html'], 'needs_environment' => true]),
         ];
     }
@@ -44,7 +45,10 @@ class BreadcrumbExtension extends AbstractExtension
     public function generateBreadcrumbs(): array
     {
         if ($this->cacheBreadcrumbs === null) {
-            $this->cacheBreadcrumbs = $this->breadcrumbFactory->createFromCurrentUrl($this->securityService->getRouteCourrante());
+            $this->cacheBreadcrumbs = $this->breadcrumbFactory->createFromCurrentUrl(
+                $this->securityService->getRouteCourrante(),
+                $this->securityService->getRouteParamsCourants()
+            );
         }
         return $this->cacheBreadcrumbs;
     }
