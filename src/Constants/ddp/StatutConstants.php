@@ -31,6 +31,11 @@ class StatutConstants
         self::REFUSE
     ];
 
+    public const VALIDES_DDP = [
+        self::VALIDE,
+        self::TRANSMIS_COMPTA
+    ];
+
     public const CSS_CLASS_MAP = [
         self::DDPL_A_TRANSMETTRE => 'statut-ddpl-a-transmettre',
         self::BAP_A_TRANSMETTRE => 'statut-bap-a-transmettre',

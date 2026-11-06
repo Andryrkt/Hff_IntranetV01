@@ -6,14 +6,14 @@ use App\Entity\da\DemandeAppro;
 
 class DocRattacheService
 {
-    private DaDocumentService $daDocumentService; // ! ne pas supprimer car utile dans la méthode `getAllAttachedFiles` sur la récupération dynamique de service (ligne 45)
-    private DwDataService $dwDataService; // ! ne pas supprimer car utile dans la méthode `getAllAttachedFiles` sur la récupération dynamique de service (ligne 45)
+    private DaDocumentService $daDocumentService;
+    private DwDataService $dwDataService;
     private array $docTypes;
     private array $daDocumentMapping;
 
     public function __construct(DaDocumentService $daDocumentService, DwDataService $dwDataService)
     {
-        $this->daDocumentService  = $daDocumentService;
+        $this->daDocumentService = $daDocumentService;
         $this->dwDataService     = $dwDataService;
         $this->docTypes          = $this->getDocTypesConfig();
         $this->daDocumentMapping = $this->getDaDocumentMappingConfig();
@@ -21,9 +21,9 @@ class DocRattacheService
 
     /**
      * Fonction pour obtenir tous les fichiers attachés à une DA
-     * 
+     *
      * @param DemandeAppro $demandeAppro
-     * 
+     *
      * @return array
      */
     public function getAllAttachedFiles(DemandeAppro $demandeAppro): array
@@ -41,39 +41,26 @@ class DocRattacheService
 
             $config = $this->docTypes[$docTypeKey];
 
-            // Récupérer le service et appeler la méthode
-            $service = $this->{$config['service']} ?? null;
-
-            // Si le service n'existe pas, on continue à l'itération suivante
-            if (!$service) continue;
-
-            $method = $config['method'];
-            $data = $service->$method($demandeAppro);
-
-            // Normaliser les données
-            $normalizer = $config['normalizer'];
-            $normalizerParam = $config['normalizerParam'];
-            $params = $normalizerParam ? [$data, $normalizerParam] : [$data];
-
-            $fichiers = $this->$normalizer(...$params);
+            // Récupérer les données puis les normaliser
+            $data = $config['fetch']($demandeAppro);
 
             // Construire le résultat
             $result[] = [
-                'labeltype'  => $config['labelType'],
+                'labelType'  => $docTypeKey,
                 'type'       => $config['type'],
                 'icon'       => $config['icon'],
                 'colorClass' => $config['colorClass'],
-                'fichiers'   => $fichiers,
+                'fichiers'   => $config['normalize']($data),
             ];
         }
 
         return $result;
     }
 
-    /************************* 
+    /*************************
      * Fonctions utilitaires *
      *************************/
-    /** Get the value of daDocumentMapping */
+    /** Types de documents attachés selon le type de DA */
     private function getDaDocumentMappingConfig(): array
     {
         return [
@@ -84,99 +71,79 @@ class DocRattacheService
         ];
     }
 
-    /** Get the value of docTypes */
+    /**
+     * Configuration des types de documents
+     * - fetch     : récupère les données brutes d'une DA
+     * - normalize : transforme ces données en liste de fichiers
+     */
     private function getDocTypesConfig(): array
     {
         return [
             'BAI' => [
-                'labelType'       => 'BAI',
-                'type'            => "Bon d'achat (Intranet)",
-                'icon'            => 'fa-solid fa-file-signature',
-                'colorClass'      => 'border-left-bai',
-                'service'         => 'daDocumentService',
-                'method'          => 'getBaIntranetPath',
-                'normalizer'      => 'normalizePathSingleFile',
-                'normalizerParam' => 'nom',
+                'type'       => "Bon d'achat (Intranet)",
+                'icon'       => 'fa-solid fa-file-signature',
+                'colorClass' => 'border-left-bai',
+                'fetch'      => fn(DemandeAppro $da) => $this->daDocumentService->getBaIntranetPath($da),
+                'normalize'  => fn($docs) => $this->normalizePathSingleFile($docs, 'nom'),
             ],
             'OR' => [
-                'labelType'       => 'OR',
-                'type'            => 'Ordre de réparation',
-                'icon'            => 'fa-solid fa-wrench',
-                'colorClass'      => 'border-left-or',
-                'service'         => 'daDocumentService',
-                'method'          => 'getOrPath',
-                'normalizer'      => 'normalizePathSingleFile',
-                'normalizerParam' => 'numeroOr',
+                'type'       => 'Ordre de réparation',
+                'icon'       => 'fa-solid fa-wrench',
+                'colorClass' => 'border-left-or',
+                'fetch'      => fn(DemandeAppro $da) => $this->daDocumentService->getOrPath($da),
+                'normalize'  => fn($docs) => $this->normalizePathSingleFile($docs, 'numeroOr'),
             ],
             'BAD' => [
-                'labelType'       => 'BAD',
-                'type'            => "Bon d'achat (DocuWare)",
-                'icon'            => 'fa-solid fa-file-signature',
-                'colorClass'      => 'border-left-bad',
-                'service'         => 'dwDataService',
-                'method'          => 'getBaDocuWarePath',
-                'normalizer'      => 'normalizePathsMultipleFiles',
-                'normalizerParam' => 'num',
+                'type'       => "Bon d'achat (DocuWare)",
+                'icon'       => 'fa-solid fa-file-signature',
+                'colorClass' => 'border-left-bad',
+                'fetch'      => fn(DemandeAppro $da) => $this->dwDataService->getBaDocuWarePath($da),
+                'normalize'  => fn($docs) => $this->normalizePathsMultipleFiles($docs, 'num'),
             ],
             'DEV_PJ_DA' => [
-                'labelType'       => 'DEV_PJ_DA',
-                'type'            => 'Devis / PJ (émis dans la demande / proposition)',
-                'icon'            => 'fa-solid fa-money-bill-wave',
-                'colorClass'      => 'border-left-devpj',
-                'service'         => 'daDocumentService',
-                'method'          => 'getDevisPjPathDaLine',
-                'normalizer'      => 'normalizePathsMultipleFiles',
-                'normalizerParam' => 'nomPj',
+                'type'       => 'Devis / PJ (émis dans la demande / proposition)',
+                'icon'       => 'fa-solid fa-money-bill-wave',
+                'colorClass' => 'border-left-devpj',
+                'fetch'      => fn(DemandeAppro $da) => $this->daDocumentService->getDevisPjPathDaLine($da),
+                'normalize'  => fn($docs) => $this->normalizePathsMultipleFiles($docs, 'nomPj'),
             ],
             'DEV_PJ_OBS' => [
-                'labelType'       => 'DEV_PJ_OBS',
-                'type'            => "Devis / PJ (émis dans l'observation)",
-                'icon'            => 'fa-solid fa-money-bill-wave',
-                'colorClass'      => 'border-left-devpj',
-                'service'         => 'daDocumentService',
-                'method'          => 'getDevisPjPathObservation',
-                'normalizer'      => 'normalizePathsMultipleFiles',
-                'normalizerParam' => 'nomPj',
+                'type'       => "Devis / PJ (émis dans l'observation)",
+                'icon'       => 'fa-solid fa-money-bill-wave',
+                'colorClass' => 'border-left-devpj',
+                'fetch'      => fn(DemandeAppro $da) => $this->daDocumentService->getDevisPjPathObservation($da),
+                'normalize'  => fn($docs) => $this->normalizePathsMultipleFiles($docs, 'nomPj'),
             ],
             'BC' => [
-                'labelType'       => 'BC',
-                'type'            => 'Bon de commande',
-                'icon'            => 'fa-solid fa-file-circle-check',
-                'colorClass'      => 'border-left-bc',
-                'service'         => 'dwDataService',
-                'method'          => 'getBcPath',
-                'normalizer'      => 'normalizePathsMultipleFiles',
-                'normalizerParam' => 'numeroBc',
+                'type'       => 'Bon de commande',
+                'icon'       => 'fa-solid fa-file-circle-check',
+                'colorClass' => 'border-left-bc',
+                'fetch'      => fn(DemandeAppro $da) => $this->dwDataService->getBcPath($da),
+                'normalize'  => fn($docs) => $this->normalizePathsMultipleFiles($docs, 'numeroBc'),
             ],
             'FACBL' => [
-                'labelType'       => 'FACBL',
-                'type'            => 'Facture / Bon de livraison',
-                'icon'            => 'fa-solid fa-file-invoice',
-                'colorClass'      => 'border-left-facbl',
-                'service'         => 'dwDataService',
-                'method'          => 'getFacBlPath',
-                'normalizer'      => 'normalizePathsFacBl',
-                'normalizerParam' => NULL,
+                'type'       => 'Facture / Bon de livraison',
+                'icon'       => 'fa-solid fa-file-invoice',
+                'colorClass' => 'border-left-facbl',
+                'fetch'      => fn(DemandeAppro $da) => $this->dwDataService->getFacBlPath($da),
+                'normalize'  => fn($docs) => $this->normalizePathsFacBl($docs),
             ],
             'DDP' => [
-                'labelType'       => 'DDP',
-                'type'            => 'Demande de paiement / Bon à payer',
-                'icon'            => 'fa-solid fa-file-invoice',
-                'colorClass'      => 'border-left-facbl',
-                'service'         => 'daDocumentService',
-                'method'          => 'getAllDdpPath',
-                'normalizer'      => 'normalizePathsMultipleFiles',
-                'normalizerParam' => 'numeroDdp',
+                'type'       => 'Demande de paiement / Bon à payer',
+                'icon'       => 'fa-solid fa-file-invoice',
+                'colorClass' => 'border-left-facbl',
+                'fetch'      => fn(DemandeAppro $da) => $this->daDocumentService->getAllDdpPath($da),
+                'normalize'  => fn($docs) => $this->normalizePathsDdp($docs),
             ],
         ];
     }
 
-    /** 
+    /**
      * Normaliser les chemins pour un seul fichier
-     * 
+     *
      * @param array  $doc
      * @param string $numKey
-     * 
+     *
      * @return array
      */
     private function normalizePathSingleFile(array $doc, string $numKey): array
@@ -186,43 +153,51 @@ class DocRattacheService
         return $this->normalizePathsMultipleFiles([$doc], $numKey);
     }
 
-    /** 
+    /**
      * Normaliser les chemins pour plusieurs fichiers
-     * 
+     *
      * @param array  $allDocs
      * @param string $numKey
-     * 
+     *
      * @return array
      */
     private function normalizePathsMultipleFiles(array $allDocs, string $numKey): array
     {
-        if (empty($allDocs)) return [];
-
-        return array_map(function ($doc) use ($numKey) {
-            return [
-                'nom'  => $doc[$numKey],
-                'path' => $doc['path']
-            ];
-        }, $allDocs);
+        return array_map(fn($doc) => [
+            'nom'  => $doc[$numKey],
+            'path' => $doc['path']
+        ], $allDocs);
     }
 
-    /** 
+    /**
      * Normaliser les chemins pour plusieurs fichiers de facture / Bon de Livraison
-     * 
+     *
      * @param array $allDocs
-     * 
+     *
      * @return array
      */
     private function normalizePathsFacBl(array $allDocs): array
     {
-        if (empty($allDocs)) return [];
+        return array_map(fn($doc) => [
+            'nom'   => $doc['nomFichierScannee'] ?? $doc['idFacBl'],
+            'numBC' => $doc['numeroBc'],
+            'path'  => $doc['path']
+        ], $allDocs);
+    }
 
-        return array_map(function ($doc) {
-            return [
-                'nom'   => $doc['nomFichierScannee'] ?? $doc['idFacBl'],
-                'numBC' => $doc['numeroBc'],
-                'path'  => $doc['path']
-            ];
-        }, $allDocs);
+    /**
+     * Normaliser les chemins des DDP (avec le BC lié via `numero_commande`)
+     *
+     * @param array $allDocs
+     *
+     * @return array
+     */
+    private function normalizePathsDdp(array $allDocs): array
+    {
+        return array_map(fn($doc) => [
+            'nom'   => $doc['numeroDdp'],
+            'numBC' => $doc['numeroCommande'] ?? null,
+            'path'  => $doc['path']
+        ], $allDocs);
     }
 }

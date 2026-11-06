@@ -2,6 +2,7 @@
 
 namespace App\Service\navigation;
 
+use App\Entity\admin\utilisateur\Profil;
 use App\Service\navigation\MenuGroupe;
 use App\Service\UserData\UserDataService;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -18,6 +19,7 @@ class MenuService
     public UserDataService $userDataService;
     private TagAwareCacheInterface $cache;
     private string $basePath;
+    private string $basePathUpload;
 
     /**
      * Cache intra-requête indexé par profilId — évite de reconstruire les menus
@@ -34,7 +36,8 @@ class MenuService
     {
         $this->userDataService = $userDataService;
         $this->cache           = $cache;
-        $this->basePath        = $_ENV['BASE_PATH_FICHIER_COURT'];
+        $this->basePath        = $_ENV['BASE_PATH_COURT'];
+        $this->basePathUpload  = $_ENV['BASE_PATH_FICHIER_COURT'];
     }
 
     /**
@@ -291,14 +294,18 @@ class MenuService
 
     /**
      * Résout le lien d'un item :
-     * - 'link' explicite (externe, '#', chemin avec {basePath}) → retourne tel quel après substitution
+     * - 'link' explicite (externe, '#', chemin avec {basePathUpload}) → retourne tel quel après substitution
      * - 'route' → retourne le nom de route (les builders Twig/contrôleur génèrent l'URL)
      * - ni l'un ni l'autre → '#'
      */
     private function resoudreLink(array $definition): string
     {
         if (isset($definition['link'])) {
-            return str_replace('{basePath}', $this->basePath, $definition['link']);
+            return str_replace(
+                ['{basePathUpload}', '{basePath}'],
+                [$this->basePathUpload, $this->basePath],
+                $definition['link']
+            );
         }
 
         return $definition['route'] ?? '#';
@@ -364,7 +371,7 @@ class MenuService
         foreach ($groupes as $groupe) {
             $linksAccessibles = array_values(array_filter(
                 $groupe['links'],
-                fn(array $link) => $this->hasAccesRoute($link['route'])
+                fn(array $link) => $this->hasAccesRoute($link['route']) || (($link['admin'] ?? false) && $this->estProfilAdmin())
             ));
 
             if (!empty($linksAccessibles)) {
@@ -383,32 +390,65 @@ class MenuService
     //  NAVIGATION — recherche du chemin vers une route (breadcrumb)
     // =========================================================================
 
-    public function findChemin(string $nomRoute): array
+    /**
+     * Cherche le chemin (module > item > sous-item) de la route dans le menu.
+     *
+     * Plusieurs entrées peuvent partager la même route avec des paramètres
+     * différents (ex: new_ddp avec typeDdp=1 "à l'avance" / typeDdp=2 "après
+     * arrivage") : on retient en priorité l'entrée dont les routeParams
+     * correspondent à $routeParams, sinon la première entrée de la route.
+     */
+    public function findChemin(string $nomRoute, array $routeParams = []): array
     {
+        $premierCheminTrouve = [];
+
         foreach ($this->getMenuStructure() as $module) {
             foreach ($module['items'] as $item) {
                 if (($item['link'] ?? null) === $nomRoute) {
-                    return [
+                    $chemin = [
                         ['title' => $module['title'], 'icon' => $module['icon']],
                         ['title' => $item['title'],   'icon' => $item['icon'], 'route' => $nomRoute],
                     ];
+                    if ($this->routeParamsCorrespondent($item['routeParams'] ?? [], $routeParams)) {
+                        return $chemin;
+                    }
+                    $premierCheminTrouve = $premierCheminTrouve ?: $chemin;
                 }
 
                 if (!empty($item['subitems'])) {
                     foreach ($item['subitems'] as $subitem) {
                         if (($subitem['link'] ?? null) === $nomRoute) {
-                            return [
+                            $chemin = [
                                 ['title' => $module['title'], 'icon' => $module['icon']],
                                 ['title' => $item['title'],   'icon' => $item['icon']],
                                 ['title' => $subitem['title'], 'icon' => $subitem['icon'], 'route' => $nomRoute],
                             ];
+                            if ($this->routeParamsCorrespondent($subitem['routeParams'] ?? [], $routeParams)) {
+                                return $chemin;
+                            }
+                            $premierCheminTrouve = $premierCheminTrouve ?: $chemin;
                         }
                     }
                 }
             }
         }
 
-        return [];
+        return $premierCheminTrouve;
+    }
+
+    /**
+     * Vrai si chaque paramètre défini sur l'entrée de menu a la même valeur
+     * dans les paramètres de la route courante (comparaison en chaîne : les
+     * paramètres d'URL arrivent en string, ceux du menu en int).
+     */
+    private function routeParamsCorrespondent(array $paramsMenu, array $paramsCourants): bool
+    {
+        foreach ($paramsMenu as $cle => $valeur) {
+            if (!array_key_exists($cle, $paramsCourants) || (string) $paramsCourants[$cle] !== (string) $valeur) {
+                return false;
+            }
+        }
+        return true;
     }
 
     // =========================================================================
@@ -446,6 +486,17 @@ class MenuService
     private function hasAccesRoute(string $route): bool
     {
         return $this->userDataService->peutVoir($route);
+    }
+
+    /**
+     * Profil en cours de construction (et non celui de la session : le menu est
+     * mis en cache par profil, parfois reconstruit pour un autre profil) = HFF-ADMIN
+     */
+    private function estProfilAdmin(): bool
+    {
+        $profil = $this->userDataService->getProfil();
+
+        return $profil !== null && $profil->getDesignation() === Profil::HFF_ADMIN;
     }
 
     // =========================================================================

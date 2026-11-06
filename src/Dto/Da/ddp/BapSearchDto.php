@@ -2,6 +2,8 @@
 
 namespace App\Dto\Da\ddp;
 
+use App\Entity\admin\ddp\TypeDemande;
+
 class BapSearchDto
 {
     public ?string $numDa = null;
@@ -11,6 +13,7 @@ class BapSearchDto
     public ?string $FactureBl = null;
     public ?string $fournisseur = null;
     public ?string $numCla = null;
+    public ?TypeDemande $typeDemande = null;
     public bool $aTraiter = false;
 
     public function toArray(): array
@@ -23,6 +26,8 @@ class BapSearchDto
             'FactureBl'   => $this->FactureBl,
             'fournisseur' => $this->fournisseur,
             'numCla'      => $this->numCla,
+            // identifiant : ce tableau alimente le lien de l'export Excel
+            'typeDemande' => $this->typeDemande ? $this->typeDemande->getId() : null,
             'aTraiter'    => $this->aTraiter,
         ];
     }

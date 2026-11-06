@@ -4,23 +4,25 @@
 {% endblock %}
 
 {% block content %}
-	    <h1>Documentation Technique</h1>
+	<div class="container mt-6">
+		<h3 class="perso-titre">Documentation technique</h3>
 
-    {% if groupedDocuments is not empty %}
-        {% for category, documents in groupedDocuments %}
-            <h2>{{ category }}</h2>
-            <ul>
-                {% for doc in documents %}
-                    <li>
-                        <a href="{{ path('app_doc_tech_show', {filename: doc.filename}) }}">{{ doc.title }}</a>
-                        {% if doc.metadata.description is defined %}
-                            <p class="doc-description">{{ doc.metadata.description }}</p>
-                        {% endif %}
-                    </li>
-                {% endfor %}
-            </ul>
-        {% endfor %}
-    {% else %}
-        <p>Aucune documentation technique n'a été trouvée.</p>
-    {% endif %}
+		{% if groupedDocuments is not empty %}
+			{% for category, documents in groupedDocuments %}
+				<h5 class="mt-4">{{ category }}</h5>
+				<ul class="list-unstyled ms-3">
+					{% for doc in documents %}
+						<li class="mb-1">
+							<a href="{{ path('app_doc_tech_show', {filename: doc.filename}) }}">{{ doc.title }}</a>
+							{% if doc.metadata.description is defined %}
+								<p class="doc-description text-muted small mb-0">{{ doc.metadata.description }}</p>
+							{% endif %}
+						</li>
+					{% endfor %}
+				</ul>
+			{% endfor %}
+		{% else %}
+			<p class="text-muted">Aucune documentation technique n'a été trouvée.</p>
+		{% endif %}
+	</div>
 {% endblock %}

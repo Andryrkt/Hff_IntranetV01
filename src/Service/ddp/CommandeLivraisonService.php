@@ -22,9 +22,9 @@ class CommandeLivraisonService
      */
     public function createCommandeLivraison($dto, DemandePaiement $ddp)
     {
-        $commandeLivraison = CommandeLivraisonMapper::map($dto, $ddp);
-
-        $this->em->persist($commandeLivraison);
+        foreach (CommandeLivraisonMapper::map($dto, $ddp) as $commandeLivraison) {
+            $this->em->persist($commandeLivraison);
+        }
         $this->em->flush();
     }
 }

@@ -35,12 +35,12 @@ class DemandePaiementLigne
     private int $numeroLigne = 0;
 
     /**
-     * @ORM\Column(type="string", length=5, name="numero_commande")
+     * @ORM\Column(type="string", length=50, name="numero_commande")
      */
     private ?string $numeroCommande;
 
     /**
-     * @ORM\Column(type="string", length=5, name="numero_facture")
+     * @ORM\Column(type="string", length=50, name="numero_facture")
      */
     private ?string $numeroFacture;
 
@@ -58,6 +58,21 @@ class DemandePaiementLigne
      * @ORM\Column(type="float", scale="2", name="ratio_montant_payer")
      */
     private $ratioMontantPayer;
+
+    /**
+     * @ORM\Column(type="float", scale="2", name="montant_commande_a_payer", nullable=true)
+     */
+    private ?float $montantCommandeAPayer = null;
+
+    /**
+     * @ORM\Column(type="float", scale="2", name="montant_commande_receptionner", nullable=true)
+     */
+    private ?float $montantCommandeReceptionner = null;
+
+    /**
+     * @ORM\Column(type="float", scale="2", name="montant_total_commande", nullable=true)
+     */
+    private ?float $montantTotalCommande = null;
 
 
     /**===========================================================================
@@ -221,6 +236,60 @@ class DemandePaiementLigne
     public function setRatioMontantPayer($ratioMontantPayer): self
     {
         $this->ratioMontantPayer = $ratioMontantPayer;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of montantTotalCommande
+     */
+    public function getMontantTotalCommande(): ?float
+    {
+        return $this->montantTotalCommande;
+    }
+
+    /**
+     * Set the value of montantTotalCommande
+     */
+    public function setMontantTotalCommande(?float $montantTotalCommande): self
+    {
+        $this->montantTotalCommande = $montantTotalCommande;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of montantCommandeReceptionner
+     */
+    public function getMontantCommandeReceptionner(): ?float
+    {
+        return $this->montantCommandeReceptionner;
+    }
+
+    /**
+     * Set the value of montantCommandeReceptionner
+     */
+    public function setMontantCommandeReceptionner(?float $montantCommandeReceptionner): self
+    {
+        $this->montantCommandeReceptionner = $montantCommandeReceptionner;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of montantCommandeAPayer
+     */
+    public function getMontantCommandeAPayer(): ?float
+    {
+        return $this->montantCommandeAPayer;
+    }
+
+    /**
+     * Set the value of montantCommandeAPayer
+     */
+    public function setMontantCommandeAPayer(?float $montantCommandeAPayer): self
+    {
+        $this->montantCommandeAPayer = $montantCommandeAPayer;
 
         return $this;
     }
