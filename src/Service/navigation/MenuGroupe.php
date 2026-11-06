@@ -265,8 +265,7 @@ class MenuGroupe
                 'label'    => 'COMMANDE FOURNISSEUR',
                 'icon'     => 'cloud-arrow-up',
                 'subitems' => [
-                    ['label' => 'Soumission commandes fournisseur', 'icon' => 'plus-circle', 'route' => 'generer_commande_fournisseur']
-
+                    ['label' => 'Soumission à validation', 'icon' => 'plus-circle', 'route' => 'generer_commande_fournisseur']
                 ],
             ],
         ];
