@@ -14,10 +14,8 @@ use App\Model\ddp\DemandePaiementModel;
 use App\Service\TableauEnStringService;
 use Symfony\Component\Form\AbstractType;
 use App\Repository\admin\AgenceRepository;
-use App\Entity\cde\CdefnrSoumisAValidation;
 use App\Repository\admin\ServiceRepository;
 use Symfony\Component\Form\FormBuilderInterface;
-use App\Repository\ddp\DemandePaiementRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\Callback;
@@ -34,18 +32,12 @@ class DemandePaiementType extends AbstractType
 
     private $agenceRepository;
     private $serviceRepository;
-    private $cdeFnrRepository;
     private $demandePaiementModel;
-    private $em;
-    private DemandePaiementRepository $demandePaiementRepository;
     public function __construct(EntityManagerInterface $em)
     {
-        $this->em = $em;
         $this->agenceRepository = $em->getRepository(Agence::class);
         $this->serviceRepository = $em->getRepository(Service::class);
-        $this->cdeFnrRepository = $em->getRepository(CdefnrSoumisAValidation::class);
         $this->demandePaiementModel = new DemandePaiementModel();
-        $this->demandePaiementRepository = $em->getRepository(DemandePaiement::class);
     }
 
     private function numeroFac($numeroFournisseur, $typeId)

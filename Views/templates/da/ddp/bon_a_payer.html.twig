@@ -29,7 +29,11 @@
 					{# checkbox #}
 					<th class="text-center">Numéro CLA</th>
 					<th class="text-center">Numéro DA</th>
-					<th class="text-center">Numéro DDP/BAP</th>
+					{% if appro %}
+						<th class="text-center">Numéro DDP/BAP</th>
+					{% else %}
+						<th class="text-center">N° Demande paiement</th>
+					{% endif %}
 					<th class="text-center">Type DDP</th>
 					<th class="text-center">Fournisseur</th>
 					<th class="text-center">Numéro cde</th>
@@ -48,9 +52,13 @@
 						</td>
 						<td class="text-center">{{ row.numeroCla }}</td>
 						<td class="text-center">
-							<a href="{{ path('da_dossier_da', {numDa: row.numeroDemandeAppro}) }}" target="_blank">
-								{{ row.numeroDemandeAppro }}
-							</a>
+							{% if row.numeroDemandeAppro %}
+								<a href="{{ path('da_dossier_da', {numDa: row.numeroDemandeAppro}) }}" target="_blank">
+									{{ row.numeroDemandeAppro }}
+								</a>
+							{% else %}
+								-
+							{% endif %}
 						</td>
 						<td class="text-center">
 							{% if row.fileExists %}

@@ -132,7 +132,7 @@ class DaSoumissionFacBlController extends Controller
 
                 // Ici aussi on pourrait injecter HistoriqueOperationDaBcService
                 $historiqueOperation = new HistoriqueOperationDaBcService($this->getEntityManager());
-                $historiqueOperation->sendNotificationSoumission($message, $dto->numeroCde, $nomDeRoute, true, $criteria, $nomInputSearch, [], null);
+                $historiqueOperation->sendNotificationSoumission($message, $dto->numeroCde, $nomDeRoute, true, $criteria, $nomInputSearch);
             }
         }
     }

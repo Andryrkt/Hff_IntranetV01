@@ -178,7 +178,7 @@ class DemandePaiementDaController extends Controller
             $criteria = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn');
             $nomDeRoute = 'da_bon_a_payer'; // route de redirection après soumission
             $nomInputSearch = 'cde_frn_list'; // initialistion de nom de chaque champ ou input
-            $this->historiqueOperation->sendNotificationSoumission($message, $dto->numeroDdp, $nomDeRoute, true, $criteria, $nomInputSearch, [], null);
+            $this->historiqueOperation->sendNotificationSoumission($message, $dto->numeroDdp, $nomDeRoute, true, $criteria, $nomInputSearch);
         }
     }
 
@@ -221,7 +221,7 @@ class DemandePaiementDaController extends Controller
         }
     }
 
-    private function enregistrementSurBd(DemandePaiementDto $dto, string $nomFichier): void
+    private function enregistrementSurBd(DemandePaiementDto $dto): void
     {
         // enregistrement dans la table deamnde_paiement
         $ddp = $this->demandePaiementService->createDdp($dto);

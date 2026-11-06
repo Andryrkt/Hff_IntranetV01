@@ -44,7 +44,10 @@ class BreadcrumbExtension extends AbstractExtension
     public function generateBreadcrumbs(): array
     {
         if ($this->cacheBreadcrumbs === null) {
-            $this->cacheBreadcrumbs = $this->breadcrumbFactory->createFromCurrentUrl($this->securityService->getRouteCourrante());
+            $this->cacheBreadcrumbs = $this->breadcrumbFactory->createFromCurrentUrl(
+                $this->securityService->getRouteCourrante(),
+                $this->securityService->getRouteParamsCourants()
+            );
         }
         return $this->cacheBreadcrumbs;
     }
