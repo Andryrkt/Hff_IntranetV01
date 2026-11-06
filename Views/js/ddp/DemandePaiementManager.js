@@ -153,6 +153,16 @@ export class DemandePaiementManager {
       );
       this.verifierMontant();
     });
+
+    const champTotal = this.elements.montantTotalAPayerInput;
+    if (champTotal) {
+      champTotal.addEventListener("input", () => {
+        champTotal.value = champTotal.value === "" ? "" : formatNumberSpecial(champTotal.value);
+        // Posté seulement s'il est saisi : sinon le serveur garde son propre calcul
+        champTotal.name = champTotal.value === "" ? "" : "montantTotalAPayerSaisi";
+        this.afficherMontantTotalAPayer();
+      });
+    }
   }
 
   /**
@@ -917,13 +927,17 @@ export class DemandePaiementManager {
 
   /**
    * Paiement à l'avance : bloque la soumission si le montant dépasse le plafond
-   * (data-plafond, formulaire magasin uniquement), si la commande est déjà payée à 100 %
+   * (data-plafond, formulaire magasin uniquement), si la commande est déjà payée à 100 %,
+   * si cette demande ferait dépasser 100 % au cumul des demandes validées
    * ou si son montant total n'est pas remonté d'IPS (formulaire magasin uniquement).
    */
   verifierMontantAvance() {
     this.montantIncorrect = false;
     this.messageMontantIncorrect = "";
 
+    const ratioAvanceValide = this.ratioAvanceValide || 0;
+    const montantTotal = parseMontant(this.elements.montantTotalCommandeInput?.value || "");
+    const cumul = ratioAvanceValide + (parseMontant(this.elements.montantInput.value) / montantTotal) * 100;
     const plafond = parseFloat(this.elements.montantInput.dataset.plafond);
     if (
       !isNaN(plafond) &&
@@ -935,6 +949,10 @@ export class DemandePaiementManager {
       // Commande déjà payée à 100 % par des demandes de paiement à l'avance validées
       this.montantIncorrect = true;
       this.messageMontantIncorrect = `La commande ${this.getNumCdesSelectionnees()[0]} est déjà payée à 100 % par des demandes de paiement à l'avance validées : une nouvelle demande de paiement à l'avance n'est pas possible.`;
+    } else if (montantTotal > 0 && cumul > 100 + 0.01) {
+      const montantMaximum = ((100 - ratioAvanceValide) * montantTotal) / 100;
+      this.montantIncorrect = true;
+      this.messageMontantIncorrect = `Le montant facture proforma de la commande ${this.getNumCdesSelectionnees()[0]} porte le cumul des demandes de paiement à l'avance validées à ${formatNumberSpecial(cumul.toFixed(2))} % : il ne doit pas dépasser ${formatNumberSpecial(montantMaximum.toFixed(2))}.`;
     } else if (
       this.elements.montantTotalCommandeInput?.value === "" &&
       this.getNumCdesSelectionnees().length > 0
@@ -953,6 +971,7 @@ export class DemandePaiementManager {
   async chargerMontantCommandeHt() {
     const numCde = this.getNumCdesSelectionnees()[0];
     this.commandeSoldee = false;
+    this.ratioAvanceValide = 0;
     this.afficherHistoriqueDdp(null);
     this.chargerMontantTotalCommande(numCde);
 
@@ -967,6 +986,7 @@ export class DemandePaiementManager {
       // Ignore la réponse si la sélection a changé entre-temps
       if (this.getNumCdesSelectionnees()[0] !== numCde) return;
       this.commandeSoldee = resultat.commandeSoldee === true;
+      this.ratioAvanceValide = Number(resultat.ratioAvanceValide) || 0;
       this.afficherHistoriqueDdp(numCde, resultat);
     } catch (error) {
       console.error(
@@ -1226,6 +1246,10 @@ export class DemandePaiementManager {
     if (!tableauMontantsCommande || !montantsCommandeBody) return;
 
     const numCdes = this.getNumCdesSelectionnees();
+    // Autres commandes : un montant saisi auparavant ne s'applique plus
+    if (this.elements.montantTotalAPayerInput) {
+      this.elements.montantTotalAPayerInput.name = "";
+    }
     montantsCommandeBody.innerHTML = "";
     numCdes.forEach((numCde) => {
       const input = document.createElement("input");
@@ -1244,13 +1268,14 @@ export class DemandePaiementManager {
         });
       });
       const celluleSolde = tr.insertCell();
-      celluleSolde.className = "text-end";
+      celluleSolde.className = "text-end fw-bold text-success";
       const celluleReceptionne = tr.insertCell();
       celluleReceptionne.className = "text-end";
       celluleReceptionne.appendChild(input);
       celluleReceptionne.appendChild(document.createElement("span")).className = "montant-receptionne";
       tr.insertCell().className = "text-end montant-a-payer";
-      tr.insertCell().className = "text-end solde-restant";
+      const celluleTotal = tr.insertCell();
+      celluleTotal.className = "text-end";
 
       this.chargerSituationAvance(numCde).then((situation) => {
         if (!situation) return;
@@ -1265,6 +1290,7 @@ export class DemandePaiementManager {
       });
       this.recupererMontantTotalCommande(numCde).then((montantTotal) => {
         input.dataset.montantTotal = montantTotal ?? "";
+        celluleTotal.textContent = montantTotal > 0 ? formatNumberSpecial(Number(montantTotal).toFixed(2)) : "-";
         this.afficherMontantCommandeAPayer(input);
       });
       this.afficherMontantCommandeAPayer(input);
@@ -1276,14 +1302,13 @@ export class DemandePaiementManager {
   }
 
   /**
-   * Aperçu du montant enregistré par le serveur (DdpDto::montantCommandeAPayer) et
-   * solde avance restant, dans des cellules et non des champs : verifierMontant()
-   * additionne tous les champs du tableau.
+   * Aperçu du montant enregistré par le serveur (DdpDto::montantCommandeAPayer),
+   * dans des cellules et non des champs : verifierMontant() additionne tous les
+   * champs du tableau.
    */
   afficherMontantCommandeAPayer(input) {
     const ligne = input.closest("tr");
     const cellule = ligne.querySelector(".montant-a-payer");
-    const celluleRestant = ligne.querySelector(".solde-restant");
     const solde = parseFloat(input.dataset.soldeAvance);
     const receptionne = parseMontant(input.value);
     const montantTotal = parseFloat(input.dataset.montantTotal);
@@ -1295,14 +1320,11 @@ export class DemandePaiementManager {
     }
     if (isNaN(solde) || isNaN(receptionne)) {
       cellule.textContent = "";
-      celluleRestant.textContent = "";
       delete input.dataset.montantAPayer;
     } else {
       const couvert = solde > 0 && receptionne <= solde;
       const montant = couvert || input.dataset.regule === "1" ? 0 : receptionne - solde;
-      const restant = couvert ? solde - receptionne : 0;
       this.ecrireMontantAvecPourcentage(cellule, montant, montantTotal);
-      celluleRestant.textContent = formatNumberSpecial(restant.toFixed(2));
       input.dataset.montantAPayer = montant;
     }
     this.afficherMontantTotalAPayer();
@@ -1343,8 +1365,8 @@ export class DemandePaiementManager {
   }
 
   /**
-   * Champ "Montant total à payer" : somme des montants du commande à payer du tableau,
-   * et % des deux totaux du formulaire par rapport au montant total des commandes.
+   * Champ "Montant total à payer" : somme des montants commande à payer du tableau, sauf
+   * montant saisi, et % des deux totaux du formulaire par rapport au montant total des commandes.
    */
   afficherMontantTotalAPayer() {
     const champ = this.elements.montantTotalAPayerInput;
@@ -1354,12 +1376,15 @@ export class DemandePaiementManager {
     const total = inputs.reduce((somme, input) => somme + (parseFloat(input.dataset.montantAPayer) || 0), 0);
     // Aucun montant réceptionné connu : ne pas afficher un total ni un % à 0
     const aUnMontant = inputs.some((input) => input.value !== "");
-    champ.value = aUnMontant ? formatNumberSpecial(total.toFixed(2)) : "";
+    const saisi = champ.name !== "";
+    if (!saisi) {
+      champ.value = aUnMontant ? formatNumberSpecial(total.toFixed(2)) : "";
+    }
 
     const totalCommandes = inputs.reduce((somme, input) => somme + (parseFloat(input.dataset.montantTotal) || 0), 0);
     const totalReceptionne = inputs.reduce((somme, input) => somme + (parseMontant(input.value) || 0), 0);
     this.afficherPourcentageLibelle(this.elements.montantInput, aUnMontant ? this.pourcentage(totalReceptionne, totalCommandes) : "");
-    this.afficherPourcentageLibelle(champ, aUnMontant ? this.pourcentage(total, totalCommandes) : "");
+    this.afficherPourcentageLibelle(champ, aUnMontant ? this.pourcentage(saisi ? parseMontant(champ.value) : total, totalCommandes) : "");
   }
 
   /**

@@ -31,6 +31,7 @@
 					<th class="text-center">-</th>
 					{# checkbox #}
 					<th class="text-center">Numéro CLA</th>
+					<th class="text-center">{{ appro ? 'Facture BL' : 'Facture fournisseur' }}</th>
 					<th class="text-center">Numéro DA</th>
 					{% if appro %}
 						<th class="text-center">Numéro DDP/BAP</th>
@@ -38,10 +39,10 @@
 						<th class="text-center">N° Demande paiement</th>
 					{% endif %}
 					<th class="text-center">Type DDP</th>
+					<th class="text-center">Motif</th>
 					<th class="text-center">Fournisseur</th>
 					<th class="text-center">Numéro cde</th>
 					<th class="text-center">Numéro livraison</th>
-					<th class="text-center">Facture BL</th>
 					<th class="text-center">Statut</th>
 					<th class="text-center">Transmise le</th>
 					<th class="text-center">Montant DDP</th>
@@ -54,6 +55,7 @@
 							<input type="checkbox" name="{{ row.numeroDdp }}" data-numero-ddp="{{ row.numeroDdp }}" data-numero-cde="{{ row.numeroCommande }}" class="bap-checkbox" {{ row.enableCheckBox }}>
 						</td>
 						<td class="text-center">{{ row.numeroCla }}</td>
+						<td class="text-center">{{ row.numeroFacture|replace({';': '; '}) }}</td>
 						<td class="text-center">
 							{% if row.numeroDemandeAppro %}
 								<a href="{{ path('da_dossier_da', {numDa: row.numeroDemandeAppro}) }}" target="_blank">
@@ -74,10 +76,10 @@
 							{% endif %}
 						</td>
 						<td class="text-start">{{ row.typeDemande ? row.typeDemande.libelle : "-" }}</td>
+						<td class="text-start">{{ row.motif }}</td>
 						<td class="text-start">{{ row.fournisseur }}</td>
 						<td class="text-center">{{ row.numeroCommande|replace({';': '; '}) }}</td>
 						<td class="text-center">{{ row.numeroLivraison }}</td>
-						<td class="text-center">{{ row.numeroFacture|replace({';': '; '}) }}</td>
 						<td class="text-center fw-bold {{ row.styleStatut }}">{{ row.statut }}</td>
 						<td class="text-center">{{ row.dateSoumissionCompta }}</td>
 						<td class="text-end">{{ row.montantAPayer }}</td>

@@ -12,7 +12,8 @@ class DemandePaiementModel extends Model
 
     public function recupInfoFournissseur()
     {
-        $statement = " SELECT 
+        // shortcut: MIN ignore les RIB NULL mais choisit arbitrairement entre deux RIB renseignés, à revoir si IPS indique un RIB principal
+        $statement = " SELECT
                     FBSE_NUMFOU AS num_fournisseur,
                     UPPER(MIN(FBSE_NOMFOU)) AS nom_fournisseur,  -- Prend un seul nom fournisseur
                     MIN(fbse_devise) AS devise,                  -- Prend une seule devise
@@ -25,8 +26,8 @@ class DemandePaiementModel extends Model
                         WHEN ffou_modp = 'VI' THEN 'VIREMENT'
                         ELSE ffou_modp
                     END) AS mode_paiement,
-                    TRIM(fbqe_bqcode) ||' '|| TRIM(fbqe_bqguich) ||' '|| TRIM(fbqe_bqcpte) ||' '|| TRIM(fbqe_bqrib) AS rib
-                FROM 
+                    MIN(TRIM(fbqe_bqcode) ||' '|| TRIM(fbqe_bqguich) ||' '|| TRIM(fbqe_bqcpte) ||' '|| TRIM(fbqe_bqrib)) AS rib
+                FROM
                     informix.FRN_BSE
                 JOIN 
                     informix.FRN_FOU ON FBSE_NUMFOU = FFOU_NUMFOU
@@ -35,7 +36,7 @@ class DemandePaiementModel extends Model
                 WHERE 
                     FFOU_SOC = 'HF'
                 GROUP BY 
-                    FBSE_NUMFOU, rib
+                    FBSE_NUMFOU
                 ORDER BY 
                     nom_fournisseur
         ";
@@ -116,6 +117,32 @@ class DemandePaiementModel extends Model
             where TRZT_Facture.Numero_Facture in ({$numFacString})";
 
         return $this->retournerResultGcot04($sql);
+    }
+
+    /**
+     * Factures GCOT dont au moins une commande ne fait pas partie des commandes données
+     *
+     * @param string[] $numFactures
+     * @param string[] $numCdes
+     * @return array<string, string> [numéro de facture => première commande hors liste]
+     */
+    public function getFacturesAvecCommandeHorsListe(array $numFactures, array $numCdes): array
+    {
+        $factures = array_unique(array_map(fn($facture) => trim((string) $facture), $numFactures));
+
+        $horsListe = [];
+        // par lots : un IN de plusieurs milliers de valeurs fait échouer SQL Server
+        foreach (array_chunk($factures, 500) as $lot) {
+            foreach ($this->getCommandesParFacture(TableauEnStringService::TableauEnString(',', $lot)) as $ligne) {
+                $numFacture = trim((string) $ligne['Numero_Facture']);
+                $numCde = trim((string) $ligne['Numero_PO']);
+                if ($numCde !== '' && !in_array($numCde, $numCdes, true) && !isset($horsListe[$numFacture])) {
+                    $horsListe[$numFacture] = $numCde;
+                }
+            }
+        }
+
+        return $horsListe;
     }
 
     public function getMontantFacGcot(string $numeroFournisseur, string  $numCdesString, string $numfacture): array
@@ -207,6 +234,7 @@ class DemandePaiementModel extends Model
 
     public function findListeDoc($numeroDossier)
     {
+        $numeroDossier = str_replace("'", "''", (string) $numeroDossier);
         $sql = " SELECT  Nom_Fichier, Date_Fichier, Numero_PO
             from GCOT_Gestion_Document
             where Numero_PO='{$numeroDossier}'

@@ -89,9 +89,9 @@ class InfoFournisseurApi extends Controller
 
 
     /**
-     * @Route("/api/num-cde-frn/{numeroFournisseur}/{typeId}", name="api_num_cde_frn")
+     * @Route("/api/num-cde-frn/{numeroFournisseur}/{typeId}", name="api_num_cde_frn", requirements={"numeroFournisseur"="\d+"})
      */
-    public function numeroCommandeFournisseur($numeroFournisseur, $typeId)
+    public function numeroCommandeFournisseur($numeroFournisseur, $typeId, Request $request)
     {
         // Code Société de l'utilisateur
         $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
@@ -104,6 +104,8 @@ class InfoFournisseurApi extends Controller
 
         // {typeId} arrive de l'URL en chaîne ("1", "2") : conversion pour les comparaisons strictes
         $typeId = (int) $typeId;
+        // Après arrivage : le flux DA n'exige pas que les commandes soient validées dans DOCUWARE
+        $fluxDa = $request->query->get('flux') === 'da';
 
         // Commandes fournisseur validées (dernière version, statut "Validée")
         $cdeFrnRepository = $this->getEntityManager()->getRepository(CdefnrSoumisAValidation::class);
@@ -117,13 +119,19 @@ class InfoFournisseurApi extends Controller
         $numCdesAvecLivraison = $this->demandePaiementModel()->getCommandeReceptionnee($numeroFournisseur, $codeSociete, $typeId, $numCdeValides);
 
         if ($typeId === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE) {
-            // Après arrivage : commandes réceptionnées
-            $numCdes = $numCdesAvecLivraison;
+            // Après arrivage : commandes réceptionnées et validées dans DOCUWARE (réceptionnées seulement pour le flux DA)
+            $numCdes = $fluxDa ? $numCdesAvecLivraison : array_values(array_intersect(
+                array_map(fn($el) => trim((string) $el), $numCdesAvecLivraison),
+                $numCdeValidesListe
+            ));
         } else {
             // À l'avance (type 1) : commandes validées dans DOCUWARE qui ne sont PAS encore réceptionnées
+            // sans demande à l'avance en cours et pas encore payées à 100 % par des demandes à l'avance validées
             $numCdes = array_values(array_diff(
                 $numCdeValidesListe,
-                array_map(fn($el) => trim((string) $el), $numCdesAvecLivraison)
+                array_map(fn($el) => trim((string) $el), $numCdesAvecLivraison),
+                $this->demandePaiementRepository->getCommandesAvecDdpAvanceEnCours((string) $numeroFournisseur, $codeSociete),
+                $this->demandePaiementRepository->getCommandesAvanceSoldees((string) $numeroFournisseur, $codeSociete)
             ));
         }
 
@@ -144,6 +152,15 @@ class InfoFournisseurApi extends Controller
                 $listeGcot,
                 fn($facture) => !isset($ddpParFacture[trim((string) $facture['Numero_Facture'])])
             ));
+
+            // Facture masquée tant que toutes ses commandes ne sont pas validées dans DOCUWARE
+            if (!$fluxDa) {
+                $facturesNonValidees = $this->demandePaiementModel()->getFacturesAvecCommandeHorsListe(array_column($listeGcot, 'Numero_Facture'), $numCdeValidesListe);
+                $listeGcot = array_values(array_filter(
+                    $listeGcot,
+                    fn($facture) => !isset($facturesNonValidees[trim((string) $facture['Numero_Facture'])])
+                ));
+            }
         }
 
         $data = [
@@ -164,7 +181,7 @@ class InfoFournisseurApi extends Controller
     }
 
     /**
-     * @Route("/api/montant-facture/{numeroFournisseur}/{numFacture}/{typeId}", name="api_montant_factures")
+     * @Route("/api/montant-facture/{numeroFournisseur}/{numFacture}/{typeId}", name="api_montant_factures", requirements={"numeroFournisseur"="\d+"})
      */
     public function montantFacture(string $numeroFournisseur, string $numFacture, int $typeId)
     {
@@ -187,7 +204,7 @@ class InfoFournisseurApi extends Controller
     }
 
     /**
-     * @Route("/api/montant-commande-receptionnee/{numeroFournisseur}/{numCdes}/{numFactures}", name="api_montant_commande_receptionnee")
+     * @Route("/api/montant-commande-receptionnee/{numeroFournisseur}/{numCdes}/{numFactures}", name="api_montant_commande_receptionnee", requirements={"numeroFournisseur"="\d+"})
      */
     public function montantCommandeReceptionnee(string $numeroFournisseur, string $numCdes, string $numFactures)
     {
@@ -250,6 +267,7 @@ class InfoFournisseurApi extends Controller
             'montantDejaValide' => $montantDejaValide,
             'montantRestant'    => $montantHt - $montantDejaValide,
             'ratioDejaValide'   => $ratioDejaValide,
+            'ratioAvanceValide' => $ratioAvanceValide,
             'commandeSoldee'    => $ratioAvanceValide >= 100 - 0.01,
             'historique'        => $this->historiqueDdpCommande($numCde),
         ]);

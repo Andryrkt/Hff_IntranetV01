@@ -75,6 +75,7 @@ class DemandePaiementMapper
             $dto->numeroDemandeAppro   = $ddp->getNumeroDemandeAppro();
             $dto->numeroDdp            = $ddp->getNumeroDdp();
             $dto->typeDemande          = $ddp->getTypeDemandeId();
+            $dto->motif                = $ddp->getMotif();
             $dto->numeroFournisseur    = $ddp->getNumeroFournisseur();
             $dto->beneficiaire         = $ddp->getBeneficiaire();
             $dto->numeroCommande       = $ddp->getNumeroCommande();
@@ -93,7 +94,6 @@ class DemandePaiementMapper
                 $dto->codeService          = $ddp->getServiceDebiter();
                 $dto->dateDemande          = $ddp->getDateCreation();
                 $dto->statutDossierRegul   = $ddp->getStatutDossierRegul();
-                $dto->motif                = $ddp->getMotif();
                 $dto->numeroDossierDouane  = [];
                 $dto->devise               = $ddp->getDevise();
                 $dto->modePaiement         = $ddp->getModePaiement();

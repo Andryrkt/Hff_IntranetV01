@@ -5,6 +5,8 @@ namespace App\Form\da\ddp;
 
 
 use App\Dto\Da\ddp\BapSearchDto;
+use App\Entity\admin\ddp\TypeDemande;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -33,7 +35,14 @@ class BonApayerType extends AbstractType
                 'required'      => false
             ])
             ->add('FactureBl', TextType::class, [
-                'label'         => 'Facture BL',
+                'label'         => $options['appro'] ? 'Facture BL' : 'Facture fournisseur',
+                'required'      => false
+            ])
+            ->add('typeDemande', EntityType::class, [
+                'label'         => 'Type',
+                'class'         => TypeDemande::class,
+                'choice_label'  => 'libelle',
+                'placeholder'   => '-- Choisir un type de demande--',
                 'required'      => false
             ])
             ->add('fournisseur', TextType::class, [
@@ -55,6 +64,7 @@ class BonApayerType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => BapSearchDto::class,
+            'appro'      => false,
         ]);
     }
 }

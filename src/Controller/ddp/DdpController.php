@@ -2,10 +2,12 @@
 
 namespace App\Controller\ddp;
 
+use App\Constants\ddp\StatutConstants;
 use App\Constants\ddp\TypeDemandePaiementConstants;
 use App\Controller\Controller;
 use App\Controller\Traits\PdfConversionTrait;
 use App\Dto\ddp\DdpDto;
+use App\Entity\admin\ddp\TypeDemande;
 use App\Entity\cde\CdefnrSoumisAValidation;
 use App\Entity\ddp\DemandePaiement;
 use App\Factory\ddp\DdpFactory;
@@ -83,6 +85,14 @@ class DdpController extends Controller
             /** @var DdpDto $dto */
             $dto = $form->getData();
 
+            // valeurs postées, concaténées dans les requêtes IPS
+            foreach ((array) $dto->numeroCommande as $numCde) {
+                if (trim((string) $numCde) !== '' && !ctype_digit(trim((string) $numCde))) {
+                    $form->addError(new FormError('Le numéro de commande ne doit contenir que des chiffres.'));
+                    return;
+                }
+            }
+
             // à l'avance : le montant total du commande vient d'IPS, jamais de la valeur postée
             if ($dto->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE) {
                 $numeroProforma = trim((string) $dto->numeroFactureProforma);
@@ -106,11 +116,23 @@ class DdpController extends Controller
                 return;
             }
 
+            $erreurAvanceEnCours = $this->erreurAvanceEnCours($dto);
+            if ($erreurAvanceEnCours !== null) {
+                $form->addError(new FormError($erreurAvanceEnCours));
+                return;
+            }
+
             // après arrivage : un montant total doit être saisi pour chaque commande
             if ($dto->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE) {
                 $erreurFacture = $this->erreurFactureDejaDemandee($dto);
                 if ($erreurFacture !== null) {
                     $form->addError(new FormError($erreurFacture));
+                    return;
+                }
+
+                $erreurCommandeNonValidee = $this->erreurCommandeNonValidee($dto);
+                if ($erreurCommandeNonValidee !== null) {
+                    $form->addError(new FormError($erreurCommandeNonValidee));
                     return;
                 }
 
@@ -142,7 +164,7 @@ class DdpController extends Controller
             }
 
             if ($dto->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE) {
-                $this->soumissionApresArrivage($form, $dto);
+                $this->soumissionApresArrivage($form, $dto, trim((string) $request->request->get('montantTotalAPayerSaisi', '')));
                 return;
             }
 
@@ -180,10 +202,15 @@ class DdpController extends Controller
      * par saisie. Solde avance et montant à payer restent calculés commande par commande
      * (DemandePaiementRepository::getSituationAvanceParCommande).
      */
-    private function soumissionApresArrivage(FormInterface $form, DdpDto $dto): void
+    private function soumissionApresArrivage(FormInterface $form, DdpDto $dto, string $montantSaisi = ''): void
     {
         if (empty($dto->numeroCommande)) {
             $form->addError(new FormError('Aucune commande trouvée pour la/les facture(s) sélectionnée(s).'));
+            return;
+        }
+
+        if ($montantSaisi !== '' && !preg_match('/^\d[\d ]*(,\d*)?$/', $montantSaisi)) {
+            $form->addError(new FormError('Le montant total à payer doit être un nombre positif.'));
             return;
         }
 
@@ -212,20 +239,50 @@ class DdpController extends Controller
             }
         });
 
-        // montant à payer de la DDP = somme des montants du commande à payer
-        $dto->montantAPayer = number_format(
-            array_sum(array_map(fn($numCde) => (float) $dto->montantCommandeAPayer((string) $numCde), $dto->numeroCommande)),
-            2,
-            ',',
-            ''
-        );
+        $dto->montantAPayer = $this->montantAPayerApresArrivage($dto, $montantSaisi);
 
+        // après numeroEtFichiers : DdpFactory::apresSoumission() dépend encore du type 2
         $dto = $this->numeroEtFichiers($suivi, $form, $dto);
+        $this->appliquerTypeSelonMontants($dto);
         $dto->donneesPageDeGarde = $suivi->etape('Données de la page de garde', fn() => $this->donneesPageDeGarde($dto));
 
         $this->enregistrementEtPdf($suivi, $dto);
 
         $this->notificationSoumission($dto->numeroDdp);
+    }
+
+    /**
+     * Après arrivage : montant à payer à 0 → DDPR (prioritaire), somme des soldes avance à 0 → BAP, sinon DDPL.
+     * Le type décide aussi du dossier DocuWare à la transmission (GeneratePdf::copyToDWBapDa).
+     */
+    private function appliquerTypeSelonMontants(DdpDto $dto): void
+    {
+        if ($dto->montantAPayer() < 0.005) {
+            $idType = TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_REGULE;
+            $dto->statut = StatutConstants::DDPR_A_TRANSMETTRE;
+        } elseif (array_sum($dto->soldesAvance) < 0.005) {
+            $idType = TypeDemandePaiementConstants::ID_BON_A_PAYER;
+            $dto->statut = StatutConstants::BAP_A_TRANSMETTRE;
+        } else {
+            return;
+        }
+
+        $dto->typeDdp = $this->getEntityManager()->getRepository(TypeDemande::class)->find($idType);
+    }
+
+    /**
+     * Montant à payer de la DDP : le montant saisi s'il y en a un, sinon la somme des montants du commande à payer
+     */
+    private function montantAPayerApresArrivage(DdpDto $dto, string $montantSaisi): string
+    {
+        if ($montantSaisi !== '') {
+            $dto->montantAPayer = $montantSaisi;
+            $montant = $dto->montantAPayer();
+        } else {
+            $montant = array_sum(array_map(fn($numCde) => (float) $dto->montantCommandeAPayer((string) $numCde), $dto->numeroCommande));
+        }
+
+        return number_format($montant, 2, ',', '');
     }
 
     /**
@@ -246,7 +303,6 @@ class DdpController extends Controller
                     'numero'  => $ddp->getNumeroDdp(),
                     'type'    => $ddp->getTypeDemandeId() ? $ddp->getTypeDemandeId()->getLibelle() : '',
                     'montant' => (float) $ddp->getMontantAPayers(),
-                    'ratio'   => $ddp->getRatioMontantTotalCommande(),
                     'statut'  => $ddp->getStatut(),
                 ];
             }
@@ -304,7 +360,8 @@ class DdpController extends Controller
 
     /**
      * Paiement à l'avance : bloque la soumission si la commande sélectionnée est
-     * déjà payée à 100 % par des demandes de paiement à l'avance validées.
+     * déjà payée à 100 % par des demandes de paiement à l'avance validées, ou si
+     * cette demande ferait dépasser 100 % à leur cumul.
      * Miroir de la vérification front (DemandePaiementManager.js::verifierMontantAvance).
      *
      * @return string|null message d'erreur, null si la soumission est autorisée
@@ -328,6 +385,43 @@ class DdpController extends Controller
             );
         }
 
+        $montantTotal = $dto->montantTotalCommande();
+        if ($montantTotal > 0) {
+            $cumul = $ratioAvanceValide + $dto->montantAPayer() / $montantTotal * 100;
+            if ($cumul > 100 + 0.01) {
+                return sprintf(
+                    'Le montant facture proforma de la commande %s porte le cumul des demandes de paiement à l\'avance validées à %s %% : il ne doit pas dépasser %s.',
+                    $numCde,
+                    number_format($cumul, 2, ',', ' '),
+                    number_format((100 - $ratioAvanceValide) * $montantTotal / 100, 2, ',', ' ')
+                );
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Paiement à l'avance : bloque la soumission si la commande sélectionnée a déjà une
+     * demande à l'avance en cours. Le front ne la propose plus (InfoFournisseurApi::numeroCommandeFournisseur).
+     *
+     * @return string|null message d'erreur, null si la soumission est autorisée
+     */
+    private function erreurAvanceEnCours(DdpDto $dto): ?string
+    {
+        if ($dto->typeDdp->getId() !== TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE || empty($dto->numeroCommande)) {
+            return null;
+        }
+
+        $numCde = trim((string) $dto->numeroCommande[0]);
+        $commandesEnCours = $this->getEntityManager()
+            ->getRepository(DemandePaiement::class)
+            ->getCommandesAvecDdpAvanceEnCours((string) $dto->numeroFournisseur, $dto->codeSociete);
+
+        if (in_array($numCde, $commandesEnCours, true)) {
+            return sprintf('La commande %s a déjà une demande de paiement à l\'avance en cours.', $numCde);
+        }
+
         return null;
     }
 
@@ -347,6 +441,30 @@ class DdpController extends Controller
             $numeroDdp = $ddpParFacture[trim((string) $numFac)] ?? null;
             if ($numeroDdp !== null) {
                 return sprintf('La facture %s a déjà une demande de paiement en cours ou validée (%s).', $numFac, $numeroDdp);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Après arrivage : bloque la soumission d'une facture dont une commande n'est pas validée
+     * dans DocuWare. Le front ne la propose plus (InfoFournisseurApi::numeroCommandeFournisseur).
+     *
+     * @return string|null message d'erreur, null si la soumission est autorisée
+     */
+    private function erreurCommandeNonValidee(DdpDto $dto): ?string
+    {
+        $commandesValidees = array_map(
+            fn(CdefnrSoumisAValidation $commande) => trim((string) $commande->getNumCdeFournisseur()),
+            $this->getEntityManager()->getRepository(CdefnrSoumisAValidation::class)->findValideesDerniereVersion((string) $dto->numeroFournisseur)
+        );
+        $facturesNonValidees = $this->demandePaiementModel->getFacturesAvecCommandeHorsListe($dto->numeroFacture, $commandesValidees);
+
+        foreach ($dto->numeroFacture as $numFac) {
+            $numCde = $facturesNonValidees[trim((string) $numFac)] ?? null;
+            if ($numCde !== null) {
+                return sprintf('La facture %s est liée à la commande %s, qui n\'est pas validée dans DocuWare.', $numFac, $numCde);
             }
         }
 

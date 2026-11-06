@@ -202,7 +202,7 @@ class Model
     {
         $valeursAutorisees = [];
         foreach (explode(',', $listeIn) as $valeur) {
-            $valeur = trim(trim($valeur), "'");
+            $valeur = str_replace("''", "'", trim(trim($valeur), "'"));
             if ($valeur !== '') {
                 $valeursAutorisees[$valeur] = true;
             }

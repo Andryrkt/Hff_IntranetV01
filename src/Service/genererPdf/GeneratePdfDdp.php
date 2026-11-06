@@ -392,8 +392,8 @@ class GeneratePdfDdp extends GeneratePdf
             // valeurs distinctes d'une colonne des factures de la commande
             $valeurs = fn(string $champ) => implode(', ', array_unique(array_filter(array_map(fn($f) => trim((string) ($f[$champ] ?? '')), $facturesCde)))) ?: '-';
             $lignes[] = [
-                ['center', '9%', $numCde],
                 ['left', '11%', $valeurs('Numero_Facture')],
+                ['center', '9%', $numCde],
                 ['left', '9%', $valeurs('Numero_Dossier_Douane')],
                 ['left', '11%', $valeurs('Numero_LTA')],
                 ['left', '10%', $valeurs('Numero_HAWB')],
@@ -404,7 +404,7 @@ class GeneratePdfDdp extends GeneratePdf
             ];
         }
 
-        $this->renderTable($pdf, 'RESUME DES BC', 'Aucune commande', ['N° commande', 'N° facture', 'N° dossier douane', 'N° LTA', 'N° HAWB', "Solde avance ($devise)", "Montant du commande réceptionné ($devise)", "Montant du commande à payer ($devise)", "Solde avance restant ($devise)"], $lignes);
+        $this->renderTable($pdf, 'RESUME DES BC', 'Aucune commande', ['Facture fournisseur', 'N° commande', 'N° dossier douane', 'N° LTA', 'N° HAWB', "Solde avance ($devise)", "Montant commande réceptionnée ($devise)", "Montant commande à payer ($devise)","Solde avance restant ($devise)"], $lignes);
     }
 
     /**
@@ -465,16 +465,16 @@ class GeneratePdfDdp extends GeneratePdf
         $lignes = [];
         foreach ($livraisons as $numLiv => $livraison) {
             $lignes[] = [
+                ['left', '17%', $livraison['reference']],
                 ['center', '12%', $numLiv],
                 ['center', '24%', implode(', ', array_keys($livraison['commandes']))],
                 ['center', '15%', implode(', ', array_keys($livraison['factures']))],
-                ['left', '17%', $livraison['reference']],
                 ['center', '13%', !empty($livraison['date']) ? date('d/m/Y', strtotime($livraison['date'])) : '-'],
                 ['right', '19%', $this->formaterPrix($livraison['montant'])],
             ];
         }
 
-        $this->renderTable($pdf, 'RECAPITULATIF DES LIVRAISONS', 'Aucune livraison', ['N° Livraison IPS', 'N° commande', 'N° Facture IPS', 'Référence', 'Date livraison IPS', "Montant ($devise)"], $lignes);
+        $this->renderTable($pdf, 'RECAPITULATIF DES LIVRAISONS', 'Aucune livraison', ['Facture fournisseur', 'N° Livraison IPS', 'N° commande', 'N° Facture IPS', 'Date livraison IPS', "Montant ($devise)"], $lignes);
     }
 
     private function renderHistoriqueDdp(TCPDF $pdf, array $commandes, string $devise): void
@@ -486,15 +486,14 @@ class GeneratePdfDdp extends GeneratePdf
                     ['center', '11%', $numCde],
                     ['center', '10%', $ddp['date']],
                     ['center', '14%', $ddp['numero']],
-                    ['left', '24%', $ddp['type']],
-                    ['center', '8%', $this->formaterPrix($ddp['ratio'])],
+                    ['left', '28%', $ddp['type']],
                     ['right', '14%', $this->formaterPrix($ddp['montant'])],
-                    ['left', '19%', $ddp['statut']],
+                    ['left', '23%', $ddp['statut']],
                 ];
             }
         }
 
-        $this->renderTable($pdf, 'RECAPITULATIF DES DEMANDES DE PAIEMENT DEJA ENREGISTREES', 'Aucune demande de paiement', ['N° commande', 'Date', 'Numéro DDP', 'Type', '%', "Montant ($devise)", 'Statut'], $lignes);
+        $this->renderTable($pdf, 'RECAPITULATIF DES DEMANDES DE PAIEMENT DEJA ENREGISTREES', 'Aucune demande de paiement', ['N° commande', 'Date', 'Numéro DDP', 'Type', "Montant ($devise)", 'Statut'], $lignes);
     }
 
     private function renderTable(TCPDF $pdf, string $titre, string $messageVide, array $entetes, array $lignes): void

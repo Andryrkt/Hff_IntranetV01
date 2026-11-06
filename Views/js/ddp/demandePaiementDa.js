@@ -1,4 +1,4 @@
-import { DemandePaiementManager } from "./DemandePaiementManager.js?v=20261104f";
+import { DemandePaiementManager } from "./DemandePaiementManager.js?v=20261105c";
 import { formaterNombre } from "../utils/formatNumberUtils.js";
 import { setupConfirmationButtons } from "../utils/ui/boutonConfirmUtils.js";
 import { baseUrl } from "../utils/config.js";
@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
     },
     urls: {
       fournisseurs: "api/info-fournisseur-ddp",
-      commandes: "api/num-cde-frn/:numFournisseur/:typeId",
+      commandes: "api/num-cde-frn/:numFournisseur/:typeId?flux=da",
       montantCommande: "api/montant-commande/:numCde",
       montantFacture:
         "api/montant-facture/:numFournisseur/:facturesString/:typeId",
