@@ -220,44 +220,6 @@ function activeDesactiveFormulairePourReappro() {
   form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
 }
 
-function AffichageEtTraitementFOrmAEnvoyerFournisseur(commandeId) {
-  // <<-- commandeId comme paramètre
-  const overlay = document.getElementById("loading-overlays");
-  overlay.classList.remove("hidden");
-  const url = "api/da-envoie-cde"; // L'URL de votre route Symfony
-  fetchManager
-    .get(url, "text")
-    .then((html) => {
-      statutAffiche.innerHTML = html + "<hr>";
-      statutAffiche.style.display = "block";
-      // Ajouter un écouteur sur la soumission du formulaire
-      document
-        .getElementById("daCdeEnvoyer")
-        .addEventListener("submit", function (event) {
-          event.preventDefault();
-
-          const formData = new FormData(this);
-
-          let jsonData = {};
-          formData.forEach((value, key) => {
-            // Supprimer le préfixe `form_type_demande[...]`
-            let cleanKey = key.replace(/^da_cde_envoyer\[(.*?)\]$/, "$1");
-            jsonData[cleanKey] = value;
-          });
-
-          // Génère le lien dynamiquement, avec une vraie URL (pas Twig)
-          const urlLien = `${baseUrl}/demande-appro/changement-statuts-envoyer-fournisseur/${commandeId}/${jsonData.dateLivraisonPrevue}/${jsonData.estEnvoyer}`;
-          window.location.href = urlLien;
-        });
-    })
-    .catch((error) =>
-      console.error("Erreur lors du chargement du formulaire:", error),
-    )
-    .finally(() => {
-      overlay.classList.add("hidden");
-    });
-}
-
 function activeDesactiveFormulairePourStatutsBcEnvoyer() {
   let elementToCheck = null;
 
@@ -388,7 +350,7 @@ document.addEventListener("contextmenu", function (event) {
             console.log(jsonData);
 
             // Génère le lien dynamiquement, avec une vraie URL (pas Twig)
-            const urlLien = `${baseUrl}/demande-appro/changement-statuts-envoyer-fournisseur/${commandeId}/${jsonData.dateLivraisonPrevue}/${jsonData.estEnvoyer}`;
+            const urlLien = `${baseUrl}/demande-appro/changement-statuts-envoyer-fournisseur/${numDa}/${commandeId}/${jsonData.dateLivraisonPrevue}/${jsonData.estEnvoyer}`;
             window.location.href = urlLien;
           });
       })

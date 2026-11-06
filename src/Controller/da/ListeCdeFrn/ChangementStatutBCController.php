@@ -25,23 +25,23 @@ class ChangementStatutBCController extends Controller
         $this->daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
     }
     /**
-     * @Route(path="/changement-statuts-envoyer-fournisseur/{numCde}/{datePrevue}/{estEnvoyer}", name="api_changement_statut_envoyer_fournisseur")
+     * @Route(path="/changement-statuts-envoyer-fournisseur/{numDa}/{numCde}/{datePrevue}/{estEnvoyer}", name="api_changement_statut_envoyer_fournisseur")
      *
      * @return void
      */
-    public function changementStatutEnvoyerFournisseur(string $numCde = '', string $datePrevue = '', bool $estEnvoyer = false)
+    public function changementStatutEnvoyerFournisseur(string $numDa = '', string $numCde = '', string $datePrevue = '', bool $estEnvoyer = false)
     {
         if ($estEnvoyer) {
             // Code Société de l'utilisateur
             $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
-            //modification dans la table da_afficher
-            $numVersionMaxDaAfficher = $this->daAfficherRepository->getNumeroVersionMaxCde($numCde, $codeSociete);
+            //modification dans la table da_afficher (uniquement la DA cliquée : une même commande peut être liée à plusieurs DA)
+            $numVersionMaxDaAfficher = $this->daAfficherRepository->getNumeroVersionMax($numDa, $codeSociete);
             /** @var DaAfficher[] $daAffichers */
-            $daAffichers = $this->daAfficherRepository->findBy(['numeroCde' => $numCde, 'numeroVersion' => $numVersionMaxDaAfficher, 'codeSociete' => $codeSociete]);
+            $daAffichers = $this->daAfficherRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroCde' => $numCde, 'numeroVersion' => $numVersionMaxDaAfficher, 'codeSociete' => $codeSociete]);
 
             if (empty($daAffichers)) {
-                $this->getSessionService()->set('notification', ['type' => 'error', 'message' => 'Aucun enregistrement trouvé pour le numéro de commande : ' . $numCde . '.']);
+                $this->getSessionService()->set('notification', ['type' => 'error', 'message' => 'Aucun enregistrement trouvé pour la DA ' . $numDa . ' et le numéro de commande : ' . $numCde . '.']);
                 $this->redirectToRoute("da_list_cde_frn");
             }
 
