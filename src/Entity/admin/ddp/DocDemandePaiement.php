@@ -27,6 +27,9 @@ class DocDemandePaiement
      */
     private ?string $numeroDdp;
 
+    /**
+     * @ORM\Column(type="integer", name="type_document_id", nullable=true)
+     */
     private $typeDocumentId;
 
     /**

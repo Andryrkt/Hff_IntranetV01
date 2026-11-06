@@ -258,6 +258,17 @@ class Badm
 
     private $dateAchat;
 
+    /**
+     * @ORM\Column(type="boolean", name="pdf_deposer_dw", nullable=true)
+     */
+    private ?bool $pdfDeposerDw = false;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_depot_pdf_dw", nullable=true)
+     */
+    private ?DateTime $dateDepotPdfDw = null;
+
+
 
     //==============================================================================================================
     public function getId()
@@ -877,6 +888,30 @@ class Badm
     public function setCodeSociete($codeSociete): self
     {
         $this->codeSociete = $codeSociete;
+
+        return $this;
+    }
+
+    public function getPdfDeposerDw(): ?bool
+    {
+        return $this->pdfDeposerDw;
+    }
+
+    public function setPdfDeposerDw(?bool $pdfDeposerDw): self
+    {
+        $this->pdfDeposerDw = $pdfDeposerDw;
+
+        return $this;
+    }
+
+    public function getDateDepotPdfDw(): ?DateTime
+    {
+        return $this->dateDepotPdfDw;
+    }
+
+    public function setDateDepotPdfDw(?DateTime $dateDepotPdfDw): self
+    {
+        $this->dateDepotPdfDw = $dateDepotPdfDw;
 
         return $this;
     }
