@@ -272,20 +272,8 @@ class MenuGroupe
                 'label'    => 'COMMANDE FOURNISSEUR',
                 'icon'     => 'cloud-arrow-up',
                 'subitems' => [
-                    ['label' => 'Soumission commandes fournisseur', 'icon' => 'plus-circle', 'route' => 'generer_commande_fournisseur']
-
+                    ['label' => 'Soumission à validation', 'icon' => 'plus-circle', 'route' => 'generer_commande_fournisseur']
                 ],
-            ],
-            [
-                'route'    => 'liste_Cde_Frn_Non_Placer',
-                'label'    => 'Liste des cmds non placées',
-                'icon'     => 'exclamation-circle',
-            ],
-            [
-                'route' => 'da_bon_a_payer',
-                'label' => 'Consultation facture',
-                'icon'  => 'list-ul',
-                'params' => ['appro' => 0],
             ],
         ];
     }
@@ -311,8 +299,7 @@ class MenuGroupe
             [
                 'route' => 'da_bon_a_payer',
                 'label' => 'Consultation facture',
-                'icon'  => 'list-ul',
-                'params' => ['appro' => 1],
+                'icon'  => 'list-ul'
             ],
             [
                 'route' => 'da_reporting_ips',

@@ -30,10 +30,11 @@ final class CdeFrnSoumisAValidationFactory
         $numCde = $commandeSoumissionDTO->numeroCommande;
         $dto = new CdeFrnSoumisAValidationDTO();
 
-        $dto->numCde     = $numCde;
-        $dto->codeFrn    = $commandeSoumissionDTO->numFrn;
-        $dto->libelleFrn = $commandeSoumissionDTO->nomFrn;
-        $dto->numVersion = $this->cdeFrnSoumisAValidationRepository->findNumeroVersionMax($numCde) + 1;
+        $dto->numCde      = $numCde;
+        $dto->codeFrn     = $commandeSoumissionDTO->numFrn;
+        $dto->libelleFrn  = $commandeSoumissionDTO->nomFrn;
+        $dto->numVersion  = $this->cdeFrnSoumisAValidationRepository->findNumeroVersionMax($numCde) + 1;
+        $dto->commentaire = $commandeSoumissionDTO->commentaire;
 
         $urlsPDF          = $this->getUrlPDF($numCde);
         $dto->urlPDFCourt = $urlsPDF['urlPDFCourt'];
