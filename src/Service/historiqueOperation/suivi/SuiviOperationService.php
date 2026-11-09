@@ -151,6 +151,9 @@ class SuiviOperationService
     private ?string $numeroDocument;
     private int $ordre = 0;
 
+    // une seule tâche par opération : celle de la première étape non OK (la plus précise, les étapes internes se ferment d'abord)
+    private bool $tacheEnregistree = false;
+
     /**
      * Pile des étapes ouvertes (une étape peut en contenir d'autres)
      * @var array<int, array{id: ?int, libelle: string, debut: float, problemes: string[]}>
@@ -308,6 +311,11 @@ class SuiviOperationService
         $this->executer(function ($connexion) use ($numeroDocument) {
             $connexion->update(self::TABLE, ['numero_document' => mb_substr($numeroDocument, 0, 50)], ['id_suivi' => $this->idSuivi]);
         });
+        if ($this->tacheEnregistree) {
+            $this->executer(function ($connexion) use ($numeroDocument) {
+                $connexion->update('suivi_operation_tache', ['dernier_numero_document' => mb_substr($numeroDocument, 0, 50)], ['dernier_id_suivi' => $this->idSuivi]);
+            });
+        }
 
         return $this;
     }
@@ -425,6 +433,7 @@ class SuiviOperationService
     {
         $this->ordre++;
         $maintenant = self::formaterDate(microtime(true));
+        $this->enregistrerTache($libelle, $statut, $message, $maintenant);
 
         $this->executer(function ($connexion) use ($libelle, $statut, $message, $detail, $maintenant) {
             $connexion->insert(self::TABLE, [
@@ -490,6 +499,9 @@ class SuiviOperationService
             $message = implode(' | ', array_filter(array_merge($etape['problemes'], [$message])));
         }
 
+        // la tâche se regroupe sur le message d'erreur seul (sans les informations ni le résumé SQL ajoutés ensuite)
+        $this->enregistrerTache($etape['libelle'], $statut, $message !== null ? strip_tags($message) : null, self::formaterDate(microtime(true)));
+
         // informations notées pendant l'étape (extrait d'observation, objet et destinataires d'un mail...)
         if (!empty($etape['infos'])) {
             $message = implode(' | ', array_filter(array_merge([$message], $etape['infos'])));
@@ -528,6 +540,30 @@ class SuiviOperationService
                 ], ['id' => $etape['id']]);
             });
         }
+    }
+
+    /**
+     * Crée ou met à jour la tâche de correction (table suivi_operation_tache) pour la première étape non OK de l'opération
+     */
+    private function enregistrerTache(string $libelle, string $statut, ?string $message, string $date): void
+    {
+        if ($this->tacheEnregistree || in_array($statut, [self::STATUT_SUCCES, self::STATUT_EN_COURS], true)) {
+            return;
+        }
+        $this->tacheEnregistree = true;
+
+        $this->executer(function ($connexion) use ($libelle, $statut, $message, $date) {
+            TacheSuiviOperation::enregistrer(
+                $connexion,
+                $this->typeOperation,
+                $libelle,
+                $statut,
+                $message !== null ? self::texteUtf8($message) : null,
+                $this->idSuivi,
+                $this->numeroDocument,
+                $date
+            );
+        });
     }
 
     /**
