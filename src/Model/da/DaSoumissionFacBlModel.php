@@ -202,7 +202,7 @@ class DaSoumissionFacBlModel extends Model
         return array_column($data, 'montant_livraison')[0] ?? 0.0;
     }
 
-    public function getMontantFactureSoumiseAvecTva(string $numeroCommande, string $codeSociete)
+    public function getMontantFactureSoumiseAvecTva(string $numeroLivraison, string $codeSociete)
     {
         $statement = " SELECT  round(SUM(case 
                         when fcdl_tva = 0 
@@ -219,7 +219,7 @@ class DaSoumissionFacBlModel extends Model
                and fcdl_succ = fllf_succ
                and fcdl_soc = fllf_soc
                and fcdl_ligne = fllf_ligne 
-               where fllf_numcde = '$numeroCommande'
+               where fllf_numliv = '$numeroLivraison'
                and fllf_soc = '$codeSociete'
         ";
 

@@ -140,24 +140,30 @@ trait PlanningTraits
     private function creationTableauObjetPlanning(array $data, array $back, $em): array
     {
         $objetPlanning = [];
-        //Recuperation de idmat et les truc
+        // Une seule requête scalaire au lieu d'un findOneBy par ligne (épuisement mémoire sur gros volumes)
+        $ditParOr = [];
+        $numOrs = array_values(array_unique(array_map(fn($item) => explode('-', $item['orintv'])[0], $data)));
+        foreach (array_chunk($numOrs, 1000) as $chunk) { // SQL Server : 2100 paramètres max
+            $rows = $em->createQueryBuilder()
+                ->select('d.numeroOR, d.numeroDemandeIntervention, d.migration')
+                ->from(DemandeIntervention::class, 'd')
+                ->where('d.numeroOR IN (:numOrs)')
+                ->setParameter('numOrs', $chunk)
+                ->getQuery()
+                ->getScalarResult();
+            foreach ($rows as $row) {
+                $ditParOr[$row['numeroOR']] ??= $row;
+            }
+        }
+        $back = array_flip($back);
+
         foreach ($data as $item) {
             $planningMateriel = new PlanningMateriel();
-            // dump($item['orintv']);
-            $ditRepositoryConditionner = $em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => explode('-', $item['orintv'])[0]]);
+            $dit = $ditParOr[explode('-', $item['orintv'])[0]] ?? null;
+            $numDit = $dit['numeroDemandeIntervention'] ?? null;
+            $migration = $dit['migration'] ?? null;
 
-            if ($ditRepositoryConditionner !== null) {
-                $numDit = $ditRepositoryConditionner->getNumeroDemandeIntervention();
-                $migration = $ditRepositoryConditionner->getMigration();
-            } else {
-                // Handle the case where the result is not found, e.g., log a message or set default values
-                $numDit = null;  // or some other default value
-                $migration = null;  // or some other default value
-            }
-
-
-
-            if (in_array($item['orintv'], $back)) {
+            if (isset($back[$item['orintv']])) {
                 $backOrder = 'Okey';
             } else {
                 $backOrder = '';
@@ -356,6 +362,31 @@ trait PlanningTraits
             'preparedData' => $preparedData,
             'uniqueMonths' => $selectedMonths,
         ];
+    }
+
+    /**
+     * Restreint la requête SQL à la fenêtre de mois affichée (sinon toutes les années sont chargées puis filtrées en PHP => mémoire épuisée)
+     */
+    private function limiterAuxMoisAffiches(PlanningSearch $criteria, int $selectedOption): PlanningSearch
+    {
+        $selectedMonths = $this->getSelectedMonths(array_fill(0, 12, ''), (int)date('n') - 1, (int)date('Y'), $selectedOption);
+        if (empty($selectedMonths)) {
+            return $criteria;
+        }
+
+        $debut = new \DateTime(reset($selectedMonths)['key'] . '-01');
+        $fin = (new \DateTime(end($selectedMonths)['key'] . '-01'))->modify('last day of this month');
+
+        // clone : ne pas modifier l'objet lié au formulaire
+        $criteriaSql = clone $criteria;
+        if (empty($criteriaSql->getDateDebut()) || $criteriaSql->getDateDebut() < $debut) {
+            $criteriaSql->setDateDebut($debut);
+        }
+        if (empty($criteriaSql->getDateFin()) || $criteriaSql->getDateFin() > $fin) {
+            $criteriaSql->setDateFin($fin);
+        }
+
+        return $criteriaSql;
     }
 
     private function getSelectedMonths(array $months, int $currentMonth, int $currentYear, int $selectedOption): array

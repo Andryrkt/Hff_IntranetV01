@@ -19,8 +19,8 @@ class GeneratePdfBcMagasin extends GeneratePdf
      */
     public function copyToDWBcMagasin(string $fileName, string $numeroDevis): void
     {
-        $cheminFichierDistant = $this->baseCheminDocuware . 'BC MAGASIN/' . $fileName;
-        $cheminDestinationLocal = $this->baseCheminDuFichier . 'magasin/devis/' . $numeroDevis . '/' . $fileName;
+        $cheminFichierDistant = "{$this->basePathDocuWare}/BC MAGASIN/{$fileName}";
+        $cheminDestinationLocal = "{$this->basePathFile}/magasin/devis/{$numeroDevis}/{$fileName}";
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 

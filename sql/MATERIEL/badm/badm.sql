@@ -595,3 +595,9 @@ where
     )
     and trim(asuc_num) || '' || trim(atab_code) = '" . $agenceService . "'
 order by 1
+
+
+
+ALTER TABLE Demande_Mouvement_Materiel
+ADD pdf_deposer_dw bit DEFAULT 0,
+date_depot_pdf_dw DATETIME2;
