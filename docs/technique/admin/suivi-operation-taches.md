@@ -81,7 +81,16 @@ Ordre de la liste : les tâches à trier d'abord, puis par priorité, régressio
 
 ### Donner le rôle INTERVENANT à un utilisateur
 
-Il n'existe pas d'écran pour attribuer ce rôle : il s'ajoute directement en base, dans la table `user_roles` (rôle 8 = INTERVENANT, constante `Role::ROLE_INTERVENANT`).
+Dans l'onglet **Tâches**, le bouton **Intervenants (N)** ouvre le panneau de gestion :
+- la liste des intervenants actuels. Une icône ⚠ signale un intervenant sans adresse mail : les mails du ticketing ne lui parviendront pas ;
+- **Ajouter** : saisir le nom d'utilisateur (la liste propose les utilisateurs existants), puis Entrée ou clic sur le bouton ;
+- **×** : retire le rôle. Les tâches et tickets déjà assignés à cette personne ne changent pas.
+
+Le panneau est ouvert d'office tant qu'il n'y a aucun intervenant.
+
+**Ce rôle est partagé avec le ticketing** : une personne ajoutée ici apparaît aussi dans le choix d'intervenant des tickets.
+
+Techniquement, le rôle est une ligne de la table `user_roles` (rôle 8 = INTERVENANT, constante `Role::ROLE_INTERVENANT`), écrite par la route `api_suivi_operation_intervenant` (POST, admin). Il peut aussi être ajouté directement en SQL :
 
 ```sql
 INSERT INTO user_roles (user_id, role_id)

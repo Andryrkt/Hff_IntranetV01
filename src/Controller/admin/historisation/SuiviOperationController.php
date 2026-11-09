@@ -62,6 +62,11 @@ class SuiviOperationController extends Controller
                 'taches'       => $repositoryTache->rechercher($filtres),
                 'filtres'      => $filtres,
                 'intervenants' => $this->intervenants(),
+                'listeIntervenants' => $this->listeIntervenants(),
+                'utilisateurs' => array_column(
+                    $this->getEntityManager()->getConnection()->fetchAllAssociative('SELECT nom_utilisateur FROM users ORDER BY nom_utilisateur'),
+                    'nom_utilisateur'
+                ),
             ]);
         }
 
@@ -225,16 +230,60 @@ class SuiviOperationController extends Controller
      */
     private function intervenants(): array
     {
-        $lignes = $this->getEntityManager()->getRepository(User::class)->createQueryBuilder('u')
-            ->select('u.nom_utilisateur')
+        return array_column($this->listeIntervenants(), 'nom_utilisateur');
+    }
+
+    /**
+     * Utilisateurs ayant le rôle INTERVENANT, avec leur mail (exigé par les mails du ticketing)
+     *
+     * @return array<int, array{id: int, nom_utilisateur: string, mail: ?string}>
+     */
+    private function listeIntervenants(): array
+    {
+        return $this->getEntityManager()->getRepository(User::class)->createQueryBuilder('u')
+            ->select('u.id, u.nom_utilisateur, u.mail')
             ->innerJoin('u.roles', 'r')
             ->where('r.id = :role')
             ->setParameter('role', Role::ROLE_INTERVENANT)
             ->orderBy('u.nom_utilisateur', 'ASC')
             ->getQuery()
             ->getScalarResult();
+    }
 
-        return array_column($lignes, 'nom_utilisateur');
+    /**
+     * Donne ou retire le rôle INTERVENANT à un utilisateur (table user_roles).
+     * Ce rôle sert aussi au ticketing : l'utilisateur y devient intervenant possible.
+     *
+     * @Route("/api/admin/suivi-operation/intervenant", name="api_suivi_operation_intervenant", methods={"POST"})
+     */
+    public function gererIntervenant(Request $request)
+    {
+        if (!$this->estAdmin()) {
+            return new JsonResponse(['message' => 'Accès refusé'], 403);
+        }
+
+        $data   = json_decode($request->getContent(), true) ?: [];
+        $nom    = trim((string) ($data['nomUtilisateur'] ?? ''));
+        $ajout  = ($data['action'] ?? '') === 'ajouter';
+        $connexion = $this->getEntityManager()->getConnection();
+
+        $idUtilisateur = $nom !== '' ? $connexion->fetchOne('SELECT id FROM users WHERE nom_utilisateur = ?', [$nom]) : false;
+        if ($idUtilisateur === false) {
+            return new JsonResponse(['message' => "Utilisateur « $nom » introuvable"], 404);
+        }
+
+        $dejaIntervenant = (bool) $connexion->fetchOne(
+            'SELECT 1 FROM user_roles WHERE user_id = ? AND role_id = ?',
+            [$idUtilisateur, Role::ROLE_INTERVENANT]
+        );
+
+        if ($ajout && !$dejaIntervenant) {
+            $connexion->insert('user_roles', ['user_id' => $idUtilisateur, 'role_id' => Role::ROLE_INTERVENANT]);
+        } elseif (!$ajout && $dejaIntervenant) {
+            $connexion->delete('user_roles', ['user_id' => $idUtilisateur, 'role_id' => Role::ROLE_INTERVENANT]);
+        }
+
+        return new JsonResponse(['intervenants' => $this->listeIntervenants()]);
     }
 
     private function creerDate(?string $date): ?\DateTime

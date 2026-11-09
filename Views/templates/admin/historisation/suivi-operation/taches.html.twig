@@ -53,6 +53,41 @@
 					{% endfor %}
 				</div>
 
+				{# intervenants : rôle 8 de user_roles, partagé avec le ticketing #}
+				<div class="mb-3">
+					<button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="collapse" data-bs-target="#panneau-intervenants">
+						<i class="fas fa-users-gear"></i> Intervenants ({{ listeIntervenants|length }})
+					</button>
+					<div class="collapse {{ listeIntervenants is empty ? 'show' : '' }}" id="panneau-intervenants">
+						<div class="card card-body mt-2 py-2" id="intervenants" data-url="{{ path('api_suivi_operation_intervenant') }}">
+							<p class="small text-muted mb-2">
+								Personnes à qui une tâche peut être assignée (rôle <strong>INTERVENANT</strong>).
+								Ce rôle est partagé avec le ticketing : un intervenant ajouté ici peut aussi recevoir des tickets.
+							</p>
+							<div class="d-flex flex-wrap gap-2 mb-2">
+								{% for intervenant in listeIntervenants %}
+									<span class="badge bg-light text-dark border d-flex align-items-center gap-1 py-1">
+										{{ intervenant.nom_utilisateur }}
+										{% if not intervenant.mail %}<i class="fas fa-triangle-exclamation text-warning" title="Pas d'adresse mail : les mails du ticketing ne lui parviendront pas"></i>{% endif %}
+										<button type="button" class="btn-close btn-retirer-intervenant" style="font-size: .55rem" data-nom="{{ intervenant.nom_utilisateur }}" title="Retirer le rôle intervenant"></button>
+									</span>
+								{% else %}
+									<span class="small text-danger">Aucun intervenant : ajoutez-en un pour pouvoir assigner les tâches.</span>
+								{% endfor %}
+							</div>
+							<div class="input-group input-group-sm" style="max-width: 420px">
+								<input type="text" class="form-control" id="nouvel-intervenant" list="liste-utilisateurs" placeholder="Nom d'utilisateur (ex. prenom.nom)">
+								<button type="button" class="btn btn-warning" id="btn-ajouter-intervenant"><i class="fas fa-user-plus"></i> Ajouter</button>
+							</div>
+							<datalist id="liste-utilisateurs">
+								{% for utilisateur in utilisateurs %}
+									<option value="{{ utilisateur }}">
+								{% endfor %}
+							</datalist>
+						</div>
+					</div>
+				</div>
+
 				<form method="get" action="{{ path('suivi_operation_index') }}" class="row g-2 align-items-end mb-3">
 					<input type="hidden" name="vue" value="taches">
 					<div class="col-12 col-md-2">
@@ -334,6 +369,42 @@
 				bouton.innerHTML = '<i class="fas fa-clock-rotate-left"></i> Reprendre l\'historique';
 			}
 		});
+
+		// ajout / retrait du rôle intervenant : rechargement pour mettre à jour les listes d'assignation
+		async function gererIntervenant(nomUtilisateur, action) {
+			try {
+				await enregistrerTache(document.getElementById('intervenants').dataset.url, {nomUtilisateur, action});
+				sessionStorage.setItem('panneauIntervenantsOuvert', '1');
+				window.location.reload();
+			} catch (e) {
+				alert(e.message);
+			}
+		}
+		document.getElementById('btn-ajouter-intervenant').addEventListener('click', function () {
+			const nom = document.getElementById('nouvel-intervenant').value.trim();
+			if (nom) {
+				gererIntervenant(nom, 'ajouter');
+			}
+		});
+		document.getElementById('nouvel-intervenant').addEventListener('keydown', function (e) {
+			if (e.key === 'Enter') {
+				e.preventDefault();
+				document.getElementById('btn-ajouter-intervenant').click();
+			}
+		});
+		document.querySelectorAll('.btn-retirer-intervenant').forEach(function (bouton) {
+			bouton.addEventListener('click', function () {
+				if (confirm('Retirer le rôle intervenant à ' + bouton.dataset.nom + ' ? Ses tâches et tickets déjà assignés ne changent pas.')) {
+					gererIntervenant(bouton.dataset.nom, 'retirer');
+				}
+			});
+		});
+		try {
+			if (sessionStorage.getItem('panneauIntervenantsOuvert')) {
+				sessionStorage.removeItem('panneauIntervenantsOuvert');
+				document.getElementById('panneau-intervenants').classList.add('show');
+			}
+		} catch (e) {}
 
 		// tâche ciblée depuis le suivi des opérations (#tache-12) : ouvrir son détail
 		if (location.hash.startsWith('#tache-')) {
