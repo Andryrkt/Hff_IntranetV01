@@ -73,7 +73,7 @@ class DaDetailDirectController extends Controller
 		$statutEtAction = (new DaAfficherModel)->getStatutEtActionAffichage($demandeAppro->getNumeroDemandeAppro(), "{$demandeAppro->getAgenceServiceEmetteur()} — {$demandeAppro->getDemandeur()}");
 		$statutDa = $statutEtAction['statutDa'] ?? "";
 
-		$demandeApproLPrepared = $this->daDetailService->prepareDataForDisplayDetail($demandeAppro->getDAL(), $statutDa, 'da_delete_line_direct');
+		$demandeApproLPrepared = $this->daDetailService->prepareDataForDisplayDetail($demandeAppro->getDAL(), $statutDa);
 
 		$fichiers = $this->docRattacheService->getAllAttachedFiles($demandeAppro);
 		$timeLineData = $this->daTimelineService->getTimelineData($demandeAppro);

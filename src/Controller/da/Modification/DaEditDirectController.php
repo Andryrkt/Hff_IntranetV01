@@ -5,8 +5,6 @@ namespace App\Controller\da\Modification;
 use App\Constants\da\StatutDaConstant;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
-use App\Entity\da\DemandeApproL;
-use App\Entity\da\DemandeApproLR;
 use App\Form\da\DemandeApproDirectFormType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -77,51 +75,6 @@ class DaEditDirectController extends Controller
             'peutModifier'      => $this->daEditionService->peutModifier($demandeAppro->getStatutDal(), $estCreateurDeDADirecte),
             'numDa'             => $numDa,
         ]);
-    }
-
-    /** 
-     * @Route("/delete-line-direct/{numDa}/{ligne}",name="da_delete_line_direct")
-     */
-    public function deleteLineDa(string $numDa, string $ligne)
-    {
-        $demandeApproLs = $this->getEntityManager()->getRepository(DemandeApproL::class)->findBy([
-            'numeroDemandeAppro' => $numDa,
-            'numeroLigne'        => $ligne
-        ]);
-
-        // suivi étape par étape de la suppression (admin > historique > suivi des opérations)
-        $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_DA_SUPPRESSION_LIGNE, $numDa);
-
-        if ($demandeApproLs) {
-            $suivi->etape('Suppression de la ligne ' . $ligne . ' (base de données)', function () use ($demandeApproLs, $numDa, $ligne) {
-                $demandeApproLRs = $this->getEntityManager()->getRepository(DemandeApproLR::class)->findBy([
-                    'numeroDemandeAppro' => $numDa,
-                    'numeroLigne'        => $ligne
-                ]);
-
-                foreach ($demandeApproLs as $demandeApproL) {
-                    $this->getEntityManager()->remove($demandeApproL);
-                }
-
-                foreach ($demandeApproLRs as $demandeApproLR) {
-                    $this->getEntityManager()->remove($demandeApproLR);
-                }
-
-                $this->getEntityManager()->flush(); // enregistrer le modifications avant l'appel à la méthode "ajouterDansTableAffichageParNumDa"
-            });
-            $suivi->etape('Mise à jour da_afficher', function () use ($numDa) {
-                $this->daAfficherService->ajouterDansTableAffichageParNumDa($numDa); // ajout dans la table DaAfficher si le statut a changé
-            });
-
-            $notifType = "success";
-            $notifMessage = "Réussite de l'opération: la ligne de DA a été supprimée avec succès.";
-        } else {
-            $notifType = "danger";
-            $notifMessage = "Echec de la suppression de la ligne: la ligne de DA n'existe pas.";
-            $suivi->echecOperation($notifMessage . " (ligne $ligne)");
-        }
-        $this->getSessionService()->set('notification', ['type' => $notifType, 'message' => $notifMessage]);
-        $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
     }
 
     private function traitementForm($form, Request $request, iterable $ancienDals): void

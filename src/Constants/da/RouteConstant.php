@@ -24,8 +24,8 @@ class RouteConstant
 
     // constantes pour les routes de suppression
     public const DELETE = [
-        DemandeAppro::TYPE_DA_AVEC_DIT  => 'da_delete_line_avec_dit',
-        DemandeAppro::TYPE_DA_DIRECT    => 'da_delete_line_direct',
+        DemandeAppro::TYPE_DA_AVEC_DIT  => 'da_delete_line',
+        DemandeAppro::TYPE_DA_DIRECT    => 'da_delete_line',
     ];
 
     // constantes pour les routes de propositions

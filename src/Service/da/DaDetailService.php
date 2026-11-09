@@ -62,9 +62,8 @@ class DaDetailService
      *
      * @param iterable $dals                lignes demande appro (DemandeApproL)
      * @param string   $statutDal           statut de la demande appro
-     * @param string   $routeSuppressionLigne nom de la route de suppression d'une ligne (ex. 'da_delete_line_avec_dit')
      */
-    public function prepareDataForDisplayDetail(iterable $dals, string $statutDal, string $routeSuppressionLigne): array
+    public function prepareDataForDisplayDetail(iterable $dals, string $statutDal): array
     {
         $datasPrepared = [];
         $supprimable = in_array($statutDal, [StatutDaConstant::STATUT_SOUMIS_APPRO, StatutDaConstant::STATUT_SOUMIS_ATE, StatutDaConstant::STATUT_VALIDE]);
@@ -87,7 +86,7 @@ class DaDetailService
                 "estFicheTechnique"  => $dal->getEstFicheTechnique(),
                 "supprimable"        => $supprimable,
                 "urlDelete"          => $supprimable ? $this->urlGenerator->generate(
-                    $routeSuppressionLigne,
+                    'da_delete_line',
                     ['numDa' => $dal->getNumeroDemandeAppro(), 'ligne' => $dal->getNumeroLigne()]
                 ) : null,
             ];
