@@ -60,7 +60,7 @@ class SuiviOperationTacheRepository extends EntityRepository
             $qb->andWhere('t.typeOperation = :type')->setParameter('type', $filtres['type']);
         }
         if (!empty($filtres['assigne'])) {
-            $qb->andWhere('t.assigneA LIKE :assigne')->setParameter('assigne', '%' . trim($filtres['assigne']) . '%');
+            $qb->andWhere('t.assigneA = :assigne')->setParameter('assigne', trim($filtres['assigne']));
         }
         if (!empty($filtres['recherche'])) {
             $qb->andWhere('t.etape LIKE :recherche OR t.dernierMessage LIKE :recherche OR t.dernierNumeroDocument LIKE :recherche OR t.cause LIKE :recherche OR t.correction LIKE :recherche')

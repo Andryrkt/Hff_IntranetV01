@@ -77,6 +77,21 @@ Ordre de la liste : les tâches à trier d'abord, puis par priorité, régressio
 
 - Message regroupé (la version nettoyée qui sert au regroupement), dernier message complet, première occurrence.
 - Champs à remplir : **Assigné à**, **Échéance**, **Cause identifiée**, **Correction** (branche, commit ou explication). Ils sont enregistrés avec le bouton **Enregistrer**.
+- **Assigné à** propose les utilisateurs qui ont le rôle **INTERVENANT** (le même que pour le ticketing). Une personne déjà assignée qui a perdu ce rôle reste affichée, avec la mention « n'est plus intervenant ».
+
+### Donner le rôle INTERVENANT à un utilisateur
+
+Il n'existe pas d'écran pour attribuer ce rôle : il s'ajoute directement en base, dans la table `user_roles` (rôle 8 = INTERVENANT, constante `Role::ROLE_INTERVENANT`).
+
+```sql
+INSERT INTO user_roles (user_id, role_id)
+SELECT u.id, 8
+FROM users u
+WHERE u.nom_utilisateur IN ('nom.utilisateur1', 'nom.utilisateur2')
+  AND NOT EXISTS (SELECT 1 FROM user_roles x WHERE x.user_id = u.id AND x.role_id = 8);
+```
+
+Le même modèle se trouve à la section 6 de `sql/tik/remise_en_etat_ticketing.sql`. Le rôle est lu à chaque affichage de la page : il n'y a pas de cache à vider.
 - Historique : « Résolu par … le … », « Modifié par … le … ».
 
 ### Depuis l'onglet Opérations

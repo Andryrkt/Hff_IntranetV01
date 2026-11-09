@@ -5,6 +5,8 @@ namespace App\Controller\admin\historisation;
 use App\Controller\Controller;
 use App\Entity\admin\historisation\documentOperation\HistoriqueOperationEtape;
 use App\Entity\admin\historisation\documentOperation\SuiviOperationTache;
+use App\Entity\admin\utilisateur\Role;
+use App\Entity\admin\utilisateur\User;
 use App\Service\historiqueOperation\suivi\SuiviOperationService;
 use App\Service\historiqueOperation\suivi\TacheSuiviOperation;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -57,8 +59,9 @@ class SuiviOperationController extends Controller
             ];
 
             return $this->render('admin/historisation/suivi-operation/taches.html.twig', $parametresTaches + [
-                'taches'  => $repositoryTache->rechercher($filtres),
-                'filtres' => $filtres,
+                'taches'       => $repositoryTache->rechercher($filtres),
+                'filtres'      => $filtres,
+                'intervenants' => $this->intervenants(),
             ]);
         }
 
@@ -160,7 +163,12 @@ class SuiviOperationController extends Controller
             $tache->setStatut($data['statut']);
         }
         if (array_key_exists('assigneA', $data)) {
-            $tache->setAssigneA(trim((string) $data['assigneA']) !== '' ? mb_substr(trim($data['assigneA']), 0, 100) : null);
+            $assigneA = trim((string) $data['assigneA']);
+            // la personne déjà assignée reste acceptée même si elle n'a plus le rôle intervenant
+            if ($assigneA !== '' && $assigneA !== $tache->getAssigneA() && !in_array($assigneA, $this->intervenants(), true)) {
+                return new JsonResponse(['message' => "« $assigneA » n'a pas le rôle intervenant"], 400);
+            }
+            $tache->setAssigneA($assigneA !== '' ? $assigneA : null);
         }
         if (array_key_exists('echeance', $data)) {
             $tache->setEcheance($this->creerDate($data['echeance'] ?: null));
@@ -208,6 +216,25 @@ class SuiviOperationController extends Controller
         $nombre = TacheSuiviOperation::reprendreHistorique($this->getEntityManager()->getConnection());
 
         return new JsonResponse(['nombre' => $nombre]);
+    }
+
+    /**
+     * Noms des utilisateurs ayant le rôle INTERVENANT (table user_roles), proposés pour l'assignation des tâches
+     *
+     * @return string[]
+     */
+    private function intervenants(): array
+    {
+        $lignes = $this->getEntityManager()->getRepository(User::class)->createQueryBuilder('u')
+            ->select('u.nom_utilisateur')
+            ->innerJoin('u.roles', 'r')
+            ->where('r.id = :role')
+            ->setParameter('role', Role::ROLE_INTERVENANT)
+            ->orderBy('u.nom_utilisateur', 'ASC')
+            ->getQuery()
+            ->getScalarResult();
+
+        return array_column($lignes, 'nom_utilisateur');
     }
 
     private function creerDate(?string $date): ?\DateTime

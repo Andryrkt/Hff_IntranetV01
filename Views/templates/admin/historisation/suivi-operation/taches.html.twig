@@ -99,7 +99,12 @@
 					</div>
 					<div class="col-6 col-md-1">
 						<label for="assigne" class="form-label mb-0">Assigné à</label>
-						<input type="text" id="assigne" name="assigne" value="{{ filtres.assigne }}" class="form-control form-control-sm">
+						<select id="assigne" name="assigne" class="form-select form-select-sm">
+							<option value="">Tous</option>
+							{% for intervenant in intervenants %}
+								<option value="{{ intervenant }}" {{ filtres.assigne == intervenant ? 'selected' : '' }}>{{ intervenant }}</option>
+							{% endfor %}
+						</select>
 					</div>
 					<div class="col-12 col-md-3 d-flex gap-2">
 						<button type="submit" class="btn btn-warning btn-sm">Rechercher</button>
@@ -200,7 +205,18 @@
 												<div class="row g-2">
 													<div class="col-6">
 														<label class="form-label mb-0 small">Assigné à</label>
-														<input type="text" class="form-control form-control-sm" data-champ="assigneA" value="{{ tache.assigneA }}" maxlength="100">
+														<select class="form-select form-select-sm" data-champ="assigneA">
+															<option value="">-- Non assignée --</option>
+															{% if tache.assigneA and tache.assigneA not in intervenants %}
+																<option value="{{ tache.assigneA }}" selected>{{ tache.assigneA }} (n'est plus intervenant)</option>
+															{% endif %}
+															{% for intervenant in intervenants %}
+																<option value="{{ intervenant }}" {{ tache.assigneA == intervenant ? 'selected' : '' }}>{{ intervenant }}</option>
+															{% endfor %}
+														</select>
+														{% if intervenants is empty %}
+															<div class="form-text text-danger">Aucun utilisateur n'a le rôle intervenant (table user_roles, rôle 8).</div>
+														{% endif %}
 													</div>
 													<div class="col-6">
 														<label class="form-label mb-0 small">Échéance</label>
