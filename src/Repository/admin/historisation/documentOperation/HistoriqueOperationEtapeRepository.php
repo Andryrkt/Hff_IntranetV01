@@ -19,6 +19,7 @@ class HistoriqueOperationEtapeRepository extends EntityRepository
      * @param bool        $problemeSeulement ne garder que les opérations avec une étape en échec, interrompue ou jamais terminée
      * @param int|null    $idHistorique    opération rattachée à cette ligne de l'historique des opérations
      * @param bool        $nonLuSeulement  ne garder que les opérations en problème pas encore marquées comme lues
+     * @param int|null    $idTache         opérations rattachées à cette tâche de correction
      *
      * @return array<int, array{idSuivi: string, statut: string, etapes: HistoriqueOperationEtape[]}>
      */
@@ -113,7 +114,7 @@ class HistoriqueOperationEtapeRepository extends EntityRepository
         return $connexion->fetchAllAssociative($sql, $params);
     }
 
-    public function rechercherSuivis(?string $recherche, ?string $typeOperation, bool $problemeSeulement, ?\DateTimeInterface $dateDebut, ?\DateTimeInterface $dateFin, ?int $idHistorique = null, bool $nonLuSeulement = false, int $limit = 100): array
+    public function rechercherSuivis(?string $recherche, ?string $typeOperation, bool $problemeSeulement, ?\DateTimeInterface $dateDebut, ?\DateTimeInterface $dateFin, ?int $idHistorique = null, bool $nonLuSeulement = false, int $limit = 100, ?int $idTache = null): array
     {
         $qb = $this->createQueryBuilder('e')
             ->select('e.idSuivi, MIN(e.dateDebut) AS HIDDEN debut')
@@ -130,6 +131,9 @@ class HistoriqueOperationEtapeRepository extends EntityRepository
         }
         if ($idHistorique) {
             $qb->andWhere('e.idHistoriqueOperation = :idHistorique')->setParameter('idHistorique', $idHistorique);
+        }
+        if ($idTache) {
+            $qb->andWhere('e.idTache = :idTache')->setParameter('idTache', $idTache);
         }
         if ($dateDebut) {
             $qb->andWhere('e.dateDebut >= :dateDebut')->setParameter('dateDebut', $dateDebut->format('Y-m-d 00:00:00'));

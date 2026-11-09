@@ -58,6 +58,8 @@ class TacheSuiviOperation
      *
      * @param string      $statutOperation ECHEC, INTERROMPU ou ALERTE
      * @param string      $date            date de l'occurrence (Y-m-d H:i:s.v)
+     *
+     * @return int|null id de la tâche
      */
     public static function enregistrer(
         Connection $connexion,
@@ -68,7 +70,7 @@ class TacheSuiviOperation
         string $idSuivi,
         ?string $numeroDocument,
         string $date
-    ): void {
+    ): ?int {
         $etapeType   = mb_substr(self::normaliser($etape), 0, 100);
         $messageType = $message !== null && trim($message) !== '' ? mb_substr(self::normaliser($message), 0, 500) : null;
         $signature   = sha1($typeOperation . '|' . $etapeType . '|' . $messageType);
@@ -82,7 +84,7 @@ class TacheSuiviOperation
         ];
 
         if (self::ajouterOccurrence($connexion, $signature, $occurrence) > 0) {
-            return;
+            return self::idParSignature($connexion, $signature);
         }
 
         try {
@@ -96,10 +98,65 @@ class TacheSuiviOperation
                 'statut'              => self::STATUT_A_TRIER,
                 'priorite'            => $statutOperation === SuiviOperationService::STATUT_ECHEC ? self::PRIORITE_HAUTE : self::PRIORITE_NORMALE,
             ]);
+
+            return (int) $connexion->lastInsertId();
         } catch (\Doctrine\DBAL\Exception\UniqueConstraintViolationException $e) {
             // la même tâche vient d'être créée par une requête simultanée
             self::ajouterOccurrence($connexion, $signature, $occurrence);
+
+            return self::idParSignature($connexion, $signature);
         }
+    }
+
+    /**
+     * Crée les tâches des opérations enregistrées avant la mise en place des tâches (étapes sans id_tache),
+     * des plus anciennes aux plus récentes. Pour chaque opération en problème, retient la première étape
+     * non OK terminée, comme le fait le suivi en direct.
+     *
+     * @return int nombre d'opérations rattachées à une tâche
+     */
+    public static function reprendreHistorique(Connection $connexion): int
+    {
+        $lignes = $connexion->fetchAllAssociative(
+            "SELECT e.id_suivi, e.type_operation, e.etape, e.statut, e.message, e.numero_document,
+                    CONVERT(VARCHAR(23), COALESCE(e.date_fin, e.date_debut), 121) AS date_occurrence
+            FROM historique_operation_etape e
+            WHERE e.id = (
+                SELECT TOP 1 p.id FROM historique_operation_etape p
+                WHERE p.id_suivi = e.id_suivi AND p.statut IN (?, ?, ?)
+                ORDER BY COALESCE(p.date_fin, p.date_debut), p.ordre DESC
+            )
+            AND NOT EXISTS (SELECT 1 FROM historique_operation_etape t WHERE t.id_suivi = e.id_suivi AND t.id_tache IS NOT NULL)
+            ORDER BY date_occurrence",
+            [SuiviOperationService::STATUT_ECHEC, SuiviOperationService::STATUT_INTERROMPU, SuiviOperationService::STATUT_ALERTE]
+        );
+
+        foreach ($lignes as $ligne) {
+            // le message enregistré contient aussi les informations notées et le résumé SQL : on ne garde que l'erreur
+            $message = $ligne['message'] !== null ? trim(explode(' | ', $ligne['message'])[0]) : null;
+            $idTache = self::enregistrer(
+                $connexion,
+                $ligne['type_operation'],
+                $ligne['etape'],
+                $ligne['statut'],
+                $message,
+                $ligne['id_suivi'],
+                $ligne['numero_document'],
+                $ligne['date_occurrence']
+            );
+            if ($idTache !== null) {
+                $connexion->update('historique_operation_etape', ['id_tache' => $idTache], ['id_suivi' => $ligne['id_suivi']]);
+            }
+        }
+
+        return count($lignes);
+    }
+
+    private static function idParSignature(Connection $connexion, string $signature): ?int
+    {
+        $id = $connexion->fetchOne('SELECT id FROM ' . self::TABLE . ' WHERE signature = ?', [$signature]);
+
+        return $id !== false ? (int) $id : null;
     }
 
     /**
@@ -125,27 +182,34 @@ class TacheSuiviOperation
      */
     private static function ajouterOccurrence(Connection $connexion, string $signature, array $occurrence): int
     {
-        // SQL Server évalue tous les SET avec les valeurs d'avant la mise à jour : les deux CASE voient l'ancien statut
+        // SQL Server évalue tous les SET avec les valeurs d'avant la mise à jour : chaque CASE voit l'ancienne ligne.
+        // Une occurrence plus ancienne (reprise de l'historique) ne remplace pas la dernière occurrence connue
+        // et ne réouvre pas une tâche résolue après elle.
+        // (paramètres positionnels : un paramètre nommé répété n'est pas accepté par tous les drivers PDO)
+        $date   = $occurrence['derniere_occurrence'];
+        $resolu = self::STATUT_RESOLU;
+
         return $connexion->executeStatement(
             'UPDATE ' . self::TABLE . ' SET
                 nb_occurrences = nb_occurrences + 1,
-                derniere_occurrence = ?,
-                dernier_id_suivi = ?,
-                dernier_numero_document = ?,
-                dernier_message = ?,
-                statut_operation = ?,
-                est_regression = CASE WHEN statut = ? THEN 1 ELSE est_regression END,
-                statut = CASE WHEN statut = ? THEN ? ELSE statut END
+                premiere_occurrence = CASE WHEN ? < premiere_occurrence THEN ? ELSE premiere_occurrence END,
+                derniere_occurrence = CASE WHEN ? >= derniere_occurrence THEN ? ELSE derniere_occurrence END,
+                dernier_id_suivi = CASE WHEN ? >= derniere_occurrence THEN ? ELSE dernier_id_suivi END,
+                dernier_numero_document = CASE WHEN ? >= derniere_occurrence THEN ? ELSE dernier_numero_document END,
+                dernier_message = CASE WHEN ? >= derniere_occurrence THEN ? ELSE dernier_message END,
+                statut_operation = CASE WHEN ? >= derniere_occurrence THEN ? ELSE statut_operation END,
+                est_regression = CASE WHEN statut = ? AND ? > COALESCE(date_resolution, premiere_occurrence) THEN 1 ELSE est_regression END,
+                statut = CASE WHEN statut = ? AND ? > COALESCE(date_resolution, premiere_occurrence) THEN ? ELSE statut END
             WHERE signature = ?',
             [
-                $occurrence['derniere_occurrence'],
-                $occurrence['dernier_id_suivi'],
-                $occurrence['dernier_numero_document'],
-                $occurrence['dernier_message'],
-                $occurrence['statut_operation'],
-                self::STATUT_RESOLU,
-                self::STATUT_RESOLU,
-                self::STATUT_A_FAIRE,
+                $date, $date,
+                $date, $date,
+                $date, $occurrence['dernier_id_suivi'],
+                $date, $occurrence['dernier_numero_document'],
+                $date, $occurrence['dernier_message'],
+                $date, $occurrence['statut_operation'],
+                $resolu, $date,
+                $resolu, $date, self::STATUT_A_FAIRE,
                 $signature,
             ]
         );

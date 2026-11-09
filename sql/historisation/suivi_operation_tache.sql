@@ -48,3 +48,8 @@ CREATE TABLE
 CREATE UNIQUE INDEX UX_suivi_operation_tache_signature ON suivi_operation_tache (signature);
 
 CREATE INDEX IDX_suivi_operation_tache_statut ON suivi_operation_tache (statut, priorite, derniere_occurrence);
+
+-- rattachement de chaque opération en problème à sa tâche (badge et filtre dans le suivi des opérations)
+ALTER TABLE historique_operation_etape ADD id_tache INT NULL;
+
+CREATE INDEX IDX_historique_operation_etape_tache ON historique_operation_etape (id_tache);

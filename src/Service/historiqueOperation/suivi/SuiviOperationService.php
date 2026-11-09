@@ -153,6 +153,7 @@ class SuiviOperationService
 
     // une seule tâche par opération : celle de la première étape non OK (la plus précise, les étapes internes se ferment d'abord)
     private bool $tacheEnregistree = false;
+    private ?int $idTache = null;
 
     /**
      * Pile des étapes ouvertes (une étape peut en contenir d'autres)
@@ -449,7 +450,7 @@ class SuiviOperationService
                 'date_fin'        => $maintenant,
                 'utilisateur'     => self::getUtilisateur(),
                 'url'             => mb_substr($_SERVER['REQUEST_URI'] ?? 'cli', 0, 500),
-            ]);
+            ] + $this->colonneTache());
         });
     }
 
@@ -470,7 +471,7 @@ class SuiviOperationService
                 'date_debut'      => self::formaterDate($debut),
                 'utilisateur'     => self::getUtilisateur(),
                 'url'             => mb_substr($_SERVER['REQUEST_URI'] ?? 'cli', 0, 500),
-            ]);
+            ] + $this->colonneTache());
             $id = (int) $connexion->lastInsertId();
         });
 
@@ -543,6 +544,15 @@ class SuiviOperationService
     }
 
     /**
+     * Colonne id_tache à insérer avec une étape, seulement si une tâche existe :
+     * les insertions restent valides sur une base où la colonne n'a pas encore été créée
+     */
+    private function colonneTache(): array
+    {
+        return $this->idTache !== null ? ['id_tache' => $this->idTache] : [];
+    }
+
+    /**
      * Crée ou met à jour la tâche de correction (table suivi_operation_tache) pour la première étape non OK de l'opération
      */
     private function enregistrerTache(string $libelle, string $statut, ?string $message, string $date): void
@@ -553,7 +563,7 @@ class SuiviOperationService
         $this->tacheEnregistree = true;
 
         $this->executer(function ($connexion) use ($libelle, $statut, $message, $date) {
-            TacheSuiviOperation::enregistrer(
+            $this->idTache = TacheSuiviOperation::enregistrer(
                 $connexion,
                 $this->typeOperation,
                 $libelle,
@@ -564,6 +574,13 @@ class SuiviOperationService
                 $date
             );
         });
+
+        // les étapes déjà enregistrées sont rattachées ici, les suivantes à leur insertion
+        if ($this->idTache !== null) {
+            $this->executer(function ($connexion) {
+                $connexion->update(self::TABLE, ['id_tache' => $this->idTache], ['id_suivi' => $this->idSuivi]);
+            });
+        }
     }
 
     /**
