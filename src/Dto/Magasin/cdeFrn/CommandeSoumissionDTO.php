@@ -63,12 +63,12 @@ class CommandeSoumissionDTO
     {
         if (empty($this->allValidatedOR)) return "";
 
-        return implode("; ", $this->allValidatedOR) . ";";
+        return implode(";", $this->allValidatedOR) . ";";
     }
 
     public function getAllValidatedPO(): string
     {
         if (empty($this->allValidatedPO)) return "";
-        return implode("; ", $this->allValidatedPO) . ";";
+        return implode(";", $this->allValidatedPO) . ";";
     }
 }
