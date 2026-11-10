@@ -64,11 +64,6 @@ document.addEventListener("DOMContentLoaded", function () {
       fichiersOrValide: "api/fichiers-or-valide/:numeroCommande",
       fichiersBcClient: "api/fichiers-bc-client/:numeroCommande",
       telechargerFichierCommandeDw: `${baseUrl}/api/telecharger-fichier-commande-dw`,
-      recupererFichier: `${baseUrl}/api/recuperer-fichier`,
-      fichiersCommandeFournisseur: "api/fichiers-commande-fournisseur/:numeroCommande",
-      fichiersOrValide: "api/fichiers-or-valide/:numeroCommande",
-      fichiersBcClient: "api/fichiers-bc-client/:numeroCommande",
-      telechargerFichierCommandeDw: `${baseUrl}/api/telecharger-fichier-commande-dw`,
       agenceFetch: "agence-fetch/:agenceDebiteur",
     },
   };

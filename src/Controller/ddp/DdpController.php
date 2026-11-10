@@ -6,7 +6,6 @@ use App\Constants\ddp\StatutConstants;
 use App\Constants\ddp\TypeDemandePaiementConstants;
 use App\Controller\Controller;
 use App\Controller\Traits\PdfConversionTrait;
-use App\Controller\Traits\PdfConversionTrait;
 use App\Dto\ddp\DdpDto;
 use App\Entity\admin\ddp\TypeDemande;
 use App\Entity\cde\CdefnrSoumisAValidation;
@@ -37,14 +36,10 @@ class DdpController extends Controller
 {
     use PdfConversionTrait;
 
-    use PdfConversionTrait;
-
     private DdpFactory $ddpFactory;
     private DdpService $ddpService;
     private DdpLigneService $ddpLigneService;
     private DdpDocService $ddpDocService;
-    private DemandePaiementModel $demandePaiementModel;
-    private HistoriqueOperationDDPService $historiqueOperation;
     private DemandePaiementModel $demandePaiementModel;
     private HistoriqueOperationDDPService $historiqueOperation;
 
@@ -56,17 +51,12 @@ class DdpController extends Controller
         DdpDocService $ddpDocService,
         DemandePaiementModel $demandePaiementModel,
         HistoriqueOperationDDPService $historiqueOperation
-        DdpDocService $ddpDocService,
-        DemandePaiementModel $demandePaiementModel,
-        HistoriqueOperationDDPService $historiqueOperation
     ) {
         parent::__construct();
         $this->ddpFactory = $ddpFactory;
         $this->ddpService = $ddpService;
         $this->ddpLigneService = $ddpLigneService;
         $this->ddpDocService = $ddpDocService;
-        $this->demandePaiementModel = $demandePaiementModel;
-        $this->historiqueOperation = $historiqueOperation;
         $this->demandePaiementModel = $demandePaiementModel;
         $this->historiqueOperation = $historiqueOperation;
     }
@@ -84,7 +74,6 @@ class DdpController extends Controller
         $this->traitementDuFormulaire($form,  $request);
         return $this->render('ddp/magasin/new.html.twig', [
             'form' => $form->createView(),
-            'id_type' => $typeDdp
             'id_type' => $typeDdp
         ]);
     }
@@ -629,7 +618,6 @@ class DdpController extends Controller
         // enregistrement dans la table deamnde_paiement
         $ddp = $this->ddpService->createDdp($dto);
         // enregistrement dans la table demande_paiement_ligne
-        $dto->ratioMontantPayer = $this->ratioMontantPayer($dto);
         $dto->ratioMontantPayer = $this->ratioMontantPayer($dto);
         $this->ddpLigneService->createLignesFromDto($dto);
         // enregistrement dans la table doc_demande_paiement

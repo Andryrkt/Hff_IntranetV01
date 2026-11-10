@@ -265,7 +265,6 @@ class DemandePaiementRepository extends EntityRepository
             ->addSelect('cl')
             ->where('d.appro = :appro')
             ->setParameter('appro', $appro);
-            ->setParameter('appro', $appro);
 
         if (!empty($criteria->numDa)) {
             $qb->andWhere('d.numeroDemandeAppro = :numeroDa')

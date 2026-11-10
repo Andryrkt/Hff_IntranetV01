@@ -55,8 +55,6 @@ class DdpFactory
         $dto->choiceDevise = $this->devise();
         // $dto->numeroCommande = $this->numeroCmd($idTypeDdp);
         $dto->numeroCommande = [];
-        // $dto->numeroCommande = $this->numeroCmd($idTypeDdp);
-        $dto->numeroCommande = [];
         $dto->numeroFacture = [];
 
         // Agence et Service par défaut
@@ -362,7 +360,6 @@ class DdpFactory
      *
      * @param string $numeroFournisseur
      * @param array $numeroFacture
-     * @return string[]
      * @return string[]
      */
     public function recuperationNumCommande(string $numeroFournisseur, array $numeroFacture): array
