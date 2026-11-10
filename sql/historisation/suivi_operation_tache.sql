@@ -11,6 +11,7 @@
 --          A_FAIRE  -> triée, en attente de traitement
 --          EN_COURS -> correction en cours
 --          RESOLU   -> corrigée (repasse en A_FAIRE + est_regression si le problème revient)
+--          DEPLOYE  -> correction déployée en production : terminée (même réouverture que RESOLU)
 --          IGNORE   -> pas un bug (erreur de saisie, cas normal...) : le compteur continue sans réouverture
 --
 -- effort : RAPIDE (moins de 30 min) / MOYEN (une demi-journée à une journée) / LONG (plusieurs jours)

@@ -80,8 +80,77 @@
 							{% if nbNotifications == 0 %}
 								<li><span class="dropdown-item-text small text-muted">Aucune notification</span></li>
 							{% endif %}
+							<li id="activer-alertes" class="d-none border-top mt-1 pt-1">
+								<button type="button" class="dropdown-item small text-primary"><i class="fas fa-desktop me-1"></i> Activer les alertes Windows</button>
+							</li>
 						</ul>
 					</li>
+					<div id="alertes-taches" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1090;"></div>
+					<script>
+						// alertes des tâches : interroge le serveur toutes les 90 s et prévient une seule fois par alerte (clé)
+						// notification Windows si le navigateur l'autorise (HTTPS ou localhost uniquement), sinon bandeau + compteur dans le titre de l'onglet
+						(function () {
+							const url = "{{ path('api_suivi_operation_alertes')|e('js') }}";
+							const titreOrigine = document.title;
+							const notificationPossible = window.isSecureContext && 'Notification' in window;
+							let nonLues = 0;
+
+							const bouton = document.getElementById('activer-alertes');
+							if (notificationPossible && Notification.permission === 'default') {
+								bouton.classList.remove('d-none');
+								bouton.querySelector('button').addEventListener('click', () => Notification.requestPermission().then(() => bouton.classList.add('d-none')));
+							}
+
+							function lireVues() {
+								try { const v = localStorage.getItem('alertes-taches-vues'); return v === null ? null : new Set(JSON.parse(v)); } catch (e) { return new Set(); }
+							}
+
+							function bandeau(alerte) {
+								const div = document.createElement('div');
+								div.className = 'alert alert-danger shadow mb-2';
+								const lien = document.createElement('a');
+								lien.href = alerte.lien;
+								lien.className = 'alert-link d-block';
+								lien.textContent = alerte.titre;
+								const texte = document.createElement('div');
+								texte.className = 'small';
+								texte.textContent = alerte.texte;
+								const fermer = document.createElement('button');
+								fermer.type = 'button';
+								fermer.className = 'btn-close float-end';
+								fermer.setAttribute('aria-label', 'Fermer');
+								fermer.addEventListener('click', () => div.remove());
+								div.append(fermer, lien, texte);
+								document.getElementById('alertes-taches').append(div);
+							}
+
+							function prevenir(alerte) {
+								if (notificationPossible && Notification.permission === 'granted') {
+									const n = new Notification(alerte.titre, {body: alerte.texte, tag: alerte.cle, requireInteraction: true});
+									n.onclick = () => { window.focus(); window.location.href = alerte.lien; };
+								}
+								bandeau(alerte);
+								nonLues++;
+								document.title = '(' + nonLues + ') ' + titreOrigine;
+							}
+
+							async function verifier() {
+								try {
+									const reponse = await fetch(url, {headers: {'X-Requested-With': 'XMLHttpRequest'}});
+									if (!reponse.ok) return;
+									const alertes = await reponse.json();
+									const vues = lireVues();
+									// premier passage sur ce navigateur : on mémorise l'existant sans tout notifier d'un coup
+									alertes.forEach(a => { if (vues !== null && !vues.has(a.cle)) prevenir(a); });
+									try { localStorage.setItem('alertes-taches-vues', JSON.stringify(alertes.map(a => a.cle))); } catch (e) {}
+								} catch (e) {}
+							}
+
+							window.addEventListener('focus', () => { nonLues = 0; document.title = titreOrigine; });
+							verifier();
+							setInterval(verifier, 90000);
+						})();
+					</script>
 
 					<li class="nav-item dropdown">
 						<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" id="userName" data-user-full-name="{{ App.connectedUser.fullname }}" aria-expanded="false" style="color: #fbbb01;">

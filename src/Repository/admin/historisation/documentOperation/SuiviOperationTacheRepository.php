@@ -137,6 +137,28 @@ class SuiviOperationTacheRepository extends EntityRepository
     }
 
     /**
+     * Tâches résolues ou ignorées depuis 30 jours, pour les colonnes de fin du Kanban
+     *
+     * @return SuiviOperationTache[]
+     */
+    public function termineesRecentes(?string $assigne = null): array
+    {
+        $qb = $this->createQueryBuilder('t')
+            ->where('t.statut IN (:statuts)')
+            ->andWhere('t.dateModification >= :depuis')
+            ->setParameter('statuts', [TacheSuiviOperation::STATUT_RESOLU, TacheSuiviOperation::STATUT_DEPLOYE, TacheSuiviOperation::STATUT_IGNORE])
+            ->setParameter('depuis', new \DateTime('-30 days'))
+            ->orderBy('t.dateModification', 'DESC')
+            ->setMaxResults(100);
+
+        if ($assigne) {
+            $qb->andWhere('t.assigneA = :assigne')->setParameter('assigne', $assigne);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
      * Tâches ouvertes avec une échéance, pour le Gantt de l'onglet "Planning" (groupées par intervenant)
      *
      * @return SuiviOperationTache[]

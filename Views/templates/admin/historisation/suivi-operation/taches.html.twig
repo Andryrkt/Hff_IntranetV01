@@ -175,8 +175,8 @@
 						</thead>
 						<tbody>
 							{% for tache in taches %}
-								{% set enRetard = tache.echeance and tache.echeance|date('Y-m-d') < aujourdhui and tache.statut not in ['RESOLU', 'IGNORE'] %}
-								<tr id="tache-{{ tache.id }}" class="ligne-tache {{ tache.statut in ['RESOLU', 'IGNORE'] ? 'tache-resolue' : '' }}" data-url="{{ path('api_suivi_operation_tache_modifier', {id: tache.id}) }}">
+								{% set enRetard = tache.echeance and tache.echeance|date('Y-m-d') < aujourdhui and tache.statut not in ['RESOLU', 'DEPLOYE', 'IGNORE'] %}
+								<tr id="tache-{{ tache.id }}" class="ligne-tache {{ tache.statut in ['RESOLU', 'DEPLOYE', 'IGNORE'] ? 'tache-resolue' : '' }}" data-url="{{ path('api_suivi_operation_tache_modifier', {id: tache.id}) }}">
 									<td>
 										<button type="button" class="btn btn-sm btn-outline-secondary py-0" data-bs-toggle="collapse" data-bs-target="#detail-tache-{{ tache.id }}" title="Analyse et correction">
 											<i class="fas fa-chevron-down"></i>
@@ -338,7 +338,7 @@
 			const effort = ligne.querySelector('[data-champ="effort"]');
 			effort.classList.toggle('border-danger', !data.effort);
 			ligne.querySelector('.badge-regression').classList.toggle('d-none', !data.estRegression);
-			ligne.classList.toggle('tache-resolue', ['RESOLU', 'IGNORE'].includes(data.statut));
+			ligne.classList.toggle('tache-resolue', ['RESOLU', 'DEPLOYE', 'IGNORE'].includes(data.statut));
 			const info = document.querySelector('#detail-tache-' + ligne.id.replace('tache-', '') + ' .info-resolution');
 			if (info) {
 				info.innerHTML = (data.resolu ? data.resolu + '<br>' : '') + data.modification;

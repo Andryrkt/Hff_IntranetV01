@@ -7,6 +7,7 @@ use App\Entity\admin\historisation\documentOperation\HistoriqueOperationEtape;
 use App\Entity\admin\historisation\documentOperation\SuiviOperationTache;
 use App\Entity\admin\utilisateur\Role;
 use App\Entity\admin\utilisateur\User;
+use App\Service\historiqueOperation\suivi\AlerteTacheSuiviOperation;
 use App\Service\historiqueOperation\suivi\SuiviOperationService;
 use App\Service\historiqueOperation\suivi\TacheSuiviOperation;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -67,6 +68,25 @@ class SuiviOperationController extends Controller
                     $this->getEntityManager()->getConnection()->fetchAllAssociative('SELECT nom_utilisateur FROM users ORDER BY nom_utilisateur'),
                     'nom_utilisateur'
                 ),
+            ]);
+        }
+
+        // onglet "Kanban" : une colonne par statut, changement de statut par glisser-déposer
+        if ($request->query->get('vue') === 'kanban') {
+            $assigne = $request->query->get('assigne');
+            $colonnes = array_fill_keys(array_keys(TacheSuiviOperation::LIBELLES_STATUT), []);
+            $taches = array_merge(
+                $repositoryTache->rechercher(['statut' => 'OUVERTES', 'assigne' => $assigne]),
+                $repositoryTache->termineesRecentes($assigne)
+            );
+            foreach ($taches as $tache) {
+                $colonnes[$tache->getStatut()][] = $tache;
+            }
+
+            return $this->render('admin/historisation/suivi-operation/kanban.html.twig', $parametresTaches + [
+                'colonnes'     => $colonnes,
+                'assigne'      => $assigne,
+                'intervenants' => $this->intervenants(),
             ]);
         }
 
@@ -174,6 +194,7 @@ class SuiviOperationController extends Controller
 
         $data   = json_decode($request->getContent(), true) ?: [];
         $ancienStatut = $tache->getStatut();
+        $ancienAssigne = $tache->getAssigneA();
 
         if (array_key_exists('effort', $data)) {
             if ($data['effort'] !== null && $data['effort'] !== '' && !isset(TacheSuiviOperation::LIBELLES_EFFORT[$data['effort']])) {
@@ -221,14 +242,24 @@ class SuiviOperationController extends Controller
         }
 
         // résolution : date et auteur ; la régression est soldée (une nouvelle occurrence la signalera à nouveau)
-        if ($tache->getStatut() === TacheSuiviOperation::STATUT_RESOLU && $ancienStatut !== TacheSuiviOperation::STATUT_RESOLU) {
+        // (résolu -> déployé garde la date de résolution d'origine)
+        $estCorrigee = in_array($tache->getStatut(), TacheSuiviOperation::STATUTS_CORRIGES, true);
+        if ($estCorrigee && !in_array($ancienStatut, TacheSuiviOperation::STATUTS_CORRIGES, true)) {
             $tache->setDateResolution(new \DateTime())->setResoluPar($this->getUserName())->setEstRegression(false);
-        } elseif ($tache->getStatut() !== TacheSuiviOperation::STATUT_RESOLU) {
+        } elseif (!$estCorrigee) {
             $tache->setDateResolution(null)->setResoluPar(null);
         }
 
         $tache->setDateModification(new \DateTime())->setModifiePar($this->getUserName());
         $this->getEntityManager()->flush();
+
+        // mail à la nouvelle personne assignée (pas quand on s'assigne soi-même)
+        if ($tache->getAssigneA() && $tache->getAssigneA() !== $ancienAssigne && $tache->getAssigneA() !== $this->getUserName()) {
+            AlerteTacheSuiviOperation::assignation(
+                $this->getEntityManager()->getConnection(), $tache->getId(), $tache->getAssigneA(), (string) $this->getUserName(),
+                $tache->getTypeOperation(), $tache->getEtape(), $tache->getDernierMessage()
+            );
+        }
 
         return new JsonResponse([
             'statut'         => $tache->getStatut(),
@@ -239,6 +270,57 @@ class SuiviOperationController extends Controller
             'resolu'         => $tache->getDateResolution() ? 'Résolu par ' . $tache->getResoluPar() . ' le ' . $tache->getDateResolution()->format('d/m/Y H:i') : null,
             'modification'   => 'Modifié par ' . $tache->getModifiePar() . ' le ' . $tache->getDateModification()->format('d/m/Y H:i'),
         ]);
+    }
+
+    /**
+     * Alertes interrogées toutes les 90 s par la barre de navigation (notification du navigateur) :
+     * nouveaux bugs urgents et régressions pour les intervenants, tâches ouvertes assignées à l'utilisateur.
+     * "cle" identifie une alerte : le navigateur ne notifie qu'une fois chaque clé.
+     *
+     * @Route("/api/suivi-operation/alertes", name="api_suivi_operation_alertes", methods={"GET"})
+     */
+    public function alertes()
+    {
+        $nom = $this->getUserName();
+        if ($nom === '') {
+            return new JsonResponse([]);
+        }
+
+        $connexion = $this->getEntityManager()->getConnection();
+        $estIntervenant = (bool) $connexion->fetchOne(
+            'SELECT 1 FROM user_roles ur INNER JOIN users u ON u.id = ur.user_id WHERE u.nom_utilisateur = ? AND ur.role_id = ?',
+            [$nom, Role::ROLE_INTERVENANT]
+        );
+
+        $lignes = $connexion->fetchAllAssociative(
+            "SELECT TOP 20 id, type_operation, etape, assigne_a, est_regression, priorite, statut,
+                    CONVERT(VARCHAR(19), date_resolution, 120) AS date_resolution
+             FROM suivi_operation_tache
+             WHERE statut IN ('A_TRIER', 'A_FAIRE', 'EN_COURS')
+               AND (assigne_a = ? OR (? = 1 AND (est_regression = 1 OR (statut = 'A_TRIER' AND priorite = 'HAUTE'))))
+             ORDER BY derniere_occurrence DESC",
+            [$nom, $estIntervenant ? 1 : 0]
+        );
+
+        $lien = $this->getUrlGenerator()->generate('suivi_operation_index', ['vue' => 'taches']);
+        $alertes = [];
+        foreach ($lignes as $ligne) {
+            if ($estIntervenant && $ligne['est_regression']) {
+                [$cle, $titre] = ['r' . $ligne['id'] . '-' . $ligne['date_resolution'], 'Régression : tâche n° ' . $ligne['id']];
+            } elseif ($estIntervenant && $ligne['statut'] === 'A_TRIER' && $ligne['priorite'] === 'HAUTE') {
+                [$cle, $titre] = ['n' . $ligne['id'], 'Nouveau bug urgent : tâche n° ' . $ligne['id']];
+            } else {
+                [$cle, $titre] = ['a' . $ligne['id'] . '-' . $nom, 'Tâche n° ' . $ligne['id'] . ' assignée'];
+            }
+            $alertes[] = [
+                'cle'   => $cle,
+                'titre' => $titre,
+                'texte' => $ligne['type_operation'] . ' : ' . $ligne['etape'],
+                'lien'  => $lien . '#tache-' . $ligne['id'],
+            ];
+        }
+
+        return new JsonResponse($alertes);
     }
 
     /**

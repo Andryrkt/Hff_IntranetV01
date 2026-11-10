@@ -10,7 +10,7 @@ use Doctrine\DBAL\Connection;
  *
  * Les opérations qui cassent pour la même raison partagent la même signature : type d'opération + étape +
  * message débarrassé de ce qui change d'une fois à l'autre (numéros, chemins, valeurs entre guillemets).
- * Une nouvelle occurrence incrémente le compteur de la tâche existante ; si la tâche était RESOLU,
+ * Une nouvelle occurrence incrémente le compteur de la tâche existante ; si la tâche était RESOLU ou DEPLOYE,
  * elle repasse en A_FAIRE et est marquée comme régression.
  *
  * Appelée par SuiviOperationService avec sa connexion DBAL, dans son executer() qui ne propage jamais d'erreur.
@@ -21,6 +21,7 @@ class TacheSuiviOperation
     public const STATUT_A_FAIRE  = 'A_FAIRE';
     public const STATUT_EN_COURS = 'EN_COURS';
     public const STATUT_RESOLU   = 'RESOLU';
+    public const STATUT_DEPLOYE  = 'DEPLOYE';
     public const STATUT_IGNORE   = 'IGNORE';
 
     public const LIBELLES_STATUT = [
@@ -28,8 +29,12 @@ class TacheSuiviOperation
         self::STATUT_A_FAIRE  => 'À faire',
         self::STATUT_EN_COURS => 'En cours',
         self::STATUT_RESOLU   => 'Résolu',
+        self::STATUT_DEPLOYE  => 'Déployé (terminé)',
         self::STATUT_IGNORE   => 'Ignoré',
     ];
+
+    // corrigée (résolue, puis déployée en production) : date et auteur de résolution conservés
+    public const STATUTS_CORRIGES = [self::STATUT_RESOLU, self::STATUT_DEPLOYE];
 
     public const EFFORT_RAPIDE = 'RAPIDE';
     public const EFFORT_MOYEN  = 'MOYEN';
@@ -58,6 +63,7 @@ class TacheSuiviOperation
      *
      * @param string      $statutOperation ECHEC, INTERROMPU ou ALERTE
      * @param string      $date            date de l'occurrence (Y-m-d H:i:s.v)
+     * @param bool        $alerter         mail aux intervenants (nouvelle tâche haute, régression) ; false pour la reprise de l'historique
      *
      * @return int|null id de la tâche
      */
@@ -69,7 +75,8 @@ class TacheSuiviOperation
         ?string $message,
         string $idSuivi,
         ?string $numeroDocument,
-        string $date
+        string $date,
+        bool $alerter = true
     ): ?int {
         $etapeType   = mb_substr(self::normaliser($etape), 0, 100);
         $messageType = $message !== null && trim($message) !== '' ? mb_substr(self::normaliser($message), 0, 500) : null;
@@ -83,11 +90,21 @@ class TacheSuiviOperation
             'statut_operation'        => $statutOperation,
         ];
 
+        // statut avant l'occurrence : une tâche corrigée qui repasse "à faire" est une régression à signaler
+        $ancienStatut = $alerter ? $connexion->fetchOne('SELECT statut FROM ' . self::TABLE . ' WHERE signature = ?', [$signature]) : false;
+
         if (self::ajouterOccurrence($connexion, $signature, $occurrence) > 0) {
-            return self::idParSignature($connexion, $signature);
+            $id = self::idParSignature($connexion, $signature);
+            if ($id !== null && in_array($ancienStatut, self::STATUTS_CORRIGES, true)
+                && $connexion->fetchOne('SELECT statut FROM ' . self::TABLE . ' WHERE id = ?', [$id]) === self::STATUT_A_FAIRE) {
+                AlerteTacheSuiviOperation::regression($connexion, $id, $typeOperation, $etape, $occurrence['dernier_message']);
+            }
+
+            return $id;
         }
 
         try {
+            $priorite = $statutOperation === SuiviOperationService::STATUT_ECHEC ? self::PRIORITE_HAUTE : self::PRIORITE_NORMALE;
             $connexion->insert(self::TABLE, $occurrence + [
                 'signature'           => $signature,
                 'type_operation'      => $typeOperation,
@@ -96,10 +113,15 @@ class TacheSuiviOperation
                 'premiere_occurrence' => $date,
                 'nb_occurrences'      => 1,
                 'statut'              => self::STATUT_A_TRIER,
-                'priorite'            => $statutOperation === SuiviOperationService::STATUT_ECHEC ? self::PRIORITE_HAUTE : self::PRIORITE_NORMALE,
+                'priorite'            => $priorite,
             ]);
 
-            return (int) $connexion->lastInsertId();
+            $id = (int) $connexion->lastInsertId();
+            if ($alerter && $priorite === self::PRIORITE_HAUTE) {
+                AlerteTacheSuiviOperation::nouvelleTache($connexion, $id, $typeOperation, $etape, $occurrence['dernier_message']);
+            }
+
+            return $id;
         } catch (\Doctrine\DBAL\Exception\UniqueConstraintViolationException $e) {
             // la même tâche vient d'être créée par une requête simultanée
             self::ajouterOccurrence($connexion, $signature, $occurrence);
@@ -142,7 +164,8 @@ class TacheSuiviOperation
                 $message,
                 $ligne['id_suivi'],
                 $ligne['numero_document'],
-                $ligne['date_occurrence']
+                $ligne['date_occurrence'],
+                false // problèmes passés : pas d'alerte
             );
             if ($idTache !== null) {
                 $connexion->update('historique_operation_etape', ['id_tache' => $idTache], ['id_suivi' => $ligne['id_suivi']]);
@@ -186,8 +209,9 @@ class TacheSuiviOperation
         // Une occurrence plus ancienne (reprise de l'historique) ne remplace pas la dernière occurrence connue
         // et ne réouvre pas une tâche résolue après elle.
         // (paramètres positionnels : un paramètre nommé répété n'est pas accepté par tous les drivers PDO)
-        $date   = $occurrence['derniere_occurrence'];
-        $resolu = self::STATUT_RESOLU;
+        $date    = $occurrence['derniere_occurrence'];
+        $resolu  = self::STATUT_RESOLU;
+        $deploye = self::STATUT_DEPLOYE;
 
         return $connexion->executeStatement(
             'UPDATE ' . self::TABLE . ' SET
@@ -198,8 +222,8 @@ class TacheSuiviOperation
                 dernier_numero_document = CASE WHEN ? >= derniere_occurrence THEN ? ELSE dernier_numero_document END,
                 dernier_message = CASE WHEN ? >= derniere_occurrence THEN ? ELSE dernier_message END,
                 statut_operation = CASE WHEN ? >= derniere_occurrence THEN ? ELSE statut_operation END,
-                est_regression = CASE WHEN statut = ? AND ? > COALESCE(date_resolution, premiere_occurrence) THEN 1 ELSE est_regression END,
-                statut = CASE WHEN statut = ? AND ? > COALESCE(date_resolution, premiere_occurrence) THEN ? ELSE statut END
+                est_regression = CASE WHEN statut IN (?, ?) AND ? > COALESCE(date_resolution, premiere_occurrence) THEN 1 ELSE est_regression END,
+                statut = CASE WHEN statut IN (?, ?) AND ? > COALESCE(date_resolution, premiere_occurrence) THEN ? ELSE statut END
             WHERE signature = ?',
             [
                 $date, $date,
@@ -208,8 +232,8 @@ class TacheSuiviOperation
                 $date, $occurrence['dernier_numero_document'],
                 $date, $occurrence['dernier_message'],
                 $date, $occurrence['statut_operation'],
-                $resolu, $date,
-                $resolu, $date, self::STATUT_A_FAIRE,
+                $resolu, $deploye, $date,
+                $resolu, $deploye, $date, self::STATUT_A_FAIRE,
                 $signature,
             ]
         );
