@@ -69,13 +69,16 @@ class SuiviOperationTache
     /** @ORM\Column(type="string", length=100, name="assigne_a", nullable=true) */
     private ?string $assigneA = null;
 
+    /** @ORM\Column(type="date", name="date_debut", nullable=true) */
+    private ?\DateTimeInterface $dateDebut = null;
+
     /** @ORM\Column(type="date", name="echeance", nullable=true) */
     private ?\DateTimeInterface $echeance = null;
 
     /** @ORM\Column(type="text", name="cause", nullable=true) */
     private ?string $cause = null;
 
-    /** @ORM\Column(type="string", length=500, name="correction", nullable=true) */
+    /** @ORM\Column(type="text", name="correction", nullable=true) */
     private ?string $correction = null;
 
     /** @ORM\Column(type="datetime", name="date_resolution", nullable=true) */
@@ -107,6 +110,7 @@ class SuiviOperationTache
     public function getPriorite(): string { return $this->priorite; }
     public function getEstRegression(): bool { return $this->estRegression; }
     public function getAssigneA(): ?string { return $this->assigneA; }
+    public function getDateDebut(): ?\DateTimeInterface { return $this->dateDebut; }
     public function getEcheance(): ?\DateTimeInterface { return $this->echeance; }
     public function getCause(): ?string { return $this->cause; }
     public function getCorrection(): ?string { return $this->correction; }
@@ -120,6 +124,7 @@ class SuiviOperationTache
     public function setPriorite(string $priorite): self { $this->priorite = $priorite; return $this; }
     public function setEstRegression(bool $estRegression): self { $this->estRegression = $estRegression; return $this; }
     public function setAssigneA(?string $assigneA): self { $this->assigneA = $assigneA; return $this; }
+    public function setDateDebut(?\DateTimeInterface $dateDebut): self { $this->dateDebut = $dateDebut; return $this; }
     public function setEcheance(?\DateTimeInterface $echeance): self { $this->echeance = $echeance; return $this; }
     public function setCause(?string $cause): self { $this->cause = $cause; return $this; }
     public function setCorrection(?string $correction): self { $this->correction = $correction; return $this; }

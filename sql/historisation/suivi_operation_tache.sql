@@ -11,6 +11,7 @@
 --          A_FAIRE  -> triée, en attente de traitement
 --          EN_COURS -> correction en cours
 --          RESOLU   -> corrigée (repasse en A_FAIRE + est_regression si le problème revient)
+--          DEPLOYE  -> correction déployée en production : terminée (même réouverture que RESOLU)
 --          IGNORE   -> pas un bug (erreur de saisie, cas normal...) : le compteur continue sans réouverture
 --
 -- effort : RAPIDE (moins de 30 min) / MOYEN (une demi-journée à une journée) / LONG (plusieurs jours)
@@ -53,3 +54,9 @@ CREATE INDEX IDX_suivi_operation_tache_statut ON suivi_operation_tache (statut, 
 ALTER TABLE historique_operation_etape ADD id_tache INT NULL;
 
 CREATE INDEX IDX_historique_operation_etape_tache ON historique_operation_etape (id_tache);
+
+-- correction : explication mise en page (HTML de l'éditeur), 500 caractères ne suffisent plus
+ALTER TABLE suivi_operation_tache ALTER COLUMN correction NVARCHAR(MAX) NULL;
+
+-- planification : début de la tâche (barre du Gantt de date_debut à echeance)
+ALTER TABLE suivi_operation_tache ADD date_debut DATE NULL;
