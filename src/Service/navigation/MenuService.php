@@ -255,6 +255,11 @@ class MenuService
         foreach ($subitems as $subitem) {
             $route = $subitem['route'] ?? null;
 
+            // 'admin' : réservé au profil HFF-ADMIN, en plus du droit sur la route
+            if (($subitem['admin'] ?? false) && !$this->estProfilAdmin()) {
+                continue;
+            }
+
             if ($route !== null && !$this->hasAccesRoute($route)) {
                 continue;
             } else {
