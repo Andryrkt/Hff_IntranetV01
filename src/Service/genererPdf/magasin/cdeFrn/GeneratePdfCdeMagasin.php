@@ -353,7 +353,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
 
         $this->pdf->SetFont(self::FONT, '', self::MAIN_TEXT_SIZE);
         $this->pdf->SetTextColor(...self::INK);
-        $this->pdf->MultiCell(0, $hh * 3, $this->dto->commentaire, 1, "L");
+        $this->pdf->MultiCell(0, $hh * 3, $this->dto->commentaire, 0, "L");
     }
 
     /** Footer de chaque page : date de génération à gauche, "Page X / Y" au centre */
