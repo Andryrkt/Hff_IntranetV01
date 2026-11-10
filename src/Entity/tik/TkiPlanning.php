@@ -26,7 +26,7 @@ class TkiPlanning
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=11, name="numero_ticket")
+     * @ORM\Column(type="string", length=11, nullable=true, name="numero_ticket")
      */
     private $numeroTicket;
 
@@ -52,7 +52,9 @@ class TkiPlanning
     private $dateFinPlanning;
 
     /**
-     * @ORM\OneToOne(targetEntity=DemandeSupportInformatique::class, inversedBy="planning", cascade={"persist", "remove"})
+     * Un ticket planifié sur plusieurs jours a une ligne de planning par jour.
+     *
+     * @ORM\ManyToOne(targetEntity=DemandeSupportInformatique::class)
      * @ORM\JoinColumn(name="demande_id", referencedColumnName="ID_Demande_Support_Informatique", nullable=true)
      */
     private $demandeSupportInfo;

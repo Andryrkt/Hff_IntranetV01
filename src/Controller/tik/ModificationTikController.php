@@ -31,7 +31,7 @@ class ModificationTikController extends Controller
         $supportInfo = $this->getEntityManager()->getRepository(DemandeSupportInformatique::class)->find($id);
 
         // Vérifier si l'utilisateur peut modifier le ticket
-        if (!$this->canEdit($supportInfo->getNumeroTicket())) {
+        if (!$this->canEdit($supportInfo)) {
             $this->redirectToRoute('liste_tik_index');
         }
 
@@ -81,7 +81,7 @@ class ModificationTikController extends Controller
     /** 
      * Fonction pour vérifier si l'utilisateur peut éditer le ticket
      */
-    private function canEdit(string $numTik): bool
+    private function canEdit(DemandeSupportInformatique $ticket): bool
     {
         $utilisateur = $this->getUser();
 
@@ -90,17 +90,8 @@ class ModificationTikController extends Controller
             $this->redirectToRoute("security_signin");
         }
 
-        $allTik = $utilisateur->getSupportInfoUser();
-
-        foreach ($allTik as $tik) {
-            // si le numéro du ticket appartient à l'utilisateur connecté et le statut du ticket est ouvert ou en attente
-            if ($numTik === $tik->getNumeroTicket() && ($tik->getIdStatutDemande()->getId() === 58 || $tik->getIdStatutDemande()->getId() === 65)) {
-                return true;
-                break;
-            }
-        }
-
-        return false;
+        // si le ticket appartient à l'utilisateur connecté et le statut du ticket est ouvert ou en attente
+        return $ticket->getUserId()->getId() === $utilisateur->getId() && in_array($ticket->getIdStatutDemande()->getId(), [58, 65]);
     }
 
     private function historiqueStatut($supportInfo, $statut)

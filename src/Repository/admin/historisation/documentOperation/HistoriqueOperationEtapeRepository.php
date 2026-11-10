@@ -19,9 +19,52 @@ class HistoriqueOperationEtapeRepository extends EntityRepository
      * @param bool        $problemeSeulement ne garder que les opérations avec une étape en échec, interrompue ou jamais terminée
      * @param int|null    $idHistorique    opération rattachée à cette ligne de l'historique des opérations
      * @param bool        $nonLuSeulement  ne garder que les opérations en problème pas encore marquées comme lues
+     * @param int|null    $idTache         opérations rattachées à cette tâche de correction
      *
      * @return array<int, array{idSuivi: string, statut: string, etapes: HistoriqueOperationEtape[]}>
      */
+    /**
+     * Étapes d'une opération complète, par type : celles de la dernière opération entièrement réussie du type.
+     * Sert à afficher en gris les étapes non faites d'une opération arrêtée en cours de route.
+     * Les copies DocuWare (une ligne par fichier, libellé variable) sont exclues.
+     *
+     * shortcut: modèle cherché sur les 90 derniers jours (table volumineuse), à élargir si des types rares n'ont pas de modèle
+     *
+     * @param string[] $types
+     * @return array<string, string[]> libellés des étapes dans l'ordre, par type d'opération
+     */
+    public function etapesReference(array $types): array
+    {
+        $types = array_values(array_unique(array_filter($types)));
+        if (empty($types)) {
+            return [];
+        }
+
+        $lignes = $this->getEntityManager()->getConnection()->fetchAllAssociative(
+            "SELECT e.type_operation, e.etape
+            FROM historique_operation_etape e
+            JOIN (
+                SELECT type_operation, id_suivi,
+                       ROW_NUMBER() OVER (PARTITION BY type_operation ORDER BY MIN(date_debut) DESC) AS rang
+                FROM historique_operation_etape
+                WHERE type_operation IN (?) AND date_debut >= DATEADD(DAY, -90, GETDATE())
+                GROUP BY type_operation, id_suivi
+                HAVING SUM(CASE WHEN statut <> ? THEN 1 ELSE 0 END) = 0
+            ) modele ON modele.id_suivi = e.id_suivi AND modele.rang = 1
+            WHERE e.etape NOT LIKE 'Copie DocuWare :%'
+            ORDER BY e.type_operation, e.ordre",
+            [$types, SuiviOperationService::STATUT_SUCCES],
+            [\Doctrine\DBAL\ArrayParameterType::STRING, \PDO::PARAM_STR]
+        );
+
+        $reference = [];
+        foreach ($lignes as $ligne) {
+            $reference[$ligne['type_operation']][] = $ligne['etape'];
+        }
+
+        return $reference;
+    }
+
     /**
      * Modifications tracées par trigger SQL Server (table audit_modification_bdd, voir sql/historisation/audit_demande_intervention.sql) :
      * elles couvrent aussi les écritures faites hors de l'intranet (moulinette, SSMS...), les plus récentes en premier.
@@ -113,7 +156,7 @@ class HistoriqueOperationEtapeRepository extends EntityRepository
         return $connexion->fetchAllAssociative($sql, $params);
     }
 
-    public function rechercherSuivis(?string $recherche, ?string $typeOperation, bool $problemeSeulement, ?\DateTimeInterface $dateDebut, ?\DateTimeInterface $dateFin, ?int $idHistorique = null, bool $nonLuSeulement = false, int $limit = 100): array
+    public function rechercherSuivis(?string $recherche, ?string $typeOperation, bool $problemeSeulement, ?\DateTimeInterface $dateDebut, ?\DateTimeInterface $dateFin, ?int $idHistorique = null, bool $nonLuSeulement = false, int $limit = 100, ?int $idTache = null): array
     {
         $qb = $this->createQueryBuilder('e')
             ->select('e.idSuivi, MIN(e.dateDebut) AS HIDDEN debut')
@@ -130,6 +173,9 @@ class HistoriqueOperationEtapeRepository extends EntityRepository
         }
         if ($idHistorique) {
             $qb->andWhere('e.idHistoriqueOperation = :idHistorique')->setParameter('idHistorique', $idHistorique);
+        }
+        if ($idTache) {
+            $qb->andWhere('e.idTache = :idTache')->setParameter('idTache', $idTache);
         }
         if ($dateDebut) {
             $qb->andWhere('e.dateDebut >= :dateDebut')->setParameter('dateDebut', $dateDebut->format('Y-m-d 00:00:00'));

@@ -1,4 +1,5 @@
 export const API_ENDPOINTS = {
+  /** Demande Approvisionnement */
   DELETE_ARTICLES_DA: "api/demande-appro/action-sur-non-dispo/delete-articles",
   CREATE_ARTICLES_DA:
     "api/demande-appro/action-sur-non-dispo/create-new-articles",

@@ -1,0 +1,418 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Tâches du suivi des opérations
+{% endblock %}
+
+{% block stylesheets %}
+	<link href="{{ App.base_path }}/Views/css/new.css?v={{ App.browserHash }}" rel="stylesheet"/>
+	<style>
+		.bg-alerte { background-color: #fd7e14 !important; color: #fff; }
+		.compteur-tache { text-decoration: none; color: inherit; }
+		.compteur-tache .card { transition: box-shadow .15s; }
+		.compteur-tache:hover .card { box-shadow: 0 0 0 2px #ffc107; }
+		.compteur-tache .nombre { font-size: 1.6rem; font-weight: 700; line-height: 1; }
+		.message-tache { max-width: 420px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+		.select-tache { min-width: 110px; }
+		tr.tache-resolue > td { opacity: .65; }
+		tr.ligne-tache:target > td, tr.ligne-tache.cible > td { background-color: #fff3cd; }
+	</style>
+{% endblock %}
+
+{% block content %}
+	{% set classesStatutOperation = {'ECHEC': 'bg-danger', 'ALERTE': 'bg-alerte', 'INTERROMPU': 'bg-warning text-dark'} %}
+	{% set libellesStatutOperation = {'ECHEC': 'ÉCHEC', 'ALERTE': 'ALERTE', 'INTERROMPU': 'INTERROMPU'} %}
+	{% set aujourdhui = 'now'|date('Y-m-d') %}
+
+	<div class="container-fluid">
+		<div class="card">
+			<div class="card-body">
+				<h3 class="perso-titre mb-3">SUIVI DES OPÉRATIONS ÉTAPE PAR ÉTAPE</h3>
+
+				{% include 'admin/historisation/suivi-operation/_onglets.html.twig' with {ongletActif: 'taches'} %}
+
+				{# compteurs : un clic applique le filtre correspondant #}
+				<div class="row g-2 mb-3">
+					{% for compteur in [
+						{nombre: compteursTaches.aTrier, libelle: 'À trier', aide: "effort et priorité à choisir", classe: 'text-danger', filtre: {statut: 'A_TRIER'}},
+						{nombre: compteursTaches.rapides, libelle: 'Rapides en attente', aide: 'moins de 30 min : à traiter au fil de l\'eau', classe: 'text-primary', filtre: {statut: 'OUVERTES', effort: 'RAPIDE'}},
+						{nombre: compteursTaches.longues, libelle: 'Moyennes / longues', aide: 'à planifier (personne + échéance)', classe: 'text-dark', filtre: {statut: 'OUVERTES'}},
+						{nombre: compteursTaches.regressions, libelle: 'Régressions', aide: 'bug corrigé qui est revenu', classe: 'text-warning', filtre: {statut: 'OUVERTES'}}
+					] %}
+						<div class="col-6 col-md-3">
+							<a class="compteur-tache" href="{{ path('suivi_operation_index', {vue: 'taches'}|merge(compteur.filtre)) }}">
+								<div class="card h-100">
+									<div class="card-body py-2">
+										<div class="nombre {{ compteur.classe }}">{{ compteur.nombre }}</div>
+										<div class="fw-bold small">{{ compteur.libelle }}</div>
+										<div class="text-muted small">{{ compteur.aide }}</div>
+									</div>
+								</div>
+							</a>
+						</div>
+					{% endfor %}
+				</div>
+
+				{# intervenants : rôle 8 de user_roles, partagé avec le ticketing #}
+				<div class="mb-3">
+					<button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="collapse" data-bs-target="#panneau-intervenants">
+						<i class="fas fa-users-gear"></i> Intervenants ({{ listeIntervenants|length }})
+					</button>
+					<div class="collapse {{ listeIntervenants is empty ? 'show' : '' }}" id="panneau-intervenants">
+						<div class="card card-body mt-2 py-2" id="intervenants" data-url="{{ path('api_suivi_operation_intervenant') }}">
+							<p class="small text-muted mb-2">
+								Personnes à qui une tâche peut être assignée (rôle <strong>INTERVENANT</strong>).
+								Ce rôle est partagé avec le ticketing : un intervenant ajouté ici peut aussi recevoir des tickets.
+							</p>
+							<div class="d-flex flex-wrap gap-2 mb-2">
+								{% for intervenant in listeIntervenants %}
+									<span class="badge bg-light text-dark border d-flex align-items-center gap-1 py-1">
+										{{ intervenant.nom_utilisateur }}
+										{% if not intervenant.mail %}<i class="fas fa-triangle-exclamation text-warning" title="Pas d'adresse mail : les mails du ticketing ne lui parviendront pas"></i>{% endif %}
+										<button type="button" class="btn-close btn-retirer-intervenant" style="font-size: .55rem" data-nom="{{ intervenant.nom_utilisateur }}" title="Retirer le rôle intervenant"></button>
+									</span>
+								{% else %}
+									<span class="small text-danger">Aucun intervenant : ajoutez-en un pour pouvoir assigner les tâches.</span>
+								{% endfor %}
+							</div>
+							<div class="input-group input-group-sm" style="max-width: 420px">
+								<input type="text" class="form-control" id="nouvel-intervenant" list="liste-utilisateurs" placeholder="Nom d'utilisateur (ex. prenom.nom)">
+								<button type="button" class="btn btn-warning" id="btn-ajouter-intervenant"><i class="fas fa-user-plus"></i> Ajouter</button>
+							</div>
+							<datalist id="liste-utilisateurs">
+								{% for utilisateur in utilisateurs %}
+									<option value="{{ utilisateur }}">
+								{% endfor %}
+							</datalist>
+						</div>
+					</div>
+				</div>
+
+				<form method="get" action="{{ path('suivi_operation_index') }}" class="row g-2 align-items-end mb-3">
+					<input type="hidden" name="vue" value="taches">
+					<div class="col-12 col-md-2">
+						<label for="recherche" class="form-label mb-0">Étape, message, n° document</label>
+						<input type="text" id="recherche" name="recherche" value="{{ filtres.recherche }}" class="form-control form-control-sm">
+					</div>
+					<div class="col-6 col-md-2">
+						<label for="type" class="form-label mb-0">Opération</label>
+						<select id="type" name="type" class="form-select form-select-sm">
+							<option value="">Toutes</option>
+							{% for code, libelle in typesOperation %}
+								<option value="{{ code }}" {{ filtres.type == code ? 'selected' : '' }}>{{ libelle }}</option>
+							{% endfor %}
+						</select>
+					</div>
+					<div class="col-6 col-md-2">
+						<label for="statut" class="form-label mb-0">Statut</label>
+						<select id="statut" name="statut" class="form-select form-select-sm">
+							<option value="OUVERTES" {{ filtres.statut == 'OUVERTES' ? 'selected' : '' }}>Non terminées</option>
+							<option value="" {{ filtres.statut == '' ? 'selected' : '' }}>Toutes</option>
+							{% for code, libelle in libellesStatutTache %}
+								<option value="{{ code }}" {{ filtres.statut == code ? 'selected' : '' }}>{{ libelle }}</option>
+							{% endfor %}
+						</select>
+					</div>
+					<div class="col-6 col-md-1">
+						<label for="effort" class="form-label mb-0">Effort</label>
+						<select id="effort" name="effort" class="form-select form-select-sm">
+							<option value="">Tous</option>
+							<option value="NON_DEFINI" {{ filtres.effort == 'NON_DEFINI' ? 'selected' : '' }}>Non défini</option>
+							{% for code, libelle in libellesEffort %}
+								<option value="{{ code }}" {{ filtres.effort == code ? 'selected' : '' }}>{{ libelle }}</option>
+							{% endfor %}
+						</select>
+					</div>
+					<div class="col-6 col-md-1">
+						<label for="priorite" class="form-label mb-0">Priorité</label>
+						<select id="priorite" name="priorite" class="form-select form-select-sm">
+							<option value="">Toutes</option>
+							{% for code, libelle in libellesPriorite %}
+								<option value="{{ code }}" {{ filtres.priorite == code ? 'selected' : '' }}>{{ libelle }}</option>
+							{% endfor %}
+						</select>
+					</div>
+					<div class="col-6 col-md-1">
+						<label for="assigne" class="form-label mb-0">Assigné à</label>
+						<select id="assigne" name="assigne" class="form-select form-select-sm">
+							<option value="">Tous</option>
+							{% for intervenant in intervenants %}
+								<option value="{{ intervenant }}" {{ filtres.assigne == intervenant ? 'selected' : '' }}>{{ intervenant }}</option>
+							{% endfor %}
+						</select>
+					</div>
+					<div class="col-12 col-md-3 d-flex gap-2">
+						<button type="submit" class="btn btn-warning btn-sm">Rechercher</button>
+						<a href="{{ path('suivi_operation_index', {vue: 'taches'}) }}" class="btn btn-outline-secondary btn-sm">Effacer</a>
+						<button type="button" id="btn-reprise" class="btn btn-outline-dark btn-sm ms-auto"
+							data-url="{{ path('api_suivi_operation_taches_reprise') }}"
+							title="Crée les tâches des opérations en problème enregistrées avant la mise en place des tâches">
+							<i class="fas fa-clock-rotate-left"></i> Reprendre l'historique
+						</button>
+					</div>
+				</form>
+
+				<p class="text-muted small mb-2">
+					{{ taches|length }} tâche(s) affichée(s) (200 maximum) : à trier d'abord, puis par priorité et nombre d'occurrences.
+					Les changements de priorité, statut et effort sont enregistrés aussitôt. Cliquez sur <i class="fas fa-chevron-down"></i> pour l'analyse et la correction.
+				</p>
+
+				<div class="table-responsive">
+					<table class="table table-sm table-bordered align-middle">
+						<thead class="table-dark">
+							<tr>
+								<th></th>
+								<th>N°</th>
+								<th>Priorité</th>
+								<th>Statut</th>
+								<th>Effort</th>
+								<th>Opération / étape</th>
+								<th>Dernier message</th>
+								<th class="text-center">Occ.</th>
+								<th>Dernière occurrence</th>
+								<th>Assigné / échéance</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for tache in taches %}
+								{% set enRetard = tache.echeance and tache.echeance|date('Y-m-d') < aujourdhui and tache.statut not in ['RESOLU', 'IGNORE'] %}
+								<tr id="tache-{{ tache.id }}" class="ligne-tache {{ tache.statut in ['RESOLU', 'IGNORE'] ? 'tache-resolue' : '' }}" data-url="{{ path('api_suivi_operation_tache_modifier', {id: tache.id}) }}">
+									<td>
+										<button type="button" class="btn btn-sm btn-outline-secondary py-0" data-bs-toggle="collapse" data-bs-target="#detail-tache-{{ tache.id }}" title="Analyse et correction">
+											<i class="fas fa-chevron-down"></i>
+										</button>
+									</td>
+									<td class="text-nowrap">{{ tache.id }}</td>
+									<td>
+										<select class="form-select form-select-sm select-tache champ-tache" data-champ="priorite">
+											{% for code, libelle in libellesPriorite %}
+												<option value="{{ code }}" {{ tache.priorite == code ? 'selected' : '' }}>{{ libelle }}</option>
+											{% endfor %}
+										</select>
+									</td>
+									<td class="text-nowrap">
+										<select class="form-select form-select-sm select-tache champ-tache" data-champ="statut">
+											{% for code, libelle in libellesStatutTache %}
+												<option value="{{ code }}" {{ tache.statut == code ? 'selected' : '' }}>{{ libelle }}</option>
+											{% endfor %}
+										</select>
+										<span class="badge bg-warning text-dark badge-regression {{ tache.estRegression ? '' : 'd-none' }}" title="Le problème est revenu après sa résolution">Régression</span>
+									</td>
+									<td>
+										<select class="form-select form-select-sm select-tache champ-tache {{ tache.effort ? '' : 'border-danger' }}" data-champ="effort">
+											<option value="">À estimer</option>
+											{% for code, libelle in libellesEffort %}
+												<option value="{{ code }}" {{ tache.effort == code ? 'selected' : '' }}>{{ libelle }}</option>
+											{% endfor %}
+										</select>
+									</td>
+									<td>
+										<div>{{ typesOperation[tache.typeOperation] ?? tache.typeOperation }}</div>
+										<span class="badge {{ classesStatutOperation[tache.statutOperation] ?? 'bg-secondary' }}">{{ libellesStatutOperation[tache.statutOperation] ?? tache.statutOperation }}</span>
+										<span class="small">{{ tache.etape }}</span>
+									</td>
+									<td><div class="message-tache small" title="{{ tache.dernierMessage }}">{{ tache.dernierMessage ?: '-' }}</div></td>
+									<td class="text-center">
+										<a href="{{ path('suivi_operation_index', {tache: tache.id, limite: 100}) }}" class="badge bg-dark text-decoration-none" title="Voir les opérations rattachées">{{ tache.nbOccurrences }}</a>
+									</td>
+									<td class="text-nowrap small">
+										{{ tache.derniereOccurrence ? tache.derniereOccurrence|date('d/m/Y H:i') : '-' }}
+										{% if tache.dernierNumeroDocument %}<br><span class="text-muted">{{ tache.dernierNumeroDocument }}</span>{% endif %}
+									</td>
+									<td class="small">
+										{{ tache.assigneA ?: '-' }}
+										{% if tache.echeance %}<br><span class="{{ enRetard ? 'text-danger fw-bold' : 'text-muted' }}">{{ enRetard ? 'En retard : ' : 'Pour le ' }}{{ tache.echeance|date('d/m/Y') }}</span>{% endif %}
+									</td>
+								</tr>
+								<tr class="collapse" id="detail-tache-{{ tache.id }}">
+									<td colspan="10" class="bg-light">
+										<div class="row g-2" data-url="{{ path('api_suivi_operation_tache_modifier', {id: tache.id}) }}">
+											<div class="col-12 col-md-6">
+												<div class="small mb-1"><strong>Message regroupé :</strong> <code>{{ tache.messageType ?: '-' }}</code></div>
+												<div class="small mb-1"><strong>Dernier message complet :</strong> {{ tache.dernierMessage ?: '-' }}</div>
+												<div class="small mb-1"><strong>Première occurrence :</strong> {{ tache.premiereOccurrence ? tache.premiereOccurrence|date('d/m/Y H:i') : '-' }}</div>
+												<div class="small text-muted info-resolution">
+													{% if tache.dateResolution %}Résolu par {{ tache.resoluPar }} le {{ tache.dateResolution|date('d/m/Y H:i') }}<br>{% endif %}
+													{% if tache.dateModification %}Modifié par {{ tache.modifiePar }} le {{ tache.dateModification|date('d/m/Y H:i') }}{% endif %}
+												</div>
+											</div>
+											<div class="col-12 col-md-6">
+												<div class="row g-2">
+													<div class="col-6">
+														<label class="form-label mb-0 small">Assigné à</label>
+														<select class="form-select form-select-sm" data-champ="assigneA">
+															<option value="">-- Non assignée --</option>
+															{% if tache.assigneA and tache.assigneA not in intervenants %}
+																<option value="{{ tache.assigneA }}" selected>{{ tache.assigneA }} (n'est plus intervenant)</option>
+															{% endif %}
+															{% for intervenant in intervenants %}
+																<option value="{{ intervenant }}" {{ tache.assigneA == intervenant ? 'selected' : '' }}>{{ intervenant }}</option>
+															{% endfor %}
+														</select>
+														{% if intervenants is empty %}
+															<div class="form-text text-danger">Aucun utilisateur n'a le rôle intervenant (table user_roles, rôle 8).</div>
+														{% endif %}
+													</div>
+													<div class="col-6">
+														<label class="form-label mb-0 small">Échéance</label>
+														<input type="date" class="form-control form-control-sm" data-champ="echeance" value="{{ tache.echeance ? tache.echeance|date('Y-m-d') : '' }}">
+													</div>
+													<div class="col-12">
+														<label class="form-label mb-0 small">Cause identifiée</label>
+														<textarea class="form-control form-control-sm" data-champ="cause" rows="2">{{ tache.cause }}</textarea>
+													</div>
+													<div class="col-12">
+														<label class="form-label mb-0 small">Correction (branche, commit, explication)</label>
+														<input type="text" class="form-control form-control-sm" data-champ="correction" value="{{ tache.correction }}" maxlength="500" placeholder="ex. hotfix/chemins-copie-docuware">
+													</div>
+													<div class="col-12 text-end">
+														<button type="button" class="btn btn-warning btn-sm btn-enregistrer-tache">Enregistrer</button>
+													</div>
+												</div>
+											</div>
+										</div>
+									</td>
+								</tr>
+							{% else %}
+								<tr>
+									<td colspan="10" class="text-center text-muted">Aucune tâche pour ces critères.</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script>
+		async function enregistrerTache(url, donnees) {
+			const reponse = await fetch(url, {
+				method: 'POST',
+				headers: {'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest'},
+				body: JSON.stringify(donnees)
+			});
+			const data = await reponse.json().catch(() => ({}));
+			if (!reponse.ok) {
+				throw new Error(data.message || 'Erreur ' + reponse.status);
+			}
+			return data;
+		}
+
+		// met la ligne à jour avec la réponse (le statut peut changer tout seul : effort choisi sur une tâche à trier)
+		function actualiserLigne(ligne, data) {
+			ligne.querySelector('[data-champ="statut"]').value = data.statut;
+			const effort = ligne.querySelector('[data-champ="effort"]');
+			effort.classList.toggle('border-danger', !data.effort);
+			ligne.querySelector('.badge-regression').classList.toggle('d-none', !data.estRegression);
+			ligne.classList.toggle('tache-resolue', ['RESOLU', 'IGNORE'].includes(data.statut));
+			const info = document.querySelector('#detail-tache-' + ligne.id.replace('tache-', '') + ' .info-resolution');
+			if (info) {
+				info.innerHTML = (data.resolu ? data.resolu + '<br>' : '') + data.modification;
+			}
+		}
+
+		document.querySelectorAll('.champ-tache').forEach(function (champ) {
+			let ancienneValeur = champ.value;
+			champ.addEventListener('change', async function () {
+				const ligne = champ.closest('tr');
+				champ.disabled = true;
+				try {
+					const data = await enregistrerTache(ligne.dataset.url, {[champ.dataset.champ]: champ.value});
+					ancienneValeur = champ.value;
+					actualiserLigne(ligne, data);
+				} catch (e) {
+					champ.value = ancienneValeur;
+					alert("Modification non enregistrée : " + e.message);
+				} finally {
+					champ.disabled = false;
+				}
+			});
+		});
+
+		document.querySelectorAll('.btn-enregistrer-tache').forEach(function (bouton) {
+			bouton.addEventListener('click', async function () {
+				const bloc = bouton.closest('[data-url]');
+				const donnees = {};
+				bloc.querySelectorAll('[data-champ]').forEach(champ => donnees[champ.dataset.champ] = champ.value);
+				bouton.disabled = true;
+				try {
+					const data = await enregistrerTache(bloc.dataset.url, donnees);
+					const ligne = document.getElementById(bloc.closest('tr').id.replace('detail-', ''));
+					actualiserLigne(ligne, data);
+					bouton.textContent = 'Enregistré ✓';
+					setTimeout(() => bouton.textContent = 'Enregistrer', 2000);
+				} catch (e) {
+					alert("Modification non enregistrée : " + e.message);
+				} finally {
+					bouton.disabled = false;
+				}
+			});
+		});
+
+		document.getElementById('btn-reprise').addEventListener('click', async function () {
+			const bouton = this;
+			if (!confirm("Créer les tâches des opérations en problème enregistrées avant la mise en place des tâches ?")) {
+				return;
+			}
+			bouton.disabled = true;
+			bouton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Reprise en cours...';
+			try {
+				const data = await enregistrerTache(bouton.dataset.url, {});
+				alert(data.nombre + ' opération(s) rattachée(s) à une tâche.');
+				window.location.reload();
+			} catch (e) {
+				alert('Reprise impossible : ' + e.message);
+				bouton.disabled = false;
+				bouton.innerHTML = '<i class="fas fa-clock-rotate-left"></i> Reprendre l\'historique';
+			}
+		});
+
+		// ajout / retrait du rôle intervenant : rechargement pour mettre à jour les listes d'assignation
+		async function gererIntervenant(nomUtilisateur, action) {
+			try {
+				await enregistrerTache(document.getElementById('intervenants').dataset.url, {nomUtilisateur, action});
+				sessionStorage.setItem('panneauIntervenantsOuvert', '1');
+				window.location.reload();
+			} catch (e) {
+				alert(e.message);
+			}
+		}
+		document.getElementById('btn-ajouter-intervenant').addEventListener('click', function () {
+			const nom = document.getElementById('nouvel-intervenant').value.trim();
+			if (nom) {
+				gererIntervenant(nom, 'ajouter');
+			}
+		});
+		document.getElementById('nouvel-intervenant').addEventListener('keydown', function (e) {
+			if (e.key === 'Enter') {
+				e.preventDefault();
+				document.getElementById('btn-ajouter-intervenant').click();
+			}
+		});
+		document.querySelectorAll('.btn-retirer-intervenant').forEach(function (bouton) {
+			bouton.addEventListener('click', function () {
+				if (confirm('Retirer le rôle intervenant à ' + bouton.dataset.nom + ' ? Ses tâches et tickets déjà assignés ne changent pas.')) {
+					gererIntervenant(bouton.dataset.nom, 'retirer');
+				}
+			});
+		});
+		try {
+			if (sessionStorage.getItem('panneauIntervenantsOuvert')) {
+				sessionStorage.removeItem('panneauIntervenantsOuvert');
+				document.getElementById('panneau-intervenants').classList.add('show');
+			}
+		} catch (e) {}
+
+		// tâche ciblée depuis le suivi des opérations (#tache-12) : ouvrir son détail
+		if (location.hash.startsWith('#tache-')) {
+			const ligne = document.querySelector(location.hash);
+			if (ligne) {
+				ligne.classList.add('cible');
+				ligne.scrollIntoView({block: 'center'});
+			}
+		}
+	</script>
+{% endblock %}

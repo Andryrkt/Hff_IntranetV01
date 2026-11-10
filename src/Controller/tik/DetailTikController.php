@@ -49,11 +49,11 @@ class DetailTikController extends Controller
 
         $connectedUser = $this->getUser();
 
-        $handleRequestService = new HandleRequestService($this->getEntityManager(), $this->getTwig(), $connectedUser, $supportInfo);
-
         if (!$supportInfo) {
             return $this->render('404.html.twig');
         } else {
+            $handleRequestService = new HandleRequestService($this->getEntityManager(), $this->getTwig(), $connectedUser, $supportInfo);
+
             $formDetail = $this->getFormFactory()->createBuilder(DetailTikType::class, $supportInfo)->getForm();
 
             $formDetail->handleRequest($request);
@@ -126,7 +126,7 @@ class DetailTikController extends Controller
             'ENC' => 'valider',      // statut en cours
             'PLA' => 'planifier',    // statut planifié
             'RES' => 'resoudre',     // statut résolu
-            'ENA' => 'commenter',    // statut en attente
+            'SUS' => 'commenter',    // statut en attente
             'CLO' => 'cloturer',     // statut cloturé
             '00'  => 'transferer',
         ];

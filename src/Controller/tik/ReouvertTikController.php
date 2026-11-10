@@ -53,6 +53,8 @@ class ReouvertTikController extends Controller
             'type'    => 'success',
             'message' => 'Le ticket ' . $supportInfo->getNumeroTicket() . ' a été réouvert avec succès',
         ]);
+
+        $this->redirectToRoute('liste_tik_index');
     }
 
     /** 
@@ -66,7 +68,7 @@ class ReouvertTikController extends Controller
         }
 
         // Si c'est le demandeur et statut résolu
-        if ($ticket->getUserId() === $utilisateur->getId() && $ticket->getIdStatutDemande()->getId() === 62) {
+        if ($ticket->getUserId()->getId() === $utilisateur->getId() &&$ticket->getIdStatutDemande()->getId() === 62) {
             return true;
         }
 
