@@ -4,6 +4,7 @@ import { configAgenceService } from "../../dit/config/listDitConfig.js";
 import { handleAgenceChange } from "../../dit/fonctionUtils/fonctionListDit.js";
 import { allowOnlyNumbers } from "../../magasin/utils/inputUtils.js";
 import { initCentraleCodeDesiInputs } from "../newReappro/event.js";
+import { deleteLigneDa } from "../main/deleteLigneDa";
 import { FetchManager } from "../../api/FetchManager.js";
 
 // Optimisation : Délégation des tooltips pour ne pas surcharger le chargement initial
@@ -73,31 +74,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const deleteLineBtns = document.querySelectorAll(".delete-line-DA");
   deleteLineBtns.forEach((deleteLineBtn) => {
     deleteLineBtn.addEventListener("click", function () {
-      let deletePath = this.dataset.deletePath;
-      Swal.fire({
-        title: "Êtes-vous sûr(e) ?",
-        html: `Voulez-vous vraiment supprimer cette ligne d'article?<br><strong>Attention :</strong> cette action est <span style="color: red;"><strong>irréversible</strong></span>.`,
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#6c757d",
-        confirmButtonText: "Oui, supprimer",
-        cancelButtonText: "Non, annuler",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          displayOverlay(true);
-          window.location = deletePath;
-        } else if (result.dismiss === Swal.DismissReason.cancel) {
-          // ❌ Si l'utilisateur annule
-          Swal.fire({
-            icon: "info",
-            title: "Annulé",
-            text: "La suppression de la ligne de demande a été annulée.",
-            timer: 2000,
-            showConfirmButton: false,
-          });
-        }
-      });
+      deleteLigneDa(this);
     });
   });
 

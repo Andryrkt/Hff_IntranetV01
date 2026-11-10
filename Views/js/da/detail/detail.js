@@ -1,5 +1,5 @@
 import { formaterNombre } from "../../utils/formatNumberUtils";
-import { displayOverlay } from "../../utils/ui/overlay";
+import { deleteLigneDa } from "../main/deleteLigneDa";
 
 document.addEventListener("DOMContentLoaded", function () {
   const allMontantTd = document.querySelectorAll("td.format-mtt");
@@ -37,31 +37,3 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
-
-function deleteLigneDa(button) {
-  let deletePath = button.dataset.deletePath;
-  Swal.fire({
-    title: "Êtes-vous sûr(e) ?",
-    html: `Voulez-vous vraiment supprimer cette ligne de demande d’achat?`,
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#d33",
-    cancelButtonColor: "#6c757d",
-    confirmButtonText: "Oui, supprimer",
-    cancelButtonText: "Non, annuler",
-  }).then((result) => {
-    if (result.isConfirmed) {
-      displayOverlay(true);
-      window.location = deletePath;
-    } else if (result.dismiss === Swal.DismissReason.cancel) {
-      // ❌ Si l'utilisateur annule
-      Swal.fire({
-        icon: "info",
-        title: "Annulé",
-        text: "La suppression de la ligne de demande a été annulée.",
-        timer: 2000,
-        showConfirmButton: false,
-      });
-    }
-  });
-}

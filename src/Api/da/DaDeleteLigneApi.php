@@ -1,20 +1,21 @@
 <?php
 
-namespace App\Controller\da\Modification;
+namespace App\Api\da;
 
 use App\Controller\Controller;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
 use App\Service\da\DaAfficherService;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\suivi\SuiviOperationService;
 
 /**
  * Suppression d'une ligne de DA (DA avec DIT et DA directe).
  *
- * @Route("/demande-appro")
+ * @Route("/api/demande-appro")
  */
-class DaDeleteLigneController extends Controller
+class DaDeleteLigneApi extends Controller
 {
     private DaAfficherService $daAfficherService;
 
@@ -24,7 +25,7 @@ class DaDeleteLigneController extends Controller
     }
 
     /**
-     * @Route("/delete-line/{numDa}/{ligne}", name="da_delete_line")
+     * @Route("/delete-line/{numDa}/{ligne}", name="api_da_delete_line", methods={"POST"})
      */
     public function deleteLineDa(string $numDa, string $ligne)
     {
@@ -50,14 +51,20 @@ class DaDeleteLigneController extends Controller
                 $this->daAfficherService->ajouterDansTableAffichageParNumDa($numDa); // ajout dans la table DaAfficher si le statut a changé
             });
 
-            $notifType = "success";
-            $notifMessage = "Réussite de l'opération: la ligne de DA a été supprimée avec succès.";
-        } else {
-            $notifType = "danger";
-            $notifMessage = "Echec de la suppression de la ligne: la ligne de DA n'existe pas.";
-            $suivi->echecOperation($notifMessage . " (ligne $ligne)");
+            return new JsonResponse([
+                'status'  => 'success',
+                'title'   => 'Action effectuée',
+                'message' => "La ligne de DA a été supprimée avec succès.",
+            ]);
         }
-        $this->getSessionService()->set('notification', ['type' => $notifType, 'message' => $notifMessage]);
-        $this->redirectToRoute("list_da", ['mes_da_a_traiter' => 0, 'page' => 1]);
+
+        $message = "Echec de la suppression de la ligne: la ligne de DA n'existe pas.";
+        $suivi->echecOperation($message . " (ligne $ligne)");
+
+        return new JsonResponse([
+            'status'  => 'error',
+            'title'   => 'Erreur lors de la suppression',
+            'message' => $message,
+        ], 404);
     }
 }

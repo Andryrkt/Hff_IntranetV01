@@ -5,7 +5,6 @@ namespace App\Service\da;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Constants\da\StatutDaConstant;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * Orchestre le détail d'une DA : préparation de l'affichage et envoi d'une observation.
@@ -14,20 +13,17 @@ class DaDetailService
 {
     private DaService $daService;
     private EmailDaService $emailDaService;
-    private UrlGeneratorInterface $urlGenerator;
     private DaObservationService $daObservationService;
     private DaAfficherService $daAfficherService;
 
     public function __construct(
         DaService $daService,
         EmailDaService $emailDaService,
-        UrlGeneratorInterface $urlGenerator,
         DaObservationService $daObservationService,
         DaAfficherService $daAfficherService
     ) {
         $this->daService = $daService;
         $this->emailDaService = $emailDaService;
-        $this->urlGenerator = $urlGenerator;
         $this->daObservationService = $daObservationService;
         $this->daAfficherService = $daAfficherService;
     }
@@ -85,10 +81,7 @@ class DaDetailService
                 "demandeApproLR"     => $dal->getDemandeApproLR(),
                 "estFicheTechnique"  => $dal->getEstFicheTechnique(),
                 "supprimable"        => $supprimable,
-                "urlDelete"          => $supprimable ? $this->urlGenerator->generate(
-                    'da_delete_line',
-                    ['numDa' => $dal->getNumeroDemandeAppro(), 'ligne' => $dal->getNumeroLigne()]
-                ) : null,
+                "numeroLigne"        => $dal->getNumeroLigne(),
             ];
         }
 

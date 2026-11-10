@@ -229,13 +229,6 @@ class DaAfficherMapper
             $dto->urlCreation = '#';
         }
 
-        // URL Delete (seulement si nécessaire)
-        if ($dto->supprimable) {
-            $dto->urlDelete = isset(RouteConstant::DELETE[$dto->datype]) ? $this->router->generate(RouteConstant::DELETE[$dto->datype], ['numDa' => $dto->numeroDemandeAppro, 'ligne' => $dto->positionBc]) : '#';
-        } else {
-            $dto->urlDelete = '#';
-        }
-
         if (in_array($dto->statutDal, [StatutDaConstant::STATUT_EN_COURS_CREATION, StatutDaConstant::STATUT_AUTORISER_EMETTEUR]) && isset(RouteConstant::CREATION[$dto->datype])) {
             $params = ($dto->datype == DemandeAppro::TYPE_DA_AVEC_DIT) ? $parametres['daId-ditId']
                 : (($dto->datype == DemandeAppro::TYPE_DA_PARENT) ? $parametres['daParentId'] : ($dto->datype == DemandeAppro::TYPE_DA_REAPPRO_MENSUEL ? $parametres['daId'] : $parametres['daToken']));

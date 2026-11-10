@@ -22,12 +22,6 @@ class RouteConstant
         DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL => 'da_detail_reappro',
     ];
 
-    // constantes pour les routes de suppression
-    public const DELETE = [
-        DemandeAppro::TYPE_DA_AVEC_DIT  => 'da_delete_line',
-        DemandeAppro::TYPE_DA_DIRECT    => 'da_delete_line',
-    ];
-
     // constantes pour les routes de propositions
     public const PROPOSITION = [
         DemandeAppro::TYPE_DA_AVEC_DIT        => 'da_proposition_ref_avec_dit',

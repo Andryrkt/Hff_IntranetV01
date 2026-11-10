@@ -71,7 +71,6 @@ class DaAfficherDto
     // Actions & URLs
     public $urlCreation;
     public $urlDetail;
-    public $urlDelete;
     public $urlProposition;
     public $urlDemandeDevis;
     public $ajouterDA;
