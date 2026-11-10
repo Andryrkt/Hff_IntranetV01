@@ -73,7 +73,11 @@ class SuiviOperationController extends Controller
         $repository = $this->getEntityManager()->getRepository(HistoriqueOperationEtape::class);
         $suivis     = $repository->rechercherSuivis($recherche, $typeOperation, $problemeSeulement, $dateDebut, $dateFin, $idHistorique, $nonLuSeulement, $limite, $idTache);
         $idsTache   = [];
+        $typesArretes = [];
         foreach ($suivis as $suivi) {
+            if ($suivi['statut'] !== SuiviOperationService::STATUT_SUCCES) {
+                $typesArretes[] = $suivi['etapes'][0]->getTypeOperation();
+            }
             foreach ($suivi['etapes'] as $etape) {
                 $idsTache[] = $etape->getIdTache();
             }
@@ -82,6 +86,7 @@ class SuiviOperationController extends Controller
         return $this->render('admin/historisation/suivi-operation/index.html.twig', $parametresTaches + [
             'suivis'            => $suivis,
             'taches'            => $repositoryTache->parIds($idsTache),
+            'etapesReference'   => $repository->etapesReference($typesArretes),
             'idTache'           => $idTache,
             'modificationsBdd'  => $repository->rechercherModificationsBdd($recherche, $dateDebut, $dateFin, $limite),
             'surveillanceDocuware' => $repository->rechercherSurveillanceDocuware($recherche, $dateDebut, $dateFin, $limite),

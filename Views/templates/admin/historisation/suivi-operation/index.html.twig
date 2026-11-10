@@ -10,6 +10,7 @@
 		/* ALERTE : opération réussie mais anomalie à vérifier (orange, distinct de INTERROMPU en jaune) */
 		.bg-alerte { background-color: #fd7e14 !important; color: #fff; }
 		tr.ligne-alerte > td { background-color: #ffe5d0; }
+		.etape-non-faite { background-color: #e9ecef; color: #6c757d; border: 1px dashed #adb5bd; }
 	</style>
 {% endblock %}
 
@@ -127,6 +128,9 @@
 								{% for etape in suivi.etapes %}
 									{% set dureeTotale = dureeTotale + (etape.dureeMs ?: 0) %}
 								{% endfor %}
+								{# étapes de la dernière opération réussie du même type qui n'ont pas été faites ici #}
+								{% set faites = suivi.etapes|map(e => e.etape) %}
+								{% set nonFaites = suivi.statut != 'SUCCES' ? (etapesReference[premiere.typeOperation] ?? [])|filter(l => l not in faites) : [] %}
 								<tr role="button" data-bs-toggle="collapse" data-bs-target="#suivi-{{ loop.index }}" class="{{ classesLigne[suivi.statut] ?? 'table-danger' }}">
 									<td class="text-nowrap">{{ premiere.dateDebut ? premiere.dateDebut|date('d/m/Y H:i:s') : '-' }}</td>
 									<td>{{ typesOperation[premiere.typeOperation] ?? premiere.typeOperation }}</td>
@@ -158,6 +162,10 @@
 										{% for etape in suivi.etapes %}
 											<span class="badge {{ classesStatut[etape.statut] ?? 'bg-secondary' }}" title="{{ etape.message }}">{{ etape.etape }}</span>
 											{% if not loop.last %}<i class="fas fa-arrow-right text-muted small"></i>{% endif %}
+										{% endfor %}
+										{% for libelle in nonFaites %}
+											<i class="fas fa-arrow-right text-muted small"></i>
+											<span class="badge etape-non-faite" title="Étape non faite (d'après la dernière opération réussie de ce type)">{{ libelle }}</span>
 										{% endfor %}
 									</td>
 									<td class="text-nowrap">{{ (dureeTotale / 1000)|number_format(2, ',', ' ') }} s</td>
@@ -192,6 +200,16 @@
 																</details>
 															{% endif %}
 														</td>
+													</tr>
+												{% endfor %}
+												{% for libelle in nonFaites %}
+													<tr class="text-muted">
+														<td>-</td>
+														<td>{{ libelle }}</td>
+														<td><span class="badge etape-non-faite">NON FAITE</span></td>
+														<td>-</td>
+														<td>-</td>
+														<td class="small">Pas exécutée : le traitement s'est arrêté avant (liste d'après la dernière opération réussie de ce type)</td>
 													</tr>
 												{% endfor %}
 											</tbody>
