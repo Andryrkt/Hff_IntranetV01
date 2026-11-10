@@ -53,3 +53,9 @@ CREATE INDEX IDX_suivi_operation_tache_statut ON suivi_operation_tache (statut, 
 ALTER TABLE historique_operation_etape ADD id_tache INT NULL;
 
 CREATE INDEX IDX_historique_operation_etape_tache ON historique_operation_etape (id_tache);
+
+-- correction : explication mise en page (HTML de l'éditeur), 500 caractères ne suffisent plus
+ALTER TABLE suivi_operation_tache ALTER COLUMN correction NVARCHAR(MAX) NULL;
+
+-- planification : début de la tâche (barre du Gantt de date_debut à echeance)
+ALTER TABLE suivi_operation_tache ADD date_debut DATE NULL;

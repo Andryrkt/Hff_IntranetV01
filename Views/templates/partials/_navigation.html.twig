@@ -41,15 +41,47 @@
 						</a>
 					</li>
 
-					{# Documentation Technique : réservée aux administrateurs #}
-					{% if estAdmin() %}
-						<li class="me-3">
-							<a class="tech-doc-link" href="{{ path('app_doc_tech_index') }}" role="button">
-								<i class="fas fa-code pe-2"></i>
-								Documentation Technique
-							</a>
-						</li>
-					{% endif %}
+					{# Notifications : tâches du suivi des opérations assignées à l'utilisateur : à faire aujourd'hui / en retard, et à planifier (sans échéance) #}
+					{% set tachesATraiter = taches_a_traiter(App.connectedUser.username) %}
+					{% set tachesAPlanifier = taches_a_planifier(App.connectedUser.username) %}
+					{% set nbNotifications = tachesATraiter|length + tachesAPlanifier|length %}
+					{% set aujourdhui = 'now'|date('Y-m-d') %}
+					<li class="nav-item dropdown me-2">
+						<a class="nav-link position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="Notifications" aria-label="Notifications ({{ nbNotifications }})">
+							<i class="fas fa-bell text-white"></i>
+							{% if nbNotifications > 0 %}
+								<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ nbNotifications }}</span>
+							{% endif %}
+						</a>
+						<ul class="dropdown-menu dropdown-menu-end" style="min-width: 360px; max-height: 400px; overflow-y: auto;">
+							{% if tachesATraiter is not empty %}
+								<li class="dropdown-header">À traiter aujourd'hui</li>
+								{% for tache in tachesATraiter %}
+									{% set enRetard = tache.echeance|date('Y-m-d') < aujourdhui %}
+									<li>
+										<a class="dropdown-item small text-wrap" href="{{ path('suivi_operation_index', {vue: 'taches'}) }}#tache-{{ tache.id }}">
+											<strong>Tâche n° {{ tache.id }}</strong> – {{ tache.typeOperation }} : {{ tache.etape }}
+											<br><span class="{{ enRetard ? 'text-danger fw-bold' : 'text-muted' }}">{{ enRetard ? 'En retard : échéance le ' : 'Échéance le ' }}{{ tache.echeance|date('d/m/Y') }}</span>
+										</a>
+									</li>
+								{% endfor %}
+							{% endif %}
+							{% if tachesAPlanifier is not empty %}
+								<li class="dropdown-header">Tâches assignées à planifier</li>
+								{% for tache in tachesAPlanifier %}
+									<li>
+										<a class="dropdown-item small text-wrap" href="{{ path('suivi_operation_index', {vue: 'taches'}) }}#tache-{{ tache.id }}">
+											<strong>Tâche n° {{ tache.id }}</strong> – {{ tache.typeOperation }} : {{ tache.etape }}
+											<br><span class="text-muted">Vous êtes assigné(e) : saisissez une échéance pour planifier cette tâche</span>
+										</a>
+									</li>
+								{% endfor %}
+							{% endif %}
+							{% if nbNotifications == 0 %}
+								<li><span class="dropdown-item-text small text-muted">Aucune notification</span></li>
+							{% endif %}
+						</ul>
+					</li>
 
 					<li class="nav-item dropdown">
 						<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" id="userName" data-user-full-name="{{ App.connectedUser.fullname }}" aria-expanded="false" style="color: #fbbb01;">

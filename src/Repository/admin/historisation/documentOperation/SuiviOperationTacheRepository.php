@@ -95,6 +95,70 @@ class SuiviOperationTacheRepository extends EntityRepository
     }
 
     /**
+     * Tâches ouvertes assignées à l'utilisateur et sans échéance : notifications de la cloche,
+     * qui disparaissent dès que l'utilisateur a planifié la tâche (échéance saisie)
+     *
+     * @return SuiviOperationTache[]
+     */
+    public function aPlanifier(string $nomUtilisateur): array
+    {
+        return $this->createQueryBuilder('t')
+            ->where('t.assigneA = :nom')
+            ->andWhere('t.echeance IS NULL')
+            ->andWhere('t.statut IN (:statuts)')
+            ->setParameter('nom', $nomUtilisateur)
+            ->setParameter('statuts', self::STATUTS_OUVERTS)
+            ->orderBy('t.dateModification', 'DESC')
+            ->setMaxResults(20)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Rappel de la cloche : tâches ouvertes de l'utilisateur à faire aujourd'hui
+     * (période début → échéance commencée ; sans début, échéance aujourd'hui) ou en retard
+     *
+     * @return SuiviOperationTache[]
+     */
+    public function aTraiter(string $nomUtilisateur): array
+    {
+        return $this->createQueryBuilder('t')
+            ->where('t.assigneA = :nom')
+            ->andWhere('t.echeance IS NOT NULL')
+            ->andWhere('COALESCE(t.dateDebut, t.echeance) <= :aujourdhui')
+            ->andWhere('t.statut IN (:statuts)')
+            ->setParameter('nom', $nomUtilisateur)
+            ->setParameter('aujourdhui', new \DateTime('today'), 'date')
+            ->setParameter('statuts', self::STATUTS_OUVERTS)
+            ->orderBy('t.echeance', 'ASC')
+            ->setMaxResults(20)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Tâches ouvertes avec une échéance, pour le Gantt de l'onglet "Planning" (groupées par intervenant)
+     *
+     * @return SuiviOperationTache[]
+     */
+    public function planifiees(?string $assigne = null): array
+    {
+        $qb = $this->createQueryBuilder('t')
+            ->where('t.echeance IS NOT NULL')
+            ->andWhere('t.statut IN (:statuts)')
+            ->setParameter('statuts', self::STATUTS_OUVERTS)
+            ->orderBy('t.assigneA', 'ASC')
+            ->addOrderBy('t.dateDebut', 'ASC')
+            ->addOrderBy('t.echeance', 'ASC');
+
+        if ($assigne) {
+            $qb->andWhere('t.assigneA = :assigne')->setParameter('assigne', $assigne);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
      * Tâches indexées par id, pour les badges des opérations affichées dans le suivi
      *
      * @param int[] $ids

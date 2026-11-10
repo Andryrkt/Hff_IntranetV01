@@ -70,6 +70,30 @@ class SuiviOperationController extends Controller
             ]);
         }
 
+        // onglet "Planning" : Gantt des tâches ouvertes planifiées (échéance saisie)
+        if ($request->query->get('vue') === 'planning') {
+            $assigne = $request->query->get('assigne');
+            $barres  = [];
+            foreach ($repositoryTache->planifiees($assigne) as $tache) {
+                $barres[] = [
+                    'id'       => 'tache-' . $tache->getId(),
+                    'name'     => ($tache->getAssigneA() ?: 'Non assignée') . ' – n° ' . $tache->getId() . ' ' . $tache->getEtape(),
+                    // sans date de début : barre d'un jour sur l'échéance
+                    'start'    => ($tache->getDateDebut() ?: $tache->getEcheance())->format('Y-m-d'),
+                    'end'      => $tache->getEcheance()->format('Y-m-d'),
+                    'progress' => $tache->getStatut() === TacheSuiviOperation::STATUT_EN_COURS ? 50 : 0,
+                    'custom_class' => 'priorite-' . strtolower($tache->getPriorite()) . ($tache->getEcheance()->format('Y-m-d') < date('Y-m-d') ? ' en-retard' : ''),
+                    'statut'   => TacheSuiviOperation::LIBELLES_STATUT[$tache->getStatut()] ?? $tache->getStatut(),
+                ];
+            }
+
+            return $this->render('admin/historisation/suivi-operation/planning.html.twig', $parametresTaches + [
+                'barres'       => $barres,
+                'assigne'      => $assigne,
+                'intervenants' => $this->intervenants(),
+            ]);
+        }
+
         $repository = $this->getEntityManager()->getRepository(HistoriqueOperationEtape::class);
         $suivis     = $repository->rechercherSuivis($recherche, $typeOperation, $problemeSeulement, $dateDebut, $dateFin, $idHistorique, $nonLuSeulement, $limite, $idTache);
         $idsTache   = [];
@@ -180,14 +204,20 @@ class SuiviOperationController extends Controller
             }
             $tache->setAssigneA($assigneA !== '' ? $assigneA : null);
         }
+        if (array_key_exists('dateDebut', $data)) {
+            $tache->setDateDebut($this->creerDate($data['dateDebut'] ?: null));
+        }
         if (array_key_exists('echeance', $data)) {
             $tache->setEcheance($this->creerDate($data['echeance'] ?: null));
+        }
+        if ($tache->getDateDebut() && $tache->getEcheance() && $tache->getDateDebut() > $tache->getEcheance()) {
+            return new JsonResponse(['message' => "La date de début doit précéder l'échéance"], 400);
         }
         if (array_key_exists('cause', $data)) {
             $tache->setCause(trim((string) $data['cause']) !== '' ? trim($data['cause']) : null);
         }
         if (array_key_exists('correction', $data)) {
-            $tache->setCorrection(trim((string) $data['correction']) !== '' ? mb_substr(trim($data['correction']), 0, 500) : null);
+            $tache->setCorrection(trim((string) $data['correction']) !== '' ? trim($data['correction']) : null);
         }
 
         // résolution : date et auteur ; la régression est soldée (une nouvelle occurrence la signalera à nouveau)

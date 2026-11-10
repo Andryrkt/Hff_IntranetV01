@@ -253,17 +253,21 @@
 															<div class="form-text text-danger">Aucun utilisateur n'a le rôle intervenant (table user_roles, rôle 8).</div>
 														{% endif %}
 													</div>
-													<div class="col-6">
+													<div class="col-3">
+														<label class="form-label mb-0 small">Début</label>
+														<input type="date" class="form-control form-control-sm" data-champ="dateDebut" value="{{ tache.dateDebut ? tache.dateDebut|date('Y-m-d') : '' }}">
+													</div>
+													<div class="col-3">
 														<label class="form-label mb-0 small">Échéance</label>
 														<input type="date" class="form-control form-control-sm" data-champ="echeance" value="{{ tache.echeance ? tache.echeance|date('Y-m-d') : '' }}">
 													</div>
 													<div class="col-12">
 														<label class="form-label mb-0 small">Cause identifiée</label>
-														<textarea class="form-control form-control-sm" data-champ="cause" rows="2">{{ tache.cause }}</textarea>
+														<textarea class="form-control form-control-sm editeur-riche" data-champ="cause" rows="2">{{ tache.cause }}</textarea>
 													</div>
 													<div class="col-12">
 														<label class="form-label mb-0 small">Correction (branche, commit, explication)</label>
-														<input type="text" class="form-control form-control-sm" data-champ="correction" value="{{ tache.correction }}" maxlength="500" placeholder="ex. hotfix/chemins-copie-docuware">
+														<textarea class="form-control form-control-sm editeur-riche" data-champ="correction" rows="2" placeholder="ex. hotfix/chemins-copie-docuware">{{ tache.correction }}</textarea>
 													</div>
 													<div class="col-12 text-end">
 														<button type="button" class="btn btn-warning btn-sm btn-enregistrer-tache">Enregistrer</button>
@@ -287,7 +291,34 @@
 {% endblock %}
 
 {% block javascript %}
+	{# TinyMCE (même version que l'édition du guide utilisateur) pour la mise en page de la cause et de la correction #}
+	<script src="https://cdn.jsdelivr.net/npm/tinymce@7.9.3/tinymce.min.js"></script>
 	<script>
+		// éditeurs créés à l'ouverture du détail : évite d'initialiser jusqu'à 400 éditeurs au chargement
+		function initialiserEditeurs(detail) {
+			detail.querySelectorAll('.editeur-riche:not([data-editeur])').forEach(function (textarea) {
+				textarea.dataset.editeur = '1';
+				tinymce.init({
+					target: textarea,
+					placeholder: textarea.placeholder,
+					license_key: 'gpl',
+					language: 'fr_FR',
+					language_url: 'https://cdn.jsdelivr.net/npm/tinymce-i18n@26.9.28/langs7/fr_FR.js',
+					height: 250,
+					menubar: false,
+					branding: false,
+					plugins: 'lists link table code',
+					toolbar: 'undo redo | blocks | bold italic underline | forecolor | bullist numlist | link table | removeformat code'
+				});
+			});
+		}
+		document.querySelectorAll('tr.collapse[id^="detail-tache-"]').forEach(function (detail) {
+			detail.addEventListener('show.bs.collapse', () => initialiserEditeurs(detail));
+			if (detail.classList.contains('show')) {
+				initialiserEditeurs(detail);
+			}
+		});
+
 		async function enregistrerTache(url, donnees) {
 			const reponse = await fetch(url, {
 				method: 'POST',
@@ -336,6 +367,7 @@
 			bouton.addEventListener('click', async function () {
 				const bloc = bouton.closest('[data-url]');
 				const donnees = {};
+				tinymce.triggerSave(); // recopie le contenu des éditeurs dans les textarea
 				bloc.querySelectorAll('[data-champ]').forEach(champ => donnees[champ.dataset.champ] = champ.value);
 				bouton.disabled = true;
 				try {

@@ -12,4 +12,9 @@
 			{% endif %}
 		</a>
 	</li>
+	<li class="nav-item">
+		<a class="nav-link {{ ongletActif == 'planning' ? 'active' : '' }}" href="{{ path('suivi_operation_index', {vue: 'planning'}) }}">
+			<i class="fas fa-chart-gantt"></i> Planning
+		</a>
+	</li>
 </ul>
