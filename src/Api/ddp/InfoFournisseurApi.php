@@ -8,6 +8,7 @@ error_reporting(E_ALL);
 
 
 use App\Constants\ddp\TypeDemandePaiementConstants;
+use App\Constants\ddp\TypeDemandePaiementConstants;
 use App\Controller\Controller;
 use App\Controller\Traits\ddp\DdpTrait;
 use App\Entity\admin\ddp\TypeDemande;
@@ -64,12 +65,39 @@ class InfoFournisseurApi extends Controller
     }
 
     /**
+     * Model créé à la première utilisation : son constructeur ouvre 4 connexions
+     * (intranet, Informix, SQL Server 04, GCOT), inutiles pour les endpoints
+     * qui ne servent qu'un fichier (ex: PDF de commande).
+     */
+    private function demandePaiementModel(): DemandePaiementModel
+    {
+        if ($this->demandePaiementModel === null) {
+            $this->demandePaiementModel = new DemandePaiementModel();
+        }
+        return $this->demandePaiementModel;
+    }
+
+    /**
+     * Libère le verrou de session PHP pour les endpoints en lecture seule :
+     * sinon les requêtes AJAX d'un même utilisateur (documents, montant, PDF de
+     * commande...) s'exécutent l'une après l'autre au lieu d'en parallèle.
+     * $_SESSION reste lisible après l'appel.
+     */
+    private function libererSession(): void
+    {
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+    }
+
+    /**
      * @Route("/api/info-fournisseur-ddp", name="api_info_fournisseur_ddp")
      */
     public function fournisseurInfo()
     {
         $results = [];
 
+        $infoFournisseur = $this->demandePaiementModel()->recupInfoFournissseur();
         $infoFournisseur = $this->demandePaiementModel()->recupInfoFournissseur();
 
         $results = array_map(function ($fournisseur) {
@@ -187,9 +215,15 @@ class InfoFournisseurApi extends Controller
     {
         $this->libererSession();
 
+        $this->libererSession();
+
         $factureArray = explode(',', $numFacture);
         $numFacString = TableauEnStringService::TableauEnString(',', $factureArray);
 
+        // getMontantFacGcot() ne filtre que sur les factures : on ne calcule plus
+        // la liste des commandes (recuperationCdeFacEtNonFac), qui faisait une
+        // requête Informix par commande DW (~4 500) soit ~40 s, pour rien.
+        $montants = $this->demandePaiementModel()->getMontantFacGcot($numeroFournisseur, '', $numFacString);
         // getMontantFacGcot() ne filtre que sur les factures : on ne calcule plus
         // la liste des commandes (recuperationCdeFacEtNonFac), qui faisait une
         // requête Informix par commande DW (~4 500) soit ~40 s, pour rien.
@@ -231,6 +265,7 @@ class InfoFournisseurApi extends Controller
 
         $numcdeArray = explode(',', $numCde);
         $numCdesString = TableauEnStringService::TableauEnString(',', $numcdeArray);
+        $montantCde = $this->demandePaiementModel()->getMontantCdeAvance($numCdesString);
         $montantCde = $this->demandePaiementModel()->getMontantCdeAvance($numCdesString);
 
         if ($montantCde[0]['montantcde'] == null) {
@@ -394,6 +429,9 @@ class InfoFournisseurApi extends Controller
         $this->libererSession();
 
         $dossiers = $this->demandePaiementModel()->findListeDoc($numeroDossier);
+        $this->libererSession();
+
+        $dossiers = $this->demandePaiementModel()->findListeDoc($numeroDossier);
 
         $response = new JsonResponse($dossiers);
         $response->send();
@@ -449,9 +487,144 @@ class InfoFournisseurApi extends Controller
     public function fournisseur()
     {
         $fournisseurs = $this->demandePaiementModel()->getFournisseur();
+        $fournisseurs = $this->demandePaiementModel()->getFournisseur();
 
         header("Content-type:application/json");
         echo json_encode($fournisseurs);
+    }
+
+    /**
+     * Récupère les fichiers (colonne 'path' de DW_Commande) des commandes fournisseur choisies.
+     *
+     * @Route("/api/fichiers-commande-fournisseur/{numeroCommande}", name="api_fichiers_commande_fournisseur")
+     */
+    public function fichiersCommandeFournisseur(string $numeroCommande)
+    {
+        $this->libererSession();
+
+        $dwCommandeRepository = $this->getEntityManager()->getRepository(DwCommande::class);
+
+        $fichiers = [];
+        foreach (explode(',', $numeroCommande) as $numCde) {
+            $numCde = trim($numCde);
+            if ($numCde === '') {
+                continue;
+            }
+
+            foreach ($dwCommandeRepository->findPathByNumeroCde($numCde) as $result) {
+                if (empty($result['path'])) {
+                    continue;
+                }
+
+                $fichiers[] = [
+                    'numeroCde'  => $result['numeroCde'],
+                    'path'       => $result['path'],
+                    'nomFichier' => basename(str_replace('\\', '/', $result['path'])),
+                ];
+            }
+        }
+
+        header("Content-type:application/json");
+        echo json_encode($fichiers);
+    }
+
+    /**
+     * Récupère les fichiers (colonne 'path' de DW_Ordre_De_Reparation) des OR liés
+     * aux commandes fournisseur choisies.
+     *
+     * @Route("/api/fichiers-or-valide/{numeroCommande}", name="api_fichiers_or_valide")
+     */
+    public function fichiersOrValide(string $numeroCommande)
+    {
+        $this->libererSession();
+
+        $numCdes = explode(',', $numeroCommande);
+        $orsParCommande = $this->demandePaiementModel()->getNumerosOrParCommandes($numCdes);
+
+        // OR => commandes liées
+        $commandesParOr = [];
+        foreach ($orsParCommande as $row) {
+            $commandesParOr[trim($row['numero_or'])][] = trim($row['numero_cde']);
+        }
+
+        $fichiers = [];
+        foreach ($this->demandePaiementModel()->getPathsDwOrdreReparation(array_keys($commandesParOr)) as $result) {
+            if (empty($result['path'])) {
+                continue;
+            }
+
+            $numeroOr = trim($result['numero_or']);
+            $fichiers[] = [
+                'numeroOr'   => $numeroOr,
+                'numeroCdes' => array_values(array_unique($commandesParOr[$numeroOr] ?? [])),
+                'path'       => $result['path'],
+                'nomFichier' => basename(str_replace('\\', '/', $result['path'])),
+            ];
+        }
+
+        header("Content-type:application/json");
+        echo json_encode([
+            'numerosOr' => array_map('strval', array_keys($commandesParOr)),
+            'fichiers'  => $fichiers,
+        ]);
+    }
+
+    /**
+     * Récupère les fichiers (colonne 'path' de DW_BC_Client_Negoce) des BC client
+     * rattachés aux commandes fournisseur choisies.
+     *
+     * @Route("/api/fichiers-bc-client/{numeroCommande}", name="api_fichiers_bc_client")
+     */
+    public function fichiersBcClient(string $numeroCommande)
+    {
+        $this->libererSession();
+
+        $numCdes = array_values(array_filter(array_map('trim', explode(',', $numeroCommande))));
+
+        $resultats = $this->getEntityManager()
+            ->getRepository(DwBcClientNegoce::class)
+            ->findPathsByNumeroCdes($numCdes);
+
+        $fichiers = array_map(fn($result) => [
+            'numeroCde'    => $result['numeroCde'],
+            'numeroBccNeg' => $result['numeroBccNeg'],
+            'path'         => $result['path'],
+            'nomFichier'   => basename(str_replace('\\', '/', $result['path'])),
+        ], $resultats);
+
+        header("Content-type:application/json");
+        echo json_encode($fichiers);
+    }
+
+    /**
+     * Sert le contenu d'un fichier de commande DW_Commande (chemin relatif à BASE_PATH_FICHIER).
+     *
+     * @Route("/api/telecharger-fichier-commande-dw", name="api_telecharger_fichier_commande_dw")
+     */
+    public function telechargerFichierCommandeDw(Request $request)
+    {
+        $this->libererSession();
+
+        $path = urldecode((string) $request->query->get('path', ''));
+
+        $baseReel = realpath(rtrim($_ENV['BASE_PATH_FICHIER'], '/\\'));
+        $cheminReel = $baseReel !== false
+            ? realpath($baseReel . DIRECTORY_SEPARATOR . ltrim($path, '/\\'))
+            : false;
+
+        header('Content-Type: application/json');
+
+        if ($baseReel === false || $cheminReel === false || strpos($cheminReel, $baseReel) !== 0 || !is_readable($cheminReel)) {
+            http_response_code(404);
+            echo json_encode(['success' => false, 'message' => 'Fichier introuvable']);
+            exit;
+        }
+
+        $mimeType = mime_content_type($cheminReel) ?: 'application/octet-stream';
+        header('Content-Type: ' . $mimeType);
+        header('Content-Length: ' . filesize($cheminReel));
+        readfile($cheminReel);
+        exit;
     }
 
     /**

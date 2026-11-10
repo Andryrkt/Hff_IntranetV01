@@ -13,7 +13,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const iframe = document.getElementById("pdf-iframe");
   const viewerContainer = document.getElementById("viewer-container");
   const pjSection = document.getElementById("pj-section");
-  const badgeCmde = document.getElementById("badge-cmde");
   const badgePj = document.getElementById("badge-pj");
   const numCdeInput = document.getElementById("soumission_commande_numCmde");
   const commentaireInput = document.getElementById(
@@ -85,7 +84,6 @@ document.addEventListener("DOMContentLoaded", function () {
     viewerContainer.classList.toggle("d-none", !ok);
     pjSection.classList.toggle("d-none", !ok);
     validationBtn.style.display = ok ? "block" : "none";
-    setBadge(badgeCmde, ok ? 1 : 0);
     if (ok) {
       reveal(viewerContainer);
       reveal(pjSection);

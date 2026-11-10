@@ -200,9 +200,11 @@ class DemandePaiementController extends Controller
     private function enregistrementDemandePaiementCommande(DemandePaiement $datas): void
     {
         foreach ($datas->getNumeroCommande() as $numeroCommande) {
+        foreach ($datas->getNumeroCommande() as $numeroCommande) {
             $demandePaiementCommande = new DemandePaiementCommande();
             $demandePaiementCommande
                 ->setNumeroDdp($datas->getNumeroDdp())
+                ->setNumeroCommande($numeroCommande)
                 ->setNumeroCommande($numeroCommande)
             ;
             $this->getEntityManager()->persist($demandePaiementCommande);
@@ -217,8 +219,13 @@ class DemandePaiementController extends Controller
         $numeroFacture = implode(';', $datas->getNumeroFacture());
 
         foreach ($datas->getNumeroCommande() as $numeroCommande) {
+        $numeroFacture = implode(';', $datas->getNumeroFacture());
+
+        foreach ($datas->getNumeroCommande() as $numeroCommande) {
             $commandeLivraison = new CommandeLivraison();
             $commandeLivraison
+                ->setNumeroCommande($numeroCommande)
+                ->setNumeroFacture($numeroFacture)
                 ->setNumeroCommande($numeroCommande)
                 ->setNumeroFacture($numeroFacture)
             ;
@@ -436,6 +443,7 @@ class DemandePaiementController extends Controller
             $donners[] = $docDemandePaiement
                 ->setNumeroDdp($numDdp)
                 ->setTypeDocumentId($data->getTypeDemandeId() !== null ? $data->getTypeDemandeId()->getId() : null)
+                ->setTypeDocumentId($data->getTypeDemandeId() !== null ? $data->getTypeDemandeId()->getId() : null)
                 ->setNomFichier($nomFichier)
                 ->setNumeroVersion('1');
         }
@@ -487,6 +495,8 @@ class DemandePaiementController extends Controller
     {
         $demandePaiementLigne = $this->recuperationDonnerDdpl($data);
 
+        foreach ($demandePaiementLigne as $value) {
+            $this->getEntityManager()->persist($value);
         foreach ($demandePaiementLigne as $value) {
             $this->getEntityManager()->persist($value);
         }
@@ -542,8 +552,32 @@ class DemandePaiementController extends Controller
             $data->setNumeroFacture(implode(';', $numeroFactureOriginal));
         }
 
+        // numeroCommande/numeroFacture sont des tableaux (champs multi-select),
+        // mais les colonnes DB sont de simples chaînes : on les convertit
+        // temporairement, puis on restaure les tableaux après le flush car le
+        // reste du traitement (génération du PDF, enregistrement des lignes...)
+        // a besoin de la forme tableau.
+        $numeroCommandeOriginal = $data->getNumeroCommande();
+        $numeroFactureOriginal = $data->getNumeroFacture();
+
+        if (is_array($numeroCommandeOriginal)) {
+            $data->setNumeroCommande(implode(';', $numeroCommandeOriginal));
+        }
+        if (is_array($numeroFactureOriginal)) {
+            $data->setNumeroFacture(implode(';', $numeroFactureOriginal));
+        }
+
         $this->getEntityManager()->persist($data);
         $this->getEntityManager()->flush();
+
+        // Détache l'entité : sans ça, Doctrine la considère toujours comme
+        // gérée et tenterait de ré-écrire numeroCommande/numeroFacture (les
+        // tableaux restaurés juste après) au prochain flush() (déclenché par
+        // les autres méthodes d'enregistrement), provoquant la même erreur.
+        $this->getEntityManager()->detach($data);
+
+        $data->setNumeroCommande($numeroCommandeOriginal);
+        $data->setNumeroFacture($numeroFactureOriginal);
 
         // Détache l'entité : sans ça, Doctrine la considère toujours comme
         // gérée et tenterait de ré-écrire numeroCommande/numeroFacture (les

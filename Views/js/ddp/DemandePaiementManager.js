@@ -13,6 +13,7 @@ import {
   setLocale,
   formatNumberSpecial,
   parseMontant,
+  parseMontant,
 } from "../utils/formatNumberUtils.js";
 
 export class DemandePaiementManager {
@@ -202,17 +203,28 @@ export class DemandePaiementManager {
     // "required: false", mais RibType valide sa valeur par une regex qui
     // exige un chiffre au début ; "-" échouait cette validation et
     // bloquait silencieusement toute la soumission du formulaire.
+    // Champ vide (pas "-") quand le RIB est inconnu : le champ est
+    // "required: false", mais RibType valide sa valeur par une regex qui
+    // exige un chiffre au début ; "-" échouait cette validation et
+    // bloquait silencieusement toute la soumission du formulaire.
     this.elements.ribFrnInput.value =
       item.rib && item.rib != 0 && item.rib.trim() !== "XXXXXXXXXXX"
         ? item.rib
+        : "";
         : "";
 
     // Déclencher l'événement input pour formater et valider le RIB
     this.elements.ribFrnInput.dispatchEvent(
       new Event("input", { bubbles: true }),
     );
+    this.elements.ribFrnInput.dispatchEvent(
+      new Event("input", { bubbles: true }),
+    );
 
     if (this.typeId == 2) {
+      // Pas de chargement de toutes les commandes du fournisseur dans le select
+      // (des milliers pour certains) : le champ est désactivé et n'est rempli
+      // qu'avec les commandes des factures choisies (changeCommandeSelonFacture).
       // Pas de chargement de toutes les commandes du fournisseur dans le select
       // (des milliers pour certains) : le champ est désactivé et n'est rempli
       // qu'avec les commandes des factures choisies (changeCommandeSelonFacture).
@@ -227,11 +239,28 @@ export class DemandePaiementManager {
         .on("change.ddpFacture", () => {
           this.changeCommandeSelonFacture(item.num_fournisseur, this.typeId);
         });
+      // .off() avant .on() : sans cela, chaque sélection de fournisseur
+      // empilait un handler de plus, et un changement de facture relançait
+      // N fois tous les appels (montant, documents, PDF de commande).
+      $(this.elements.numFactureInput)
+        .off("change.ddpFacture")
+        .on("change.ddpFacture", () => {
+          this.changeCommandeSelonFacture(item.num_fournisseur, this.typeId);
+        });
     } else if (this.typeId == 1 && !this.typeDa) {
       this.listeCommande(item.num_fournisseur, this.typeId);
     }
   }
 
+  /**
+   * Récupère (et met en cache par fournisseur/type) le résultat de
+   * "api/num-cde-frn/...", requête coûteuse et identique pour un couple
+   * fournisseur/type donné, réutilisée par plusieurs écrans (factures,
+   * commandes, tableau, changement de facture).
+   */
+  getCommandesFournisseur(numFournisseur, typeId) {
+    const cle = `${numFournisseur}:${typeId}`;
+    if (!this.commandesParFournisseurCache.has(cle)) {
   /**
    * Récupère (et met en cache par fournisseur/type) le résultat de
    * "api/num-cde-frn/...", requête coûteuse et identique pour un couple
@@ -322,6 +351,11 @@ export class DemandePaiementManager {
     if (!inputElement.multiple) {
       inputElement.appendChild(new Option("", ""));
     }
+    // Select simple : option vide pour éviter la sélection automatique de la
+    // première valeur (et permettre le placeholder Select2)
+    if (!inputElement.multiple) {
+      inputElement.appendChild(new Option("", ""));
+    }
     data.forEach((item) => {
       let option = new Option(item.label, item.value);
       inputElement.appendChild(option);
@@ -332,13 +366,28 @@ export class DemandePaiementManager {
     // options restent invisibles dans le widget tant qu'aucun autre événement
     // "change" ne survient (ex: sélection d'une facture).
     $(inputElement).trigger("change");
+
+    // Select2 ne rafraîchit son affichage qu'après un événement "change"
+    // explicite sur le <select> sous-jacent : sans ce trigger, les nouvelles
+    // options restent invisibles dans le widget tant qu'aucun autre événement
+    // "change" ne survient (ex: sélection d'une facture).
+    $(inputElement).trigger("change");
   }
 
   async listeFacture(numFournisseur, typeId) {
     this.toggleChargementSelect(this.elements.numFactureInput, true);
+    this.toggleChargementSelect(this.elements.numFactureInput, true);
     try {
       this.elements.numFactureInput.innerHTML = "";
       this.elements.numCommandeInput.innerHTML = "";
+      this.elements.montantInput.value = "";
+      this.montantAttendu = null;
+      this.verifierMontant();
+
+      const commandes = await this.getCommandesFournisseur(
+        numFournisseur,
+        typeId,
+      );
       this.elements.montantInput.value = "";
       this.montantAttendu = null;
       this.verifierMontant();
@@ -356,6 +405,8 @@ export class DemandePaiementManager {
       console.error("Erreur lors de la récupération des factures :", error);
     } finally {
       this.toggleChargementSelect(this.elements.numFactureInput, false);
+    } finally {
+      this.toggleChargementSelect(this.elements.numFactureInput, false);
     }
   }
 
@@ -364,7 +415,12 @@ export class DemandePaiementManager {
     this.isUpdatingCommande = true;
 
     const numFacs = $(this.elements.numFactureInput).val() || [];
+    const numFacs = $(this.elements.numFactureInput).val() || [];
     try {
+      const commandes = await this.getCommandesFournisseur(
+        numFournisseur,
+        typeId,
+      );
       const commandes = await this.getCommandesFournisseur(
         numFournisseur,
         typeId,
@@ -405,6 +461,8 @@ export class DemandePaiementManager {
         // (l'URL contiendrait un segment vide et donnerait un 404)
         this.montantAttendu = null;
         this.verifierMontant();
+        this.montantAttendu = null;
+        this.verifierMontant();
         return;
       }
 
@@ -414,6 +472,8 @@ export class DemandePaiementManager {
         .replace(":typeId", typeId);
       const montantFacture = await this.fetchManager.get(montantUrl);
 
+      this.montantAttendu = parseMontant(montantFacture[0]);
+      this.verifierMontant();
       this.montantAttendu = parseMontant(montantFacture[0]);
       this.verifierMontant();
     } catch (error) {
@@ -471,6 +531,7 @@ export class DemandePaiementManager {
       a.textContent = `Ouvrir ${nom}`;
       a.target = "_blank";
 
+      a.onclick = (e) => {
       a.onclick = (e) => {
         e.preventDefault();
         this.ouvrirFichierDansNouvelOnglet(a.href);
@@ -551,7 +612,25 @@ export class DemandePaiementManager {
         const contentType = response.headers.get("content-type");
         const blob = await response.blob();
         const blobUrl = URL.createObjectURL(blob);
+    (async () => {
+      try {
+        const response = await fetch(href);
+        if (!response.ok) throw new Error(await response.text());
+        const contentType = response.headers.get("content-type");
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
 
+        if (contentType.includes("pdf")) {
+          newWindow.location.href = blobUrl;
+        } else if (contentType.startsWith("image/")) {
+          newWindow.document.body.innerHTML = `<img src="${blobUrl}" style="max-width: 100%; max-height: 100vh">`;
+        } else {
+          const iframe = document.createElement("iframe");
+          iframe.src = blobUrl;
+          iframe.style = "width:100%; height:100vh; border:none";
+          newWindow.document.body.innerHTML = "";
+          newWindow.document.body.appendChild(iframe);
+        }
         if (contentType.includes("pdf")) {
           newWindow.location.href = blobUrl;
         } else if (contentType.startsWith("image/")) {
@@ -1517,6 +1596,10 @@ export class DemandePaiementManager {
   }
 
   async updateCommandesFournisseur(numFournisseur, typeId) {
+    const commandes = await this.getCommandesFournisseur(
+      numFournisseur,
+      typeId,
+    );
     const commandes = await this.getCommandesFournisseur(
       numFournisseur,
       typeId,

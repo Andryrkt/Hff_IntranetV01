@@ -28,9 +28,37 @@
 
 					<div class=" col-12 col-md-1">
 						<a href="{{ path("profil_acceuil") }}" class="tablinks p-2 btn btn-outline-warning" style="text-decoration: none;color:black">Retour</a>
+						<a href="{{ path("profil_acceuil") }}" class="tablinks p-2 btn btn-outline-warning" style="text-decoration: none;color:black">Retour</a>
 					</div>
 				</div>
+				{% if id_type == 1 %}
+					{# Historique des demandes de paiement de la commande sélectionnée (rempli par DemandePaiementManager.js) #}
+					<div id="historiqueDdp" class="d-none">
+						<hr>
+						<div class="row">
+							<div class="col-12 col-md-12 bg-Light shadow-lg rounded">
+								<h6 class="fw-bold fs-6">Historique des demandes de paiement déjà effectuées pour la commande <span id="historiqueDdpNumCde"></span></h6>
+								<table class="table">
+									<thead class="table-dark align-middle">
+										<tr>
+											<th class="text-center">Numéro</th>
+											<th class="text-center">Date</th>
+											<th>Motif</th>
+											<th class="text-center">Montant HT</th>
+											<th class="text-center">%</th>
+											<th class="text-center">% Cumul</th>
+											<th class="text-center">Statut</th>
+										</tr>
+									</thead>
+									<tbody id="historiqueDdpBody"></tbody>
+								</table>
+							</div>
+						</div>
+						<hr>
+					</div>
+				{% endif %}
 				{{ form_start(form, {'attr': {'id': 'myForm'}}) }}
+				{{ form_errors(form) }}
 				{{ form_errors(form) }}
 				<div class="row">
 					<div class="col-12 col-md-2">
@@ -45,6 +73,7 @@
 					</div>
 					<div class="col-12 col-md-4">
 						{{ form_row(form.beneficiaire) }}
+						{{ form_row(form.beneficiaire) }}
 						<div id="suggestion-nom-fournisseur" class="suggestions-container"></div>
 						<div id="loader-nom-fournisseur" class="spinner" style="display: none;">Chargement...</div>
 						{{ form_row(form.ribFournisseur) }}
@@ -56,21 +85,27 @@
 					</div>
 					<div class="col-12 col-md-3">
 						{{ form_row(form.contact) }}
+						{{ form_row(form.contact) }}
 					</div>
 				</div>
 				<div class="row">
 					<div class="col-12 col-md-2">{{ form_row(form.devise) }}</div>
+					<div class="col-12 col-md-2">{{ form_row(form.devise) }}</div>
 
+					<div class="col-12 col-md-10">{{ form_row(form.motif) }}</div>
 					<div class="col-12 col-md-10">{{ form_row(form.motif) }}</div>
 				</div>
 				<div class="row">
 					<div class="col-12 col-md-4">
 						{{ form_row(form.numeroFacture) }}
+						{{ form_row(form.numeroFacture) }}
 					</div>
 					<div class="col-12 col-md-4">
 						{{ form_row(form.numeroCommande) }}
+						{{ form_row(form.numeroCommande) }}
 						<div id="suggestion-num-commande" class="suggestions-container"></div>
 						<div id="loader" style="display: none;">Chargement...</div>
+						<div id="pdfCommandeIntrouvableWarning" class="text-danger small mt-1 d-none"></div>
 						<div id="pdfCommandeIntrouvableWarning" class="text-danger small mt-1 d-none"></div>
 					</div>
 
@@ -171,6 +206,8 @@
 					</div>
 				</div>
 				<div
+					class="row"
+				>
 					class="row"
 				>
 					<!-- Debut affichage du tableau liste des factures-->
@@ -324,10 +361,12 @@
 						</div>
 
 						<!-- Tab 2 : RIB fournisseur (pieceJoint02) -->
+						<!-- Tab 2 : RIB fournisseur (pieceJoint02) -->
 						<div class="tab-pane fade" id="tab2" role="tabpanel" aria-labelledby="tab2-tab">
 							<div id="file-list-2" class="mt-3"></div>
 						</div>
 
+						<!-- Tab 4 : autres documents (pieceJoint04) -->
 						<!-- Tab 4 : autres documents (pieceJoint04) -->
 						<div class="tab-pane fade" id="tab4" role="tabpanel" aria-labelledby="tab4-tab">
 							<div id="file-list-4" class="mt-3"></div>
@@ -338,6 +377,7 @@
 			</div>
 
 
+{% endblock %}
 {% endblock %}
 
 		{% block javascript %}

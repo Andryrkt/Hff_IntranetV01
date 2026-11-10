@@ -38,6 +38,7 @@ class MenuGroupe
                 'label'    => 'Plan analytique HFF',
                 'icon'     => 'ruler-vertical',
                 'link'     => '{basePathUpload}/documentation/Structure%20analytique%20HFF.pdf',
+                'link'     => '{basePathUpload}/documentation/Structure%20analytique%20HFF.pdf',
                 'route'    => 'documentation_interne', // accessible si 'documentation_interne' est accesible
                 'target'   => '_blank',
             ],
@@ -272,15 +273,8 @@ class MenuGroupe
                 'label'    => 'COMMANDE FOURNISSEUR',
                 'icon'     => 'cloud-arrow-up',
                 'subitems' => [
-                    ['label' => 'Soumission commandes fournisseur', 'icon' => 'plus-circle', 'route' => 'generer_commande_fournisseur']
-
+                    ['label' => 'Soumission à validation', 'icon' => 'plus-circle', 'route' => 'generer_commande_fournisseur']
                 ],
-            ],
-            [
-                'route' => 'da_bon_a_payer',
-                'label' => 'Consultation facture',
-                'icon'  => 'list-ul',
-                'params' => ['appro' => 0],
             ],
         ];
     }
