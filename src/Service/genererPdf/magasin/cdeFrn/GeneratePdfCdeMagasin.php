@@ -92,7 +92,8 @@ class GeneratePdfCdeMagasin extends GeneratePdf
 
         $this->renderPageFooters();
 
-        $this->pdf->Output($filePath, 'F');
+        $this->pdf->Output($filePath, 'I');
+        die;
     }
 
     private function initPDF(): TCPDF
@@ -354,7 +355,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
 
         $this->pdf->SetFont(self::FONT, '', self::MAIN_TEXT_SIZE);
         $this->pdf->SetTextColor(...self::INK);
-        $this->pdf->MultiCell(0, 0, $this->dto->commentaire, 0, "L");
+        $this->pdf->MultiCell(0, $hh * 3, $this->dto->commentaire, 1, "L");
     }
 
     /** Footer de chaque page : date de génération à gauche, "Page X / Y" au centre */
@@ -397,19 +398,17 @@ class GeneratePdfCdeMagasin extends GeneratePdf
     private function calculateFooterHeight(): float
     {
         $this->pdf->SetFont(self::FONT, '', self::MAIN_TEXT_SIZE);
-        $w100 = $this->getUsableWidth();
-
         $hh = self::MAIN_TEXT_HEIGHT;
 
         // Ln(3) + 2 lignes poids + signature/total (2 + 8.5 + libellé) + séparateur Ln(3)
-        // + bloc OR (titre + 2.5hh) + bloc PO (titre + 2.5hh) + titre commentaire + commentaire
+        // + bloc OR (titre + 2.5hh) + bloc PO (titre + 2.5hh) + titre commentaire + commentaire (3hh)
         return 3
             + 2 * $hh
             + 2 + 8.5 + $hh + 3
             + $hh + 2.5 * $hh
             + $hh + 2.5 * $hh
             + $hh
-            + $this->pdf->getStringHeight($w100, $this->dto->commentaire);
+            + 3 * $hh;
     }
 
     private function calculateHeaderHeight(): float
