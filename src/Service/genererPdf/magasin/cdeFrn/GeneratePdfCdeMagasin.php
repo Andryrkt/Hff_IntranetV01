@@ -143,8 +143,9 @@ class GeneratePdfCdeMagasin extends GeneratePdf
     }
 
     /** Cellule de l'entête : libellé gris ou valeur sombre (gras optionnel) */
-    private function info(float $w, string $txt, bool $label = false, bool $bold = false, string $align = 'L', int $ln = 0): void
+    private function info(float $w, ?string $txt, bool $label = false, bool $bold = false, string $align = 'L', int $ln = 0): void
     {
+        $txt ??= '';
         $this->pdf->SetFont(self::FONT, $label ? "I" : ($bold ? "B" : ""), self::MAIN_TEXT_SIZE);
         $this->pdf->SetTextColor(...($label ? self::MUTED : self::INK));
         $this->pdf->Cell($w, self::MAIN_TEXT_HEIGHT, $txt, 0, $ln, $align);
@@ -253,13 +254,6 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         $x = $this->pdf->GetX();
         $y = $this->pdf->GetY();
 
-        // Filet fin séparant ce détail du suivant (sous la cellule texte)
-        $this->drawHairline(
-            $x + $this->subRowWidths['empty'] + $this->subRowWidths['refClientLabel'],
-            $y,
-            $this->pdf->getPageWidth() - self::MARGIN_LEFT
-        );
-
         // Cellule vide
         $this->pdf->Cell($this->subRowWidths['empty'], self::SUB_ROW_HEIGHT, '', 0, 0, 'L', $fill);
 
@@ -271,6 +265,13 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         $this->pdf->Cell($this->subRowWidths['ref'],          self::SUB_ROW_HEIGHT, $detailDto->getRefSplitted(),           0, 0, 'C', $fill);
         $this->pdf->Cell($this->subRowWidths['client'],       self::SUB_ROW_HEIGHT, $detailDto->getClient(),                0, 0, 'L', $fill);
         $this->pdf->Cell($this->subRowWidths['datePlanning'], self::SUB_ROW_HEIGHT, $detailDto->getDatePlanningFormatted(), 0, 1, 'L', $fill);
+
+        // Filet fin séparant ce détail du suivant (tracé après le fond pour rester visible)
+        $this->drawHairline(
+            $x + $this->subRowWidths['empty'] + $this->subRowWidths['refClientLabel'],
+            $y,
+            $this->pdf->getPageWidth() - self::MARGIN_LEFT
+        );
     }
 
     private function renderFooter(): void
@@ -328,8 +329,6 @@ class GeneratePdfCdeMagasin extends GeneratePdf
 
         $this->pdf->SetFont(self::FONT, 'B', self::MAIN_TEXT_SIZE);
         $this->pdf->SetTextColor(...self::ACCENT);
-        $this->pdf->SetFont(self::FONT, 'B', self::MAIN_TEXT_SIZE);
-        $this->pdf->SetTextColor(...self::ACCENT);
         $this->pdf->Cell(0, self::MAIN_TEXT_HEIGHT, "Documents OR rattachés (OR validé) :", 0, 1);
 
         $y1 = $this->pdf->GetY();
@@ -385,7 +384,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
     private function getUsableWidth(): float
     {
         $w_total = $this->pdf->getPageWidth();
-        return $w_total - (self::MARGIN_TOP + self::MARGIN_BOTTOM);
+        return $w_total - (self::MARGIN_LEFT + self::MARGIN_RIGHT);
     }
 
     private function calculateBlockHeight(CommandeSoumissionLigneDTO $ligneDto): float
@@ -404,7 +403,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         // + bloc OR (titre + 2.5hh) + bloc PO (titre + 2.5hh) + titre commentaire + commentaire (3hh)
         return 3
             + 2 * $hh
-            + 2 + 8.5 + $hh + 3
+            + 2 + 8.5 + $hh + 1.5 + 3
             + $hh + 2.5 * $hh
             + $hh + 2.5 * $hh
             + $hh
