@@ -1,5 +1,10 @@
 <ul class="nav nav-tabs mb-3">
 	<li class="nav-item">
+		<a class="nav-link {{ ongletActif == 'tableau-de-bord' ? 'active' : '' }}" href="{{ path('suivi_operation_index', {vue: 'tableau-de-bord'}) }}">
+			<i class="fas fa-chart-line"></i> Tableau de bord
+		</a>
+	</li>
+	<li class="nav-item">
 		<a class="nav-link {{ ongletActif == 'operations' ? 'active' : '' }}" href="{{ path('suivi_operation_index') }}">
 			<i class="fas fa-list"></i> Opérations
 		</a>

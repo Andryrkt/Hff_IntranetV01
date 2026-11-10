@@ -71,6 +71,18 @@ class SuiviOperationController extends Controller
             ]);
         }
 
+        // onglet "Tableau de bord" : statistiques des opérations suivies (30 derniers jours par défaut)
+        if ($request->query->get('vue') === 'tableau-de-bord') {
+            $debutPeriode = $dateDebut ?? new \DateTime('-29 days');
+            $finPeriode   = $dateFin ?? new \DateTime();
+
+            return $this->render('admin/historisation/suivi-operation/tableau-de-bord.html.twig', $parametresTaches + [
+                'stats'     => $this->getEntityManager()->getRepository(HistoriqueOperationEtape::class)->tableauDeBord($debutPeriode, $finPeriode),
+                'dateDebut' => $debutPeriode,
+                'dateFin'   => $finPeriode,
+            ]);
+        }
+
         // onglet "Kanban" : une colonne par statut, changement de statut par glisser-déposer
         if ($request->query->get('vue') === 'kanban') {
             $assigne = $request->query->get('assigne');

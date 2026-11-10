@@ -156,6 +156,63 @@ class HistoriqueOperationEtapeRepository extends EntityRepository
         return $connexion->fetchAllAssociative($sql, $params);
     }
 
+    /**
+     * Statistiques de l'onglet "Tableau de bord" sur la période : une opération = un id_suivi,
+     * son résultat est celui de sa pire étape (ECHEC/INTERROMPU > ALERTE > EN_COURS > SUCCES)
+     *
+     * @return array{kpi: array, parJour: array, parType: array, etapesEchec: array, parUtilisateur: array}
+     */
+    public function tableauDeBord(\DateTimeInterface $debut, \DateTimeInterface $fin): array
+    {
+        $connexion = $this->getEntityManager()->getConnection();
+        $params    = [$debut->format('Y-m-d 00:00:00'), $fin->format('Y-m-d 23:59:59')];
+        $operations = "WITH ops AS (
+                SELECT id_suivi, MIN(type_operation) AS type_operation, MIN(utilisateur) AS utilisateur,
+                       MIN(date_debut) AS debut,
+                       DATEDIFF(MILLISECOND, MIN(date_debut), MAX(COALESCE(date_fin, date_debut))) AS duree_ms,
+                       CASE
+                           WHEN SUM(CASE WHEN statut IN ('ECHEC', 'INTERROMPU') THEN 1 ELSE 0 END) > 0 THEN 'ECHEC'
+                           WHEN SUM(CASE WHEN statut = 'ALERTE' THEN 1 ELSE 0 END) > 0 THEN 'ALERTE'
+                           WHEN SUM(CASE WHEN statut = 'EN_COURS' THEN 1 ELSE 0 END) > 0 THEN 'EN_COURS'
+                           ELSE 'SUCCES'
+                       END AS resultat
+                FROM historique_operation_etape
+                WHERE date_debut BETWEEN ? AND ?
+                GROUP BY id_suivi
+            ) ";
+        $compteurs = "COUNT(*) AS total,
+                SUM(CASE WHEN resultat = 'SUCCES' THEN 1 ELSE 0 END) AS succes,
+                SUM(CASE WHEN resultat = 'ALERTE' THEN 1 ELSE 0 END) AS alertes,
+                SUM(CASE WHEN resultat = 'ECHEC' THEN 1 ELSE 0 END) AS echecs,
+                AVG(CAST(duree_ms AS BIGINT)) AS duree_moyenne,
+                MAX(duree_ms) AS duree_max";
+
+        return [
+            'kpi' => $connexion->fetchAssociative($operations . "SELECT $compteurs FROM ops", $params) ?: [],
+            'parJour' => $connexion->fetchAllAssociative(
+                $operations . "SELECT CONVERT(VARCHAR(10), debut, 23) AS jour, $compteurs FROM ops GROUP BY CONVERT(VARCHAR(10), debut, 23) ORDER BY jour",
+                $params
+            ),
+            'parType' => $connexion->fetchAllAssociative(
+                $operations . "SELECT type_operation, $compteurs FROM ops GROUP BY type_operation ORDER BY total DESC",
+                $params
+            ),
+            'parUtilisateur' => $connexion->fetchAllAssociative(
+                $operations . "SELECT TOP 10 COALESCE(utilisateur, '-') AS utilisateur, $compteurs FROM ops GROUP BY utilisateur ORDER BY total DESC",
+                $params
+            ),
+            // étapes qui cassent le plus souvent
+            'etapesEchec' => $connexion->fetchAllAssociative(
+                "SELECT TOP 10 type_operation, etape, COUNT(*) AS nombre, MAX(date_debut) AS derniere
+                 FROM historique_operation_etape
+                 WHERE date_debut BETWEEN ? AND ? AND statut IN ('ECHEC', 'INTERROMPU')
+                 GROUP BY type_operation, etape
+                 ORDER BY nombre DESC",
+                $params
+            ),
+        ];
+    }
+
     public function rechercherSuivis(?string $recherche, ?string $typeOperation, bool $problemeSeulement, ?\DateTimeInterface $dateDebut, ?\DateTimeInterface $dateFin, ?int $idHistorique = null, bool $nonLuSeulement = false, int $limit = 100, ?int $idTache = null): array
     {
         $qb = $this->createQueryBuilder('e')

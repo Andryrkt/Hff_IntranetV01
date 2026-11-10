@@ -1,0 +1,232 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Tableau de bord du suivi des opérations
+{% endblock %}
+
+{% block stylesheets %}
+	<link href="{{ App.base_path }}/Views/css/new.css?v={{ App.browserHash }}" rel="stylesheet"/>
+	<style>
+		.kpi .nombre { font-size: 1.6rem; font-weight: 700; line-height: 1.1; }
+		.kpi .libelle { font-size: .8rem; color: #6c757d; }
+		.table-stats td, .table-stats th { white-space: nowrap; }
+		.barre-taux { height: 6px; background: #e9ecef; border-radius: 3px; overflow: hidden; min-width: 60px; }
+		.barre-taux > div { height: 100%; background: #198754; }
+	</style>
+{% endblock %}
+
+{% macro duree(ms) %}{{ ms is null ? '-' : (ms / 1000)|number_format(2, ',', ' ') ~ ' s' }}{% endmacro %}
+{% macro taux(ligne) %}{{ ligne.total > 0 ? (ligne.succes * 100 / ligne.total)|number_format(1, ',', ' ') ~ ' %' : '-' }}{% endmacro %}
+
+{% block content %}
+	{% import _self as f %}
+	{% set kpi = stats.kpi %}
+	{% set periode = {date_debut: dateDebut|date('Y-m-d'), date_fin: dateFin|date('Y-m-d')} %}
+	<div class="container-fluid">
+		<div class="card">
+			<div class="card-body">
+				<h3 class="perso-titre mb-3">SUIVI DES OPÉRATIONS ÉTAPE PAR ÉTAPE</h3>
+
+				{% include 'admin/historisation/suivi-operation/_onglets.html.twig' with {ongletActif: 'tableau-de-bord'} %}
+
+				<form method="get" class="row g-2 align-items-end mb-3">
+					<input type="hidden" name="vue" value="tableau-de-bord">
+					<div class="col-6 col-md-2">
+						<label for="date_debut" class="form-label mb-0">Du</label>
+						<input type="date" id="date_debut" name="date_debut" value="{{ periode.date_debut }}" class="form-control form-control-sm">
+					</div>
+					<div class="col-6 col-md-2">
+						<label for="date_fin" class="form-label mb-0">Au</label>
+						<input type="date" id="date_fin" name="date_fin" value="{{ periode.date_fin }}" class="form-control form-control-sm">
+					</div>
+					<div class="col-auto">
+						<button type="submit" class="btn btn-warning btn-sm">Afficher</button>
+						<a href="{{ path('suivi_operation_index', {vue: 'tableau-de-bord'}) }}" class="btn btn-outline-secondary btn-sm">30 derniers jours</a>
+					</div>
+				</form>
+
+				{# indicateurs de la période #}
+				<div class="row g-2 mb-3">
+					{% for indicateur in [
+						{nombre: kpi.total ?? 0, libelle: 'Opérations'},
+						{nombre: f.taux(kpi), libelle: 'Taux de réussite'},
+						{nombre: kpi.echecs ?? 0, libelle: 'En échec / interrompues', classe: (kpi.echecs ?? 0) > 0 ? 'text-danger' : ''},
+						{nombre: kpi.alertes ?? 0, libelle: 'Avec alerte', classe: (kpi.alertes ?? 0) > 0 ? 'text-warning' : ''},
+						{nombre: f.duree(kpi.duree_moyenne ?? null), libelle: 'Durée moyenne'},
+						{nombre: compteursTaches.aTrier, libelle: 'Tâches à trier (' ~ compteursTaches.regressions ~ ' régression(s) ouverte(s))', classe: compteursTaches.aTrier > 0 ? 'text-danger' : ''}
+					] %}
+						<div class="col-6 col-md-2">
+							<div class="card h-100 kpi">
+								<div class="card-body py-2">
+									<div class="nombre {{ indicateur.classe ?? '' }}">{{ indicateur.nombre }}</div>
+									<div class="libelle">{{ indicateur.libelle }}</div>
+								</div>
+							</div>
+						</div>
+					{% endfor %}
+				</div>
+
+				{% if (kpi.total ?? 0) == 0 %}
+					<p class="text-muted">Aucune opération suivie sur cette période.</p>
+				{% else %}
+					<div class="card mb-3">
+						<div class="card-body">
+							<h6 class="mb-2">Opérations par jour et par résultat</h6>
+							<div style="height: 260px;"><canvas id="graphe-jours" role="img" aria-label="Opérations par jour : réussies, avec alerte, en échec (détail dans le tableau ci-dessous)"></canvas></div>
+						</div>
+					</div>
+
+					<div class="row g-3">
+						<div class="col-12 col-xl-6">
+							<div class="card h-100">
+								<div class="card-body">
+									<h6>Par type d'opération</h6>
+									<div class="table-responsive">
+										<table class="table table-sm table-hover table-stats mb-0">
+											<thead><tr><th>Opération</th><th class="text-end">Nombre</th><th>Réussite</th><th class="text-end">Échecs</th><th class="text-end">Alertes</th><th class="text-end">Durée moy.</th><th class="text-end">Durée max</th></tr></thead>
+											<tbody>
+												{% for ligne in stats.parType %}
+													<tr>
+														<td><a href="{{ path('suivi_operation_index', {type: ligne.type_operation}|merge(periode)) }}">{{ typesOperation[ligne.type_operation] ?? ligne.type_operation }}</a></td>
+														<td class="text-end">{{ ligne.total }}</td>
+														<td>
+															<div class="d-flex align-items-center gap-2">
+																<div class="barre-taux flex-grow-1"><div style="width: {{ ligne.total > 0 ? ligne.succes * 100 / ligne.total : 0 }}%"></div></div>
+																<span class="small">{{ f.taux(ligne) }}</span>
+															</div>
+														</td>
+														<td class="text-end {{ ligne.echecs > 0 ? 'text-danger fw-bold' : '' }}">
+															{% if ligne.echecs > 0 %}<a class="text-danger" href="{{ path('suivi_operation_index', {type: ligne.type_operation, probleme: 1}|merge(periode)) }}">{{ ligne.echecs }}</a>{% else %}0{% endif %}
+														</td>
+														<td class="text-end">{{ ligne.alertes }}</td>
+														<td class="text-end">{{ f.duree(ligne.duree_moyenne) }}</td>
+														<td class="text-end">{{ f.duree(ligne.duree_max) }}</td>
+													</tr>
+												{% endfor %}
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-12 col-xl-6">
+							<div class="card h-100">
+								<div class="card-body">
+									<h6>Étapes qui échouent le plus</h6>
+									{% if stats.etapesEchec is empty %}
+										<p class="text-muted small mb-0">Aucune étape en échec sur la période.</p>
+									{% else %}
+										<div class="table-responsive">
+											<table class="table table-sm table-hover table-stats mb-0">
+												<thead><tr><th>Opération</th><th>Étape</th><th class="text-end">Échecs</th><th class="text-end">Dernier</th></tr></thead>
+												<tbody>
+													{% for ligne in stats.etapesEchec %}
+														<tr>
+															<td>{{ typesOperation[ligne.type_operation] ?? ligne.type_operation }}</td>
+															<td class="text-wrap"><a href="{{ path('suivi_operation_index', {type: ligne.type_operation, probleme: 1}|merge(periode)) }}">{{ ligne.etape }}</a></td>
+															<td class="text-end text-danger fw-bold">{{ ligne.nombre }}</td>
+															<td class="text-end small">{{ ligne.derniere|date('d/m/Y H:i') }}</td>
+														</tr>
+													{% endfor %}
+												</tbody>
+											</table>
+										</div>
+									{% endif %}
+								</div>
+							</div>
+						</div>
+
+						<div class="col-12 col-xl-6">
+							<div class="card h-100">
+								<div class="card-body">
+									<h6>Utilisateurs les plus actifs</h6>
+									<div class="table-responsive">
+										<table class="table table-sm table-hover table-stats mb-0">
+											<thead><tr><th>Utilisateur</th><th class="text-end">Opérations</th><th>Réussite</th><th class="text-end">Échecs</th><th class="text-end">Durée moy.</th></tr></thead>
+											<tbody>
+												{% for ligne in stats.parUtilisateur %}
+													<tr>
+														<td><a href="{{ path('suivi_operation_index', {recherche: ligne.utilisateur}|merge(periode)) }}">{{ ligne.utilisateur }}</a></td>
+														<td class="text-end">{{ ligne.total }}</td>
+														<td class="small">{{ f.taux(ligne) }}</td>
+														<td class="text-end {{ ligne.echecs > 0 ? 'text-danger fw-bold' : '' }}">{{ ligne.echecs }}</td>
+														<td class="text-end">{{ f.duree(ligne.duree_moyenne) }}</td>
+													</tr>
+												{% endfor %}
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-12 col-xl-6">
+							<div class="card h-100">
+								<div class="card-body">
+									<h6>Détail par jour</h6>
+									<div class="table-responsive" style="max-height: 320px;">
+										<table class="table table-sm table-stats mb-0">
+											<thead><tr><th>Jour</th><th class="text-end">Opérations</th><th class="text-end">Réussies</th><th class="text-end">Alertes</th><th class="text-end">Échecs</th><th class="text-end">Durée moy.</th></tr></thead>
+											<tbody>
+												{% for ligne in stats.parJour|reverse %}
+													<tr>
+														<td><a href="{{ path('suivi_operation_index', {date_debut: ligne.jour, date_fin: ligne.jour, limite: 200}) }}">{{ ligne.jour|date('d/m/Y') }}</a></td>
+														<td class="text-end">{{ ligne.total }}</td>
+														<td class="text-end">{{ ligne.succes }}</td>
+														<td class="text-end">{{ ligne.alertes }}</td>
+														<td class="text-end {{ ligne.echecs > 0 ? 'text-danger fw-bold' : '' }}">{{ ligne.echecs }}</td>
+														<td class="text-end">{{ f.duree(ligne.duree_moyenne) }}</td>
+													</tr>
+												{% endfor %}
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	{% if (stats.kpi.total ?? 0) > 0 %}
+		<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+		<script>
+			const jours = {{ stats.parJour|json_encode|raw }};
+			const serie = (libelle, cle, couleur) => ({
+				label: libelle,
+				data: jours.map(j => Number(j[cle])),
+				backgroundColor: couleur,
+				borderColor: '#fff', // espace entre les segments empilés
+				borderWidth: 1,
+				borderRadius: 3,
+				maxBarThickness: 28
+			});
+			new Chart(document.getElementById('graphe-jours'), {
+				type: 'bar',
+				data: {
+					labels: jours.map(j => j.jour.split('-').reverse().slice(0, 2).join('/')),
+					// couleurs de statut de la page (OK / ALERTE / ÉCHEC), toujours accompagnées de la légende
+					datasets: [
+						serie('Réussies', 'succes', '#198754'),
+						serie('Avec alerte', 'alertes', '#fd7e14'),
+						serie('En échec / interrompues', 'echecs', '#dc3545')
+					]
+				},
+				options: {
+					maintainAspectRatio: false,
+					interaction: {mode: 'index', intersect: false},
+					plugins: {legend: {position: 'top', align: 'start'}},
+					scales: {
+						x: {stacked: true, grid: {display: false}},
+						y: {stacked: true, beginAtZero: true, ticks: {precision: 0}, grid: {color: 'rgba(0,0,0,.06)'}}
+					}
+				}
+			});
+		</script>
+	{% endif %}
+{% endblock %}
