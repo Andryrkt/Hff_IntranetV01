@@ -9,6 +9,8 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -18,7 +20,7 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DocumentationUtilisateurController extends Controller
 {
-    private const BALISES_AUTORISEES = '<h1><h2><h3><h4><p><br><strong><b><em><i><u><s><ul><ol><li><table><thead><tbody><tr><th><td><a><blockquote><hr><span><div><img><sub><sup><code><pre>';
+    private const BALISES_AUTORISEES = '<h1><h2><h3><h4><p><br><strong><b><em><i><u><s><ul><ol><li><table><thead><tbody><tr><th><td><a><blockquote><hr><span><div><img><figure><figcaption><sub><sup><code><pre>';
 
     // mêmes intitulés que le menu principal (MenuService::construireMenuPrincipal)
     private const RUBRIQUES = ['Général', 'Documentation', 'Reporting', 'Compta', 'RH', 'Matériel', 'Atelier', 'Magasin', 'Appro', 'IT', 'POL', 'Energie', 'HSE'];
@@ -132,6 +134,39 @@ class DocumentationUtilisateurController extends Controller
      * shortcut: filtrage par expressions régulières, à remplacer par un vrai
      * nettoyeur HTML (ex: symfony/html-sanitizer) si des non-admins éditent un jour.
      */
+    /**
+     * Upload d'une image depuis TinyMCE (bouton image, copier-coller, glisser-déposer).
+     * Réponse attendue par TinyMCE : {"location": "<url de l'image>"}
+     *
+     * @Route("/api/doc/utilisateur/image", name="api_doc_utilisateur_image", methods={"POST"})
+     */
+    public function televerserImage(Request $request): JsonResponse
+    {
+        if (!$this->estAdmin()) {
+            return new JsonResponse(['error' => 'Accès réservé aux administrateurs'], 403);
+        }
+
+        $fichier = $request->files->get('file');
+        if (!$fichier instanceof UploadedFile || !$fichier->isValid()) {
+            return new JsonResponse(['error' => $fichier instanceof UploadedFile ? $fichier->getErrorMessage() : 'Fichier absent'], 400);
+        }
+        if ($fichier->getSize() > 5 * 1024 * 1024) {
+            return new JsonResponse(['error' => 'Image trop lourde (5 Mo maximum)'], 400);
+        }
+
+        // type lu dans le contenu du fichier, pas dans son nom
+        $extensions = [IMAGETYPE_PNG => 'png', IMAGETYPE_JPEG => 'jpg', IMAGETYPE_GIF => 'gif', IMAGETYPE_WEBP => 'webp'];
+        $infos = @getimagesize($fichier->getPathname());
+        if ($infos === false || !isset($extensions[$infos[2]])) {
+            return new JsonResponse(['error' => 'Formats acceptés : PNG, JPEG, GIF, WEBP'], 400);
+        }
+
+        $nom = date('Ymd-His') . '-' . bin2hex(random_bytes(6)) . '.' . $extensions[$infos[2]];
+        $fichier->move(rtrim($_ENV['BASE_PATH_FICHIER'], '/\\') . '/documentation', $nom);
+
+        return new JsonResponse(['location' => rtrim($_ENV['BASE_PATH_FICHIER_COURT'], '/') . '/documentation/' . $nom]);
+    }
+
     private function nettoyerHtml(string $html): string
     {
         $html = strip_tags($html, self::BALISES_AUTORISEES);
