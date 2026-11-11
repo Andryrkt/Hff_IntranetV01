@@ -409,20 +409,20 @@ class CdeSoumissionModel extends Model
                 ON b.numero_devis = CAST(d.nent_numcde AS VARCHAR(11))
             GROUP BY b.numero_devis
         )
-        SELECT FIRST 50 DISTINCT t.numero_bc
+        SELECT FIRST 50 DISTINCT t.numero_devis
         FROM {$this->iriumBcClientSoumisNeg} t
         INNER JOIN derniere_version v
             ON  t.numero_devis   = v.numero_devis
             AND t.numero_version = v.max_version
         WHERE t.statut_bc like 'Valid%'
-        ORDER BY t.numero_bc DESC";
+        ORDER BY t.numero_devis DESC";
 
         $result = $this->connect->executeQuery($statement);
         $rows   = $this->connect->fetchResults($result);
 
         $data = [];
         foreach ($rows as $row) {
-            $data[] = $row["numero_bc"];
+            $data[] = $row["numero_devis"];
         }
 
         return $data;
