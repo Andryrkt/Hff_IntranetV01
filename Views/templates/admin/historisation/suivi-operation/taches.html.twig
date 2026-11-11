@@ -184,14 +184,14 @@
 									</td>
 									<td class="text-nowrap">{{ tache.id }}</td>
 									<td>
-										<select class="form-select form-select-sm select-tache champ-tache" data-champ="priorite">
+										<select class="form-select form-select-sm select-tache champ-tache" autocomplete="off" data-champ="priorite">
 											{% for code, libelle in libellesPriorite %}
 												<option value="{{ code }}" {{ tache.priorite == code ? 'selected' : '' }}>{{ libelle }}</option>
 											{% endfor %}
 										</select>
 									</td>
 									<td class="text-nowrap">
-										<select class="form-select form-select-sm select-tache champ-tache" data-champ="statut">
+										<select class="form-select form-select-sm select-tache champ-tache" autocomplete="off" data-champ="statut">
 											{% for code, libelle in libellesStatutTache %}
 												<option value="{{ code }}" {{ tache.statut == code ? 'selected' : '' }}>{{ libelle }}</option>
 											{% endfor %}
@@ -199,7 +199,7 @@
 										<span class="badge bg-warning text-dark badge-regression {{ tache.estRegression ? '' : 'd-none' }}" title="Le problème est revenu après sa résolution">Régression</span>
 									</td>
 									<td>
-										<select class="form-select form-select-sm select-tache champ-tache {{ tache.effort ? '' : 'border-danger' }}" data-champ="effort">
+										<select class="form-select form-select-sm select-tache champ-tache {{ tache.effort ? '' : 'border-danger' }}" autocomplete="off" data-champ="effort">
 											<option value="">À estimer</option>
 											{% for code, libelle in libellesEffort %}
 												<option value="{{ code }}" {{ tache.effort == code ? 'selected' : '' }}>{{ libelle }}</option>
@@ -240,7 +240,7 @@
 												<div class="row g-2">
 													<div class="col-6">
 														<label class="form-label mb-0 small">Assigné à</label>
-														<select class="form-select form-select-sm" data-champ="assigneA">
+														<select class="form-select form-select-sm" autocomplete="off" data-champ="assigneA">
 															<option value="">-- Non assignée --</option>
 															{% if tache.assigneA and tache.assigneA not in intervenants %}
 																<option value="{{ tache.assigneA }}" selected>{{ tache.assigneA }} (n'est plus intervenant)</option>
@@ -255,19 +255,19 @@
 													</div>
 													<div class="col-3">
 														<label class="form-label mb-0 small">Début</label>
-														<input type="date" class="form-control form-control-sm" data-champ="dateDebut" value="{{ tache.dateDebut ? tache.dateDebut|date('Y-m-d') : '' }}">
+														<input type="date" class="form-control form-control-sm" autocomplete="off" data-champ="dateDebut" value="{{ tache.dateDebut ? tache.dateDebut|date('Y-m-d') : '' }}">
 													</div>
 													<div class="col-3">
 														<label class="form-label mb-0 small">Échéance</label>
-														<input type="date" class="form-control form-control-sm" data-champ="echeance" value="{{ tache.echeance ? tache.echeance|date('Y-m-d') : '' }}">
+														<input type="date" class="form-control form-control-sm" autocomplete="off" data-champ="echeance" value="{{ tache.echeance ? tache.echeance|date('Y-m-d') : '' }}">
 													</div>
 													<div class="col-12">
 														<label class="form-label mb-0 small">Cause identifiée</label>
-														<textarea class="form-control form-control-sm editeur-riche" data-champ="cause" rows="2">{{ tache.cause }}</textarea>
+														<textarea class="form-control form-control-sm editeur-riche" autocomplete="off" data-champ="cause" rows="2">{{ tache.cause }}</textarea>
 													</div>
 													<div class="col-12">
 														<label class="form-label mb-0 small">Correction (branche, commit, explication)</label>
-														<textarea class="form-control form-control-sm editeur-riche" data-champ="correction" rows="2" placeholder="ex. hotfix/chemins-copie-docuware">{{ tache.correction }}</textarea>
+														<textarea class="form-control form-control-sm editeur-riche" autocomplete="off" data-champ="correction" rows="2" placeholder="ex. hotfix/chemins-copie-docuware">{{ tache.correction }}</textarea>
 													</div>
 													<div class="col-12 text-end">
 														<button type="button" class="btn btn-warning btn-sm btn-enregistrer-tache">Enregistrer</button>

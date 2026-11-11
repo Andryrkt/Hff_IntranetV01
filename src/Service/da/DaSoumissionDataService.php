@@ -56,7 +56,7 @@ class DaSoumissionDataService
         $infosLivraisons = $this->daModel->getInfoLivraison($numCde, $codeSociete);
 
         if (empty($infosLivraisons)) {
-            $message = "La commande n° <b>$numCde</b> n'a pas de livraison associé dans IPS. Merci de bien vérifier le numéro de la commande.";
+            $message = "Veuillez vérifier la situation de cette commande. Il est possible que : <br>- Aucune livraison facturée n'ait encore été effectuée pour cette commande. <br>- Toutes les demandes de paiement associées aux livraisons de cette commande soient en cours de validation ou déjà validées.";
             $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
         }
 
