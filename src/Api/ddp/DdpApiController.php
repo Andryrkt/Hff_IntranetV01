@@ -112,15 +112,18 @@ class DdpApiController extends Controller
         ;
         $this->getEntityManager()->persist($ddp);
 
-        // Page de garde DA + fusion des PJ uniquement pour les DDP appro
-        if ($appro) {
+        // Page de garde DA + fusion des PJ uniquement pour les DDP appro.
+        // Pas pour un BAP : son PDF (page de garde BAP + facture / BL) est produit à la soumission facture / BL,
+        // le régénérer ici le remplaçait par une page « demande de paiement » sans la facture.
+        $regenererPdf = $appro && $ddp->getTypeDemandeId()->getCode() !== 'BAP';
+        if ($regenererPdf) {
             $nomCompletFichier = $this->genererPageDeGarde($validationInfo[$ddp->getNumeroCommande()] ?? [], $ddp);
 
             $this->fusionDesPdf($ddp->getNumeroCommande(), $nomCompletFichier);
         }
 
         /** copie du fichier DDP dans DW */
-        if ($appro) {
+        if ($regenererPdf) {
             // PDF tout juste régénéré (page de garde + PJ)
             $bapFullpath = (new FileCheckerService())->getFullPath($ddp->getNumeroDdp());
         } else {
