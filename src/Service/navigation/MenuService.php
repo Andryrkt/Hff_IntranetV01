@@ -145,7 +145,7 @@ class MenuService
             ['id' => 'atelierModal',       'title' => 'Atelier',       'icon' => 'tools',          'groupes' => MenuGroupe::atelierGroupes()],
             ['id' => 'magasinModal',       'title' => 'Magasin',       'icon' => 'dolly',          'groupes' => MenuGroupe::magasinGroupes()],
             ['id' => 'approModal',         'title' => 'Appro',         'icon' => 'shopping-cart',  'groupes' => MenuGroupe::approGroupes()],
-            ['id' => 'itModal',            'title' => 'IT',            'icon' => 'laptop-code',    'groupes' => MenuGroupe::itGroupes()],
+            ['id' => 'itModal',            'title' => 'IT',            'icon' => 'laptop-code',    'groupes' => MenuGroupe::itGroupes(), 'admin' => true],
             ['id' => 'polModal',           'title' => 'POL',           'icon' => 'ring rotate-90', 'groupes' => MenuGroupe::polGroupes()],
             ['id' => 'energieModal',       'title' => 'Energie',       'icon' => 'bolt',           'groupes' => MenuGroupe::energieGroupes()],
             ['id' => 'hseModal',           'title' => 'HSE',           'icon' => 'shield-alt',     'groupes' => MenuGroupe::hseGroupes()],
@@ -154,6 +154,10 @@ class MenuService
         $vignettes = [];
 
         foreach ($modules as $module) {
+            // 'admin' : vignette réservée au profil HFF-ADMIN
+            if (($module['admin'] ?? false) && !$this->estProfilAdmin()) {
+                continue;
+            }
             $items = $this->filtrerGroupes($module['groupes']);
             if (!empty($items)) {
                 $vignettes[] = $this->createMenuItem($module['id'], $module['title'], $module['icon'], $items);
