@@ -49,8 +49,15 @@
 				language_url: "https://cdn.jsdelivr.net/npm/tinymce-i18n@26.9.28/langs7/fr_FR.js",
 				height: 500,
 				menubar: false,
-				plugins: "lists link table code fullscreen",
-				toolbar: "undo redo | blocks | bold italic underline | bullist numlist | link table | removeformat code | fullscreen"
+				plugins: "lists link image table code fullscreen",
+				toolbar: "undo redo | blocks | bold italic underline | bullist numlist | link image table | removeformat code | fullscreen",
+				// images envoyées sur le serveur (bouton image, copier-coller, glisser-déposer) au lieu d'être stockées en base64
+				images_upload_url: "{{ path('api_doc_utilisateur_image') }}",
+				automatic_uploads: true,
+				images_file_types: "png,jpg,jpeg,gif,webp",
+				image_caption: true,
+				relative_urls: false,
+				content_style: "img { max-width: 100%; height: auto; }"
 			});
 		});
 	</script>
