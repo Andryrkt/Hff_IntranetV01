@@ -249,7 +249,7 @@ class DdpApiController extends Controller
         $demandePaiementDto->numeroCommande       = $ddp->getNumeroCommande();
         $demandePaiementDto->numeroFacture        = $ddp->getNumeroFacture();
         $demandePaiementDto->statut               = $ddp->getStatut();
-        $demandePaiementDto->dateSoumissionCompta = $ddp->getDateSoumissionCompta();
+        $demandePaiementDto->dateSoumissionCompta = $ddp->getDateSoumissionCompta() ? $ddp->getDateSoumissionCompta()->format('d/m/Y') : null;
         $demandePaiementDto->codeAgence           = $ddp->getAgenceDebiter();
         $demandePaiementDto->codeService          = $ddp->getServiceDebiter();
         $demandePaiementDto->dateDemande          = $ddp->getDateCreation();
