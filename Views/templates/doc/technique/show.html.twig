@@ -5,10 +5,12 @@
 {% endblock %}
 
 {% block content %}
-	<a href="{{ path('app_doc_tech_index') }}">&larr; Retour à la table des matières</a>
+	<div class="container mt-6">
+	<a href="{{ path('app_doc_tech_index') }}">&larr; Toute la documentation technique</a>
 	<hr>
 
-	<div class="doc-content" style="margin-top: 20px;">
+	{# plus large que le guide utilisateur : ces fiches contiennent de nombreux tableaux #}
+	<div class="doc-content" style="margin-top: 20px; max-width: 1200px;">
 		<h1>{{ title }}</h1>
 
 		{% if metadata is not empty %}
@@ -38,5 +40,6 @@
 		{% endif %}
 
 		{{ content|raw }}
+	</div>
 	</div>
 {% endblock %}

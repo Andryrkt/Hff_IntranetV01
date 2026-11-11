@@ -38,6 +38,7 @@ class MenuGroupe
                 'label'    => 'Plan analytique HFF',
                 'icon'     => 'ruler-vertical',
                 'link'     => '{basePathUpload}/documentation/Structure%20analytique%20HFF.pdf',
+                'link'     => '{basePathUpload}/documentation/Structure%20analytique%20HFF.pdf',
                 'route'    => 'documentation_interne', // accessible si 'documentation_interne' est accesible
                 'target'   => '_blank',
             ],
@@ -85,8 +86,9 @@ class MenuGroupe
                 'label'    => 'Demande de paiement',
                 'icon'     => 'file-invoice-dollar',
                 'subitems' => [
-                    ['label' => 'Nouvelle demande de paiement à l’avance', 'icon' => 'plus-circle', 'route' => 'new_ddp', 'params' => ['typeDdp' => 1]],
-                    ['label' => 'Nouvelle demande de paiement après arrivage', 'icon' => 'plus-circle', 'route' => 'new_ddp', 'params' => ['typeDdp' => 2]],
+                    // 'admin' : réservé au profil HFF-ADMIN tant que la création n'est pas ouverte aux utilisateurs
+                    ['label' => 'Nouvelle demande de paiement à l’avance', 'icon' => 'plus-circle', 'route' => 'new_ddp', 'params' => ['typeDdp' => 1], 'admin' => true],
+                    ['label' => 'Nouvelle demande de paiement après arrivage', 'icon' => 'plus-circle', 'route' => 'new_ddp', 'params' => ['typeDdp' => 2], 'admin' => true],
                     ['label' => 'Consultation',     'icon' => 'search',      'route' => 'ddp_liste'],
                 ],
             ],
@@ -299,7 +301,8 @@ class MenuGroupe
             [
                 'route' => 'da_bon_a_payer',
                 'label' => 'Consultation facture',
-                'icon'  => 'list-ul'
+                'icon'  => 'list-ul',
+                'params' => ['appro' => 1],
             ],
             [
                 'route' => 'da_reporting_ips',
@@ -468,6 +471,15 @@ class MenuGroupe
                 'icon'   => 'fa-ticket',
                 'links'  => [
                     ['label' => 'Toutes les catégories', 'icon' => 'fa-list', 'route' => 'tki_all_categorie_index'],
+                ],
+            ],
+            [
+                'header' => 'Documentation',
+                'icon'   => 'fa-book',
+                'links'  => [
+                    // 'admin' : visible pour le profil HFF-ADMIN sans déclaration de page/droit
+                    ['label' => 'Documentation utilisateur', 'icon' => 'fa-book-open', 'route' => 'doc_utilisateur_index', 'admin' => true],
+                    ['label' => 'Documentation technique', 'icon' => 'fa-code', 'route' => 'app_doc_tech_index', 'admin' => true],
                 ],
             ],
         ];

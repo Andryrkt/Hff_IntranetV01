@@ -69,7 +69,8 @@ class TableauEnStringService
             if (!is_scalar($el)) {
                 throw new InvalidArgumentException("Tous les éléments du tableau doivent être scalaires.");
             }
-            return $quote . $el . $quote;
+            // Résultat destiné à une clause SQL IN (...) : une apostrophe ne doit pas fermer la valeur
+            return $quote . ($quote === "'" ? str_replace("'", "''", (string) $el) : $el) . $quote;
         }, $flattenedArray);
 
         // Joindre les éléments avec le séparateur

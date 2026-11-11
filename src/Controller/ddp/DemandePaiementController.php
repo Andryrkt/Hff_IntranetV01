@@ -103,8 +103,8 @@ class DemandePaiementController extends Controller
             $data = $form->getData(); //recupération des donnnées
 
             // $numCdes = $this->recuperationCdeFacEtNonFac($id);
-            $numeroCommandes = $suivi->etape('Récupération des commandes (IPS)', function () use ($data) {
-                $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+            $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
+            $numeroCommandes = $suivi->etape('Récupération des commandes (IPS)', function () use ($data, $codeSociete) {
                 $numCdes = $this->demandePaiementModel->getCommandeReceptionnee($data->getNumeroFournisseur(), $codeSociete);
                 $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
                 $numFacString = TableauEnStringService::TableauEnString(',', $data->getNumeroFacture());

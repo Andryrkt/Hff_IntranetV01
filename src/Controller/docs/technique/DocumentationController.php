@@ -8,6 +8,10 @@ use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * Documentation technique (fichiers Markdown de docs/technique) : réservée aux administrateurs HFF-ADMIN.
+ * Tout fichier .md ajouté dans ce dossier apparaît automatiquement dans le sommaire.
+ */
 class DocumentationController extends Controller
 {
     /**
@@ -15,15 +19,16 @@ class DocumentationController extends Controller
      */
     public function index()
     {
-        $baseDocDir = 'C:/wamp64/www/Hffintranet/docs/technique/';
+        $this->exigerAdmin();
 
         $finder = new Finder();
-        $finder->files()->in($baseDocDir)->name('*.md')->sortByName();
+        $finder->files()->in($this->dossierDocs())->name('*.md')->sortByName();
 
         $groupedDocuments = [];
         foreach ($finder as $file) {
-            $relativePath = $file->getRelativePathname();
-            $directory = $file->getRelativePath();
+            // séparateur "/" : sous Windows le "\" du chemin relatif donnerait une URL invalide
+            $relativePath = str_replace('\\', '/', $file->getRelativePathname());
+            $directory = str_replace('\\', '/', $file->getRelativePath());
 
             $metadata = $this->getDocumentMetadata($file->getPathname()); // Get metadata
 
@@ -52,21 +57,21 @@ class DocumentationController extends Controller
     }
 
     /**
-     * @Route("/doc/technique/{filename}", name="app_doc_tech_show")
+     * @Route("/doc/technique/{filename}", name="app_doc_tech_show", requirements={"filename"=".+\.md"})
      */
     public function show(string $filename)
     {
-        // SECURITY: Sanitize filename to prevent directory traversal attacks.
-        // Ensure no '..' or absolute paths are present.
-        $safeFilename = str_replace(['..', './', '\\'], '', $filename); // Remove '..' and path separators
-        $safeFilename = ltrim($safeFilename, '/'); // Remove leading slash if any
+        $this->exigerAdmin();
 
-        $filePath = 'C:/wamp64/www/Hffintranet/docs/technique/' . $safeFilename;
+        // refus de tout chemin hors du dossier de documentation (../, chemin absolu...)
+        $dossierDocs = $this->dossierDocs();
+        $filePath = realpath($dossierDocs . DIRECTORY_SEPARATOR . ltrim($filename, '/\\'));
 
-        if (!file_exists($filePath)) {
+        if ($filePath === false || strpos($filePath, $dossierDocs . DIRECTORY_SEPARATOR) !== 0 || !is_file($filePath)) {
             throw new \Exception("Fichier de documentation non trouvé.");
         }
 
+        $safeFilename = $filename;
         $markdownContent = file_get_contents($filePath);
         $metadata = $this->getDocumentMetadata($filePath); // Get metadata
 
@@ -75,6 +80,8 @@ class DocumentationController extends Controller
 
         $parser = new \Parsedown();
         $htmlContent = $parser->text($markdownContent);
+        // les liens relatifs visent les fichiers du dépôt (src/...), inaccessibles depuis l'application : on garde le texte
+        $htmlContent = preg_replace('#<a href="(?!https?:|\#)[^"]*">(.*?)</a>#s', '$1', $htmlContent);
 
         // Use title from metadata if available, otherwise generate from filename
         $title = $metadata['title'] ?? $this->getTitleFromFilename(pathinfo($safeFilename, PATHINFO_FILENAME));
@@ -84,6 +91,18 @@ class DocumentationController extends Controller
             'content' => $htmlContent,
             'metadata' => $metadata, // Pass metadata to template
         ]);
+    }
+
+    private function exigerAdmin(): void
+    {
+        if (!$this->estAdmin()) {
+            $this->redirectToRoute('profil_acceuil');
+        }
+    }
+
+    private function dossierDocs(): string
+    {
+        return dirname(__DIR__, 4) . DIRECTORY_SEPARATOR . 'docs' . DIRECTORY_SEPARATOR . 'technique';
     }
 
     private function getDocumentMetadata(string $filePath): array

@@ -3,7 +3,6 @@
 namespace App\Controller\tik;
 
 use App\Entity\tik\TikSearch;
-use InvalidArgumentException;
 use App\Controller\Controller;
 use App\Form\tik\TikSearchType;
 use App\Entity\admin\StatutDemande;
@@ -109,7 +108,7 @@ class ListeTikController extends Controller
         $serviceIpsEmetteur = $autorisation['autoriser'] ? null : $agenceServiceIps['serviceIps'];
 
         $entities['nomIntervenant'] = ($autorisation['autoriserIntervenant'] && empty($criteria)) ? $user : null; // pour intervenant: filtre sur intervenant utilisateur connecté
-        $entities['statut']         = ($autorisation['autoriserValidateur'] && empty($criteria)) ? $this->getEntityManager()->getRepository(StatutDemande::class)->find('79') : null; // pour validateur: filtre sur statut ouvert
+        $entities['statut']         = ($autorisation['autoriserValidateur'] && empty($criteria)) ? $this->getEntityManager()->getRepository(StatutDemande::class)->find('58') : null; // pour validateur: filtre sur statut ouvert
 
         // Si des critères existent, les utiliser pour définir les entités associées
         if (!empty(array_filter($criteria))) {
@@ -176,14 +175,7 @@ class ListeTikController extends Controller
      */
     private function hasRole(User $user, int $roleId): bool
     {
-        $roleIds = []; // TODO : changer ceci plus tard : les roles de l'utilisateur
-
-        // S'assurer que $roleIds est un tableau avant de continuer.
-        if (!is_array($roleIds)) {
-            throw new InvalidArgumentException('Les rôles retournés doivent être un tableau.');
-        }
-
-        return in_array($roleId, $roleIds);
+        return in_array($roleId, $user->getRoleIds());
     }
 
     /** 
@@ -204,14 +196,9 @@ class ListeTikController extends Controller
             $this->redirectToRoute("security_signin");
         }
 
-        $allTik = $utilisateur->getSupportInfoUser();
-
-        foreach ($allTik as $tik) {
-            // si le numéro du ticket appartient à l'utilisateur connecté et 
-            if ($numTik === $tik->getNumeroTicket()) {
-                $result['monTicket'] = 1;
-                break;
-            }
+        // si le ticket appartient à l'utilisateur connecté
+        if ($ticket->getUserId()->getId() === $utilisateur->getId()) {
+            $result['monTicket'] = 1;
         }
 
         return $result;

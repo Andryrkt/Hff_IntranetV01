@@ -2,6 +2,7 @@
 
 namespace App\Service\navigation;
 
+use App\Entity\admin\utilisateur\Profil;
 use App\Service\navigation\MenuGroupe;
 use App\Service\UserData\UserDataService;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -144,7 +145,7 @@ class MenuService
             ['id' => 'atelierModal',       'title' => 'Atelier',       'icon' => 'tools',          'groupes' => MenuGroupe::atelierGroupes()],
             ['id' => 'magasinModal',       'title' => 'Magasin',       'icon' => 'dolly',          'groupes' => MenuGroupe::magasinGroupes()],
             ['id' => 'approModal',         'title' => 'Appro',         'icon' => 'shopping-cart',  'groupes' => MenuGroupe::approGroupes()],
-            ['id' => 'itModal',            'title' => 'IT',            'icon' => 'laptop-code',    'groupes' => MenuGroupe::itGroupes()],
+            ['id' => 'itModal',            'title' => 'IT',            'icon' => 'laptop-code',    'groupes' => MenuGroupe::itGroupes(), 'admin' => true],
             ['id' => 'polModal',           'title' => 'POL',           'icon' => 'ring rotate-90', 'groupes' => MenuGroupe::polGroupes()],
             ['id' => 'energieModal',       'title' => 'Energie',       'icon' => 'bolt',           'groupes' => MenuGroupe::energieGroupes()],
             ['id' => 'hseModal',           'title' => 'HSE',           'icon' => 'shield-alt',     'groupes' => MenuGroupe::hseGroupes()],
@@ -153,6 +154,10 @@ class MenuService
         $vignettes = [];
 
         foreach ($modules as $module) {
+            // 'admin' : vignette réservée au profil HFF-ADMIN
+            if (($module['admin'] ?? false) && !$this->estProfilAdmin()) {
+                continue;
+            }
             $items = $this->filtrerGroupes($module['groupes']);
             if (!empty($items)) {
                 $vignettes[] = $this->createMenuItem($module['id'], $module['title'], $module['icon'], $items);
@@ -253,6 +258,11 @@ class MenuService
 
         foreach ($subitems as $subitem) {
             $route = $subitem['route'] ?? null;
+
+            // 'admin' : réservé au profil HFF-ADMIN, en plus du droit sur la route
+            if (($subitem['admin'] ?? false) && !$this->estProfilAdmin()) {
+                continue;
+            }
 
             if ($route !== null && !$this->hasAccesRoute($route)) {
                 continue;
@@ -370,7 +380,7 @@ class MenuService
         foreach ($groupes as $groupe) {
             $linksAccessibles = array_values(array_filter(
                 $groupe['links'],
-                fn(array $link) => $this->hasAccesRoute($link['route'])
+                fn(array $link) => $this->hasAccesRoute($link['route']) || (($link['admin'] ?? false) && $this->estProfilAdmin())
             ));
 
             if (!empty($linksAccessibles)) {
@@ -485,6 +495,17 @@ class MenuService
     private function hasAccesRoute(string $route): bool
     {
         return $this->userDataService->peutVoir($route);
+    }
+
+    /**
+     * Profil en cours de construction (et non celui de la session : le menu est
+     * mis en cache par profil, parfois reconstruit pour un autre profil) = HFF-ADMIN
+     */
+    private function estProfilAdmin(): bool
+    {
+        $profil = $this->userDataService->getProfil();
+
+        return $profil !== null && $profil->getDesignation() === Profil::HFF_ADMIN;
     }
 
     // =========================================================================

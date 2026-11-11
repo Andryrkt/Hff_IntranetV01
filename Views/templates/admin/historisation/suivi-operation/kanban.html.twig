@@ -1,0 +1,142 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Kanban des tâches
+{% endblock %}
+
+{% block stylesheets %}
+	<link href="{{ App.base_path }}/Views/css/new.css?v={{ App.browserHash }}" rel="stylesheet"/>
+	<style>
+		.kanban { display: flex; gap: .75rem; overflow-x: auto; align-items: flex-start; }
+		.kanban-colonne { flex: 1 0 240px; background: #f1f3f5; border-radius: .375rem; padding: .5rem; }
+		.kanban-colonne.survol { outline: 2px dashed #ffc107; }
+		.kanban-liste { min-height: 120px; max-height: 70vh; overflow-y: auto; }
+		.kanban-carte { background: #fff; border-left: 4px solid #6c757d; border-radius: .25rem; padding: .5rem; margin-bottom: .5rem; cursor: grab; box-shadow: 0 1px 2px rgba(0,0,0,.1); }
+		.kanban-carte.deplacement { opacity: .5; }
+		.kanban-carte.priorite-HAUTE { border-left-color: #dc3545; }
+		.kanban-carte.priorite-NORMALE { border-left-color: #0d6efd; }
+		.kanban-carte a { color: inherit; text-decoration: none; }
+	</style>
+{% endblock %}
+
+{% block content %}
+	{% set aujourdhui = 'now'|date('Y-m-d') %}
+	<div class="container-fluid">
+		<div class="card">
+			<div class="card-body">
+				<h3 class="perso-titre mb-3">SUIVI DES OPÉRATIONS ÉTAPE PAR ÉTAPE</h3>
+
+				{% include 'admin/historisation/suivi-operation/_onglets.html.twig' with {ongletActif: 'kanban'} %}
+
+				<form method="get" class="row g-2 align-items-end mb-3">
+					<input type="hidden" name="vue" value="kanban">
+					<div class="col-auto">
+						<label for="assigne" class="form-label mb-0">Assigné à</label>
+						<select id="assigne" name="assigne" class="form-select form-select-sm" onchange="this.form.submit()">
+							<option value="">Tous</option>
+							{% for intervenant in intervenants %}
+								<option value="{{ intervenant }}" {{ assigne == intervenant ? 'selected' : '' }}>{{ intervenant }}</option>
+							{% endfor %}
+						</select>
+					</div>
+					<div class="col-auto">
+						<a href="{{ path('suivi_operation_index', {vue: 'kanban', assigne: App.connectedUser.username}) }}" class="btn btn-outline-dark btn-sm">Mes tâches</a>
+					</div>
+					<div class="col small text-muted text-end">
+						Glissez une carte dans une autre colonne pour changer son statut. Résolues, déployées et ignorées : 30 derniers jours.
+					</div>
+				</form>
+
+				<div class="kanban">
+					{% for statut, taches in colonnes %}
+						<div class="kanban-colonne" data-statut="{{ statut }}">
+							<div class="fw-bold mb-2">
+								{{ libellesStatutTache[statut] }}
+								<span class="badge bg-secondary compteur">{{ taches|length }}</span>
+							</div>
+							<div class="kanban-liste">
+								{% for tache in taches %}
+									{% set enRetard = tache.echeance and tache.echeance|date('Y-m-d') < aujourdhui and statut not in ['RESOLU', 'DEPLOYE', 'IGNORE'] %}
+									<div class="kanban-carte priorite-{{ tache.priorite }}" draggable="true" data-url="{{ path('api_suivi_operation_tache_modifier', {id: tache.id}) }}">
+										<a href="{{ path('suivi_operation_index', {vue: 'taches'}) }}#tache-{{ tache.id }}">
+											<div class="d-flex justify-content-between small">
+												<strong>n° {{ tache.id }}</strong>
+												<span>
+													{% if tache.estRegression %}<span class="badge bg-warning text-dark">Régression</span>{% endif %}
+													<span class="badge bg-dark" title="Occurrences">{{ tache.nbOccurrences }}</span>
+												</span>
+											</div>
+											<div class="small">{{ typesOperation[tache.typeOperation] ?? tache.typeOperation }} : {{ tache.etape }}</div>
+											<div class="small text-muted text-truncate" title="{{ tache.dernierMessage }}">{{ tache.dernierMessage ?: '-' }}</div>
+											<div class="small mt-1 d-flex justify-content-between">
+												<span><i class="fas fa-user"></i> {{ tache.assigneA ?: 'Non assignée' }}</span>
+												{% if tache.echeance %}
+													<span class="{{ enRetard ? 'text-danger fw-bold' : 'text-muted' }}">{{ tache.echeance|date('d/m/Y') }}</span>
+												{% endif %}
+											</div>
+										</a>
+									</div>
+								{% endfor %}
+							</div>
+						</div>
+					{% endfor %}
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script>
+		let carteDeplacee = null;
+
+		function actualiserCompteurs() {
+			document.querySelectorAll('.kanban-colonne').forEach(colonne => {
+				colonne.querySelector('.compteur').textContent = colonne.querySelectorAll('.kanban-carte').length;
+			});
+		}
+
+		document.querySelectorAll('.kanban-carte').forEach(function (carte) {
+			carte.addEventListener('dragstart', function (e) {
+				carteDeplacee = carte;
+				carte.classList.add('deplacement');
+				e.dataTransfer.effectAllowed = 'move';
+			});
+			carte.addEventListener('dragend', () => carte.classList.remove('deplacement'));
+		});
+
+		document.querySelectorAll('.kanban-colonne').forEach(function (colonne) {
+			colonne.addEventListener('dragover', function (e) {
+				e.preventDefault();
+				colonne.classList.add('survol');
+			});
+			colonne.addEventListener('dragleave', () => colonne.classList.remove('survol'));
+			colonne.addEventListener('drop', async function (e) {
+				e.preventDefault();
+				colonne.classList.remove('survol');
+				const carte = carteDeplacee;
+				const origine = carte && carte.closest('.kanban-liste');
+				const destination = colonne.querySelector('.kanban-liste');
+				if (!carte || origine === destination) {
+					return;
+				}
+				destination.prepend(carte);
+				actualiserCompteurs();
+				try {
+					const reponse = await fetch(carte.dataset.url, {
+						method: 'POST',
+						headers: {'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest'},
+						body: JSON.stringify({statut: colonne.dataset.statut})
+					});
+					if (!reponse.ok) {
+						throw new Error((await reponse.json().catch(() => ({}))).message || 'Erreur ' + reponse.status);
+					}
+				} catch (err) {
+					origine.prepend(carte);
+					actualiserCompteurs();
+					alert('Statut non enregistré : ' + err.message);
+				}
+			});
+		});
+	</script>
+{% endblock %}

@@ -49,6 +49,26 @@ class DemandePaiementCommande
     private ?string $client = null;
 
     /**
+     * @ORM\Column(type="float", scale="2", name="montant_commande_a_payer", nullable=true)
+     */
+    private ?float $montantCommandeAPayer = null;
+
+    /**
+     * @ORM\Column(type="float", scale="2", name="montant_commande_receptionner", nullable=true)
+     */
+    private ?float $montantCommandeReceptionner = null;
+
+    /**
+     * @ORM\Column(type="float", scale="2", name="montant_total_commande", nullable=true)
+     */
+    private ?float $montantTotalCommande = null;
+
+    /**
+     * @ORM\Column(type="float", scale="2", name="solde_avance", nullable=true)
+     */
+    private ?float $soldeAvance = null;
+
+    /**
      * @ORM\ManyToOne(targetEntity=DemandePaiement::class, inversedBy="demandePaiementCommandes")
      * @ORM\JoinColumn(name="demandePaiementId", referencedColumnName="id")
      */
@@ -148,6 +168,78 @@ class DemandePaiementCommande
     public function setDemandePaiement(?DemandePaiement $demandePaiement): self
     {
         $this->demandePaiement = $demandePaiement;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of montantTotalCommande
+     */
+    public function getMontantTotalCommande(): ?float
+    {
+        return $this->montantTotalCommande;
+    }
+
+    /**
+     * Set the value of montantTotalCommande
+     */
+    public function setMontantTotalCommande(?float $montantTotalCommande): self
+    {
+        $this->montantTotalCommande = $montantTotalCommande;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of montantCommandeReceptionner
+     */
+    public function getMontantCommandeReceptionner(): ?float
+    {
+        return $this->montantCommandeReceptionner;
+    }
+
+    /**
+     * Set the value of montantCommandeReceptionner
+     */
+    public function setMontantCommandeReceptionner(?float $montantCommandeReceptionner): self
+    {
+        $this->montantCommandeReceptionner = $montantCommandeReceptionner;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of montantCommandeAPayer
+     */
+    public function getMontantCommandeAPayer(): ?float
+    {
+        return $this->montantCommandeAPayer;
+    }
+
+    /**
+     * Set the value of montantCommandeAPayer
+     */
+    public function setMontantCommandeAPayer(?float $montantCommandeAPayer): self
+    {
+        $this->montantCommandeAPayer = $montantCommandeAPayer;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of soldeAvance
+     */
+    public function getSoldeAvance(): ?float
+    {
+        return $this->soldeAvance;
+    }
+
+    /**
+     * Set the value of soldeAvance
+     */
+    public function setSoldeAvance(?float $soldeAvance): self
+    {
+        $this->soldeAvance = $soldeAvance;
 
         return $this;
     }
