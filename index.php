@@ -19,8 +19,8 @@ $controllerResolver = $services['controllerResolver'];
 $securityService    = $services['securityService'];
 $response           = new Response();
 
-// Créer la requête depuis les variables globales
-$request = Request::createFromGlobals();
+// Même objet que le request_stack : les attributs de route (_route...) sont ainsi visibles de Twig (App.request) et des services
+$request = $services['request'];
 
 try {
     // 1. Matcher la route (utilise l'objet Request complet pour gérer les méthodes HTTP, etc.)

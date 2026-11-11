@@ -306,4 +306,5 @@ return [
     'securityService'    => $securityService,
     'controllerResolver' => $controllerResolver,
     'argumentResolver'   => $argumentResolver,
+    'request'            => $request, // celle du request_stack (App.request dans Twig)
 ];
