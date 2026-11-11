@@ -7,87 +7,60 @@ use App\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\admin\historisation\pageConsultation\UserLogger;
-use App\Entity\admin\historisation\pageConsultation\PageConsultationSearch;
-use App\Form\admin\historisation\pageConsultation\PageConsultationSearchType;
 
+/**
+ * Historique des consultations de pages (table Log_utilisateur) :
+ * onglet « Tableau de bord » (statistiques de la période) et onglet « Consultations » (recherche).
+ */
 class PageConsultationController extends Controller
 {
+    private const LIMITES_POSSIBLES = [25, 50, 100, 200, 500];
+
     /**
      * @Route("/admin/consultation-page", name="consultation_page_index")
      */
     public function index(Request $request)
     {
-        $pageConsultationSearch = new PageConsultationSearch;
+        $vue = $request->query->get('vue') === 'tableau-de-bord' ? 'tableau-de-bord' : 'consultations';
+        // période par défaut : 30 jours pour les statistiques, 7 jours pour la liste
+        $dateDebut = $this->creerDate($request->query->get('date_debut')) ?? new \DateTime($vue === 'tableau-de-bord' ? '-29 days' : '-6 days');
+        $dateFin   = $this->creerDate($request->query->get('date_fin')) ?? new \DateTime();
 
-        $this->initialisationFormRecherche($pageConsultationSearch);
+        /** @var \App\Repository\admin\historisation\pageConsultation\UserLoggerRepository $repository */
+        $repository = $this->getEntityManager()->getRepository(UserLogger::class);
+        $parametres = ['vue' => $vue, 'dateDebut' => $dateDebut, 'dateFin' => $dateFin];
 
-        //création et initialisation du formulaire de la recherche
-        $form = $this->getFormFactory()->createBuilder(PageConsultationSearchType::class, $pageConsultationSearch, [
-            'method' => 'GET',
-        ])->getForm();
-
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $pageConsultationSearch = $form->getData();
+        if ($vue === 'tableau-de-bord') {
+            return $this->render('admin/historisation/consultation-page/tableau-de-bord.html.twig', $parametres + [
+                'stats' => $repository->tableauDeBord($dateDebut, $dateFin),
+            ]);
         }
 
-        $criteria = [];
-        // transformer l'objet pageConsultationSearch en tableau
-        $criteria = $pageConsultationSearch->toArray();
-        //recupères les données du criteria dans une session nommé page_consultation_search_criteria
-        $this->getSessionService()->set('page_consultation_search_criteria', $criteria);
+        $filtres = [
+            'recherche'   => trim((string) $request->query->get('recherche')),
+            'utilisateur' => trim((string) $request->query->get('utilisateur')),
+            'page'        => trim((string) $request->query->get('page')),
+        ];
+        // valeur imposée : la limite est injectée dans le TOP de la requête
+        $limite = in_array($request->query->getInt('limite'), self::LIMITES_POSSIBLES, true) ? $request->query->getInt('limite') : 50;
 
-        //recupère le numero de page
-        $page = $request->query->getInt('page', 1);
-        //nombre de ligne par page
-        $limit = 20;
-
-        $paginationData = $this->isObjectEmpty($pageConsultationSearch) ? [] : $this->getEntityManager()->getRepository(UserLogger::class)->findPaginatedAndFiltered($page, $limit, $pageConsultationSearch);
-
-        return $this->render('admin/historisation/consultation-page/index.html.twig', [
-            'form'        => $form->createView(),
-            'data'        => $paginationData['data'] ?? null,
-            'currentPage' => $paginationData['currentPage'] ?? null,
-            'totalPages'  => $paginationData['lastPage'] ?? 0,
-            'resultat'    => $paginationData['totalItems'] ?? 0,
-            'criteria'    => $criteria,
+        return $this->render('admin/historisation/consultation-page/index.html.twig', $parametres + [
+            'filtres'          => $filtres,
+            'limite'           => $limite,
+            'limitesPossibles' => self::LIMITES_POSSIBLES,
+            'resultat'         => $repository->rechercher($filtres, $dateDebut, $dateFin, $limite),
+            'pages'            => $repository->nomsPages(),
         ]);
     }
 
-    /** 
-     * Méthode pour vérifier si l'objet est vide
-     * 
-     * @return bool
-     */
-    private function isObjectEmpty(PageConsultationSearch $pageConsultationSearch): bool
+    private function creerDate(?string $valeur): ?\DateTime
     {
-        return
-            $pageConsultationSearch->getUtilisateur() === "" &&
-            $pageConsultationSearch->getNomPage() === "" &&
-            $pageConsultationSearch->getMachineUser() === "" &&
-            $pageConsultationSearch->getDateDebut() === null &&
-            $pageConsultationSearch->getDateFin() === null;
-    }
-
-    /** 
-     * Méthode pour initialiser le recherche
-     */
-    private function initialisationFormRecherche(PageConsultationSearch $pageConsultationSearch)
-    {
-        // Initialisation des critères depuis la session
-        $criteria = $this->getSessionService()->get('page_consultation_search_criteria', []);
-
-        // Si des critères existent, les utiliser pour définir les entités associées
-        if (!empty($criteria)) {
-            $pageConsultationSearch
-                ->setUtilisateur($criteria['utilisateur'])
-                ->setNomPage($criteria['nom_page'])
-                ->setMachineUser($criteria['machineUser'])
-                ->setDateDebut($criteria['dateDebut'] ?? null)
-                ->setDateFin($criteria['dateFin'] ?? null)
-            ;
+        if (!$valeur) {
+            return null;
         }
+        $date = \DateTime::createFromFormat('!Y-m-d', $valeur);
+
+        return $date ?: null;
     }
 
     /**
@@ -95,7 +68,7 @@ class PageConsultationController extends Controller
      */
     public function dashboard()
     {
-        return $this->render('admin/historisation/consultation-page/dashboard.html.twig');
+        return $this->redirectToRoute('consultation_page_index', ['vue' => 'tableau-de-bord']);
     }
 
     /**
