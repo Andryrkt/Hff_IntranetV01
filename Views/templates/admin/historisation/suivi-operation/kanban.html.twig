@@ -111,7 +111,9 @@
 				</div>
 				<div class="modal-body"></div>
 				<div class="modal-footer">
-					<a class="btn btn-warning btn-sm" id="lien-modifier-tache" href="#">Modifier dans l'onglet Tâches</a>
+					<span class="small text-danger me-auto" id="erreur-detail-tache" role="alert"></span>
+					<button type="button" class="btn btn-warning btn-sm" id="btn-editer-tache"><i class="fas fa-edit"></i> Modifier la cause et la correction</button>
+					<button type="button" class="btn btn-warning btn-sm d-none" id="btn-enregistrer-tache"><i class="fas fa-save"></i> Enregistrer</button>
 					<button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Fermer</button>
 				</div>
 			</div>
@@ -121,16 +123,32 @@
 
 {% block javascript %}
 	<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/tinymce@7.9.3/tinymce.min.js"></script>
 	<script>
 		let carteDeplacee = null;
 
-		// détail de la tâche dans une fenêtre (clic ou Entrée sur la carte)
+		// détail de la tâche dans une fenêtre (clic ou Entrée sur la carte), cause et correction modifiables sur place
 		const modalDetail = document.getElementById('modal-detail-tache');
-		const urlTaches = "{{ path('suivi_operation_index', {vue: 'taches', statut: ''}) }}";
+		const btnEditer = document.getElementById('btn-editer-tache');
+		const btnEnregistrer = document.getElementById('btn-enregistrer-tache');
+		const erreurDetail = document.getElementById('erreur-detail-tache');
+		let carteOuverte = null;
+
+		function nettoyer(html) {
+			return window.DOMPurify ? DOMPurify.sanitize(html) : '';
+		}
+
+		function modeLecture(estLecture) {
+			btnEditer.classList.toggle('d-none', !estLecture);
+			btnEnregistrer.classList.toggle('d-none', estLecture);
+			erreurDetail.textContent = '';
+		}
+
 		function afficherDetail(carte) {
+			carteOuverte = carte;
 			const detail = carte.querySelector('.detail-tache').content.cloneNode(true);
 			detail.querySelectorAll('[data-html]').forEach(bloc => {
-				bloc.innerHTML = window.DOMPurify ? DOMPurify.sanitize(bloc.innerHTML) : '';
+				bloc.innerHTML = nettoyer(bloc.innerHTML);
 				if (!bloc.textContent.trim() && !bloc.querySelector('img, table')) {
 					bloc.innerHTML = '<span class="text-muted">Non renseignée</span>';
 				}
@@ -138,9 +156,66 @@
 			const id = carte.querySelector('strong').textContent.replace(/\D/g, '');
 			modalDetail.querySelector('.modal-title').textContent = 'Tâche n° ' + id;
 			modalDetail.querySelector('.modal-body').replaceChildren(detail);
-			document.getElementById('lien-modifier-tache').href = urlTaches + '#tache-' + id;
+			modeLecture(true);
 			bootstrap.Modal.getOrCreateInstance(modalDetail).show();
 		}
+
+		btnEditer.addEventListener('click', function () {
+			const modele = carteOuverte.querySelector('.detail-tache').content;
+			modalDetail.querySelectorAll('.modal-body [data-html]').forEach(bloc => {
+				const champ = bloc.dataset.html;
+				const zone = document.createElement('textarea');
+				zone.dataset.champ = champ;
+				zone.value = nettoyer(modele.querySelector('[data-html="' + champ + '"]').innerHTML);
+				bloc.replaceWith(zone);
+				tinymce.init({
+					target: zone,
+					license_key: 'gpl',
+					language: 'fr_FR',
+					language_url: 'https://cdn.jsdelivr.net/npm/tinymce-i18n@26.9.28/langs7/fr_FR.js',
+					height: 220,
+					menubar: false,
+					branding: false,
+					plugins: 'lists link table code',
+					toolbar: 'undo redo | blocks | bold italic underline | forecolor | bullist numlist | link table | removeformat code'
+				});
+			});
+			modeLecture(false);
+		});
+
+		btnEnregistrer.addEventListener('click', async function () {
+			tinymce.triggerSave();
+			const donnees = {};
+			modalDetail.querySelectorAll('.modal-body textarea[data-champ]').forEach(zone => donnees[zone.dataset.champ] = zone.value);
+			btnEnregistrer.disabled = true;
+			try {
+				const reponse = await fetch(carteOuverte.dataset.url, {
+					method: 'POST',
+					headers: {'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest'},
+					body: JSON.stringify(donnees)
+				});
+				if (!reponse.ok) {
+					throw new Error((await reponse.json().catch(() => ({}))).message || 'Erreur ' + reponse.status);
+				}
+				// la carte garde le nouveau contenu pour les prochaines ouvertures
+				const modele = carteOuverte.querySelector('.detail-tache').content;
+				Object.entries(donnees).forEach(([champ, valeur]) => modele.querySelector('[data-html="' + champ + '"]').innerHTML = valeur);
+				tinymce.remove();
+				afficherDetail(carteOuverte);
+			} catch (err) {
+				erreurDetail.textContent = 'Non enregistré : ' + err.message;
+			} finally {
+				btnEnregistrer.disabled = false;
+			}
+		});
+
+		modalDetail.addEventListener('hidden.bs.modal', () => tinymce.remove());
+		// les fenêtres de TinyMCE (lien, tableau) doivent pouvoir recevoir le focus malgré la fenêtre Bootstrap
+		document.addEventListener('focusin', e => {
+			if (e.target.closest('.tox-tinymce-aux, .tox-dialog, .moxman-window')) {
+				e.stopImmediatePropagation();
+			}
+		});
 
 		function actualiserCompteurs() {
 			document.querySelectorAll('.kanban-colonne').forEach(colonne => {
