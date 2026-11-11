@@ -40,6 +40,13 @@
 						<input type="date" id="date_fin" name="date_fin" value="{{ periode.date_fin }}" class="form-control form-control-sm">
 					</div>
 					<div class="col-auto">
+						<input type="hidden" name="sans_controles" value="0">
+						<div class="form-check mb-1">
+							<input type="checkbox" class="form-check-input" id="sans_controles" name="sans_controles" value="1" {{ sansControles ? 'checked' : '' }} onchange="this.form.submit()">
+							<label class="form-check-label" for="sans_controles" title="Exclut les opérations arrêtées aux étapes « Contrôles » et « Contrôles de blocage » (refus métier, pas des erreurs)">Exclure les contrôles de blocage</label>
+						</div>
+					</div>
+					<div class="col-auto">
 						<button type="submit" class="btn btn-warning btn-sm">Afficher</button>
 						<a href="{{ path('suivi_operation_index', {vue: 'tableau-de-bord'}) }}" class="btn btn-outline-secondary btn-sm">30 derniers jours</a>
 					</div>

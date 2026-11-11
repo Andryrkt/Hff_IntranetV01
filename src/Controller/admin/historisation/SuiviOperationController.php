@@ -75,9 +75,12 @@ class SuiviOperationController extends Controller
         if ($request->query->get('vue') === 'tableau-de-bord') {
             $debutPeriode = $dateDebut ?? new \DateTime('-29 days');
             $finPeriode   = $dateFin ?? new \DateTime();
+            // coché par défaut : absent de l'URL = blocages métier exclus
+            $sansControles = $request->query->get('sans_controles', '1') === '1';
 
             return $this->render('admin/historisation/suivi-operation/tableau-de-bord.html.twig', $parametresTaches + [
-                'stats'     => $this->getEntityManager()->getRepository(HistoriqueOperationEtape::class)->tableauDeBord($debutPeriode, $finPeriode),
+                'stats'     => $this->getEntityManager()->getRepository(HistoriqueOperationEtape::class)->tableauDeBord($debutPeriode, $finPeriode, $sansControles),
+                'sansControles' => $sansControles,
                 'dateDebut' => $debutPeriode,
                 'dateFin'   => $finPeriode,
             ]);

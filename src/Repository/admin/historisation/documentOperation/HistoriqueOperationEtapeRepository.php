@@ -162,10 +162,14 @@ class HistoriqueOperationEtapeRepository extends EntityRepository
      *
      * @return array{kpi: array, parJour: array, parType: array, etapesEchec: array, parUtilisateur: array}
      */
-    public function tableauDeBord(\DateTimeInterface $debut, \DateTimeInterface $fin): array
+    public function tableauDeBord(\DateTimeInterface $debut, \DateTimeInterface $fin, bool $sansControles = true): array
     {
         $connexion = $this->getEntityManager()->getConnection();
         $params    = [$debut->format('Y-m-d 00:00:00'), $fin->format('Y-m-d 23:59:59')];
+        // blocages métier (règles de gestion refusées) : ce ne sont pas des erreurs techniques
+        $controles = "etape IN (N'Contrôles', N'Contrôles de blocage') AND statut IN ('ECHEC', 'INTERROMPU')";
+        $sansOperationsBloquees = $sansControles ? "HAVING SUM(CASE WHEN $controles THEN 1 ELSE 0 END) = 0" : '';
+        $sansEtapesControle = $sansControles ? "AND NOT ($controles)" : '';
         $operations = "WITH ops AS (
                 SELECT id_suivi, MIN(type_operation) AS type_operation, MIN(utilisateur) AS utilisateur,
                        MIN(date_debut) AS debut,
@@ -179,6 +183,7 @@ class HistoriqueOperationEtapeRepository extends EntityRepository
                 FROM historique_operation_etape
                 WHERE date_debut BETWEEN ? AND ?
                 GROUP BY id_suivi
+                $sansOperationsBloquees
             ) ";
         $compteurs = "COUNT(*) AS total,
                 SUM(CASE WHEN resultat = 'SUCCES' THEN 1 ELSE 0 END) AS succes,
@@ -205,7 +210,7 @@ class HistoriqueOperationEtapeRepository extends EntityRepository
             'etapesEchec' => $connexion->fetchAllAssociative(
                 "SELECT TOP 10 type_operation, etape, COUNT(*) AS nombre, MAX(date_debut) AS derniere
                  FROM historique_operation_etape
-                 WHERE date_debut BETWEEN ? AND ? AND statut IN ('ECHEC', 'INTERROMPU')
+                 WHERE date_debut BETWEEN ? AND ? AND statut IN ('ECHEC', 'INTERROMPU') $sansEtapesControle
                  GROUP BY type_operation, etape
                  ORDER BY nombre DESC",
                 $params
