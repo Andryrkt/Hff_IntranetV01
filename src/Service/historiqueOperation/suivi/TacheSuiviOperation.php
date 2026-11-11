@@ -24,6 +24,9 @@ class TacheSuiviOperation
     public const STATUT_DEPLOYE  = 'DEPLOYE';
     public const STATUT_IGNORE   = 'IGNORE';
 
+    // refus métier (règle de gestion non respectée par l'utilisateur) : pas un bug à corriger
+    public const ETAPES_SANS_TACHE = ['Contrôles', 'Contrôles de blocage'];
+
     public const LIBELLES_STATUT = [
         self::STATUT_A_TRIER  => 'À trier',
         self::STATUT_A_FAIRE  => 'À faire',
@@ -78,7 +81,11 @@ class TacheSuiviOperation
         string $date,
         bool $alerter = true
     ): ?int {
-        $etapeType   = mb_substr(self::normaliser($etape), 0, 100);
+        if (in_array($etape, self::ETAPES_SANS_TACHE, true)) {
+            return null;
+        }
+
+        $etapeType   =mb_substr(self::normaliser($etape), 0, 100);
         $messageType = $message !== null && trim($message) !== '' ? mb_substr(self::normaliser($message), 0, 500) : null;
         $signature   = sha1($typeOperation . '|' . $etapeType . '|' . $messageType);
 
