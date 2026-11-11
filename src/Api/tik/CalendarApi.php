@@ -44,7 +44,7 @@ class CalendarApi extends Controller
                 $detailDemande      = $event->getDetailDemande();
                 $dateDebutPlanning  = $event->getDateDebutPlanning();
                 $dateFinPlanning    = $event->getDateFinPlanning();
-                $intervenantId      = $demandeSupportInfo->getIntervenant()->getId(); // id de l'intervenant affilié au planning
+                $intervenantId      = $demandeSupportInfo ? $demandeSupportInfo->getIntervenant()->getId() : null; // id de l'intervenant affilié au planning (aucun pour un évènement sans ticket)
                 $ticket             = $numeroTicket ? true : false;
 
                 $eventData[] = [

@@ -234,6 +234,8 @@ class DemandePaiementDaType extends AbstractType
                     'class' => 'autocomplete',
                     'autocomplete' => 'off',
                 ],
+                // valeur concaténée dans les requêtes IPS et GCOT
+                'constraints' => [new Assert\Regex(['pattern' => '/^\d+$/D', 'message' => 'Le numéro de fournisseur ne doit contenir que des chiffres.'])],
             ]
         )
             ->add(

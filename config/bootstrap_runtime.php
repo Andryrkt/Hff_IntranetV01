@@ -213,6 +213,8 @@ $twig->addExtension(new \App\Twig\AppExtension($session, $container->get('reques
 $twig->addExtension(new \App\Twig\BreadcrumbExtension($menuService, $securityService, $cacheMenu));
 $twig->addExtension(new \App\Twig\CarbonExtension());
 $twig->addExtension(new \App\Twig\DeleteWordExtension());
+$twig->addExtension(new \App\Twig\GuideUtilisateurExtension($container->get('doctrine')));
+$twig->addExtension(new \App\Twig\NotificationExtension($container->get('doctrine')));
 
 // Asset Extension
 $publicPath = $_ENV['BASE_PATH_COURT'] . '/public';

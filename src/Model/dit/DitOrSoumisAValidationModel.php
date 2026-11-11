@@ -506,7 +506,7 @@ class DitOrSoumisAValidationModel extends Model
 
     public function getListeArticlesSavLorString(string $numOr, string $codeSociete): string
     {
-        $statement = " SELECT TRIM(slor_refp) || REPLACE(TRIM(slor_desi), \"'\", \"''\") as refp_desi
+        $statement = " SELECT TRIM(slor_refp) || TRIM(slor_desi) as refp_desi
             from sav_lor where slor_constp = 'ZST' and slor_numor = '$numOr' and slor_soc = '$codeSociete'
             ";
 

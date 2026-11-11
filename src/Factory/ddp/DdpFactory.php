@@ -357,12 +357,12 @@ class DdpFactory
 
     /**
      * Récupération des numéros de commande
-     * 
+     *
      * @param string $numeroFournisseur
      * @param array $numeroFacture
      * @return string[]
      */
-    private function recuperationNumCommande(string $numeroFournisseur, array $numeroFacture): array
+    public function recuperationNumCommande(string $numeroFournisseur, array $numeroFacture): array
     {
         $numCdes = $this->ddpModel->getCommandeReceptionnee($numeroFournisseur);
         $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);

@@ -37,6 +37,7 @@ class BreadcrumbExtension extends AbstractExtension
             new TwigFunction('breadcrumbs',     [$this, 'generateBreadcrumbs']),
             new TwigFunction('navigationAdmin', [$this, 'generateNavigationAdmin']),
             new TwigFunction('hasAcces',        [$this, 'hasAcces']),
+            new TwigFunction('estAdmin',        [$this->securityService, 'estAdmin']),
             new TwigFunction('renderMenuModals', [$this, 'renderMenuModals'], ['is_safe' => ['html'], 'needs_environment' => true]),
         ];
     }

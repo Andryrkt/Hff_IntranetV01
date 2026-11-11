@@ -7,6 +7,7 @@ use App\Constants\ddp\TypeDemandePaiementConstants;
 use App\Dto\Da\ddp\BapSearchDto;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\ddp\DemandePaiement;
+use App\Entity\ddp\DemandePaiementCommande;
 use App\Service\TableauEnStringService;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query;
@@ -170,15 +171,35 @@ class DemandePaiementRepository extends EntityRepository
         return $resultat ?? 0;
     }
 
-    public function getDdpSelonNumCde(string $numCde)
+    /**
+     * @param bool $avecMultiCommandes inclut les DDP magasin multi-commandes (d.numeroCommande = "cde1;cde2;..."),
+     *                                 retrouvées par la table demande_paiement_commande
+     * @param bool $avecRefusees       pour affichage uniquement : inclut les DDP refusées (dernière version de chaque DDP).
+     *                                 Ne pas utiliser pour un calcul de montant : une DDP refusée n'est pas payée
+     */
+    public function getDdpSelonNumCde(string $numCde, bool $avecMultiCommandes = false, bool $avecRefusees = false)
     {
-        $queryBuilder =  $this->createQueryBuilder('d')
-            ->where('d.numeroCommande = :numero')
-            ->andWhere('d.statut NOT IN (:statut)')
+        $queryBuilder =  $this->createQueryBuilder('d');
+        $queryBuilder
+            ->where($avecMultiCommandes
+                ? $queryBuilder->expr()->orX(
+                    'd.numeroCommande = :numero',
+                    'EXISTS (SELECT c.id FROM ' . DemandePaiementCommande::class . ' c WHERE c.demandePaiement = d AND c.numeroCommande = :numero)'
+                )
+                : 'd.numeroCommande = :numero')
             ->setParameter('numero', (string) $numCde)
-            ->setParameter('statut', StatutConstants::REFUSES_DDP)
             ->orderBy('d.numeroDdp', 'ASC');
 
+        if ($avecRefusees) {
+            $queryBuilder->andWhere('d.numeroVersion = (
+                SELECT MAX(d2.numeroVersion) FROM ' . DemandePaiement::class . ' d2
+                WHERE d2.numeroDdp = d.numeroDdp
+            )');
+        } else {
+            $queryBuilder
+                ->andWhere('d.statut NOT IN (:statut)')
+                ->setParameter('statut', StatutConstants::REFUSES_DDP);
+        }
 
         return $queryBuilder->getQuery()
             ->getResult()
@@ -237,7 +258,7 @@ class DemandePaiementRepository extends EntityRepository
         return $queryBuilder ? $queryBuilder['statut'] : null;
     }
 
-    public function findByConsultationFactureCriteria(BapSearchDto $criteria, bool $appro = true)
+    public function findByConsultationFactureCriteria(BapSearchDto $criteria, bool $appro)
     {
         $qb = $this->createQueryBuilder('d')
             ->leftJoin('d.commandeLivraisons', 'cl')
@@ -277,6 +298,11 @@ class DemandePaiementRepository extends EntityRepository
         if (!empty($criteria->fournisseur)) {
             $qb->andWhere('CONCAT(d.numeroFournisseur, \' - \', d.beneficiaire) = :fournisseur')
                 ->setParameter('fournisseur', $criteria->fournisseur);
+        }
+
+        if (!empty($criteria->typeDemande)) {
+            $qb->andWhere('d.typeDemandeId = :typeDemandeId')
+                ->setParameter('typeDemandeId', $criteria->typeDemande->getId());
         }
 
         if (!empty($criteria->aTraiter)) {
@@ -345,10 +371,215 @@ class DemandePaiementRepository extends EntityRepository
      * compta) pour une commande, à l'avance comme après arrivage. Seule la
      * dernière version de chaque demande est prise en compte.
      */
-    public function getSommeMontantDdpValideParCommande(string $numeroCde, string $codeSociete): float
+    /**
+     * Somme des montants des demandes de paiement validées d'une commande
+     * (dernière version de chaque DDP), éventuellement limitée à un type de demande.
+     */
+    public function getSommeMontantDdpValideParCommande(string $numeroCde, string $codeSociete, ?int $typeDemandeId = null): float
     {
-        $result = $this->createQueryBuilder('d')
+        $result = $this->ddpValideParCommandeQueryBuilder($numeroCde, $codeSociete, $typeDemandeId)
             ->select('SUM(d.montantAPayers)')
+            ->getQuery()
+            ->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);
+
+        return $result !== null ? (float) $result : 0.0;
+    }
+
+    /**
+     * Cumul des pourcentages (montant à payer / montant total du commande) des
+     * demandes de paiement validées d'une commande.
+     */
+    public function getCumulRatioDdpValideParCommande(string $numeroCde, string $codeSociete, ?int $typeDemandeId = null): float
+    {
+        $cumul = 0.0;
+        /** @var DemandePaiement $ddp */
+        foreach ($this->ddpValideParCommandeQueryBuilder($numeroCde, $codeSociete, $typeDemandeId)->getQuery()->getResult() as $ddp) {
+            $cumul += $ddp->getRatioMontantTotalCommande();
+        }
+
+        return $cumul;
+    }
+
+    /**
+     * Situation des demandes de paiement à l'avance (DDPA) validées d'une commande :
+     * - ratioDdpa : cumul des % des DDPA (0 sans DDPA) ;
+     * - typeDdpAGenerer : BAP (0 % DDPA), DDPR (100 %), DDPL (entre les deux) ;
+     * - soldeAvance (0 sans DDPA) : somme des montants facture proforma des DDPA - réceptionné
+     *   des demandes validées de type différent de l'avance, ramené à 0 s'il est négatif.
+     *
+     * @return array{ratioDdpa: float, typeDdpAGenerer: int, soldeAvance: float}
+     */
+    public function getSituationAvanceParCommande(string $numeroCde, string $codeSociete): array
+    {
+        $ratioDdpa = 0.0;
+        $sommeProforma = 0.0;
+
+        $ddpas = $this->ddpValideParCommandeQueryBuilder($numeroCde, $codeSociete, TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE)
+            ->orderBy('d.numeroDdp', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        /** @var DemandePaiement $ddpa */
+        foreach ($ddpas as $ddpa) {
+            $ratioDdpa += $ddpa->getRatioMontantTotalCommande();
+            // montant à payer d'une DDPA = montant facture proforma
+            $sommeProforma += (float) $ddpa->getMontantAPayers();
+        }
+
+        if ($ratioDdpa <= 0.01) {
+            return ['ratioDdpa' => $ratioDdpa, 'montantProforma' => $sommeProforma, 'typeDdpAGenerer' => TypeDemandePaiementConstants::ID_BON_A_PAYER, 'soldeAvance' => 0.0];
+        }
+
+        $montantDejaPaye = (float) $this->getEntityManager()->createQueryBuilder()
+            ->select('SUM(c.montantCommandeReceptionner)')
+            ->from(DemandePaiementCommande::class, 'c')
+            ->join('c.demandePaiement', 'd')
+            ->where('c.numeroCommande = :numCde')
+            ->andWhere('d.statut IN (:statutsValides)')
+            ->andWhere('d.codeSociete = :codeSociete')
+            ->andWhere('IDENTITY(d.typeDemandeId) <> :typeAvance')
+            ->andWhere('d.numeroVersion = (
+                SELECT MAX(d2.numeroVersion) FROM ' . DemandePaiement::class . ' d2
+                WHERE d2.numeroDdp = d.numeroDdp
+            )')
+            ->setParameters([
+                'numCde'         => $numeroCde,
+                'statutsValides' => [StatutConstants::VALIDE, StatutConstants::TRANSMIS_COMPTA],
+                'codeSociete'    => $codeSociete,
+                'typeAvance'     => TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE,
+            ])
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return [
+            'ratioDdpa'       => $ratioDdpa,
+            'montantProforma' => $sommeProforma,
+            'typeDdpAGenerer' => $ratioDdpa >= 100 - 0.01 ? TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_REGULE : TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE,
+            'soldeAvance'     => round(max(0.0, $sommeProforma - $montantDejaPaye), 2),
+        ];
+    }
+
+    /**
+     * Factures d'un fournisseur ayant déjà une demande de paiement non refusée (dernière
+     * version de chaque demande) : une facture ne se paie qu'une fois, et redevient
+     * disponible si sa demande est refusée.
+     *
+     * @return array<string, string> [numeroFacture => numeroDdp]
+     */
+    public function getDdpParFactureNonRefusee(string $numeroFournisseur, string $codeSociete): array
+    {
+        $demandes = $this->createQueryBuilder('d')
+            ->select('d.numeroDdp, d.numeroFacture')
+            ->where('d.numeroFournisseur = :numFrn')
+            ->andWhere('d.codeSociete = :codeSociete')
+            ->andWhere('d.statut NOT IN (:refuses)')
+            ->andWhere('d.numeroVersion = (
+                SELECT MAX(d2.numeroVersion) FROM ' . DemandePaiement::class . ' d2
+                WHERE d2.numeroDdp = d.numeroDdp
+            )')
+            ->setParameters([
+                'numFrn'      => $numeroFournisseur,
+                'codeSociete' => $codeSociete,
+                'refuses'     => StatutConstants::REFUSES_DDP,
+            ])
+            ->getQuery()
+            ->getArrayResult();
+
+        $ddpParFacture = [];
+        foreach ($demandes as $demande) {
+            // numero_facture : liste séparée par ";" (DdpDto::numeroFactureSansGuillemet)
+            foreach (explode(';', (string) $demande['numeroFacture']) as $numFac) {
+                if (trim($numFac) !== '') {
+                    $ddpParFacture[trim($numFac)] = $demande['numeroDdp'];
+                }
+            }
+        }
+
+        return $ddpParFacture;
+    }
+
+    /**
+     * Demandes de paiement à l'avance (dernière version) d'un fournisseur
+     */
+    private function ddpAvanceParFournisseurQueryBuilder(string $numeroFournisseur, string $codeSociete)
+    {
+        return $this->createQueryBuilder('d')
+            ->where('d.numeroFournisseur = :numFrn')
+            ->andWhere('d.codeSociete = :codeSociete')
+            ->andWhere('IDENTITY(d.typeDemandeId) = :typeDemandeId')
+            ->andWhere('d.numeroVersion = (
+                SELECT MAX(d2.numeroVersion) FROM ' . DemandePaiement::class . ' d2
+                WHERE d2.numeroDdp = d.numeroDdp
+            )')
+            ->setParameters([
+                'numFrn'        => $numeroFournisseur,
+                'codeSociete'   => $codeSociete,
+                'typeDemandeId' => TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE,
+            ]);
+    }
+
+    /**
+     * Commandes d'un fournisseur déjà payées à 100 % par des demandes de paiement à l'avance
+     * validées (même règle que getCumulRatioDdpValideParCommande, en une seule requête).
+     *
+     * @return string[]
+     */
+    public function getCommandesAvanceSoldees(string $numeroFournisseur, string $codeSociete): array
+    {
+        $ddps = $this->ddpAvanceParFournisseurQueryBuilder($numeroFournisseur, $codeSociete)
+            ->andWhere('d.statut IN (:statutsValides)')
+            ->setParameter('statutsValides', StatutConstants::VALIDES_DDP)
+            ->getQuery()
+            ->getResult();
+
+        $cumulParCommande = [];
+        /** @var DemandePaiement $ddp */
+        foreach ($ddps as $ddp) {
+            $numCde = trim((string) $ddp->getNumeroCommande());
+            // multi-commandes : ratio non réparti par commande, ignoré comme dans getCumulRatioDdpValideParCommande
+            if (strpos($numCde, ';') !== false) {
+                continue;
+            }
+            $cumulParCommande[$numCde] = ($cumulParCommande[$numCde] ?? 0.0) + $ddp->getRatioMontantTotalCommande();
+        }
+
+        return array_map('strval', array_keys(array_filter($cumulParCommande, fn($cumul) => $cumul >= 100 - 0.01)));
+    }
+
+    /**
+     * Commandes d'un fournisseur ayant une demande de paiement à l'avance en cours, ni validée
+     * ni refusée (dernière version de chaque demande).
+     *
+     * @return string[]
+     */
+    public function getCommandesAvecDdpAvanceEnCours(string $numeroFournisseur, string $codeSociete): array
+    {
+        $demandes = $this->ddpAvanceParFournisseurQueryBuilder($numeroFournisseur, $codeSociete)
+            ->select('d.numeroCommande')
+            ->andWhere('d.statut NOT IN (:statutsTermines)')
+            ->setParameter('statutsTermines', array_merge(StatutConstants::REFUSES_DDP, StatutConstants::VALIDES_DDP))
+            ->getQuery()
+            ->getArrayResult();
+
+        $commandes = [];
+        foreach ($demandes as $demande) {
+            // numero_commande : liste séparée par ";" (DdpDto::numeroCommandeSansGuillemet)
+            foreach (explode(';', (string) $demande['numeroCommande']) as $numCde) {
+                if (trim($numCde) !== '') {
+                    $commandes[] = trim($numCde);
+                }
+            }
+        }
+
+        return array_values(array_unique($commandes));
+    }
+
+    /**
+     * Demandes de paiement validées (dernière version) d'une commande
+     */
+    private function ddpValideParCommandeQueryBuilder(string $numeroCde, string $codeSociete, ?int $typeDemandeId)
+    {
+        $queryBuilder = $this->createQueryBuilder('d')
             ->where('d.numeroCommande = :numCde')
             ->andWhere('d.statut IN (:statutsValides)')
             ->andWhere('d.codeSociete = :codeSociete')
@@ -360,11 +591,15 @@ class DemandePaiementRepository extends EntityRepository
                 'numCde'         => $numeroCde,
                 'statutsValides' => [StatutConstants::VALIDE, StatutConstants::TRANSMIS_COMPTA],
                 'codeSociete'    => $codeSociete,
-            ])
-            ->getQuery()
-            ->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);
+            ]);
 
-        return $result !== null ? (float) $result : 0.0;
+        if ($typeDemandeId !== null) {
+            $queryBuilder
+                ->andWhere('IDENTITY(d.typeDemandeId) = :typeDemandeId')
+                ->setParameter('typeDemandeId', $typeDemandeId);
+        }
+
+        return $queryBuilder;
     }
 
     public function getSommeMontantValide(string $numeroCde, string $codeSociete)

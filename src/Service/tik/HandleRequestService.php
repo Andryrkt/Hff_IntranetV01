@@ -128,7 +128,11 @@ class HandleRequestService
         $action = $button['action'];
 
         $this->setForm($form);
-        $this->setStatut($button['statut']);
+
+        // un transfert ne change pas le statut du ticket
+        if ($button['statut'] !== null) {
+            $this->setStatut($button['statut']);
+        }
 
         $this->{$actions[$action]}();
     }
@@ -164,7 +168,7 @@ class HandleRequestService
 
         $this->historiqueStatut();
 
-        $nomPrenomIntervenant = $this->form->getData()->getIntervenant()->getPersonnels()->getNom() . ' ' . $this->form->getData()->getIntervenant()->getPersonnels()->getPrenoms();
+        $nomPrenomIntervenant = $this->emailTikService->nomPrenom($this->form->getData()->getIntervenant());
 
         // Envoi email validation
         $variableEmail = $this->emailTikService->prepareDonneeEmail($this->supportInfo, $this->connectedUser, $nomPrenomIntervenant);
@@ -376,7 +380,7 @@ class HandleRequestService
         $this->em->persist($this->supportInfo);
         $this->em->flush();
 
-        $nomPrenomNouveauIntervenant = $this->form->getData()->getIntervenant()->getPersonnels()->getNom() . ' ' . $this->form->getData()->getIntervenant()->getPersonnels()->getPrenoms();
+        $nomPrenomNouveauIntervenant = $this->emailTikService->nomPrenom($this->form->getData()->getIntervenant());
 
         // Envoi email de transfert
         $variableEmail = $this->emailTikService->prepareDonneeEmail($this->supportInfo, $this->connectedUser, $nomPrenomNouveauIntervenant);

@@ -10,12 +10,14 @@ use App\Form\common\RibType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class DdpType extends AbstractType
 {
@@ -64,16 +66,85 @@ class DdpType extends AbstractType
                 'montantAPayer',
                 TextType::class,
                 [
-                    'label' => 'Montant à payer *'
+                    'label' => $options['data']->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE
+                        ? 'Montant facture proforma *'
+                        : 'Montant total réceptionné *',
+                    'attr' => $options['data']->typeDdp->getId() === TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE
+                        ? ['data-plafond' => TypeDemandePaiementConstants::PLAFOND_MONTANT_PROFORMA]
+                        : [],
                 ]
             )
         ;
 
+        $this->addNumeroFactureProforma($builder, $options);
+        $this->addMontantTotalCommande($builder, $options);
+        $this->addMontantsCommande($builder, $options);
         $this->addNumeroCommande($builder, $options);
         $this->addNumeroFacture($builder, $options);
         $this->addFournisseur($builder);
         $this->addAgenceServiceDebiteur($builder, $options);
         $this->addFile($builder);
+    }
+
+    /**
+     * N° facture proforma : uniquement pour la demande de paiement à l'avance.
+     * Enregistré dans numero_facture, varchar(50) (DdpController::traitementDuFormulaire)
+     */
+    public function addNumeroFactureProforma(FormBuilderInterface $builder, array $options)
+    {
+        if ($options['data']->typeDdp->getId() !== TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE) {
+            return;
+        }
+
+        $builder->add(
+            'numeroFactureProforma',
+            TextType::class,
+            [
+                'label' => 'N° facture proforma *',
+                'attr' => ['maxlength' => 50],
+            ]
+        );
+    }
+
+    /**
+     * Montant total du commande : uniquement pour la demande de paiement à l'avance.
+     * Remonté d'IPS, non modifiable ; absence bloquée par le serveur (DdpController::traitementDuFormulaire)
+     */
+    public function addMontantTotalCommande(FormBuilderInterface $builder, array $options)
+    {
+        if ($options['data']->typeDdp->getId() !== TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE) {
+            return;
+        }
+
+        $builder->add(
+            'montantTotalCommande',
+            TextType::class,
+            [
+                'label' => 'Montant total du commande *',
+                'attr' => ['readonly' => true],
+            ]
+        );
+    }
+
+    /**
+     * Montants du commande réceptionnés : uniquement pour la demande de paiement après arrivage.
+     * Affichés par le JS sans être postés : le serveur les lit dans IPS (DdpController::traitementDuFormulaire)
+     */
+    public function addMontantsCommande(FormBuilderInterface $builder, array $options)
+    {
+        if ($options['data']->typeDdp->getId() !== TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_APRES_ARRIVAGE) {
+            return;
+        }
+
+        $builder->add(
+            'montantsCommande',
+            CollectionType::class,
+            [
+                'label' => false,
+                'entry_type' => TextType::class,
+                'allow_add' => true,
+            ]
+        );
     }
 
     public function addNumeroFacture(FormBuilderInterface $builder, array $options)
@@ -176,6 +247,8 @@ class DdpType extends AbstractType
                     'class' => 'autocomplete',
                     'autocomplete' => 'off',
                 ],
+                // valeur concaténée dans les requêtes IPS et GCOT
+                'constraints' => [new Assert\Regex(['pattern' => '/^\d+$/D', 'message' => 'Le numéro de fournisseur ne doit contenir que des chiffres.'])],
             ]
         )
             ->add(

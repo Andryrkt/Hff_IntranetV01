@@ -59,6 +59,7 @@ class SuiviOperationService
     public const TYPE_DDP_MODIFICATION    = 'DDP_MODIFICATION';
     public const TYPE_DDP_DA              = 'DDP_DA';
     public const TYPE_DDP_REGULARISATION  = 'DDP_REGULARISATION';
+    public const TYPE_DDP_TRANSMISSION    = 'DDP_TRANSMISSION';
     public const TYPE_CDE_FOURNISSEUR     = 'CDE_FOURNISSEUR';
     // Magasin, POL, ticketing
     public const TYPE_DEVIS_NEG_VERIFICATION_PRIX = 'DEVIS_NEG_VP';
@@ -114,6 +115,7 @@ class SuiviOperationService
         self::TYPE_DDP_MODIFICATION            => 'Demande de paiement (modification)',
         self::TYPE_DDP_DA                      => 'Demande de paiement DA',
         self::TYPE_DDP_REGULARISATION          => 'Demande de régularisation',
+        self::TYPE_DDP_TRANSMISSION            => 'Demande de paiement (transmission)',
         self::TYPE_CDE_FOURNISSEUR             => 'Commande fournisseur',
         self::TYPE_DEVIS_NEG_VERIFICATION_PRIX => 'Devis négoce - vérification prix',
         self::TYPE_DEVIS_NEG_VALIDATION        => 'Devis négoce - validation',
@@ -148,6 +150,10 @@ class SuiviOperationService
     private string $typeOperation;
     private ?string $numeroDocument;
     private int $ordre = 0;
+
+    // une seule tâche par opération : celle de la première étape non OK (la plus précise, les étapes internes se ferment d'abord)
+    private bool $tacheEnregistree = false;
+    private ?int $idTache = null;
 
     /**
      * Pile des étapes ouvertes (une étape peut en contenir d'autres)
@@ -306,6 +312,11 @@ class SuiviOperationService
         $this->executer(function ($connexion) use ($numeroDocument) {
             $connexion->update(self::TABLE, ['numero_document' => mb_substr($numeroDocument, 0, 50)], ['id_suivi' => $this->idSuivi]);
         });
+        if ($this->tacheEnregistree) {
+            $this->executer(function ($connexion) use ($numeroDocument) {
+                $connexion->update('suivi_operation_tache', ['dernier_numero_document' => mb_substr($numeroDocument, 0, 50)], ['dernier_id_suivi' => $this->idSuivi]);
+            });
+        }
 
         return $this;
     }
@@ -423,6 +434,7 @@ class SuiviOperationService
     {
         $this->ordre++;
         $maintenant = self::formaterDate(microtime(true));
+        $this->enregistrerTache($libelle, $statut, $message, $maintenant);
 
         $this->executer(function ($connexion) use ($libelle, $statut, $message, $detail, $maintenant) {
             $connexion->insert(self::TABLE, [
@@ -438,7 +450,7 @@ class SuiviOperationService
                 'date_fin'        => $maintenant,
                 'utilisateur'     => self::getUtilisateur(),
                 'url'             => mb_substr($_SERVER['REQUEST_URI'] ?? 'cli', 0, 500),
-            ]);
+            ] + $this->colonneTache());
         });
     }
 
@@ -459,7 +471,7 @@ class SuiviOperationService
                 'date_debut'      => self::formaterDate($debut),
                 'utilisateur'     => self::getUtilisateur(),
                 'url'             => mb_substr($_SERVER['REQUEST_URI'] ?? 'cli', 0, 500),
-            ]);
+            ] + $this->colonneTache());
             $id = (int) $connexion->lastInsertId();
         });
 
@@ -487,6 +499,9 @@ class SuiviOperationService
             }
             $message = implode(' | ', array_filter(array_merge($etape['problemes'], [$message])));
         }
+
+        // la tâche se regroupe sur le message d'erreur seul (sans les informations ni le résumé SQL ajoutés ensuite)
+        $this->enregistrerTache($etape['libelle'], $statut, $message !== null ? strip_tags($message) : null, self::formaterDate(microtime(true)));
 
         // informations notées pendant l'étape (extrait d'observation, objet et destinataires d'un mail...)
         if (!empty($etape['infos'])) {
@@ -524,6 +539,46 @@ class SuiviOperationService
                 $connexion->update(self::TABLE, $fermeture + [
                     'message' => "Résultat de l'étape enregistré sans son détail (voir le log PHP)",
                 ], ['id' => $etape['id']]);
+            });
+        }
+    }
+
+    /**
+     * Colonne id_tache à insérer avec une étape, seulement si une tâche existe :
+     * les insertions restent valides sur une base où la colonne n'a pas encore été créée
+     */
+    private function colonneTache(): array
+    {
+        return $this->idTache !== null ? ['id_tache' => $this->idTache] : [];
+    }
+
+    /**
+     * Crée ou met à jour la tâche de correction (table suivi_operation_tache) pour la première étape non OK de l'opération
+     */
+    private function enregistrerTache(string $libelle, string $statut, ?string $message, string $date): void
+    {
+        if ($this->tacheEnregistree || in_array($statut, [self::STATUT_SUCCES, self::STATUT_EN_COURS], true)) {
+            return;
+        }
+        $this->tacheEnregistree = true;
+
+        $this->executer(function ($connexion) use ($libelle, $statut, $message, $date) {
+            $this->idTache = TacheSuiviOperation::enregistrer(
+                $connexion,
+                $this->typeOperation,
+                $libelle,
+                $statut,
+                $message !== null ? self::texteUtf8($message) : null,
+                $this->idSuivi,
+                $this->numeroDocument,
+                $date
+            );
+        });
+
+        // les étapes déjà enregistrées sont rattachées ici, les suivantes à leur insertion
+        if ($this->idTache !== null) {
+            $this->executer(function ($connexion) {
+                $connexion->update(self::TABLE, ['id_tache' => $this->idTache], ['id_suivi' => $this->idSuivi]);
             });
         }
     }

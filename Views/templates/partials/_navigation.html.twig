@@ -35,21 +35,122 @@
 						</a>
 					</li>
 					<li class="me-3">
-						<a class="guide-link" href="{{ App.base_path_fichier }}/documentation/Guide utilisateur intranet.pdf" target="_blank" role="button">
+						<a class="guide-link" href="{{ path('doc_utilisateur_index') }}" target="_blank" role="button">
 							<i class="fas fa-info pe-2"></i>
 							Guide utilisateur intranet
 						</a>
 					</li>
 
-					{# Documentation Technique : visible uniquement si la route est accessible #}
-					{% if hasAcces('app_doc_tech_index') %}
-						<li class="me-3">
-							<a class="tech-doc-link" href="{{ path('app_doc_tech_index') }}" role="button">
-								<i class="fas fa-code pe-2"></i>
-								Documentation Technique
-							</a>
-						</li>
-					{% endif %}
+					{# Notifications : tâches du suivi des opérations assignées à l'utilisateur : à faire aujourd'hui / en retard, et à planifier (sans échéance) #}
+					{% set tachesATraiter = taches_a_traiter(App.connectedUser.username) %}
+					{% set tachesAPlanifier = taches_a_planifier(App.connectedUser.username) %}
+					{% set nbNotifications = tachesATraiter|length + tachesAPlanifier|length %}
+					{% set aujourdhui = 'now'|date('Y-m-d') %}
+					<li class="nav-item dropdown me-2">
+						<a class="nav-link position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="Notifications" aria-label="Notifications ({{ nbNotifications }})">
+							<i class="fas fa-bell text-white"></i>
+							{% if nbNotifications > 0 %}
+								<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ nbNotifications }}</span>
+							{% endif %}
+						</a>
+						<ul class="dropdown-menu dropdown-menu-end" style="min-width: 360px; max-height: 400px; overflow-y: auto;">
+							{% if tachesATraiter is not empty %}
+								<li class="dropdown-header">À traiter aujourd'hui</li>
+								{% for tache in tachesATraiter %}
+									{% set enRetard = tache.echeance|date('Y-m-d') < aujourdhui %}
+									<li>
+										<a class="dropdown-item small text-wrap" href="{{ path('suivi_operation_index', {vue: 'taches'}) }}#tache-{{ tache.id }}">
+											<strong>Tâche n° {{ tache.id }}</strong> – {{ tache.typeOperation }} : {{ tache.etape }}
+											<br><span class="{{ enRetard ? 'text-danger fw-bold' : 'text-muted' }}">{{ enRetard ? 'En retard : échéance le ' : 'Échéance le ' }}{{ tache.echeance|date('d/m/Y') }}</span>
+										</a>
+									</li>
+								{% endfor %}
+							{% endif %}
+							{% if tachesAPlanifier is not empty %}
+								<li class="dropdown-header">Tâches assignées à planifier</li>
+								{% for tache in tachesAPlanifier %}
+									<li>
+										<a class="dropdown-item small text-wrap" href="{{ path('suivi_operation_index', {vue: 'taches'}) }}#tache-{{ tache.id }}">
+											<strong>Tâche n° {{ tache.id }}</strong> – {{ tache.typeOperation }} : {{ tache.etape }}
+											<br><span class="text-muted">Vous êtes assigné(e) : saisissez une échéance pour planifier cette tâche</span>
+										</a>
+									</li>
+								{% endfor %}
+							{% endif %}
+							{% if nbNotifications == 0 %}
+								<li><span class="dropdown-item-text small text-muted">Aucune notification</span></li>
+							{% endif %}
+							<li id="activer-alertes" class="d-none border-top mt-1 pt-1">
+								<button type="button" class="dropdown-item small text-primary"><i class="fas fa-desktop me-1"></i> Activer les alertes Windows</button>
+							</li>
+						</ul>
+					</li>
+					<div id="alertes-taches" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1090;"></div>
+					<script>
+						// alertes des tâches : interroge le serveur toutes les 90 s et prévient une seule fois par alerte (clé)
+						// notification Windows si le navigateur l'autorise (HTTPS ou localhost uniquement), sinon bandeau + compteur dans le titre de l'onglet
+						(function () {
+							const url = "{{ path('api_suivi_operation_alertes')|e('js') }}";
+							const titreOrigine = document.title;
+							const notificationPossible = window.isSecureContext && 'Notification' in window;
+							let nonLues = 0;
+
+							const bouton = document.getElementById('activer-alertes');
+							if (notificationPossible && Notification.permission === 'default') {
+								bouton.classList.remove('d-none');
+								bouton.querySelector('button').addEventListener('click', () => Notification.requestPermission().then(() => bouton.classList.add('d-none')));
+							}
+
+							function lireVues() {
+								try { const v = localStorage.getItem('alertes-taches-vues'); return v === null ? null : new Set(JSON.parse(v)); } catch (e) { return new Set(); }
+							}
+
+							function bandeau(alerte) {
+								const div = document.createElement('div');
+								div.className = 'alert alert-danger shadow mb-2';
+								const lien = document.createElement('a');
+								lien.href = alerte.lien;
+								lien.className = 'alert-link d-block';
+								lien.textContent = alerte.titre;
+								const texte = document.createElement('div');
+								texte.className = 'small';
+								texte.textContent = alerte.texte;
+								const fermer = document.createElement('button');
+								fermer.type = 'button';
+								fermer.className = 'btn-close float-end';
+								fermer.setAttribute('aria-label', 'Fermer');
+								fermer.addEventListener('click', () => div.remove());
+								div.append(fermer, lien, texte);
+								document.getElementById('alertes-taches').append(div);
+							}
+
+							function prevenir(alerte) {
+								if (notificationPossible && Notification.permission === 'granted') {
+									const n = new Notification(alerte.titre, {body: alerte.texte, tag: alerte.cle, requireInteraction: true});
+									n.onclick = () => { window.focus(); window.location.href = alerte.lien; };
+								}
+								bandeau(alerte);
+								nonLues++;
+								document.title = '(' + nonLues + ') ' + titreOrigine;
+							}
+
+							async function verifier() {
+								try {
+									const reponse = await fetch(url, {headers: {'X-Requested-With': 'XMLHttpRequest'}});
+									if (!reponse.ok) return;
+									const alertes = await reponse.json();
+									const vues = lireVues();
+									// premier passage sur ce navigateur : on mémorise l'existant sans tout notifier d'un coup
+									alertes.forEach(a => { if (vues !== null && !vues.has(a.cle)) prevenir(a); });
+									try { localStorage.setItem('alertes-taches-vues', JSON.stringify(alertes.map(a => a.cle))); } catch (e) {}
+								} catch (e) {}
+							}
+
+							window.addEventListener('focus', () => { nonLues = 0; document.title = titreOrigine; });
+							verifier();
+							setInterval(verifier, 90000);
+						})();
+					</script>
 
 					<li class="nav-item dropdown">
 						<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" id="userName" data-user-full-name="{{ App.connectedUser.fullname }}" aria-expanded="false" style="color: #fbbb01;">

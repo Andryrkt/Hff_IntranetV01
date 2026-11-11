@@ -35,6 +35,7 @@ class DdpDossierRegulModel extends Model
 
     public function findListeDoc(string $numeroDossier)
     {
+        $numeroDossier = str_replace("'", "''", $numeroDossier);
         $sql=" SELECT  Nom_Fichier, Date_Fichier, Numero_PO
             from GCOT_Gestion_Document
             where Numero_PO='{$numeroDossier}'

@@ -116,6 +116,11 @@ class DemandePaiement
      */
     private ?float $montantAPayers = 0.00;
 
+    /**
+     * @ORM\Column(type="float", scale="2", name="montant_total_commande", nullable=true)
+     */
+    private ?float $montantTotalCommande = null;
+
 
     /**
      * @ORM\Column(type="string", length=50, name="contact")
@@ -1300,6 +1305,36 @@ class DemandePaiement
     public function setDdpSoumissioncde($ddpSoumissioncde): self
     {
         $this->ddpSoumissioncde = $ddpSoumissioncde;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of montantTotalCommande
+     */
+    public function getMontantTotalCommande(): ?float
+    {
+        return $this->montantTotalCommande;
+    }
+
+    /**
+     * Pourcentage du montant à payer (montant facture proforma) par rapport au
+     * montant total du commande (paiement à l'avance).
+     * 0 si le montant total du commande n'est pas renseigné (anciennes demandes, après arrivage).
+     */
+    public function getRatioMontantTotalCommande(): float
+    {
+        return $this->montantTotalCommande > 0
+            ? (float) $this->montantAPayers / $this->montantTotalCommande * 100
+            : 0.0;
+    }
+
+    /**
+     * Set the value of montantTotalCommande
+     */
+    public function setMontantTotalCommande(?float $montantTotalCommande): self
+    {
+        $this->montantTotalCommande = $montantTotalCommande === null ? null : round($montantTotalCommande, 2);
 
         return $this;
     }
