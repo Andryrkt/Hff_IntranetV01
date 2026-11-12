@@ -42,7 +42,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
     /** @var array{noLigne:int|float,cst:int|float,avBat:int|float,ref:int|float,packQty:int|float,designation:int|float,npr:int|float,fms:int|float,ret:int|float,qteCdee:int|float,qteDispo:int|float,qteDispoMin:int|float,qteDispoMax:int|float,qteVte6M:int|float,nbrVte6M:int|float,coutUnit:int|float,coutTotal:int|float,poids:int|float} $mainRowWidths */
     private array $mainRowWidths = [];
 
-    /** @var array{empty:int|float,refClientLabel:int|float,rmqClient:int|float,numDoc:int|float,ref:int|float,client:int|float,datePlanning:int|float} $subRowWidths */
+    /** @var array{empty:int|float,refClientLabel:int|float,rmqClient:int|float,numDoc:int|float,ref:int|float,numClient:int|float,nomClient:int|float,datePlanning:int|float} $subRowWidths */
     private array $subRowWidths = [];
 
     /** @var array{empty1:int|float,signature:int|float,empty2:int|float,mttTotalLabel:int|float,mttTotal:int|float,docRattacheesLabel:int|float} $footerWidths */
@@ -263,7 +263,8 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         $this->pdf->Cell($this->subRowWidths['numDoc'],       self::SUB_ROW_HEIGHT, $detailDto->getNumDocFormatted(),       0, 0, 'L', $fill);
         $this->pdf->Cell($this->subRowWidths['datePlanning'], self::SUB_ROW_HEIGHT, $detailDto->getDatePlanningFormatted(), 0, 0, 'L', $fill);
         $this->pdf->Cell($this->subRowWidths['ref'],          self::SUB_ROW_HEIGHT, $detailDto->getRefSplitted(),           0, 0, 'C', $fill);
-        $this->pdf->Cell($this->subRowWidths['client'],       self::SUB_ROW_HEIGHT, $detailDto->getClient(),                0, 1, 'L', $fill);
+        $this->pdf->Cell($this->subRowWidths['numClient'],    self::SUB_ROW_HEIGHT, $detailDto->numClient ?? '',            0, 0, 'L', $fill);
+        $this->pdf->Cell($this->subRowWidths['nomClient'],    self::SUB_ROW_HEIGHT, $detailDto->getNomClient(),             0, 1, 'L', $fill);
 
         // Filet fin séparant ce détail du suivant (tracé après le fond pour rester visible)
         $this->drawHairline(
@@ -509,13 +510,14 @@ class GeneratePdfCdeMagasin extends GeneratePdf
             "rmqClient"      => 15,
             "numDoc"         => 15,
             "ref"            => 75,
-            "client"         => 90,
-            "datePlanning"   => 0,
+            "numClient"      => 10,
+            "nomClient"      => 0,
+            "datePlanning"   => 15,
         ];
 
         $wUsed = array_sum(array_values($this->subRowWidths));
 
-        $this->subRowWidths['datePlanning'] = $w100 - $wUsed;
+        $this->subRowWidths['nomClient'] = $w100 - $wUsed;
     }
 
     /** 

@@ -29,12 +29,9 @@ class CommandeSoumissionDetailDTO
             : $text;
     }
 
-    public function getClient(): string
+    public function getNomClient(): string
     {
-        $numClient = $this->numClient ?? "";
-        $nomClient = $this->nomClient ?? "";
-
-        return "{$numClient} - {$nomClient}";
+        return $this->nomClient ? "-  {$this->nomClient}" : "";
     }
 
     public function getDatePlanningFormatted(): string
