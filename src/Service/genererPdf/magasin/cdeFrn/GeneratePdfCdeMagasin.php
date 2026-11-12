@@ -324,7 +324,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         $this->pdf->Cell($totW, $hh, "Montant en {$this->dto->devise}", 0, 0, 'C');
 
         $this->pdf->SetXY(self::MARGIN_LEFT, $y0 + 8.5 + $hh);
-        $this->drawFooterSeparator($this->pdf->GetX(), $this->pdf->GetY() + 1.5, $this->pdf->GetPageWidth() - self::MARGIN_LEFT);
+        $this->drawFooterSeparator($this->pdf->GetX() + 10, $this->pdf->GetY() + 1.5, $this->pdf->GetPageWidth() - self::MARGIN_LEFT - 10);
 
         $this->pdf->SetFont(self::FONT, 'B', self::MAIN_TEXT_SIZE);
         $this->pdf->SetTextColor(...self::ACCENT);
@@ -547,7 +547,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
      */
     private function drawFooterSeparator(float $xStart, float $y, float $xEnd): void
     {
-        $this->pdf->SetLineStyle(['width' => 0.4, 'dash' => 0, 'color' => self::ACCENT]);
+        $this->pdf->SetLineStyle(['width' => 1.2, 'dash' => 2, 'color' => self::ACCENT]);
         $this->pdf->Line($xStart, $y, $xEnd, $y);
         $this->pdf->Ln(3);
         $this->pdf->SetLineStyle(['width' => 0.1, 'dash' => 0, 'color' => self::LINE]);
