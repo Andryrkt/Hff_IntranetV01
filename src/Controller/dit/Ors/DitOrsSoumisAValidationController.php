@@ -88,7 +88,8 @@ class DitOrsSoumisAValidationController extends Controller
                         [
                             StatutDaConstant::STATUT_VALIDE,
                             StatutDaConstant::STATUT_TERMINER,
-                            StatutDaConstant::STATUT_EN_COURS_CREATION
+                            StatutDaConstant::STATUT_EN_COURS_CREATION,
+                            StatutDaConstant::STATUT_CLOTUREE
                         ]
                     )
                 ) {
