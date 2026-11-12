@@ -174,11 +174,10 @@ class UserLoggerRepository extends EntityRepository
                        ROW_NUMBER() OVER (PARTITION BY utilisateur ORDER BY date_heure_consultation DESC, id DESC) AS rang,
                        COUNT(*) OVER (PARTITION BY utilisateur) AS nb
                 FROM Log_utilisateur
-                WHERE date_heure_consultation >= DATEADD(MINUTE, -?, GETDATE())
+                WHERE date_heure_consultation >= DATEADD(MINUTE, -" . (int) $minutes . ", GETDATE())
              ) d
              WHERE rang = 1
-             ORDER BY derniere DESC",
-            [$minutes]
+             ORDER BY derniere DESC"
         );
     }
 
