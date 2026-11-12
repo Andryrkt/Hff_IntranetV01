@@ -278,7 +278,30 @@ document.addEventListener("contextmenu", function (event) {
   hiddenInputTypeDa.value = typeDa;
   hiddenInputTypeDaDdp.value = typeDa;
 
-  const statutBc = targetCell.dataset.statutBc;
+  const statutsBcEnvoyer = [
+    "BC envoyé au fournisseur",
+    "Partiellement dispo",
+    "Complet non livré",
+    "Tous livrés",
+    "Partiellement livré",
+    "Tout livrée Appro",
+    "Partiellement Livrée Appro",
+  ];
+
+  // La cellule commande est fusionnée sur toutes les lignes de la commande et porte le statut de la 1re ligne :
+  // si une ligne de la commande est envoyée au fournisseur, toute la commande l'est (ex. 1re ligne « Non Dispo Fournisseur »)
+  const statutsLignes = Array.from(
+    document.querySelectorAll(".commande-cellule"),
+  )
+    .filter(
+      (cellule) =>
+        cellule.dataset.commandeId === targetCell.dataset.commandeId &&
+        cellule.dataset.numDa === targetCell.dataset.numDa,
+    )
+    .map((cellule) => cellule.dataset.statutBc);
+  const statutBc =
+    statutsLignes.find((statut) => statutsBcEnvoyer.includes(statut)) ??
+    targetCell.dataset.statutBc;
   const statutDaSoumissionBc = targetCell.dataset.statutCde;
 
   const positionCde = targetCell.dataset.positionCde;
@@ -297,16 +320,6 @@ document.addEventListener("contextmenu", function (event) {
   if (statutsTelechargeBC.includes(statutBc) && typeDa !== DA_REAPPRO) {
     telechargerBcValide(commandeId);
   }
-
-  const statutsBcEnvoyer = [
-    "BC envoyé au fournisseur",
-    "Partiellement dispo",
-    "Complet non livré",
-    "Tous livrés",
-    "Partiellement livré",
-    "Tout livrée Appro",
-    "Partiellement Livrée Appro",
-  ];
 
   function affichageStatutBcEnvoyerFournisseur() {
     statutAffiche.innerHTML = `
