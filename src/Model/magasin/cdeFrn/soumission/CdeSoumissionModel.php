@@ -363,7 +363,7 @@ class CdeSoumissionModel extends Model
                 ON osav.numeroOR = dv.numeroOR
                 AND osav.numeroVersion = dv.max_version
             WHERE osav.statut LIKE 'Valid%' {$this->selectCond->in('osav.numeroOR',$numerosOR)}
-            ORDER BY osav.numeroOR DESC";
+            ORDER BY osav.numeroOR ASC";
 
         $statement = $this->connexion->query($sql);
 
@@ -425,7 +425,7 @@ class CdeSoumissionModel extends Model
             ON  t.numero_devis   = v.numero_devis
             AND t.numero_version = v.max_version
         WHERE t.statut_bc like 'Valid%'
-        ORDER BY t.numero_devis DESC";
+        ORDER BY t.numero_devis ASC";
 
         $result = $this->connect->executeQuery($statement);
         $rows   = $this->connect->fetchResults($result);
