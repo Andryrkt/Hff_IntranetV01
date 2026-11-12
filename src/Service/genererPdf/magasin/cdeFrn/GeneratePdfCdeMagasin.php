@@ -49,15 +49,15 @@ class GeneratePdfCdeMagasin extends GeneratePdf
     private array $footerWidths = [];
 
     private const COL_LABELS = [
-        'noLigne'      => "N°\nLine",
-        'cst'          => "CST",
+        'noLigne'      => "N°\nLi\nne",
+        'cst'          => "C\nS\nT",
         'avBat'        => "Av.\nBat.",
         'ref'          => "Réf.",
         'packQty'      => "Pack.\nQty",
         'designation'  => "Désignation",
-        'npr'          => "NPR\n(*)",
+        'npr'          => "N\nP\nR\n(*)",
         'fms'          => "F\nM\nS",
-        'ret'          => "Ret",
+        'ret'          => "R\ne\nt",
         'qteCdee'      => "Qté\nCdée",
         'qteDispo'     => "Qté\nDispo",
         'qteDispoMin'  => "Qté\nDispo\nMin",
@@ -419,7 +419,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
             $maxLines = max($maxLines, $nbLines);
         }
 
-        return $maxLines * (self::MAIN_ROW_HEIGHT - 1); // maxLines = 3
+        return $maxLines * (self::MAIN_TEXT_HEIGHT - 2);
     }
 
     private function exceedsPage(float $neededHeight): bool
@@ -468,18 +468,25 @@ class GeneratePdfCdeMagasin extends GeneratePdf
             $this->mainRowWidths['avBat'] =
             $this->mainRowWidths['npr']   =
             $this->mainRowWidths['ret']   =
-            $this->mainRowWidths['fms']   = 10;
+            $this->mainRowWidths['fms']   = 7;
+
+        $this->mainRowWidths['packQty']         =
+            $this->mainRowWidths['qteCdee']     =
+            $this->mainRowWidths['qteDispo']    =
+            $this->mainRowWidths['qteDispoMin'] =
+            $this->mainRowWidths['qteDispoMax'] =
+            $this->mainRowWidths['poids']       =
+            $this->mainRowWidths['qteVte6M']    =
+            $this->mainRowWidths['nbrVte6M']    = 12;
 
         $this->mainRowWidths['coutUnit']      =
-            $this->mainRowWidths['coutTotal'] =
-            $this->mainRowWidths['ref']       = 20;
+            $this->mainRowWidths['coutTotal'] = 20;
 
-        $this->mainRowWidths['designation'] = 50;
 
         $wUsed = array_sum(array_values($this->mainRowWidths));
         $wRemaining = $w100 - $wUsed;
-
-        $this->mainRowWidths['packQty'] = $this->mainRowWidths['qteCdee'] = $this->mainRowWidths['qteDispo'] = $this->mainRowWidths['qteDispoMin'] = $this->mainRowWidths['qteDispoMax'] = $this->mainRowWidths['poids'] = $this->mainRowWidths['qteVte6M'] = $this->mainRowWidths['nbrVte6M'] = $wRemaining / 8;
+        $this->mainRowWidths['designation'] =
+            $this->mainRowWidths['ref']     = $wRemaining / 2;
     }
 
     /** 
