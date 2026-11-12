@@ -1,0 +1,291 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Tableau de bord des consultations
+{% endblock %}
+
+{% block stylesheets %}
+	<link href="{{ App.base_path }}/Views/css/new.css?v={{ App.browserHash }}" rel="stylesheet"/>
+	<style>
+		.kpi .nombre { font-size: 1.6rem; font-weight: 700; line-height: 1.1; }
+		.kpi .libelle { font-size: .8rem; color: #6c757d; }
+		.table-stats td, .table-stats th { white-space: nowrap; }
+		.barre-part { height: 6px; background: #e9ecef; border-radius: 3px; overflow: hidden; min-width: 60px; }
+		.barre-part > div { height: 100%; background: #0d6efd; }
+	</style>
+{% endblock %}
+
+{# durée en secondes -> "2 h 05" ou "12 min" #}
+{% macro duree(secondes) %}{% set minutes = (secondes / 60)|round(0, 'floor') %}{% if minutes >= 60 %}{{ (minutes / 60)|round(0, 'floor') }} h {{ '%02d'|format(minutes % 60) }}{% else %}{{ minutes }} min{% endif %}{% endmacro %}
+
+{% block content %}
+	{% import _self as outils %}
+	{% set kpi = stats.kpi %}
+	{% set total = kpi.total ?? 0 %}
+	{% set periode = {date_debut: dateDebut|date('Y-m-d'), date_fin: dateFin|date('Y-m-d')} %}
+	<div class="container-fluid">
+		<div class="card">
+			<div class="card-body">
+				<h3 class="perso-titre mb-3">HISTORIQUE DES CONSULTATIONS DE PAGES</h3>
+
+				{% include 'admin/historisation/consultation-page/_onglets.html.twig' %}
+
+				<form method="get" class="row g-2 align-items-end mb-3">
+					<input type="hidden" name="vue" value="tableau-de-bord">
+					<div class="col-6 col-md-2">
+						<label for="date_debut" class="form-label mb-0">Du</label>
+						<input type="date" id="date_debut" name="date_debut" value="{{ periode.date_debut }}" class="form-control form-control-sm">
+					</div>
+					<div class="col-6 col-md-2">
+						<label for="date_fin" class="form-label mb-0">Au</label>
+						<input type="date" id="date_fin" name="date_fin" value="{{ periode.date_fin }}" class="form-control form-control-sm">
+					</div>
+					<div class="col-auto">
+						<button type="submit" class="btn btn-warning btn-sm">Afficher</button>
+						<a href="{{ path('consultation_page_index', {vue: 'tableau-de-bord'}) }}" class="btn btn-outline-secondary btn-sm">30 derniers jours</a>
+					</div>
+				</form>
+
+				<div class="row g-2 mb-3">
+					{% for indicateur in [
+						{nombre: total|number_format(0, ',', ' '), libelle: 'Consultations'},
+						{nombre: kpi.utilisateurs ?? 0, libelle: 'Utilisateurs actifs'},
+						{nombre: kpi.pages ?? 0, libelle: 'Pages consultées'},
+						{nombre: kpi.machines ?? 0, libelle: 'Postes différents'},
+						{nombre: (kpi.jours ?? 0) > 0 ? (total / kpi.jours)|number_format(0, ',', ' ') : 0, libelle: 'Consultations par jour d\'activité'}
+					] %}
+						<div class="col-6 col-md">
+							<div class="card h-100 kpi">
+								<div class="card-body py-2">
+									<div class="nombre">{{ indicateur.nombre }}</div>
+									<div class="libelle">{{ indicateur.libelle }}</div>
+								</div>
+							</div>
+						</div>
+					{% endfor %}
+				</div>
+
+				<div class="card mb-3">
+					<div class="card-body">
+						<h6 class="mb-1">Connectés maintenant <span class="badge bg-success">{{ connectes|length }}</span></h6>
+						<p class="small text-muted mb-2">Utilisateurs ayant consulté une page dans les 15 dernières minutes (durée de la session).</p>
+						{% if connectes is empty %}
+							<p class="text-muted small mb-0">Aucun utilisateur actif.</p>
+						{% else %}
+							<div class="table-responsive" style="max-height: 300px;">
+								<table class="table table-sm table-hover table-stats mb-0">
+									<thead><tr><th>Utilisateur</th><th>Dernière page</th><th class="text-end">Pages (15 min)</th><th>Poste</th><th class="text-end">Connecté depuis</th><th class="text-end">À</th><th class="text-end">Action</th></tr></thead>
+									<tbody>
+										{% for ligne in connectes %}
+											<tr>
+												<td><a href="{{ path('consultation_page_index', {utilisateur: ligne.utilisateur, date_debut: 'now'|date('Y-m-d'), date_fin: 'now'|date('Y-m-d')}) }}">{{ ligne.utilisateur }}</a></td>
+												<td class="text-wrap">{{ ligne.nom_page }}</td>
+												<td class="text-end">{{ ligne.nb }}</td>
+												<td class="small">{{ ligne.machine_utilisateur }}</td>
+												<td class="text-end small">{{ ligne.depuis|date('H:i') }} ({{ outils.duree(ligne.secondes) }})</td>
+												<td class="text-end small">{{ ligne.derniere|date('H:i') }}</td>
+												<td class="text-end">
+													{% if ligne.id_utilisateur %}
+														<button type="button" class="btn btn-outline-danger btn-sm py-0 bouton-deconnecter" data-url="{{ path('api_consultation_page_deconnecter', {idUtilisateur: ligne.id_utilisateur}) }}" data-utilisateur="{{ ligne.utilisateur }}">
+															<i class="fas fa-sign-out-alt"></i> Déconnecter
+														</button>
+													{% endif %}
+												</td>
+											</tr>
+										{% endfor %}
+									</tbody>
+								</table>
+							</div>
+						{% endif %}
+					</div>
+				</div>
+
+				{% if total == 0 %}
+					<p class="text-muted">Aucune consultation sur cette période.</p>
+				{% else %}
+					<div class="row g-3 mb-3">
+						<div class="col-12 col-xl-8">
+							<div class="card h-100">
+								<div class="card-body">
+									<h6 class="mb-2">Consultations par jour</h6>
+									<div style="height: 240px;"><canvas id="graphe-jours" role="img" aria-label="Consultations par jour (détail dans le tableau Détail par jour)"></canvas></div>
+								</div>
+							</div>
+						</div>
+						<div class="col-12 col-xl-4">
+							<div class="card h-100">
+								<div class="card-body">
+									<h6 class="mb-2">Répartition par heure</h6>
+									<div style="height: 240px;"><canvas id="graphe-heures" role="img" aria-label="Consultations par heure de la journée"></canvas></div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="row g-3">
+						<div class="col-12 col-xl-6">
+							<div class="card h-100">
+								<div class="card-body">
+									<h6>Pages les plus consultées</h6>
+									<div class="table-responsive">
+										<table class="table table-sm table-hover table-stats mb-0">
+											<thead><tr><th>Page</th><th class="text-end">Consultations</th><th>Part</th><th class="text-end">Utilisateurs</th><th class="text-end">Dernière</th></tr></thead>
+											<tbody>
+												{% for ligne in stats.parPage %}
+													<tr>
+														<td class="text-wrap"><a href="{{ path('consultation_page_index', {page: ligne.nom_page}|merge(periode)) }}">{{ ligne.nom_page }}</a></td>
+														<td class="text-end">{{ ligne.total|number_format(0, ',', ' ') }}</td>
+														<td>
+															<div class="d-flex align-items-center gap-2">
+																<div class="barre-part flex-grow-1"><div style="width: {{ ligne.total * 100 / total }}%"></div></div>
+																<span class="small">{{ (ligne.total * 100 / total)|number_format(1, ',', ' ') }} %</span>
+															</div>
+														</td>
+														<td class="text-end">{{ ligne.utilisateurs }}</td>
+														<td class="text-end small">{{ ligne.derniere|date('d/m/Y H:i') }}</td>
+													</tr>
+												{% endfor %}
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-12 col-xl-6">
+							<div class="card h-100">
+								<div class="card-body">
+									<h6 class="mb-1">Temps passé par utilisateur</h6>
+									<p class="small text-muted mb-2">Temps actif estimé : somme des écarts entre deux pages consécutives, quand l'écart ne dépasse pas 15 min (au-delà, une nouvelle session commence).</p>
+									<div class="table-responsive">
+										<table class="table table-sm table-hover table-stats mb-0">
+											<thead><tr><th>Utilisateur</th><th class="text-end">Temps actif</th><th class="text-end">Sessions</th><th class="text-end">Jours actifs</th><th class="text-end">Moyenne par jour</th></tr></thead>
+											<tbody>
+												{% for ligne in stats.tempsParUtilisateur %}
+													<tr>
+														<td><a href="{{ path('consultation_page_index', {utilisateur: ligne.utilisateur}|merge(periode)) }}">{{ ligne.utilisateur }}</a></td>
+														<td class="text-end fw-bold">{{ outils.duree(ligne.secondes) }}</td>
+														<td class="text-end">{{ ligne.sessions }}</td>
+														<td class="text-end">{{ ligne.jours }}</td>
+														<td class="text-end">{{ outils.duree(ligne.jours > 0 ? ligne.secondes / ligne.jours : 0) }}</td>
+													</tr>
+												{% endfor %}
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-12 col-xl-6">
+							<div class="card h-100">
+								<div class="card-body">
+									<h6>Utilisateurs les plus actifs</h6>
+									<div class="table-responsive">
+										<table class="table table-sm table-hover table-stats mb-0">
+											<thead><tr><th>Utilisateur</th><th class="text-end">Consultations</th><th class="text-end">Pages différentes</th><th class="text-end">Dernière</th></tr></thead>
+											<tbody>
+												{% for ligne in stats.parUtilisateur %}
+													<tr>
+														<td><a href="{{ path('consultation_page_index', {utilisateur: ligne.utilisateur}|merge(periode)) }}">{{ ligne.utilisateur }}</a></td>
+														<td class="text-end">{{ ligne.total|number_format(0, ',', ' ') }}</td>
+														<td class="text-end">{{ ligne.pages }}</td>
+														<td class="text-end small">{{ ligne.derniere|date('d/m/Y H:i') }}</td>
+													</tr>
+												{% endfor %}
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-12 col-xl-6">
+							<div class="card h-100">
+								<div class="card-body">
+									<h6>Détail par jour</h6>
+									<div class="table-responsive" style="max-height: 320px;">
+										<table class="table table-sm table-stats mb-0">
+											<thead><tr><th>Jour</th><th class="text-end">Consultations</th><th class="text-end">Utilisateurs</th></tr></thead>
+											<tbody>
+												{% for ligne in stats.parJour|reverse %}
+													<tr>
+														<td><a href="{{ path('consultation_page_index', {date_debut: ligne.jour, date_fin: ligne.jour, limite: 200}) }}">{{ ligne.jour|date('d/m/Y') }}</a></td>
+														<td class="text-end">{{ ligne.total|number_format(0, ',', ' ') }}</td>
+														<td class="text-end">{{ ligne.utilisateurs }}</td>
+													</tr>
+												{% endfor %}
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script>
+		document.querySelectorAll('.bouton-deconnecter').forEach((bouton) => {
+			bouton.addEventListener('click', async () => {
+				if (!confirm(`Déconnecter ${bouton.dataset.utilisateur} ? Une saisie en cours non enregistrée sera perdue.`)) return;
+				bouton.disabled = true;
+				try {
+					const reponse = await fetch(bouton.dataset.url, {method: 'POST', headers: {'X-Requested-With': 'XMLHttpRequest'}});
+					const donnees = await reponse.json();
+					alert(donnees.message || `Erreur ${reponse.status}`);
+					if (reponse.ok && donnees.supprimees > 0) bouton.closest('tr').classList.add('text-decoration-line-through', 'text-muted');
+				} catch (e) {
+					alert('Déconnexion impossible : ' + e.message);
+				} finally {
+					bouton.disabled = false;
+				}
+			});
+		});
+	</script>
+	{% if (stats.kpi.total ?? 0) > 0 %}
+		<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+		<script>
+			const jours = {{ stats.parJour|json_encode|raw }};
+			const parHeure = {{ stats.parHeure|json_encode|raw }};
+			const options = {
+				maintainAspectRatio: false,
+				plugins: {legend: {display: false}},
+				scales: {
+					x: {grid: {display: false}},
+					y: {beginAtZero: true, ticks: {precision: 0}, grid: {color: 'rgba(0,0,0,.06)'}}
+				}
+			};
+			const barres = {backgroundColor: '#0d6efd', borderRadius: 3, maxBarThickness: 28};
+
+			new Chart(document.getElementById('graphe-jours'), {
+				type: 'bar',
+				data: {
+					labels: jours.map(j => j.jour.split('-').reverse().slice(0, 2).join('/')),
+					datasets: [{label: 'Consultations', data: jours.map(j => Number(j.total)), ...barres}]
+				},
+				options
+			});
+
+			// heures de 6 h à 20 h toujours affichées, les autres seulement si elles ont des consultations
+			const heures = [];
+			for (let h = 0; h < 24; h++) {
+				if ((h >= 6 && h <= 20) || parHeure[h]) {
+					heures.push(h);
+				}
+			}
+			new Chart(document.getElementById('graphe-heures'), {
+				type: 'bar',
+				data: {
+					labels: heures.map(h => h + ' h'),
+					datasets: [{label: 'Consultations', data: heures.map(h => Number(parHeure[h] || 0)), ...barres}]
+				},
+				options
+			});
+		</script>
+	{% endif %}
+{% endblock %}

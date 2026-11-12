@@ -93,5 +93,21 @@ try {
     error_log("Erreur 500 - " . json_encode($errorDetails));
 }
 
+// Historique des consultations des pages HTML qui ne l'enregistrent pas elles-mêmes, fait après l'envoi :
+// la taille annoncée permet au navigateur de terminer la page sans attendre la fin du script
+$userInfo = $session->get('user_info');
+$journaliser = \App\Service\historiqueOperation\JournalConsultation::doitEnregistrer($request, $response, $userInfo);
+// (seulement si toute la page est dans la réponse : rien d'affiché directement par un echo du contrôleur)
+if ($journaliser && is_string($response->getContent()) && $response->getContent() !== '' && !headers_sent() && !ob_get_length()) {
+    $response->headers->set('Content-Length', (string) strlen($response->getContent()));
+    $response->headers->set('Content-Encoding', 'none');
+    $response->headers->set('Connection', 'close');
+}
+
 // Envoyer la réponse
 $response->send();
+
+if ($journaliser) {
+    session_write_close(); // libère la session pour la page suivante
+    \App\Service\historiqueOperation\JournalConsultation::enregistrer($container->get('doctrine.orm.default_entity_manager')->getConnection(), $request, $response, $userInfo);
+}
