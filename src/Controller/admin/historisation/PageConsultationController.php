@@ -5,6 +5,8 @@ namespace App\Controller\admin\historisation;
 
 use App\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Service\security\SessionsUtilisateur;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\admin\historisation\pageConsultation\UserLogger;
 
@@ -15,6 +17,27 @@ use App\Entity\admin\historisation\pageConsultation\UserLogger;
 class PageConsultationController extends Controller
 {
     private const LIMITES_POSSIBLES = [25, 50, 100, 200, 500];
+
+    /**
+     * Déconnexion forcée d'un utilisateur (admin) : ses sessions sont supprimées, sauf celle de l'admin
+     *
+     * @Route("/api/admin/consultation-page/deconnecter/{idUtilisateur}", name="api_consultation_page_deconnecter", methods={"POST"}, requirements={"idUtilisateur"="\d+"})
+     */
+    public function deconnecter(int $idUtilisateur)
+    {
+        if (!$this->estAdmin()) {
+            return new JsonResponse(['message' => 'Accès refusé'], 403);
+        }
+
+        $resultat = SessionsUtilisateur::fermer($idUtilisateur, SessionsUtilisateur::dossier(), session_id() ?: null);
+        error_log(sprintf('[Déconnexion forcée] utilisateur %d par %s : %d session(s) supprimée(s), %d échec(s)', $idUtilisateur, $this->getUserName(), $resultat['supprimees'], $resultat['echecs']));
+
+        return new JsonResponse($resultat + [
+            'message' => $resultat['supprimees'] > 0
+                ? $resultat['supprimees'] . ' session(s) fermée(s) : l\'utilisateur sera renvoyé vers la connexion à son prochain clic.'
+                : ($resultat['echecs'] > 0 ? 'Session en cours d\'utilisation, réessayer dans quelques secondes.' : 'Aucune session ouverte pour cet utilisateur.'),
+        ]);
+    }
 
     /**
      * @Route("/admin/consultation-page", name="consultation_page_index")

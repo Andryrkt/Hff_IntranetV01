@@ -168,9 +168,9 @@ class UserLoggerRepository extends EntityRepository
     public function connectes(int $minutes = 15): array
     {
         return $this->getEntityManager()->getConnection()->fetchAllAssociative(
-            "SELECT utilisateur, nom_page, date_heure_consultation AS derniere, machine_utilisateur, nb
+            "SELECT utilisateur, id_utilisateur, nom_page, date_heure_consultation AS derniere, machine_utilisateur, nb
              FROM (
-                SELECT utilisateur, nom_page, date_heure_consultation, machine_utilisateur,
+                SELECT utilisateur, id_utilisateur, nom_page, date_heure_consultation, machine_utilisateur,
                        ROW_NUMBER() OVER (PARTITION BY utilisateur ORDER BY date_heure_consultation DESC, id DESC) AS rang,
                        COUNT(*) OVER (PARTITION BY utilisateur) AS nb
                 FROM Log_utilisateur

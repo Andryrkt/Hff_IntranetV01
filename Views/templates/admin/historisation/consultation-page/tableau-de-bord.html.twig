@@ -70,7 +70,7 @@
 						{% else %}
 							<div class="table-responsive" style="max-height: 300px;">
 								<table class="table table-sm table-hover table-stats mb-0">
-									<thead><tr><th>Utilisateur</th><th>Dernière page</th><th class="text-end">Pages (15 min)</th><th>Poste</th><th class="text-end">À</th></tr></thead>
+									<thead><tr><th>Utilisateur</th><th>Dernière page</th><th class="text-end">Pages (15 min)</th><th>Poste</th><th class="text-end">À</th><th class="text-end">Action</th></tr></thead>
 									<tbody>
 										{% for ligne in connectes %}
 											<tr>
@@ -79,6 +79,13 @@
 												<td class="text-end">{{ ligne.nb }}</td>
 												<td class="small">{{ ligne.machine_utilisateur }}</td>
 												<td class="text-end small">{{ ligne.derniere|date('H:i') }}</td>
+												<td class="text-end">
+													{% if ligne.id_utilisateur %}
+														<button type="button" class="btn btn-outline-danger btn-sm py-0 bouton-deconnecter" data-url="{{ path('api_consultation_page_deconnecter', {idUtilisateur: ligne.id_utilisateur}) }}" data-utilisateur="{{ ligne.utilisateur }}">
+															<i class="fas fa-sign-out-alt"></i> Déconnecter
+														</button>
+													{% endif %}
+												</td>
 											</tr>
 										{% endfor %}
 									</tbody>
@@ -192,6 +199,24 @@
 {% endblock %}
 
 {% block javascript %}
+	<script>
+		document.querySelectorAll('.bouton-deconnecter').forEach((bouton) => {
+			bouton.addEventListener('click', async () => {
+				if (!confirm(`Déconnecter ${bouton.dataset.utilisateur} ? Une saisie en cours non enregistrée sera perdue.`)) return;
+				bouton.disabled = true;
+				try {
+					const reponse = await fetch(bouton.dataset.url, {method: 'POST', headers: {'X-Requested-With': 'XMLHttpRequest'}});
+					const donnees = await reponse.json();
+					alert(donnees.message || `Erreur ${reponse.status}`);
+					if (reponse.ok && donnees.supprimees > 0) bouton.closest('tr').classList.add('text-decoration-line-through', 'text-muted');
+				} catch (e) {
+					alert('Déconnexion impossible : ' + e.message);
+				} finally {
+					bouton.disabled = false;
+				}
+			});
+		});
+	</script>
 	{% if (stats.kpi.total ?? 0) > 0 %}
 		<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 		<script>
