@@ -11,11 +11,18 @@ class CommandeSoumissionDetailDTO
     public ?string    $rmqClient    = null;
     public ?\DateTime $datePlanning = null;
 
+    public function getNumDocFormatted(): string
+    {
+        if (!$this->numDoc) return "";
+
+        return "-   {$this->numDoc}";
+    }
+
     public function getRefSplitted(int $max = 50): string
     {
         $text = $this->refClient;
 
-        if (!$text) return "-";
+        if (!$text) return "";
 
         return mb_strlen($text, 'UTF-8') > $max
             ? mb_substr($text, 0, $max - 3, 'UTF-8') . '...'
@@ -32,8 +39,8 @@ class CommandeSoumissionDetailDTO
 
     public function getDatePlanningFormatted(): string
     {
-        if (!$this->datePlanning) return "";
+        if (!$this->datePlanning || $this->rmqClient === "CIS") return "";
 
-        return "(" . $this->datePlanning->format("d/m/Y") . ")";
+        return " -   pla " . $this->datePlanning->format("d/m/Y");
     }
 }
