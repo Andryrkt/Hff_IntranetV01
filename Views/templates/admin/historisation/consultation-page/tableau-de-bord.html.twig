@@ -15,7 +15,11 @@
 	</style>
 {% endblock %}
 
+{# durée en secondes -> "2 h 05" ou "12 min" #}
+{% macro duree(secondes) %}{% set minutes = (secondes / 60)|round(0, 'floor') %}{% if minutes >= 60 %}{{ (minutes / 60)|round(0, 'floor') }} h {{ '%02d'|format(minutes % 60) }}{% else %}{{ minutes }} min{% endif %}{% endmacro %}
+
 {% block content %}
+	{% import _self as outils %}
 	{% set kpi = stats.kpi %}
 	{% set total = kpi.total ?? 0 %}
 	{% set periode = {date_debut: dateDebut|date('Y-m-d'), date_fin: dateFin|date('Y-m-d')} %}
@@ -70,7 +74,7 @@
 						{% else %}
 							<div class="table-responsive" style="max-height: 300px;">
 								<table class="table table-sm table-hover table-stats mb-0">
-									<thead><tr><th>Utilisateur</th><th>Dernière page</th><th class="text-end">Pages (15 min)</th><th>Poste</th><th class="text-end">À</th><th class="text-end">Action</th></tr></thead>
+									<thead><tr><th>Utilisateur</th><th>Dernière page</th><th class="text-end">Pages (15 min)</th><th>Poste</th><th class="text-end">Connecté depuis</th><th class="text-end">À</th><th class="text-end">Action</th></tr></thead>
 									<tbody>
 										{% for ligne in connectes %}
 											<tr>
@@ -78,6 +82,7 @@
 												<td class="text-wrap">{{ ligne.nom_page }}</td>
 												<td class="text-end">{{ ligne.nb }}</td>
 												<td class="small">{{ ligne.machine_utilisateur }}</td>
+												<td class="text-end small">{{ ligne.depuis|date('H:i') }} ({{ outils.duree(ligne.secondes) }})</td>
 												<td class="text-end small">{{ ligne.derniere|date('H:i') }}</td>
 												<td class="text-end">
 													{% if ligne.id_utilisateur %}
@@ -138,6 +143,31 @@
 														</td>
 														<td class="text-end">{{ ligne.utilisateurs }}</td>
 														<td class="text-end small">{{ ligne.derniere|date('d/m/Y H:i') }}</td>
+													</tr>
+												{% endfor %}
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-12 col-xl-6">
+							<div class="card h-100">
+								<div class="card-body">
+									<h6 class="mb-1">Temps passé par utilisateur</h6>
+									<p class="small text-muted mb-2">Temps actif estimé : somme des écarts entre deux pages consécutives, quand l'écart ne dépasse pas 15 min (au-delà, une nouvelle session commence).</p>
+									<div class="table-responsive">
+										<table class="table table-sm table-hover table-stats mb-0">
+											<thead><tr><th>Utilisateur</th><th class="text-end">Temps actif</th><th class="text-end">Sessions</th><th class="text-end">Jours actifs</th><th class="text-end">Moyenne par jour</th></tr></thead>
+											<tbody>
+												{% for ligne in stats.tempsParUtilisateur %}
+													<tr>
+														<td><a href="{{ path('consultation_page_index', {utilisateur: ligne.utilisateur}|merge(periode)) }}">{{ ligne.utilisateur }}</a></td>
+														<td class="text-end fw-bold">{{ outils.duree(ligne.secondes) }}</td>
+														<td class="text-end">{{ ligne.sessions }}</td>
+														<td class="text-end">{{ ligne.jours }}</td>
+														<td class="text-end">{{ outils.duree(ligne.jours > 0 ? ligne.secondes / ligne.jours : 0) }}</td>
 													</tr>
 												{% endfor %}
 											</tbody>

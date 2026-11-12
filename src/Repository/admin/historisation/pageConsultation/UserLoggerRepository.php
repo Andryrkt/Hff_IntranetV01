@@ -125,6 +125,9 @@ class UserLoggerRepository extends EntityRepository
     /**
      * Statistiques de la période : indicateurs, par jour, par heure, pages et utilisateurs les plus actifs
      */
+    // écart maximal entre deux consultations d'une même session, en secondes (= durée de la session : 15 min)
+    private const ECART_SESSION = 900;
+
     public function tableauDeBord(\DateTimeInterface $debut, \DateTimeInterface $fin): array
     {
         $connexion = $this->getEntityManager()->getConnection();
@@ -153,6 +156,19 @@ class UserLoggerRepository extends EntityRepository
                  $periode GROUP BY nom_page ORDER BY total DESC",
                 $params
             ),
+            'tempsParUtilisateur' => $connexion->fetchAllAssociative(
+                "WITH l AS (
+                    SELECT utilisateur, date_heure_consultation AS d,
+                           LAG(date_heure_consultation) OVER (PARTITION BY utilisateur ORDER BY date_heure_consultation, id) AS prec
+                    $periode
+                 )
+                 SELECT TOP 15 utilisateur,
+                        SUM(CASE WHEN DATEDIFF(SECOND, prec, d) <= " . self::ECART_SESSION . " THEN DATEDIFF(SECOND, prec, d) ELSE 0 END) AS secondes,
+                        SUM(CASE WHEN prec IS NULL OR DATEDIFF(SECOND, prec, d) > " . self::ECART_SESSION . " THEN 1 ELSE 0 END) AS sessions,
+                        COUNT(DISTINCT CONVERT(VARCHAR(10), d, 23)) AS jours
+                 FROM l GROUP BY utilisateur ORDER BY secondes DESC",
+                $params
+            ),
             'parUtilisateur' => $connexion->fetchAllAssociative(
                 "SELECT TOP 15 utilisateur, COUNT(*) AS total, COUNT(DISTINCT nom_page) AS pages, MAX(date_heure_consultation) AS derniere
                  $periode GROUP BY utilisateur ORDER BY total DESC",
@@ -167,7 +183,22 @@ class UserLoggerRepository extends EntityRepository
      */
     public function connectes(int $minutes = 15): array
     {
-        return $this->getEntityManager()->getConnection()->fetchAllAssociative(
+        $connexion = $this->getEntityManager()->getConnection();
+
+        // début de la session en cours : dernière consultation du jour précédée d'un écart > 15 min (ou première du jour)
+        // shortcut: une session commencée avant minuit démarre à minuit, suffisant pour l'usage en journée
+        $debuts = $connexion->fetchAllKeyValue(
+            "WITH l AS (
+                SELECT utilisateur, date_heure_consultation AS d,
+                       LAG(date_heure_consultation) OVER (PARTITION BY utilisateur ORDER BY date_heure_consultation, id) AS prec
+                FROM Log_utilisateur WHERE date_heure_consultation >= CAST(GETDATE() AS DATE)
+             )
+             SELECT utilisateur, MAX(d) FROM l
+             WHERE prec IS NULL OR DATEDIFF(SECOND, prec, d) > " . self::ECART_SESSION . "
+             GROUP BY utilisateur"
+        );
+
+        $connectes = $connexion->fetchAllAssociative(
             "SELECT utilisateur, id_utilisateur, nom_page, date_heure_consultation AS derniere, machine_utilisateur, nb
              FROM (
                 SELECT utilisateur, id_utilisateur, nom_page, date_heure_consultation, machine_utilisateur,
@@ -179,6 +210,14 @@ class UserLoggerRepository extends EntityRepository
              WHERE rang = 1
              ORDER BY derniere DESC"
         );
+
+        foreach ($connectes as &$connecte) {
+            $connecte['depuis'] = $debuts[$connecte['utilisateur']] ?? $connecte['derniere'];
+            $connecte['secondes'] = max(0, strtotime($connecte['derniere']) - strtotime($connecte['depuis']));
+        }
+        unset($connecte);
+
+        return $connectes;
     }
 
     /**
