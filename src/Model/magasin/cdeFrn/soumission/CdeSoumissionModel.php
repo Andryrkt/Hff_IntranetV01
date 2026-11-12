@@ -259,10 +259,21 @@ class CdeSoumissionModel extends Model
             TRIM(seor_nomcli) AS nom_cli,
             TRIM('OR')        AS rmq,
             CASE
-                WHEN plan.min_start IS NULL 
-                THEN TO_CHAR(sitv_datepla, '%Y-%m-%d')
+                WHEN plan.min_start IS NULL THEN TO_CHAR(sitv_datepla, '%Y-%m-%d')
                 ELSE TO_CHAR(plan.min_start, '%Y-%m-%d')
-            END AS datepla
+            END AS datepla,
+            CASE 
+                WHEN slor_natcm = 'C' AND slor_numcf = '$numCde' THEN 1 
+                ELSE 3 
+            END AS ord_type,
+            CASE
+                WHEN slor_natcm = 'C' AND slor_numcf = '$numCde' THEN CAST(seor_numor AS VARCHAR(11))
+                ELSE CAST(slor_numcf AS VARCHAR(11))
+            END AS grp,
+            CASE 
+                WHEN slor_natcm = 'C' AND slor_numcf = '$numCde' THEN 0 
+                ELSE 1 
+            END AS ordre
         FROM {$this->ipsSavEor}
         JOIN {$this->ipsSavLor}
             ON seor_numor = slor_numor 
@@ -310,15 +321,23 @@ class CdeSoumissionModel extends Model
                 ELSE nent_natop
             END               AS rmq, 
             CASE 
-                WHEN nent_delai IS NOT NULL 
-                THEN TO_CHAR(nent_delai, '%Y-%m-%d') 
-                ELSE NULL 
-            END               AS datepla
+                WHEN nent_delai IS NOT NULL THEN TO_CHAR(nent_delai, '%Y-%m-%d') 
+                ELSE NULL
+            END               AS datepla,
+            CASE
+                WHEN nent_natop = 'DIR' THEN 2
+                WHEN nent_natop = 'CIS' THEN 3
+                ELSE 4
+            END               AS ord_type,
+            CAST(nent_numcde AS VARCHAR(11)) AS grp,
+            0                 AS ordre
         FROM {$this->ipsNegEnt}
         JOIN {$this->ipsNegLig}
             ON nent_numcde = nlig_numcde
         WHERE nlig_numcf  = '$numCde'
-            AND ({$whereNegoce})";
+            AND ({$whereNegoce})
+
+        ORDER BY 9, 10, 11, 4";
 
         $result = $this->connect->executeQuery($statement);
         $rows   = $this->connect->fetchResults($result);
