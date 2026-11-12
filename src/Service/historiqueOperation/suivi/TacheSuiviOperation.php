@@ -25,7 +25,7 @@ class TacheSuiviOperation
     public const STATUT_IGNORE   = 'IGNORE';
 
     // refus métier (règle de gestion non respectée par l'utilisateur) : pas un bug à corriger
-    public const ETAPES_SANS_TACHE = ['Contrôles', 'Contrôles de blocage'];
+    public const ETAPES_SANS_TACHE = ['Contrôles', 'Contrôles de blocage', 'Contrôle du fichier'];
 
     public const LIBELLES_STATUT = [
         self::STATUT_A_TRIER  => 'À trier',

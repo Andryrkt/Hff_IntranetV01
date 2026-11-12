@@ -99,11 +99,17 @@ class DomModel extends Model
      * @param \DateTimeInterface $dateDebut
      * @param \DateTimeInterface $dateFin
      * @param string             $codeSociete
-     * 
+     * @param string             $codeSousTypeDoc seuls les DOM de ce sous-type sont en conflit (obligatoire)
+     *
      * @return array{dom:list<array<string,string>>,conge:list<array<string,string>>}
      */
-    public function verifierConflitDate(string $matricule, \DateTimeInterface $dateDebut, \DateTimeInterface $dateFin, string $codeSociete)
+    public function verifierConflitDate(string $matricule, \DateTimeInterface $dateDebut, \DateTimeInterface $dateFin, string $codeSociete, string $codeSousTypeDoc): array
     {
+        // vide, aucun DOM ne correspondrait et le contrôle des conflits ne bloquerait plus rien
+        if (trim($codeSousTypeDoc) === '') {
+            throw new \InvalidArgumentException('Le code du sous-type de document est obligatoire pour contrôler les conflits de dates.');
+        }
+
         $tableParams     = 'Params';
         $dateDebutFormat = $dateDebut->format('Y-m-d');
         $dateFinFormat   = $dateFin->format('Y-m-d');
@@ -114,7 +120,8 @@ class DomModel extends Model
                     '$matricule'       AS Matricule,
                     '$codeSociete'     AS CodeSociete,
                     '$dateDebutFormat' AS DateDebut,
-                    '$dateFinFormat'   AS DateFin
+                    '$dateFinFormat'   AS DateFin,
+                    '$codeSousTypeDoc' AS CodeSousTypeDoc
             )
             {$this->getQueryConflitDateDom($tableParams)}
             UNION ALL
@@ -144,10 +151,13 @@ class DomModel extends Model
                 FROM Demande_ordre_mission dom
                 LEFT JOIN Statut_demande sd
                     ON sd.ID_Statut_Demande = dom.ID_Statut_Demande
+                LEFT JOIN Sous_Type_Document ssd
+                    ON ssd.ID_Sous_Type_Document = dom.Sous_Type_Document
                 CROSS JOIN $tableParams p
                 WHERE dom.Matricule = p.Matricule
                     AND dom.Code_Societe = p.CodeSociete
                     AND (sd.Code_Statut IS NULL OR sd.Code_Statut <> 'ANN')
+                    AND ssd.Code_Sous_Type = p.CodeSousTypeDoc
                     AND (
                         dom.Date_Debut <= p.DateFin
                         AND dom.Date_Fin >= p.DateDebut

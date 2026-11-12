@@ -4,6 +4,7 @@ namespace App\Repository\admin\historisation\documentOperation;
 
 use App\Entity\admin\historisation\documentOperation\HistoriqueOperationEtape;
 use App\Service\historiqueOperation\suivi\SuiviOperationService;
+use App\Service\historiqueOperation\suivi\TacheSuiviOperation;
 use Doctrine\ORM\EntityRepository;
 
 class HistoriqueOperationEtapeRepository extends EntityRepository
@@ -167,7 +168,9 @@ class HistoriqueOperationEtapeRepository extends EntityRepository
         $connexion = $this->getEntityManager()->getConnection();
         $params    = [$debut->format('Y-m-d 00:00:00'), $fin->format('Y-m-d 23:59:59')];
         // blocages métier (règles de gestion refusées) : ce ne sont pas des erreurs techniques
-        $controles = "etape IN (N'Contrôles', N'Contrôles de blocage') AND statut IN ('ECHEC', 'INTERROMPU')";
+        // mêmes étapes que celles qui ne créent pas de tâche
+        $etapes    = implode(', ', array_map(fn(string $etape) => "N'" . str_replace("'", "''", $etape) . "'", TacheSuiviOperation::ETAPES_SANS_TACHE));
+        $controles = "etape IN ($etapes) AND statut IN ('ECHEC', 'INTERROMPU')";
         $sansOperationsBloquees = $sansControles ? "HAVING SUM(CASE WHEN $controles THEN 1 ELSE 0 END) = 0" : '';
         $sansEtapesControle = $sansControles ? "AND NOT ($controles)" : '';
         $operations = "WITH ops AS (

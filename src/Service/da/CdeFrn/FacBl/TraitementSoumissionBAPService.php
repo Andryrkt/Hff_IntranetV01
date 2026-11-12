@@ -209,6 +209,11 @@ class TraitementSoumissionBAPService
         if (in_array((int)$typeDa, [DemandeAppro::TYPE_DA_AVEC_DIT, DemandeAppro::TYPE_DA_REAPPRO_MENSUEL, DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL])) {
             $articlesLivres = $this->daSoumissionFacBlModel->getRefDesiSavLor($numCde, $numLiv, $codeSociete);
             $sourceArticles = 'sav_lor';
+            // livraisons partielles : la ligne d'OR ne garde (slor_numcf) qu'un seul n° de livraison, les autres livraisons sont lues dans frn_cdl
+            if (empty($articlesLivres)) {
+                $articlesLivres = $this->daSoumissionFacBlModel->getRefDesiFrnCdl($numLiv, $codeSociete);
+                $sourceArticles = 'sav_lor puis frn_cdl';
+            }
         } else {
             $articlesLivres = $this->daSoumissionFacBlModel->getRefDesiFrnCdl($numLiv, $codeSociete);
             $sourceArticles = 'frn_cdl';

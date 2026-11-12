@@ -15,7 +15,8 @@
 		.kanban-carte.deplacement { opacity: .5; }
 		.kanban-carte.priorite-HAUTE { border-left-color: #dc3545; }
 		.kanban-carte.priorite-NORMALE { border-left-color: #0d6efd; }
-		.kanban-carte a { color: inherit; text-decoration: none; }
+		.detail-riche { border: 1px solid #dee2e6; border-radius: .25rem; padding: .5rem; min-height: 2.5rem; overflow-x: auto; }
+		.detail-riche img { max-width: 100%; height: auto; }
 	</style>
 {% endblock %}
 
@@ -57,8 +58,8 @@
 							<div class="kanban-liste">
 								{% for tache in taches %}
 									{% set enRetard = tache.echeance and tache.echeance|date('Y-m-d') < aujourdhui and statut not in ['RESOLU', 'DEPLOYE', 'IGNORE'] %}
-									<div class="kanban-carte priorite-{{ tache.priorite }}" draggable="true" data-url="{{ path('api_suivi_operation_tache_modifier', {id: tache.id}) }}">
-										<a href="{{ path('suivi_operation_index', {vue: 'taches'}) }}#tache-{{ tache.id }}">
+									<div class="kanban-carte priorite-{{ tache.priorite }}" draggable="true" data-url="{{ path('api_suivi_operation_tache_modifier', {id: tache.id}) }}"
+										role="button" tabindex="0" aria-label="Voir le détail de la tâche n° {{ tache.id }}">
 											<div class="d-flex justify-content-between small">
 												<strong>n° {{ tache.id }}</strong>
 												<span>
@@ -74,7 +75,23 @@
 													<span class="{{ enRetard ? 'text-danger fw-bold' : 'text-muted' }}">{{ tache.echeance|date('d/m/Y') }}</span>
 												{% endif %}
 											</div>
-										</a>
+										{# détail affiché dans la fenêtre au clic ; <template> : contenu inerte, cause et correction nettoyées (DOMPurify) à l'affichage #}
+										<template class="detail-tache">
+											<dl class="row small mb-2">
+												<dt class="col-sm-3">Opération / étape</dt><dd class="col-sm-9">{{ typesOperation[tache.typeOperation] ?? tache.typeOperation }} : {{ tache.etape }}</dd>
+												<dt class="col-sm-3">Statut</dt><dd class="col-sm-9">{{ libellesStatutTache[tache.statut] ?? tache.statut }}</dd>
+												<dt class="col-sm-3">Priorité / effort</dt><dd class="col-sm-9">{{ libellesPriorite[tache.priorite] ?? tache.priorite ?: '-' }} / {{ libellesEffort[tache.effort] ?? tache.effort ?: '-' }}</dd>
+												<dt class="col-sm-3">Assigné à</dt><dd class="col-sm-9">{{ tache.assigneA ?: 'Non assignée' }}</dd>
+												<dt class="col-sm-3">Début / échéance</dt><dd class="col-sm-9">{{ tache.dateDebut ? tache.dateDebut|date('d/m/Y') : '-' }} / {{ tache.echeance ? tache.echeance|date('d/m/Y') : '-' }}</dd>
+												<dt class="col-sm-3">Occurrences</dt><dd class="col-sm-9">{{ tache.nbOccurrences }} (première le {{ tache.premiereOccurrence ? tache.premiereOccurrence|date('d/m/Y H:i') : '-' }}, dernière le {{ tache.derniereOccurrence ? tache.derniereOccurrence|date('d/m/Y H:i') : '-' }}{% if tache.dernierNumeroDocument %}, {{ tache.dernierNumeroDocument }}{% endif %})</dd>
+												<dt class="col-sm-3">Dernier message</dt><dd class="col-sm-9 text-break">{{ tache.dernierMessage ?: '-' }}</dd>
+												{% if tache.modifiePar %}<dt class="col-sm-3">Modifié par</dt><dd class="col-sm-9">{{ tache.modifiePar }}{% if tache.dateModification %} le {{ tache.dateModification|date('d/m/Y H:i') }}{% endif %}</dd>{% endif %}
+											</dl>
+											<h6>Cause identifiée</h6>
+											<div class="detail-riche mb-3" data-html="cause">{{ tache.cause|raw }}</div>
+											<h6>Correction</h6>
+											<div class="detail-riche" data-html="correction">{{ tache.correction|raw }}</div>
+										</template>
 									</div>
 								{% endfor %}
 							</div>
@@ -84,11 +101,121 @@
 			</div>
 		</div>
 	</div>
+
+	<div class="modal fade" id="modal-detail-tache" tabindex="-1" aria-labelledby="titre-detail-tache" aria-hidden="true">
+		<div class="modal-dialog modal-lg modal-dialog-scrollable">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="titre-detail-tache"></h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+				</div>
+				<div class="modal-body"></div>
+				<div class="modal-footer">
+					<span class="small text-danger me-auto" id="erreur-detail-tache" role="alert"></span>
+					<button type="button" class="btn btn-warning btn-sm" id="btn-editer-tache"><i class="fas fa-edit"></i> Modifier la cause et la correction</button>
+					<button type="button" class="btn btn-warning btn-sm d-none" id="btn-enregistrer-tache"><i class="fas fa-save"></i> Enregistrer</button>
+					<button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Fermer</button>
+				</div>
+			</div>
+		</div>
+	</div>
 {% endblock %}
 
 {% block javascript %}
+	<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/tinymce@7.9.3/tinymce.min.js"></script>
 	<script>
 		let carteDeplacee = null;
+
+		// détail de la tâche dans une fenêtre (clic ou Entrée sur la carte), cause et correction modifiables sur place
+		const modalDetail = document.getElementById('modal-detail-tache');
+		const btnEditer = document.getElementById('btn-editer-tache');
+		const btnEnregistrer = document.getElementById('btn-enregistrer-tache');
+		const erreurDetail = document.getElementById('erreur-detail-tache');
+		let carteOuverte = null;
+
+		function nettoyer(html) {
+			return window.DOMPurify ? DOMPurify.sanitize(html) : '';
+		}
+
+		function modeLecture(estLecture) {
+			btnEditer.classList.toggle('d-none', !estLecture);
+			btnEnregistrer.classList.toggle('d-none', estLecture);
+			erreurDetail.textContent = '';
+		}
+
+		function afficherDetail(carte) {
+			carteOuverte = carte;
+			const detail = carte.querySelector('.detail-tache').content.cloneNode(true);
+			detail.querySelectorAll('[data-html]').forEach(bloc => {
+				bloc.innerHTML = nettoyer(bloc.innerHTML);
+				if (!bloc.textContent.trim() && !bloc.querySelector('img, table')) {
+					bloc.innerHTML = '<span class="text-muted">Non renseignée</span>';
+				}
+			});
+			const id = carte.querySelector('strong').textContent.replace(/\D/g, '');
+			modalDetail.querySelector('.modal-title').textContent = 'Tâche n° ' + id;
+			modalDetail.querySelector('.modal-body').replaceChildren(detail);
+			modeLecture(true);
+			bootstrap.Modal.getOrCreateInstance(modalDetail).show();
+		}
+
+		btnEditer.addEventListener('click', function () {
+			const modele = carteOuverte.querySelector('.detail-tache').content;
+			modalDetail.querySelectorAll('.modal-body [data-html]').forEach(bloc => {
+				const champ = bloc.dataset.html;
+				const zone = document.createElement('textarea');
+				zone.dataset.champ = champ;
+				zone.value = nettoyer(modele.querySelector('[data-html="' + champ + '"]').innerHTML);
+				bloc.replaceWith(zone);
+				tinymce.init({
+					target: zone,
+					license_key: 'gpl',
+					language: 'fr_FR',
+					language_url: 'https://cdn.jsdelivr.net/npm/tinymce-i18n@26.9.28/langs7/fr_FR.js',
+					height: 220,
+					menubar: false,
+					branding: false,
+					plugins: 'lists link table code',
+					toolbar: 'undo redo | blocks | bold italic underline | forecolor | bullist numlist | link table | removeformat code'
+				});
+			});
+			modeLecture(false);
+		});
+
+		btnEnregistrer.addEventListener('click', async function () {
+			tinymce.triggerSave();
+			const donnees = {};
+			modalDetail.querySelectorAll('.modal-body textarea[data-champ]').forEach(zone => donnees[zone.dataset.champ] = zone.value);
+			btnEnregistrer.disabled = true;
+			try {
+				const reponse = await fetch(carteOuverte.dataset.url, {
+					method: 'POST',
+					headers: {'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest'},
+					body: JSON.stringify(donnees)
+				});
+				if (!reponse.ok) {
+					throw new Error((await reponse.json().catch(() => ({}))).message || 'Erreur ' + reponse.status);
+				}
+				// la carte garde le nouveau contenu pour les prochaines ouvertures
+				const modele = carteOuverte.querySelector('.detail-tache').content;
+				Object.entries(donnees).forEach(([champ, valeur]) => modele.querySelector('[data-html="' + champ + '"]').innerHTML = valeur);
+				tinymce.remove();
+				afficherDetail(carteOuverte);
+			} catch (err) {
+				erreurDetail.textContent = 'Non enregistré : ' + err.message;
+			} finally {
+				btnEnregistrer.disabled = false;
+			}
+		});
+
+		modalDetail.addEventListener('hidden.bs.modal', () => tinymce.remove());
+		// les fenêtres de TinyMCE (lien, tableau) doivent pouvoir recevoir le focus malgré la fenêtre Bootstrap
+		document.addEventListener('focusin', e => {
+			if (e.target.closest('.tox-tinymce-aux, .tox-dialog, .moxman-window')) {
+				e.stopImmediatePropagation();
+			}
+		});
 
 		function actualiserCompteurs() {
 			document.querySelectorAll('.kanban-colonne').forEach(colonne => {
@@ -103,6 +230,8 @@
 				e.dataTransfer.effectAllowed = 'move';
 			});
 			carte.addEventListener('dragend', () => carte.classList.remove('deplacement'));
+			carte.addEventListener('click', () => afficherDetail(carte));
+			carte.addEventListener('keydown', e => { if (e.key === 'Enter') afficherDetail(carte); });
 		});
 
 		document.querySelectorAll('.kanban-colonne').forEach(function (colonne) {
