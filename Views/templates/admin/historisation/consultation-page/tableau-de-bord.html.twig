@@ -61,6 +61,33 @@
 					{% endfor %}
 				</div>
 
+				<div class="card mb-3">
+					<div class="card-body">
+						<h6 class="mb-1">Connectés maintenant <span class="badge bg-success">{{ connectes|length }}</span></h6>
+						<p class="small text-muted mb-2">Utilisateurs ayant consulté une page dans les 15 dernières minutes (durée de la session).</p>
+						{% if connectes is empty %}
+							<p class="text-muted small mb-0">Aucun utilisateur actif.</p>
+						{% else %}
+							<div class="table-responsive" style="max-height: 300px;">
+								<table class="table table-sm table-hover table-stats mb-0">
+									<thead><tr><th>Utilisateur</th><th>Dernière page</th><th class="text-end">Pages (15 min)</th><th>Poste</th><th class="text-end">À</th></tr></thead>
+									<tbody>
+										{% for ligne in connectes %}
+											<tr>
+												<td><a href="{{ path('consultation_page_index', {utilisateur: ligne.utilisateur, date_debut: 'now'|date('Y-m-d'), date_fin: 'now'|date('Y-m-d')}) }}">{{ ligne.utilisateur }}</a></td>
+												<td class="text-wrap">{{ ligne.nom_page }}</td>
+												<td class="text-end">{{ ligne.nb }}</td>
+												<td class="small">{{ ligne.machine_utilisateur }}</td>
+												<td class="text-end small">{{ ligne.derniere|date('H:i') }}</td>
+											</tr>
+										{% endfor %}
+									</tbody>
+								</table>
+							</div>
+						{% endif %}
+					</div>
+				</div>
+
 				{% if total == 0 %}
 					<p class="text-muted">Aucune consultation sur cette période.</p>
 				{% else %}

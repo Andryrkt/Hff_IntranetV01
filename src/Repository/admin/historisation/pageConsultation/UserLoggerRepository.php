@@ -162,6 +162,27 @@ class UserLoggerRepository extends EntityRepository
     }
 
     /**
+     * Utilisateurs ayant consulté une page dans les $minutes dernières minutes (= durée de la session), avec leur dernière page
+     * shortcut: activité récente, pas les sessions réellement ouvertes (non stockées en base)
+     */
+    public function connectes(int $minutes = 15): array
+    {
+        return $this->getEntityManager()->getConnection()->fetchAllAssociative(
+            "SELECT utilisateur, nom_page, date_heure_consultation AS derniere, machine_utilisateur, nb
+             FROM (
+                SELECT utilisateur, nom_page, date_heure_consultation, machine_utilisateur,
+                       ROW_NUMBER() OVER (PARTITION BY utilisateur ORDER BY date_heure_consultation DESC, id DESC) AS rang,
+                       COUNT(*) OVER (PARTITION BY utilisateur) AS nb
+                FROM Log_utilisateur
+                WHERE date_heure_consultation >= DATEADD(MINUTE, -?, GETDATE())
+             ) d
+             WHERE rang = 1
+             ORDER BY derniere DESC",
+            [$minutes]
+        );
+    }
+
+    /**
      * Noms des pages déjà consultées (filtre de la liste)
      *
      * @return string[]

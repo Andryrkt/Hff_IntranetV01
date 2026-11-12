@@ -32,7 +32,8 @@ class PageConsultationController extends Controller
 
         if ($vue === 'tableau-de-bord') {
             return $this->render('admin/historisation/consultation-page/tableau-de-bord.html.twig', $parametres + [
-                'stats' => $repository->tableauDeBord($dateDebut, $dateFin),
+                'stats'     => $repository->tableauDeBord($dateDebut, $dateFin),
+                'connectes' => $repository->connectes(),
             ]);
         }
 
