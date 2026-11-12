@@ -109,5 +109,5 @@ $response->send();
 
 if ($journaliser) {
     session_write_close(); // libère la session pour la page suivante
-    \App\Service\historiqueOperation\JournalConsultation::enregistrer($container->get('doctrine')->getConnection(), $request, $response, $userInfo);
+    \App\Service\historiqueOperation\JournalConsultation::enregistrer($container->get('doctrine.orm.default_entity_manager')->getConnection(), $request, $response, $userInfo);
 }
