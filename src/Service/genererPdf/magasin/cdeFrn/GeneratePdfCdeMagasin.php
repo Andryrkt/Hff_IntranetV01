@@ -27,7 +27,8 @@ class GeneratePdfCdeMagasin extends GeneratePdf
     private const MAIN_ROW_HEIGHT  = 7;
     private const SUB_ROW_HEIGHT   = 6;
     private const TITLE_HEIGHT     = 9;
-    private const INDENT_MM        = 8; // retrait des OR rattachés à un CIS
+    private const ARROW_LENGTH     = 6;
+    private const ARROW_TEXT_SHIFT = 7.5;
 
     // Palette : bleu ardoise + neutres
     private const ACCENT = [30, 41, 59];
@@ -254,27 +255,24 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         $x = $this->pdf->GetX();
         $y = $this->pdf->GetY();
 
-        // Cellule vide ; un OR rattaché à un CIS est décalé vers la droite
-        $indent = $detailDto->niveau > 0 ? self::INDENT_MM : 0;
-        $this->pdf->Cell($this->subRowWidths['empty'] + $indent, self::SUB_ROW_HEIGHT, '', 0, 0, 'L', $fill);
+        $estEnfant = $detailDto->niveau > 0;
+
+        // Cellule vide
+        $this->pdf->Cell($this->subRowWidths['empty'], self::SUB_ROW_HEIGHT, '', 0, 0, 'L', $fill);
 
         $this->pdf->SetFont(self::FONT, "I", self::SUB_TEXT_SIZE);
-        $this->pdf->Cell($this->subRowWidths['refClientLabel'], self::SUB_ROW_HEIGHT, "Référence client:", 0, 0, 'L', $fill);
+        $this->pdf->Cell($this->subRowWidths['refClientLabel'], self::SUB_ROW_HEIGHT, $estEnfant ? '' : "Référence client:", 0, 0, 'L', $fill);
 
-        // Seuls des "OR" sont en retrait : la cellule rmq (courte) absorbe le décalage, les colonnes suivantes restent alignées
-        $this->pdf->Cell($this->subRowWidths['rmqClient'] - $indent, self::SUB_ROW_HEIGHT, $detailDto->rmqClient,                  0, 0, 'L', $fill);
+        $shift = $estEnfant ? self::ARROW_TEXT_SHIFT : 0;
+        if ($shift > 0) $this->pdf->Cell($shift, self::SUB_ROW_HEIGHT, '', 0, 0, 'L', $fill);
+        $this->pdf->Cell($this->subRowWidths['rmqClient'] - $shift, self::SUB_ROW_HEIGHT, $detailDto->rmqClient,            0, 0, 'L', $fill);
         $this->pdf->Cell($this->subRowWidths['numDoc'],       self::SUB_ROW_HEIGHT, $detailDto->getNumDocFormatted(),       0, 0, 'L', $fill);
         $this->pdf->Cell($this->subRowWidths['datePlanning'], self::SUB_ROW_HEIGHT, $detailDto->getDatePlanningFormatted(), 0, 0, 'L', $fill);
         $this->pdf->Cell($this->subRowWidths['ref'],          self::SUB_ROW_HEIGHT, $detailDto->getRefSplitted(),           0, 0, 'C', $fill);
         $this->pdf->Cell($this->subRowWidths['numClient'],    self::SUB_ROW_HEIGHT, $detailDto->numClient ?? '',            0, 0, 'R', $fill);
         $this->pdf->Cell($this->subRowWidths['nomClient'],    self::SUB_ROW_HEIGHT, $detailDto->getNomClient(),             0, 1, 'L', $fill);
 
-        // Filet fin séparant ce détail du suivant (tracé après le fond pour rester visible)
-        $this->drawHairline(
-            $x + $this->subRowWidths['empty'] + $indent + $this->subRowWidths['refClientLabel'],
-            $y,
-            $this->pdf->getPageWidth() - self::MARGIN_LEFT
-        );
+        if ($estEnfant) $this->drawArrow($x + $this->subRowWidths['empty'] + $this->subRowWidths['refClientLabel'] + 1.5, $y);
     }
 
     private function renderFooter(): void
@@ -509,7 +507,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
 
         $this->subRowWidths = [
             "empty"          => $emptyWidth,
-            "refClientLabel" => 23,
+            "refClientLabel" => 20,
             "rmqClient"      => 13,
             "numDoc"         => 17,
             "ref"            => 75,
@@ -539,12 +537,18 @@ class GeneratePdfCdeMagasin extends GeneratePdf
     }
 
     /**
-     * Trace un filet fin entre deux sous-lignes de détail.
+     * Trace la flèche d'arborescence "└─" d'un OR rattaché à un CIS : un trait vertical du haut de la ligne jusqu'à son milieu, puis un trait horizontal.
+     *
+     * @param float $x X du trait vertical
+     * @param float $y Y du haut de la ligne
      */
-    private function drawHairline(float $xStart, float $y, float $xEnd): void
+    private function drawArrow(float $x, float $y): void
     {
-        $this->pdf->SetLineStyle(['width' => 0.1, 'dash' => 0, 'color' => self::LINE]);
-        $this->pdf->Line($xStart, $y, $xEnd, $y);
+        $yMid = $y + self::SUB_ROW_HEIGHT / 2;
+
+        $this->pdf->SetLineStyle(['width' => 0.2, 'dash' => 0, 'color' => self::MUTED]);
+        $this->pdf->Line($x, $y, $x, $yMid);
+        $this->pdf->Line($x, $yMid, $x + self::ARROW_LENGTH, $yMid);
     }
 
     /**
