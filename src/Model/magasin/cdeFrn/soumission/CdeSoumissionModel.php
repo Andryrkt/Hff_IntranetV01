@@ -82,7 +82,7 @@ class CdeSoumissionModel extends Model
         $startDate = (new \DateTime('first day of -6 months'))->format("Ym");
         $endDate   = (new \DateTime('last day of last month'))->format("Ym");
 
-        $statement = "SELECT 
+        $statement = "SELECT DISTINCT
             fcde_numcde as num_cde,
             fcde_date AS date_cde,
             (
@@ -198,7 +198,7 @@ class CdeSoumissionModel extends Model
             AND fcde_numfou = fbse_numfou
             AND fbse_numfou = ffou_numfou
             AND fcde_soc    = ffou_soc
-        ORDER BY fcdl_ref";
+        ORDER BY refp";
 
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
