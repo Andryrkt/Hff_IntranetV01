@@ -263,7 +263,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         $this->pdf->Cell($this->subRowWidths['numDoc'],       self::SUB_ROW_HEIGHT, $detailDto->getNumDocFormatted(),       0, 0, 'L', $fill);
         $this->pdf->Cell($this->subRowWidths['datePlanning'], self::SUB_ROW_HEIGHT, $detailDto->getDatePlanningFormatted(), 0, 0, 'L', $fill);
         $this->pdf->Cell($this->subRowWidths['ref'],          self::SUB_ROW_HEIGHT, $detailDto->getRefSplitted(),           0, 0, 'C', $fill);
-        $this->pdf->Cell($this->subRowWidths['numClient'],    self::SUB_ROW_HEIGHT, $detailDto->numClient ?? '',            0, 0, 'L', $fill);
+        $this->pdf->Cell($this->subRowWidths['numClient'],    self::SUB_ROW_HEIGHT, $detailDto->numClient ?? '',            0, 0, 'R', $fill);
         $this->pdf->Cell($this->subRowWidths['nomClient'],    self::SUB_ROW_HEIGHT, $detailDto->getNomClient(),             0, 1, 'L', $fill);
 
         // Filet fin séparant ce détail du suivant (tracé après le fond pour rester visible)
@@ -508,11 +508,11 @@ class GeneratePdfCdeMagasin extends GeneratePdf
             "empty"          => $emptyWidth,
             "refClientLabel" => 20,
             "rmqClient"      => 15,
-            "numDoc"         => 15,
+            "numDoc"         => 17,
             "ref"            => 75,
-            "numClient"      => 10,
+            "numClient"      => 12,
             "nomClient"      => 0,
-            "datePlanning"   => 15,
+            "datePlanning"   => 25,
         ];
 
         $wUsed = array_sum(array_values($this->subRowWidths));
