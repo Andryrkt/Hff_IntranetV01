@@ -280,9 +280,19 @@ class CdeSoumissionModel extends Model
                 ON skw.skw_id = ska.skw_id
             GROUP BY ofh_id, ofs_id
         ) plan ON plan.ofh_id = seor_numor AND plan.ofs_id = sitv_interv
-        WHERE   slor_numcf  = '$numCde'
-            AND slor_natcm  = 'C'
-            AND seor_serv   = 'SAV'
+        WHERE   seor_serv   = 'SAV'
+            AND (
+                (slor_natcm  = 'C' AND slor_numcf = '$numCde')
+                OR slor_numcf IN (
+                    SELECT DISTINCT nent_numcde 
+                    FROM {$this->ipsNegEnt} 
+                    JOIN {$this->ipsNegLig} 
+                        ON nent_numcde = nlig_numcde
+                    WHERE   nlig_numcf = '$numCde' 
+                        AND nent_natop = 'CIS' 
+                        AND ({$whereNegoce})
+                )
+            )
             AND ({$whereSav})
 
         UNION
