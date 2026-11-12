@@ -547,7 +547,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         $yMid = $y + self::SUB_ROW_HEIGHT / 2;
 
         $this->pdf->SetLineStyle(['width' => 0.2, 'dash' => 0, 'color' => self::MUTED]);
-        $this->pdf->Line($x, $y, $x, $yMid);
+        $this->pdf->Line($x, $y - 1, $x, $yMid);
         $this->pdf->Line($x, $yMid, $x + self::ARROW_LENGTH, $yMid);
     }
 
