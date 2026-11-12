@@ -22,8 +22,13 @@
 							<h3 class="perso-titre">
 								SOUMISSION OR
 							</h3>
-							{% if lierAUnDa %}
+							{% if dasEnCours is not empty %}
 								<h3 class="badge bg-danger">Il existe une demande d'achat en cours pour cette OR</h3>
+								<ul class="list-unstyled small mb-2">
+									{% for numDa, statut in dasEnCours %}
+										<li><strong>{{ numDa }}</strong> : {{ statut }}</li>
+									{% endfor %}
+								</ul>
 							{% endif %}
 						</div>
 						<div class=" col-12 col-md-1">

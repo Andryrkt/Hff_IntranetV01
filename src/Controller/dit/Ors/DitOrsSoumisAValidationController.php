@@ -71,8 +71,8 @@ class DitOrsSoumisAValidationController extends Controller
         // Code Société de l'utilisateur
         $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
-        // verification si l'OR est lié à un DA
-        $lierAUnDa = false;
+        // verification si l'OR est lié à un DA : n° DA => dernier statut, pour chaque DA en cours
+        $dasEnCours = [];
 
         $demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
         $daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
@@ -93,8 +93,7 @@ class DitOrsSoumisAValidationController extends Controller
                         ]
                     )
                 ) {
-                    $lierAUnDa = true;
-                    break; // on arrête si on en trouve un qui correspond
+                    $dasEnCours[$numDa] = $statutDaAfficher[0];
                 }
             }
         }
@@ -136,7 +135,7 @@ class DitOrsSoumisAValidationController extends Controller
         return $this->render('dit/DitInsertionOr.html.twig', [
             'form' => $form->createView(),
             'cdtArticleDa' => $cdtArticleDa,
-            'lierAUnDa' => $lierAUnDa,
+            'dasEnCours' => $dasEnCours,
         ]);
     }
 
