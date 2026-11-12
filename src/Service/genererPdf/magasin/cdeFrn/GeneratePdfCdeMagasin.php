@@ -482,11 +482,10 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         $this->mainRowWidths['coutUnit']      =
             $this->mainRowWidths['coutTotal'] = 20;
 
+        $this->mainRowWidths['ref'] = 45;
 
         $wUsed = array_sum(array_values($this->mainRowWidths));
-        $wRemaining = $w100 - $wUsed;
-        $this->mainRowWidths['designation'] =
-            $this->mainRowWidths['ref']     = $wRemaining / 2;
+        $this->mainRowWidths['designation'] = $w100 - $wUsed;
     }
 
     /** 
