@@ -139,7 +139,7 @@ class CommandeSoumissionFactory
     }
 
     /**
-     * @param list<array{cst:string,refp:string,lib:string,num_doc:string,num_cli:string,nom_cli:string,rmq:string,datepla:string}> $details
+     * @param list<array{cst:string,refp:string,lib:string,num_doc:string,num_cli:string,nom_cli:string,rmq:string,datepla:string,ordre?:int|string}> $details
      *
      * @return list<CommandeSoumissionDetailDTO>
      */
@@ -160,6 +160,7 @@ class CommandeSoumissionFactory
             $dtoDetail->nomClient    = $detail['nom_cli'];
             $dtoDetail->rmqClient    = $detail['rmq'];
             $dtoDetail->datePlanning = $datePla;
+            $dtoDetail->niveau       = (int) ($detail['ordre'] ?? 0);
 
             $result[] = $dtoDetail;
         }

@@ -10,6 +10,7 @@ class CommandeSoumissionDetailDTO
     public ?string    $nomClient    = null;
     public ?string    $rmqClient    = null;
     public ?\DateTime $datePlanning = null;
+    public int        $niveau       = 0;
 
     public function getNumDocFormatted(): string
     {

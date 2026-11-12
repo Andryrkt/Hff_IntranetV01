@@ -27,6 +27,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
     private const MAIN_ROW_HEIGHT  = 7;
     private const SUB_ROW_HEIGHT   = 6;
     private const TITLE_HEIGHT     = 9;
+    private const INDENT_MM        = 8; // retrait des OR rattachés à un CIS
 
     // Palette : bleu ardoise + neutres
     private const ACCENT = [30, 41, 59];
@@ -253,13 +254,15 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         $x = $this->pdf->GetX();
         $y = $this->pdf->GetY();
 
-        // Cellule vide
-        $this->pdf->Cell($this->subRowWidths['empty'], self::SUB_ROW_HEIGHT, '', 0, 0, 'L', $fill);
+        // Cellule vide ; un OR rattaché à un CIS est décalé vers la droite
+        $indent = $detailDto->niveau > 0 ? self::INDENT_MM : 0;
+        $this->pdf->Cell($this->subRowWidths['empty'] + $indent, self::SUB_ROW_HEIGHT, '', 0, 0, 'L', $fill);
 
         $this->pdf->SetFont(self::FONT, "I", self::SUB_TEXT_SIZE);
         $this->pdf->Cell($this->subRowWidths['refClientLabel'], self::SUB_ROW_HEIGHT, "Référence client:", 0, 0, 'L', $fill);
 
-        $this->pdf->Cell($this->subRowWidths['rmqClient'],    self::SUB_ROW_HEIGHT, $detailDto->rmqClient,                  0, 0, 'L', $fill);
+        // Seuls des "OR" sont en retrait : la cellule rmq (courte) absorbe le décalage, les colonnes suivantes restent alignées
+        $this->pdf->Cell($this->subRowWidths['rmqClient'] - $indent, self::SUB_ROW_HEIGHT, $detailDto->rmqClient,                  0, 0, 'L', $fill);
         $this->pdf->Cell($this->subRowWidths['numDoc'],       self::SUB_ROW_HEIGHT, $detailDto->getNumDocFormatted(),       0, 0, 'L', $fill);
         $this->pdf->Cell($this->subRowWidths['datePlanning'], self::SUB_ROW_HEIGHT, $detailDto->getDatePlanningFormatted(), 0, 0, 'L', $fill);
         $this->pdf->Cell($this->subRowWidths['ref'],          self::SUB_ROW_HEIGHT, $detailDto->getRefSplitted(),           0, 0, 'C', $fill);
@@ -268,7 +271,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
 
         // Filet fin séparant ce détail du suivant (tracé après le fond pour rester visible)
         $this->drawHairline(
-            $x + $this->subRowWidths['empty'] + $this->subRowWidths['refClientLabel'],
+            $x + $this->subRowWidths['empty'] + $indent + $this->subRowWidths['refClientLabel'],
             $y,
             $this->pdf->getPageWidth() - self::MARGIN_LEFT
         );
