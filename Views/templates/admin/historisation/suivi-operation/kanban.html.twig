@@ -84,6 +84,7 @@
 												<dt class="col-sm-3">Assigné à</dt><dd class="col-sm-9">{{ tache.assigneA ?: 'Non assignée' }}</dd>
 												<dt class="col-sm-3">Début / échéance</dt><dd class="col-sm-9">{{ tache.dateDebut ? tache.dateDebut|date('d/m/Y') : '-' }} / {{ tache.echeance ? tache.echeance|date('d/m/Y') : '-' }}</dd>
 												<dt class="col-sm-3">Occurrences</dt><dd class="col-sm-9">{{ tache.nbOccurrences }} (première le {{ tache.premiereOccurrence ? tache.premiereOccurrence|date('d/m/Y H:i') : '-' }}, dernière le {{ tache.derniereOccurrence ? tache.derniereOccurrence|date('d/m/Y H:i') : '-' }}{% if tache.dernierNumeroDocument %}, {{ tache.dernierNumeroDocument }}{% endif %})</dd>
+												<dt class="col-sm-3">Effectuée par</dt><dd class="col-sm-9">{% for utilisateur, nb in utilisateursTache[tache.id] ?? [] %}{{ utilisateur }}{% if nb > 1 %} ({{ nb }}){% endif %}{{ not loop.last ? ', ' }}{% else %}-{% endfor %}</dd>
 												<dt class="col-sm-3">Dernier message</dt><dd class="col-sm-9 text-break">{{ tache.dernierMessage ?: '-' }}</dd>
 												{% if tache.modifiePar %}<dt class="col-sm-3">Modifié par</dt><dd class="col-sm-9">{{ tache.modifiePar }}{% if tache.dateModification %} le {{ tache.dateModification|date('d/m/Y H:i') }}{% endif %}</dd>{% endif %}
 											</dl>
