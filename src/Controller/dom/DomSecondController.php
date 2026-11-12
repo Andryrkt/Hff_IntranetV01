@@ -67,8 +67,8 @@ class DomSecondController extends Controller
 
             $userDom = "{$dom->getMatricule()} - {$dom->getNom()} {$dom->getPrenom()}";
 
-            $conflits = $suivi->etape('Contrôle des conflits de dates', function () use ($dom) {
-                return (new DomModel)->verifierConflitDate($dom->getMatricule(), $dom->getDateDebut(), $dom->getDateFin(), $dom->getCodeSociete());
+            $conflits = $suivi->etape('Contrôle des conflits de dates', function () use ($dom, $codeSousTypeDoc) {
+                return (new DomModel)->verifierConflitDate($dom->getMatricule(), $dom->getDateDebut(), $dom->getDateFin(), $dom->getCodeSociete(), $codeSousTypeDoc);
             });
 
             $montantOk = (int)str_replace('.', '', $dom->getTotalGeneralPayer()) <= 500000;
