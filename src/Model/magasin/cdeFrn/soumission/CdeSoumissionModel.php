@@ -289,8 +289,9 @@ class CdeSoumissionModel extends Model
                     JOIN {$this->ipsNegLig} 
                         ON nent_numcde = nlig_numcde
                     WHERE   nlig_numcf = '$numCde' 
-                        AND nent_natop = 'CIS' 
-                        AND ({$whereNegoce})
+                        AND nent_natop = 'CIS'
+                        AND nlig_constp = slor_constp
+                        AND nlig_refp   = slor_refp
                 )
             )
             AND ({$whereSav})
