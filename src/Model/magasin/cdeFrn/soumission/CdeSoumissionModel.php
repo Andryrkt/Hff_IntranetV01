@@ -439,17 +439,7 @@ class CdeSoumissionModel extends Model
                 ON  l.nlig_soc    = e.nent_soc
                 AND l.nlig_succ   = e.nent_succ
                 AND l.nlig_numcde = e.nent_numcde
-            WHERE   (
-                    l.nlig_numcf = '$numCde'
-                    OR l.nlig_numcf IN (
-                        SELECT DISTINCT cis.nent_numcde
-                        FROM {$this->ipsNegEnt} cis
-                        INNER JOIN {$this->ipsNegLig} cisl
-                            ON cis.nent_numcde = cisl.nlig_numcde
-                        WHERE   cisl.nlig_numcf = '$numCde'
-                            AND cis.nent_natop  = 'CIS'
-                    )
-                )
+            WHERE   l.nlig_numcf = '$numCde'
                 AND l.nlig_soc   = '$codeSociete'
                 AND l.nlig_natcm = 'C'
                 AND l.nlig_natop = 'DIR'
