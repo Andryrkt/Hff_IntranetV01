@@ -320,7 +320,8 @@ class CdeSoumissionModel extends Model
                 WHEN nent_natop = 'DIR' THEN 'VTE NEG'
                 ELSE nent_natop
             END               AS rmq, 
-            CASE 
+            CASE
+                WHEN nent_natop = 'CIS' THEN NULL
                 WHEN nent_delai IS NOT NULL THEN TO_CHAR(nent_delai, '%Y-%m-%d') 
                 ELSE NULL
             END               AS datepla,
