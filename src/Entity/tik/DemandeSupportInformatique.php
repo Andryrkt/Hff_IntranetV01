@@ -4,7 +4,6 @@ namespace App\Entity\tik;
 
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
-use App\Entity\tik\TkiPlanning;
 use DateTime as GlobalDateTime;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
@@ -58,9 +57,9 @@ class DemandeSupportInformatique
     private string $mailDemandeur;
 
     /**
-     * @ORM\Column(type="string", length=1000, name="Mail_En_Copie")
+     * @ORM\Column(type="string", length=1000, nullable=true, name="Mail_En_Copie")
      */
-    private string $mailEnCopie;
+    private ?string $mailEnCopie = null;
 
     /**
      * @ORM\Column(type="string", length=2, name="Code_Societe")
@@ -71,17 +70,17 @@ class DemandeSupportInformatique
      * @ORM\ManyToOne(targetEntity=TkiCategorie::class, inversedBy="supportInfo")
      * @ORM\JoinColumn(nullable=false, name="ID_TKI_Categorie", referencedColumnName="id")
      */
-    private ?TkiCategorie $categorie;
+    private ?TkiCategorie $categorie = null;
 
     /**
      * @ORM\ManyToOne(targetEntity=TkiSousCategorie::class, inversedBy="supportInfo")
-     * @ORM\JoinColumn(nullable=false, name="ID_TKL_Sous_Categorie", referencedColumnName="id")
+     * @ORM\JoinColumn(nullable=true, name="ID_TKL_Sous_Categorie", referencedColumnName="id")
      */
-    private ?TkiSousCategorie $sousCategorie;
+    private ?TkiSousCategorie $sousCategorie = null;
 
     /**
      * @ORM\ManyToOne(targetEntity=TkiAutresCategorie::class, inversedBy="supportInfo")
-     * @ORM\JoinColumn(nullable=false, name="ID_TKL_Autres_Categorie", referencedColumnName="id")
+     * @ORM\JoinColumn(nullable=true, name="ID_TKL_Autres_Categorie", referencedColumnName="id")
      */
     private ?TkiAutresCategorie $autresCategorie = null;
 
@@ -108,12 +107,12 @@ class DemandeSupportInformatique
     private ?User $validateur;
 
     /**
-     * @ORM\Column(type="string", length=100, name="Nom_Intervenant")
+     * @ORM\Column(type="string", length=100, nullable=true, name="Nom_Intervenant")
      */
     private ?string $nomIntervenant = null;
 
     /**
-     * @ORM\Column(type="string", length=100, name="Mail_Intervenant")
+     * @ORM\Column(type="string", length=100, nullable=true, name="Mail_Intervenant")
      */
     private ?string $mailIntervenant = null;
 
@@ -143,12 +142,12 @@ class DemandeSupportInformatique
     private ?string $pieceJoint03 = null;
 
     /**
-     * @ORM\Column(type="datetime", name="Date_Deb_Planning")
+     * @ORM\Column(type="datetime", nullable=true, name="Date_Deb_Planning")
      */
     private $dateDebutPlanning;
 
     /**
-     * @ORM\Column(type="datetime", name="Date_Fin_Planning")
+     * @ORM\Column(type="datetime", nullable=true, name="Date_Fin_Planning")
      */
     private $dateFinPlanning;
 
@@ -218,16 +217,6 @@ class DemandeSupportInformatique
      * @ORM\OneToMany(targetEntity=TkiCommentaires::class, mappedBy="demandeSupportInformatique")
      */
     private $commentaires;
-
-    /**
-     * @ORM\OneToOne(targetEntity=TkiPlanning::class, mappedBy="demandeSupportInfo", cascade={"persist", "remove"})
-     */
-    private $planning;
-
-    /**
-     * @ORM\OneToOne(targetEntity=TkiReplannification::class, mappedBy="demandeSupportInfo", cascade={"persist", "remove"})
-     */
-    private $replanification;
 
     /**
      * @ORM\Column(type="string", length=2, nullable=true, name="part_day_planning")
@@ -873,23 +862,6 @@ class DemandeSupportInformatique
         return $this;
     }
 
-    public function getPlanning(): ?TkiPlanning
-    {
-        return $this->planning;
-    }
-
-    public function setPlanning(?TkiPlanning $planning): self
-    {
-        // set the owning side of the relation if necessary
-        if ($planning && $planning->getDemandeSupportInfo() !== $this) {
-            $planning->setDemandeSupportInfo($this);
-        }
-
-        $this->planning = $planning;
-
-        return $this;
-    }
-
     /**
      * Get the value of validateur
      */
@@ -946,26 +918,6 @@ class DemandeSupportInformatique
     public function setPartOfDay($partOfDay)
     {
         $this->partOfDay = $partOfDay;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of replanification
-     */
-    public function getReplanification()
-    {
-        return $this->replanification;
-    }
-
-    /**
-     * Set the value of replanification
-     *
-     * @return  self
-     */
-    public function setReplanification($replanification)
-    {
-        $this->replanification = $replanification;
 
         return $this;
     }

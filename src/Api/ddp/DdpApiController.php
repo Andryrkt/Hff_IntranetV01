@@ -5,20 +5,11 @@ namespace App\Api\ddp;
 
 use App\Constants\ddp\StatutConstants;
 use App\Controller\Controller;
-use App\Controller\Traits\PdfConversionTrait;
-use App\Dto\ddp\DemandePaiementDto;
 use App\Entity\admin\Application;
-use App\Entity\da\DemandeAppro;
 use App\Entity\ddp\DemandePaiement;
 use App\Entity\dw\DwBcAppro;
-use App\Model\da\DaModel;
-use App\Model\dit\DitModel;
 use App\Service\autres\AutoIncDecService;
-use App\Service\da\FileCheckerService;
 use App\Service\ddp\DemandePaiementFileService;
-use App\Service\dataPdf\ordreReparation\Recapitulation;
-use App\Service\fichier\TraitementDeFichier;
-use App\Service\genererPdf\ddp\GeneratePdfDdpDa;
 use App\Service\genererPdf\GeneratePdf;
 use App\Service\historiqueOperation\suivi\SuiviOperationService;
 use DateTime;
@@ -28,8 +19,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DdpApiController extends Controller
 {
-    use PdfConversionTrait;
-
     /**
      * @Route("/api/transmettre-bap-compta", name="api_transmettre_bap_compta", methods={"POST"})
      */
@@ -62,8 +51,6 @@ class DdpApiController extends Controller
                 ]);
             }
 
-            $validationInfo = $result['validationInfos'];
-
             $demandePaiementRepository = $this->getEntityManager()->getRepository(DemandePaiement::class);
 
             /** @var DemandePaiement[] $ddps */
@@ -75,8 +62,8 @@ class DdpApiController extends Controller
             $suivi->setNumeroDocument($numeroCla);
 
             foreach ($ddps as $ddp) {
-                $suivi->etape('Transmission ' . $ddp->getNumeroDdp(), function () use ($ddp, $appro, $validationInfo, $numeroCla) {
-                    $this->transmettreDemande($ddp, $appro, $validationInfo, $numeroCla);
+                $suivi->etape('Transmission ' . $ddp->getNumeroDdp(), function () use ($ddp, $numeroCla) {
+                    $this->transmettreDemande($ddp, $numeroCla);
                 });
             }
 
@@ -100,7 +87,7 @@ class DdpApiController extends Controller
         }
     }
 
-    private function transmettreDemande(DemandePaiement $ddp, bool $appro, array $validationInfo, string $numeroCla): void
+    private function transmettreDemande(DemandePaiement $ddp, string $numeroCla): void
     {
         // modification du statut de demande de paiement
         $ddp
@@ -112,22 +99,10 @@ class DdpApiController extends Controller
         ;
         $this->getEntityManager()->persist($ddp);
 
-        // Page de garde DA + fusion des PJ uniquement pour les DDP appro
-        if ($appro) {
-            $nomCompletFichier = $this->genererPageDeGarde($validationInfo[$ddp->getNumeroCommande()] ?? [], $ddp);
-
-            $this->fusionDesPdf($ddp->getNumeroCommande(), $nomCompletFichier);
-        }
-
-        /** copie du fichier DDP dans DW */
-        if ($appro) {
-            // PDF tout juste régénéré (page de garde + PJ)
-            $bapFullpath = (new FileCheckerService())->getFullPath($ddp->getNumeroDdp());
-        } else {
-            // même résolution de chemin que la liste (chemin DW en BDD, sinon ddp/{numDdp}/{numDdp}.pdf)
-            $fileInfo = (new DemandePaiementFileService())->getFileInfo($ddp->getNumeroDdp(), $ddp->getTypeDemandeId()->getCode());
-            $bapFullpath = $fileInfo['exists'] ? $fileInfo['path'] : null;
-        }
+        // copie telle quelle du PDF existant dans DW, appro comprise (pas de nouvelle page de garde ni de fusion) :
+        // même résolution de chemin que la liste (chemin DW en BDD, sinon ddp/{numDdp}/{numDdp}.pdf)
+        $fileInfo = (new DemandePaiementFileService())->getFileInfo($ddp->getNumeroDdp(), $ddp->getTypeDemandeId()->getCode());
+        $bapFullpath = $fileInfo['exists'] ? $fileInfo['path'] : null;
 
         if (empty($bapFullpath)) {
             throw new \Exception("Le fichier PDF pour la demande {$ddp->getNumeroDdp()} est introuvable sur le serveur.");
@@ -197,95 +172,5 @@ class DdpApiController extends Controller
             "message"         => $message,
             "validationInfos" => $validationInfos
         ];
-    }
-
-    /**
-     * @param array{numeroBc:string,numeroOr:?string,validateur:?string,dateValidation:?string} $infoValidationBC tableau contenant les informations de validation
-     * @param DemandePaiement $ddp demande de paiement
-     * 
-     * @return string
-     */
-    private function genererPageDeGarde(array $infoValidationBC, DemandePaiement $ddp): string
-    {
-        $numeroBc = $infoValidationBC['numeroBc'];
-
-        if (empty($infoValidationBC)) throw new \Exception("Aucune information de validation trouvée pour le bon de commande $numeroBc.");
-
-        $demandePaiementDto = $this->loadDemandePaiementDto($ddp, $infoValidationBC['numeroOr']);
-
-        $numOr               = $demandePaiementDto->numeroOr;
-        $codeSociete         = $demandePaiementDto->codeSociete;
-        $numeroDdp           = $demandePaiementDto->numeroDdp;
-
-        $historiqueLivraison = [];
-
-        $infoMateriel        = (new DitModel)->recupInfoMateriel($numOr, $codeSociete);
-        $dataRecapOR         = (new Recapitulation)->getData($numOr, $codeSociete);
-
-        $demandeApproRepo    = $this->getEntityManager()->getRepository(DemandeAppro::class);
-        $demandeAppro        = $demandeApproRepo->findOneBy(['numeroDemandeAppro' => $demandePaiementDto->numeroDemandeAppro]);
-        $infoFacBl           = [];
-
-        $path = $_ENV['BASE_PATH_FICHIER'] . "/ddp/$numeroDdp";
-        if (!is_dir($path)) mkdir($path, 0777, true);
-        $nomAvecCheminFichier = "$path/$numeroDdp.pdf";
-
-        $generatePdfDdp = new GeneratePdfDdpDa();
-        $generatePdfDdp->generer($infoValidationBC, $infoMateriel, $dataRecapOR, $historiqueLivraison, $demandeAppro, $infoFacBl, $demandePaiementDto, $demandePaiementDto, $nomAvecCheminFichier);
-
-        return $nomAvecCheminFichier;
-    }
-
-    private function loadDemandePaiementDto(DemandePaiement $ddp, ?string $numeroOr): DemandePaiementDto
-    {
-        $demandePaiementDto = new DemandePaiementDto();
-        $demandePaiementDto->numeroDdp            = $ddp->getNumeroDdp();
-        $demandePaiementDto->numeroOr             = $numeroOr;
-        $demandePaiementDto->numeroCla            = $ddp->getNumeroCla();
-        $demandePaiementDto->numeroDemandeAppro   = $ddp->getNumeroDemandeAppro();
-        $demandePaiementDto->typeDemande          = $ddp->getTypeDemandeId();
-        $demandePaiementDto->numeroFournisseur    = $ddp->getNumeroFournisseur();
-        $demandePaiementDto->beneficiaire         = $ddp->getBeneficiaire();
-        $demandePaiementDto->numeroCommande       = $ddp->getNumeroCommande();
-        $demandePaiementDto->numeroFacture        = $ddp->getNumeroFacture();
-        $demandePaiementDto->statut               = $ddp->getStatut();
-        $demandePaiementDto->dateSoumissionCompta = $ddp->getDateSoumissionCompta();
-        $demandePaiementDto->codeAgence           = $ddp->getAgenceDebiter();
-        $demandePaiementDto->codeService          = $ddp->getServiceDebiter();
-        $demandePaiementDto->dateDemande          = $ddp->getDateCreation();
-        $demandePaiementDto->statutDossierRegul   = $ddp->getStatutDossierRegul();
-        $demandePaiementDto->motif                = $ddp->getMotif();
-        $demandePaiementDto->montantAPayer        = $ddp->getMontantAPayers();
-        $demandePaiementDto->devise               = $ddp->getDevise();
-        $demandePaiementDto->modePaiement         = $ddp->getModePaiement();
-        $demandePaiementDto->demandeur            = $ddp->getDemandeur();
-        $demandePaiementDto->adresseMailDemandeur = $ddp->getAdresseMailDemandeur();
-        $demandePaiementDto->appro                = $ddp->getAppro() ?? false;
-        $demandePaiementDto->ribFournisseur       = $ddp->getRibFournisseur();
-        $demandePaiementDto->contact              = $ddp->getContact();
-        $demandePaiementDto->codeSociete          = $ddp->getCodeSociete();
-        $demandePaiementDto->infoBc               = (new DaModel)->getInfoBC($ddp->getNumeroCommande(), $ddp->getCodeSociete());
-
-        return $demandePaiementDto;
-    }
-
-    private function fusionDesPdf(string $numeroCommande, string $nomAvecCheminFichier): void
-    {
-        $listeFichiersPJ = [];
-        $path = rtrim($_ENV['BASE_PATH_FICHIER'], '/') . "/ddp/$numeroCommande";
-
-        if (is_dir($path)) {
-            $files = scandir($path);
-            foreach ($files as $file) {
-                if (preg_match('/^(_pj_|PJ_|devis_pj_)/', $file)) {
-                    $listeFichiersPJ[] = $file;
-                }
-            }
-        }
-
-        $fichierConvertis = $this->ConvertirLesPdf($listeFichiersPJ);
-        $traitementDeFichier = new TraitementDeFichier();
-        $tousLesFichiersAvecChemin = $traitementDeFichier->insertFileAtPosition($fichierConvertis, $nomAvecCheminFichier, 0);
-        $traitementDeFichier->fusionFichers($tousLesFichiersAvecChemin, $nomAvecCheminFichier);
     }
 }

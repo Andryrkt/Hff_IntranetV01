@@ -1,0 +1,30 @@
+<ul class="nav nav-tabs mb-3">
+	<li class="nav-item">
+		<a class="nav-link {{ ongletActif == 'tableau-de-bord' ? 'active' : '' }}" href="{{ path('suivi_operation_index', {vue: 'tableau-de-bord'}) }}">
+			<i class="fas fa-chart-line"></i> Tableau de bord
+		</a>
+	</li>
+	<li class="nav-item">
+		<a class="nav-link {{ ongletActif == 'operations' ? 'active' : '' }}" href="{{ path('suivi_operation_index') }}">
+			<i class="fas fa-list"></i> Opérations
+		</a>
+	</li>
+	<li class="nav-item">
+		<a class="nav-link {{ ongletActif == 'taches' ? 'active' : '' }}" href="{{ path('suivi_operation_index', {vue: 'taches'}) }}">
+			<i class="fas fa-list-check"></i> Tâches
+			{% if compteursTaches.aTrier > 0 %}
+				<span class="badge bg-danger" title="Tâches à trier">{{ compteursTaches.aTrier }}</span>
+			{% endif %}
+		</a>
+	</li>
+	<li class="nav-item">
+		<a class="nav-link {{ ongletActif == 'kanban' ? 'active' : '' }}" href="{{ path('suivi_operation_index', {vue: 'kanban'}) }}">
+			<i class="fas fa-table-columns"></i> Kanban
+		</a>
+	</li>
+	<li class="nav-item">
+		<a class="nav-link {{ ongletActif == 'planning' ? 'active' : '' }}" href="{{ path('suivi_operation_index', {vue: 'planning'}) }}">
+			<i class="fas fa-chart-gantt"></i> Planning
+		</a>
+	</li>
+</ul>

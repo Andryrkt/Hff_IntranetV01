@@ -71,31 +71,20 @@ class DitOrsSoumisAValidationController extends Controller
         // Code Société de l'utilisateur
         $codeSociete = $this->getSecurityService()->getCodeSocieteUser();
 
-        // verification si l'OR est lié à un DA
-        $lierAUnDa = false;
-
-        $demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
+        // demandes d'achat de la DIT : n° DA => ['statut' => dernier statut, 'enCours' => bool]
         $daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
-        $numDas = $demandeApproRepository->getNumDa($numDit, $codeSociete);
-        if ($numDas) {
-            foreach ($numDas as $numDa) {
-                $statutDaAfficher = $daAfficherRepository->getLastStatutDaAfficher($numDa, $codeSociete);
-
-                if (
-                    !empty($statutDaAfficher) &&
-                    !in_array(
-                        $statutDaAfficher[0],
-                        [
-                            StatutDaConstant::STATUT_VALIDE,
-                            StatutDaConstant::STATUT_TERMINER,
-                            StatutDaConstant::STATUT_EN_COURS_CREATION
-                        ]
-                    )
-                ) {
-                    $lierAUnDa = true;
-                    break; // on arrête si on en trouve un qui correspond
-                }
-            }
+        $demandesAchat = [];
+        foreach ($this->getEntityManager()->getRepository(DemandeAppro::class)->getNumDa($numDit, $codeSociete) ?: [] as $numDa) {
+            $statut = $daAfficherRepository->getLastStatutDaAfficher($numDa, $codeSociete)[0] ?? null;
+            $demandesAchat[$numDa] = [
+                'statut'  => $statut,
+                'enCours' => $statut !== null && !in_array($statut, [
+                    StatutDaConstant::STATUT_VALIDE,
+                    StatutDaConstant::STATUT_TERMINER,
+                    StatutDaConstant::STATUT_EN_COURS_CREATION,
+                    StatutDaConstant::STATUT_CLOTUREE,
+                ], true),
+            ];
         }
 
         $numOrBaseDonner = $this->ditOrsoumisAValidationModel->recupNumeroOr($numDit, $codeSociete);
@@ -125,7 +114,7 @@ class DitOrsSoumisAValidationController extends Controller
 
         $form = $this->getFormFactory()->createBuilder(DitOrsSoumisAValidationType::class, $ditInsertionOrSoumis)->getForm();
 
-        $this->traitementFormulaire($form,  $request,  $numOr,   $numDit,  $ditInsertionOrSoumis, $daAfficherRepository);
+        $this->traitementFormulaire($form,  $request,  $numOr,   $numDit,  $ditInsertionOrSoumis, $daAfficherRepository, $demandesAchat);
 
         $this->logUserVisit('dit_insertion_or', [
             'numDit' => $numDit,
@@ -135,11 +124,12 @@ class DitOrsSoumisAValidationController extends Controller
         return $this->render('dit/DitInsertionOr.html.twig', [
             'form' => $form->createView(),
             'cdtArticleDa' => $cdtArticleDa,
-            'lierAUnDa' => $lierAUnDa,
+            'demandesAchat' => $demandesAchat,
+            'daEnCours'     => in_array(true, array_column($demandesAchat, 'enCours'), true),
         ]);
     }
 
-    private function traitementFormulaire(FormInterface $form, Request $request, string $numOr, string  $numDit, DitOrsSoumisAValidation $ditInsertionOrSoumis, DaAfficherRepository $daAfficherRepository)
+    private function traitementFormulaire(FormInterface $form, Request $request, string $numOr, string  $numDit, DitOrsSoumisAValidation $ditInsertionOrSoumis, DaAfficherRepository $daAfficherRepository, array $demandesAchat = [])
     {
         $codeSociete = $ditInsertionOrSoumis->getCodeSociete();
         $form->handleRequest($request);
@@ -147,6 +137,17 @@ class DitOrsSoumisAValidationController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             // suivi étape par étape de la soumission (admin > historique > suivi des soumissions)
             $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_OR, $numOr);
+
+            $lignesDa = [];
+            foreach ($demandesAchat as $numDa => $da) {
+                $lignesDa[] = $numDa . ' : ' . ($da['statut'] ?? 'statut inconnu') . ($da['enCours'] ? ' (en cours)' : '');
+            }
+            SuiviOperationService::controle(
+                "Demandes d'achat de la DIT",
+                false,
+                $lignesDa ? count($lignesDa) . ' DA : ' . implode(' · ', $lignesDa) : 'Aucune demande d\'achat rattachée',
+                $lignesDa ? implode("\n", $lignesDa) : null
+            );
 
             /** DEBUT CONDITION DE BLOCAGE */
             $originalName = $form->get("pieceJoint01")->getData()->getClientOriginalName();

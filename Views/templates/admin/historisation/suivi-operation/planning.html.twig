@@ -1,0 +1,112 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Planning des tâches
+{% endblock %}
+
+{% block stylesheets %}
+	<link href="{{ App.base_path }}/Views/css/new.css?v={{ App.browserHash }}" rel="stylesheet"/>
+	<link href="https://cdn.jsdelivr.net/npm/frappe-gantt@0.6.1/dist/frappe-gantt.css" rel="stylesheet"/>
+	<style>
+		.gantt .bar-wrapper.priorite-haute .bar { fill: #dc3545; }
+		.gantt .bar-wrapper.priorite-normale .bar { fill: #0d6efd; }
+		.gantt .bar-wrapper.priorite-basse .bar { fill: #6c757d; }
+		.gantt .bar-wrapper.en-retard .bar { stroke: #000; stroke-width: 2; stroke-dasharray: 4 2; }
+		.gantt .bar-progress { fill: rgba(0, 0, 0, .25); }
+		.gantt .bar-label { fill: #fff; font-weight: 600; }
+		.gantt .bar-label.big { fill: #333; }
+		.legende-gantt span { display: inline-block; width: 12px; height: 12px; border-radius: 2px; vertical-align: middle; }
+	</style>
+{% endblock %}
+
+{% block content %}
+	<div class="container-fluid">
+		<div class="card">
+			<div class="card-body">
+				<h3 class="perso-titre mb-3">SUIVI DES OPÉRATIONS ÉTAPE PAR ÉTAPE</h3>
+
+				{% include 'admin/historisation/suivi-operation/_onglets.html.twig' with {ongletActif: 'planning'} %}
+
+				<form method="get" class="row g-2 align-items-end mb-3">
+					<input type="hidden" name="vue" value="planning">
+					<div class="col-auto">
+						<label for="assigne" class="form-label mb-0">Assigné à</label>
+						<select id="assigne" name="assigne" class="form-select form-select-sm" onchange="this.form.submit()">
+							<option value="">Tous</option>
+							{% for intervenant in intervenants %}
+								<option value="{{ intervenant }}" {{ assigne == intervenant ? 'selected' : '' }}>{{ intervenant }}</option>
+							{% endfor %}
+						</select>
+					</div>
+					<div class="col-auto">
+						<a href="{{ path('suivi_operation_index', {vue: 'planning', assigne: App.connectedUser.username}) }}" class="btn btn-outline-dark btn-sm">Mes tâches</a>
+					</div>
+					<div class="col-auto">
+						<div class="btn-group btn-group-sm" role="group" aria-label="Échelle">
+							<button type="button" class="btn btn-outline-secondary btn-echelle" data-mode="Day">Jour</button>
+							<button type="button" class="btn btn-outline-secondary btn-echelle active" data-mode="Week">Semaine</button>
+							<button type="button" class="btn btn-outline-secondary btn-echelle" data-mode="Month">Mois</button>
+						</div>
+					</div>
+					<div class="col small text-muted legende-gantt text-end">
+						<span style="background:#dc3545"></span> Haute
+						<span style="background:#0d6efd" class="ms-2"></span> Normale
+						<span style="background:#6c757d" class="ms-2"></span> Basse
+						<span style="border:2px dashed #000" class="ms-2"></span> En retard
+						· Glissez une barre pour replanifier, cliquez pour ouvrir la tâche.
+					</div>
+				</form>
+
+				{% if barres is empty %}
+					<p class="text-muted">Aucune tâche planifiée : saisissez un début et une échéance dans l'onglet Tâches.</p>
+				{% else %}
+					<div class="border rounded overflow-auto">
+						<svg id="gantt"></svg>
+					</div>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	{% if barres is not empty %}
+		<script src="https://cdn.jsdelivr.net/npm/frappe-gantt@0.6.1/dist/frappe-gantt.min.js"></script>
+		<script>
+			const urlTaches = "{{ path('suivi_operation_index', {vue: 'taches'})|e('js') }}";
+			const urlModifier = "{{ path('api_suivi_operation_tache_modifier', {id: 0})|e('js') }}".replace(/0$/, '');
+			const formatDate = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+
+			const gantt = new Gantt('#gantt', {{ barres|json_encode|raw }}, {
+				view_mode: 'Week',
+				language: 'fr',
+				custom_popup_html: tache => '<div class="p-2 small"><strong>' + tache.name.replace(/</g, '&lt;') + '</strong><br>' + tache.statut + '<br>'
+					+ tache._start.toLocaleDateString('fr-FR') + ' → ' + new Date(tache._end - 1000).toLocaleDateString('fr-FR') + '</div>', // _end = lendemain 00:00
+				on_click: tache => window.location.href = urlTaches + '#' + tache.id,
+				// replanification par glisser-déposer : enregistre début et échéance
+				on_date_change: async (tache, debut, fin) => {
+					try {
+						const reponse = await fetch(urlModifier + tache.id.replace('tache-', ''), {
+							method: 'POST',
+							headers: {'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest'},
+							body: JSON.stringify({dateDebut: formatDate(debut), echeance: formatDate(fin)})
+						});
+						if (!reponse.ok) {
+							throw new Error((await reponse.json().catch(() => ({}))).message || 'Erreur ' + reponse.status);
+						}
+					} catch (e) {
+						alert('Replanification non enregistrée : ' + e.message);
+						window.location.reload();
+					}
+				}
+			});
+
+			document.querySelectorAll('.btn-echelle').forEach(function (bouton) {
+				bouton.addEventListener('click', function () {
+					document.querySelectorAll('.btn-echelle').forEach(b => b.classList.toggle('active', b === bouton));
+					gantt.change_view_mode(bouton.dataset.mode);
+				});
+			});
+		</script>
+	{% endif %}
+{% endblock %}

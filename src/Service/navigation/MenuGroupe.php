@@ -38,6 +38,7 @@ class MenuGroupe
                 'label'    => 'Plan analytique HFF',
                 'icon'     => 'ruler-vertical',
                 'link'     => '{basePathUpload}/documentation/Structure%20analytique%20HFF.pdf',
+                'link'     => '{basePathUpload}/documentation/Structure%20analytique%20HFF.pdf',
                 'route'    => 'documentation_interne', // accessible si 'documentation_interne' est accesible
                 'target'   => '_blank',
             ],
@@ -85,8 +86,9 @@ class MenuGroupe
                 'label'    => 'Demande de paiement',
                 'icon'     => 'file-invoice-dollar',
                 'subitems' => [
-                    ['label' => 'Nouvelle demande de paiement à l’avance', 'icon' => 'plus-circle', 'route' => 'new_ddp', 'params' => ['typeDdp' => 1]],
-                    ['label' => 'Nouvelle demande de paiement après arrivage', 'icon' => 'plus-circle', 'route' => 'new_ddp', 'params' => ['typeDdp' => 2]],
+                    // 'admin' : réservé au profil HFF-ADMIN tant que la création n'est pas ouverte aux utilisateurs
+                    ['label' => 'Nouvelle demande de paiement à l’avance', 'icon' => 'plus-circle', 'route' => 'new_ddp', 'params' => ['typeDdp' => 1], 'admin' => true],
+                    ['label' => 'Nouvelle demande de paiement après arrivage', 'icon' => 'plus-circle', 'route' => 'new_ddp', 'params' => ['typeDdp' => 2], 'admin' => true],
                     ['label' => 'Consultation',     'icon' => 'search',      'route' => 'ddp_liste'],
                 ],
             ],
@@ -272,15 +274,8 @@ class MenuGroupe
                 'label'    => 'COMMANDE FOURNISSEUR',
                 'icon'     => 'cloud-arrow-up',
                 'subitems' => [
-                    ['label' => 'Soumission commandes fournisseur', 'icon' => 'plus-circle', 'route' => 'generer_commande_fournisseur']
-
+                    ['label' => 'Soumission à validation', 'icon' => 'plus-circle', 'route' => 'generer_commande_fournisseur']
                 ],
-            ],
-            [
-                'route' => 'da_bon_a_payer',
-                'label' => 'Consultation facture',
-                'icon'  => 'list-ul',
-                'params' => ['appro' => 0],
             ],
         ];
     }

@@ -2,8 +2,14 @@
 
 {% set items = breadcrumbs() %}
 
-<nav id="fil-d-ariane" aria-label="Fil d'Ariane" class="breadcrumb-nav container-fluid">
-	<ol class="breadcrumb flat align-items-center mb-3">
+<nav id="fil-d-ariane" aria-label="Fil d'Ariane" class="breadcrumb-nav container-fluid d-flex align-items-start">
+	{# retour à la page précédente ; page ouverte dans un nouvel onglet (pas d'historique) → Accueil.
+	   Hors de la liste : le style de l'Accueil repose sur .breadcrumb-item:first-child #}
+	<button type="button" class="btn btn-sm btn-outline-secondary me-2" title="Page précédente" aria-label="Page précédente"
+		onclick="if (history.length > 1) { history.back(); } else { location.href = '{{ path('profil_acceuil') }}'; }">
+		<i class="fas fa-arrow-left"></i>
+	</button>
+	<ol class="breadcrumb flat align-items-center mb-3 flex-grow-1">
 		{% for item in items %}
 			{# Seul l'Accueil a un dropdown — les autres items sont de simples textes #}
 			{% set hasDropdown = item.dropdown is defined and item.dropdown|length > 0 %}
@@ -61,10 +67,13 @@
 				<li class="breadcrumb-separator"></li>
 			{% endif %}
 		{% endfor %}
-		{# bouton « Guide d'utilisation » : l'écran déclare {% set guideSlug = '...' %} hors des blocs #}
-		{% if guideSlug is defined and guideSlug %}
+		{# bouton « Guide d'utilisation » : l'écran peut déclarer {% set guideSlug = '...' %} hors des blocs
+		   (null = pas de bouton) ; sinon l'identifiant est tiré du nom de la route (ddp_list → ddp-list) #}
+		{% set route = App.request ? App.request.attributes.get('_route') : null %}
+		{% set slugGuide = guideSlug is defined ? guideSlug : (route and route[:4] != 'doc_' ? route|lower|replace({'_': '-', '.': '-'}) : null) %}
+		{% if slugGuide and slugGuide matches '/^[a-z0-9-]+$/' %}
 			<li class="ms-auto">
-				{% include 'partials/_lienGuide.html.twig' with {slug: guideSlug} %}
+				{% include 'partials/_lienGuide.html.twig' with {slug: slugGuide} %}
 			</li>
 		{% endif %}
 	</ol>

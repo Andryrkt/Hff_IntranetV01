@@ -133,7 +133,7 @@ class DaSoumissionFacBlFactory
 
 
         $dto->montantBlFacture = (float)str_replace(',', '.', str_replace(' ', '', $dto->montantBlFacture ?? '0'));
-        $montantBlFactureTtc = $this->daSoumissionFacBlModel->getMontantFactureSoumiseAvecTva($dto->numeroCde, $dto->codeSociete);
+        $montantBlFactureTtc = $this->daSoumissionFacBlModel->getMontantFactureSoumiseAvecTva($dto->numLiv, $dto->codeSociete);
         $dto->montantBlFactureTtc = (float)str_replace(',', '.', str_replace(' ', '', $montantBlFactureTtc ?? '0'));
         $dto->numeroFactureFournisseur = $this->getNumFacEtMontant($dto->numLiv, $dto->codeSociete)[0]['numero_facture'];
 

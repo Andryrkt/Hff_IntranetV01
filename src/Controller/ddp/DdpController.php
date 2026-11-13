@@ -66,6 +66,11 @@ class DdpController extends Controller
      */
     public function new(int $typeDdp, Request $request)
     {
+        // création réservée au profil HFF-ADMIN (liens masqués dans le menu Compta) : bloque aussi l'accès par l'URL
+        if (!$this->estAdmin()) {
+            $this->redirectToRoute('profil_acceuil');
+        }
+
         // initialisation DTO
         $dto = $this->ddpFactory->initialisation($typeDdp);
         //Creation du formulaire

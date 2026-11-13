@@ -82,7 +82,7 @@ class CdeSoumissionModel extends Model
         $startDate = (new \DateTime('first day of -6 months'))->format("Ym");
         $endDate   = (new \DateTime('last day of last month'))->format("Ym");
 
-        $statement = "SELECT 
+        $statement = "SELECT DISTINCT
             fcde_numcde as num_cde,
             fcde_date AS date_cde,
             (
@@ -198,7 +198,7 @@ class CdeSoumissionModel extends Model
             AND fcde_numfou = fbse_numfou
             AND fbse_numfou = ffou_numfou
             AND fcde_soc    = ffou_soc
-        ORDER BY fcdl_ref";
+        ORDER BY refp";
 
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
@@ -259,10 +259,21 @@ class CdeSoumissionModel extends Model
             TRIM(seor_nomcli) AS nom_cli,
             TRIM('OR')        AS rmq,
             CASE
-                WHEN plan.min_start IS NULL 
-                THEN TO_CHAR(sitv_datepla, '%Y-%m-%d')
+                WHEN plan.min_start IS NULL THEN TO_CHAR(sitv_datepla, '%Y-%m-%d')
                 ELSE TO_CHAR(plan.min_start, '%Y-%m-%d')
-            END AS datepla
+            END AS datepla,
+            CASE 
+                WHEN slor_natcm = 'C' AND slor_numcf = '$numCde' THEN 1 
+                ELSE 3 
+            END AS ord_type,
+            CASE
+                WHEN slor_natcm = 'C' AND slor_numcf = '$numCde' THEN CAST(seor_numor AS VARCHAR(11))
+                ELSE CAST(slor_numcf AS VARCHAR(11))
+            END AS grp,
+            CASE 
+                WHEN slor_natcm = 'C' AND slor_numcf = '$numCde' THEN 0 
+                ELSE 1 
+            END AS ordre
         FROM {$this->ipsSavEor}
         JOIN {$this->ipsSavLor}
             ON seor_numor = slor_numor 
@@ -280,9 +291,20 @@ class CdeSoumissionModel extends Model
                 ON skw.skw_id = ska.skw_id
             GROUP BY ofh_id, ofs_id
         ) plan ON plan.ofh_id = seor_numor AND plan.ofs_id = sitv_interv
-        WHERE   slor_numcf  = '$numCde'
-            AND slor_natcm  = 'C'
-            AND seor_serv   = 'SAV'
+        WHERE   seor_serv   = 'SAV'
+            AND (
+                (slor_natcm  = 'C' AND slor_numcf = '$numCde')
+                OR slor_numcf IN (
+                    SELECT DISTINCT nent_numcde 
+                    FROM {$this->ipsNegEnt} 
+                    JOIN {$this->ipsNegLig} 
+                        ON nent_numcde = nlig_numcde
+                    WHERE   nlig_numcf = '$numCde' 
+                        AND nent_natop = 'CIS'
+                        AND nlig_constp = slor_constp
+                        AND nlig_refp   = slor_refp
+                )
+            )
             AND ({$whereSav})
 
         UNION
@@ -298,16 +320,44 @@ class CdeSoumissionModel extends Model
                 WHEN nent_natop = 'DIR' THEN 'VTE NEG'
                 ELSE nent_natop
             END               AS rmq, 
-            CASE 
-                WHEN nent_delai IS NOT NULL 
-                THEN TO_CHAR(nent_delai, '%Y-%m-%d') 
-                ELSE NULL 
-            END               AS datepla
+            CASE
+                WHEN nent_natop = 'CIS' THEN NULL
+                WHEN nent_delai IS NOT NULL THEN TO_CHAR(nent_delai, '%Y-%m-%d') 
+                ELSE NULL
+            END               AS datepla,
+            CASE
+                WHEN nlig_numcf <> '$numCde' THEN 3
+                WHEN nent_natop = 'DIR' THEN 2
+                WHEN nent_natop = 'CIS' THEN 3
+                ELSE 4
+            END               AS ord_type,
+            CASE
+                WHEN nlig_numcf <> '$numCde' THEN CAST(nlig_numcf AS VARCHAR(11))
+                ELSE CAST(nent_numcde AS VARCHAR(11))
+            END               AS grp,
+            CASE
+                WHEN nlig_numcf <> '$numCde' THEN 1
+                ELSE 0
+            END               AS ordre
         FROM {$this->ipsNegEnt}
         JOIN {$this->ipsNegLig}
             ON nent_numcde = nlig_numcde
-        WHERE nlig_numcf  = '$numCde'
-            AND ({$whereNegoce})";
+        WHERE (
+                nlig_numcf = '$numCde'
+                OR nlig_numcf IN (
+                    SELECT DISTINCT cis.nent_numcde
+                    FROM {$this->ipsNegEnt} cis
+                    JOIN {$this->ipsNegLig} cisl
+                        ON cis.nent_numcde = cisl.nlig_numcde
+                    WHERE   cisl.nlig_numcf  = '$numCde'
+                        AND cis.nent_natop   = 'CIS'
+                        AND cisl.nlig_constp = {$this->ipsNegLig}.nlig_constp
+                        AND cisl.nlig_refp   = {$this->ipsNegLig}.nlig_refp
+                )
+            )
+            AND ({$whereNegoce})
+
+        ORDER BY 9, 10, 11, 4";
 
         $result = $this->connect->executeQuery($statement);
         $rows   = $this->connect->fetchResults($result);
@@ -353,7 +403,7 @@ class CdeSoumissionModel extends Model
                 ON osav.numeroOR = dv.numeroOR
                 AND osav.numeroVersion = dv.max_version
             WHERE osav.statut LIKE 'Valid%' {$this->selectCond->in('osav.numeroOR',$numerosOR)}
-            ORDER BY osav.numeroOR DESC";
+            ORDER BY osav.numeroOR ASC";
 
         $statement = $this->connexion->query($sql);
 
@@ -409,20 +459,20 @@ class CdeSoumissionModel extends Model
                 ON b.numero_devis = CAST(d.nent_numcde AS VARCHAR(11))
             GROUP BY b.numero_devis
         )
-        SELECT FIRST 50 DISTINCT t.numero_bc
+        SELECT FIRST 50 DISTINCT t.numero_devis
         FROM {$this->iriumBcClientSoumisNeg} t
         INNER JOIN derniere_version v
             ON  t.numero_devis   = v.numero_devis
             AND t.numero_version = v.max_version
         WHERE t.statut_bc like 'Valid%'
-        ORDER BY t.numero_bc DESC";
+        ORDER BY t.numero_devis ASC";
 
         $result = $this->connect->executeQuery($statement);
         $rows   = $this->connect->fetchResults($result);
 
         $data = [];
         foreach ($rows as $row) {
-            $data[] = $row["numero_bc"];
+            $data[] = $row["numero_devis"];
         }
 
         return $data;

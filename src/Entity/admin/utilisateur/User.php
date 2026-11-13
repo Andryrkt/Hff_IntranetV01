@@ -83,6 +83,14 @@ class User implements UserInterface
     private Collection $profils;
 
     /**
+     * Rôles métier du ticketing (VALIDATEUR, INTERVENANT) : un profil ne porte que les droits d'accès aux pages.
+     *
+     * @ORM\ManyToMany(targetEntity=Role::class, inversedBy="users")
+     * @ORM\JoinTable(name="user_roles")
+     */
+    private Collection $roles;
+
+    /**
      * @ORM\OneToMany(targetEntity=AgenceServiceDefautSociete::class, mappedBy="user")
      */
     private Collection $agenceServiceDefautSocietes;
@@ -92,7 +100,28 @@ class User implements UserInterface
     public function __construct()
     {
         $this->profils = new ArrayCollection();
+        $this->roles = new ArrayCollection();
         $this->agenceServiceDefautSocietes = new ArrayCollection();
+    }
+
+    /**
+     * RECUPERE LES id de role de l'User sous forme de tableau
+     */
+    public function getRoleIds(): array
+    {
+        return $this->roles->map(function ($role) {
+            return $role->getId();
+        })->toArray();
+    }
+
+    /**
+     * RECUPERE LES noms de role de l'User sous forme de tableau
+     */
+    public function getRoleNames(): array
+    {
+        return $this->roles->map(function ($role) {
+            return $role->getRoleName();
+        })->toArray();
     }
 
 

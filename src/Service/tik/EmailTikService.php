@@ -4,6 +4,7 @@ namespace App\Service\tik;
 
 use App\Service\EmailService;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityNotFoundException;
 use App\Entity\admin\utilisateur\User;
 use App\Controller\Traits\lienGenerique;
 use App\Entity\tik\DemandeSupportInformatique;
@@ -33,9 +34,23 @@ class EmailTikService
             'emailUserDemandeur' => $tik->getMailDemandeur(),
             'emailIntervenant'   => $tik->getMailIntervenant(),
             'variable'           => $variable,
-            'userConnecter'      => $userConnecter->getPersonnels()->getNom() . ' ' . $userConnecter->getPersonnels()->getPrenoms(),
+            'userConnecter'      => $this->nomPrenom($userConnecter),
             'template'           => 'tik/email/emailTik.html.twig',
         ];
+    }
+
+    /**
+     * Méthode pour obtenir le nom à afficher dans un email : nom et prénoms, ou nom d'utilisateur si l'utilisateur n'est pas rattaché à un personnel
+     */
+    public function nomPrenom(User $user): string
+    {
+        $personnel = $user->getPersonnels();
+
+        try {
+            return $personnel ? $personnel->getNom() . ' ' . $personnel->getPrenoms() : $user->getNomUtilisateur();
+        } catch (EntityNotFoundException $e) {
+            return $user->getNomUtilisateur(); // personnel_id pointant vers une fiche supprimée
+        }
     }
 
     /** 

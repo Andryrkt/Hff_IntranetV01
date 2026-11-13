@@ -23,6 +23,7 @@ class Role
     public const ROLE_ENERGIE              = 5;
     public const ROLE_MULTI_SUCURSALES     = 6;
     public const ROLE_SUPER_ADMINISTRATEUR = 7;
+    public const ROLE_INTERVENANT          = 8; // ticketing et tâches du suivi des opérations (table user_roles)
     public const ROLE_DA_DIRECTE           = 10;
     public const ROLE_DIRECTION            = 11;
 

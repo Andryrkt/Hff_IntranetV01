@@ -32,6 +32,13 @@ class HistoriqueOperationEtape
     private ?int $idHistoriqueOperation = null;
 
     /**
+     * Tâche de correction à laquelle l'opération est rattachée (opération en problème uniquement)
+     *
+     * @ORM\Column(type="integer", name="id_tache", nullable=true)
+     */
+    private ?int $idTache = null;
+
+    /**
      * @ORM\Column(type="string", length=50, name="type_operation")
      */
     private string $typeOperation = '';
@@ -119,6 +126,11 @@ class HistoriqueOperationEtape
     public function getIdHistoriqueOperation(): ?int
     {
         return $this->idHistoriqueOperation;
+    }
+
+    public function getIdTache(): ?int
+    {
+        return $this->idTache;
     }
 
     public function getTypeOperation(): string

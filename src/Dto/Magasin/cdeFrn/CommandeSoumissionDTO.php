@@ -51,15 +51,11 @@ class CommandeSoumissionDTO
 
     public function getPoidsTotal(): string
     {
-        if ($this->poidsTotal === null) return "";
-
         return number_format($this->poidsTotal, 2, ',', ' ');
     }
 
     public function getMontantTotal(): string
     {
-        if ($this->montantTotal === null) return "";
-
         return number_format($this->montantTotal, 2, ',', ' ');
     }
 
@@ -67,12 +63,12 @@ class CommandeSoumissionDTO
     {
         if (empty($this->allValidatedOR)) return "";
 
-        return implode("; ", $this->allValidatedOR);
+        return implode(";", $this->allValidatedOR) . ";";
     }
 
     public function getAllValidatedPO(): string
     {
         if (empty($this->allValidatedPO)) return "";
-        return implode("; ", $this->allValidatedPO);
+        return implode(";", $this->allValidatedPO) . ";";
     }
 }

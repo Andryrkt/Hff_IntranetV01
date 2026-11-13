@@ -43,8 +43,12 @@ class DemandeSupportInformatiqueController extends Controller
     {
         $user = $this->getUser();
 
-        if ($this->conditionNouveauTicket($user->getId())) {
-            $this->redirectToRoute('profil_acceuil');
+        if ($this->aTicketResoluNonCloture($user->getId())) {
+            $this->getSessionService()->set('notification', [
+                'type'    => 'danger',
+                'message' => 'Veuillez clôturer ou réouvrir vos tickets résolus avant d\'en créer un nouveau.',
+            ]);
+            $this->redirectToRoute('liste_tik_index');
         }
 
         $supportInfo = new DemandeSupportInformatique();
@@ -221,6 +225,11 @@ class DemandeSupportInformatiqueController extends Controller
             return $validateur->getMail();
         }, $this->getEntityManager()->getRepository(User::class)->findByRole('VALIDATEUR')); // tous les validateurs
 
+        // le ticket est déjà enregistré : sans validateur configuré, il n'y a personne à prévenir
+        if (empty($emailValidateurs)) {
+            return;
+        }
+
         $content = [
             'to'        => $emailValidateurs[0],
             'cc'        => array_slice($emailValidateurs, 1),
@@ -237,16 +246,13 @@ class DemandeSupportInformatiqueController extends Controller
     }
 
     /** 
-     * Méthode pour vérifier si l'utilisateur peut créer un nouveau ticket, retourne le nombre de ticket résolu, non cloturé
-     * 
+     * Méthode pour vérifier si l'utilisateur a un ticket résolu non clôturé, ce qui lui interdit d'en créer un nouveau
+     *
      * @return bool
      */
-    private function conditionNouveauTicket($userId): bool
+    private function aTicketResoluNonCloture($userId): bool
     {
-        if ($this->tikRepository->countByStatutDemande('62', $userId) === 0) {
-            return true;
-        }
-        return false;
+        return (int) $this->tikRepository->countByStatutDemande('62', $userId) > 0;
     }
 
     /** 

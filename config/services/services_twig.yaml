@@ -25,3 +25,8 @@ services:
     arguments:
       - "@doctrine"
     tags: ["twig.extension"]
+
+  App\Twig\NotificationExtension:
+    arguments:
+      - "@doctrine"
+    tags: ["twig.extension"]

@@ -170,7 +170,7 @@ class EmailService
      * Ferme la session et envoie la réponse complète au navigateur (PHP en module Apache : pas de fastcgi_finish_request),
      * pour que la page suivante s'affiche sans attendre la fin des envois
      */
-    private static function libererNavigateur(): void
+    public static function libererNavigateur(): void
     {
         // la session est verrouillée jusqu'à sa fermeture : la page suivante attendrait sinon la fin des envois
         if (session_status() === PHP_SESSION_ACTIVE) {
