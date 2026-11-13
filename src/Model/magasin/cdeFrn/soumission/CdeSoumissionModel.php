@@ -326,16 +326,35 @@ class CdeSoumissionModel extends Model
                 ELSE NULL
             END               AS datepla,
             CASE
+                WHEN nlig_numcf <> '$numCde' THEN 3
                 WHEN nent_natop = 'DIR' THEN 2
                 WHEN nent_natop = 'CIS' THEN 3
                 ELSE 4
             END               AS ord_type,
-            CAST(nent_numcde AS VARCHAR(11)) AS grp,
-            0                 AS ordre
+            CASE
+                WHEN nlig_numcf <> '$numCde' THEN CAST(nlig_numcf AS VARCHAR(11))
+                ELSE CAST(nent_numcde AS VARCHAR(11))
+            END               AS grp,
+            CASE
+                WHEN nlig_numcf <> '$numCde' THEN 1
+                ELSE 0
+            END               AS ordre
         FROM {$this->ipsNegEnt}
         JOIN {$this->ipsNegLig}
             ON nent_numcde = nlig_numcde
-        WHERE nlig_numcf  = '$numCde'
+        WHERE (
+                nlig_numcf = '$numCde'
+                OR nlig_numcf IN (
+                    SELECT DISTINCT cis.nent_numcde
+                    FROM {$this->ipsNegEnt} cis
+                    JOIN {$this->ipsNegLig} cisl
+                        ON cis.nent_numcde = cisl.nlig_numcde
+                    WHERE   cisl.nlig_numcf  = '$numCde'
+                        AND cis.nent_natop   = 'CIS'
+                        AND cisl.nlig_constp = {$this->ipsNegLig}.nlig_constp
+                        AND cisl.nlig_refp   = {$this->ipsNegLig}.nlig_refp
+                )
+            )
             AND ({$whereNegoce})
 
         ORDER BY 9, 10, 11, 4";
@@ -420,7 +439,17 @@ class CdeSoumissionModel extends Model
                 ON  l.nlig_soc    = e.nent_soc
                 AND l.nlig_succ   = e.nent_succ
                 AND l.nlig_numcde = e.nent_numcde
-            WHERE   l.nlig_numcf = '$numCde'
+            WHERE   (
+                    l.nlig_numcf = '$numCde'
+                    OR l.nlig_numcf IN (
+                        SELECT DISTINCT cis.nent_numcde
+                        FROM {$this->ipsNegEnt} cis
+                        INNER JOIN {$this->ipsNegLig} cisl
+                            ON cis.nent_numcde = cisl.nlig_numcde
+                        WHERE   cisl.nlig_numcf = '$numCde'
+                            AND cis.nent_natop  = 'CIS'
+                    )
+                )
                 AND l.nlig_soc   = '$codeSociete'
                 AND l.nlig_natcm = 'C'
                 AND l.nlig_natop = 'DIR'
