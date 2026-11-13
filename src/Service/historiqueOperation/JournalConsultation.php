@@ -52,7 +52,8 @@ final class JournalConsultation
                 'utilisateur'             => $nom ?: ($userInfo['username'] ?? '-'),
                 'nom_page'                => $page['nom'] ?? $route,
                 'params'                  => self::parametres($request),
-                'date_heure_consultation' => (new \DateTime())->format('Y-m-d H:i:s'),
+                // même fuseau que UserLogger (logUserVisit) : le PHP du serveur est en UTC
+                'date_heure_consultation' => (new \DateTime('now', new \DateTimeZone('Indian/Antananarivo')))->format('Y-m-d H:i:s'),
                 'id_utilisateur'          => (int) $userInfo['id'],
                 'id_page'                 => $page['id'] ?? null,
                 'machine_utilisateur'     => self::machine($request),
