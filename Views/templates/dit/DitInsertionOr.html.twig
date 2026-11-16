@@ -22,8 +22,16 @@
 							<h3 class="perso-titre">
 								SOUMISSION OR
 							</h3>
-							{% if lierAUnDa %}
+							{% if daEnCours %}
 								<h3 class="badge bg-danger">Il existe une demande d'achat en cours pour cette OR</h3>
+							{% endif %}
+							{% if demandesAchat is not empty %}
+								<ul class="list-unstyled small mb-2">
+									<li class="fw-bold">Demande(s) d'achat de la DIT :</li>
+									{% for numDa, da in demandesAchat %}
+										<li class="{{ da.enCours ? 'text-danger' }}"><strong>{{ numDa }}</strong> : {{ da.statut ?: 'statut inconnu' }}{% if da.enCours %} (en cours){% endif %}</li>
+									{% endfor %}
+								</ul>
 							{% endif %}
 						</div>
 						<div class=" col-12 col-md-1">

@@ -200,4 +200,33 @@ class SuiviOperationTacheRepository extends EntityRepository
 
         return $taches;
     }
+
+    /**
+     * Utilisateurs ayant effectué les opérations rattachées à chaque tâche, le plus récent d'abord
+     *
+     * @param SuiviOperationTache[] $taches
+     * @return array<int, array<string, int>> id tâche => [utilisateur => nombre d'opérations]
+     */
+    public function utilisateursParTache(array $taches): array
+    {
+        $ids = array_map(fn(SuiviOperationTache $tache) => (int) $tache->getId(), $taches);
+        if (empty($ids)) {
+            return [];
+        }
+
+        $lignes = $this->getEntityManager()->getConnection()->fetchAllAssociative(
+            "SELECT id_tache, utilisateur, COUNT(DISTINCT id_suivi) AS nb
+             FROM historique_operation_etape
+             WHERE id_tache IN (" . implode(',', $ids) . ") AND utilisateur IS NOT NULL AND utilisateur <> ''
+             GROUP BY id_tache, utilisateur
+             ORDER BY id_tache, MAX(date_debut) DESC"
+        );
+
+        $utilisateurs = [];
+        foreach ($lignes as $ligne) {
+            $utilisateurs[(int) $ligne['id_tache']][$ligne['utilisateur']] = (int) $ligne['nb'];
+        }
+
+        return $utilisateurs;
+    }
 }

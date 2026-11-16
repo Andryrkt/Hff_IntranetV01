@@ -5,65 +5,103 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v={{ App.browserHash }}">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/admin/historisation/consultation-page/index.css?v={{ App.browserHash }}">
+	<link href="{{ App.base_path }}/Views/css/new.css?v={{ App.browserHash }}" rel="stylesheet"/>
+	<style>
+		.table-consultations td { vertical-align: middle; }
+		.params { font-size: .75rem; color: #6c757d; }
+	</style>
 {% endblock %}
 
-{% import "macroForm.html.twig" as macroForm %}
-
-{% block breadCrumb %}{% endblock %}
-
 {% block content %}
-	<div class="position-sticky sticky-header">
-		<div class="container my-4">
-			<h3 class="perso-titre">Historique des consultations de page</h3>
+	{% set periode = {date_debut: dateDebut|date('Y-m-d'), date_fin: dateFin|date('Y-m-d')} %}
+	<div class="container-fluid">
+		<div class="card">
+			<div class="card-body">
+				<h3 class="perso-titre mb-3">HISTORIQUE DES CONSULTATIONS DE PAGES</h3>
 
-			{% include "/admin/historisation/consultation-page/shared/_formulaireRecherche.html.twig" %}
-			<div class="container">
-				{% include "/admin/historisation/consultation-page/shared/_pagination.html.twig" %}
+				{% include 'admin/historisation/consultation-page/_onglets.html.twig' %}
+
+				<form method="get" class="row g-2 align-items-end mb-2">
+					<div class="col-12 col-md-3">
+						<label for="recherche" class="form-label mb-0">Utilisateur, page, machine, paramètre</label>
+						<input type="search" id="recherche" name="recherche" value="{{ filtres.recherche }}" class="form-control form-control-sm" placeholder="ex. DIT26119590">
+					</div>
+					<div class="col-12 col-md-3">
+						<label for="page" class="form-label mb-0">Page</label>
+						<select id="page" name="page" class="form-select form-select-sm">
+							<option value="">Toutes</option>
+							{% for nom in pages %}
+								<option value="{{ nom }}" {{ filtres.page == nom ? 'selected' : '' }}>{{ nom }}</option>
+							{% endfor %}
+						</select>
+					</div>
+					<div class="col-6 col-md-1">
+						<label for="date_debut" class="form-label mb-0">Du</label>
+						<input type="date" id="date_debut" name="date_debut" value="{{ periode.date_debut }}" class="form-control form-control-sm">
+					</div>
+					<div class="col-6 col-md-1">
+						<label for="date_fin" class="form-label mb-0">Au</label>
+						<input type="date" id="date_fin" name="date_fin" value="{{ periode.date_fin }}" class="form-control form-control-sm">
+					</div>
+					<div class="col-6 col-md-1">
+						<label for="limite" class="form-label mb-0">Lignes</label>
+						<select id="limite" name="limite" class="form-select form-select-sm">
+							{% for valeur in limitesPossibles %}
+								<option value="{{ valeur }}" {{ limite == valeur ? 'selected' : '' }}>{{ valeur }}</option>
+							{% endfor %}
+						</select>
+					</div>
+					{% if filtres.utilisateur %}
+						<div class="col-auto">
+							<input type="hidden" name="utilisateur" value="{{ filtres.utilisateur }}">
+							<span class="badge bg-secondary">Utilisateur : {{ filtres.utilisateur }}</span>
+						</div>
+					{% endif %}
+					<div class="col-auto">
+						<button type="submit" class="btn btn-warning btn-sm">Rechercher</button>
+						<a href="{{ path('consultation_page_index') }}" class="btn btn-outline-secondary btn-sm">Effacer</a>
+					</div>
+				</form>
+
+				<p class="small text-muted mb-2">
+					{{ resultat.total|number_format(0, ',', ' ') }} consultation(s) sur la période, {{ resultat.lignes|length }} affichée(s) ({{ limite }} maximum, les plus récentes en premier).
+				</p>
+
+				<div class="table-responsive">
+					<table class="table table-sm table-hover table-consultations">
+						<thead class="table-dark">
+							<tr>
+								<th>Date</th>
+								<th>Utilisateur</th>
+								<th>Page</th>
+								<th>Paramètres</th>
+								<th>Machine</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for ligne in resultat.lignes %}
+								<tr>
+									<td class="text-nowrap">{{ ligne.date_consultation|date('d/m/Y H:i:s') }}</td>
+									<td>
+										<a href="{{ path('consultation_page_index', {utilisateur: ligne.utilisateur, limite: limite}|merge(periode)) }}" title="Consultations de {{ ligne.utilisateur }}">{{ ligne.utilisateur }}</a>
+									</td>
+									<td>
+										<a href="{{ path('consultation_page_index', {page: ligne.nom_page, limite: limite}|merge(periode)) }}" class="text-reset">{{ ligne.nom_page }}</a>
+									</td>
+									<td class="params">
+										{% for cle, valeur in ligne.params %}
+											<span class="text-nowrap">{{ cle }} : <strong>{{ valeur is iterable ? valeur|json_encode : valeur }}</strong></span>{{ not loop.last ? ', ' }}
+										{% else %}-{% endfor %}
+									</td>
+									<td class="small">{{ ligne.machine_utilisateur }}</td>
+								</tr>
+							{% else %}
+								<tr><td colspan="5" class="text-muted text-center">Aucune consultation pour ces critères.</td></tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
 			</div>
 		</div>
 	</div>
-
-	<!-- Tableau -->
-	<div class="container-fluid">
-		<table class="table rounded table-plein-ecran">
-			<thead class="table-dark position-sticky sticky-table-header">
-				<tr>
-					<th>
-						<i class="fas fa-ellipsis-vertical"></i>
-					</th>
-					<th>ID</th>
-					<th>Nom de l'utilisateur</th>
-					<th>Nom de la page</th>
-					<th>Date de consultation</th>
-					<th>Paramètres</th>
-					<th>Machine</th>
-				</tr>
-			</thead>
-			<tbody>
-				{% for item in data %}
-					<tr>
-						<td class="align-middle" style="padding: 0px">
-							<div class="dropdown">
-								<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-									<i class="fas fa-ellipsis-vertical"></i>
-								</button>
-							</div>
-						</td>
-						<td>{{ item.id }}</td>
-						<td>{{ item.utilisateur }}</td>
-						<td>{{ item.nom_page }}</td>
-						<td>{{ item.dateConsultation|date('d/m/Y - H:i:s') }}</td>
-						<td>{{ macroForm.listAssociative(item.params) }}</td>
-						<td>{{ item.machineUser }}</td>
-					</tr>
-				{% endfor %}
-			</tbody>
-		</table>
-	</div>
-{% endblock %}
-
-{% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/admin/historisation/consultation-page/index.js?v={{ App.browserHash }}" type="module"></script>
 {% endblock %}

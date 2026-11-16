@@ -331,6 +331,11 @@ class demandeInterventionType extends AbstractType
                     'attr' => [
                         'class' => 'mailClient',
                         'disabled' => true,
+                        'maxlength' => 100,
+                    ],
+                    // colonne mail_client : 100 caractères
+                    'constraints' => [
+                        new Assert\Length(['max' => 100, 'maxMessage' => "L'e-mail du client ne doit pas dépasser {{ limit }} caractères."]),
                     ],
                 ]
             )
