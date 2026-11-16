@@ -404,6 +404,8 @@ function updateServiceOptions(services) {
     var option = serviceDebiteurInput.options[i];
     console.log("Value: " + option.value + ", Text: " + option.text);
   }
+
+  majAlerteDevisFournisseur(); // le service est resélectionné sans événement "change"
 }
 
 /** ===============================
@@ -657,7 +659,6 @@ if (atePolTanaInput) {
  * Alerte devis fournisseur : Préparation vente + agence 90 + service COM
  * ==================================================================*/
 const alerteDevisFournisseur = document.querySelector("#alerte-devis-fournisseur");
-const ditForm = document.querySelector("#dit-form");
 
 function texteSelectionne(id) {
   const select = document.querySelector(id);
@@ -667,6 +668,7 @@ function texteSelectionne(id) {
 }
 
 function majAlerteDevisFournisseur() {
+  if (!alerteDevisFournisseur) return;
   const afficher =
     texteSelectionne("#demande_intervention_typeDocument") === "PREPARATION VENTE" &&
     texteSelectionne("#demande_intervention_agence").startsWith("90 ") &&
