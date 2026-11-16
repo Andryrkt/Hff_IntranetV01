@@ -443,8 +443,9 @@ class DaAfficherRepository extends EntityRepository
         // -------------------------------------
         $qb = $this->_em->createQueryBuilder();
 
-        $qb->select('d')
+        $qb->select('d', 'dit')
             ->from(DaAfficher::class, 'd')
+            ->leftJoin('d.dit', 'dit') // colonne Prepa-vente de l'export
             ->where($qb->expr()->orX(
                 'd.statutCde != :statutPasDansOr',
                 'd.statutCde IS NULL'

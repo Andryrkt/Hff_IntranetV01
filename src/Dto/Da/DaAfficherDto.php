@@ -13,6 +13,7 @@ class DaAfficherDto
     public $objet;
     public $numeroLigne;
     public $numDaParent;
+    public $estPrepaVente = false;
     public $numeroDemandeAppro;
     public $daTypeIcon;
     public $allIcons;
