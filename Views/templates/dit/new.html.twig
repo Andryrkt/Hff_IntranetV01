@@ -155,6 +155,11 @@
 
                             {{ macroForm.sousTitre('Pièces Jointes', {class: 'sousTitre'}) }}
 
+                            <div id="alerte-devis-fournisseur" class="alert alert-warning d-none" role="alert">
+                                <h6 class="alert-heading fw-bold"><i class="fas fa-exclamation-triangle me-1"></i> Attention</h6>
+                                S'il existe déjà des devis reçus des fournisseurs, merci de les joindre ici.
+                            </div>
+
                             {{ form_row(form.pieceJoint01) }}
                             {{ form_errors(form.pieceJoint01) }}
 

@@ -652,3 +652,30 @@ if (atePolTanaInput) {
     }
   });
 }
+
+/** ===================================================================
+ * Alerte devis fournisseur : Préparation vente + agence 90 + service COM
+ * ==================================================================*/
+const alerteDevisFournisseur = document.querySelector("#alerte-devis-fournisseur");
+const ditForm = document.querySelector("#dit-form");
+
+function texteSelectionne(id) {
+  const select = document.querySelector(id);
+  return (select?.selectedOptions[0]?.text ?? "")
+    .normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .trim().toUpperCase();
+}
+
+function majAlerteDevisFournisseur() {
+  const afficher =
+    texteSelectionne("#demande_intervention_typeDocument") === "PREPARATION VENTE" &&
+    texteSelectionne("#demande_intervention_agence").startsWith("90 ") &&
+    texteSelectionne("#demande_intervention_service").startsWith("COM ");
+  alerteDevisFournisseur.classList.toggle("d-none", !afficher);
+}
+
+if (alerteDevisFournisseur && ditForm) {
+  // délégation : le select service est rechargé en AJAX au changement d'agence
+  ditForm.addEventListener("change", majAlerteDevisFournisseur);
+  majAlerteDevisFournisseur();
+}
