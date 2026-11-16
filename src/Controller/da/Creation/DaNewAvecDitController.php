@@ -6,6 +6,7 @@ use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Service\da\DaCreationService;
 use App\Service\da\DaEnregistrementService;
+use App\Service\da\FileUploaderForDAService;
 use App\Form\da\DemandeApproFormType;
 use App\Entity\dit\DemandeIntervention;
 use Doctrine\ORM\EntityManagerInterface;
@@ -24,12 +25,15 @@ class DaNewAvecDitController extends Controller
     private DemandeApproRepository $demandeApproRepository;
     private DaCreationService $daCreationService;
     private DaEnregistrementService $daEnregistrementService;
+    private FileUploaderForDAService $fileUploaderForDA;
 
     public function __construct(
         EntityManagerInterface $em,
         DaCreationService $daCreationService,
-        DaEnregistrementService $daEnregistrementService
+        DaEnregistrementService $daEnregistrementService,
+        FileUploaderForDAService $fileUploaderForDA
     ) {
+        $this->fileUploaderForDA       = $fileUploaderForDA;
         $this->daCreationService       = $daCreationService;
         $this->daEnregistrementService = $daEnregistrementService;
         $this->demandeApproRepository  = $em->getRepository(DemandeAppro::class);
@@ -63,7 +67,9 @@ class DaNewAvecDitController extends Controller
         $this->traitementForm($form, $request, $demandeAppro, $dit);
 
         return $this->render('da/new-avec-dit.html.twig', [
-            'form' => $form->createView(),
+            'form'     => $form->createView(),
+            // uniquement à la première création : un brouillon a déjà ses pièces jointes
+            'devisDit' => $daId === 0 ? $this->fileUploaderForDA->getDevisDit($dit) : [],
         ]);
     }
 

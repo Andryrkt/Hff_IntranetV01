@@ -1435,6 +1435,19 @@ class DemandeIntervention
         return $this->serviceDebiteurId;
     }
 
+    /** DIT "Préparation vente" débitée sur l'agence 90 (COMM ENERGIE) / service COM (COMMERCIAL) */
+    public function estPrepaVente(): bool
+    {
+        $typeDocument = $this->typeDocument;
+        $agence = $this->agenceDebiteurId;
+        $service = $this->serviceDebiteurId;
+
+        return $typeDocument
+            && in_array(mb_strtoupper(trim($typeDocument->getDescription())), ['PRÉPARATION VENTE', 'PREPARATION VENTE'], true)
+            && $agence && $agence->getCodeAgence() === '90'
+            && $service && $service->getCodeService() === 'COM';
+    }
+
 
     public function setServiceDebiteurId($serviceDebiteurId): self
     {
