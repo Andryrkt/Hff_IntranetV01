@@ -254,8 +254,8 @@ function renderFileList(inputId, inputFile) {
   const fieldContainer = document.getElementById(containerId); // Conteneur du champ de fichier correspondant
   const files = selectedFilesMap[inputId];
 
-  // Vider l'affichage
-  fieldContainer.innerHTML = "";
+  // Vider l'affichage (sans toucher à la liste des devis DIT)
+  fieldContainer.querySelector(".file-list")?.remove();
 
   // Vérifier si un fichier a été sélectionné
   if (files.length > 0) {

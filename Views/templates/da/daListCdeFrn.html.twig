@@ -60,8 +60,9 @@
 				{% for row in data %}
 					{% set clickableClass = row.styleClickableCell %}
 					<tr>
-						<td class="text-center fs-7 fw-bold" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ row.objet }}">
+						<td class="text-center fs-7 fw-bold {{ row.estPrepaVente ? 'bg-bon-achat-valide' }}" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ row.objet }}">
 							{{ row.numDaParent }}
+							{% if row.estPrepaVente %}<br>Prépa-VTE{% endif %}
 						</td>
 						<td>
 							<a href="{{ row.urlDetail }}" target="_blank">{{ row.numeroDemandeAppro }}</a>
