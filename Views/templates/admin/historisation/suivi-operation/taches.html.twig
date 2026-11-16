@@ -231,6 +231,7 @@
 												<div class="small mb-1"><strong>Message regroupé :</strong> <code>{{ tache.messageType ?: '-' }}</code></div>
 												<div class="small mb-1"><strong>Dernier message complet :</strong> {{ tache.dernierMessage ?: '-' }}</div>
 												<div class="small mb-1"><strong>Première occurrence :</strong> {{ tache.premiereOccurrence ? tache.premiereOccurrence|date('d/m/Y H:i') : '-' }}</div>
+												<div class="small mb-1"><strong>Effectuée par :</strong> {% for utilisateur, nb in utilisateursTache[tache.id] ?? [] %}{{ utilisateur }}{% if nb > 1 %} ({{ nb }}){% endif %}{{ not loop.last ? ', ' }}{% else %}-{% endfor %}</div>
 												<div class="small text-muted info-resolution">
 													{% if tache.dateResolution %}Résolu par {{ tache.resoluPar }} le {{ tache.dateResolution|date('d/m/Y H:i') }}<br>{% endif %}
 													{% if tache.dateModification %}Modifié par {{ tache.modifiePar }} le {{ tache.dateModification|date('d/m/Y H:i') }}{% endif %}

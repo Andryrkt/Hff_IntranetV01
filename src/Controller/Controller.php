@@ -440,6 +440,8 @@ class Controller
      */
     protected function logUserVisit(string $nomRoute, ?array $params = null)
     {
+        // index.php n'enregistre pas une seconde fois cette consultation
+        \App\Service\historiqueOperation\JournalConsultation::marquerEnregistree();
         $userInfo = $this->getSessionService()->get('user_info');
         $idUtilisateur = $userInfo['id'] ?? "-";
         $utilisateur = $userInfo ? $this->getEntityManager()->getRepository(User::class)->find($idUtilisateur) : null;

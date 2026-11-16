@@ -47,16 +47,14 @@ final class CdeFrnSoumissionService
      */
     public function generatePdfForSubmission(string $numCde, string $userMail, string $codeSociete, string $commentaire): ?CdeFrnSoumisAValidationDTO
     {
-        // 1. Récupération des données du document
         $commandeSoumissionDto = $this->cdeSoumissionModel->findInfoCommande($numCde, $userMail, $commentaire, $codeSociete);
 
         if ($commandeSoumissionDto === null) return null;
-        // 2. Création du DTO pour la soumission à validation
+
         $cdeFrnSoumisAValidationDTO = $this->factory->hydrate($commandeSoumissionDto);
-        // 3. Génération du PDF
+
         (new GeneratePdfCdeMagasin($commandeSoumissionDto))->generate($cdeFrnSoumisAValidationDTO->urlPDFLong);
 
-        // 4. Sauvegarder token
         $cdeFrnSoumisAValidationDTO->token = $this->store->save($userMail, $cdeFrnSoumisAValidationDTO);
 
         return $cdeFrnSoumisAValidationDTO;

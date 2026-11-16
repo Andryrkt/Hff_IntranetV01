@@ -59,8 +59,11 @@ class SuiviOperationController extends Controller
                 'recherche' => $request->query->get('recherche'),
             ];
 
+            $taches = $repositoryTache->rechercher($filtres);
+
             return $this->render('admin/historisation/suivi-operation/taches.html.twig', $parametresTaches + [
-                'taches'       => $repositoryTache->rechercher($filtres),
+                'taches'       => $taches,
+                'utilisateursTache' => $repositoryTache->utilisateursParTache($taches),
                 'filtres'      => $filtres,
                 'intervenants' => $this->intervenants(),
                 'listeIntervenants' => $this->listeIntervenants(),
@@ -100,6 +103,7 @@ class SuiviOperationController extends Controller
 
             return $this->render('admin/historisation/suivi-operation/kanban.html.twig', $parametresTaches + [
                 'colonnes'     => $colonnes,
+                'utilisateursTache' => $repositoryTache->utilisateursParTache($taches),
                 'assigne'      => $assigne,
                 'intervenants' => $this->intervenants(),
             ]);
