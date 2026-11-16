@@ -265,12 +265,12 @@ class GeneratePdfCdeMagasin extends GeneratePdf
 
         $shift = $estEnfant ? self::ARROW_TEXT_SHIFT : 0;
         if ($shift > 0) $this->pdf->Cell($shift, self::SUB_ROW_HEIGHT, '', 0, 0, 'L', $fill);
-        $this->pdf->Cell($this->subRowWidths['rmqClient'] - $shift, self::SUB_ROW_HEIGHT, $detailDto->rmqClient,            0, 0, 'L', $fill);
+        $this->pdf->Cell($this->subRowWidths['rmqClient'],    self::SUB_ROW_HEIGHT, $detailDto->rmqClient,            0, 0, 'L', $fill);
         $this->pdf->Cell($this->subRowWidths['numDoc'],       self::SUB_ROW_HEIGHT, $detailDto->getNumDocFormatted(),       0, 0, 'L', $fill);
         $this->pdf->Cell($this->subRowWidths['datePlanning'], self::SUB_ROW_HEIGHT, $detailDto->getDatePlanningFormatted(), 0, 0, 'L', $fill);
         $this->pdf->Cell($this->subRowWidths['ref'],          self::SUB_ROW_HEIGHT, $detailDto->getRefSplitted(),           0, 0, 'C', $fill);
         $this->pdf->Cell($this->subRowWidths['numClient'],    self::SUB_ROW_HEIGHT, $detailDto->numClient ?? '',            0, 0, 'R', $fill);
-        $this->pdf->Cell($this->subRowWidths['nomClient'],    self::SUB_ROW_HEIGHT, $detailDto->getNomClient(),             0, 1, 'L', $fill);
+        $this->pdf->Cell($this->subRowWidths['nomClient'] - $shift,    self::SUB_ROW_HEIGHT, $detailDto->getNomClient(),             0, 1, 'L', $fill);
 
         if ($estEnfant) $this->drawArrow($x + $this->subRowWidths['empty'] + $this->subRowWidths['refClientLabel'] + 1.5, $y);
     }
@@ -508,7 +508,7 @@ class GeneratePdfCdeMagasin extends GeneratePdf
         $this->subRowWidths = [
             "empty"          => $emptyWidth,
             "refClientLabel" => 20,
-            "rmqClient"      => 13,
+            "rmqClient"      => 12,
             "numDoc"         => 17,
             "ref"            => 75,
             "numClient"      => 12,
