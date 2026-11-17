@@ -114,7 +114,7 @@ class ExportExcelController extends Controller
         $columnCallbacks = [
             "N° Demande"               => fn(DaAfficher $da) => $da->getNumeroDemandeAppro(),
             "Type de demande"          => fn(DaAfficher $da) => $typeDemande[$da->getDaTypeId()],
-            "Prepa-vente"              => fn(DaAfficher $da) => $da->getDit() && $da->getDit()->estPrepaVente() ? 'Prépa-VTE' : '',
+            "Prepa-vente"              => fn(DaAfficher $da) => $da->getDit() && $da->getDit()->estPrepaVente() ? 'Oui' : 'Non',
             "N° DIT"                   => fn(DaAfficher $da) => $da->getNumeroDemandeDit() ?? '-',
             "Niveau urgence"           => fn(DaAfficher $da) => $da->getNiveauUrgence() ?? '-',
             "N° OR"                    => fn(DaAfficher $da) => $da->getNumeroOR() ?? '-',

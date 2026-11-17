@@ -85,7 +85,7 @@ class ExportExcelCdefrnController extends Controller
             $data[] = [
                 $da->getNumeroDemandeAppro(),
                 $da->getDaTypeId() == DemandeAppro::TYPE_DA_DIRECT ? 'OUI' : 'NON',
-                $da->getDit() && $da->getDit()->estPrepaVente() ? 'Prépa-VTE' : '',
+                $da->getDit() && $da->getDit()->estPrepaVente() ? 'Oui' : 'Non',
                 $da->getNumeroDemandeDit(),
                 $da->getNiveauUrgence(),
                 $da->getNumeroOR() ?? '-',
