@@ -22,7 +22,7 @@ class DdpaDaService
         $daSoumisionBcRepository = $this->em->getRepository(DaSoumissionBc::class);
         $daSoumissionBc = $daSoumisionBcRepository
             ->findOneBy([
-                'numeroCde' => $dto->numeroCommande[0],
+                'numeroCde' => $dto->numeroCommande,
                 'numeroVersion' => $dto->numeroVersionBc
             ]);
         if ($daSoumissionBc) {
@@ -54,7 +54,7 @@ class DdpaDaService
             ->findBy([
                 'numeroDemandeAppro' => $dto->numeroDa,
                 'numeroVersion' => $dto->numeroVersionBc,
-                'numeroCde' => $dto->numeroCommande[0]
+                'numeroCde' => $dto->numeroCommande
             ]);
         if (!empty($daAffichers)) {
             foreach ($daAffichers as $daAfficher) {
