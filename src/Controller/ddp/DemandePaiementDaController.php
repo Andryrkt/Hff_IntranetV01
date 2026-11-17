@@ -132,7 +132,8 @@ class DemandePaiementDaController extends Controller
         if ($dto->estRegule) {
             $message = "La soumission doit être de type régularisation";
             $estBloquer = true;
-        } elseif (!in_array($dto->statutBcAppro, StatutBcConstant::BC_VALIDE_CLOTURE)) {
+        } elseif (!$dto->ddpaDa && !in_array($dto->statutBcAppro, StatutBcConstant::BC_VALIDE_CLOTURE)) {
+            // créée avec la soumission BC : le BC vient d'être soumis à validation, il ne peut pas être déjà validé
             $message = "La soumission est bloquée car le BC n'est pas encore validé ou clôturé";
             $estBloquer = true;
         }
@@ -171,6 +172,8 @@ class DemandePaiementDaController extends Controller
                 $suivi->etape('Mise à jour DA', function () use ($ddpaDaService, $dto) {
                     $ddpaDaService->modificationStatutBcDansDaAfficher($dto);
                 });
+                // usage unique : la prochaine DDP ne doit pas être prise pour une DDP de soumission BC
+                $this->getSessionService()->remove('demande_paiement_a_l_avance');
             }
 
             /** HISTORISATION */
