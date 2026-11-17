@@ -231,6 +231,8 @@ export function handleAllOldFileEvents(
 
       // Stocker dans selectedFilesMap (sans File object, juste les noms)
       selectedFilesMap[inputId] = existingFiles;
+      // dès le chargement : sans ce champ, une ligne non retouchée perd ses pièces jointes à l'enregistrement
+      storeTwigFilesInHiddenField(existingFiles, inputId);
 
       console.log("selectedFilesMap = ");
       console.log(selectedFilesMap);
@@ -494,11 +496,11 @@ function transfererDonnees(filesArray, inputFile) {
 function storeTwigFilesInHiddenField(filesArray, inputId) {
   // Filtrer les strings (fichiers Twig)
   const twigFiles = filesArray.filter((item) => typeof item === "string");
+  const hiddenFieldId = inputId.replace("fileNames", "existingFileNames");
+  let hiddenField = document.getElementById(hiddenFieldId);
 
-  if (twigFiles.length > 0) {
-    const hiddenFieldId = inputId.replace("fileNames", "existingFileNames");
-    let hiddenField = document.getElementById(hiddenFieldId);
-
+  // toujours mettre à jour, même vide : sinon le dernier fichier existant supprimé resterait déclaré
+  if (twigFiles.length > 0 || hiddenField) {
     if (!hiddenField) {
       hiddenField = document.createElement("input");
       hiddenField.type = "hidden";
