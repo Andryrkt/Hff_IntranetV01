@@ -36,7 +36,8 @@ class DaSoumissionBcType extends AbstractType
                 'attr' => [
                     'required' => false
                 ],
-                'disabled' => false,
+                // désactivé : DDP à l'avance à la soumission BC pas encore opérationnelle (cf. DaSoumissionBcController)
+                'disabled' => true,
             ])
             ->add(
                 'pieceJoint1',

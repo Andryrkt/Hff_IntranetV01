@@ -279,6 +279,28 @@ class DemandePaiementDaController extends Controller
         SuiviOperationService::suivre('Copie des fichiers choisis', function () use ($dto) {
             $this->docDemandePaiementService->copieFichierChoisi($dto);
         });
+
+        // DDP créée avec la soumission du BC : pas de page de garde ici (BC pas encore validé),
+        // elle est générée à la transmission compta (DdpApiController::transmettreDemande)
+        if (!$dto->ddpaDa) {
+            SuiviOperationService::suivre('Page de garde', function () use ($dto, $nomAvecCheminFichier) {
+                $this->pageDeGarde($dto, $nomAvecCheminFichier);
+            });
+            $fichierChoisiAvecChemins = $this->docDemandePaiementService->fichierChoisiAvecChemin($dto);
+            // fusion des PDF (page de garde DDP + autres documents)
+            SuiviOperationService::suivre('Conversion et fusion', function () use ($nomEtCheminFichiersEnregistrer, $fichierChoisiAvecChemins, $nomAvecCheminFichier) {
+                $this->fusionDesPdf($nomEtCheminFichiersEnregistrer, $fichierChoisiAvecChemins, $nomAvecCheminFichier);
+            });
+        }
+    }
+
+    private function fusionDesPdf(array $nomEtCheminFichiersEnregistrer, array $fichierChoisiAvecChemins, string $nomAvecCheminFichier): void
+    {
+        $traitementDeFichier = new TraitementDeFichier();
+        $nomEtCheminFichiersEnregistrer = array_merge($nomEtCheminFichiersEnregistrer, $fichierChoisiAvecChemins);
+        $fichierConvertir = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
+        $tousLesFichersAvecChemin = $traitementDeFichier->insertFileAtPosition($fichierConvertir, $nomAvecCheminFichier, 0);
+        $traitementDeFichier->fusionFichers($tousLesFichersAvecChemin, $nomAvecCheminFichier);
     }
 
 
