@@ -101,7 +101,7 @@
 							</div>
 						</td>
 						{# === Fin Actions ==== #}
-						<td class="fs-7 fw-bold ps-3 {{ row.estPrepaVente ? 'bg-bon-achat-valide text-center' }}" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ row.objet }}">
+						<td class="fs-7 fw-bold ps-3 {{ row.estPrepaVente ? 'text-prepa-vente text-center' }}" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ row.objet }}">
 							{{ row.numDaParent }}
 							{% if row.estPrepaVente %}<br>Prépa-VTE{% endif %}
 						</td>

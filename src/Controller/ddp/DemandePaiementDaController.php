@@ -132,7 +132,8 @@ class DemandePaiementDaController extends Controller
         if ($dto->estRegule) {
             $message = "La soumission doit être de type régularisation";
             $estBloquer = true;
-        } elseif (!in_array($dto->statutBcAppro, StatutBcConstant::BC_VALIDE_CLOTURE)) {
+        } elseif (!$dto->ddpaDa && !in_array($dto->statutBcAppro, StatutBcConstant::BC_VALIDE_CLOTURE)) {
+            // créée avec la soumission BC : le BC vient d'être soumis à validation, il ne peut pas être déjà validé
             $message = "La soumission est bloquée car le BC n'est pas encore validé ou clôturé";
             $estBloquer = true;
         }
@@ -171,6 +172,8 @@ class DemandePaiementDaController extends Controller
                 $suivi->etape('Mise à jour DA', function () use ($ddpaDaService, $dto) {
                     $ddpaDaService->modificationStatutBcDansDaAfficher($dto);
                 });
+                // usage unique : la prochaine DDP ne doit pas être prise pour une DDP de soumission BC
+                $this->getSessionService()->remove('demande_paiement_a_l_avance');
             }
 
             /** HISTORISATION */
@@ -279,6 +282,28 @@ class DemandePaiementDaController extends Controller
         SuiviOperationService::suivre('Copie des fichiers choisis', function () use ($dto) {
             $this->docDemandePaiementService->copieFichierChoisi($dto);
         });
+
+        // DDP créée avec la soumission du BC : pas de page de garde ici (BC pas encore validé),
+        // elle est générée à la transmission compta (DdpApiController::transmettreDemande)
+        if (!$dto->ddpaDa) {
+            SuiviOperationService::suivre('Page de garde', function () use ($dto, $nomAvecCheminFichier) {
+                $this->pageDeGarde($dto, $nomAvecCheminFichier);
+            });
+            $fichierChoisiAvecChemins = $this->docDemandePaiementService->fichierChoisiAvecChemin($dto);
+            // fusion des PDF (page de garde DDP + autres documents)
+            SuiviOperationService::suivre('Conversion et fusion', function () use ($nomEtCheminFichiersEnregistrer, $fichierChoisiAvecChemins, $nomAvecCheminFichier) {
+                $this->fusionDesPdf($nomEtCheminFichiersEnregistrer, $fichierChoisiAvecChemins, $nomAvecCheminFichier);
+            });
+        }
+    }
+
+    private function fusionDesPdf(array $nomEtCheminFichiersEnregistrer, array $fichierChoisiAvecChemins, string $nomAvecCheminFichier): void
+    {
+        $traitementDeFichier = new TraitementDeFichier();
+        $nomEtCheminFichiersEnregistrer = array_merge($nomEtCheminFichiersEnregistrer, $fichierChoisiAvecChemins);
+        $fichierConvertir = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
+        $tousLesFichersAvecChemin = $traitementDeFichier->insertFileAtPosition($fichierConvertir, $nomAvecCheminFichier, 0);
+        $traitementDeFichier->fusionFichers($tousLesFichersAvecChemin, $nomAvecCheminFichier);
     }
 
 

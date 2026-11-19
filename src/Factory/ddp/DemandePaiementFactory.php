@@ -132,9 +132,14 @@ class DemandePaiementFactory
             $demandePaiementRepository->getDernierNumeroSoumissionDdpDa($dto->numeroCommande, $dto->numeroDa)
         );
 
-        $dto->ddpaDa = $sessionService->get('demande_paiement_a_l_avance')['ddpa'] ?? false;
+        // la session ne vaut que pour le BC qui vient d'être soumis (même commande et même version) :
+        // une soumission BC abandonnée ne doit pas marquer une autre DDP comme « créée avec la soumission BC »
+        $ddpaSession = $sessionService->get('demande_paiement_a_l_avance') ?? [];
+        $estDdpaDuBc = ($ddpaSession['num_cde'] ?? null) === (string) $dto->numeroCommande
+            && ($ddpaSession['num_version'] ?? null) === $numeroVersionBc;
+        $dto->ddpaDa = $estDdpaDuBc && ($ddpaSession['ddpa'] ?? false);
         $dto->numeroVersionBc = $numeroVersionBc ?? $this->em->getRepository(DaSoumissionBc::class)->getNumeroVersionMax($dto->numeroCommande, $dto->codeSociete);
-        $dto->nomPdfFusionnerBc = $sessionService->get('demande_paiement_a_l_avance')['nom_pdf'] ?? '';
+        $dto->nomPdfFusionnerBc = $estDdpaDuBc ? ($ddpaSession['nom_pdf'] ?? '') : '';
 
         $dto->fichiersChoisis = $this->docDemandePaiementService->getFichiersDevisDa((int)$dto->numeroDa);
         $dto->appro = $typeDa !== null;
