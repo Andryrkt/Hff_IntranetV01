@@ -23,6 +23,7 @@ class SuiviOperationService
     // Atelier
     public const TYPE_DIT                 = 'DIT';
     public const TYPE_DIT_DUPLICATION     = 'DIT_DUPLICATION';
+    public const TYPE_DIT_CLOTURE         = 'DIT_CLOTURE';
     public const TYPE_DEVIS_ATELIER       = 'DEVIS_ATELIER';
     public const TYPE_OR                  = 'OR';
     public const TYPE_RI                  = 'RI';
@@ -81,6 +82,7 @@ class SuiviOperationService
     public const LIBELLES_TYPE = [
         self::TYPE_DIT                         => 'DIT',
         self::TYPE_DIT_DUPLICATION             => 'DIT (duplication)',
+        self::TYPE_DIT_CLOTURE                 => 'DIT (clôture annulée)',
         self::TYPE_DEVIS_ATELIER               => 'Devis atelier',
         self::TYPE_OR                          => 'OR',
         self::TYPE_RI                          => 'RI',
