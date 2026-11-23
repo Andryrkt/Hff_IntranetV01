@@ -21,6 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Service\docuware\CopyDocuwareService;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
+use App\Service\historiqueOperation\suivi\SuiviOperationService;
 use App\Service\security\SecurityService;
 
 /**
@@ -197,37 +198,47 @@ class DitListeController extends Controller
     {
         $ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
 
-        $dit = $ditRepository->find($id); // recupération de l'information du DIT à annuler
+        // suivi étape par étape de la clôture (admin > historique > suivi des opérations)
+        $suivi = SuiviOperationService::demarrer(SuiviOperationService::TYPE_DIT_CLOTURE);
 
-        $this->modificationTableDit($dit);
+        $dit = $suivi->etape('Récupération de la DIT', function () use ($ditRepository, $id) {
+            $dit = $ditRepository->find($id); // recupération de l'information du DIT à annuler
+            if ($dit === null) {
+                throw new \RuntimeException("DIT introuvable (id $id)");
+            }
+            return $dit;
+        });
+        $suivi->setNumeroDocument((string) $dit->getNumeroDemandeIntervention());
+
+        $suivi->etape('Base de données (statut clôturé annulé)', function () use ($dit) {
+            $this->modificationTableDit($dit);
+        });
 
         $fileNameUplode = 'fichier_cloturer_annuler_' . $dit->getNumeroDemandeIntervention() . '.csv';
         $filePathUplode = $_ENV['BASE_PATH_FICHIER'] . '/dit/csv/' . $fileNameUplode;
         $fileNameDw = 'fichier_cloturer_annuler' . '.csv';
-        // $filePathDw = $_ENV['BASE_PATH_FICHIER'] . '/dit/csv/' . $fileNameDw;
         $headers = ['numéro DIT', 'statut'];
-        $numDits = $ditRepository->getNumDitAAnnuler();
 
-        $data = [];
-        foreach ($numDits as  $numDit) {
-            $data[] = [
-                $numDit,
-                'Clôturé annulé'
-            ];
-        }
+        $suivi->etape('Fichier CSV', function () use ($ditRepository, $filePathUplode, $headers) {
+            $data = [];
+            foreach ($ditRepository->getNumDitAAnnuler() as $numDit) {
+                $data[] = [$numDit, 'Clôturé annulé'];
+            }
+            SuiviOperationService::noter(count($data) . ' DIT dans le fichier');
 
-        if (file_exists($filePathUplode)) {
-            unlink($filePathUplode);
-        }
+            if (file_exists($filePathUplode)) {
+                unlink($filePathUplode);
+            }
 
-        $this->ajouterDansCsv($filePathUplode, $data, $headers);
+            $this->ajouterDansCsv($filePathUplode, $data, $headers);
+        });
 
-        $copyDocuwareService = new CopyDocuwareService();
-        $copyDocuwareService->copyCsvToDw($fileNameDw, $filePathUplode);
+        $suivi->etape('DocuWare', function () use ($fileNameDw, $filePathUplode) {
+            (new CopyDocuwareService())->copyCsvToDw($fileNameDw, $filePathUplode);
+        });
 
-        $message = "La DIT a été clôturé avec succès.";
-        $this->notification($message);
-        $this->redirectToRoute("dit_index");
+        // historise qui a clôturé et quand (utilisateur + date/heure), puis notifie et redirige
+        $this->historiqueOperation->sendNotificationCloture("La DIT a été clôturé avec succès.", $dit->getNumeroDemandeIntervention(), 'dit_index', true);
     }
 
     private function modificationTableDit($dit)

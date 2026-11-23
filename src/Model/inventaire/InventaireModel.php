@@ -389,7 +389,7 @@ from art_invp cpt2, art_invi inv2
 where cpt2.ainvp_numinv = inv2.ainvi_numinv and inv2.ainvi_sequence = 2
 and inv2.ainvi_numinv_mait = cpt.ainvp_numinv
 and cpt2.ainvp_nbordereau = cpt.ainvp_nbordereau
-and cpt2.ainvp_nligne = cpt.ainvp_nligne
+and cpt2.ainvp_nligne = cpt.ainvp_nligne and cpt2.ainvp_constp = cpt.ainvp_constp and cpt2.ainvp_refp = cpt.ainvp_refp
 )) as comptage2,
 -----ecart2
 
@@ -412,7 +412,7 @@ and inv2.ainvi_numinv_mait = cpt.ainvp_numinv
 and cpt2.ainvp_nbordereau = cpt.ainvp_nbordereau
 
 
-and cpt2.ainvp_nligne = cpt.ainvp_nligne
+and cpt2.ainvp_nligne = cpt.ainvp_nligne and cpt2.ainvp_constp = cpt.ainvp_constp and cpt2.ainvp_refp = cpt.ainvp_refp
 
 
 )) > 0 then 
@@ -434,7 +434,7 @@ and inv2.ainvi_numinv_mait = cpt.ainvp_numinv
 and cpt2.ainvp_nbordereau = cpt.ainvp_nbordereau
 
 
-and cpt2.ainvp_nligne = cpt.ainvp_nligne
+and cpt2.ainvp_nligne = cpt.ainvp_nligne and cpt2.ainvp_constp = cpt.ainvp_constp and cpt2.ainvp_refp = cpt.ainvp_refp
 
 
 )) - ROUND(ainvp_stktheo)
@@ -446,7 +446,7 @@ from art_invp cpt3, art_invi inv3
 where cpt3.ainvp_numinv = inv3.ainvi_numinv and inv3.ainvi_sequence = 3
 and inv3.ainvi_numinv_mait = cpt.ainvp_numinv
 and cpt3.ainvp_nbordereau = cpt.ainvp_nbordereau
-and cpt3.ainvp_nligne = cpt.ainvp_nligne
+and cpt3.ainvp_nligne = cpt.ainvp_nligne and cpt3.ainvp_constp = cpt.ainvp_constp and cpt3.ainvp_refp = cpt.ainvp_refp
 )) as comptage3,
 ----ecart3
 case  when
@@ -468,7 +468,7 @@ and inv3.ainvi_numinv_mait = cpt.ainvp_numinv
 and cpt3.ainvp_nbordereau = cpt.ainvp_nbordereau
 
 
-and cpt3.ainvp_nligne = cpt.ainvp_nligne
+and cpt3.ainvp_nligne = cpt.ainvp_nligne and cpt3.ainvp_constp = cpt.ainvp_constp and cpt3.ainvp_refp = cpt.ainvp_refp
 
 
 )) > 0 then
@@ -491,7 +491,7 @@ and inv3.ainvi_numinv_mait = cpt.ainvp_numinv
 and cpt3.ainvp_nbordereau = cpt.ainvp_nbordereau
 
 
-and cpt3.ainvp_nligne = cpt.ainvp_nligne
+and cpt3.ainvp_nligne = cpt.ainvp_nligne and cpt3.ainvp_constp = cpt.ainvp_constp and cpt3.ainvp_refp = cpt.ainvp_refp
 
 
 )) - ROUND(ainvp_stktheo)
@@ -507,7 +507,7 @@ from art_invp cpt2, art_invi inv2
 where cpt2.ainvp_numinv = inv2.ainvi_numinv and inv2.ainvi_sequence = 2
 and inv2.ainvi_numinv_mait = cpt.ainvp_numinv
 and cpt2.ainvp_nbordereau = cpt.ainvp_nbordereau
-and cpt2.ainvp_nligne = cpt.ainvp_nligne
+and cpt2.ainvp_nligne = cpt.ainvp_nligne and cpt2.ainvp_constp = cpt.ainvp_constp and cpt2.ainvp_refp = cpt.ainvp_refp
 )
 else
 (
@@ -516,7 +516,7 @@ from art_invp cpt3, art_invi inv3
 where cpt3.ainvp_numinv = inv3.ainvi_numinv and inv3.ainvi_sequence = 3
 and inv3.ainvi_numinv_mait = cpt.ainvp_numinv
 and cpt3.ainvp_nbordereau = cpt.ainvp_nbordereau
-and cpt3.ainvp_nligne = cpt.ainvp_nligne
+and cpt3.ainvp_nligne = cpt.ainvp_nligne and cpt3.ainvp_constp = cpt.ainvp_constp and cpt3.ainvp_refp = cpt.ainvp_refp
 )
 END as ecart,
 
@@ -530,7 +530,7 @@ from art_invp cpt2, art_invi inv2
 where cpt2.ainvp_numinv = inv2.ainvi_numinv and inv2.ainvi_sequence = 2
 and inv2.ainvi_numinv_mait = cpt.ainvp_numinv
 and cpt2.ainvp_nbordereau = cpt.ainvp_nbordereau
-and cpt2.ainvp_nligne = cpt.ainvp_nligne
+and cpt2.ainvp_nligne = cpt.ainvp_nligne and cpt2.ainvp_constp = cpt.ainvp_constp and cpt2.ainvp_refp = cpt.ainvp_refp
 )
 else
 (
@@ -539,7 +539,7 @@ from art_invp cpt3, art_invi inv3
 where cpt3.ainvp_numinv = inv3.ainvi_numinv and inv3.ainvi_sequence = 3
 and inv3.ainvi_numinv_mait = cpt.ainvp_numinv
 and cpt3.ainvp_nbordereau = cpt.ainvp_nbordereau
-and cpt3.ainvp_nligne = cpt.ainvp_nligne
+and cpt3.ainvp_nligne = cpt.ainvp_nligne and cpt3.ainvp_constp = cpt.ainvp_constp and cpt3.ainvp_refp = cpt.ainvp_refp
 )
 END * ainvp_prix as Montant_Ecart
 
@@ -548,6 +548,7 @@ WHERE ainvp_nbordereau <> 0
 and (ainvp_numinv = ainvi_numinv_mait and ainvi_sequence = 1)
  $inventDispo
 order by ainvi_numinv_mait, ainvi_numinv,ainvp_nbordereau, ainvp_nligne";
+
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
