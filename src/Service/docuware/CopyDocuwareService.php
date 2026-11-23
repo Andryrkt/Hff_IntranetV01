@@ -13,7 +13,8 @@ class CopyDocuwareService
         $cheminDestination = $filePath;
 
         error_clear_last();
-        $succes = copy($cheminDestination, $cheminFichierDepart);
+        // le wrapper FTP refuse d'écraser un fichier existant sans l'option overwrite
+        $succes = copy($cheminDestination, $cheminFichierDepart, stream_context_create(['ftp' => ['overwrite' => true]]));
         // destination masquée : l'URL FTP contient le jeton d'accès, à ne pas écrire dans le suivi
         $destinationMasquee = 'DocuWare FTP/data/' . $fileName;
         $erreur = $succes ? null : str_replace($cheminFichierDepart, $destinationMasquee, error_get_last()['message'] ?? 'La copie a échoué');
