@@ -6,25 +6,25 @@ document.addEventListener("DOMContentLoaded", () => {
   const fileItems = document.querySelectorAll(".file-item");
 
   // Types liés à un BC (via data-related-num-bc) et classe CSS de surlignage associée
-  const RELATED_CLASS = { FACBL: "related-fac-bl", DDP: "related-ddp" };
+  const RELATED_CLASS = { DDP: "related-ddp" };
   const ALL_RELATED_CLASSES = Object.values(RELATED_CLASS);
   const norm = (value) => (value ?? "").trim().toUpperCase();
 
   // Regrouper par type pour un accès rapide
-  const fileItemsByType = { BC: [], FACBL: [], DDP: [] };
+  const fileItemsByType = { BC: [], DDP: [] };
   fileItems.forEach((item) => {
     const type = item.dataset.docLabelType;
     if (type in fileItemsByType) fileItemsByType[type].push(item);
   });
 
-  // Construire les relations BC → (FACBL | DDP) et (FACBL | DDP) → BC
+  // Construire les relations BC → DDP et DDP → BC
   const bcByNum = new Map(); // numéro BC normalisé → élément BC
   fileItemsByType.BC.forEach((bc) =>
     bcByNum.set(norm(bc.querySelector("small").innerText), bc)
   );
 
-  const bcToChildren = new Map(); // one to many : numéro BC normalisé → [FACBL|DDP]
-  const childToBc = new Map(); // one to one : FACBL|DDP → BC
+  const bcToChildren = new Map(); // one to many : numéro BC normalisé → [DDP]
+  const childToBc = new Map(); // one to one : DDP → BC
   Object.keys(RELATED_CLASS).forEach((type) => {
     fileItemsByType[type].forEach((child) => {
       const num = norm(child.dataset.relatedNumBc);
@@ -36,11 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Éléments concernés pour toggle related
-  const relatedFileItems = [
-    ...fileItemsByType.BC,
-    ...fileItemsByType.FACBL,
-    ...fileItemsByType.DDP,
-  ];
+  const relatedFileItems = [...fileItemsByType.BC, ...fileItemsByType.DDP];
 
   // Gestion du clic sur un fichier
   fileItems.forEach((fileItem) => {
@@ -168,12 +164,12 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     if (docLabelType === "BC") {
-      // FACBL et DDP liés au BC, chacun dans la couleur de son type
+      // DDP liés au BC, chacun dans la couleur de son type
       (bcToChildren.get(norm(fileName)) || []).forEach((child) =>
         highlight(child, RELATED_CLASS[child.dataset.docLabelType])
       );
     } else {
-      // BC lié au FACBL / DDP, dans la couleur du type cliqué
+      // BC lié au DDP, dans la couleur du type cliqué
       const relatedBc = childToBc.get(selectedItem);
       if (relatedBc) highlight(relatedBc, RELATED_CLASS[docLabelType]);
     }

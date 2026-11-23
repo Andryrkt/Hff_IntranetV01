@@ -86,7 +86,9 @@ class DwDataService
     }
 
     /** 
-     * Obtenir l'url du bon de livraison + facture
+     * Obtenir l'url du bon de livraison + facture 
+     * 
+     * ! N'est plus utilisé depuis 23/11/2026 : ne plus afficher Facture / Bon de livraison dans Doc rattachés DA
      */
     public function getFacBlPath(DemandeAppro $demandeAppro): array
     {
