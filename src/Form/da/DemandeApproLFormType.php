@@ -114,6 +114,11 @@ class DemandeApproLFormType extends AbstractType
                 'mapped' => false,
                 'required' => false,
             ])
+            // devis de la DIT à recopier sur la ligne (DA avec DIT "Préparation vente" / 90 / COM)
+            ->add('devisDit', HiddenType::class, [
+                'mapped' => false,
+                'required' => false,
+            ])
             ->add(
                 'fileNames',
                 FileType::class,

@@ -2,14 +2,13 @@
 window.addEventListener("DOMContentLoaded", function () {
   adjustStickyTableHeaders();
 
-  // Surveiller l'ouverture/fermeture de l'accordéon
-  document
-    .querySelectorAll("#formAccordion .accordion-button")
-    .forEach((button) => {
-      button.addEventListener("click", () => {
-        setTimeout(adjustStickyTableHeaders, 300); // délai pour laisser l'animation se terminer
-      });
-    });
+  // Recalculer dès qu'un bloc au-dessus du tableau change de hauteur
+  // (accordéon, cartes de statut, polices ou notifications chargées après coup)
+  const observer = new ResizeObserver(adjustStickyTableHeaders);
+  ["#main-nav-bar", "#fil-d-ariane", ".sticky-header-titre"].forEach((selector) => {
+    const el = document.querySelector(selector);
+    if (el) observer.observe(el);
+  });
 });
 window.addEventListener("resize", adjustStickyTableHeaders);
 
@@ -28,11 +27,12 @@ function adjustStickyTableHeaders() {
 
   if (!table || headerRows.length === 0) return;
 
-  // Calcule la hauteur cumulée des éléments fixes au-dessus du tableau
-  const baseOffset =
-    (navBar ? getElementHeight(navBar) : 0) +
-    (breadcrumb ? getElementHeight(breadcrumb) : 0) +
-    (stickyTitle ? getElementHeight(stickyTitle) : 0);
+  // L'en-tête doit se figer juste sous le bloc titre, là où celui-ci se fige (son "top" CSS).
+  // Additionner nav + fil d'Ariane surestime cette position et pousse l'en-tête sur la 1re ligne.
+  const baseOffset = stickyTitle
+    ? (parseFloat(getComputedStyle(stickyTitle).top) || 0) + getElementHeight(stickyTitle)
+    : (navBar ? getElementHeight(navBar) : 0) +
+      (breadcrumb ? getElementHeight(breadcrumb) : 0);
 
   // Positionne chaque ligne d'en-tête de manière cumulative
   let decalage = stickyTitle

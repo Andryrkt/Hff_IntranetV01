@@ -97,7 +97,7 @@
 							</tr>
 						</thead>
 					</table>
-					<div id="children-container">
+					<div id="children-container" data-devis-dit="{{ devisDit|default([])|json_encode }}" data-devis-dit-url="{{ App.base_path_fichier }}/dit/{{ form.vars.data.numeroDemandeDit }}">
 						{% for ligne, DAL in form.DAL %}
 							{% set dalData = DAL.vars.data %}
 							<div id="demande_appro_form_DAL_{{ ligne }}" class="DAL-container">
