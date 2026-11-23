@@ -140,6 +140,10 @@ class demandeInterventionType extends AbstractType
                     },
                     'choices' => $services,
                     'required' => false,
+                    // une agence débitrice sans service plantait la création (getCodeService() sur null)
+                    'constraints' => $agenceId ? [new NotBlank(['message' => 'le service débiteur doit être sélectionné'])] : [],
+                    // le macro agence_service_change n'affiche pas les erreurs du champ : on les remonte en haut du formulaire
+                    'error_bubbling' => true,
                     'attr' => [
                         'class' => 'serviceDebiteur',
                         'disabled' => false,
