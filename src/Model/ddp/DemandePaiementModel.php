@@ -779,7 +779,8 @@ class DemandePaiementModel extends Model
                     td.code_type_demande AS code_type,
                     dw.date_transmission_ddp,
                     dw.date_validation_ser_em,
-                    dw.date_validation_compta
+                    dw.date_validation_compta,
+                    CAST(dp.numero_commande AS VARCHAR(10)) AS numero_commande
                 FROM demande_paiement dp
                 INNER JOIN type_demande td
                     ON dp.type_demande_id = td.id
