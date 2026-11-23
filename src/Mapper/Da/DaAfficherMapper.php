@@ -60,6 +60,7 @@ class DaAfficherMapper
         $dto->objet = $data->getObjetDal();
         $dto->numeroLigne = $data->getNumeroLigne();
         $dto->numDaParent = $data->getNumeroDemandeApproMere();
+        $dto->estPrepaVente = $data->getDit() !== null && $data->getDit()->estPrepaVente();
         $dto->numeroDemandeAppro = $data->getNumeroDemandeAppro();
         $dto->dateFinSouhaite = $data->getDateFinSouhaite() ? $data->getDateFinSouhaite()->format('d/m/Y') : 'N/A';
         $dto->artConstp = $data->getArtConstp();

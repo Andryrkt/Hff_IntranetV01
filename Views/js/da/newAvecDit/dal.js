@@ -82,9 +82,45 @@ export function ajouterUneLigne() {
   prototype.appendChild(div);
   container.appendChild(prototype);
 
+  if (!devisDitAjoutes) {
+    devisDitAjoutes = true;
+    ajouterDevisDit(newIndex);
+  }
+
   eventOnFamille(newIndex); // gestion d'évènement sur la famille et sous-famille à la ligne newIndex
   formatAllField(newIndex); // formater les champs à la ligne newIndex
   autocompleteTheFields(newIndex); // autocomplète les champs
+}
+
+let devisDitAjoutes = false;
+
+/** Affiche sur la ligne les devis de la DIT (Préparation vente / 90 / COM) et les déclare dans le champ caché devisDit */
+function ajouterDevisDit(line) {
+  let devis = JSON.parse(container.dataset.devisDit || "[]");
+  if (devis.length === 0) return;
+
+  const hidden = getTheField(line, "devisDit");
+  const fileContainer = getTheField(line, "fileNamesContainer");
+  const liste = document.createElement("ul");
+  liste.classList.add("ps-0", "mb-0", "devis-dit-list");
+
+  devis.forEach((nom) => {
+    const item = document.createElement("li");
+    item.classList.add("file-item");
+    item.innerHTML = `<span class="file-name"><a target="_blank"></a></span><span class="remove-file">x</span>`;
+    const lien = item.querySelector("a");
+    lien.href = `${container.dataset.devisDitUrl}/${encodeURIComponent(nom)}`;
+    lien.textContent = nom;
+    item.querySelector(".remove-file").addEventListener("click", () => {
+      devis = devis.filter((d) => d !== nom);
+      hidden.value = devis.join(",");
+      item.remove();
+    });
+    liste.appendChild(item);
+  });
+
+  hidden.value = devis.join(",");
+  fileContainer.prepend(liste);
 }
 
 export function replaceNameToNewIndex(element, newIndex) {

@@ -837,3 +837,8 @@ input.modern-checkbox:checked {
   overflow: hidden;
   /* pour éviter débordement du gradient */
 }
+
+/* n° DA d'une DIT préparation vente (listes DA et commandes fournisseurs) */
+.text-prepa-vente {
+  color: #1eda1e !important;
+}
