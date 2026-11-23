@@ -33,7 +33,7 @@ class DocRattacheService
         $daType = $demandeAppro->getDaTypeId(); // type de la DA
 
         // Récupérer les types de documents pour ce type de DA
-        $documentTypesForDA = $this->daDocumentMapping[$daType] ?? []; // Ex: ['BAI', 'BAD', 'DEV_PJ_DA', 'DEV_PJ_OBS', 'BC', 'FACBL']
+        $documentTypesForDA = $this->daDocumentMapping[$daType] ?? []; // Ex: ['BAI', 'BAD', 'DEV_PJ_DA', 'DEV_PJ_OBS', 'BC']
 
         foreach ($documentTypesForDA as $docTypeKey) {
             // Vérifier si le type de document existe dans la configuration
@@ -64,8 +64,8 @@ class DocRattacheService
     private function getDaDocumentMappingConfig(): array
     {
         return [
-            DemandeAppro::TYPE_DA_AVEC_DIT         => ['BAI', 'OR', 'DEV_PJ_DA', 'DEV_PJ_OBS', 'BC', 'FACBL', 'DDP'],
-            DemandeAppro::TYPE_DA_DIRECT           => ['BAI', 'BAD', 'DEV_PJ_DA', 'DEV_PJ_OBS', 'BC', 'FACBL', 'DDP'],
+            DemandeAppro::TYPE_DA_AVEC_DIT         => ['BAI', 'OR', 'DEV_PJ_DA', 'DEV_PJ_OBS', 'BC', 'DDP'],
+            DemandeAppro::TYPE_DA_DIRECT           => ['BAI', 'BAD', 'DEV_PJ_DA', 'DEV_PJ_OBS', 'BC', 'DDP'],
             DemandeAppro::TYPE_DA_REAPPRO_MENSUEL  => ['BAI', 'BAD', 'DEV_PJ_OBS'],
             DemandeAppro::TYPE_DA_REAPPRO_PONCTUEL => ['BAI', 'BAD', 'DEV_PJ_OBS'],
         ];
@@ -121,15 +121,8 @@ class DocRattacheService
                 'fetch'      => fn(DemandeAppro $da) => $this->dwDataService->getBcPath($da),
                 'normalize'  => fn($docs) => $this->normalizePathsMultipleFiles($docs, 'numeroBc'),
             ],
-            'FACBL' => [
-                'type'       => 'Facture / Bon de livraison',
-                'icon'       => 'fa-solid fa-file-invoice',
-                'colorClass' => 'border-left-facbl',
-                'fetch'      => fn(DemandeAppro $da) => $this->dwDataService->getFacBlPath($da),
-                'normalize'  => fn($docs) => $this->normalizePathsFacBl($docs),
-            ],
             'DDP' => [
-                'type'       => 'Demande de paiement / Bon à payer',
+                'type'       => 'Demande de paiement / Bon à payer + Facture BL',
                 'icon'       => 'fa-solid fa-file-invoice',
                 'colorClass' => 'border-left-facbl',
                 'fetch'      => fn(DemandeAppro $da) => $this->daDocumentService->getAllDdpPath($da),
@@ -171,6 +164,8 @@ class DocRattacheService
 
     /**
      * Normaliser les chemins pour plusieurs fichiers de facture / Bon de Livraison
+     * 
+     * ! N'est plus utilisé depuis 23/11/2026 : ne plus afficher Facture / Bon de livraison dans Doc rattachés DA
      *
      * @param array $allDocs
      *
