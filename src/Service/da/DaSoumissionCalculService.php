@@ -83,8 +83,8 @@ class DaSoumissionCalculService
         if ($demandePaiementAvance > 0) {
 
             // echo "misy demande de paiement à l'avance";
-            // calcul solde      
-            $totalMontantPayer = abs(($demandePaiementAvance - $TotalMontantFactureSoumise) - $MontantFactureEnCours); // 200 000 AR
+            // la facture consomme d'abord le solde avance (ramené à 0) : reste à payer, jamais négatif
+            $totalMontantPayer = max(0.0, $MontantFactureEnCours - $dto->soldeAvance);
             if ($totalCommandeTTC > 0) {
                 $ratio = ($totalMontantPayer / $totalCommandeTTC) * 100;
             }

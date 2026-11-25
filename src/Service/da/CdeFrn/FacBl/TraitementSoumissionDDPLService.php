@@ -82,6 +82,8 @@ class TraitementSoumissionDDPLService
     {
         $sucess = false;
         $soumissionAutorisee = SuiviOperationService::suivre('Contrôles de blocage', function () use ($dto) {
+            // le contrôle « régularisation à montant nul » a besoin du montant à payer
+            $this->daSoumissionFacBlFactory->calculerMontantAPayer($dto);
             return $this->verifierConditionDeBlocage($dto);
         });
         if ($soumissionAutorisee) {
