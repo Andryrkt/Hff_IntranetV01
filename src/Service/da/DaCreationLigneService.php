@@ -46,7 +46,10 @@ class DaCreationLigneService
                 continue;
             }
 
-            $allFileNames = $this->gererFichiers($subFormDAL, $numDa);
+            $allFileNames = array_merge(
+                $this->daFileUploader->copierDevisDit($subFormDAL->get('devisDit')->getData(), $demandeAppro->getDit(), $numDa),
+                $this->gererFichiers($subFormDAL, $numDa)
+            );
 
             $demandeApproL
                 ->setNumeroDemandeAppro($numDa)

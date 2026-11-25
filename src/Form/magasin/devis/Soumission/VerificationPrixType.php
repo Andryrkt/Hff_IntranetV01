@@ -176,14 +176,12 @@ class VerificationPrixType extends AbstractType
     public function validateFiles($files, ExecutionContextInterface $context)
     {
         $maxSize = '5M';
+        // ces fichiers sont fusionnés dans le PDF du devis : seuls PDF et images sont convertibles (ConversionPdfService).
+        // Le fichier Excel a son propre champ (pieceJointExcel), hors fusion.
         $mimeTypes = [
             'application/pdf',
             'image/jpeg',
             'image/png',
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'application/vnd.ms-powerpoint',
-            'application/vnd.openxmlformats-officedocument.presentationml.presentation',
         ];
 
         if ($files) {
@@ -192,7 +190,7 @@ class VerificationPrixType extends AbstractType
                     'maxSize' => $maxSize,
                     'maxSizeMessage' => 'La taille du fichier ne doit pas dépasser 5 Mo.',
                     'mimeTypes' => $mimeTypes,
-                    'mimeTypesMessage' => 'Veuillez télécharger un fichier valide.',
+                    'mimeTypesMessage' => 'Seuls les fichiers PDF, JPG et PNG sont acceptés (le fichier Excel va dans son propre champ).',
                 ]);
 
                 $violations = $context->getValidator()->validate($file, $fileConstraint);

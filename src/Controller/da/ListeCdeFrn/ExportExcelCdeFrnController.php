@@ -41,6 +41,7 @@ class ExportExcelCdefrnController extends Controller
         $data[] = [
             "N° DA",
             "Achat direct",
+            "Prepa-vente",
             "N° DIT",
             "Niv. Urgence",
             "N° OR",
@@ -84,6 +85,7 @@ class ExportExcelCdefrnController extends Controller
             $data[] = [
                 $da->getNumeroDemandeAppro(),
                 $da->getDaTypeId() == DemandeAppro::TYPE_DA_DIRECT ? 'OUI' : 'NON',
+                $da->getDit() && $da->getDit()->estPrepaVente() ? 'Oui' : 'Non',
                 $da->getNumeroDemandeDit(),
                 $da->getNiveauUrgence(),
                 $da->getNumeroOR() ?? '-',

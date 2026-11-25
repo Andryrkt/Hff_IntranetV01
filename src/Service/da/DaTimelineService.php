@@ -38,7 +38,7 @@ class DaTimelineService
         $agenceServiceEmetteur = $demandeAppro->getAgenceServiceEmetteur();
 
         $allDatas = $this->daAfficherModel->getDaLifecycleSteps($numeroDa);
-        if (empty($allDatas)) return ['DA' => [], 'OR' => [], 'BC' => [], 'DDP' => []];
+        if (empty($allDatas)) return ['DA' => [], 'OR' => [], 'BC' => [], 'DDP_PAR_BC' => [], 'DDP' => []];
 
         [$timelineDa, $estTerminee] = $this->buildTimelineDA($allDatas, $numeroDa, $daTypeId, $demandeur, $agenceServiceEmetteur);
         $lastDataDA = end($timelineDa);
@@ -53,13 +53,24 @@ class DaTimelineService
             elseif (!$estTerminee)                 $timelineDa = $this->cloturerAvecAujourdhui($timelineDa);
         }
 
+        $bcParNumero = [];
+        foreach (array_keys($timelineBc) as $numBc) $bcParNumero[trim((string) $numBc)] = $numBc;
+        $ddpParBc = [];
+        $ddpOrphelins = [];
+        foreach ($timelineDdp as $numeroDdp => $ddp) {
+            $cle = $bcParNumero[$ddp['numeroCommande']] ?? null;
+            if ($cle !== null) $ddpParBc[$cle][$numeroDdp] = $ddp;
+            else $ddpOrphelins[$numeroDdp] = $ddp;
+        }
+
         return [
             'numeroDa' => $numeroDa,
             'numeroOr' => $numeroOr,
             'DA'       => $timelineDa,
             'OR'       => $timelineOR,
             'BC'       => $timelineBc,
-            'DDP'      => $timelineDdp,
+            'DDP_PAR_BC' => $ddpParBc,
+            'DDP'      => $ddpOrphelins,
         ];
     }
 
@@ -84,6 +95,7 @@ class DaTimelineService
 
             $timeline[$ddp['numero_ddp']] = [
                 'type'   => $ddp['code_type'],
+                'numeroCommande' => trim((string) ($ddp['numero_commande'] ?? '')),
                 'etapes' => $this->construireEtapesAvecDurees($etapes, $dateCompta !== null),
             ];
         }

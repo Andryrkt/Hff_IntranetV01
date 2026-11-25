@@ -100,7 +100,7 @@ class DaSoumissionBcController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var DaSoumissionBcDto $dto */
             $dto = $form->getData();
-$dto->demandePaiementAvance = false;
+
             $numCde = $dto->numeroCde;
             $numDa = $dto->numeroDemandeAppro;
             $typeDa = $dto->typeDa;
@@ -115,7 +115,12 @@ $dto->demandePaiementAvance = false;
                 if ($this->verifierConditionDeBlocage($dto)) {
                     [$numeroVersionMax, $nomPdfFusionner] = $this->traitemnetBc($form, $dto, false);
 
-                    $this->getSessionService()->set('demande_paiement_a_l_avance', ['ddpa' => $dto->demandePaiementAvance, 'nom_pdf' => $nomPdfFusionner]);
+                    $this->getSessionService()->set('demande_paiement_a_l_avance', [
+                        'ddpa'        => $dto->demandePaiementAvance,
+                        'nom_pdf'     => $nomPdfFusionner,
+                        'num_cde'     => (string) $numCde,
+                        'num_version' => $numeroVersionMax,
+                    ]);
                     // redirection vers la page de creation de demande de paiement
                     $this->redirectToRoute('demande_paiement_da', [
                         'typeDdp' => 1,

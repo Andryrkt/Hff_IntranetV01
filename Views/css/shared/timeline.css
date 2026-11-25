@@ -93,6 +93,19 @@
   flex: 0 0 440px;
 }
 
+/* Colonne : bloc BC + ses DDP empilés dessous */
+.timeline-scroll-row .timeline-bc-col {
+  flex: 0 0 440px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.timeline-bc-col .timeline-block {
+  flex: 0 0 auto;
+  height: auto;
+}
+
 /* ========================================================================= */
 /* TIMELINE - conteneur */
 /* ========================================================================= */

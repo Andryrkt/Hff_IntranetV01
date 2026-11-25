@@ -131,9 +131,10 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
                 'numItv' => $numItv,
             ])
             ->getQuery()
-            ->getSingleScalarResult();
+            ->getOneOrNullResult();
 
-        return $statut;
+        // L'ITV facturée peut être absente de la dernière version de l'OR soumis (ou OR jamais soumis)
+        return $statut['statut'] ?? '';
     }
 
 

@@ -2,6 +2,7 @@
 
 namespace App\Service\da;
 
+use App\Entity\dit\DemandeIntervention;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class FileUploaderForDAService
@@ -113,5 +114,46 @@ class FileUploaderForDAService
 
             if (file_exists($filePath)) unlink($filePath);
         }
+    }
+
+    /**
+     * Pièces jointes (devis) d'une DIT "Préparation vente" / agence 90 / service COM, présentes sur le disque.
+     * Vide si la DIT ne répond pas aux critères.
+     */
+    public function getDevisDit(DemandeIntervention $dit): array
+    {
+        if (!$dit->estPrepaVente()) return [];
+
+        $dossierDit = "{$this->basePath}/dit/{$dit->getNumeroDemandeIntervention()}";
+        $pieces = array_filter([$dit->getPieceJoint01(), $dit->getPieceJoint02(), $dit->getPieceJoint03()]);
+
+        return array_values(array_filter($pieces, fn($nom) => is_file("$dossierDit/$nom")));
+    }
+
+    /**
+     * Copie dans le dossier de la DA les devis DIT demandés, limités à ceux autorisés pour cette DIT.
+     * @return string[] noms des fichiers copiés
+     */
+    public function copierDevisDit(?string $devisDemandes, DemandeIntervention $dit, string $numeroDemandeAppro): array
+    {
+        if (!$devisDemandes) return [];
+
+        // revalidation serveur : le champ caché vient du navigateur
+        $noms = array_values(array_intersect(explode(',', $devisDemandes), $this->getDevisDit($dit)));
+        if (!$noms) return [];
+
+        $source = "{$this->basePath}/dit/{$dit->getNumeroDemandeIntervention()}";
+        $destination = "{$this->basePath}/da/$numeroDemandeAppro";
+        if (!is_dir($destination) && !mkdir($destination, 0755, true)) {
+            throw new \RuntimeException(sprintf('Le répertoire "%s" n\'a pas pu être créé.', $destination));
+        }
+
+        foreach ($noms as $nom) {
+            if (!copy("$source/$nom", "$destination/$nom")) {
+                throw new \RuntimeException(sprintf('Impossible de copier le devis "%s" de la DIT.', $nom));
+            }
+        }
+
+        return $noms;
     }
 }
