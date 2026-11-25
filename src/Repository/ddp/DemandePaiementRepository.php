@@ -355,10 +355,12 @@ class DemandePaiementRepository extends EntityRepository
             ->Where('d.numeroCommande = :numCde')
             ->andWhere('d.statut in (:statut)')
             ->andWhere('d.codeSociete = :codeSociete')
+            ->andWhere('IDENTITY(d.typeDemandeId) <> :typeAvance')
             ->setParameters([
                 'numCde' => $numeroCde,
                 'statut' => [StatutConstants::VALIDE, StatutConstants::TRANSMIS_COMPTA],
-                'codeSociete' => $codeSociete
+                'codeSociete' => $codeSociete,
+                'typeAvance' => TypeDemandePaiementConstants::ID_DEMANDE_PAIEMENT_A_L_AVANCE,
             ])
             ->getQuery()
             ->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);

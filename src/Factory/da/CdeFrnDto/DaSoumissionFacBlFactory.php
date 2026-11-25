@@ -121,15 +121,23 @@ class DaSoumissionFacBlFactory
         return  $ddpRepository->getDernierStatutDddp($dto->numeroCde, $dto->numeroDemandeAppro);
     }
 
-    public function EnrichissementDtoApresSoumission(DaSoumissionFacBlDto $dto)
+    /**
+     * Solde avance et montant à payer (montantAregulariser) de la facture soumise.
+     * Appelé aussi avant les contrôles de blocage, qui ont besoin du montant à payer.
+     */
+    public function calculerMontantAPayer(DaSoumissionFacBlDto $dto): void
     {
         $dto->estFournisseurAssujetiTva = $dto->totalMontantCommande < $dto->totalMontantCommandeTTC;
         $dto->sommeMontantFactureDejaPayer = $this->em->getRepository(DemandePaiement::class)->getMontantFactureDejaPayer($dto->numeroCde, $dto->codeSociete) ?? 0.0;
         $dto->sommeMontantDdpaValider = $this->em->getRepository(DemandePaiement::class)->getSommeMontantDdpaValide($dto->numeroCde, $dto->codeSociete) ?? 0.0;
         $dto->soldeAvance = max(0.0, $dto->sommeMontantDdpaValider - $dto->sommeMontantFactureDejaPayer);
-        // dd($dto->sommeMontantFactureDejaPayer, $dto->sommeMontantDdpaValider, $dto->soldeAvance, $dto->montantAregulariser, $dto->soumissionDdpAFaire);
 
         $this->calculService->calculerMontantEtRatios($dto);
+    }
+
+    public function EnrichissementDtoApresSoumission(DaSoumissionFacBlDto $dto)
+    {
+        $this->calculerMontantAPayer($dto);
 
 
         $dto->montantBlFacture = (float)str_replace(',', '.', str_replace(' ', '', $dto->montantBlFacture ?? '0'));
