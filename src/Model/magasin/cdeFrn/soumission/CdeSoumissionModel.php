@@ -212,7 +212,7 @@ class CdeSoumissionModel extends Model
             $pairs["$cst|$refp"] = ['cst' => $cst, 'refp' => $refp];
         }
 
-        $detailsParPiece = $this->findLignesSavEtVenteNegoceParPieces($numCde, $pairs);
+        $detailsParPiece = $this->findLignesSavEtVenteNegoceParPieces($numCde, $pairs, $codeSociete);
         $allValidatedPO  = $this->findAllValidatedPO($numCde, $codeSociete);
 
         return (new CommandeSoumissionFactory)->hydrate($data, $detailsParPiece["lignesParPiece"], $detailsParPiece["ordresReparationValides"], $allValidatedPO, $userMail, $commentaire);
@@ -226,10 +226,11 @@ class CdeSoumissionModel extends Model
      *
      * @param string $numCde  Numéro de la commande fournisseur
      * @param array<string,array{cst:string,refp:string}> $piecesRecherchees Couples (cst, refp) issus de `findInfoCommande`
+     * @param string $codeSociete  code société
      *
      * @return array{ordresReparationValides:list<string>,lignesParPiece:array<string,list<array>>}
      */
-    private function findLignesSavEtVenteNegoceParPieces(string $numCde, array $piecesRecherchees): array
+    private function findLignesSavEtVenteNegoceParPieces(string $numCde, array $piecesRecherchees, string $codeSociete): array
     {
         if (empty($piecesRecherchees)) return ['ordresReparationValides' => [], 'lignesParPiece' => []];
 
@@ -291,14 +292,16 @@ class CdeSoumissionModel extends Model
                 ON skw.skw_id = ska.skw_id
             GROUP BY ofh_id, ofs_id
         ) plan ON plan.ofh_id = seor_numor AND plan.ofs_id = sitv_interv
-        WHERE   seor_serv   = 'SAV'
+        WHERE   seor_serv = 'SAV'
+            AND seor_soc  = '$codeSociete'
             AND (
                 (slor_natcm  = 'C' AND slor_numcf = '$numCde')
                 OR slor_numcf IN (
                     SELECT DISTINCT nent_numcde 
                     FROM {$this->ipsNegEnt} 
                     JOIN {$this->ipsNegLig} 
-                        ON nent_numcde = nlig_numcde
+                        ON  nent_numcde = nlig_numcde
+                        AND nent_soc    = nlig_soc
                     WHERE   nlig_numcf = '$numCde' 
                         AND nent_natop = 'CIS'
                         AND nlig_constp = slor_constp
@@ -341,20 +344,23 @@ class CdeSoumissionModel extends Model
             END               AS ordre
         FROM {$this->ipsNegEnt}
         JOIN {$this->ipsNegLig}
-            ON nent_numcde = nlig_numcde
+            ON  nent_numcde = nlig_numcde
+            AND nent_soc    = nlig_soc
         WHERE (
                 nlig_numcf = '$numCde'
                 OR nlig_numcf IN (
                     SELECT DISTINCT cis.nent_numcde
                     FROM {$this->ipsNegEnt} cis
                     JOIN {$this->ipsNegLig} cisl
-                        ON cis.nent_numcde = cisl.nlig_numcde
+                        ON  cis.nent_numcde = cisl.nlig_numcde
+                        AND cis.nent_soc    = cisl.nlig_soc
                     WHERE   cisl.nlig_numcf  = '$numCde'
                         AND cis.nent_natop   = 'CIS'
                         AND cisl.nlig_constp = {$this->ipsNegLig}.nlig_constp
                         AND cisl.nlig_refp   = {$this->ipsNegLig}.nlig_refp
                 )
             )
+            AND nent_soc = '$codeSociete'
             AND ({$whereNegoce})
 
         ORDER BY 9, 10, 11, 4";
